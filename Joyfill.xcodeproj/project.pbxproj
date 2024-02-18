@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,7 @@
 		FA625BE02B822B8A00FA5889 /* JoyfillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA625BDF2B822B8A00FA5889 /* JoyfillTests.swift */; };
 		FA625BEA2B822B8A00FA5889 /* JoyfillUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA625BE92B822B8A00FA5889 /* JoyfillUITests.swift */; };
 		FA625BEC2B822B8A00FA5889 /* JoyfillUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA625BEB2B822B8A00FA5889 /* JoyfillUITestsLaunchTests.swift */; };
+		FA625BFA2B822CD600FA5889 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = FA625BF92B822CD600FA5889 /* JoyfillModel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA625BFA2B822CD600FA5889 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +147,9 @@
 			dependencies = (
 			);
 			name = Joyfill;
+			packageProductDependencies = (
+				FA625BF92B822CD600FA5889 /* JoyfillModel */,
+			);
 			productName = Joyfill;
 			productReference = FA625BCA2B822B8900FA5889 /* Joyfill.app */;
 			productType = "com.apple.product-type.application";
@@ -217,6 +222,9 @@
 				Base,
 			);
 			mainGroup = FA625BC12B822B8900FA5889;
+			packageReferences = (
+				FA625BF82B822CD600FA5889 /* XCLocalSwiftPackageReference "JoyfillModel" */,
+			);
 			productRefGroup = FA625BCB2B822B8900FA5889 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -609,6 +617,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FA625BF82B822CD600FA5889 /* XCLocalSwiftPackageReference "JoyfillModel" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = JoyfillModel;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FA625BF92B822CD600FA5889 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FA625BC22B822B8900FA5889 /* Project object */;
 }
