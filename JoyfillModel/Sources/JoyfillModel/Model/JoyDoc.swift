@@ -1,5 +1,5 @@
 import Foundation
-import UIKit
+import SwiftyJSON
 
 // Global variables
 var joyDocStruct: JoyDoc?
@@ -41,13 +41,13 @@ var tableColumnsCount = Int()
 public var mobileViewId = String()
 
 // MARK: - JoyDoc
-struct JoyDoc: Codable {
-    let id, type, stage: String?
-    let metadata: Metadata?
-    let identifier, name: String?
-    let createdOn: Int?
-    var files: [File]?
-    var fields: [JoyDocField]?
+public struct JoyDoc: Codable {
+    public let id, type, stage: String?
+    public let metadata: Metadata?
+    public let identifier, name: String?
+    public let createdOn: Int?
+    public var files: [File]?
+    public var fields: [JoyDocField]?
     let categories: [JSONAny]?
     
     enum CodingKeys: String, CodingKey {
@@ -57,23 +57,23 @@ struct JoyDoc: Codable {
 }
 
 // MARK: - JoyDocField
-struct JoyDocField: Codable, Identifiable {
-    var type, id, identifier, title: String?
-    var value: ValueUnion?
-    let fieldRequired: Bool?
-    let metadata: Metadata?
-    let file: String?
-    let options: [Option]?
-    let tipTitle, tipDescription: String?
-    let tipVisible: Bool?
-    let multi: Bool?
-    let yTitle: String?
-    var yMax, yMin: Int?
-    let xTitle: String?
-    var xMax, xMin: Int?
-    var rowOrder: [String]?
-    var tableColumns: [FieldTableColumn]?
-    var tableColumnOrder: [String]?
+public struct JoyDocField: Codable, Identifiable {
+    public var type, id, identifier, title: String?
+    public var value: ValueUnion?
+    public let fieldRequired: Bool?
+    public let metadata: Metadata?
+    public let file: String?
+    public let options: [Option]?
+    public let tipTitle, tipDescription: String?
+    public let tipVisible: Bool?
+    public let multi: Bool?
+    public let yTitle: String?
+    public var yMax, yMin: Int?
+    public let xTitle: String?
+    public var xMax, xMin: Int?
+    public var rowOrder: [String]?
+    public var tableColumns: [FieldTableColumn]?
+    public var tableColumnOrder: [String]?
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -86,18 +86,18 @@ struct JoyDocField: Codable, Identifiable {
 }
 
 // MARK: - Metadata
-struct Metadata: Codable {
-    let deficiencies, blockImport, blockAutoPopulate, requireDeficiencyTitle: Bool?
-    let requireDeficiencyDescription, requireDeficiencyPhoto: Bool?
-    let list, listColumn: String?
+public struct Metadata: Codable {
+    public let deficiencies, blockImport, blockAutoPopulate, requireDeficiencyTitle: Bool?
+    public let requireDeficiencyDescription, requireDeficiencyPhoto: Bool?
+    public let list, listColumn: String?
 }
 
 // MARK: - Option
-struct Option: Codable {
-    let value: String?
-    let deleted: Bool?
-    let id: String?
-    let width: Int?
+public struct Option: Codable {
+    public let value: String?
+    public let deleted: Bool?
+    public let id: String?
+    public let width: Int?
     
     enum CodingKeys: String, CodingKey {
         case value, deleted
@@ -107,12 +107,12 @@ struct Option: Codable {
 }
 
 // MARK: - FieldTableColumn
-struct FieldTableColumn: Codable {
-    let id, type, title: String?
-    let width: Int?
-    let identifier: String?
-    let options: [Option]?
-    let value: String?
+public struct FieldTableColumn: Codable {
+    public let id, type, title: String?
+    public let width: Int?
+    public let identifier: String?
+    public let options: [Option]?
+    public let value: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -120,7 +120,7 @@ struct FieldTableColumn: Codable {
     }
 }
 
-enum ValueUnion: Codable {
+public enum ValueUnion: Codable {
     case integer(Int)
     case string(String)
     case array([String])
@@ -128,7 +128,7 @@ enum ValueUnion: Codable {
     case null
     
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let x = try? container.decode(Int.self) {
             self = .integer(x)
@@ -153,7 +153,7 @@ enum ValueUnion: Codable {
         throw DecodingError.typeMismatch(ValueUnion.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for ValueUnion"))
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
         case .integer(let x):
@@ -171,14 +171,14 @@ enum ValueUnion: Codable {
 }
 
 // MARK: - ValueElement
-struct ValueElement: Codable {
-    let id: String?
-    var url: String?
-    let fileName, filePath: String?
-    let deleted: Bool?
-    let title, description: String?
-    var points: [Point]?
-    var cells: [String: ValueUnion]?
+public struct ValueElement: Codable {
+    public let id: String?
+    public var url: String?
+    public let fileName, filePath: String?
+    public let deleted: Bool?
+    public let title, description: String?
+    public var points: [Point]?
+    public var cells: [String: ValueUnion]?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -187,9 +187,9 @@ struct ValueElement: Codable {
 }
 
 // MARK: - Point
-struct Point: Codable {
-    var id, label: String?
-    var y, x: CGFloat?
+public struct Point: Codable {
+    public var id, label: String?
+    public var y, x: CGFloat?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -198,15 +198,15 @@ struct Point: Codable {
 }
 
 // MARK: - File
-struct File: Codable {
-    let id: String?
-    let metadata: Metadata?
-    let name: String?
-    let version: Int?
-    let styles: Metadata?
-    var pages: [Page]?
-    var pageOrder: [String]?
-    var views: [ModelView]?
+public struct File: Codable {
+    public let id: String?
+    public let metadata: Metadata?
+    public let name: String?
+    public let version: Int?
+    public let styles: Metadata?
+    public var pages: [Page]?
+    public var pageOrder: [String]?
+    public var views: [ModelView]?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -215,14 +215,14 @@ struct File: Codable {
 }
 
 // MARK: - Page
-struct Page: Codable {
-    let name: String?
-    var fieldPositions: [FieldPosition]?
-    let metadata: Metadata?
-    let width, height, cols, rowHeight: Int?
-    let layout, presentation: String?
-    let margin, padding, borderWidth: Int?
-    var id: String?
+public struct Page: Codable {
+    public let name: String?
+    public var fieldPositions: [FieldPosition]?
+    public let metadata: Metadata?
+    public let width, height, cols, rowHeight: Int?
+    public let layout, presentation: String?
+    public let margin, padding, borderWidth: Int?
+    public var id: String?
     
     enum CodingKeys: String, CodingKey {
         case name, fieldPositions, metadata, width, height, cols, rowHeight, layout, presentation, margin, padding, borderWidth
@@ -231,24 +231,24 @@ struct Page: Codable {
 }
 
 // MARK: - FieldPosition
-struct FieldPosition: Codable {
-    var field: String?
-    let displayType: String?
-    let width: Double?
-    let height: Double?
-    let x: Double?
-    var y: Double?
-    var id, type, targetValue: String?
-    let fontSize: Int?
-    let fontColor, fontStyle, fontWeight, textAlign: String?
-    let primaryDisplayOnly: Bool?
-    let format: String?
-    let column: String?
-    let backgroundColor: String?
-    let borderColor: String?
-    let textDecoration: String?
-    let borderWidth: Int?
-    let borderRadius: Int?
+public struct FieldPosition: Codable {
+    public var field: String?
+    public let displayType: String?
+    public let width: Double?
+    public let height: Double?
+    public let x: Double?
+    public var y: Double?
+    public var id, type, targetValue: String?
+    public let fontSize: Int?
+    public let fontColor, fontStyle, fontWeight, textAlign: String?
+    public let primaryDisplayOnly: Bool?
+    public let format: String?
+    public let column: String?
+    public let backgroundColor: String?
+    public let borderColor: String?
+    public let textDecoration: String?
+    public let borderWidth: Int?
+    public let borderRadius: Int?
     
     enum CodingKeys: String, CodingKey {
         case field, displayType, width, height, x, y
@@ -259,11 +259,11 @@ struct FieldPosition: Codable {
 }
 
 // MARK: - View
-struct ModelView: Codable {
-    let type: String?
-    var pageOrder: [String]?
-    var pages: [Page]?
-    let id: String?
+public struct ModelView: Codable {
+    public let type: String?
+    public var pageOrder: [String]?
+    public var pages: [Page]?
+    public let id: String?
     
     enum CodingKeys: String, CodingKey {
         case type, pageOrder, pages
@@ -295,7 +295,7 @@ extension JoyDoc {
 }
 
 // MARK: - Function to get data from API
-func fetchDataFromJoyDoc() {
+public func fetchDataFromJoyDoc() {
 //    DeinitializeVariables()
     joyDocId = joyDocStruct?.id ?? ""
     joyDocFileId = joyDocStruct?.files?[0].id ?? ""

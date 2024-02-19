@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "F45958BC-8BE4-4928-A3BE-F00011EBB214"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F214B947-9759-4593-B6D3-0B7DDD89242F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/DocumentListView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FC3DC27C-309A-4AE8-89E6-5CDF00D18CCB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/ViewModel/DocumentsViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "49"
+            endingLineNumber = "49"
+            landmarkName = "fetchDocuments()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "FC3DC27C-309A-4AE8-89E6-5CDF00D18CCB - 60cee101254e34cb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillUI.DocumentsViewModel.fetchDocuments() -&gt; ()"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/Joyfill/JoyfillUI/Sources/JoyfillUI/ViewModel/DocumentsViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "49"
+                  endingLineNumber = "49"
+                  offsetFromSymbolStart = "48">
+               </Location>
+               <Location
+                  uuid = "FC3DC27C-309A-4AE8-89E6-5CDF00D18CCB - 6322a64fd4e5569f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Result&lt;Swift.Array&lt;JoyfillModel.Document&gt;, Swift.Error&gt;) -&gt; () in JoyfillUI.DocumentsViewModel.fetchDocuments() -&gt; ()"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/Joyfill/JoyfillUI/Sources/JoyfillUI/ViewModel/DocumentsViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "49"
+                  endingLineNumber = "49"
+                  offsetFromSymbolStart = "204">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

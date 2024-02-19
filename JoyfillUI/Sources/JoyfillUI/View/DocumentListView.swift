@@ -7,10 +7,13 @@
 
 import SwiftUI
 
-struct DocumentListView: View {
+public struct DocumentListView: View {
+    public init(documentsViewModel: DocumentsViewModel = DocumentsViewModel()) {
+        self.documentsViewModel = documentsViewModel
+    }
     @ObservedObject var documentsViewModel = DocumentsViewModel()
     
-    var body: some View {
+    public var body: some View {
         NavigationView {
             VStack {
                 Text("Templates List")

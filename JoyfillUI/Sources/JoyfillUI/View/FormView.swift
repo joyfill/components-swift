@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import JoyfillModel
+import JoyfillAPIService
 
 struct FormView: View {
     let identifier: String
@@ -16,7 +18,6 @@ struct FormView: View {
             VStack(spacing: 20.0) {
                 Text("Form View")
                     .font(.title.bold())
-                MultiSelectionView(options: ["yes","no"])
                 if let fields = data?.fields  {
                     ForEach(fields) { joyDocField in
                         switch joyDocField.type {

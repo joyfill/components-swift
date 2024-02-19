@@ -6,6 +6,7 @@
 //
 import Foundation
 import Combine
+import JoyfillModel
 import SwiftyJSON
 
 enum JoyfillAPI {
@@ -30,11 +31,11 @@ enum JoyfillAPI {
     }
 }
 
-class APIService {
+public class APIService {
     private let accessToken: String
     var debugEnabled = true
     
-    init(accessToken: String = Constants.userAccessToken) {
+    public init(accessToken: String = Constants.userAccessToken) {
         self.accessToken = accessToken
     }
     
@@ -47,14 +48,14 @@ class APIService {
     }
     
     
-    func makeAPICall(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) {
+    public func makeAPICall(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) {
         URLSession.shared.dataTask(with: request, completionHandler: completionHandler)
             .resume()
     }
     
     
     
-    func fetchDocuments(completion: @escaping (Result<[Document], Error>) -> Void) {
+    public func fetchDocuments(completion: @escaping (Result<[Document], Error>) -> Void) {
         if debugEnabled {
             if let url = Bundle.main.url(forResource: "FetchDocument", withExtension: "json") {
                 do {
@@ -87,7 +88,7 @@ class APIService {
         }
     }
     
-    func fetchDocumentSubmissions(identifier: String, completion: @escaping (Result<[Document], Error>) -> Void) {
+    public func fetchDocumentSubmissions(identifier: String, completion: @escaping (Result<[Document], Error>) -> Void) {
         
         if debugEnabled {
             if let url = Bundle.main.url(forResource: "FetchDocument Submission", withExtension: "json") {
@@ -120,7 +121,7 @@ class APIService {
         }
     }
     
-     func createDocumentSubmission(identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
+    public func createDocumentSubmission(identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
             
          self.fetchJoyDoc(identifier: identifier) { [self] joyDocJSON in
                 
@@ -166,7 +167,7 @@ class APIService {
             }
         }
     
-    func fetchJoyDoc(identifier: String, completion: @escaping (Result<Data, Error>) -> Void) {
+    public func fetchJoyDoc(identifier: String, completion: @escaping (Result<Data, Error>) -> Void) {
         if debugEnabled {
             if let url = Bundle.main.url(forResource: "RetriveDocument", withExtension: "json") {
                 do {
@@ -194,7 +195,7 @@ class APIService {
         }
     }
     
-    static func updateDocumentChangelogs(identifier: String, userAccessToken: String, docChangeLogs: Any, completion: @escaping (Result<Any, Error>) -> Void) {
+    public static func updateDocumentChangelogs(identifier: String, userAccessToken: String, docChangeLogs: Any, completion: @escaping (Result<Any, Error>) -> Void) {
         do {
             guard let url = URL(string: "\(Constants.baseURL)/\(identifier)/changelogs") else {
                 completion(.failure(APIError.invalidURL))
@@ -227,7 +228,7 @@ class APIService {
     }
 }
 
-enum APIError: Error {
+public enum APIError: Error {
     case invalidURL
     case unknownError
 }

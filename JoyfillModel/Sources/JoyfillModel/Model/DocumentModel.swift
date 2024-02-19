@@ -7,43 +7,43 @@
 
 import Foundation
 
-struct Document: Codable {
-    var _id: String
-    var type: String
-    var identifier: String
-    var name: String
-    var stage: String
-    var createdOn: Int
-    var files: [Files]
-    var deleted: Bool
+public struct Document: Codable {
+    public var _id: String
+    public var type: String
+    public var identifier: String
+    public var name: String
+    public var stage: String
+    public var createdOn: Int
+    public var files: [Files]
+    public var deleted: Bool
     
-    struct Files: Codable {
-        let _id: String
-        let version: Int
-        let name: String
-        let pageOrder: [String]
-        let pages: [Pages]
+    public struct Files: Codable {
+        public let _id: String
+        public let version: Int
+        public let name: String
+        public let pageOrder: [String]
+        public let pages: [Pages]
     }
     
-    struct Pages: Codable {
-        let _id: String
-        let name: String
-        let width: Int
-        let height: Int
-        let cols: Int
-        let rowHeight: Int
-        let layout: String
-        let presentation: String
-        let margin: Double
-        let padding: Double
-        let borderWidth: Double
+    public struct Pages: Codable {
+        public let _id: String
+        public let name: String
+        public let width: Int
+        public let height: Int
+        public let cols: Int
+        public let rowHeight: Int
+        public let layout: String
+        public let presentation: String
+        public let margin: Double
+        public let padding: Double
+        public let borderWidth: Double
     }
 }
 
 extension Document: Identifiable {
-    var id: String { _id }
+    public var id: String { _id }
 }
 
-struct DocumentListResponse: Codable {
-    let data: [Document]
+public struct DocumentListResponse: Codable {
+    public let data: [Document]
 }

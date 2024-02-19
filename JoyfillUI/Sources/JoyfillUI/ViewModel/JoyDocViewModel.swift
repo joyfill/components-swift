@@ -1,19 +1,20 @@
 import Foundation
 import UIKit
 import Combine
+import JoyfillAPIService
 
-class JoyDocViewModel: ObservableObject {
+public class JoyDocViewModel: ObservableObject {
     @Published var joyDocLoading = false
     @Published var joyDocError = ""
     let apiService: APIService
-    init(joyDocLoading: Bool = false, joyDocError: String = "") {
+    public init(joyDocLoading: Bool = false, joyDocError: String = "") {
         self.joyDocLoading = joyDocLoading
         self.joyDocError = joyDocError
         self.apiService = APIService()
     }
     
     // Pulls in the JoyDoc raw JSON data for adding to our ViewController
-    func fetchJoyDoc(identifier: String, userAccessToken: String, completion: @escaping ((Any) -> Void)) {
+    public func fetchJoyDoc(identifier: String, userAccessToken: String, completion: @escaping ((Any) -> Void)) {
         apiService.fetchJoyDoc(identifier: identifier) { result in
             DispatchQueue.main.async {
                 switch result {
@@ -29,7 +30,7 @@ class JoyDocViewModel: ObservableObject {
         }
     }
     
-    func updateDocumentChangelogs(identifier: String, userAccessToken: String, docChangeLogs: Any) {
+    public func updateDocumentChangelogs(identifier: String, userAccessToken: String, docChangeLogs: Any) {
         APIService.updateDocumentChangelogs(identifier: identifier, userAccessToken: userAccessToken, docChangeLogs: docChangeLogs) { result in
                 DispatchQueue.main.async {
                     switch result {
@@ -42,7 +43,7 @@ class JoyDocViewModel: ObservableObject {
             }
     }
     
-    func loadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+    public func loadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
         guard let url = URL(string: urlString) else {
             completion(nil)
             return

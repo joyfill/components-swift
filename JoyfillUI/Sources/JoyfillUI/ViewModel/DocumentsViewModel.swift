@@ -1,8 +1,10 @@
 import Foundation
+import JoyfillModel
 import Combine
+import JoyfillAPIService
 import SwiftyJSON
 
-class DocumentsViewModel: ObservableObject {
+public class DocumentsViewModel: ObservableObject {
     var joyDocModel = JoyDocViewModel()
     let apiService: APIService
     
@@ -23,7 +25,7 @@ class DocumentsViewModel: ObservableObject {
         
     @Published var userAccessToken = Constants.userAccessToken
     
-    init(joyDocModel: JoyDocViewModel = JoyDocViewModel(), documents: [Document] = [], documentsLoading: Bool = false, error: String? = nil, documentsJoyDocJSON: Any? = nil, documentsJoyDocLoading: Bool = false, submissions: [Document] = [], submissionsLoading: Bool = false, submissionsError: String? = nil, activeSubmissionIdentifier: String? = nil, userAccessToken: String = Constants.userAccessToken) {
+    public init(joyDocModel: JoyDocViewModel = JoyDocViewModel(), documents: [Document] = [], documentsLoading: Bool = false, error: String? = nil, documentsJoyDocJSON: Any? = nil, documentsJoyDocLoading: Bool = false, submissions: [Document] = [], submissionsLoading: Bool = false, submissionsError: String? = nil, activeSubmissionIdentifier: String? = nil, userAccessToken: String = Constants.userAccessToken) {
         self.joyDocModel = joyDocModel
         self.apiService = APIService(accessToken: Constants.userAccessToken)
         self.documents = documents
@@ -60,7 +62,7 @@ class DocumentsViewModel: ObservableObject {
     }
     
     // MARK: - Submissions
-    func fetchDocumentSubmissions(identifier: String) {
+    public func fetchDocumentSubmissions(identifier: String) {
         apiService.fetchDocumentSubmissions(identifier: identifier) { result in
             DispatchQueue.main.async {
                 self.submissionsLoading = false
@@ -76,7 +78,7 @@ class DocumentsViewModel: ObservableObject {
         }
     }
     
-    func createDocumentSubmission(identifier: String, completion: @escaping ((Any) -> Void)) {
+    public func createDocumentSubmission(identifier: String, completion: @escaping ((Any) -> Void)) {
         apiService.createDocumentSubmission(identifier: identifier) { result in
             DispatchQueue.main.async {
                 switch result {
