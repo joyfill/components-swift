@@ -13,6 +13,7 @@ struct ImageView: View {
     var imageURL: String?
     @State var profileImage: UIImage?
     @State private var showImagePicker: Bool = false
+    @State private var imageLoaded: Bool = false
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -24,8 +25,7 @@ struct ImageView: View {
                 if let profileImage = profileImage {
                     Image(uiImage: profileImage)
                         .resizable()
-                        .scaledToFill()
-                        .frame(height: 100)
+                        .aspectRatio(contentMode: .fit)
                         .cornerRadius(20)
                 } else {
                     Image("UploadImageBorder")
@@ -35,14 +35,8 @@ struct ImageView: View {
                 }
             })
             .onAppear{
-                JoyDocViewModel().loadImage(from: imageURL ?? "") { image in
-                    if let image = image {
-                        DispatchQueue.main.async {
-                            profileImage = image
-                        }
-                    } else {
-                        print("Failed to load image from URL: \(String(describing: imageURL))")
-                    }
+                if !imageLoaded {
+                    loadImageFromURL()
                 }
             }
             .padding(.horizontal, 16)
@@ -52,6 +46,18 @@ struct ImageView: View {
             }
         }
         .padding(.horizontal, 16)
+    }
+    func loadImageFromURL() {
+        JoyDocViewModel().loadImage(from: imageURL ?? "") { image in
+            if let image = image {
+                DispatchQueue.main.async {
+                    profileImage = image
+                    imageLoaded = true
+                }
+            } else {
+                print("Failed to load image from URL: \(String(describing: imageURL))")
+            }
+        }
     }
 }
 

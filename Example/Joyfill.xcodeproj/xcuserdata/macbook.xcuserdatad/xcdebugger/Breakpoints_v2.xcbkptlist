@@ -7,38 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9D08A4EA-32A7-4D25-8E00-8FAD8B6F7ADF"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../JoyfillUI/Sources/JoyfillUI/View/DocumentSubmissionsListView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "47"
-            endingLineNumber = "47"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "5741D1E5-A811-4554-B091-A5132FA3521F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../JoyfillUI/Sources/JoyfillUI/ViewModel/DocumentsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "72"
-            endingLineNumber = "72"
-            landmarkName = "fetchDocumentSubmissions(identifier:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "BFD1D0E4-1CBF-4056-91FB-7B0195B9A325"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -87,79 +55,65 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5D9978BA-BB5C-466A-A439-744D4E03A05F"
+            uuid = "59CD9A3E-7073-49BD-A6B0-CEA6B59E50A2"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../JoyfillUI/Sources/JoyfillUI/View/DocumentListView.swift"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/All Fields Template/SignatureView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "40"
-            endingLineNumber = "40"
-            landmarkName = "body"
-            landmarkType = "24">
+            startingLineNumber = "220"
+            endingLineNumber = "220"
+            landmarkName = "snapshot()"
+            landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "5D9978BA-BB5C-466A-A439-744D4E03A05F - 6a26844686bd56ac"
+                  uuid = "59CD9A3E-7073-49BD-A6B0-CEA6B59E50A2 - d61e80432dc18307"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #2 () -&gt; () in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.onAppear(perform: Swift.Optional&lt;() -&gt; ()&gt;) -&gt; some&gt;&gt;.0 in JoyfillUI.DocumentListView.body.getter : some"
+                  symbolName = "SwiftUI.View.snapshot() -&gt; __C.UIImage"
                   moduleName = "Joyfill"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/macbook/Documents/Joyfill/JoyfillUI/Sources/JoyfillUI/View/DocumentListView.swift"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/All%20Fields%20Template/SignatureView.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "40"
-                  endingLineNumber = "40"
-                  offsetFromSymbolStart = "304">
+                  startingLineNumber = "220"
+                  endingLineNumber = "220"
+                  offsetFromSymbolStart = "188">
                </Location>
                <Location
-                  uuid = "5D9978BA-BB5C-466A-A439-744D4E03A05F - 6a26844686bd56ac"
+                  uuid = "59CD9A3E-7073-49BD-A6B0-CEA6B59E50A2 - d61e80432dc18307"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #2 () -&gt; () in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.onAppear(perform: Swift.Optional&lt;() -&gt; ()&gt;) -&gt; some&gt;&gt;.0 in JoyfillUI.DocumentListView.body.getter : some"
+                  symbolName = "SwiftUI.View.snapshot() -&gt; __C.UIImage"
                   moduleName = "Joyfill"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/macbook/Documents/Joyfill/JoyfillUI/Sources/JoyfillUI/View/DocumentListView.swift"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/All%20Fields%20Template/SignatureView.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "40"
-                  endingLineNumber = "40"
-                  offsetFromSymbolStart = "696">
-               </Location>
-               <Location
-                  uuid = "5D9978BA-BB5C-466A-A439-744D4E03A05F - 6a26844686bd56ac"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 () -&gt; () in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.onAppear(perform: Swift.Optional&lt;() -&gt; ()&gt;) -&gt; some&gt;&gt;.0 in JoyfillUI.DocumentListView.body.getter : some"
-                  moduleName = "Joyfill"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/macbook/Documents/Joyfill/JoyfillUI/Sources/JoyfillUI/View/DocumentListView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "40"
-                  endingLineNumber = "40"
-                  offsetFromSymbolStart = "460">
-               </Location>
-               <Location
-                  uuid = "5D9978BA-BB5C-466A-A439-744D4E03A05F - 6a26844686bd56ac"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 () -&gt; () in closure #1 () -&gt; &lt;&lt;opaque return type of SwiftUI.View.onAppear(perform: Swift.Optional&lt;() -&gt; ()&gt;) -&gt; some&gt;&gt;.0 in JoyfillUI.DocumentListView.body.getter : some"
-                  moduleName = "Joyfill"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/macbook/Documents/Joyfill/JoyfillUI/Sources/JoyfillUI/View/DocumentListView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "40"
-                  endingLineNumber = "40"
-                  offsetFromSymbolStart = "888">
+                  startingLineNumber = "220"
+                  endingLineNumber = "220"
+                  offsetFromSymbolStart = "168">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A3F15D02-24C7-437A-B609-0C179C9B2B54"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/All Fields Template/SignatureView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "230"
+            endingLineNumber = "230"
+            landmarkName = "snapshot()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

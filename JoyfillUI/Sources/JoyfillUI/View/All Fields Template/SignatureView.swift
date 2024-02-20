@@ -8,12 +8,10 @@
 import SwiftUI
 
 struct SignatureView: View {
-    @State var currentImageIndex: Int
-    @State var startingImageIndex: Int
-    @State var num: Int = 0
     @State private var lines: [Line] = []
     @State var signatureImage: UIImage?
     var signatureURL: String?
+    @State private var imageLoaded: Bool = false
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -34,7 +32,7 @@ struct SignatureView: View {
                 )
             
             NavigationLink {
-                CanvasSignatureView(currentImageIndex: $currentImageIndex, lines: $lines, num: $num)
+                CanvasSignatureView(lines: $lines, signatureImage: $signatureImage)
             } label: {
                 Text("Sign")
                     .foregroundStyle(.black)
@@ -49,17 +47,23 @@ struct SignatureView: View {
             .padding(.top, 10)
         }
         .onAppear{
-            JoyDocViewModel().loadImage(from: signatureURL ?? "") { image in
-                if let image = image {
-                    DispatchQueue.main.async {
-                        self.signatureImage = image
-                    }
-                } else {
-                    print("Failed to load image from URL: \(String(describing: signatureURL))")
-                }
+            if !imageLoaded {
+                loadImageFromURL()
             }
         }
         .padding(.horizontal, 16)
+    }
+    func loadImageFromURL() {
+        JoyDocViewModel().loadImage(from: signatureURL ?? "") { image in
+            if let image = image {
+                DispatchQueue.main.async {
+                    self.signatureImage = image
+                    imageLoaded = true
+                }
+            } else {
+                print("Failed to load image from URL: \(String(describing: signatureURL))")
+            }
+        }
     }
 }
 
@@ -72,7 +76,6 @@ struct Line {
 struct CanvasView: View {
     @State var currentLine = Line()
     @Binding var lines: [Line]
-    @Binding var num: Int
 
     var body: some View {
             ZStack {
@@ -110,9 +113,8 @@ struct CanvasView: View {
 
 struct CanvasSignatureView: View {
     @State private var enterYourSignName: String = ""
-    @Binding var currentImageIndex: Int
     @Binding var lines: [Line]
-    @Binding var num: Int
+    @Binding var signatureImage: UIImage?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
@@ -132,7 +134,7 @@ struct CanvasSignatureView: View {
                 })
             }
             
-            CanvasView(lines: $lines, num: $currentImageIndex)
+            CanvasView(lines: $lines)
                 .frame(height: 200)
                 .cornerRadius(10)
                 .overlay(
@@ -170,7 +172,9 @@ struct CanvasSignatureView: View {
             HStack {
                 Spacer()
                 Button(action: {
-//                    var image = UIImage(view: CanvasView(lines: $lines, num: $currentImageIndex))
+                   signatureImage = CanvasView(lines: $lines)
+                        .snapshot()
+                    presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Save")
                 })
@@ -185,13 +189,6 @@ struct CanvasSignatureView: View {
         
     }
 }
-
-
-#Preview {
-    CanvasSignatureView(currentImageIndex: Binding.constant(0), lines: Binding.constant([Line()]), num: Binding.constant(0))
-}
-
-
 // UIImage Extension
 //extension UIImage {
 //    func rotate(radians: CGFloat) -> UIImage {
@@ -219,3 +216,17 @@ struct CanvasSignatureView: View {
 //        self.init(cgImage: (image?.cgImage)!)
 //    }
 //}
+extension View {
+    func snapshot() -> UIImage {
+        let controller = UIHostingController(rootView: self)
+        
+        let view = controller.view
+        
+        let renderer = UIGraphicsImageRenderer(size: view!.bounds.size)
+        let image = renderer.image { _ in
+            view?.drawHierarchy(in: view!.bounds, afterScreenUpdates: true)
+        }
+        
+        return image
+    }
+}

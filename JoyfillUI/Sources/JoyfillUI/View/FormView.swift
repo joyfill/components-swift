@@ -32,7 +32,7 @@ struct FormView: View {
                         case FieldTypes.date:
                             DateTimeView()
                         case FieldTypes.signature:
-                            SignatureView(currentImageIndex: 0, startingImageIndex: 0,signatureURL: joyDocField.value?.signatureURL)
+                            SignatureView(signatureURL: joyDocField.value?.signatureURL)
                         case FieldTypes.block:
                             DisplayTextView(displayText: joyDocField.value?.textabc ?? "")
                         case FieldTypes.number:
