@@ -91,7 +91,7 @@ public class APIService {
     public func fetchDocumentSubmissions(identifier: String, completion: @escaping (Result<[Document], Error>) -> Void) {
         
         if debugEnabled {
-            if let url = Bundle.main.url(forResource: "FetchDocument Submission", withExtension: "json") {
+            if let url = Bundle.main.url(forResource: "FetchDocumentSubmission", withExtension: "json") {
                 do {
                     let data = try Data(contentsOf: url)
                     let decoder = JSONDecoder()

@@ -22,7 +22,10 @@ let package = Package(
             name: "JoyfillAPIService",
             dependencies: [
                 "JoyfillModel", "SwiftyJSON"
-            ]
+            ],
+            resources: [
+                    .copy("Resources/FetchDocument.json")
+                ]
         ),
         .testTarget(
             name: "JoyfillAPIServiceTests",
