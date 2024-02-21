@@ -28,7 +28,9 @@ struct FormView: View {
                         case FieldTypes.dropdown:
                             DropdownView()
                         case FieldTypes.textarea:
-                            MultiLineTextView()
+                            if let multilineText = joyDocField.value?.multilineText {
+                                MultiLineTextView(multilineText: multilineText)
+                            }
                         case FieldTypes.date:
                             DateTimeView()
                         case FieldTypes.signature:
@@ -44,7 +46,7 @@ struct FormView: View {
                         case FieldTypes.table:
                             Text("")
                         case FieldTypes.image:
-                            ImageView(imageURL: joyDocField.value?.url)
+                            ImageView(imageURL: joyDocField.value?.imageURL)
                         default:
                             Text("Data no Available")
                         }
@@ -105,7 +107,7 @@ fileprivate extension ValueUnion {
             return nil
         }
     }
-    var url: String? {
+    var imageURL: String? {
         switch self {
         case .valueElementArray(let valueElements):
             return valueElements[0].url        
@@ -121,5 +123,15 @@ fileprivate extension ValueUnion {
             return nil
         }
     }
+    
+    var multilineText: String? {
+        switch self {
+        case .string(let string):
+            return string
+        default:
+            return nil
+        }
+    }
+    
 }
 

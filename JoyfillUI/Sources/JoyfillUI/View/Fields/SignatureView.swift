@@ -172,8 +172,10 @@ struct CanvasSignatureView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                   signatureImage = CanvasView(lines: $lines)
-                        .snapshot()
+                    DispatchQueue.main.async {
+                        signatureImage = CanvasView(lines: $lines)
+                             .snapshot()
+                    }
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Save")
