@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 struct DropdownView: View {
+    var value: ValueUnion?
     @State var selectedPaymentMethod = "Select"
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
@@ -26,6 +28,9 @@ struct DropdownView: View {
                         .stroke(Color.gray, lineWidth: 1)
                         .frame(maxWidth: .infinity)
                 )
+        }
+        .onAppear{
+            
         }
         .padding(.horizontal, 16)
     }

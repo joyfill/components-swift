@@ -6,24 +6,29 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 // Select multiple options
 
 struct MultiSelectionView: View {
-    @State var options: [String]
+    var value: ValueUnion?
+    @State var options: [String] = []
     
     var body: some View {
-            VStack(alignment: .leading) {
-                Text("Multiselection")
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
-                VStack {
-                    ForEach(options, id: \.self) { option in
-                        MultiSelection(option: option)
-                    }
-                }
+        VStack(alignment: .leading) {
+            Text("Multiselection")
                 .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            VStack {
+                ForEach(options, id: \.self) { option in
+                    MultiSelection(option: option)
+                }
             }
+            .padding(.horizontal, 16)
+        }
+        .onAppear{
+//            options = value
+        }
     }
 }
 

@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 // Title or Description
 
 struct DisplayTextView: View {
+    var value: ValueUnion?
     @State var displayText: String = ""
     
     var body: some View {
@@ -24,6 +26,11 @@ struct DisplayTextView: View {
                         .stroke(Color.gray, lineWidth: 1)
                 )
                 .cornerRadius(10)
+        }
+        .onAppear{
+            if let text = value?.textabc {
+                displayText = text
+            }
         }
         .padding(.horizontal, 16)
     }

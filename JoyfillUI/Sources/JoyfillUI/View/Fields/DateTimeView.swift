@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 // Date and time
 
 struct DateTimeView: View {
+    var value: ValueUnion?
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
     let screenWidth = UIScreen.main.bounds.width
@@ -26,6 +28,9 @@ struct DateTimeView: View {
                         .stroke(Color.gray, lineWidth: 1)
                         .frame(maxWidth: .infinity)
                 )
+        }
+        .onAppear{
+            
         }
         .padding(.horizontal, 16)
     }

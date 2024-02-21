@@ -22,19 +22,17 @@ struct FormView: View {
                     ForEach(fields) { joyDocField in
                         switch joyDocField.type {
                         case FieldTypes.text:
-                            DisplayTextView(displayText: joyDocField.value?.textabc ?? "")
+                            DisplayTextView(value: joyDocField.value)
                         case FieldTypes.multiSelect:
-                            MultiSelectionView(options: ["Yes", "No", "N/A"])
+                            MultiSelectionView(value: joyDocField.value)
                         case FieldTypes.dropdown:
-                            DropdownView()
+                            DropdownView(value: joyDocField.value)
                         case FieldTypes.textarea:
-                            if let multilineText = joyDocField.value?.multilineText {
-                                MultiLineTextView(multilineText: multilineText)
-                            }
+                            MultiLineTextView(value: joyDocField.value)
                         case FieldTypes.date:
-                            DateTimeView()
+                            DateTimeView(value: joyDocField.value)
                         case FieldTypes.signature:
-                            SignatureView(signatureURL: joyDocField.value?.signatureURL)
+                            SignatureView(value: joyDocField.value)
                         case FieldTypes.block:
                             DisplayTextView(displayText: joyDocField.value?.textabc ?? "")
                         case FieldTypes.number:
@@ -98,7 +96,7 @@ struct FieldTypes {
     static let image = "image"
 }
 
-fileprivate extension ValueUnion {
+extension ValueUnion {
     var textabc: String? {
         switch self {
         case .string(let string):

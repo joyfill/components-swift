@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 struct SignatureView: View {
+    var value: ValueUnion?
     @State private var lines: [Line] = []
     @State var signatureImage: UIImage?
-    var signatureURL: String?
+    @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
     
     var body: some View {
@@ -47,6 +49,7 @@ struct SignatureView: View {
             .padding(.top, 10)
         }
         .onAppear{
+            self.signatureURL = value?.signatureURL ?? ""
             if !imageLoaded {
                 loadImageFromURL()
             }

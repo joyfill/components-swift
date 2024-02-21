@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 // MultiLine text
 
 struct MultiLineTextView: View {
-    @State var multilineText: String
+    var value: ValueUnion?
+    @State var multilineText: String = ""
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -23,6 +25,11 @@ struct MultiLineTextView: View {
                             .stroke(Color.gray, lineWidth: 1)
                     )
                     .cornerRadius(10)
+        }
+        .onAppear{
+            if let multilineText = value?.multilineText{
+                self.multilineText = multilineText
+            }
         }
         .padding(.horizontal, 16)
     }
