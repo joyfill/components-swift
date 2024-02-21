@@ -13,14 +13,17 @@ struct MultiSelectionView: View {
     @State var options: [String]
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(options, id: \.self) { option in
-                    MultiSelection(option: option)
-                        .padding(.horizontal)
+            VStack(alignment: .leading) {
+                Text("Multiselection")
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                VStack {
+                    ForEach(options, id: \.self) { option in
+                        MultiSelection(option: option)
+                    }
                 }
+                .padding(.horizontal, 16)
             }
-        }
     }
 }
 
@@ -36,12 +39,17 @@ struct MultiSelection: View {
                 Image(systemName: toggle ? "record.circle.fill" : "record.circle")
                 Text(option)
                     .foregroundStyle(.black)
+                Spacer()
             }
+            .padding()
             
         })
+        .frame(maxWidth: .infinity)
+        .border(Color.gray, width: 1)
+        .padding(.top, -9)
     }
 }
 
 #Preview {
-    MultiSelectionView(options: ["Yes","NO"])
+    MultiSelectionView(options: ["Yes","NO","N/A"])
 }
