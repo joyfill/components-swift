@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 // Logo or Graphic
 
 struct ImageView: View {
-    var imageURL: String?
+    var value: ValueUnion?
+    @State var imageURL: String?
     @State var profileImage: UIImage?
     @State private var showImagePicker: Bool = false
     @State private var imageLoaded: Bool = false
@@ -34,11 +36,6 @@ struct ImageView: View {
                         .frame(height: 100)
                 }
             })
-            .onAppear{
-                if !imageLoaded {
-                    loadImageFromURL()
-                }
-            }
             .padding(.horizontal, 16)
             
             NavigationLink(destination: ImagePickerView(selectedImage: $profileImage, isCamera: false), isActive: $showImagePicker) {
@@ -46,6 +43,15 @@ struct ImageView: View {
             }
         }
         .padding(.horizontal, 16)
+        .onAppear {
+            if let value = value?.imageURL {
+                self.imageURL = value
+            }
+            
+            if !imageLoaded {
+                loadImageFromURL()
+            }
+        }
     }
     func loadImageFromURL() {
         JoyDocViewModel().loadImage(from: imageURL ?? "") { image in

@@ -6,17 +6,19 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 // Numeric value only
 
 struct NumberView: View {
-    @State private var phoneNumber: String = ""
+    var value: ValueUnion?
+    @State var number: String = ""
     
     var body: some View {
         VStack(alignment: .leading) {
             Text("Number")
             
-            TextField("", text: $phoneNumber)
+            TextField("", text: $number)
                 .padding(.horizontal, 16)
                 .keyboardType(.numberPad)
                 .frame(height: 40)
@@ -27,6 +29,11 @@ struct NumberView: View {
                 .cornerRadius(10)
         }
         .padding(.horizontal, 16)
+        .onAppear {
+            if let number = value?.number {
+                self.number = String(number)
+            }
+        }
     }
 }
 

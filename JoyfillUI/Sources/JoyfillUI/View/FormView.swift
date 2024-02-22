@@ -34,9 +34,9 @@ struct FormView: View {
                         case FieldTypes.signature:
                             SignatureView(value: joyDocField.value)
                         case FieldTypes.block:
-                            DisplayTextView(displayText: joyDocField.value?.textabc ?? "")
+                            DisplayTextView(value: joyDocField.value)
                         case FieldTypes.number:
-                            NumberView()
+                            NumberView(value: joyDocField.value)
                         case FieldTypes.chart:
                             Text("")
                         case FieldTypes.richText:
@@ -44,7 +44,7 @@ struct FormView: View {
                         case FieldTypes.table:
                             Text("")
                         case FieldTypes.image:
-                            ImageView(imageURL: joyDocField.value?.imageURL)
+                            ImageView(value: joyDocField.value)
                         default:
                             Text("Data no Available")
                         }
@@ -131,5 +131,13 @@ extension ValueUnion {
         }
     }
     
+    var number: Int? {
+        switch self {
+        case .integer(let int):
+            return int
+        default:
+            return nil
+        }
+    }
 }
 

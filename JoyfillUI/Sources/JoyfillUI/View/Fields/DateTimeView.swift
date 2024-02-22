@@ -21,13 +21,35 @@ struct DateTimeView: View {
         VStack(alignment: .leading) {
             Text("Date & Time")
             
-            DatePicker("Select a date", selection: $selectedDate, displayedComponents: .date)
-                .padding(.all, 10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray, lineWidth: 1)
-                        .frame(maxWidth: .infinity)
-                )
+            Group {
+                if isDatePickerPresented {
+                    DatePicker("Select a date", selection: $selectedDate, displayedComponents: .date)
+                        .frame(height: 40)
+                        .padding(.all, 10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray, lineWidth: 1)
+                                .frame(maxWidth: .infinity)
+                        )
+                } else {
+                    HStack {
+                        Text("Select a date ")
+                        Spacer()
+                        Text("dd/mm/yy")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 40)
+                    .padding(.all, 10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.gray, lineWidth: 1)
+                            .frame(maxWidth: .infinity)
+                    )
+                    .onTapGesture {
+                        isDatePickerPresented = true
+                    }
+                }
+            }
         }
         .onAppear{
             
