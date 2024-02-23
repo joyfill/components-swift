@@ -18,7 +18,7 @@ struct FormView: View {
             Text("Form View")
                 .font(.title.bold())
             ScrollView {
-                if let fields = data?.fields  {
+                if let fields = data?.fields , let files = data?.files {
                     ForEach(fields) { joyDocField in
                         switch joyDocField.type {
                         case FieldTypes.text:
@@ -32,7 +32,7 @@ struct FormView: View {
                         case FieldTypes.textarea:
                             MultiLineTextView(value: joyDocField.value)
                         case FieldTypes.date:
-                            DateTimeView(value: joyDocField.value)
+                            DateTimeView(fieldPosition: getFieldPositionForField(files: files),value: joyDocField.value)
                         case FieldTypes.signature:
                             SignatureView(value: joyDocField.value)
                         case FieldTypes.block:
@@ -61,7 +61,7 @@ struct FormView: View {
             })
             .buttonStyle(.borderedProminent)
             .padding(.horizontal, 50)
-
+            
         }
         .onAppear{
             APIService().fetchJoyDoc(identifier: identifier) { result in
@@ -85,6 +85,15 @@ struct FormView: View {
                 
             }
         }
+    }
+    func getFieldPositionForField(files: [File]) -> FieldPosition? {
+        let fileIndex = 0
+        let pageIndex = 0
+        let fieldPositionIndex = 0
+        let file = files[fileIndex]
+        let page = file.pages?[pageIndex]
+        let fieldPosition = page?.fieldPositions?[fieldPositionIndex]
+        return fieldPosition
     }
 }
 
@@ -151,5 +160,47 @@ extension ValueUnion {
             return nil
         }
     }
+    func dateTime(format: String) -> String? {
+        switch self {
+        case .string(let string):
+            let date = getTimeFromISO8601Format(iso8601String: string)
+            return date
+        case .integer(let integer):
+            let date = timestampMillisecondsToDate(value: integer, format: format)
+            return date
+        default:
+            return nil
+        }
+    }
+    
 }
-
+public func getTimeFromISO8601Format(iso8601String: String) -> String {
+    let dateFormatter = ISO8601DateFormatter()
+    let instant = dateFormatter.date(from: iso8601String)
+    
+    let timeZone = TimeZone.current
+    let zonedDateTime = instant ?? Date()
+    
+    let formatter = DateFormatter()
+    formatter.dateFormat = "hh:mm a"
+    formatter.timeZone = timeZone
+    
+    let timeString = formatter.string(from: zonedDateTime)
+    return timeString
+}
+public func timestampMillisecondsToDate(value: Int, format: String) -> String {
+    let timestampMilliseconds: TimeInterval = TimeInterval(value)
+    let date = Date(timeIntervalSince1970: timestampMilliseconds / 1000.0)
+    let dateFormatter = DateFormatter()
+    
+    if format == "MM/DD/YYYY" {
+        dateFormatter.dateFormat = "MMMM d, yyyy"
+    } else if format == "hh:mma" {
+        dateFormatter.dateFormat = "hh:mm a"
+    } else {
+        dateFormatter.dateFormat = "MMMM d, yyyy h:mm a"
+    }
+    
+    let formattedDate = dateFormatter.string(from: date)
+    return formattedDate
+}
