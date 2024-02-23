@@ -17,6 +17,7 @@ struct MultiSelectionView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Multiselection")
+                .fontWeight(.bold)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             VStack {

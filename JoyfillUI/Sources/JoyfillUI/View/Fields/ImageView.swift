@@ -20,6 +20,7 @@ struct ImageView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Image")
+                .fontWeight(.bold)
             
             Button(action: {
                     showImagePicker = true

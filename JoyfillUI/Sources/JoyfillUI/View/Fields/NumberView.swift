@@ -17,6 +17,7 @@ struct NumberView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Number")
+                .fontWeight(.bold)
             
             TextField("", text: $number)
                 .padding(.horizontal, 16)

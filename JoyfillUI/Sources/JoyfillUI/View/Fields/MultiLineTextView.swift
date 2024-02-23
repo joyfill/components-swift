@@ -17,6 +17,8 @@ struct MultiLineTextView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Multiline Text")
+                .fontWeight(.bold)
+            
                 TextEditor(text: $multilineText)
                     .autocorrectionDisabled()
                     .frame(height: 200)

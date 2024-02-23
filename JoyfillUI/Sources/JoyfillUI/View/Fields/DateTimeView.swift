@@ -14,16 +14,21 @@ struct DateTimeView: View {
     var value: ValueUnion?
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
-    let screenWidth = UIScreen.main.bounds.width
-    let screenHeight = UIScreen.main.bounds.height
+    
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, yyyy h:mm a"
+        return formatter
+    }()
     
     var body: some View {
         VStack(alignment: .leading) {
             Text("Date & Time")
+                .fontWeight(.bold)
             
             Group {
                 if isDatePickerPresented {
-                    DatePicker("Select a date", selection: $selectedDate, displayedComponents: .date)
+                    DatePicker("Date-Time", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
                         .frame(height: 40)
                         .padding(.all, 10)
                         .overlay(
@@ -33,7 +38,7 @@ struct DateTimeView: View {
                         )
                 } else {
                     HStack {
-                        Text("Select a date ")
+                        Text("Select a Date -")
                         Spacer()
                         Text("dd/mm/yy")
                     }
@@ -46,7 +51,7 @@ struct DateTimeView: View {
                             .frame(maxWidth: .infinity)
                     )
                     .onTapGesture {
-                        isDatePickerPresented = true
+                        isDatePickerPresented.toggle()
                     }
                 }
             }

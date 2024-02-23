@@ -10,11 +10,13 @@ import JoyfillModel
 
 struct DropdownView: View {
     var value: ValueUnion?
-    @State var selectedDropdownValue = "Select"
+    @State var selectedDropdownValue: String = ""
     
     var body: some View {
         VStack(alignment: .leading) {
             Text("Dropdown")
+                .fontWeight(.bold)
+            
                 Picker("Select", selection: $selectedDropdownValue) {
                     Text("Yes").tag("Yes")
                     Text("No").tag("No")
@@ -22,6 +24,7 @@ struct DropdownView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
+                .colorMultiply(selectedDropdownValue == "" ? .secondary : .black)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)

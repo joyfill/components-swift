@@ -16,7 +16,8 @@ struct DisplayTextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Text")
+            Text("Display Text")
+                .fontWeight(.bold)
 
             TextField("", text: $displayText)
                 .padding(.horizontal, 10)

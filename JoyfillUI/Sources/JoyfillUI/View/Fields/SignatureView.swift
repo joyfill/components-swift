@@ -18,6 +18,7 @@ struct SignatureView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Signature")
+                .fontWeight(.bold)
             
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.gray, lineWidth: 1)

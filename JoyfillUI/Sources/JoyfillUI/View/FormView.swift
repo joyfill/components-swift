@@ -14,10 +14,10 @@ struct FormView: View {
     @State var data: JoyDoc?
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20.0) {
-                Text("Form View")
-                    .font(.title.bold())
+        VStack(spacing: 20.0) {
+            Text("Form View")
+                .font(.title.bold())
+            ScrollView {
                 if let fields = data?.fields  {
                     ForEach(fields) { joyDocField in
                         switch joyDocField.type {
@@ -25,6 +25,8 @@ struct FormView: View {
                             DisplayTextView(value: joyDocField.value)
                         case FieldTypes.multiSelect:
                             MultiSelectionView(value: joyDocField.value)
+                        case FieldTypes.selector:
+                            SelectorView()
                         case FieldTypes.dropdown:
                             DropdownView(value: joyDocField.value)
                         case FieldTypes.textarea:
@@ -51,27 +53,36 @@ struct FormView: View {
                     }
                 }
             }
-            .onAppear{
-                APIService().fetchJoyDoc(identifier: identifier) { result in
-                    switch result {
-                    case .success(let data):
-                        do {
-                            let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
-                            
-                            // It will prevent tasks to perform on main thread
-                            DispatchQueue.main.async {
-                                self.data = joyDocStruct
-                                pageIndex = 0
-                                fetchDataFromJoyDoc()
-                            }
-                        } catch {
-                            print("Error decoding JSON: \(error)")
+            Button(action: {
+                
+            }, label: {
+                Text("Save")
+                    .frame(maxWidth: .infinity)
+            })
+            .buttonStyle(.borderedProminent)
+            .padding(.horizontal, 50)
+
+        }
+        .onAppear{
+            APIService().fetchJoyDoc(identifier: identifier) { result in
+                switch result {
+                case .success(let data):
+                    do {
+                        let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
+                        
+                        // It will prevent tasks to perform on main thread
+                        DispatchQueue.main.async {
+                            self.data = joyDocStruct
+                            pageIndex = 0
+                            fetchDataFromJoyDoc()
                         }
-                    case .failure(let error):
-                        print("error: \(error.localizedDescription)")
+                    } catch {
+                        print("Error decoding JSON: \(error)")
                     }
-                    
+                case .failure(let error):
+                    print("error: \(error.localizedDescription)")
                 }
+                
             }
         }
     }
@@ -84,6 +95,7 @@ struct FormView: View {
 struct FieldTypes {
     static let text = "text"
     static let multiSelect = "multiSelect"
+    static let selector = "selector"
     static let dropdown = "dropdown"
     static let textarea = "textarea"
     static let date = "date"
@@ -108,7 +120,7 @@ extension ValueUnion {
     var imageURL: String? {
         switch self {
         case .valueElementArray(let valueElements):
-            return valueElements[0].url        
+            return valueElements[0].url
         default:
             return nil
         }

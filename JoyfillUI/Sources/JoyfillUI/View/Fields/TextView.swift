@@ -15,6 +15,7 @@ struct TextView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Text")
+                .fontWeight(.bold)
             
             TextField("", text: $lastName)
                 .frame(height: 40)
