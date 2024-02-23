@@ -52,5 +52,306 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A6315ABD-0FB1-42B6-A030-F977FF319FF2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/Fields/DateTimeView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "A6315ABD-0FB1-42B6-A030-F977FF319FF2 - 553c56f6a418beff"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 () -&gt; () in JoyfillUI.DateTimeView.body.getter : some"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/Fields/DateTimeView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "1348">
+               </Location>
+               <Location
+                  uuid = "A6315ABD-0FB1-42B6-A030-F977FF319FF2 - 553c56f6a418beff"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 () -&gt; () in JoyfillUI.DateTimeView.body.getter : some"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/Fields/DateTimeView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "628">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7893CEBA-FAF6-4866-9429-47DC9EF8386A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "154"
+            endingLineNumber = "154"
+            landmarkName = "dateTime(format:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "7893CEBA-FAF6-4866-9429-47DC9EF8386A - 570f0667514bc4cf"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime.getter : Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "146"
+                  endingLineNumber = "146"
+                  offsetFromSymbolStart = "248">
+               </Location>
+               <Location
+                  uuid = "7893CEBA-FAF6-4866-9429-47DC9EF8386A - 570f0667514bc5c7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime.getter : Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "248">
+               </Location>
+               <Location
+                  uuid = "7893CEBA-FAF6-4866-9429-47DC9EF8386A - 6f004269ec253c15"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime(format: Swift.String) -&gt; Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "154"
+                  endingLineNumber = "154"
+                  offsetFromSymbolStart = "284">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "59666359-89EB-4E12-A00D-2699519D8CD8"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
+            landmarkName = "dateTime(format:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "59666359-89EB-4E12-A00D-2699519D8CD8 - 570f0667514bc330"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime.getter : Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "220">
+               </Location>
+               <Location
+                  uuid = "59666359-89EB-4E12-A00D-2699519D8CD8 - 570f0667514bc428"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime.getter : Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "153"
+                  endingLineNumber = "153"
+                  offsetFromSymbolStart = "220">
+               </Location>
+               <Location
+                  uuid = "59666359-89EB-4E12-A00D-2699519D8CD8 - 6f004269ec253dfa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime(format: Swift.String) -&gt; Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "153"
+                  endingLineNumber = "153"
+                  offsetFromSymbolStart = "256">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F66F7A6C-0387-4D39-91F5-E6FAADC5D0FE"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "157"
+            endingLineNumber = "157"
+            landmarkName = "dateTime(format:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "F66F7A6C-0387-4D39-91F5-E6FAADC5D0FE - 570f0667514bc4ac"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime.getter : Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "149"
+                  endingLineNumber = "149"
+                  offsetFromSymbolStart = "316">
+               </Location>
+               <Location
+                  uuid = "F66F7A6C-0387-4D39-91F5-E6FAADC5D0FE - 570f0667514bc5a4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime.getter : Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "157"
+                  endingLineNumber = "157"
+                  offsetFromSymbolStart = "316">
+               </Location>
+               <Location
+                  uuid = "F66F7A6C-0387-4D39-91F5-E6FAADC5D0FE - 6f004269ec253c76"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "JoyfillModel.ValueUnion.dateTime(format: Swift.String) -&gt; Swift.Optional&lt;Swift.String&gt;"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/FormView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "157"
+                  endingLineNumber = "157"
+                  offsetFromSymbolStart = "384">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7EC93E0B-1687-409F-B5A1-29A33D6F2511"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/Fields/DateTimeView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "7EC93E0B-1687-409F-B5A1-29A33D6F2511 - 553c56f6a418bed8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 () -&gt; () in JoyfillUI.DateTimeView.body.getter : some"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/Fields/DateTimeView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "59"
+                  endingLineNumber = "59"
+                  offsetFromSymbolStart = "2472">
+               </Location>
+               <Location
+                  uuid = "7EC93E0B-1687-409F-B5A1-29A33D6F2511 - 553c56f6a418bed8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 () -&gt; () in JoyfillUI.DateTimeView.body.getter : some"
+                  moduleName = "Joyfill"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/macbook/Documents/GitHub/components-ios-v2/JoyfillUI/Sources/JoyfillUI/View/Fields/DateTimeView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "59"
+                  endingLineNumber = "59"
+                  offsetFromSymbolStart = "2680">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F14811F8-6DBD-4F62-A23E-FBE0F8C79C0A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../JoyfillUI/Sources/JoyfillUI/View/Fields/DateTimeView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "59"
+            endingLineNumber = "59"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
