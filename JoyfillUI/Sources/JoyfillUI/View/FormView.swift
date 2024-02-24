@@ -9,10 +9,17 @@ import SwiftUI
 import JoyfillModel
 import JoyfillAPIService
 
-struct FormView: View, FormInterface {
+struct FormView: View {
     @State var document: JoyDoc
     @State var mode: Mode = .fill
-    var events: Events?
+    private let eventHandler: FieldEventHandler
+    
+    init(document: JoyDoc, mode: Mode, events: Events? = nil) {
+        self.document = document
+        self.mode = mode
+        self.eventHandler = FieldEventHandler(appEventHandler: events)
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20.0) {
@@ -60,21 +67,29 @@ struct FormView: View, FormInterface {
             
         }
     }
+}
+
+class FieldEventHandler: Events {
+    var appEventHandler: Events?
+    
+    init(appEventHandler: Events? = nil) {
+        self.appEventHandler = appEventHandler
+    }
     
     func onChange(event: FieldEvent) {
-        events?.onChange(event: event)
+        appEventHandler?.onChange(event: event)
     }
     
     func onFocus(event: FieldEvent) {
-        events?.onFocus(event: event)
+        appEventHandler?.onFocus(event: event)
     }
     
     func onBlur(event: FieldEvent) {
-        events?.onBlur(event: event)
+        appEventHandler?.onBlur(event: event)
     }
     
     func onUpload(event:FieldEvent) {
-        events?.onBlur(event: event)
+        appEventHandler?.onBlur(event: event)
     }
 }
 

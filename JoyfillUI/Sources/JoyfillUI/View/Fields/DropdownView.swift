@@ -12,6 +12,11 @@ struct DropdownView: View {
     var value: ValueUnion?
     @State var selectedDropdownValue: String = ""
     
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Dropdown")

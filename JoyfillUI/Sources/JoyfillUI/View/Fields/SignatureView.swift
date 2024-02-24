@@ -15,6 +15,11 @@ struct SignatureView: View {
     @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
     
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Signature")

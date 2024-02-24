@@ -17,6 +17,11 @@ struct DateTimeView: View {
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
     
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
+    
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d, yyyy h:mm a"

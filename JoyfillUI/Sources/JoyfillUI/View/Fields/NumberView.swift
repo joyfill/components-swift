@@ -14,6 +14,11 @@ struct NumberView: View {
     var value: ValueUnion?
     @State var number: String = ""
     
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Number")

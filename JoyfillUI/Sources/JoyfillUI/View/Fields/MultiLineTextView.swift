@@ -14,6 +14,11 @@ struct MultiLineTextView: View {
     var value: ValueUnion?
     @State var multilineText: String = ""
     
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Multiline Text")

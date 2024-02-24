@@ -13,6 +13,10 @@ import JoyfillModel
 struct MultiSelectionView: View {
     var value: ValueUnion?
     @State var options: [String] = []
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
     
     var body: some View {
         VStack(alignment: .leading) {
