@@ -303,28 +303,28 @@
             "options": [
                 {
                     "_id": "65c7643b1cc4042924d27d53",
-                    "value": "Yes",
+                    "value": "Laptop",
                     "deleted": false
                 },
                 {
                     "_id": "65c7643b423452424e830d3a",
-                    "value": "No",
+                    "value": "Phone",
                     "deleted": false
                 },
                 {
                     "_id": "65c7643bccd9116876b4ab8c",
-                    "value": "N/A",
+                    "value": "Charger",
                     "deleted": false
                 }
             ],
-            "multi": false,
+            "multi": true,
             "file": "65c7637bcca019774a4ca5e2"
         },
         {
             "type": "multiSelect",
             "_id": "65c77d80f8b144be0c90a6ee",
             "identifier": "field_65c77d8b8d6196f6acfe2ade",
-            "title": "Selector",
+            "title": "Select One",
             "description": "",
             "value": [
                 "65c7643b33fb73178bac40e1"
@@ -337,12 +337,12 @@
             "options": [
                 {
                     "_id": "65c7643b33fb73178bac40e1",
-                    "value": "Selector",
+                    "value": "One",
                     "deleted": false
                 },
                 {
                     "_id": "75c6074903u774vgf3iu34hr",
-                    "value": "Selector2",
+                    "value": "Two",
                     "deleted": false
                 }
             ],

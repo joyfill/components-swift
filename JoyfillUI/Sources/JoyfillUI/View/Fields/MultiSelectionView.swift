@@ -16,6 +16,7 @@ struct MultiSelectionView: View {
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
     @State var isSelected: Bool = false
+    @State private var selectedOption: String = ""
     
     public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
         self.eventHandler = eventHandler
@@ -36,9 +37,16 @@ struct MultiSelectionView: View {
                     let isSelected = fieldData?.value?.multiSelector?.first(where: {
                       $0 == options[index].id
                     }) != nil
-                    MultiSelection(option: optionValue, isSelected: isSelected)
+                      if fieldData?.multi ?? true {
+                          MultiSelection(option: optionValue, isSelected: isSelected)
+                      } else {
+                          RadioView(option: optionValue, selectedOption: $selectedOption)
+                      }
                   }
                 }
+            }
+            .onAppear{
+                selectedOption = fieldData?.options?.filter { $0.id == fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
             }
             .padding(.horizontal, 16)
         }
@@ -61,6 +69,28 @@ struct MultiSelection: View {
             }
             .padding()
             
+        })
+        .frame(maxWidth: .infinity)
+        .border(Color.gray, width: 1)
+        .padding(.top, -9)
+    }
+}
+//Select only one choice
+struct RadioView: View {
+    var option: String
+    @Binding var selectedOption: String
+
+    var body: some View {
+        Button(action: {
+            selectedOption = option
+        }, label: {
+            HStack {
+                Image(systemName: selectedOption == option ? "largecircle.fill.circle" : "circle")
+                Text(option)
+                    .foregroundColor(.black)
+                Spacer()
+            }
+            .padding()
         })
         .frame(maxWidth: .infinity)
         .border(Color.gray, width: 1)

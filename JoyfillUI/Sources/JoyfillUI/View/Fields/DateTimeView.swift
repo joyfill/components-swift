@@ -81,7 +81,7 @@ struct DateTimeView: View {
         .onAppear{
             if let value = fieldData?.value {
                 let dateString = value.dateTime(format: fieldPosition.format ?? "") ?? ""
-                if let date = stringToDate(dateString) {
+                if let date = stringToDate(dateString, format: fieldPosition.format ?? "") {
                     selectedDate = date
                     showDefaultDate = false
                 }
@@ -90,9 +90,9 @@ struct DateTimeView: View {
         .padding(.horizontal, 16)
     }
     
-    func stringToDate(_ dateString: String) -> Date? {
+    func stringToDate(_ dateString: String, format: String) -> Date? {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM dd, yyyy hh:mm a"
+        dateFormatter.dateFormat = "MMMM d, yyyy"
         return dateFormatter.date(from: dateString)
     }
 }
