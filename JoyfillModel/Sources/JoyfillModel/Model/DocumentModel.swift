@@ -48,20 +48,19 @@ public struct DocumentListResponse: Codable {
     public let data: [Document]
 }
 
-
-public struct FieldTypes {
-    public static let text = "text"
-    public static let multiSelect = "multiSelect"
-    public static let dropdown = "dropdown"
-    public static let textarea = "textarea"
-    public static let date = "date"
-    public static let signature = "signature"
-    public static let block = "block"
-    public static let number = "number"
-    public static let chart = "chart"
-    public static let richText = "richText"
-    public static let table = "table"
-    public static let image = "image"
+public enum FieldTypes: String, Codable {
+    case text
+    case multiSelect
+    case dropdown
+    case textarea
+    case date
+    case signature
+    case block
+    case number
+    case chart
+    case richText
+    case table
+    case image
 }
 
 public extension ValueUnion {

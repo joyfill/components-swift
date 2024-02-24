@@ -251,7 +251,8 @@ public struct FieldPosition: Codable {
     public let height: Double?
     public let x: Double?
     public var y: Double?
-    public var id, type, targetValue: String?
+    public var id, targetValue: String?
+    public var type: FieldTypes
     public let fontSize: Int?
     public let fontColor, fontStyle, fontWeight, textAlign: String?
     public let primaryDisplayOnly: Bool?
@@ -334,7 +335,7 @@ public func fetchDataFromJoyDoc() {
                 if displayType == "original" || displayType == "inputGroup" || displayType == "horizontal" {
                     let yFieldValue = joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].y ?? 0.0
                     componentsYValueForMobileView.append(Int(yFieldValue))
-                    componentType.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].type ?? "")
+                    componentType.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].type.rawValue ?? "")
                     componentId.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].field ?? "")
                     joyDocFieldPositionData.append((joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j])!)
                     zipAndSortComponents()
@@ -364,7 +365,7 @@ public func fetchDataFromJoyDoc() {
                 if displayType == "original" || displayType == "inputGroup" {
                     let yFieldValue = joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].y ?? 0.0
                     componentsYValueForMobileView.append(Int(yFieldValue))
-                    componentType.append(joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].type ?? "")
+                    componentType.append(joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].type.rawValue ?? "")
                     componentId.append(joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].field ?? "")
                     joyDocFieldPositionData.append((joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j])!)
                     zipAndSortComponents()

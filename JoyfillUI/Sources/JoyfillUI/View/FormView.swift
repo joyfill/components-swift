@@ -123,49 +123,46 @@ struct FormView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20.0) {
-                    ForEach(0..<fieldPositions.count) { index in
-                        let fieldPosition = fieldPositions[index]
-                        let fieldData = fieldsData?[index]
-                        switch fieldPosition.type {
-                        case FieldTypes.text:
-                            DisplayTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.multiSelect:
-                            MultiSelectionView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.dropdown:
-                            DropdownView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.textarea:
-                            MultiLineTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.date:
-                            DateTimeView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.signature:
-                            SignatureView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.block:
-                            DisplayTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.number:
-                            NumberView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        case FieldTypes.chart:
-                            Text("")
-                        case FieldTypes.richText:
-                            Text("")
-                        case FieldTypes.table:
-                            Text("")
-                        case FieldTypes.image:
-                            ImageView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                        default:
-                            Text("Data no Available")
-                        }
+                ForEach(0..<fieldPositions.count) { index in
+                    let fieldPosition = fieldPositions[index]
+                    let fieldData = fieldsData?[index]
+                    switch fieldPosition.type {
+                    case .text:
+                        DisplayTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .multiSelect:
+                        MultiSelectionView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .dropdown:
+                        DropdownView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .textarea:
+                        MultiLineTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .date:
+                        DateTimeView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .signature:
+                        SignatureView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .block:
+                        DisplayTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .number:
+                        NumberView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .chart:
+                        Text("Data no Available")
+                    case .richText:
+                        Text("Data no Available")
+                    case .table:
+                        Text("Data no Available")
+                    case .image:
+                        ImageView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     }
+                }
             }
-            Button(action: {
-                
-            }, label: {
-                Text("Save")
-                    .frame(maxWidth: .infinity)
-            })
-            .buttonStyle(.borderedProminent)
-            .padding(.horizontal, 50)
-            
         }
+        Button(action: {
+            
+        }, label: {
+            Text("Save")
+                .frame(maxWidth: .infinity)
+        })
+        .buttonStyle(.borderedProminent)
+        .padding(.horizontal, 50)
     }
 }
 
