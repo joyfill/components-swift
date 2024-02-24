@@ -54,6 +54,19 @@ public struct JoyDoc: Codable {
         case id = "_id"
         case type, stage, metadata, identifier, name, createdOn, files, fields, categories
     }
+    
+    public func getFieldPositionForField() -> FieldPosition? {
+        guard let files = self.files else {
+            return nil
+        }
+        let fileIndex = 0
+        let pageIndex = 0
+        let fieldPositionIndex = 0
+        let file = files[fileIndex]
+        let page = file.pages?[pageIndex]
+        let fieldPosition = page?.fieldPositions?[fieldPositionIndex]
+        return fieldPosition
+    }
 }
 
 // MARK: - JoyDocField
