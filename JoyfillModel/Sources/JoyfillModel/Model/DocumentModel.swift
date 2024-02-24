@@ -175,7 +175,7 @@ public enum Mode {
 }
 
 public protocol FormInterface {
-    var document: JoyDoc? { get }
+    var document: JoyDoc { get }
     var mode: Mode { get }
     var events: Events? { get set}
 }

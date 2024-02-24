@@ -55,7 +55,7 @@ public struct JoyDoc: Codable {
         case type, stage, metadata, identifier, name, createdOn, files, fields, categories
     }
     
-    public func getFieldPositionForField() -> FieldPosition? {
+    public var fieldPosition: FieldPosition? {
         guard let files = self.files else {
             return nil
         }
