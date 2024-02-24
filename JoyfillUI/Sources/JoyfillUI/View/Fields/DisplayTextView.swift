@@ -16,7 +16,8 @@ struct DisplayTextView: View {
     private let eventHandler: FieldEventHandler
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
-    
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
     public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
         self.eventHandler = eventHandler
         self.fieldPosition = fieldPosition
@@ -27,7 +28,6 @@ struct DisplayTextView: View {
         VStack(alignment: .leading) {
             Text("Display Text")
                 .fontWeight(.bold)
-
             TextField("", text: $displayText)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
@@ -36,12 +36,28 @@ struct DisplayTextView: View {
                         .stroke(Color.gray, lineWidth: 1)
                 )
                 .cornerRadius(10)
+                .focused($isFocused) // Observe focus state
+            
+            // Perform any additional actions when focus changes
+                .onChange(of: isFocused) { focused in
+                    if focused {
+                        let fieldEvent = FieldEvent(field: fieldData)
+                        eventHandler.onFocus(event: fieldEvent)
+                    } else {
+                        let fieldEvent = FieldEvent(field: fieldData)
+//                        eventHandler.onBlur(event: fieldEvent)
+                    }
+                }
         }
         .onAppear{
             if let text = fieldData?.value?.textabc {
                 displayText = text
             }
         }
+        .onChange(of: displayText, { oldValue, newValue in
+            let change = ["value": newValue]
+           
+        })
         .padding(.horizontal, 16)
     }
 }
