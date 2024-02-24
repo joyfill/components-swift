@@ -38,7 +38,7 @@ struct DocumentSubmissionsListView: View {
                 
                 ForEach(documentsViewModel.submissions) { submission in
                     NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-                        FormView(document: document!, mode: .readonly, events: nil)
+                        JoyFillView(document: document!, mode: .readonly, events: nil)
                     }), isActive: $showForm) {
                         HStack {
                             Image(systemName: "doc")
