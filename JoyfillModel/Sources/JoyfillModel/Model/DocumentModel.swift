@@ -177,9 +177,15 @@ public func timestampMillisecondsToDate(value: Int, format: String) -> String {
 }
 
 public struct FieldEvent {
-    let field: JoyDocField
-    let page: Page
-    let file: File
+    public let field: JoyDocField?
+    public let page: Page?
+    public let file: File?
+    
+    public init(field: JoyDocField? = nil, page: Page? = nil, file: File? = nil) {
+        self.field = field
+        self.page = page
+        self.file = file
+    }
 }
 
 public struct Change {
@@ -187,8 +193,14 @@ public struct Change {
 }
 
 public struct ChangeEvent {
-    let changes: [Change]
-    let document: Document
+    public let changes: [Change]
+    public let document: Document
+}
+
+public struct UploadEvent {
+    public let field: JoyDocField
+    public let page: Page
+    public let file: File
 }
 
 public enum Mode {
@@ -203,8 +215,8 @@ public protocol FormInterface {
 }
 
 public protocol Events {
-    func onChange(event: FieldEvent)
+    func onChange(event: ChangeEvent)
     func onFocus(event: FieldEvent)
     func onBlur(event: FieldEvent)
-    func onUpload(event:FieldEvent)
+    func onUpload(event:UploadEvent)
 }

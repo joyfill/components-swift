@@ -173,7 +173,7 @@ class FieldEventHandler: Events {
         self.appEventHandler = appEventHandler
     }
     
-    func onChange(event: FieldEvent) {
+    func onChange(event: ChangeEvent) {
         appEventHandler?.onChange(event: event)
     }
     
@@ -185,8 +185,8 @@ class FieldEventHandler: Events {
         appEventHandler?.onBlur(event: event)
     }
     
-    func onUpload(event:FieldEvent) {
-        appEventHandler?.onBlur(event: event)
+    func onUpload(event:UploadEvent) {
+        appEventHandler?.onUpload(event: event)
     }
 }
 

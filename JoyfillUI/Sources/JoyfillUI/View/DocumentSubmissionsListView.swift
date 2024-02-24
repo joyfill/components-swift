@@ -38,7 +38,7 @@ struct DocumentSubmissionsListView: View {
                 
                 ForEach(documentsViewModel.submissions) { submission in
                     NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-                        JoyFillView(document: document!, mode: .readonly, events: nil)
+                        JoyFillView(document: document!, mode: .readonly, events: self)
                     }), isActive: $showForm) {
                         HStack {
                             Image(systemName: "doc")
@@ -108,4 +108,24 @@ struct LazyView<Content: View>: View {
             content()
         }
     }
+}
+
+extension DocumentSubmissionsListView: Events {
+    func onChange(event: ChangeEvent) {
+        print(">>>>>>>>onChange", event.changes)
+    }
+    
+    func onFocus(event: FieldEvent) {
+        print(">>>>>>>>onFocus", event.field?.identifier)
+    }
+    
+    func onBlur(event: FieldEvent) {
+        print(">>>>>>>>onBlur", event.field?.identifier)
+    }
+    
+    func onUpload(event: UploadEvent) {
+        print(">>>>>>>>onUpload", event.field.identifier)
+    }
+    
+    
 }
