@@ -8,8 +8,6 @@
 import SwiftUI
 import JoyfillModel
 
-// Title or Description
-
 struct DisplayTextView: View {
     @State var displayText: String = ""
     private let mode: Mode = .fill
@@ -37,15 +35,13 @@ struct DisplayTextView: View {
                 )
                 .cornerRadius(10)
                 .focused($isFocused) // Observe focus state
-            
-            // Perform any additional actions when focus changes
                 .onChange(of: isFocused) { focused in
                     if focused {
                         let fieldEvent = FieldEvent(field: fieldData)
                         eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let fieldEvent = FieldEvent(field: fieldData)
-//                        eventHandler.onBlur(event: fieldEvent)
+                        eventHandler.onBlur(event: fieldEvent)
                     }
                 }
         }

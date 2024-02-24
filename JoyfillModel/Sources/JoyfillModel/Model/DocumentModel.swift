@@ -177,9 +177,9 @@ public func timestampMillisecondsToDate(value: Int, format: String) -> String {
 }
 
 public struct FieldEvent {
-    let field: JoyDocField?
-    let page: Page?
-    let file: File?
+    public let field: JoyDocField?
+    public let page: Page?
+    public let file: File?
     
     public init(field: JoyDocField? = nil, page: Page? = nil, file: File? = nil) {
         self.field = field
@@ -193,14 +193,14 @@ public struct Change {
 }
 
 public struct ChangeEvent {
-    let changes: [Change]
-    let document: Document
+    public let changes: [Change]
+    public let document: Document
 }
 
 public struct UploadEvent {
-    let field: JoyDocField
-    let page: Page
-    let file: File
+    public let field: JoyDocField
+    public let page: Page
+    public let file: File
 }
 
 public enum Mode {

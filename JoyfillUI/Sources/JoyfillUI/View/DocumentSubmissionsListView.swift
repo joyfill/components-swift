@@ -111,20 +111,20 @@ struct LazyView<Content: View>: View {
 }
 
 extension DocumentSubmissionsListView: Events {
-    func onChange(event: JoyfillModel.ChangeEvent) {
-        print(">>>>>>>>onChange", event)
+    func onChange(event: ChangeEvent) {
+        print(">>>>>>>>onChange", event.changes)
     }
     
-    func onFocus(event: JoyfillModel.FieldEvent) {
-        print(">>>>>>>>onFocus", event)
+    func onFocus(event: FieldEvent) {
+        print(">>>>>>>>onFocus", event.field?.identifier)
     }
     
-    func onBlur(event: JoyfillModel.FieldEvent) {
-        print(">>>>>>>>onBlur", event)
+    func onBlur(event: FieldEvent) {
+        print(">>>>>>>>onBlur", event.field?.identifier)
     }
     
-    func onUpload(event: JoyfillModel.UploadEvent) {
-        print(">>>>>>>>onUpload", event)
+    func onUpload(event: UploadEvent) {
+        print(">>>>>>>>onUpload", event.field.identifier)
     }
     
     
