@@ -101,3 +101,4 @@ class FieldEventHandler: Events {
 #Preview {
     MultiSelectionView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }
+

@@ -11,7 +11,6 @@ import JoyfillModel
 // MultiLine text
 
 struct MultiLineTextView: View {
-    var value: ValueUnion?
     @State var multilineText: String = ""
     
     private let mode: Mode = .fill
@@ -40,7 +39,7 @@ struct MultiLineTextView: View {
                     .cornerRadius(10)
         }
         .onAppear{
-            if let multilineText = value?.multilineText{
+            if let multilineText = fieldData?.value?.multilineText{
                 self.multilineText = multilineText
             }
         }

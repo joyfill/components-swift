@@ -11,7 +11,6 @@ import JoyfillModel
 // Logo or Graphic
 
 struct ImageView: View {
-    var value: ValueUnion?
     @State var imageURL: String?
     @State var profileImage: UIImage?
     @State private var showImagePicker: Bool = false
@@ -56,7 +55,7 @@ struct ImageView: View {
         }
         .padding(.horizontal, 16)
         .onAppear {
-            if let value = value?.imageURL {
+            if let value = fieldData?.value?.imageURL {
                 self.imageURL = value
             }
             

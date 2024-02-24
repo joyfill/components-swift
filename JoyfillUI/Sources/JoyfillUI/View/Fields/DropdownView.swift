@@ -9,8 +9,7 @@ import SwiftUI
 import JoyfillModel
 
 struct DropdownView: View {
-    var value: ValueUnion?
-    @State var selectedDropdownValue: String = ""
+    @State var selectedDropdownValue: String?
     
     private let mode: Mode = .fill
     private let eventHandler: FieldEventHandler
@@ -28,22 +27,27 @@ struct DropdownView: View {
             Text("Dropdown")
                 .fontWeight(.bold)
             
-                Picker("Select", selection: $selectedDropdownValue) {
-                    Text("Yes").tag("Yes")
-                    Text("No").tag("No")
-                    Text("N/A").tag("N/A")
+            Picker("Select", selection: $selectedDropdownValue) {
+                if let options = fieldData?.options {
+                    ForEach(options) { option in
+                        Text(option.value ?? "").tag("\(option.value)")
+                    }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 40)
-                .colorMultiply(selectedDropdownValue == "" ? .secondary : .black)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray, lineWidth: 1)
-                        .frame(maxWidth: .infinity)
-                )
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 40)
+            .colorMultiply(selectedDropdownValue == "" ? .secondary : .black)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.gray, lineWidth: 1)
+                    .frame(maxWidth: .infinity)
+            )
         }
         .onAppear{
-            
+            if let value = fieldData?.value {
+                self.selectedDropdownValue = fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
+                print(selectedDropdownValue)
+            }
         }
         .padding(.horizontal, 16)
     }

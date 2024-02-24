@@ -11,7 +11,6 @@ import JoyfillModel
 // Numeric value only
 
 struct NumberView: View {
-    var value: ValueUnion?
     @State var number: String = ""
     
     private let mode: Mode = .fill
@@ -42,7 +41,7 @@ struct NumberView: View {
         }
         .padding(.horizontal, 16)
         .onAppear {
-            if let number = value?.number {
+            if let number = fieldData?.value?.number {
                 self.number = String(number)
             }
         }

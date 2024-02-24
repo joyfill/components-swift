@@ -107,6 +107,23 @@ public extension ValueUnion {
             return nil
         }
     }
+    var dropdownValue: String? {
+        switch self {
+        case .string(let string):
+            return string
+        default:
+            return nil
+        }
+    }
+    var multiSelectValue: String? {
+        switch self {
+        case .string(let string):
+            return string
+        default:
+            return nil
+        }
+    }
+    
     
     func dateTime(format: String) -> String? {
         switch self {

@@ -11,7 +11,6 @@ import JoyfillModel
 // Date and time
 
 struct DateTimeView: View {
-    var value: ValueUnion?
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
@@ -80,7 +79,7 @@ struct DateTimeView: View {
             }
         }
         .onAppear{
-            if let value = self.value {
+            if let value = fieldData?.value {
                 let dateString = value.dateTime(format: fieldPosition.format ?? "") ?? ""
                 if let date = stringToDate(dateString) {
                     selectedDate = date

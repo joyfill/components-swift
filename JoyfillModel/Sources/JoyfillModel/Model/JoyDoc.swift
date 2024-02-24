@@ -106,7 +106,7 @@ public struct Metadata: Codable {
 }
 
 // MARK: - Option
-public struct Option: Codable {
+public struct Option: Codable,Identifiable{
     public let value: String?
     public let deleted: Bool?
     public let id: String?

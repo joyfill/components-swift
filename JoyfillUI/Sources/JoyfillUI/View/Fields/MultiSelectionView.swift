@@ -11,8 +11,6 @@ import JoyfillModel
 // Select multiple options
 
 struct MultiSelectionView: View {
-    var value: ValueUnion?
-    @State var options: [String] = []
     private let mode: Mode = .fill
     private let eventHandler: FieldEventHandler
     private let fieldPosition: FieldPosition
@@ -31,8 +29,10 @@ struct MultiSelectionView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             VStack {
-                ForEach(options, id: \.self) { option in
-                    MultiSelection(option: option)
+                if let options = fieldData?.options {
+                    ForEach(options) { option in
+                        MultiSelection(option: option.value ?? "")
+                    }
                 }
             }
             .padding(.horizontal, 16)
