@@ -15,6 +15,7 @@ struct MultiSelectionView: View {
     private let eventHandler: FieldEventHandler
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
+    @State var isSelected: Bool = false
     
     public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
         self.eventHandler = eventHandler
@@ -30,29 +31,30 @@ struct MultiSelectionView: View {
                 .padding(.bottom, 16)
             VStack {
                 if let options = fieldData?.options {
-                    ForEach(options) { option in
-                        MultiSelection(option: option.value ?? "")
-                    }
+                  ForEach(0..<options.count) { index in
+                    let optionValue = options[index].value ?? ""
+                    let isSelected = fieldData?.value?.multiSelector?.first(where: {
+                      $0 == options[index].id
+                    }) != nil
+                    MultiSelection(option: optionValue, isSelected: isSelected)
+                  }
                 }
             }
             .padding(.horizontal, 16)
-        }
-        .onAppear{
-//            options = value
         }
     }
 }
 
 struct MultiSelection: View {
     var option: String
-    @State var toggle: Bool = true
+    @State var isSelected: Bool
     var body: some View {
         Button(action: {
-            toggle.toggle()
+            isSelected.toggle()
         }, label: {
             
             HStack {
-                Image(systemName: toggle ? "record.circle.fill" : "record.circle")
+                Image(systemName: isSelected ? "record.circle.fill" : "record.circle")
                 Text(option)
                     .foregroundStyle(.black)
                 Spacer()

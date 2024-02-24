@@ -46,7 +46,6 @@ struct DropdownView: View {
         .onAppear{
             if let value = fieldData?.value {
                 self.selectedDropdownValue = fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
-                print(selectedDropdownValue)
             }
         }
         .padding(.horizontal, 16)
