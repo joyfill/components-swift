@@ -20,6 +20,12 @@ struct SignatureView: View {
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
     
+    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+        self.eventHandler = eventHandler
+        self.fieldPosition = fieldPosition
+        self.fieldData = fieldData
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Signature")

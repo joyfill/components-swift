@@ -16,6 +16,12 @@ struct DisplayTextView: View {
     private let eventHandler: FieldEventHandler
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
+    
+    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+        self.eventHandler = eventHandler
+        self.fieldPosition = fieldPosition
+        self.fieldData = fieldData
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -32,7 +38,7 @@ struct DisplayTextView: View {
                 .cornerRadius(10)
         }
         .onAppear{
-            if let text = value?.textabc {
+            if let text = fieldData?.value?.textabc {
                 displayText = text
             }
         }
@@ -41,5 +47,5 @@ struct DisplayTextView: View {
 }
 
 #Preview {
-    DisplayTextView(displayText: "")
+    DisplayTextView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }

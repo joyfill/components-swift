@@ -11,7 +11,6 @@ import JoyfillModel
 // Date and time
 
 struct DateTimeView: View {
-    var fieldPosition: FieldPosition?
     var value: ValueUnion?
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
@@ -21,6 +20,12 @@ struct DateTimeView: View {
     private let eventHandler: FieldEventHandler
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
+    
+    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+        self.eventHandler = eventHandler
+        self.fieldPosition = fieldPosition
+        self.fieldData = fieldData
+    }
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -76,7 +81,7 @@ struct DateTimeView: View {
         }
         .onAppear{
             if let value = self.value {
-                let dateString = value.dateTime(format: fieldPosition?.format ?? "") ?? ""
+                let dateString = value.dateTime(format: fieldPosition.format ?? "") ?? ""
                 if let date = stringToDate(dateString) {
                     selectedDate = date
                     showDefaultDate = false
@@ -94,5 +99,5 @@ struct DateTimeView: View {
 }
 
 #Preview {
-    DateTimeView()
+    DateTimeView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }

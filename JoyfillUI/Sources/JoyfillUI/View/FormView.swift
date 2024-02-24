@@ -9,6 +9,11 @@ import SwiftUI
 import JoyfillModel
 import JoyfillAPIService
 
+
+struct PageView {
+    
+}
+
 struct FormView: View {
     @State var document: JoyDoc
     @State var mode: Mode = .fill
@@ -27,21 +32,21 @@ struct FormView: View {
                     ForEach(fields) { joyDocField in
                         switch joyDocField.type {
                         case FieldTypes.text:
-                            DisplayTextView(value: joyDocField.value)
+                            DisplayTextView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.multiSelect:
-                            MultiSelectionView(value: joyDocField.value)
+                            MultiSelectionView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.dropdown:
-                            DropdownView(value: joyDocField.value)
+                            DropdownView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.textarea:
-                            MultiLineTextView(value: joyDocField.value)
+                            MultiLineTextView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.date:
-                            DateTimeView(fieldPosition: document.fieldPosition,value: joyDocField.value)
+                            DateTimeView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.signature:
-                            SignatureView(value: joyDocField.value)
+                            SignatureView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.block:
-                            DisplayTextView(value: joyDocField.value)
+                            DisplayTextView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.number:
-                            NumberView(value: joyDocField.value)
+                            NumberView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         case FieldTypes.chart:
                             Text("")
                         case FieldTypes.richText:
@@ -49,7 +54,7 @@ struct FormView: View {
                         case FieldTypes.table:
                             Text("")
                         case FieldTypes.image:
-                            ImageView(value: joyDocField.value)
+                            ImageView(eventHandler: eventHandler, fieldPosition: document.fieldPosition!, fieldData: joyDocField)
                         default:
                             Text("Data no Available")
                         }
@@ -94,5 +99,5 @@ class FieldEventHandler: Events {
 }
 
 #Preview {
-    MultiSelectionView(options: ["Yes", "No", "N/A"])
+    MultiSelectionView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }

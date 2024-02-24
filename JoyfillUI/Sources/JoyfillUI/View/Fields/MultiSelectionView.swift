@@ -18,6 +18,12 @@ struct MultiSelectionView: View {
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
     
+    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+        self.eventHandler = eventHandler
+        self.fieldPosition = fieldPosition
+        self.fieldData = fieldData
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Multiselection")
@@ -61,5 +67,5 @@ struct MultiSelection: View {
 }
 
 #Preview {
-    MultiSelectionView(options: ["Yes","NO","N/A"])
+    MultiSelectionView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }

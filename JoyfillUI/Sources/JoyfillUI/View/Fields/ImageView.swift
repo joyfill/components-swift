@@ -22,6 +22,12 @@ struct ImageView: View {
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
     
+    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+        self.eventHandler = eventHandler
+        self.fieldPosition = fieldPosition
+        self.fieldData = fieldData
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Image")
@@ -74,7 +80,7 @@ struct ImageView: View {
 }
 
 #Preview {
-    ImageView(profileImage: UIImage())
+    ImageView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }
 
 struct ImagePickerView: UIViewControllerRepresentable {
