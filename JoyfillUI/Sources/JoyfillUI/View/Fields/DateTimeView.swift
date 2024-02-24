@@ -15,6 +15,7 @@ struct DateTimeView: View {
     var value: ValueUnion?
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
+    @State private var showDefaultDate: Bool = true
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -28,7 +29,7 @@ struct DateTimeView: View {
                 .fontWeight(.bold)
             
             Group {
-                if isDatePickerPresented {
+                if showDefaultDate == false {
                     DatePicker("Date-Time", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
                         .frame(height: 40)
                         .padding(.all, 10)
@@ -38,21 +39,32 @@ struct DateTimeView: View {
                                 .frame(maxWidth: .infinity)
                         )
                 } else {
-                    HStack {
-                        Text("Select a Date -")
-                        Spacer()
-                        Text("dd/mm/yy")
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 40)
-                    .padding(.all, 10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray, lineWidth: 1)
-                            .frame(maxWidth: .infinity)
-                    )
-                    .onTapGesture {
-                        isDatePickerPresented.toggle()
+                    if isDatePickerPresented {
+                        DatePicker("Date-Time", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+                            .frame(height: 40)
+                            .padding(.all, 10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray, lineWidth: 1)
+                                    .frame(maxWidth: .infinity)
+                            )
+                    } else {
+                        HStack {
+                            Text("Select a Date -")
+                            Spacer()
+                            Image(systemName: "calendar")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .padding(.all, 10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray, lineWidth: 1)
+                                .frame(maxWidth: .infinity)
+                        )
+                        .onTapGesture {
+                            isDatePickerPresented = true
+                        }
                     }
                 }
             }
@@ -62,6 +74,7 @@ struct DateTimeView: View {
                 let dateString = value.dateTime(format: fieldPosition?.format ?? "") ?? ""
                 if let date = stringToDate(dateString) {
                     selectedDate = date
+                    showDefaultDate = false
                 }
             }
         }
