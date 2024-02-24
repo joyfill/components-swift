@@ -115,7 +115,7 @@ public extension ValueUnion {
             return nil
         }
     }
-    var multiSelectValue: String? {
+    var selector: String? {
         switch self {
         case .string(let string):
             return string
@@ -123,8 +123,14 @@ public extension ValueUnion {
             return nil
         }
     }
-    
-    
+    var multiSelector: [String]? {
+        switch self {
+        case .array(let array):
+            return array
+        default:
+            return nil
+        }
+    }
     func dateTime(format: String) -> String? {
         switch self {
         case .string(let string):

@@ -339,6 +339,11 @@
                     "_id": "65c7643b33fb73178bac40e1",
                     "value": "Selector",
                     "deleted": false
+                },
+                {
+                    "_id": "75c6074903u774vgf3iu34hr",
+                    "value": "Selector2",
+                    "deleted": false
                 }
             ],
             "multi": false,
