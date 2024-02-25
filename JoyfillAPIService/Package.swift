@@ -20,6 +20,7 @@ let package = Package(
         .target(
             name: "JoyfillAPIService",
             dependencies: [
+                "JoyfillModel"
             ],
             resources: [
                     .copy("Resources/FetchDocument.json")
