@@ -1,5 +1,4 @@
 import Foundation
-import SwiftyJSON
 
 // Global variables
 var joyDocStruct: JoyDoc?

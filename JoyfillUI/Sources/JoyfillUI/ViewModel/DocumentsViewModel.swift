@@ -2,7 +2,6 @@ import Foundation
 import JoyfillModel
 import Combine
 import JoyfillAPIService
-import SwiftyJSON
 
 public class DocumentsViewModel: ObservableObject {
     var joyDocModel = JoyDocViewModel()

@@ -23,12 +23,10 @@ public struct DocumentListView: View {
                         NavigationLink {
                             DocumentSubmissionsListView(identifier: document.identifier, name: document.name)
                         } label: {
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    Image(systemName: "doc")
-                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
-                                    Text(document.name)
-                                }
+                            HStack {
+                                Image(systemName: "doc")
+                                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
+                                Text(document.name)
                             }
                         }
                     }
@@ -36,7 +34,6 @@ public struct DocumentListView: View {
             }
             .onAppear() {
                 documentsViewModel.fetchDocuments()
-                print("view present")
             }
         }
     }

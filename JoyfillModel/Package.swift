@@ -12,7 +12,6 @@ let package = Package(
             targets: ["JoyfillModel"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", from: "5.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -20,7 +19,6 @@ let package = Package(
         .target(
             name: "JoyfillModel",
             dependencies: [
-                "SwiftyJSON"
             ]
         ),
         .testTarget(

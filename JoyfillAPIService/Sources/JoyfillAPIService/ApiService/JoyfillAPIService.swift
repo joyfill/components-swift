@@ -2,30 +2,28 @@
 //  ApiService.swift
 //  JoyfillExample
 //
-//  
+//
 //
 import Foundation
 import Combine
 import JoyfillModel
-import SwiftyJSON
 
 enum JoyfillAPI {
     case document(identifier: String? = nil)
     case template(identifier: String? = nil)
     
     var endPoint: URL {
-        
         switch self {
         case .document(identifier: let identifier):
             if let identifier = identifier {
-                return URL(string: "\(Constants.baseURL)/\(identifier)")!
+                return URL(string: "\(Constants.documentsBaseURL)/\(identifier)")!
             }
-            return URL(string: "\(Constants.baseURL)?&page=1&limit=25")!
+            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         case .template(identifier: let identifier):
             if let identifier = identifier {
-                return URL(string: "\(Constants.baseURL)?template=\(identifier)&page=1&limit=25")!
+                return URL(string: "\(Constants.documentsBaseURL)?template=\(identifier)&page=1&limit=25")!
             }
-            return URL(string: "\(Constants.baseURL)?&page=1&limit=25")!
+            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         }
         
     }
@@ -122,28 +120,34 @@ public class APIService {
         
         self.fetchJoyDoc(identifier: identifier) { [self] joyDocJSON in
             
-            guard let url = URL(string: "\(Constants.baseURL)") else {
+            guard let url = URL(string: "\(Constants.documentsBaseURL)") else {
                 completion(.failure(APIError.invalidURL))
                 return
             }
             
             var request = URLRequest(url: url)
-            var json = JSON(joyDocJSON)
-            
-            // Using SwiftyJson we remove some of the uneeded keys, specifically changing the "type" to "document"
-            json.dictionaryObject?.removeValue(forKey: "_id")
-            json.dictionaryObject?.removeValue(forKey: "createdOn")
-            json.dictionaryObject?.removeValue(forKey: "deleted")
-            json.dictionaryObject?.removeValue(forKey: "categories")
-            json.dictionaryObject?.removeValue(forKey: "stage")
-            json.dictionaryObject?.removeValue(forKey: "identifier")
-            json.dictionaryObject?.removeValue(forKey: "metadata")
-            json.dictionaryObject?.updateValue("document", forKey: "type")
-            json.dictionaryObject?.updateValue(identifier, forKey: "template")
-            json.dictionaryObject?.updateValue(identifier, forKey: "source")
-            
-            let jsonData = json.rawString(options: .fragmentsAllowed)?.data(using: .utf8)
-            
+            var jsonData: Data?
+            do {
+                let data = try joyDocJSON.get() as Data
+                var dictionaryObject = try! JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                // We remove some of the uneeded keys, specifically changing the "type" to "document"
+
+                dictionaryObject?.removeValue(forKey: "_id")
+                dictionaryObject?.removeValue(forKey: "createdOn")
+                dictionaryObject?.removeValue(forKey: "deleted")
+                dictionaryObject?.removeValue(forKey: "categories")
+                dictionaryObject?.removeValue(forKey: "stage")
+                dictionaryObject?.removeValue(forKey: "identifier")
+                dictionaryObject?.removeValue(forKey: "metadata")
+                dictionaryObject?.updateValue("document", forKey: "type")
+                dictionaryObject?.updateValue(identifier, forKey: "template")
+                dictionaryObject?.updateValue(identifier, forKey: "source")
+                
+                let jsonData = try JSONSerialization.data(withJSONObject: dictionaryObject ?? [:], options: [])
+            } catch {
+                print("Error in preparing post document request")
+            }
+
             request.httpBody = jsonData
             request.httpMethod = "POST"
             request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
@@ -194,7 +198,7 @@ public class APIService {
     
     public static func updateDocumentChangelogs(identifier: String, userAccessToken: String, docChangeLogs: Any, completion: @escaping (Result<Any, Error>) -> Void) {
         do {
-            guard let url = URL(string: "\(Constants.baseURL)/\(identifier)/changelogs") else {
+            guard let url = URL(string: "\(Constants.documentsBaseURL)/\(identifier)/changelogs") else {
                 completion(.failure(APIError.invalidURL))
                 return
             }
@@ -224,10 +228,13 @@ public class APIService {
         }
     }
     
-    public func fetchDocument(identifier: String) {
-        APIService().fetchJoyDoc(identifier: identifier) { result in
-            
-        }
+    static func getDocumentsRequest(path: String, _ method: String = "GET") -> URLRequest? {
+        var request = URLRequest(url: URL(string: "\(Constants.documentsBaseURL)/\(path)")!)
+        request.httpMethod = method
+        request.setValue("Bearer \(Constants.userAccessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        return request
     }
 }
 
@@ -235,3 +242,4 @@ public enum APIError: Error {
     case invalidURL
     case unknownError
 }
+

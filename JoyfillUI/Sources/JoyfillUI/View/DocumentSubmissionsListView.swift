@@ -126,6 +126,4 @@ extension DocumentSubmissionsListView: Events {
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.field.identifier)
     }
-    
-    
 }
