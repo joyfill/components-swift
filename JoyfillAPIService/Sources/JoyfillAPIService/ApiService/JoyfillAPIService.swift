@@ -9,23 +9,31 @@ import Combine
 import JoyfillModel
 
 enum JoyfillAPI {
-    case document(identifier: String? = nil)
-    case template(identifier: String? = nil)
-    
+    case documents(identifier: String? = nil)
+    case templates(identifier: String? = nil)
+    case groups
+    case users
+    case convertPDFToPNGs
+
     var endPoint: URL {
         switch self {
-        case .document(identifier: let identifier):
+        case .documents(identifier: let identifier):
             if let identifier = identifier {
                 return URL(string: "\(Constants.documentsBaseURL)/\(identifier)")!
             }
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
-        case .template(identifier: let identifier):
+        case .templates(identifier: let identifier):
             if let identifier = identifier {
                 return URL(string: "\(Constants.documentsBaseURL)?template=\(identifier)&page=1&limit=25")!
             }
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+        case .groups:
+            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+        case .users:
+            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+        case .convertPDFToPNGs:
+            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         }
-        
     }
 }
 
@@ -67,7 +75,7 @@ public class APIService {
             return
         }
         
-        let request = urlRequest(type: .document())
+        let request = urlRequest(type: .documents())
         makeAPICall(with: request) { data, response, error in
             
             if let data = data, error == nil {
@@ -101,7 +109,7 @@ public class APIService {
             return
         }
         
-        let request = urlRequest(type: .template(identifier: identifier))
+        let request = urlRequest(type: .templates(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
             if let data = data, error == nil {
                 do {
@@ -182,7 +190,7 @@ public class APIService {
             }
             return
         }
-        let request = urlRequest(type: .document(identifier: identifier))
+        let request = urlRequest(type: .documents(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
             if let data = data, error == nil {
                 DispatchQueue.main.async {
