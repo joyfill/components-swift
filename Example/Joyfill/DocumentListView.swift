@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import JoyfillAPIService
 
 public struct DocumentListView: View {
     public init(documentsViewModel: DocumentsViewModel = DocumentsViewModel()) {
@@ -34,6 +35,9 @@ public struct DocumentListView: View {
             }
             .onAppear() {
                 documentsViewModel.fetchDocuments()
+                APIService().fetchGroups() { result in
+                    print(result)
+                }
             }
         }
     }

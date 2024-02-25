@@ -11,7 +11,7 @@ import JoyfillModel
 enum JoyfillAPI {
     case documents(identifier: String? = nil)
     case templates(identifier: String? = nil)
-    case groups
+    case groups(identifier: String? = nil)
     case users
     case convertPDFToPNGs
 
@@ -28,7 +28,7 @@ enum JoyfillAPI {
             }
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         case .groups:
-            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+            return URL(string: "\(Constants.groupsBaseURL)?&page=1&limit=25")!
         case .users:
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         case .convertPDFToPNGs:
@@ -260,6 +260,26 @@ public class APIService {
             completion(data)
         }
         task.resume()
+    }
+    
+    public func fetchGroups(completion: @escaping (Result<[GroupData], Error>) -> Void) {
+        
+        let request = urlRequest(type: .groups())
+        makeAPICall(with: request) { data, response, error in
+            
+            if let data = data, error == nil {
+                do {
+                    let documents = try JSONDecoder().decode(GroupResponse.self, from: data)
+                    completion(.success(documents.data))
+                } catch {
+                    print(error)
+                    completion(.failure(error))
+                    
+                }
+            } else {
+                completion(.failure(error ?? APIError.unknownError))
+            }
+        }
     }
 }
 

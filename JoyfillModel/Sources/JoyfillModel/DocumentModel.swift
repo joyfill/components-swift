@@ -40,6 +40,21 @@ public struct Document: Codable {
     }
 }
 
+// MARK: - GroupResponse
+public struct GroupResponse: Codable {
+    public let data: [GroupData]
+}
+
+// MARK: - Datum
+public struct GroupData: Codable {
+    public let id, identifier, title: String
+
+    public enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case identifier, title
+    }
+}
+
 extension Document: Identifiable {
     public var id: String { _id }
 }
