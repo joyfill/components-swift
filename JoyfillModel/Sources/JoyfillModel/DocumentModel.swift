@@ -55,6 +55,21 @@ public struct GroupData: Codable {
     }
 }
 
+// MARK: - RetrieveGroup
+public struct RetrieveGroup: Codable {
+    public let id, organization, identifier, title: String
+    public let identifiers: [String]
+    public let createdOn: Int64
+    public let deleted: Bool
+    public let v: Int
+
+    public enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case organization, identifier, title, identifiers, createdOn, deleted
+        case v = "__v"
+    }
+}
+
 extension Document: Identifiable {
     public var id: String { _id }
 }

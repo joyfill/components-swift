@@ -27,7 +27,10 @@ enum JoyfillAPI {
                 return URL(string: "\(Constants.documentsBaseURL)?template=\(identifier)&page=1&limit=25")!
             }
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
-        case .groups:
+        case .groups(identifier: let identifier):
+            if let identifier = identifier {
+                return URL(string: "\(Constants.groupsBaseURL)/\(identifier)")!
+            }
             return URL(string: "\(Constants.groupsBaseURL)?&page=1&limit=25")!
         case .users:
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
@@ -275,6 +278,25 @@ public class APIService {
                     print(error)
                     completion(.failure(error))
                     
+                }
+            } else {
+                completion(.failure(error ?? APIError.unknownError))
+            }
+        }
+    }
+
+    public func retrieveGroup(identifier: String,completion: @escaping (Result<RetrieveGroup, Error>) -> Void) {
+        
+        let request = urlRequest(type: .groups(identifier: identifier))
+        makeAPICall(with: request) { data, response, error in
+            
+            if let data = data, error == nil {
+                do {
+                    let documents = try JSONDecoder().decode(RetrieveGroup.self, from: data)
+                    completion(.success(documents))
+                } catch {
+                    print(error)
+                    completion(.failure(error))
                 }
             } else {
                 completion(.failure(error ?? APIError.unknownError))
