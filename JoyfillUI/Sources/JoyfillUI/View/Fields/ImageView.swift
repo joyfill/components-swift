@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillModel
+import JoyfillAPIService
 
 // Logo or Graphic
 
@@ -91,8 +92,8 @@ struct ImageView: View {
         }
     }
     func loadImageFromURL() {
-        JoyDocViewModel().loadImage(from: imageURL ?? "") { image in
-            if let image = image {
+        APIService().loadImage(from: imageURL ?? "") { imageData in
+            if let imageData = imageData, let image = UIImage(data: imageData) {
                 DispatchQueue.main.async {
                     profileImage = image
                     imageLoaded = true

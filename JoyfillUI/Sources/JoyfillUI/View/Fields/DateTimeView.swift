@@ -100,3 +100,19 @@ struct DateTimeView: View {
 #Preview {
     DateTimeView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }
+
+
+public func testDocument() -> JoyDoc {
+    if let url = Bundle.main.url(forResource: "RetriveDocument", withExtension: "json") {
+        do {
+            let data = try Data(contentsOf: url)
+            let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
+            return joyDocStruct
+        } catch {
+            print("Error reading JSON file:", error)
+        }
+    } else {
+        print("File not found")
+    }
+    fatalError()
+}

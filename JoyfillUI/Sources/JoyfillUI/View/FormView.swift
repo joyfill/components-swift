@@ -7,20 +7,19 @@
 
 import SwiftUI
 import JoyfillModel
-import JoyfillAPIService
 
-struct JoyFillView: View {
+public struct JoyFillView: View {
     private let document: JoyDoc
     private let mode: Mode
     private let events: Events?
     
-    init(document: JoyDoc, mode: Mode = .fill, events: Events? = nil) {
+    public init(document: JoyDoc, mode: Mode = .fill, events: Events? = nil) {
         self.document = document
         self.mode = mode
         self.events = events
     }
     
-    var body: some View {
+    public var body: some View {
         if let files = document.files {
             FilesView(files: files, fieldsData: document.fields, mode: mode, events: events)
         }

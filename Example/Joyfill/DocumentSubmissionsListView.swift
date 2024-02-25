@@ -8,6 +8,7 @@
 import SwiftUI
 import JoyfillModel
 import JoyfillAPIService
+import JoyfillUI
 
 struct DocumentSubmissionsListView: View {
     var identifier: String
@@ -77,21 +78,6 @@ struct DocumentSubmissionsListView: View {
             }
         }
     }
-}
-
-func testDocument() -> JoyDoc {
-    if let url = Bundle.main.url(forResource: "RetriveDocument", withExtension: "json") {
-        do {
-            let data = try Data(contentsOf: url)
-            let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
-            return joyDocStruct
-        } catch {
-            print("Error reading JSON file:", error)
-        }
-    } else {
-        print("File not found")
-    }
-    fatalError()
 }
 
 #Preview {

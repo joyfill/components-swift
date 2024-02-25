@@ -244,6 +244,23 @@ public class APIService {
         
         return request
     }
+    
+    public func loadImage(from urlString: String, completion: @escaping (Data?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            completion(nil)
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else {
+                completion(nil)
+                return
+            }
+            
+            completion(data)
+        }
+        task.resume()
+    }
 }
 
 public enum APIError: Error {

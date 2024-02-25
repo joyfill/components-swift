@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillModel
+import JoyfillAPIService
 
 struct SignatureView: View {
     @State private var lines: [Line] = []
@@ -68,8 +69,8 @@ struct SignatureView: View {
         .padding(.horizontal, 16)
     }
     func loadImageFromURL() {
-        JoyDocViewModel().loadImage(from: signatureURL ?? "") { image in
-            if let image = image {
+        APIService().loadImage(from: signatureURL ?? "") { imageData in
+            if let imageData = imageData, let image = UIImage(data: imageData) {
                 DispatchQueue.main.async {
                     self.signatureImage = image
                     imageLoaded = true
