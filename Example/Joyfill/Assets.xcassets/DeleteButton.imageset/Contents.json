@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Trash.png",
+      "filename" : "button-32.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Trash-2.png",
+      "filename" : "button-33.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Trash-3.png",
+      "filename" : "button-34.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

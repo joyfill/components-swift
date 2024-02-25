@@ -17,6 +17,8 @@ struct ImageView: View {
     @State private var showImagePicker: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var imageCount: Int = 4
+    @State var imagesArray: [UIImage] = []
+    @State var imageURLs: [String] = []
     
     private let mode: Mode = .fill
     private let eventHandler: FieldEventHandler
@@ -34,56 +36,65 @@ struct ImageView: View {
             Text("Image")
                 .fontWeight(.bold)
             
-            Button(action: {
-                    showImagePicker = true
-            }, label: {
                 if let profileImage = profileImage {
                     ZStack {
                         Image(uiImage: profileImage)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .cornerRadius(20)
-                        HStack{
-                            Text("More > ")
-                                .padding(.vertical, 10)
-                                .padding(.leading,10)
-                            Text("+\(imageCount)")
-                                .tint(.black)
-                                .padding(.vertical, 10)
-                                .padding(.trailing, 10)
-                        }
-                        .background(.white)
-                        .cornerRadius(10)
-                        .padding(.leading, 50)
-                        .padding(.top, 50)
+                        Button(action: {
+                            showImagePicker = true
+                        }, label: {
+                            HStack {
+                                Text("More > ")
+                                
+                                Text("+\(imageCount)")
+                                    .foregroundColor(.black)
+                            }
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 10)
+                            .background(Color.white)
+                            .cornerRadius(10)
+                        })
+                        .padding(.top, 200)
+                        .padding(.leading, 250)
+                        .sheet(isPresented: $showImagePicker, content: {
+                            MoreImageView(images: $imagesArray)
+                        })
                     }
                 } else {
-                    ZStack {
-                        Image("ImageUploadRectSmall")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 100)
-                        HStack() {
-                            Text("Upload")
-                                .tint(.black)
-                            Image("Upload_Icon")
+                    Button(action: {
+                        showImagePicker = true
+                    }, label: {
+                        ZStack {
+                            Image("ImageUploadRectSmall")
                                 .resizable()
-                                .frame(width: 18,height: 18)
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 100)
+                            HStack() {
+                                Text("Upload")
+                                    .tint(.black)
+                                Image("Upload_Icon")
+                                    .resizable()
+                                    .frame(width: 18,height: 18)
+                            }
                         }
-                    }
+                    })
+                    .padding(.horizontal, 16)
+                    .sheet(isPresented: $showImagePicker, content: {
+                        ImagePickerView(selectedImage: $profileImage, isCamera: false)
+                    })
                 }
-            })
-            .padding(.horizontal, 16)
-            .sheet(isPresented: $showImagePicker, content: {
-                ImagePickerView(selectedImage: $profileImage, isCamera: false)
-            })
-            
         }
         .padding(.horizontal, 16)
         .onAppear {
-            if let value = fieldData?.value?.imageURLs {
-                self.imageURL = value[0]
-                imageCount = value.count
+            if let imageURLs = fieldData?.value?.imageURLs {
+                self.imageURL = imageURLs[0]
+                imageCount = imageURLs.count
+                for imageURL in imageURLs {
+                    self.imageURLs.append(imageURL)
+                }
+                
             }
             
             if !imageLoaded {
@@ -92,21 +103,88 @@ struct ImageView: View {
         }
     }
     func loadImageFromURL() {
-        APIService().loadImage(from: imageURL ?? "") { imageData in
-            if let imageData = imageData, let image = UIImage(data: imageData) {
-                DispatchQueue.main.async {
-                    profileImage = image
-                    imageLoaded = true
+        for imageURL in self.imageURLs {
+            APIService().loadImage(from: imageURL ?? "") { imageData in
+                if let imageData = imageData, let image = UIImage(data: imageData) {
+                    DispatchQueue.main.async {
+                        profileImage = image
+                        imagesArray.append(image)
+                        imageLoaded = true
+                    }
+                } else {
+                    print("Failed to load image from URL: \(String(describing: imageURL))")
                 }
-            } else {
-                print("Failed to load image from URL: \(String(describing: imageURL))")
             }
         }
     }
 }
+struct MoreImageView: View {
+    @Binding var images: [UIImage]
+    @Environment(\.presentationMode) private var presentationMode
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text("More Images")
+                    .fontWeight(.bold)
+                Spacer()
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    Image(systemName: "xmark.circle")
+                        .foregroundStyle(.black)
+                        .fontWeight(.bold)
+                })
+            }
+            
+            UploadDeleteView()
+            ImageGridView(images: $images)
+            Spacer()
+        }
+        .padding(.horizontal, 16.0)
+        .padding(.vertical, 16)
+    }
+}
+struct UploadDeleteView: View {
+    var body: some View {
+        HStack {
+            Button(action: {
+                
+            }, label: {
+                    Image("UploadButton")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 28)
+            })
+            
+            Button(action: {
+                
+            }, label: {
+                Image("DeleteButton")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 28)
+            })
+            Spacer()
+        }
+    }
+}
+
+struct ImageGridView:View {
+    @Binding var images: [UIImage]
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+             ForEach(images, id: \.self) { image in
+               Image(uiImage: image)
+                 .resizable()
+                 .aspectRatio(contentMode: .fit)
+                 .cornerRadius(10)
+             }
+           }
+    }
+}
 
 #Preview {
-    ImageView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
+    UploadDeleteView()
 }
 
 struct ImagePickerView: UIViewControllerRepresentable {
