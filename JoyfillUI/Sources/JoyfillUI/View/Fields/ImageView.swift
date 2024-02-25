@@ -15,6 +15,7 @@ struct ImageView: View {
     @State var profileImage: UIImage?
     @State private var showImagePicker: Bool = false
     @State private var imageLoaded: Bool = false
+    @State private var imageCount: Int = 4
     
     private let mode: Mode = .fill
     private let eventHandler: FieldEventHandler
@@ -36,27 +37,52 @@ struct ImageView: View {
                     showImagePicker = true
             }, label: {
                 if let profileImage = profileImage {
-                    Image(uiImage: profileImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(20)
+                    ZStack {
+                        Image(uiImage: profileImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .cornerRadius(20)
+                        HStack{
+                            Text("More > ")
+                                .padding(.vertical, 10)
+                                .padding(.leading,10)
+                            Text("+\(imageCount)")
+                                .tint(.black)
+                                .padding(.vertical, 10)
+                                .padding(.trailing, 10)
+                        }
+                        .background(.white)
+                        .cornerRadius(10)
+                        .padding(.leading, 50)
+                        .padding(.top, 50)
+                    }
                 } else {
-                    Image("UploadImageBorder")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 100)
+                    ZStack {
+                        Image("ImageUploadRectSmall")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 100)
+                        HStack() {
+                            Text("Upload")
+                                .tint(.black)
+                            Image("Upload_Icon")
+                                .resizable()
+                                .frame(width: 18,height: 18)
+                        }
+                    }
                 }
             })
             .padding(.horizontal, 16)
+            .sheet(isPresented: $showImagePicker, content: {
+                ImagePickerView(selectedImage: $profileImage, isCamera: false)
+            })
             
-            NavigationLink(destination: ImagePickerView(selectedImage: $profileImage, isCamera: false), isActive: $showImagePicker) {
-                EmptyView()
-            }
         }
         .padding(.horizontal, 16)
         .onAppear {
-            if let value = fieldData?.value?.imageURL {
-                self.imageURL = value
+            if let value = fieldData?.value?.imageURLs {
+                self.imageURL = value[0]
+                imageCount = value.count
             }
             
             if !imageLoaded {

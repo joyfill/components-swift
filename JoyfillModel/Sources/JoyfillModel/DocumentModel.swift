@@ -72,10 +72,14 @@ public extension ValueUnion {
             return nil
         }
     }
-    var imageURL: String? {
+    var imageURLs: [String]? {
         switch self {
         case .valueElementArray(let valueElements):
-            return valueElements[0].url
+            var imageURLArray: [String] = []
+            for element in valueElements {
+                imageURLArray.append(element.url ?? "")
+            }
+            return imageURLArray
         default:
             return nil
         }
