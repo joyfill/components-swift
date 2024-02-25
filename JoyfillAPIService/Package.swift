@@ -12,7 +12,7 @@ let package = Package(
             targets: ["JoyfillAPIService"]),
     ],
     dependencies: [
-        .package(name: "JoyfillModel", path: "../JoyfillModel"),
+        .package(name: "JoyfillModel", path: "../JoyfillModel")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
