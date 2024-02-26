@@ -59,7 +59,7 @@ public struct GroupData: Codable {
 public struct RetrieveGroup: Codable {
     public let id, organization, identifier, title: String
     public let identifiers: [String]
-    public let createdOn: Int64
+    public let createdOn: Int
     public let deleted: Bool
     public let v: Int
 
