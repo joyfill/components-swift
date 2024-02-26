@@ -12,7 +12,7 @@ enum JoyfillAPI {
     case documents(identifier: String? = nil)
     case templates(identifier: String? = nil)
     case groups(identifier: String? = nil)
-    case users
+    case users(identifier: String? = nil)
     case convertPDFToPNGs
 
     var endPoint: URL {
@@ -32,8 +32,11 @@ enum JoyfillAPI {
                 return URL(string: "\(Constants.groupsBaseURL)/\(identifier)")!
             }
             return URL(string: "\(Constants.groupsBaseURL)?&page=1&limit=25")!
-        case .users:
-            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+        case .users(identifier: let identifier):
+            if let identifier = identifier {
+                return URL(string: "\(Constants.usersBaseURL)/\(identifier)")!
+            }
+            return URL(string: "\(Constants.usersBaseURL)?&page=1&limit=25")!
         case .convertPDFToPNGs:
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         }
@@ -303,6 +306,45 @@ public class APIService {
             }
         }
     }
+    
+    public func fetchListAllUsers(completion: @escaping (Result<[ListAllUsers], Error>) -> Void) {
+        
+        let request = urlRequest(type: .users())
+        makeAPICall(with: request) { data, response, error in
+            
+            if let data = data, error == nil {
+                do {
+                    let documents = try JSONDecoder().decode(ListAllUsersResponse.self, from: data)
+                    completion(.success(documents.data))
+                } catch {
+                    print(error)
+                    completion(.failure(error))
+                }
+            } else {
+                completion(.failure(error ?? APIError.unknownError))
+            }
+        }
+    }
+    
+    public func retrieveUser(identifier: String,completion: @escaping (Result<RetrieveUsers, Error>) -> Void) {
+        
+        let request = urlRequest(type: .users(identifier: identifier))
+        makeAPICall(with: request) { data, response, error in
+            
+            if let data = data, error == nil {
+                do {
+                    let documents = try JSONDecoder().decode(RetrieveUsers.self, from: data)
+                    completion(.success(documents))
+                } catch {
+                    print(error)
+                    completion(.failure(error))
+                }
+            } else {
+                completion(.failure(error ?? APIError.unknownError))
+            }
+        }
+    }
+    
 }
 
 public enum APIError: Error {

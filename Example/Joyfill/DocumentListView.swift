@@ -35,9 +35,6 @@ public struct DocumentListView: View {
             }
             .onAppear() {
                 documentsViewModel.fetchDocuments()
-                APIService().retrieveGroup(identifier: "group_65db09fde5fa86aa1b6b2b9f") { result in
-                    print(result)
-                }
             }
         }
     }

@@ -40,12 +40,15 @@ public struct Document: Codable {
     }
 }
 
-// MARK: - GroupResponse
-public struct GroupResponse: Codable {
-    public let data: [GroupData]
+extension Document: Identifiable {
+    public var id: String { _id }
 }
 
-// MARK: - Datum
+public struct DocumentListResponse: Codable {
+    public let data: [Document]
+}
+
+// MARK: - GroupData
 public struct GroupData: Codable {
     public let id, identifier, title: String
 
@@ -53,6 +56,10 @@ public struct GroupData: Codable {
         case id = "_id"
         case identifier, title
     }
+}
+
+public struct GroupResponse: Codable {
+    public let data: [GroupData]
 }
 
 // MARK: - RetrieveGroup
@@ -70,12 +77,30 @@ public struct RetrieveGroup: Codable {
     }
 }
 
-extension Document: Identifiable {
-    public var id: String { _id }
+public struct ListAllUsers: Codable {
+    public let id, organization, type, identifier: String
+    public let createdOn: Int
+    public let firstName, lastName, email: String
+
+    public enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case organization, type, identifier, createdOn, firstName, lastName, email
+    }
 }
 
-public struct DocumentListResponse: Codable {
-    public let data: [Document]
+public struct ListAllUsersResponse: Codable {
+    public let data: [ListAllUsers]
+}
+
+public struct RetrieveUsers: Codable {
+    public let id, organization, type, identifier: String
+    public let createdOn: Int
+    public let firstName, lastName, email: String
+
+    public enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case organization, type, identifier, createdOn, firstName, lastName, email
+    }
 }
 
 public enum FieldTypes: String, Codable {
