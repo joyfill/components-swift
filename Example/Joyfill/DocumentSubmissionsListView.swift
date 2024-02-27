@@ -20,7 +20,6 @@ struct DocumentSubmissionsListView: View {
     @ObservedObject var documentsViewModel = DocumentsViewModel()
     
     var body: some View {
-        
         Group {
             List {
                 VStack(alignment: .leading) {
@@ -47,7 +46,6 @@ struct DocumentSubmissionsListView: View {
                         }
                     }
                     .onTapGesture {
-                        // Make your API call here
                         makeAPICallForSubmission(submission)
                     }
                 }
@@ -111,5 +109,6 @@ extension DocumentSubmissionsListView: Events {
     
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.field.identifier)
+        event.uploadHandler("https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg")
     }
 }

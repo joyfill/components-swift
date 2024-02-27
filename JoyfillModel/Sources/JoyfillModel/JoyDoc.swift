@@ -181,7 +181,7 @@ public struct File: Codable {
     public var pageOrder: [String]?
     public var views: [ModelView]?
     
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case id = "_id"
         case metadata, name, version, styles, pages, views, pageOrder
     }
@@ -197,7 +197,7 @@ public struct Page: Codable {
     public let margin, padding, borderWidth: Int?
     public var id: String?
     
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case name, fieldPositions, metadata, width, height, cols, rowHeight, layout, presentation, margin, padding, borderWidth
         case id = "_id"
     }

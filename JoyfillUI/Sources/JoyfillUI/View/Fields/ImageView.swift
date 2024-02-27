@@ -15,7 +15,9 @@ struct ImageView: View {
     @State var imageURL: String?
     @State var profileImage: UIImage?
     @State private var showImagePicker: Bool = false
+    @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
+    @State private var showProgressView : Bool = false
     @State private var imageCount: Int = 4
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
@@ -43,7 +45,7 @@ struct ImageView: View {
                             .aspectRatio(contentMode: .fit)
                             .cornerRadius(20)
                         Button(action: {
-                            showImagePicker = true
+                            showMoreImages = true
                         }, label: {
                             HStack {
                                 Text("More > ")
@@ -58,45 +60,42 @@ struct ImageView: View {
                         })
                         .padding(.top, 200)
                         .padding(.leading, 250)
-                        .sheet(isPresented: $showImagePicker, content: {
-                            MoreImageView(images: $imagesArray)
+                        .sheet(isPresented: $showMoreImages, content: {
+                            MoreImageView(isUploadHidden: fieldPosition.primaryDisplayOnly ?? false, images: $imagesArray)
                         })
                     }
                 } else {
                     Button(action: {
-                        showImagePicker = true
+                        let uploadEvent = UploadEvent(field: fieldData!) { url in
+                            imageURLs.append(url)
+                            showProgressView = true
+                            loadImageFromURL()
+                        }
+                        eventHandler.onUpload(event: uploadEvent)
                     }, label: {
                         ZStack {
                             Image("ImageUploadRectSmall")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(height: 100)
-                            HStack() {
-                                Text("Upload")
-                                    .tint(.black)
-                                Image("Upload_Icon")
-                                    .resizable()
-                                    .frame(width: 18,height: 18)
+                            Image("Upload_Icon")
+                                .resizable()
+                                .frame(width: 69,height: 18)
+                            if showProgressView {
+                                ProgressView()
                             }
                         }
-                    })
-                    .padding(.horizontal, 16)
-                    .sheet(isPresented: $showImagePicker, content: {
-                        ImagePickerView(selectedImage: $profileImage, isCamera: false)
                     })
                 }
         }
         .padding(.horizontal, 16)
         .onAppear {
             if let imageURLs = fieldData?.value?.imageURLs {
-                self.imageURL = imageURLs[0]
                 imageCount = imageURLs.count
                 for imageURL in imageURLs {
                     self.imageURLs.append(imageURL)
                 }
-                
             }
-            
             if !imageLoaded {
                 loadImageFromURL()
             }
@@ -107,6 +106,7 @@ struct ImageView: View {
             APIService().loadImage(from: imageURL ?? "") { imageData in
                 if let imageData = imageData, let image = UIImage(data: imageData) {
                     DispatchQueue.main.async {
+                        showProgressView = false
                         profileImage = image
                         imagesArray.append(image)
                         imageLoaded = true
@@ -119,6 +119,7 @@ struct ImageView: View {
     }
 }
 struct MoreImageView: View {
+    var isUploadHidden: Bool
     @Binding var images: [UIImage]
     @Environment(\.presentationMode) private var presentationMode
     var body: some View {
@@ -135,8 +136,12 @@ struct MoreImageView: View {
                         .fontWeight(.bold)
                 })
             }
-            
-            UploadDeleteView()
+            if isUploadHidden {
+                UploadDeleteView()
+                    .hidden()
+            } else {
+                UploadDeleteView()
+            }
             ImageGridView(images: $images)
             Spacer()
         }

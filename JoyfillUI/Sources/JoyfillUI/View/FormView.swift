@@ -184,7 +184,7 @@ class FieldEventHandler: Events {
         appEventHandler?.onBlur(event: event)
     }
     
-    func onUpload(event:UploadEvent) {
+    func onUpload(event: UploadEvent) {
         appEventHandler?.onUpload(event: event)
     }
 }

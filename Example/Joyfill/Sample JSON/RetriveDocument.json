@@ -35,6 +35,7 @@
                             "height": 15,
                             "x": 19,
                             "y": 0,
+                            "primaryDisplayOnly": false,
                             "_id": "65c77d1a347a4e0776dd50d0",
                             "type": "image"
                         },
