@@ -15,7 +15,7 @@ enum JoyfillAPI {
     case users(identifier: String? = nil)
     case saveForm(identifier: String? = nil)
     case convertPDFToPNGs
-
+    
     var endPoint: URL {
         switch self {
         case .documents(identifier: let identifier):
@@ -41,7 +41,7 @@ enum JoyfillAPI {
         case .convertPDFToPNGs:
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         case .saveForm(identifier: let identifier):
-                return URL(string: "\(Constants.saveFormBaseURL)/\(identifier)")!
+            return URL(string: "\(Constants.saveFormBaseURL)/\(identifier)")!
         }
     }
 }
@@ -173,17 +173,14 @@ public class APIService {
                 completion(nil)
                 return
             }
-            
             completion(data)
         }
         task.resume()
     }
     
     public func fetchGroups(completion: @escaping (Result<[GroupData], Error>) -> Void) {
-        
         let request = urlRequest(type: .groups())
         makeAPICall(with: request) { data, response, error in
-            
             if let data = data, error == nil {
                 do {
                     let documents = try JSONDecoder().decode(GroupResponse.self, from: data)
@@ -198,12 +195,10 @@ public class APIService {
             }
         }
     }
-
+    
     public func retrieveGroup(identifier: String,completion: @escaping (Result<RetrieveGroup, Error>) -> Void) {
-        
         let request = urlRequest(type: .groups(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
-            
             if let data = data, error == nil {
                 do {
                     let documents = try JSONDecoder().decode(RetrieveGroup.self, from: data)
@@ -219,10 +214,8 @@ public class APIService {
     }
     
     public func fetchListAllUsers(completion: @escaping (Result<[ListAllUsers], Error>) -> Void) {
-        
         let request = urlRequest(type: .users())
         makeAPICall(with: request) { data, response, error in
-            
             if let data = data, error == nil {
                 do {
                     let documents = try JSONDecoder().decode(ListAllUsersResponse.self, from: data)
@@ -238,10 +231,8 @@ public class APIService {
     }
     
     public func retrieveUser(identifier: String,completion: @escaping (Result<RetrieveUsers, Error>) -> Void) {
-        
         let request = urlRequest(type: .users(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
-            
             if let data = data, error == nil {
                 do {
                     let documents = try JSONDecoder().decode(RetrieveUsers.self, from: data)
@@ -258,10 +249,8 @@ public class APIService {
     
     public func updateDocumentChangelogs(identifier: String, docChangeLogs: Any, completion: @escaping (Result<Any, Error>) -> Void) {
         do {
-            
             let jsonData = try JSONSerialization.data(withJSONObject: docChangeLogs, options: [])
             let request = urlRequest(type: .saveForm(identifier: identifier), method: "POST", httpBody: jsonData)
-            
             makeAPICall(with: request) { data, response, error in
                 if let error = error {
                     completion(.failure(error))
@@ -280,7 +269,6 @@ public class APIService {
     }
     
     public func createDocumentSubmission(identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        
         self.fetchJoyDoc(identifier: identifier) { [self] joyDocJSON in
             createDocument(joyDocJSON: joyDocJSON, identifier: identifier) { result in
                 completion(result)
@@ -289,7 +277,6 @@ public class APIService {
     }
     
     public func createDocument(joyDocJSON: Result<Data, any Error>, identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        
         var jsonData: Data?
         do {
             let data = try joyDocJSON.get() as! Data
@@ -325,7 +312,6 @@ public class APIService {
             completion(.failure(error))
         }
     }
-    
 }
 
 public enum APIError: Error {

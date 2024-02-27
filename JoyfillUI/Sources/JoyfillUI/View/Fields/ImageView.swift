@@ -22,6 +22,8 @@ struct ImageView: View {
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
     @StateObject var imageViewModel = ImageFieldViewModel()
+    let screenWidth = UIScreen.main.bounds.width
+    let screenHeight = UIScreen.main.bounds.height
     
     private let mode: Mode = .fill
     private let eventHandler: FieldEventHandler
@@ -59,8 +61,8 @@ struct ImageView: View {
                             .background(Color.white)
                             .cornerRadius(10)
                         })
-                        .padding(.top, 200)
-                        .padding(.leading, 250)
+                        .padding(.top, screenHeight * 0.2)
+                        .padding(.leading, screenWidth * 0.6)
                         .sheet(isPresented: $showMoreImages, content: {
                             MoreImageView(isUploadHidden: fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                         })
