@@ -21,6 +21,7 @@ struct ImageView: View {
     @State private var imageCount: Int = 4
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
+    @StateObject var imageViewModel = ImageFieldViewModel()
     
     private let mode: Mode = .fill
     private let eventHandler: FieldEventHandler
@@ -61,7 +62,7 @@ struct ImageView: View {
                         .padding(.top, 200)
                         .padding(.leading, 250)
                         .sheet(isPresented: $showMoreImages, content: {
-                            MoreImageView(isUploadHidden: fieldPosition.primaryDisplayOnly ?? false, images: $imagesArray)
+                            MoreImageView(isUploadHidden: fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                         })
                     }
                 } else {
@@ -69,7 +70,7 @@ struct ImageView: View {
                         let uploadEvent = UploadEvent(field: fieldData!) { url in
                             imageURLs.append(url)
                             showProgressView = true
-                            loadImageFromURL()
+                            loadSingleImageFromURL(imageURL: url)
                         }
                         eventHandler.onUpload(event: uploadEvent)
                     }, label: {
@@ -102,26 +103,45 @@ struct ImageView: View {
         }
     }
     func loadImageFromURL() {
-        for imageURL in self.imageURLs {
-            APIService().loadImage(from: imageURL ?? "") { imageData in
-                if let imageData = imageData, let image = UIImage(data: imageData) {
-                    DispatchQueue.main.async {
-                        showProgressView = false
-                        profileImage = image
-                        imagesArray.append(image)
-                        imageLoaded = true
-                    }
-                } else {
-                    print("Failed to load image from URL: \(String(describing: imageURL))")
-                }
+        imageViewModel.loadImageFromURL(imageURLs: self.imageURLs) { loadedImages in
+            self.imagesArray = loadedImages
+            showProgressView = false
+            if loadedImages.count > 0 {
+                profileImage = loadedImages[0]
+            }
+            imageLoaded = true
+        }
+    }
+
+    func loadSingleImageFromURL(imageURL: String) {
+        imageViewModel.loadSingleURL(imageURL: imageURL) { image in
+            if let image = image {
+                showProgressView = false
+                profileImage = image
+                imagesArray.append(image)
+                imageLoaded = true
             }
         }
     }
+    
 }
 struct MoreImageView: View {
     var isUploadHidden: Bool
     @Binding var images: [UIImage]
     @Environment(\.presentationMode) private var presentationMode
+    
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
+    
+    public init(isUploadHidden: Bool,imagesArray: Binding<[UIImage]>,eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+        self.isUploadHidden = isUploadHidden
+        _images = imagesArray
+        self.eventHandler = eventHandler
+        self.fieldPosition = fieldPosition
+        self.fieldData = fieldData
+    }
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -137,10 +157,10 @@ struct MoreImageView: View {
                 })
             }
             if isUploadHidden {
-                UploadDeleteView()
+                UploadDeleteView(imagesArray: $images,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     .hidden()
             } else {
-                UploadDeleteView()
+                UploadDeleteView(imagesArray: $images,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
             }
             ImageGridView(images: $images)
             Spacer()
@@ -150,10 +170,27 @@ struct MoreImageView: View {
     }
 }
 struct UploadDeleteView: View {
+    @Binding var imagesArray: [UIImage]
+    
+    private let mode: Mode = .fill
+    private let eventHandler: FieldEventHandler
+    private let fieldPosition: FieldPosition
+    private var fieldData: JoyDocField?
+    @StateObject var imageViewModel = ImageFieldViewModel()
+    
+    public init(imagesArray: Binding<[UIImage]>,eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+        _imagesArray = imagesArray
+        self.eventHandler = eventHandler
+        self.fieldPosition = fieldPosition
+        self.fieldData = fieldData
+    }
     var body: some View {
         HStack {
             Button(action: {
-                
+                let uploadEvent = UploadEvent(field: fieldData!) { url in
+                    loadSingleImageFromURL(imageURL: url)
+                }
+                eventHandler.onUpload(event: uploadEvent)
             }, label: {
                     Image("UploadButton")
                         .resizable()
@@ -162,7 +199,7 @@ struct UploadDeleteView: View {
             })
             
             Button(action: {
-                
+                imagesArray.remove(at: imagesArray.count - 1)
             }, label: {
                 Image("DeleteButton")
                     .resizable()
@@ -172,24 +209,29 @@ struct UploadDeleteView: View {
             Spacer()
         }
     }
+    func loadSingleImageFromURL(imageURL: String) {
+        imageViewModel.loadSingleURL(imageURL: imageURL) { image in
+            if let image = image {
+                imagesArray.append(image)
+            }
+        }
+    }
 }
 
 struct ImageGridView:View {
     @Binding var images: [UIImage]
     var body: some View {
-        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-             ForEach(images, id: \.self) { image in
-               Image(uiImage: image)
-                 .resizable()
-                 .aspectRatio(contentMode: .fit)
-                 .cornerRadius(10)
-             }
-           }
+        ScrollView {
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                ForEach(images, id: \.self) { image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .cornerRadius(10)
+                }
+            }
+        }
     }
-}
-
-#Preview {
-    UploadDeleteView()
 }
 
 struct ImagePickerView: UIViewControllerRepresentable {
