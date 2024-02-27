@@ -31,7 +31,7 @@ public class JoyDocViewModel: ObservableObject {
     }
     
     public func updateDocumentChangelogs(identifier: String, userAccessToken: String, docChangeLogs: Any) {
-        APIService.updateDocumentChangelogs(identifier: identifier, userAccessToken: userAccessToken, docChangeLogs: docChangeLogs) { result in
+        APIService().updateDocumentChangelogs(identifier: identifier, docChangeLogs: docChangeLogs) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let json):

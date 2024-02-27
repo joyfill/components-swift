@@ -13,6 +13,7 @@ enum JoyfillAPI {
     case templates(identifier: String? = nil)
     case groups(identifier: String? = nil)
     case users(identifier: String? = nil)
+    case saveForm(identifier: String? = nil)
     case convertPDFToPNGs
 
     var endPoint: URL {
@@ -39,6 +40,8 @@ enum JoyfillAPI {
             return URL(string: "\(Constants.usersBaseURL)?&page=1&limit=25")!
         case .convertPDFToPNGs:
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+        case .saveForm(identifier: let identifier):
+                return URL(string: "\(Constants.saveFormBaseURL)/\(identifier)")!
         }
     }
 }
@@ -51,9 +54,10 @@ public class APIService {
         self.accessToken = accessToken
     }
     
-    private func urlRequest(type: JoyfillAPI) -> URLRequest {
+    private func urlRequest(type: JoyfillAPI, method: String? = nil, httpBody: Data? = nil) -> URLRequest {
         var request = URLRequest(url: type.endPoint)
-        request.httpMethod = "GET"
+        request.httpMethod = method ?? "GET"
+        request.httpBody = httpBody
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         return request
@@ -130,58 +134,6 @@ public class APIService {
         }
     }
     
-    public func createDocumentSubmission(identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        
-        self.fetchJoyDoc(identifier: identifier) { [self] joyDocJSON in
-            
-            guard let url = URL(string: "\(Constants.documentsBaseURL)") else {
-                completion(.failure(APIError.invalidURL))
-                return
-            }
-            
-            var request = URLRequest(url: url)
-            var jsonData: Data?
-            do {
-                let data = try joyDocJSON.get() as Data
-                var dictionaryObject = try! JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                // We remove some of the uneeded keys, specifically changing the "type" to "document"
-
-                dictionaryObject?.removeValue(forKey: "_id")
-                dictionaryObject?.removeValue(forKey: "createdOn")
-                dictionaryObject?.removeValue(forKey: "deleted")
-                dictionaryObject?.removeValue(forKey: "categories")
-                dictionaryObject?.removeValue(forKey: "stage")
-                dictionaryObject?.removeValue(forKey: "identifier")
-                dictionaryObject?.removeValue(forKey: "metadata")
-                dictionaryObject?.updateValue("document", forKey: "type")
-                dictionaryObject?.updateValue(identifier, forKey: "template")
-                dictionaryObject?.updateValue(identifier, forKey: "source")
-                
-                let jsonData = try JSONSerialization.data(withJSONObject: dictionaryObject ?? [:], options: [])
-            } catch {
-                print("Error in preparing post document request")
-            }
-
-            request.httpBody = jsonData
-            request.httpMethod = "POST"
-            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    completion(.failure(error))
-                } else if let data = data {
-                    do {
-                        let jsonRes = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-                        completion(.success(jsonRes))
-                    } catch {
-                        completion(.failure(error))
-                    }
-                }
-            }.resume()
-        }
-    }
-    
     public func fetchJoyDoc(identifier: String, completion: @escaping (Result<Data, Error>) -> Void) {
         if debugEnabled {
             if let url = Bundle.main.url(forResource: "RetriveDocument", withExtension: "json") {
@@ -208,47 +160,6 @@ public class APIService {
                 }
             }
         }
-    }
-    
-    public static func updateDocumentChangelogs(identifier: String, userAccessToken: String, docChangeLogs: Any, completion: @escaping (Result<Any, Error>) -> Void) {
-        do {
-            guard let url = URL(string: "\(Constants.documentsBaseURL)/\(identifier)/changelogs") else {
-                completion(.failure(APIError.invalidURL))
-                return
-            }
-            
-            let jsonData = try JSONSerialization.data(withJSONObject: docChangeLogs, options: [])
-            
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.httpBody = jsonData
-            request.setValue("Bearer \(userAccessToken)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    completion(.failure(error))
-                } else if let data = data {
-                    do {
-                        let json = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-                        completion(.success(json))
-                    } catch {
-                        completion(.failure(error))
-                    }
-                }
-            }.resume()
-        } catch {
-            completion(.failure(error))
-        }
-    }
-    
-    static func getDocumentsRequest(path: String, _ method: String = "GET") -> URLRequest? {
-        var request = URLRequest(url: URL(string: "\(Constants.documentsBaseURL)/\(path)")!)
-        request.httpMethod = method
-        request.setValue("Bearer \(Constants.userAccessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        return request
     }
     
     public func loadImage(from urlString: String, completion: @escaping (Data?) -> Void) {
@@ -342,6 +253,76 @@ public class APIService {
             } else {
                 completion(.failure(error ?? APIError.unknownError))
             }
+        }
+    }
+    
+    public func updateDocumentChangelogs(identifier: String, docChangeLogs: Any, completion: @escaping (Result<Any, Error>) -> Void) {
+        do {
+            
+            let jsonData = try JSONSerialization.data(withJSONObject: docChangeLogs, options: [])
+            let request = urlRequest(type: .saveForm(identifier: identifier), method: "POST", httpBody: jsonData)
+            
+            makeAPICall(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
+                } else if let data = data {
+                    do {
+                        let json = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                        completion(.success(json))
+                    } catch {
+                        completion(.failure(error))
+                    }
+                }
+            }
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+    public func createDocumentSubmission(identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
+        
+        self.fetchJoyDoc(identifier: identifier) { [self] joyDocJSON in
+            createDocument(joyDocJSON: joyDocJSON, identifier: identifier) { result in
+                completion(result)
+            }
+        }
+    }
+    
+    public func createDocument(joyDocJSON: Result<Data, any Error>, identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
+        
+        var jsonData: Data?
+        do {
+            let data = try joyDocJSON.get() as! Data
+            var dictionaryObject = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            // We remove some of the uneeded keys, specifically changing the "type" to "document"
+            dictionaryObject?.removeValue(forKey: "_id")
+            dictionaryObject?.removeValue(forKey: "createdOn")
+            dictionaryObject?.removeValue(forKey: "deleted")
+            dictionaryObject?.removeValue(forKey: "categories")
+            dictionaryObject?.removeValue(forKey: "stage")
+            dictionaryObject?.removeValue(forKey: "identifier")
+            dictionaryObject?.removeValue(forKey: "metadata")
+            dictionaryObject?.updateValue("document", forKey: "type")
+            dictionaryObject?.updateValue(identifier, forKey: "template")
+            dictionaryObject?.updateValue(identifier, forKey: "source")
+            
+            let jsonData = try JSONSerialization.data(withJSONObject: dictionaryObject ?? [:], options: [])
+            
+            let request = urlRequest(type: .documents(), method: "POST", httpBody: jsonData)
+            makeAPICall(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
+                } else if let data = data {
+                    do {
+                        let jsonRes = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                        completion(.success(jsonRes))
+                    } catch {
+                        completion(.failure(error))
+                    }
+                }
+            }
+        } catch {
+            completion(.failure(error))
         }
     }
     
