@@ -37,29 +37,16 @@ struct DocumentSubmissionsListView: View {
                     Text("Fill New +")
                 })
                 
-//                ForEach(documentsViewModel.submissions) { submission in
-//                    NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-//                        JoyFillView(document: document!, mode: .readonly, events: self)
-//                    }), isActive: $showForm) {
-//                        HStack {
-//                            Image(systemName: "doc")
-//                            Text(submission.name)
-//                        }
-//                    }
-//                    .onTapGesture {
-//                        makeAPICallForSubmission(submission)
-//                    }
-//                }
-                      ForEach(documentsViewModel.submissions) { submission in
-                        Button(action: {
-                            makeAPICallForSubmission(submission)
-                        }) {
-                          HStack {
+                ForEach(documentsViewModel.submissions) { submission in
+                    Button(action: {
+                        makeAPICallForSubmission(submission)
+                    }) {
+                        HStack {
                             Image(systemName: "doc")
                             Text(submission.name)
-                          }
                         }
-                      }
+                    }
+                }
                 NavigationLink(destination: LazyView(isLoading: !showForm, content: {
                     JoyFillView(document: document!, mode: .readonly, events: self)
                 }), isActive: $showForm) {
@@ -115,15 +102,15 @@ extension DocumentSubmissionsListView: Events {
     }
     
     func onFocus(event: FieldEvent) {
-        print(">>>>>>>>onFocus", event.field?.identifier)
+        print(">>>>>>>>onFocus", event.field!.identifier!)
     }
     
     func onBlur(event: FieldEvent) {
-        print(">>>>>>>>onBlur", event.field?.identifier)
+        print(">>>>>>>>onBlur", event.field!.identifier!)
     }
     
     func onUpload(event: UploadEvent) {
-        print(">>>>>>>>onUpload", event.field.identifier)
+        print(">>>>>>>>onUpload", event.field.identifier!)
         event.uploadHandler(["https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg",
                              "https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg"])
     }

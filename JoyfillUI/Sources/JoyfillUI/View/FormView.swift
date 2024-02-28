@@ -61,8 +61,30 @@ struct FileView: View {
     
     var body: some View {
         if let pages = file.pages {
-            PagesView(pages: pages, fieldsData: fieldsData, mode: mode, events: events)
+            PagesView(pages: pages, fieldsData: fieldsData, mode: mode, events: self)
         }
+    }
+}
+
+extension FileView: Events {
+    func onChange(event: JoyfillModel.ChangeEvent) {
+        events?.onChange(event: event)
+    }
+    
+    func onFocus(event: JoyfillModel.FieldEvent) {
+        var event = event
+        event.file = file
+        events?.onFocus(event: event)
+    }
+    
+    func onBlur(event: JoyfillModel.FieldEvent) {
+        var event = event
+        event.file = file
+        events?.onBlur(event: event)
+    }
+    
+    func onUpload(event: JoyfillModel.UploadEvent) {
+        events?.onUpload(event: event)
     }
 }
 
@@ -101,8 +123,30 @@ struct PageView: View {
     
     var body: some View {
         if let fieldPositions = page.fieldPositions {
-            FormView(fieldPositions: fieldPositions, fieldsData: fieldsData, mode: mode, events: events)
+            FormView(fieldPositions: fieldPositions, fieldsData: fieldsData, mode: mode, events: self)
         }
+    }
+}
+
+extension PageView: Events {
+    func onChange(event: JoyfillModel.ChangeEvent) {
+        events?.onChange(event: event)
+    }
+    
+    func onFocus(event: JoyfillModel.FieldEvent) {
+        var event = event
+        event.page = page
+        events?.onFocus(event: event)
+    }
+    
+    func onBlur(event: JoyfillModel.FieldEvent) {
+        var event = event
+        event.page = page
+        events?.onBlur(event: event)
+    }
+    
+    func onUpload(event: JoyfillModel.UploadEvent) {
+        events?.onUpload(event: event)
     }
 }
 
@@ -154,14 +198,6 @@ struct FormView: View {
                 }
             }
         }
-        Button(action: {
-            
-        }, label: {
-            Text("Save")
-                .frame(maxWidth: .infinity)
-        })
-        .buttonStyle(.borderedProminent)
-        .padding(.horizontal, 50)
     }
 }
 

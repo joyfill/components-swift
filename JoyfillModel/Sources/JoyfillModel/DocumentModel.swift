@@ -237,8 +237,8 @@ public func timestampMillisecondsToDate(value: Int, format: String) -> String {
 
 public struct FieldEvent {
     public let field: JoyDocField?
-    public let page: Page?
-    public let file: File?
+    public var page: Page?
+    public var file: File?
     
     public init(field: JoyDocField? = nil, page: Page? = nil, file: File? = nil) {
         self.field = field
