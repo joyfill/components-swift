@@ -33,6 +33,16 @@ struct NumberView: View {
                         .stroke(Color.gray, lineWidth: 1)
                 )
                 .cornerRadius(10)
+                .focused($isFocused)
+                .onChange(of: isFocused) { focused in
+                    if focused {
+                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                    } else {
+                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        fieldDependency.eventHandler.onBlur(event: fieldEvent)
+                    }
+                }
         }
         .padding(.horizontal, 16)
         .onAppear {
