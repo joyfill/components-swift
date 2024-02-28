@@ -15,7 +15,8 @@ struct DropdownView: View {
     private let eventHandler: FieldEventHandler
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
-    
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
     public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
         self.eventHandler = eventHandler
         self.fieldPosition = fieldPosition
@@ -42,6 +43,16 @@ struct DropdownView: View {
                     .stroke(Color.gray, lineWidth: 1)
                     .frame(maxWidth: .infinity)
             )
+        }
+        .focused($isFocused) // Observe focus state
+        .onChange(of: isFocused) { focused in
+            if focused {
+                let fieldEvent = FieldEvent(field: fieldData)
+                eventHandler.onFocus(event: fieldEvent)
+            } else {
+                let fieldEvent = FieldEvent(field: fieldData)
+                eventHandler.onBlur(event: fieldEvent)
+            }
         }
         .onAppear{
             if let value = fieldData?.value {

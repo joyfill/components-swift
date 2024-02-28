@@ -52,7 +52,8 @@ struct DisplayTextView: View {
         }
         .onChange(of: displayText, { oldValue, newValue in
             let change = ["value": newValue]
-           
+            let changeEvent = ChangeEvent(changes: [Change(changeData: change)])
+            eventHandler.onChange(event: changeEvent)
         })
         .padding(.horizontal, 16)
     }

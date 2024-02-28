@@ -248,12 +248,20 @@ public struct FieldEvent {
 }
 
 public struct Change {
-    
+    public let changeData: [String: Any]
+    public init(changeData: [String : Any]) {
+        self.changeData = changeData
+    }
 }
 
 public struct ChangeEvent {
     public let changes: [Change]
-    public let document: Document
+    public var document: JoyDoc?
+   
+    public init(changes: [Change], document: JoyDoc? = nil) {
+        self.changes = changes
+        self.document = document
+    }
 }
 
 public struct UploadEvent {

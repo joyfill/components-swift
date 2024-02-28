@@ -21,8 +21,28 @@ public struct JoyFillView: View {
     
     public var body: some View {
         if let files = document.files {
-            FilesView(files: files, fieldsData: document.fields, mode: mode, events: events)
+            FilesView(files: files, fieldsData: document.fields, mode: mode, events: self)
         }
+    }
+}
+
+extension JoyFillView: Events {
+    public func onChange(event: JoyfillModel.ChangeEvent) {
+        var event = event
+        event.document = document
+        events?.onChange(event: event)
+    }
+    
+    public func onFocus(event: JoyfillModel.FieldEvent) {
+        events?.onFocus(event: event)
+    }
+    
+    public func onBlur(event: JoyfillModel.FieldEvent) {
+        events?.onBlur(event: event)
+    }
+    
+    public func onUpload(event: JoyfillModel.UploadEvent) {
+        events?.onUpload(event: event)
     }
 }
 
