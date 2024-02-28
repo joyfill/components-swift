@@ -15,15 +15,11 @@ struct DateTimeView: View {
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
     
-    private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    private let fieldPosition: FieldPosition
-    private var fieldData: JoyDocField?
-    
-    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
-        self.eventHandler = eventHandler
-        self.fieldPosition = fieldPosition
-        self.fieldData = fieldData
+    private let fieldDependency: FieldDependency
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
     }
     
     private let dateFormatter: DateFormatter = {
@@ -79,9 +75,9 @@ struct DateTimeView: View {
             }
         }
         .onAppear{
-            if let value = fieldData?.value {
-                let dateString = value.dateTime(format: fieldPosition.format ?? "") ?? ""
-                if let date = stringToDate(dateString, format: fieldPosition.format ?? "") {
+            if let value = fieldDependency.fieldData?.value {
+                let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
+                if let date = stringToDate(dateString, format: fieldDependency.fieldPosition.format ?? "") {
                     selectedDate = date
                     showDefaultDate = false
                 }
@@ -96,11 +92,6 @@ struct DateTimeView: View {
         return dateFormatter.date(from: dateString)
     }
 }
-
-#Preview {
-    DateTimeView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
-}
-
 
 public func testDocument() -> JoyDoc {
     if let url = Bundle.main.url(forResource: "RetriveDocument", withExtension: "json") {

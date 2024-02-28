@@ -11,17 +11,14 @@ import JoyfillModel
 // Select multiple options
 
 struct MultiSelectionView: View {
-    private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    private let fieldPosition: FieldPosition
-    private var fieldData: JoyDocField?
     @State var isSelected: Bool = false
     @State private var selectedOption: String = ""
     
-    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
-        self.eventHandler = eventHandler
-        self.fieldPosition = fieldPosition
-        self.fieldData = fieldData
+    private let fieldDependency: FieldDependency
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
     }
     
     var body: some View {
@@ -31,13 +28,13 @@ struct MultiSelectionView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
             VStack {
-                if let options = fieldData?.options {
+                if let options = fieldDependency.fieldData?.options {
                   ForEach(0..<options.count) { index in
                     let optionValue = options[index].value ?? ""
-                    let isSelected = fieldData?.value?.multiSelector?.first(where: {
+                      let isSelected = fieldDependency.fieldData?.value?.multiSelector?.first(where: {
                       $0 == options[index].id
                     }) != nil
-                      if fieldData?.multi ?? true {
+                      if fieldDependency.fieldData?.multi ?? true {
                           MultiSelection(option: optionValue, isSelected: isSelected)
                       } else {
                           RadioView(option: optionValue, selectedOption: $selectedOption)
@@ -46,7 +43,7 @@ struct MultiSelectionView: View {
                 }
             }
             .onAppear{
-                selectedOption = fieldData?.options?.filter { $0.id == fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
+                selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
             }
             .padding(.horizontal, 16)
         }
@@ -96,8 +93,4 @@ struct RadioView: View {
         .border(Color.gray, width: 1)
         .padding(.top, -9)
     }
-}
-
-#Preview {
-    MultiSelectionView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }

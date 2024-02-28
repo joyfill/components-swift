@@ -10,17 +10,11 @@ import JoyfillModel
 
 struct DropdownView: View {
     @State var selectedDropdownValue: String?
-    
-    private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    private let fieldPosition: FieldPosition
-    private var fieldData: JoyDocField?
+    private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
 
-    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
-        self.eventHandler = eventHandler
-        self.fieldPosition = fieldPosition
-        self.fieldData = fieldData
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
     }
     
     var body: some View {
@@ -29,7 +23,7 @@ struct DropdownView: View {
                 .fontWeight(.bold)
             
             Picker("Select", selection: $selectedDropdownValue) {
-                if let options = fieldData?.options {
+                if let options = fieldDependency.fieldData?.options {
                     ForEach(options) { option in
                         Text(option.value ?? "").tag("\(option.value)")
                     }
@@ -47,22 +41,18 @@ struct DropdownView: View {
         .focused($isFocused) // Observe focus state
         .onChange(of: isFocused) { focused in
             if focused {
-                let fieldEvent = FieldEvent(field: fieldData)
-                eventHandler.onFocus(event: fieldEvent)
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onFocus(event: fieldEvent)
             } else {
-                let fieldEvent = FieldEvent(field: fieldData)
-                eventHandler.onBlur(event: fieldEvent)
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onBlur(event: fieldEvent)
             }
         }
         .onAppear{
-            if let value = fieldData?.value {
-                self.selectedDropdownValue = fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
+            if let value = fieldDependency.fieldData?.value {
+                self.selectedDropdownValue = fieldDependency.fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
             }
         }
         .padding(.horizontal, 16)
     }
-}
-
-#Preview {
-    DropdownView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }

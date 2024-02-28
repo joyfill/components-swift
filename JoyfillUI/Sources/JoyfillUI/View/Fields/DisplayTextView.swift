@@ -10,16 +10,11 @@ import JoyfillModel
 
 struct DisplayTextView: View {
     @State var displayText: String = ""
-    private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    private let fieldPosition: FieldPosition
-    private var fieldData: JoyDocField?
+    private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
 
-    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
-        self.eventHandler = eventHandler
-        self.fieldPosition = fieldPosition
-        self.fieldData = fieldData
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
     }
 
     var body: some View {
@@ -37,28 +32,25 @@ struct DisplayTextView: View {
                 .focused($isFocused) // Observe focus state
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEvent(field: fieldData)
-                        eventHandler.onFocus(event: fieldEvent)
+                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
-                        let fieldEvent = FieldEvent(field: fieldData)
-                        eventHandler.onBlur(event: fieldEvent)
+                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        fieldDependency.eventHandler.onBlur(event: fieldEvent)
                     }
                 }
         }
         .onAppear{
-            if let text = fieldData?.value?.textabc {
+            if let text = fieldDependency.fieldData?.value?.textabc {
                 displayText = text
             }
         }
         .onChange(of: displayText, { oldValue, newValue in
             let change = ["value": newValue]
             let changeEvent = ChangeEvent(changes: [Change(changeData: change)])
-            eventHandler.onChange(event: changeEvent)
+            fieldDependency.eventHandler.onChange(event: changeEvent)
         })
         .padding(.horizontal, 16)
     }
 }
 
-#Preview {
-    DisplayTextView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
-}

@@ -12,16 +12,11 @@ import JoyfillModel
 
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
-    
-    private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    private let fieldPosition: FieldPosition
-    private var fieldData: JoyDocField?
-    
-    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
-        self.eventHandler = eventHandler
-        self.fieldPosition = fieldPosition
-        self.fieldData = fieldData
+    private let fieldDependency: FieldDependency
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
     }
     
     var body: some View {
@@ -39,7 +34,7 @@ struct MultiLineTextView: View {
                     .cornerRadius(10)
         }
         .onAppear{
-            if let multilineText = fieldData?.value?.multilineText{
+            if let multilineText = fieldDependency.fieldData?.value?.multilineText{
                 self.multilineText = multilineText
             }
         }
@@ -47,6 +42,3 @@ struct MultiLineTextView: View {
     }
 }
 
-#Preview {
-    MultiLineTextView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
-}

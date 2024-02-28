@@ -12,16 +12,11 @@ import JoyfillModel
 
 struct NumberView: View {
     @State var number: String = ""
-    
-    private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    private let fieldPosition: FieldPosition
-    private var fieldData: JoyDocField?
-    
-    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
-        self.eventHandler = eventHandler
-        self.fieldPosition = fieldPosition
-        self.fieldData = fieldData
+    private let fieldDependency: FieldDependency
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
     }
     
     var body: some View {
@@ -41,13 +36,9 @@ struct NumberView: View {
         }
         .padding(.horizontal, 16)
         .onAppear {
-            if let number = fieldData?.value?.number {
+            if let number = fieldDependency.fieldData?.value?.number {
                 self.number = String(number)
             }
         }
     }
-}
-
-#Preview {
-    NumberView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
 }

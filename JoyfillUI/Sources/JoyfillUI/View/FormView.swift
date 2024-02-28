@@ -170,6 +170,13 @@ extension PageView: Events {
     }
 }
 
+struct FieldDependency {
+    let mode: Mode = .fill
+    let eventHandler: FieldEventHandler
+    let fieldPosition: FieldPosition
+    var fieldData: JoyDocField?
+}
+
 struct FormView: View {
     @State var fieldPositions: [FieldPosition]
     private var fieldsData: [JoyDocField]?
@@ -189,31 +196,30 @@ struct FormView: View {
                 ForEach(0..<fieldPositions.count) { index in
                     let fieldPosition = fieldPositions[index]
                     let fieldData = fieldsData?[index]
+                    let fieldDependency = FieldDependency(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     switch fieldPosition.type {
-                    case .text:
-                        DisplayTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                    case .text, .block:
+                        DisplayTextView(fieldDependency: fieldDependency)
                     case .multiSelect:
-                        MultiSelectionView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                        MultiSelectionView(fieldDependency: fieldDependency)
                     case .dropdown:
-                        DropdownView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                        DropdownView(fieldDependency: fieldDependency)
                     case .textarea:
-                        MultiLineTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                        MultiLineTextView(fieldDependency: fieldDependency)
                     case .date:
-                        DateTimeView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                        DateTimeView(fieldDependency: fieldDependency)
                     case .signature:
-                        SignatureView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                    case .block:
-                        DisplayTextView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                        SignatureView(fieldDependency: fieldDependency)
                     case .number:
-                        NumberView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                        NumberView(fieldDependency: fieldDependency)
                     case .chart:
-                        Text("Data no Available")
+                        ChartView(fieldDependency: fieldDependency)
                     case .richText:
-                        Text("Data no Available")
+                        RichTextView(fieldDependency: fieldDependency)
                     case .table:
-                        Text("Data no Available")
+                        TableView(fieldDependency: fieldDependency)
                     case .image:
-                        ImageView(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                        ImageView(fieldDependency: fieldDependency)
                     }
                 }
             }
@@ -244,8 +250,3 @@ class FieldEventHandler: Events {
         appEventHandler?.onUpload(event: event)
     }
 }
-
-#Preview {
-    MultiSelectionView(eventHandler: FieldEventHandler(), fieldPosition: testDocument().fieldPosition!, fieldData: testDocument().fields!.first)
-}
-

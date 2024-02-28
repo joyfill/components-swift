@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct ChartView: View {
+struct RichTextView: View {
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
 
-    public init(fieldDependency: FieldDependency) {
+    init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
     var body: some View {

@@ -25,15 +25,11 @@ struct ImageView: View {
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
     
-    private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    private let fieldPosition: FieldPosition
-    private var fieldData: JoyDocField?
-    
-    public init(eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
-        self.eventHandler = eventHandler
-        self.fieldPosition = fieldPosition
-        self.fieldData = fieldData
+    private let fieldDependency: FieldDependency
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
     }
     
     var body: some View {
@@ -64,16 +60,16 @@ struct ImageView: View {
                         .padding(.top, screenHeight * 0.2)
                         .padding(.leading, screenWidth * 0.6)
                         .sheet(isPresented: $showMoreImages, content: {
-                            MoreImageView(isUploadHidden: fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                            MoreImageView(isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: fieldDependency.eventHandler, fieldPosition: fieldDependency.fieldPosition, fieldData: fieldDependency.fieldData)
                         })
                     }
                 } else {
                     Button(action: {
-                        let uploadEvent = UploadEvent(field: fieldData!) { urls in
+                        let uploadEvent = UploadEvent(field: fieldDependency.fieldData!) { urls in
                             loadImageFromURL(imageURLs: urls)
                             showProgressView = true
                         }
-                        eventHandler.onUpload(event: uploadEvent)
+                        fieldDependency.eventHandler.onUpload(event: uploadEvent)
                     }, label: {
                         ZStack {
                             Image("ImageUploadRectSmall")
@@ -92,7 +88,7 @@ struct ImageView: View {
         }
         .padding(.horizontal, 16)
         .onAppear {
-            if let imageURLs = fieldData?.value?.imageURLs {
+            if let imageURLs = fieldDependency.fieldData?.value?.imageURLs {
                 for imageURL in imageURLs {
                     self.imageURLs.append(imageURL)
                 }
