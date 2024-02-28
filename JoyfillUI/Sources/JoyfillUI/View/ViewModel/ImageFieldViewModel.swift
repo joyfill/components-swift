@@ -30,14 +30,4 @@ public class ImageFieldViewModel: ObservableObject {
             completion(loadedImages)
         }
     }
-    func loadSingleURL(imageURL: String, completion: @escaping (UIImage?) -> Void) {
-        APIService().loadImage(from: imageURL) { imageData in
-            if let imageData = imageData, let image = UIImage(data: imageData) {
-                completion(image)
-            } else {
-                print("Failed to load image from URL: \(String(describing: imageURL))")
-                completion(nil)
-            }
-        }
-    }
 }

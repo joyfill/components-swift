@@ -260,9 +260,9 @@ public struct UploadEvent {
     public let field: JoyDocField
     public let page: Page?
     public let file: File?
-    public var uploadHandler: (String) -> Void
+    public var uploadHandler: ([String]) -> Void
     
-    public init(field: JoyDocField, page: Page? = nil, file: File? = nil, uploadHandler: @escaping (String) -> Void) {
+    public init(field: JoyDocField, page: Page? = nil, file: File? = nil, uploadHandler: @escaping ([String]) -> Void) {
         self.field = field
         self.page = page
         self.file = file

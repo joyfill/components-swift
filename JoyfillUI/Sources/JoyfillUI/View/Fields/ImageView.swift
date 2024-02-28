@@ -18,9 +18,9 @@ struct ImageView: View {
     @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
-    @State private var imageCount: Int = 4
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
+    
     @StateObject var imageViewModel = ImageFieldViewModel()
     
     private let mode: Mode = .fill
@@ -39,9 +39,9 @@ struct ImageView: View {
             Text("Image")
                 .fontWeight(.bold)
             
-                if let profileImage = profileImage {
+            if !imagesArray.isEmpty {
                     ZStack {
-                        Image(uiImage: profileImage)
+                        Image(uiImage: imagesArray[0])
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .cornerRadius(20)
@@ -51,7 +51,7 @@ struct ImageView: View {
                             HStack {
                                 Text("More > ")
                                 
-                                Text("+\(imageCount)")
+                                Text("+\(imagesArray.count)")
                                     .foregroundColor(.black)
                             }
                             .padding(.vertical, 10)
@@ -67,10 +67,9 @@ struct ImageView: View {
                     }
                 } else {
                     Button(action: {
-                        let uploadEvent = UploadEvent(field: fieldData!) { url in
-                            imageURLs.append(url)
+                        let uploadEvent = UploadEvent(field: fieldData!) { urls in
+                            loadImageFromURL(imageURLs: urls)
                             showProgressView = true
-                            loadSingleImageFromURL(imageURL: url)
                         }
                         eventHandler.onUpload(event: uploadEvent)
                     }, label: {
@@ -92,42 +91,28 @@ struct ImageView: View {
         .padding(.horizontal, 16)
         .onAppear {
             if let imageURLs = fieldData?.value?.imageURLs {
-                imageCount = imageURLs.count
                 for imageURL in imageURLs {
                     self.imageURLs.append(imageURL)
                 }
             }
             if !imageLoaded {
-                loadImageFromURL()
+                loadImageFromURL(imageURLs: self.imageURLs)
             }
         }
     }
-    func loadImageFromURL() {
-        imageViewModel.loadImageFromURL(imageURLs: self.imageURLs) { loadedImages in
+    func loadImageFromURL(imageURLs: [String]) {
+        imageViewModel.loadImageFromURL(imageURLs: imageURLs) { loadedImages in
             self.imagesArray = loadedImages
             showProgressView = false
-            if loadedImages.count > 0 {
-                profileImage = loadedImages[0]
-            }
             imageLoaded = true
         }
     }
-
-    func loadSingleImageFromURL(imageURL: String) {
-        imageViewModel.loadSingleURL(imageURL: imageURL) { image in
-            if let image = image {
-                showProgressView = false
-                profileImage = image
-                imagesArray.append(image)
-                imageLoaded = true
-            }
-        }
-    }
-    
 }
 struct MoreImageView: View {
     var isUploadHidden: Bool
     @Binding var images: [UIImage]
+    @State var selectedImages: Set<UIImage> = Set()
+    
     @Environment(\.presentationMode) private var presentationMode
     
     private let mode: Mode = .fill
@@ -157,12 +142,12 @@ struct MoreImageView: View {
                 })
             }
             if isUploadHidden {
-                UploadDeleteView(imagesArray: $images,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     .hidden()
             } else {
-                UploadDeleteView(imagesArray: $images,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
             }
-            ImageGridView(images: $images)
+            ImageGridView(images: $images, selectedImages: $selectedImages)
             Spacer()
         }
         .padding(.horizontal, 16.0)
@@ -171,6 +156,7 @@ struct MoreImageView: View {
 }
 struct UploadDeleteView: View {
     @Binding var imagesArray: [UIImage]
+    @Binding var selectedImages: Set<UIImage>
     
     private let mode: Mode = .fill
     private let eventHandler: FieldEventHandler
@@ -178,8 +164,13 @@ struct UploadDeleteView: View {
     private var fieldData: JoyDocField?
     @StateObject var imageViewModel = ImageFieldViewModel()
     
-    public init(imagesArray: Binding<[UIImage]>,eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+    public init(imagesArray: Binding<[UIImage]>,
+                selectedImages: Binding<Set<UIImage>>,
+                eventHandler: FieldEventHandler,
+                fieldPosition: FieldPosition,
+                fieldData: JoyDocField? = nil) {
         _imagesArray = imagesArray
+        _selectedImages = selectedImages
         self.eventHandler = eventHandler
         self.fieldPosition = fieldPosition
         self.fieldData = fieldData
@@ -187,8 +178,8 @@ struct UploadDeleteView: View {
     var body: some View {
         HStack {
             Button(action: {
-                let uploadEvent = UploadEvent(field: fieldData!) { url in
-                    loadSingleImageFromURL(imageURL: url)
+                let uploadEvent = UploadEvent(field: fieldData!) { urls in
+                    loadImagesFromURLs(imageURLs: urls)
                 }
                 eventHandler.onUpload(event: uploadEvent)
             }, label: {
@@ -199,35 +190,61 @@ struct UploadDeleteView: View {
             })
             
             Button(action: {
-                imagesArray.remove(at: imagesArray.count - 1)
+                deleteSelectedImages()
             }, label: {
-                Image("DeleteButton")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 28)
+                Image(selectedImages.count > 0 ? "DeleteButton" : "")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 28)
             })
             Spacer()
         }
     }
-    func loadSingleImageFromURL(imageURL: String) {
-        imageViewModel.loadSingleURL(imageURL: imageURL) { image in
-            if let image = image {
-                imagesArray.append(image)
-            }
+    func loadImagesFromURLs(imageURLs: [String]) {
+        imageViewModel.loadImageFromURL(imageURLs: imageURLs) { images in
+            imagesArray.append(contentsOf: images)
         }
+    }
+    func deleteSelectedImages() {
+        imagesArray = imagesArray.filter { !selectedImages.contains($0) }
+        selectedImages.removeAll()
     }
 }
 
 struct ImageGridView:View {
     @Binding var images: [UIImage]
+    @Binding var selectedImages: Set<UIImage>
+    let screenWidth = UIScreen.main.bounds.width
+    let screenHeight = UIScreen.main.bounds.height
+    
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
                 ForEach(images, id: \.self) { image in
                     Image(uiImage: image)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(10)
+//                        .scaledToFill()
+                        .scaledToFit()
+                        .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
+//                        .clipped()
+                        .overlay(content: {
+                            RoundedRectangle(cornerRadius: 10)
+                                               .stroke(Color.gray, lineWidth: 1)
+                                               .background(
+                            Image(selectedImages.contains(image) ? "Selected_Icon" : "UnSelected_Icon")
+                                .offset(
+                                    x: 60,
+                                    y: -60
+                                )
+                            )
+                        })
+                        .onTapGesture {
+                            if selectedImages.contains(image) {
+                                selectedImages.remove(image)
+                            } else {
+                                selectedImages.insert(image)
+                            }
+                        }
                 }
             }
         }

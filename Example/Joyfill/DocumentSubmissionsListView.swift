@@ -16,6 +16,7 @@ struct DocumentSubmissionsListView: View {
     @State var showForm: Bool = false
     @State var document: JoyDoc? = nil
     let apiService: APIService = APIService()
+    @State private var showDocumentDetails = false
     
     @ObservedObject var documentsViewModel = DocumentsViewModel()
     
@@ -36,18 +37,33 @@ struct DocumentSubmissionsListView: View {
                     Text("Fill New +")
                 })
                 
-                ForEach(documentsViewModel.submissions) { submission in
-                    NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-                        JoyFillView(document: document!, mode: .readonly, events: self)
-                    }), isActive: $showForm) {
-                        HStack {
+//                ForEach(documentsViewModel.submissions) { submission in
+//                    NavigationLink(destination: LazyView(isLoading: !showForm, content: {
+//                        JoyFillView(document: document!, mode: .readonly, events: self)
+//                    }), isActive: $showForm) {
+//                        HStack {
+//                            Image(systemName: "doc")
+//                            Text(submission.name)
+//                        }
+//                    }
+//                    .onTapGesture {
+//                        makeAPICallForSubmission(submission)
+//                    }
+//                }
+                      ForEach(documentsViewModel.submissions) { submission in
+                        Button(action: {
+                            makeAPICallForSubmission(submission)
+                        }) {
+                          HStack {
                             Image(systemName: "doc")
                             Text(submission.name)
+                          }
                         }
-                    }
-                    .onTapGesture {
-                        makeAPICallForSubmission(submission)
-                    }
+                      }
+                NavigationLink(destination: LazyView(isLoading: !showForm, content: {
+                    JoyFillView(document: document!, mode: .readonly, events: self)
+                }), isActive: $showForm) {
+                    EmptyView()
                 }
             }
         }
@@ -63,7 +79,6 @@ struct DocumentSubmissionsListView: View {
             case .success(let data):
                 do {
                     let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
-                    // It will prevent tasks to perform on main thread
                     DispatchQueue.main.async {
                         self.document = joyDocStruct
                         showForm = true
@@ -109,6 +124,7 @@ extension DocumentSubmissionsListView: Events {
     
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.field.identifier)
-        event.uploadHandler("https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg")
+        event.uploadHandler(["https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg",
+                             "https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg"])
     }
 }
