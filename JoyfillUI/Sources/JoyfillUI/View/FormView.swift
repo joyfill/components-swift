@@ -197,7 +197,9 @@ struct FormView: View {
                     let fieldData = fieldsData?[index]
                     let fieldDependency = FieldDependency(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     switch fieldPosition.type {
-                    case .text, .block:
+                    case .text:
+                       TextView(fieldDependency: fieldDependency)
+                    case .block:
                         DisplayTextView(fieldDependency: fieldDependency)
                     case .multiSelect:
                         MultiSelectionView(fieldDependency: fieldDependency)

@@ -12,6 +12,7 @@ import JoyfillModel
 struct MultiSelectionView: View {
     @State var isSelected: Bool = false
     @State private var selectedOption: String = ""
+    @State var multiselectionViewTitle: String = ""
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
@@ -22,7 +23,7 @@ struct MultiSelectionView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Multiselection")
+            Text("\(multiselectionViewTitle)")
                 .fontWeight(.bold)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
@@ -43,6 +44,9 @@ struct MultiSelectionView: View {
             }
             .onAppear{
                 selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
+                if let title = fieldDependency.fieldData?.title {
+                    multiselectionViewTitle = title
+                }
             }
             .padding(.horizontal, 16)
         }

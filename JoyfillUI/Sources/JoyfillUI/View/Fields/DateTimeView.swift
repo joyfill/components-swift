@@ -13,6 +13,7 @@ struct DateTimeView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
+    @State var dateTimeTitle: String = ""
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
@@ -29,7 +30,7 @@ struct DateTimeView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Date & Time")
+            Text("\(dateTimeTitle)")
                 .fontWeight(.bold)
             
             Group {
@@ -80,6 +81,9 @@ struct DateTimeView: View {
                     selectedDate = date
                     showDefaultDate = false
                 }
+            }
+            if let title = fieldDependency.fieldData?.title {
+                dateTimeTitle = title
             }
         }
         .padding(.horizontal, 16)

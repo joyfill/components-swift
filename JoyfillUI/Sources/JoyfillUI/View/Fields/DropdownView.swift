@@ -10,6 +10,7 @@ import JoyfillModel
 struct DropdownView: View {
     @State var selectedDropdownValue: String?
     private let fieldDependency: FieldDependency
+    @State var dropdownViewTitle: String = ""
     @FocusState private var isFocused: Bool // Declare a FocusState property
 
     public init(fieldDependency: FieldDependency) {
@@ -18,7 +19,7 @@ struct DropdownView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Dropdown")
+            Text("\(dropdownViewTitle)")
                 .fontWeight(.bold)
             
             Picker("Select", selection: $selectedDropdownValue) {
@@ -50,6 +51,9 @@ struct DropdownView: View {
         .onAppear{
             if let value = fieldDependency.fieldData?.value {
                 self.selectedDropdownValue = fieldDependency.fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
+            }
+            if let title = fieldDependency.fieldData?.title {
+                dropdownViewTitle = title
             }
         }
         .padding(.horizontal, 16)

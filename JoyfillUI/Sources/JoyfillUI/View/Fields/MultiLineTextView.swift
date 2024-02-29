@@ -11,6 +11,7 @@ import JoyfillModel
 
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
+    @State var multiLineText: String = ""
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
 
@@ -20,7 +21,7 @@ struct MultiLineTextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Multiline Text")
+            Text("\(multiLineText)")
                 .fontWeight(.bold)
             
                 TextEditor(text: $multilineText)
@@ -44,6 +45,9 @@ struct MultiLineTextView: View {
         .onAppear{
             if let multilineText = fieldDependency.fieldData?.value?.multilineText{
                 self.multilineText = multilineText
+            }
+            if let multiLineTextTitle = fieldDependency.fieldData?.title {
+                multiLineText = multiLineTextTitle
             }
         }
         .padding(.horizontal, 16)

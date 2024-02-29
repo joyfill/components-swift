@@ -48,7 +48,7 @@ enum JoyfillAPI {
 
 public class APIService {
     private let accessToken: String
-    var debugEnabled = true
+    var debugEnabled = false
     
     public init(accessToken: String = Constants.userAccessToken) {
         self.accessToken = accessToken

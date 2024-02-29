@@ -13,6 +13,7 @@ struct SignatureView: View {
     @State var signatureImage: UIImage?
     @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
+    @State var signatureViewTitle: String = ""
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
@@ -23,7 +24,7 @@ struct SignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Signature")
+            Text("\(signatureViewTitle)")
                 .fontWeight(.bold)
             
             RoundedRectangle(cornerRadius: 10)
@@ -59,6 +60,9 @@ struct SignatureView: View {
             self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
             if !imageLoaded {
                 loadImageFromURL()
+            }
+            if let title = fieldDependency.fieldData?.title {
+                signatureViewTitle = title
             }
         }
         .padding(.horizontal, 16)

@@ -17,6 +17,7 @@ struct ImageView: View {
     @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
+    @State var imageViewTitle: String = ""
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
     
@@ -33,7 +34,7 @@ struct ImageView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Image")
+            Text("\(imageViewTitle)")
                 .fontWeight(.bold)
             
             if !imagesArray.isEmpty {
@@ -94,6 +95,9 @@ struct ImageView: View {
             }
             if !imageLoaded {
                 loadImageFromURL(imageURLs: self.imageURLs)
+            }
+            if let title = fieldDependency.fieldData?.title {
+                imageViewTitle = title
             }
         }
     }

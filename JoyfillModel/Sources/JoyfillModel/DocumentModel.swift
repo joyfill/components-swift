@@ -118,7 +118,15 @@ public enum FieldTypes: String, Codable {
 }
 
 public extension ValueUnion {
-    var textabc: String? {
+    var text: String? {
+        switch self {
+        case .string(let string):
+            return string
+        default:
+            return nil
+        }
+    }
+    var displayText: String? {
         switch self {
         case .string(let string):
             return string
