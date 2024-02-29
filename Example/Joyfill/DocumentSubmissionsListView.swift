@@ -2,7 +2,6 @@
 //  DocumentSubmissionsListView.swift
 //  JoyFill
 //
-//  Created by Vikash on 04/02/24.
 //
 
 import SwiftUI

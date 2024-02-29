@@ -2,7 +2,6 @@
 //  Constants.swift
 //  JoyFill
 //
-//  Created by Vikash on 05/02/24.
 //
 
 import Foundation

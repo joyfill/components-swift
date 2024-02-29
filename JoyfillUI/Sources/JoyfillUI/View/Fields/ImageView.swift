@@ -2,7 +2,6 @@
 //  ImageView.swift
 //  JoyFill
 //
-//  Created by Babblu Bhaiya on 10/02/24.
 //
 
 import SwiftUI

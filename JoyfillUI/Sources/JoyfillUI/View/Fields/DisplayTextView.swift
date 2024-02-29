@@ -2,7 +2,6 @@
 //  DisplayTextView.swift
 //  JoyFill
 //
-//  Created by Vikash on 10/02/24.
 //
 
 import SwiftUI

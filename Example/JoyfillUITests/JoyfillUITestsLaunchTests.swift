@@ -2,7 +2,6 @@
 //  JoyfillUITestsLaunchTests.swift
 //  JoyfillUITests
 //
- 
 //
 
 import XCTest

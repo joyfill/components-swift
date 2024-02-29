@@ -2,7 +2,6 @@
 //  ContentView.swift
 //  Joyfill
 //
-
 //
 
 import SwiftUI
