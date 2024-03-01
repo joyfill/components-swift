@@ -21,16 +21,6 @@ struct DisplayTextView: View {
             
             Text("\(displayText)")
                 .fontWeight(.bold)
-                .focused($isFocused) // Observe focus state
-                .onChange(of: isFocused) { focused in
-                    if focused {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    } else {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onBlur(event: fieldEvent)
-                    }
-                }
         }
         .onAppear {
             if let hello = fieldDependency.fieldData?.value?.displayText {

@@ -32,6 +32,7 @@ struct MultiLineTextView: View {
                             .stroke(Color.gray, lineWidth: 1)
                     )
                     .cornerRadius(10)
+                    .focused($isFocused)
                     .onChange(of: isFocused) { focused in
                         if focused {
                             let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
