@@ -21,10 +21,13 @@ struct TextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(textViewTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             TextField("", text: $enterText)
+                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
                 .overlay(
