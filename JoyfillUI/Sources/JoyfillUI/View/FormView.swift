@@ -194,7 +194,10 @@ struct FormView: View {
             VStack(spacing: 20.0) {
                 ForEach(0..<fieldPositions.count) { index in
                     let fieldPosition = fieldPositions[index]
-                    let fieldData = fieldsData?[index]
+                    let fieldData = fieldsData?.first(where: {
+                        $0.id == fieldPosition.field
+                    })
+                    
                     let fieldDependency = FieldDependency(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     switch fieldPosition.type {
                     case .text:

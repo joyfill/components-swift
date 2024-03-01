@@ -67,8 +67,8 @@ public class DocumentsViewModel: ObservableObject {
                 self.submissionsLoading = false
                 switch result {
                 case .success(let submissions):
-                    print("Retrieved \(submissions.count) document submissions")
                     self.submissions = submissions
+                    print("Retrieved \(submissions.count) document submissions")
                 case .failure(let error):
                     print("Error fetching document submissions: \(error.localizedDescription)")
                     self.submissionsError = error.localizedDescription

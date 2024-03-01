@@ -46,11 +46,12 @@ struct DocumentSubmissionsListView: View {
                         }
                     }
                 }
-                NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-                    JoyFillView(document: document!, mode: .readonly, events: self)
-                }), isActive: $showForm) {
-                    EmptyView()
-                }
+                
+            }
+            NavigationLink(destination: LazyView(isLoading: !showForm, content: {
+                JoyFillView(document: document!, mode: .readonly, events: self)
+            }), isActive: $showForm) {
+                EmptyView()
             }
         }
         .onAppear() {
