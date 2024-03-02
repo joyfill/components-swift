@@ -25,9 +25,11 @@ struct NumberView: View {
                 .fontWeight(.bold)
             
             TextField("", text: $number)
+                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 16)
-                .keyboardType(.numberPad)
-                .frame(height: 40)
+                .padding(.vertical, 5)
+                .keyboardType(.decimalPad)
+                .frame(minHeight: 40)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
