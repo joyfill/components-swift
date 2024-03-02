@@ -14,8 +14,9 @@ struct DateTimeView: View {
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
     @State var dateTimeTitle: String = ""
-    
-    private let fieldDependency: FieldDependency
+//    @Binding var fieldData: JoyDocField?
+
+    var fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
 
     public init(fieldDependency: FieldDependency) {
