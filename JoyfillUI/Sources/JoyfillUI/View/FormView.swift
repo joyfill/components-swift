@@ -79,8 +79,16 @@ struct FileView: View {
     }
     
     var body: some View {
-        if let pages = file.pages {
-            PagesView(pages: pages, fieldsData: fieldsData, mode: mode, events: self)
+        if file.views?.count != 0 {
+            if let view = file.views?.first {
+                if let pages = view.pages {
+                    PagesView(pages: pages, fieldsData: fieldsData, mode: mode, events: self)
+                }
+            }
+        } else {
+            if let pages = file.pages {
+                PagesView(pages: pages, fieldsData: fieldsData, mode: mode, events: self)
+            }
         }
     }
 }
