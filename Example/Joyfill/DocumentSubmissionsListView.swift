@@ -49,7 +49,7 @@ struct DocumentSubmissionsListView: View {
                 
             }
             NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-                JoyFillView(document: document!, mode: .readonly, events: self)
+                JoyFillView(document: document!, mode: .readonly)
             }), isActive: $showForm) {
                 EmptyView()
             }

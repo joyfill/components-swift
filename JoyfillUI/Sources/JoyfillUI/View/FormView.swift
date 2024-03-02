@@ -8,42 +8,42 @@ import SwiftUI
 import JoyfillModel
 
 public struct JoyFillView: View {
-    private let document: JoyDoc
-    private let mode: Mode
-    private let events: Events?
+    @State public var document: JoyDoc
+    @State public var mode: Mode
     
-    public init(document: JoyDoc, mode: Mode = .fill, events: Events? = nil) {
-        self.document = document
+    public init(document: JoyDoc, mode: Mode = .fill) {
         self.mode = mode
-        self.events = events
+        self.document = document
     }
     
     public var body: some View {
         if let files = document.files {
-            FilesView(files: files, fieldsData: document.fields, mode: mode, events: self)
+            FilesView(files: files, fieldsData: document.fields, mode: mode, events: nil)
+        } else {
+            Text("Empty form")
         }
     }
 }
 
-extension JoyFillView: Events {
-    public func onChange(event: JoyfillModel.ChangeEvent) {
-        var event = event
-        event.document = document
-        events?.onChange(event: event)
-    }
-    
-    public func onFocus(event: JoyfillModel.FieldEvent) {
-        events?.onFocus(event: event)
-    }
-    
-    public func onBlur(event: JoyfillModel.FieldEvent) {
-        events?.onBlur(event: event)
-    }
-    
-    public func onUpload(event: JoyfillModel.UploadEvent) {
-        events?.onUpload(event: event)
-    }
-}
+//extension JoyFillView: Events {
+//    public func onChange(event: JoyfillModel.ChangeEvent) {
+//        var event = event
+//        event.document = document
+//        onChange(event: event)
+//    }
+//    
+//    public func onFocus(event: JoyfillModel.FieldEvent) {
+//        events?.onFocus(event: event)
+//    }
+//    
+//    public func onBlur(event: JoyfillModel.FieldEvent) {
+//        events?.onBlur(event: event)
+//    }
+//    
+//    public func onUpload(event: JoyfillModel.UploadEvent) {
+//        events?.onUpload(event: event)
+//    }
+//}
 
 struct FilesView: View {
     private var files: [File]
@@ -189,45 +189,43 @@ struct FormView: View {
         self.eventHandler = FieldEventHandler(appEventHandler: events)
     }
     
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 20.0) {
-                ForEach(0..<fieldPositions.count) { index in
-                    let fieldPosition = fieldPositions[index]
-                    let fieldData = fieldsData?.first(where: {
-                        $0.id == fieldPosition.field
-                    })
-                    
-                    let fieldDependency = FieldDependency(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
-                    switch fieldPosition.type {
-                    case .text:
-                       TextView(fieldDependency: fieldDependency)
-                    case .block:
-                        DisplayTextView(fieldDependency: fieldDependency)
-                    case .multiSelect:
-                        MultiSelectionView(fieldDependency: fieldDependency)
-                    case .dropdown:
-                        DropdownView(fieldDependency: fieldDependency)
-                    case .textarea:
-                        MultiLineTextView(fieldDependency: fieldDependency)
-                    case .date:
-                        DateTimeView(fieldDependency: fieldDependency)
-                    case .signature:
-                        SignatureView(fieldDependency: fieldDependency)
-                    case .number:
-                        NumberView(fieldDependency: fieldDependency)
-                    case .chart:
-                        ChartView(fieldDependency: fieldDependency)
-                    case .richText:
-                        RichTextView(fieldDependency: fieldDependency)
-                    case .table:
-                        TableView(fieldDependency: fieldDependency)
-                    case .image:
-                        ImageView(fieldDependency: fieldDependency)
-                    }
-                }
-            }
+    @ViewBuilder
+    fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
+        let fieldData = fieldsData?.first(where: {
+            $0.id == fieldPosition.field
+        })
+        
+        let fieldDependency = FieldDependency(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+        switch fieldPosition.type {
+        case .text:
+           TextView(fieldDependency: fieldDependency)
+        case .block:
+            DisplayTextView(fieldDependency: fieldDependency)
+        case .multiSelect:
+            MultiSelectionView(fieldDependency: fieldDependency)
+        case .dropdown:
+            DropdownView(fieldDependency: fieldDependency)
+        case .textarea:
+            MultiLineTextView(fieldDependency: fieldDependency)
+        case .date:
+            DateTimeView(fieldDependency: fieldDependency)
+        case .signature:
+            SignatureView(fieldDependency: fieldDependency)
+        case .number:
+            NumberView(fieldDependency: fieldDependency)
+        case .chart:
+            ChartView(fieldDependency: fieldDependency)
+        case .richText:
+            RichTextView(fieldDependency: fieldDependency)
+        case .table:
+            TableView(fieldDependency: fieldDependency)
+        case .image:
+            ImageView(fieldDependency: fieldDependency)
         }
+    }
+    
+    var body: some View {
+        List(fieldPositions, id: \.field, rowContent: fieldView)
     }
 }
 
