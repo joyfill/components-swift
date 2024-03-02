@@ -13,8 +13,8 @@ struct NumberView: View {
     @State var number: String = ""
     private let fieldDependency: FieldDependency
     @State var numberViewTitle: String = ""
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    @FocusState private var isFocused: Bool
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
