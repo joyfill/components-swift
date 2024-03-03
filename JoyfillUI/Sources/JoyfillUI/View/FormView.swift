@@ -234,6 +234,8 @@ struct FormView: View {
     
     var body: some View {
         List(fieldPositions, id: \.field, rowContent: fieldView)
+            .listSectionSeparator(.hidden)
+            .listStyle(PlainListStyle())
     }
 }
 

@@ -14,10 +14,9 @@ struct DateTimeView: View {
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
     @State var dateTimeTitle: String = ""
-//    @Binding var fieldData: JoyDocField?
 
     var fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool // Declare a FocusState property
+    @FocusState private var isFocused: Bool
 
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
@@ -36,23 +35,21 @@ struct DateTimeView: View {
             
             Group {
                 if showDefaultDate == false {
-                    DatePicker("Date-Time", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
-                        .frame(height: 40)
+                    DatePicker("Date-Time", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
                         .padding(.all, 10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.gray, lineWidth: 1)
-                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, -10)
                         )
                 } else {
                     if isDatePickerPresented {
-                        DatePicker("Date-Time", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
-                            .frame(height: 40)
+                        DatePicker("Date-Time", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
                             .padding(.all, 10)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.gray, lineWidth: 1)
-                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, -10)
                             )
                     } else {
                         HStack {
@@ -61,12 +58,11 @@ struct DateTimeView: View {
                             Image(systemName: "calendar")
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 40)
                         .padding(.all, 10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.gray, lineWidth: 1)
-                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, -10)
                         )
                         .onTapGesture {
                             isDatePickerPresented = true
@@ -92,8 +88,21 @@ struct DateTimeView: View {
     
     func stringToDate(_ dateString: String, format: String) -> Date? {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM d, yyyy"
+        dateFormatter.dateFormat = DateFormatType(rawValue: format)?.dateFormat ?? ""
         return dateFormatter.date(from: dateString)
+    }
+    
+    func getDateType(format: String) -> DatePickerComponents {
+        switch DateFormatType(rawValue: format) {
+        case .dateOnly:
+            return [.date]
+        case .timeOnly:
+            return [.hourAndMinute]
+        case .dateTime:
+            return [.date, .hourAndMinute]
+        case .none:
+            return []
+        }
     }
 }
 
