@@ -233,9 +233,11 @@ struct FormView: View {
     }
     
     var body: some View {
-        List(fieldPositions, id: \.field, rowContent: fieldView)
-            .listSectionSeparator(.hidden)
-            .listStyle(PlainListStyle())
+        ScrollView {
+            ForEach(fieldPositions, id: \.field) { fieldPosition in
+                fieldView(fieldPosition: fieldPosition)
+            }
+        }
     }
 }
 
