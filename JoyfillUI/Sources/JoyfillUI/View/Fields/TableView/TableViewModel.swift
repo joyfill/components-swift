@@ -38,7 +38,7 @@ class TableViewModel: ObservableObject {
         shouldShowTableTitle = !(joyDocModel?.title?.isEmpty ?? true)
         shouldShowAddRowButton = mode == .fill
         shouldShowDeleteRowButton = mode == .fill
-        viewMoreText = "+\(rows.count)"
+        viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
         tableViewTitle = joyDocModel?.title ?? ""
     }
     
@@ -48,6 +48,11 @@ class TableViewModel: ObservableObject {
     
     func getColumnTitle(columnId: String) -> String {
         return columnIdToColumnMap[columnId]?.title ?? ""
+    }
+    
+    func getColumnTitleAtIndex(index: Int) -> String {
+        guard index < columns.count else { return "" }
+        return columnIdToColumnMap[columns[index]]?.title ?? ""
     }
     
     private func setupColumns(joyDocModel: JoyDocField?) {

@@ -33,7 +33,7 @@ struct TableQuickView : View {
         self.viewModel = TableViewModel(mode: fieldDependency.mode, joyDocModel: fieldDependency.fieldData)
     }
      */
-    
+
     var body: some View {
         
         VStack {
@@ -70,13 +70,13 @@ struct TableQuickView : View {
             HStack {
                 Grid(verticalSpacing: 1) {
                     LazyVGrid(columns: adaptiveColumn, spacing: 4) {
-                        ForEach(data, id: \.self) { item in
+                        ForEach(0...2, id: \.self) { item in
                             ZStack {
                                 Rectangle()
                                     .stroke()
                                     .foregroundColor(Color.tableCellBorderColor)
                                 
-                                Text(String("Floor\(item)"))
+                                Text(String("\(viewModel.getColumnTitleAtIndex(index: item))"))
                                     .frame(height: 50)
                             }.background(Color.tableColumnBgColor)
                             
@@ -108,4 +108,8 @@ struct TableQuickView : View {
         }
         
     }
+}
+
+#Preview {
+    TableQuickView(tableViewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }
