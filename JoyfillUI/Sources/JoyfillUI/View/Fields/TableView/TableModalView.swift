@@ -130,3 +130,12 @@ struct TableModalView : View {
     }
     @State var selectedDropdownValue: String?
 }
+
+struct ViewOffsetKey: PreferenceKey {
+    typealias Value = CGPoint
+    static var defaultValue = CGPoint.zero
+    static func reduce(value: inout Value, nextValue: () -> Value) {
+        value.x += nextValue().x
+        value.y += nextValue().y
+    }
+}
