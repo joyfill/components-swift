@@ -5,6 +5,7 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 // Multi columns and rows
 
@@ -19,4 +20,3 @@ struct TableView: View {
         Text("Hello, World!")
     }
 }
-

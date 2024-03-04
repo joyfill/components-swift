@@ -10,18 +10,29 @@ import SwiftUI
 struct TableQuickView : View {
     private var data  = Array(1...3) // TODO: replace with actual rows
     private var data2  = Array(1...9) // TODO: replace with actual rows
-    
-    @ObservedObject var viewModel: TableViewModel
-    
-    init(tableViewModel: TableViewModel) {
-        self.viewModel = tableViewModel
-    }
-    
     private let adaptiveColumn = [
         GridItem(.flexible(), spacing: 0),
         GridItem(.flexible(), spacing: 0),
         GridItem(.flexible(), spacing: 0)
     ]
+    
+    @ObservedObject private var viewModel: TableViewModel
+    
+    //TODO: Remove this
+    init(tableViewModel: TableViewModel) {
+        self.viewModel = tableViewModel
+    }
+    
+    // TODO: Uncomment this
+    /*
+    private let fieldDependency: FieldDependency
+    @FocusState private var isFocused: Bool // Declare a FocusState property
+
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
+        self.viewModel = TableViewModel(mode: fieldDependency.mode, joyDocModel: fieldDependency.fieldData)
+    }
+     */
     
     var body: some View {
         
@@ -97,8 +108,4 @@ struct TableQuickView : View {
         }
         
     }
-}
-
-#Preview {
-    TableQuickView(tableViewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }

@@ -187,7 +187,8 @@ struct FormView: View {
         case .richText:
             RichTextView(fieldDependency: fieldDependency)
         case .table:
-            TableView(fieldDependency: fieldDependency)
+            TableQuickView(tableViewModel: TableViewModel(mode: fieldDependency.mode, joyDocModel: fieldData)) // TODO: Remove this
+            //TableQuickView(fieldDependency: fieldDependency) // TODO: Uncomment this
         case .image:
             ImageView(fieldDependency: fieldDependency)
         }
