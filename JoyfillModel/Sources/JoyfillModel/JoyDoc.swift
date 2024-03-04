@@ -2,11 +2,11 @@ import Foundation
 
 // MARK: - JoyDoc
 public struct JoyDoc: Codable {
-    public let id, type, stage: String?
-    public let metadata: Metadata?
-    public let identifier, name: String?
-    public let createdOn: Int?
-    public var files: [File]?
+    public var id, type, stage: String?
+    public var metadata: Metadata?
+    public var identifier, name: String?
+    public var createdOn: Int?
+    public var files: [File] = []
     public var fields: [JoyDocField]?
     let categories: [JSONAny]?
     
@@ -16,7 +16,7 @@ public struct JoyDoc: Codable {
     }
     
     public var fieldPosition: FieldPosition? {
-        guard let files = self.files else {
+        guard !self.files.isEmpty else {
             return nil
         }
         let fileIndex = 0
@@ -33,16 +33,16 @@ public struct JoyDoc: Codable {
 public struct JoyDocField: Codable, Identifiable {
     public var type, id, identifier, title: String?
     public var value: ValueUnion?
-    public let fieldRequired: Bool?
-    public let metadata: Metadata?
-    public let file: String?
-    public let options: [Option]?
-    public let tipTitle, tipDescription: String?
-    public let tipVisible: Bool?
-    public let multi: Bool?
-    public let yTitle: String?
+    public var fieldRequired: Bool?
+    public var metadata: Metadata?
+    public var file: String?
+    public var options: [Option]?
+    public var tipTitle, tipDescription: String?
+    public var tipVisible: Bool?
+    public var multi: Bool?
+    public var yTitle: String?
     public var yMax, yMin: Int?
-    public let xTitle: String?
+    public var xTitle: String?
     public var xMax, xMin: Int?
     public var rowOrder: [String]?
     public var tableColumns: [FieldTableColumn]?
@@ -60,17 +60,17 @@ public struct JoyDocField: Codable, Identifiable {
 
 // MARK: - Metadata
 public struct Metadata: Codable {
-    public let deficiencies, blockImport, blockAutoPopulate, requireDeficiencyTitle: Bool?
-    public let requireDeficiencyDescription, requireDeficiencyPhoto: Bool?
-    public let list, listColumn: String?
+    public var deficiencies, blockImport, blockAutoPopulate, requireDeficiencyTitle: Bool?
+    public var requireDeficiencyDescription, requireDeficiencyPhoto: Bool?
+    public var list, listColumn: String?
 }
 
 // MARK: - Option
 public struct Option: Codable,Identifiable{
-    public let value: String?
-    public let deleted: Bool?
-    public let id: String?
-    public let width: Int?
+    public var value: String?
+    public var deleted: Bool?
+    public var id: String?
+    public var width: Int?
     
     enum CodingKeys: String, CodingKey {
         case value, deleted
@@ -81,11 +81,11 @@ public struct Option: Codable,Identifiable{
 
 // MARK: - FieldTableColumn
 public struct FieldTableColumn: Codable {
-    public let id, type, title: String?
-    public let width: Int?
-    public let identifier: String?
-    public let options: [Option]?
-    public let value: String?
+    public var id, type, title: String?
+    public var width: Int?
+    public var identifier: String?
+    public var options: [Option]?
+    public var value: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -145,11 +145,11 @@ public enum ValueUnion: Codable {
 
 // MARK: - ValueElement
 public struct ValueElement: Codable {
-    public let id: String?
+    public var id: String?
     public var url: String?
-    public let fileName, filePath: String?
-    public let deleted: Bool?
-    public let title, description: String?
+    public var fileName, filePath: String?
+    public var deleted: Bool?
+    public var title, description: String?
     public var points: [Point]?
     public var cells: [String: ValueUnion]?
     
@@ -172,11 +172,11 @@ public struct Point: Codable {
 
 // MARK: - File
 public struct File: Codable {
-    public let id: String?
-    public let metadata: Metadata?
-    public let name: String?
-    public let version: Int?
-    public let styles: Metadata?
+    public var id: String?
+    public var metadata: Metadata?
+    public var name: String?
+    public var version: Int?
+    public var styles: Metadata?
     public var pages: [Page]?
     public var pageOrder: [String]?
     public var views: [ModelView]?
@@ -189,12 +189,12 @@ public struct File: Codable {
 
 // MARK: - Page
 public struct Page: Codable {
-    public let name: String?
+    public var name: String?
     public var fieldPositions: [FieldPosition]?
-    public let metadata: Metadata?
-    public let width, height, cols, rowHeight: Int?
-    public let layout, presentation: String?
-    public let margin, padding, borderWidth: Int?
+    public var metadata: Metadata?
+    public var width, height, cols, rowHeight: Int?
+    public var layout, presentation: String?
+    public var margin, padding, borderWidth: Int?
     public var id: String?
     
     public enum CodingKeys: String, CodingKey {
@@ -234,10 +234,10 @@ public struct FieldPosition: Codable {
 
 // MARK: - View
 public struct ModelView: Codable {
-    public let type: String?
+    public var type: String?
     public var pageOrder: [String]?
     public var pages: [Page]?
-    public let id: String?
+    public var id: String?
     
     enum CodingKeys: String, CodingKey {
         case type, pageOrder, pages

@@ -117,11 +117,11 @@ struct MoreImageView: View {
     @Environment(\.presentationMode) private var presentationMode
     
     private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
+    private let eventHandler: Events
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
     
-    public init(isUploadHidden: Bool,imagesArray: Binding<[UIImage]>,eventHandler: FieldEventHandler, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
+    public init(isUploadHidden: Bool,imagesArray: Binding<[UIImage]>,eventHandler: Events, fieldPosition: FieldPosition, fieldData: JoyDocField? = nil) {
         self.isUploadHidden = isUploadHidden
         _images = imagesArray
         self.eventHandler = eventHandler
@@ -160,14 +160,14 @@ struct UploadDeleteView: View {
     @Binding var selectedImages: Set<UIImage>
     
     private let mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
+    private let eventHandler: Events
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
     @StateObject var imageViewModel = ImageFieldViewModel()
     
     public init(imagesArray: Binding<[UIImage]>,
                 selectedImages: Binding<Set<UIImage>>,
-                eventHandler: FieldEventHandler,
+                eventHandler: Events,
                 fieldPosition: FieldPosition,
                 fieldData: JoyDocField? = nil) {
         _imagesArray = imagesArray

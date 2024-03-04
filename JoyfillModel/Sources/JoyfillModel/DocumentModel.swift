@@ -13,7 +13,7 @@ public struct Document: Codable {
     public var name: String
     public var stage: String
     public var createdOn: Int
-    public var files: [Files]
+    public var files: [Files] = []
     public var deleted: Bool
     
     public struct Files: Codable {

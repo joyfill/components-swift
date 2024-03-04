@@ -49,7 +49,7 @@ struct DocumentSubmissionsListView: View {
                 
             }
             NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-                JoyFillView(document: document!, mode: .readonly)
+                JoyFillView(document: document!, mode: .fill, events: self)
             }), isActive: $showForm) {
                 EmptyView()
             }
@@ -98,7 +98,7 @@ struct LazyView<Content: View>: View {
 
 extension DocumentSubmissionsListView: Events {
     func onChange(event: ChangeEvent) {
-        print(">>>>>>>>onChange", event.changes)
+        print(">>>>>>>>onChange", event.document)
     }
     
     func onFocus(event: FieldEvent) {

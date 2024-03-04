@@ -12,12 +12,9 @@ import JoyfillModel
 struct TextView: View {
     @State var enterText: String = ""
     @State var textViewTitle: String = ""
-    private let fieldDependency: FieldDependency
+    let fieldDependency: FieldDependency
+    @Binding var fieldData: JoyDocField?
     @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-    }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -51,6 +48,11 @@ struct TextView: View {
             if let title = fieldDependency.fieldData?.title {
                 textViewTitle = title
             }
+        }
+        .onChange(of: enterText) { oldValue, newValue in
+            fieldData?.value = .string(newValue)
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(changes: [change]))
         }
     }
 }
