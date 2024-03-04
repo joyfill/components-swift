@@ -56,6 +56,16 @@ public struct JoyDocField: Codable, Identifiable {
         case metadata, file, options, multi, yTitle, yMax, yMin, xTitle, xMax, xMin, rowOrder, tableColumns, tableColumnOrder
         case tipTitle, tipDescription, tipVisible
     }
+    
+    public var valueToValueElements: [ValueElement]? {
+        switch value {
+        case .valueElementArray(let array):
+            return array
+        default:
+            return nil
+        }
+    }
+    
 }
 
 // MARK: - Metadata
