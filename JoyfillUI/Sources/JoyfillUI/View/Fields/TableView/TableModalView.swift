@@ -86,7 +86,7 @@ struct TableModalView : View {
                             .border(Color.tableCellBorderColor)
                     })
                     
-                    Text("\(index)")
+                    Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
                         .frame(width: 40, height: 50)
@@ -110,10 +110,9 @@ struct TableModalView : View {
                                     Rectangle()
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
-                                    //fieldTableColumnToView(data: t)
-                                    
-                                    //Text(t?.title ?? "(\(row), \(col))")
-                                }.frame(width: 170).id("\(row)_\(col)")
+                                    // TODO: Switch view here
+                                    Text(t?.title ?? "(\(row), \(col))")
+                                }.frame(width: 170, height: 50).id("\(row)_\(col)")
                             }
                         }
                     }
@@ -129,7 +128,10 @@ struct TableModalView : View {
             }
         }
     }
-    @State var selectedDropdownValue: String?
+}
+
+#Preview {
+    TableModalView(tableViewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }
 
 struct ViewOffsetKey: PreferenceKey {
@@ -143,7 +145,7 @@ struct ViewOffsetKey: PreferenceKey {
 
 
 
-
+//TODO: Remove this
 func fakeTableData() -> JoyDocField? {
     let data = response.data(using: .utf8)!
     do {
@@ -185,7 +187,52 @@ let response = """
                                 "65c7643b970dfa70f906eacf": "Last Row, First column",
                                 "65c7643bce0aff8c2346400d": "last, last"
                             }
-                        }
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdf",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdg",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdh",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdi",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdj",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdk",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdl",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdm",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdn",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdo",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "65c7643b0100c4d3899dacdp",
+                            "deleted": false
+                        },
+
                     ],
                     "required": false,
                     "tipTitle": "",
@@ -195,7 +242,18 @@ let response = """
                     "rowOrder": [
                         "65c7643b72de876e31fc30f7",
                         "65c7643b7bc07d67096dfeb3",
-                        "65c7643b0100c4d3899dacde"
+                        "65c7643b0100c4d3899dacde",
+                        "65c7643b0100c4d3899dacdf",
+                        "65c7643b0100c4d3899dacdg",
+                        "65c7643b0100c4d3899dacdh",
+                        "65c7643b0100c4d3899dacdi",
+                        "65c7643b0100c4d3899dacdj",
+                        "65c7643b0100c4d3899dacdk",
+                        "65c7643b0100c4d3899dacdl",
+                        "65c7643b0100c4d3899dacdm",
+                        "65c7643b0100c4d3899dacdn",
+                        "65c7643b0100c4d3899dacdo",
+                        "65c7643b0100c4d3899dacdp"
                     ],
                     "tableColumns": [
                         {
@@ -245,119 +303,3 @@ let response = """
                     "file": "65c7637bcca019774a4ca5e2"
                 }
 """
-
-
-struct ContentView1: View {
-    
-    let columns = 20
-    let rows = 50
-    
-    @State private var offset = CGPoint.zero
-    
-    init() {
-        UIScrollView.appearance().bounces = false
-    }
-    
-    var body: some View {
-        
-        HStack(alignment: .top, spacing: 0) {
-            
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    Text("")
-                    Text("#")
-                }.frame(width: 80, height: 50)
-                
-                ScrollView([.vertical]) {
-                    rowsHeader
-                        .offset(y: offset.y)
-                    
-                }
-                .scrollIndicators(.hidden)
-                .disabled(true)
-            }
-            VStack(alignment: .leading, spacing: 0) {
-                ScrollView([.horizontal]) {
-                    colsHeader
-                        .offset(x: offset.x)
-                }
-                .disabled(true)
-                
-                table
-                    .coordinateSpace(name: "scroll")
-            }
-        }
-        .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
-    }
-    
-    var colsHeader: some View {
-        HStack(alignment: .top, spacing: 0) {
-            ForEach(0..<columns, id: \.self) { col in
-                Text("COL \(col)")
-                    .foregroundColor(.secondary)
-                    .font(.caption)
-                    .frame(width: 170, height: 50)
-                    .border(Color.red)
-                    .background(.blue)
-            }
-        }
-    }
-    
-    var rowsHeader: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(0..<rows, id: \.self) { row in
-                HStack(spacing: 0) {
-                    Button(action: {
-                        
-                    }, label: {
-                        Image(systemName: false ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: 50)
-                            .border(Color.black)
-                    })
-                    
-                    Text("\(row)00")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                        .frame(width: 40, height: 50)
-                        .border(Color.black)
-                        .id("\(row)")
-                }
-            }
-        }
-    }
-    
-    var table: some View {
-        ScrollViewReader { cellProxy in
-            ScrollView([.vertical, .horizontal]) {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(0..<rows, id: \.self) { row in
-                        HStack(alignment: .top, spacing: 0) {
-                            ForEach(0..<columns, id: \.self) { col in
-                                // Cell
-                                Text("(\(row), \(col))")
-                                    .frame(width: 170, height: 50)
-                                    .border(Color.blue)
-                                    .id("\(row)_\(col)")
-                            }
-                        }
-                    }
-                }
-                .background( GeometryReader { geo in
-                    Color.clear
-                        .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
-                })
-                .onPreferenceChange(ViewOffsetKey.self) { value in
-                    print("offset >> \(value)")
-                    offset = value
-                }
-                .onAppear {
-                    cellProxy.scrollTo("1_1")
-                }
-            }
-        }
-    }
-}
-
-
-
-

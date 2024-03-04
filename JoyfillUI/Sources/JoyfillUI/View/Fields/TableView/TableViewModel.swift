@@ -21,6 +21,7 @@ class TableViewModel: ObservableObject {
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
     @Published var columns: [String] = []
+    @Published var quickViewRowCount: Int = 0
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
     
@@ -34,6 +35,7 @@ class TableViewModel: ObservableObject {
         setupColumns(joyDocModel: joyDocModel)
         setupRows(joyDocModel: joyDocModel)
         
+        quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         
         shouldShowTableTitle = !(joyDocModel?.title?.isEmpty ?? true)
         shouldShowAddRowButton = mode == .fill
@@ -54,6 +56,8 @@ class TableViewModel: ObservableObject {
         guard index < columns.count else { return "" }
         return columnIdToColumnMap[columns[index]]?.title ?? ""
     }
+    
+    
     
     private func setupColumns(joyDocModel: JoyDocField?) {
         guard let joyDocModel = joyDocModel else { return }

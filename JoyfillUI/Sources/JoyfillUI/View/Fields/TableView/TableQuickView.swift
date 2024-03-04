@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Nand Kishore on 04/03/24.
 //
@@ -25,15 +25,15 @@ struct TableQuickView : View {
     
     // TODO: Uncomment this
     /*
-    private let fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        self.viewModel = TableViewModel(mode: fieldDependency.mode, joyDocModel: fieldDependency.fieldData)
-    }
+     private let fieldDependency: FieldDependency
+     @FocusState private var isFocused: Bool // Declare a FocusState property
+     
+     public init(fieldDependency: FieldDependency) {
+     self.fieldDependency = fieldDependency
+     self.viewModel = TableViewModel(mode: fieldDependency.mode, joyDocModel: fieldDependency.fieldData)
+     }
      */
-
+    
     var body: some View {
         
         VStack {
@@ -69,6 +69,7 @@ struct TableQuickView : View {
             
             HStack {
                 Grid(verticalSpacing: 1) {
+                    //Columns
                     LazyVGrid(columns: adaptiveColumn, spacing: 4) {
                         ForEach(0...2, id: \.self) { item in
                             ZStack {
@@ -84,16 +85,16 @@ struct TableQuickView : View {
                     }
                     .cornerRadius(14, corners: [.topLeft, .topRight])
                     
+                    //Rows
                     LazyVGrid(columns: adaptiveColumn, spacing: 0) {
-                        ForEach(data2, id: \.self) { item in
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 0)
-                                    .stroke()
-                                    .foregroundColor(Color.tableCellBorderColor)
-                                Text(String("Floor\(item)"))
-                                    .frame(height: 50)
-                            }
-                            
+                        ForEach(0...8, id: \.self) { row in                      
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 0)
+                                        .stroke()
+                                        .foregroundColor(Color.tableCellBorderColor)
+                                    Text(String("Floor"))
+                                        .frame(height: 50)
+                                }
                         }
                     }
                 }
