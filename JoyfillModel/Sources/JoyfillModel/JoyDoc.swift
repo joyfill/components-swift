@@ -81,11 +81,13 @@ public struct Option: Codable,Identifiable{
 
 // MARK: - FieldTableColumn
 public struct FieldTableColumn: Codable {
-    public var id, type, title: String?
-    public var width: Int?
-    public var identifier: String?
-    public var options: [Option]?
-    public var value: String?
+    public let id, type: String?
+    public var title: String?
+    public let width: Int?
+    public let identifier: String?
+    public let options: [Option]?
+    public let value: String?
+    public var defaultDropdownSelectedId: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
