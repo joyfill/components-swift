@@ -98,7 +98,7 @@ struct LazyView<Content: View>: View {
 
 extension DocumentSubmissionsListView: Events {
     func onChange(event: ChangeEvent) {
-        print(">>>>>>>>onChange", event.document)
+//        print(">>>>>>>>onChange", event.document)
     }
     
     func onFocus(event: FieldEvent) {

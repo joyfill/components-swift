@@ -262,10 +262,16 @@ public struct Change {
 }
 
 public struct ChangeEvent {
+    public let field: JoyDocField?
+    public var page: Page?
+    public var file: File?
     public let changes: [Change]
     public var document: JoyDoc?
-   
-    public init(changes: [Change], document: JoyDoc? = nil) {
+    
+    public init(field: JoyDocField?, page: Page? = nil, file: File? = nil, changes: [Change], document: JoyDoc? = nil) {
+        self.field = field
+        self.page = page
+        self.file = file
         self.changes = changes
         self.document = document
     }

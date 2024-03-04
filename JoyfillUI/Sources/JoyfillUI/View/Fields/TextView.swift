@@ -13,7 +13,6 @@ struct TextView: View {
     @State var enterText: String = ""
     @State var textViewTitle: String = ""
     let fieldDependency: FieldDependency
-    @Binding var fieldData: JoyDocField?
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
     var body: some View {
@@ -50,9 +49,10 @@ struct TextView: View {
             }
         }
         .onChange(of: enterText) { oldValue, newValue in
-            fieldData?.value = .string(newValue)
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue)
             let change = Change(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(changes: [change]))
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
         }
     }
 }

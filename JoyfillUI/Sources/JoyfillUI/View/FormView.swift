@@ -164,25 +164,10 @@ struct FormView: View {
         let fieldData = fieldsData?.first(where: {
             $0.id == fieldPosition.field
         })
-        
-        // Create a custom Binding for fieldData
-        var fieldDataBinding: Binding<JoyDocField?> {
-            Binding(get: {
-                fieldData
-            }, set: { newValue in
-                fieldsData = fieldsData?.compactMap { data in
-                    if data.id == newValue?.id {
-                        return newValue
-                    }
-                    return data
-                }
-            })
-        }
-        
         let fieldDependency = FieldDependency(eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
         switch fieldPosition.type {
         case .text:
-            TextView(fieldDependency: fieldDependency, fieldData: fieldDataBinding)
+            TextView(fieldDependency: fieldDependency)
         case .block:
             DisplayTextView(fieldDependency: fieldDependency)
         case .multiSelect:
@@ -219,6 +204,12 @@ struct FormView: View {
 
 extension FormView: Events {
     func onChange(event: ChangeEvent) {
+        fieldsData = fieldsData?.compactMap { data in
+            if data.id == event.field?.id {
+                return event.field
+            }
+            return data
+        }
         eventHandler?.onChange(event: event)
     }
     

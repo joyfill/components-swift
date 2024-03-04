@@ -9,7 +9,7 @@ import JoyfillModel
 
 struct DisplayTextView: View {
     @State var displayText: String = ""
-    private let fieldDependency: FieldDependency
+    private var fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
     public init(fieldDependency: FieldDependency) {
@@ -28,9 +28,10 @@ struct DisplayTextView: View {
             }
         }
         .onChange(of: displayText, { oldValue, newValue in
-            let change = ["value": newValue]
-            let changeEvent = ChangeEvent(changes: [Change(changeData: change)])
-            fieldDependency.eventHandler.onChange(event: changeEvent)
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue)
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
         })
         .padding(.horizontal, 16)
     }
