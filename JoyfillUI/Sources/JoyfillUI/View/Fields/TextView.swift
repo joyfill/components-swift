@@ -11,7 +11,6 @@ import JoyfillModel
 
 struct TextView: View {
     @State var enterText: String = ""
-    @State var textViewTitle: String = ""
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
@@ -50,9 +49,6 @@ struct TextView: View {
         .onAppear {
             if let text = fieldDependency.fieldData?.value?.text {
                 enterText = text
-            }
-            if let title = fieldDependency.fieldData?.title {
-                textViewTitle = title
             }
         }
     }
