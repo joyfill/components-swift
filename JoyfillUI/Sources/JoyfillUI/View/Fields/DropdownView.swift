@@ -9,34 +9,42 @@ import JoyfillModel
 
 struct DropdownView: View {
     @State var selectedDropdownValue: String?
+    @State private var isSheetPresented = false
     private let fieldDependency: FieldDependency
-    @State var dropdownViewTitle: String = ""
     @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(dropdownViewTitle)")
-                .fontWeight(.bold)
-            
-            Picker("Select", selection: $selectedDropdownValue) {
-                if let options = fieldDependency.fieldData?.options {
-                    ForEach(options) { option in
-                        Text(option.value ?? "").tag("\(option.value)")
-                    }
-                }
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 40)
-            .colorMultiply(selectedDropdownValue == "" ? .secondary : .black)
+            
+            Button(action: {
+                isSheetPresented = true
+            }, label: {
+                HStack {
+                    Text(selectedDropdownValue ?? "Select Option")
+                        .lineLimit(1)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.all, 10)
+                .foregroundColor(.black)
+            })
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.gray, lineWidth: 1)
-                    .frame(maxWidth: .infinity)
+                    .stroke(Color.black, lineWidth: 1)
             )
+            .sheet(isPresented: $isSheetPresented) {
+                DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValue: $selectedDropdownValue)
+                    .presentationDetents([.medium])
+            }
         }
         .focused($isFocused) // Observe focus state
         .onChange(of: isFocused) { focused in
@@ -52,10 +60,61 @@ struct DropdownView: View {
             if let value = fieldDependency.fieldData?.value {
                 self.selectedDropdownValue = fieldDependency.fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
             }
-            if let title = fieldDependency.fieldData?.title {
-                dropdownViewTitle = title
-            }
         }
         .padding(.horizontal, 16)
     }
 }
+
+
+struct DropDownOptionList: View {
+    @Environment(\.presentationMode) var presentationMode
+    private let fieldDependency: FieldDependency
+    @Binding var selectedDropdownValue: String?
+    
+    public init(fieldDependency: FieldDependency, selectedDropdownValue: Binding<String?>) {
+        self.fieldDependency = fieldDependency
+        self._selectedDropdownValue = selectedDropdownValue
+    }
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Spacer()
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    Image(systemName: "xmark.circle")
+                        .foregroundColor(.black)
+                        .imageScale(.large)
+                })
+                .padding(.horizontal, 16)
+            }
+            ScrollView {
+                if let options = fieldDependency.fieldData?.options {
+                    ForEach(options) { option in
+                        Button(action: {
+                            selectedDropdownValue = option.value
+                            presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            HStack {
+                                Image(systemName: (selectedDropdownValue == option.value) ? "largecircle.fill.circle" : "circle")
+                                Text(option.value ?? "")
+                                    .foregroundColor(.black)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 28)
+                            .padding(.vertical, 10)
+                        })
+                        Divider()
+                            .padding(.horizontal, 16)
+                    }
+                }
+            }
+            Spacer()
+        }
+        .padding(.vertical, 20)
+    }
+}
+
+
+
