@@ -36,12 +36,23 @@ struct MultiSelectionView: View {
                     }) != nil
                       if fieldDependency.fieldData?.multi ?? true {
                           MultiSelection(option: optionValue, isSelected: isSelected)
+                          if index < options.count - 1 {
+                              Divider()
+                          }
                       } else {
                           RadioView(option: optionValue, selectedOption: $selectedOption)
+                          if index < options.count - 1 {
+                              Divider()
+                          }
                       }
                   }
                 }
             }
+            .overlay(
+              RoundedRectangle(cornerRadius: 10)
+                  .stroke(Color.gray, lineWidth: 1)
+                  .padding(.vertical,-10)
+            )
             .onAppear{
                 selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
                 if let title = fieldDependency.fieldData?.title {
@@ -50,6 +61,7 @@ struct MultiSelectionView: View {
             }
             .padding(.horizontal, 16)
         }
+        .padding(.vertical, 10)
     }
 }
 
@@ -62,17 +74,16 @@ struct MultiSelection: View {
         }, label: {
             
             HStack {
-                Image(systemName: isSelected ? "record.circle.fill" : "record.circle")
+                Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                    .imageScale(.large)
                 Text(option)
                     .foregroundStyle(.black)
                 Spacer()
             }
-            .padding()
-            
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         })
         .frame(maxWidth: .infinity)
-        .border(Color.gray, width: 1)
-        .padding(.top, -9)
     }
 }
 //Select only one choice
@@ -90,10 +101,9 @@ struct RadioView: View {
                     .foregroundColor(.black)
                 Spacer()
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         })
         .frame(maxWidth: .infinity)
-        .border(Color.gray, width: 1)
-        .padding(.top, -9)
     }
 }
