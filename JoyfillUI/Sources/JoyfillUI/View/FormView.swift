@@ -10,84 +10,66 @@ import JoyfillModel
 public struct JoyFillView: View {
     @State public var document: JoyDoc
     @State public var mode: Mode
-    
-    public init(document: JoyDoc, mode: Mode = .fill) {
-        self.mode = mode
-        self.document = document
+    public var events: Events?
+
+    public init(document: JoyDoc, mode: Mode = .fill, events: Events? = nil) {
+        self.events = events
+        _mode = State(initialValue: mode)
+        _document = State(initialValue: document) // Initialize the @State property directly
     }
-    
+
     public var body: some View {
-        if let files = document.files {
-            FilesView(files: files, fieldsData: document.fields, mode: mode, events: nil)
-        } else {
-            Text("Empty form")
-        }
+        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self)
     }
 }
 
-//extension JoyFillView: Events {
-//    public func onChange(event: JoyfillModel.ChangeEvent) {
-//        var event = event
-//        event.document = document
-//        onChange(event: event)
-//    }
-//    
-//    public func onFocus(event: JoyfillModel.FieldEvent) {
-//        events?.onFocus(event: event)
-//    }
-//    
-//    public func onBlur(event: JoyfillModel.FieldEvent) {
-//        events?.onBlur(event: event)
-//    }
-//    
-//    public func onUpload(event: JoyfillModel.UploadEvent) {
-//        events?.onUpload(event: event)
-//    }
-//}
-
-struct FilesView: View {
-    private var files: [File]
-    private var fieldsData: [JoyDocField]?
-    private let mode: Mode
-    private let events: Events?
-    
-    init(files: [File], fieldsData: [JoyDocField]?, mode: Mode, events: Events?) {
-        self.files = files
-        self.fieldsData = fieldsData
-        self.mode = mode
-        self.events = events
+extension JoyFillView: Events {
+    public func onChange(event: JoyfillModel.ChangeEvent) {
+        var event = event
+        event.document = document
+        events?.onChange(event: event)
     }
     
+    public func onFocus(event: JoyfillModel.FieldEvent) {
+        events?.onFocus(event: event)
+    }
+    
+    public func onBlur(event: JoyfillModel.FieldEvent) {
+        events?.onBlur(event: event)
+    }
+    
+    public func onUpload(event: JoyfillModel.UploadEvent) {
+        events?.onUpload(event: event)
+    }
+}
+
+struct FilesView: View {
+    @Binding var fieldsData: [JoyDocField]?
+    var files: [File]
+    let mode: Mode
+    let events: Events?
+    
     var body: some View {
-        if let file = files.first {
-            FileView(file: file, fieldsData: fieldsData, mode: mode, events: events)
-        }
+        FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events)
     }
 }
 
 struct FileView: View {
-    private let file: File
-    private var fieldsData: [JoyDocField]?
-    private let mode: Mode
-    private let events: Events?
-    
-    init(file: File, fieldsData: [JoyDocField]?, mode: Mode, events: Events?) {
-        self.file = file
-        self.fieldsData = fieldsData
-        self.mode = mode
-        self.events = events
-    }
+    @Binding var fieldsData: [JoyDocField]?
+    var file: File?
+    let mode: Mode
+    let events: Events?
     
     var body: some View {
-        if file.views?.count != 0 {
-            if let view = file.views?.first {
+        if file?.views?.count != 0 {
+            if let view = file?.views?.first {
                 if let pages = view.pages {
-                    PagesView(pages: pages, fieldsData: fieldsData, mode: mode, events: self)
+                    PagesView(fieldsData: $fieldsData, pages: pages, mode: mode, events: self)
                 }
             }
         } else {
-            if let pages = file.pages {
-                PagesView(pages: pages, fieldsData: fieldsData, mode: mode, events: self)
+            if let pages = file?.pages {
+                PagesView(fieldsData: $fieldsData, pages: pages, mode: mode, events: self)
             }
         }
     }
@@ -116,41 +98,27 @@ extension FileView: Events {
 }
 
 struct PagesView: View {
-    private let pages: [Page]
-    private var fieldsData: [JoyDocField]?
-    private let mode: Mode
-    private let events: Events?
-    
-    init(pages: [Page], fieldsData: [JoyDocField]?, mode: Mode, events: Events?) {
-        self.pages = pages
-        self.fieldsData = fieldsData
-        self.mode = mode
-        self.events = events
-    }
+    @Binding var fieldsData: [JoyDocField]?
+    let pages: [Page]
+    let mode: Mode
+    let events: Events?
     
     var body: some View {
         if let page = pages.first {
-            PageView(page: page, fieldsData: fieldsData, mode: mode, events: events)
+            PageView(fieldsData: $fieldsData, page: page, mode: mode, events: events)
         }
     }
 }
 
 struct PageView: View {
-    private let page: Page
-    private var fieldsData: [JoyDocField]?
-    private let mode: Mode
-    private let events: Events?
-    
-    init(page: Page, fieldsData: [JoyDocField]? = nil, mode: Mode, events: Events?) {
-        self.page = page
-        self.fieldsData = fieldsData
-        self.mode = mode
-        self.events = events
-    }
-    
+    @Binding var fieldsData: [JoyDocField]?
+    let page: Page
+    let mode: Mode
+    let events: Events?
+
     var body: some View {
         if let fieldPositions = page.fieldPositions {
-            FormView(fieldPositions: fieldPositions, fieldsData: fieldsData, mode: mode, events: self)
+            FormView(fieldPositions: fieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
         }
     }
 }
@@ -179,34 +147,27 @@ extension PageView: Events {
 
 struct FieldDependency {
     let mode: Mode = .fill
-    let eventHandler: FieldEventHandler
+    let eventHandler: Events
     let fieldPosition: FieldPosition
     var fieldData: JoyDocField?
 }
 
 struct FormView: View {
     @State var fieldPositions: [FieldPosition]
-    private var fieldsData: [JoyDocField]?
+    @Binding var fieldsData: [JoyDocField]?
     @State var mode: Mode = .fill
-    private let eventHandler: FieldEventHandler
-    
-    init(fieldPositions: [FieldPosition], fieldsData: [JoyDocField]?, mode: Mode, events: Events? = nil) {
-        self.fieldPositions = fieldPositions
-        self.fieldsData = fieldsData
-        self.mode = mode
-        self.eventHandler = FieldEventHandler(appEventHandler: events)
-    }
+    let eventHandler: Events?
+    @State var currentFieldData: JoyDocField?
     
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
         let fieldData = fieldsData?.first(where: {
             $0.id == fieldPosition.field
         })
-        
-        let fieldDependency = FieldDependency(eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
+        let fieldDependency = FieldDependency(eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
         switch fieldPosition.type {
         case .text:
-           TextView(fieldDependency: fieldDependency)
+            TextView(fieldDependency: fieldDependency)
         case .block:
             DisplayTextView(fieldDependency: fieldDependency)
         case .multiSelect:
@@ -226,7 +187,8 @@ struct FormView: View {
         case .richText:
             RichTextView(fieldDependency: fieldDependency)
         case .table:
-            TableView(fieldDependency: fieldDependency)
+            TableQuickView(tableViewModel: TableViewModel(mode: fieldDependency.mode, joyDocModel: fieldData)) // TODO: Remove this
+            //TableQuickView(fieldDependency: fieldDependency) // TODO: Uncomment this
         case .image:
             ImageView(fieldDependency: fieldDependency)
         }
@@ -241,26 +203,26 @@ struct FormView: View {
     }
 }
 
-class FieldEventHandler: Events {
-    var appEventHandler: Events?
-    
-    init(appEventHandler: Events? = nil) {
-        self.appEventHandler = appEventHandler
-    }
-    
+extension FormView: Events {
     func onChange(event: ChangeEvent) {
-        appEventHandler?.onChange(event: event)
+        fieldsData = fieldsData?.compactMap { data in
+            if data.id == event.field?.id {
+                return event.field
+            }
+            return data
+        }
+        eventHandler?.onChange(event: event)
     }
     
     func onFocus(event: FieldEvent) {
-        appEventHandler?.onFocus(event: event)
+        eventHandler?.onFocus(event: event)
     }
     
     func onBlur(event: FieldEvent) {
-        appEventHandler?.onBlur(event: event)
+        eventHandler?.onBlur(event: event)
     }
     
     func onUpload(event: UploadEvent) {
-        appEventHandler?.onUpload(event: event)
+        eventHandler?.onUpload(event: event)
     }
 }

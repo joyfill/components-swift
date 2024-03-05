@@ -13,7 +13,7 @@ public struct Document: Codable {
     public var name: String
     public var stage: String
     public var createdOn: Int
-    public var files: [Files]
+    public var files: [Files] = []
     public var deleted: Bool
     
     public struct Files: Codable {
@@ -278,10 +278,16 @@ public struct Change {
 }
 
 public struct ChangeEvent {
+    public let field: JoyDocField?
+    public var page: Page?
+    public var file: File?
     public let changes: [Change]
     public var document: JoyDoc?
-   
-    public init(changes: [Change], document: JoyDoc? = nil) {
+    
+    public init(field: JoyDocField?, page: Page? = nil, file: File? = nil, changes: [Change], document: JoyDoc? = nil) {
+        self.field = field
+        self.page = page
+        self.file = file
         self.changes = changes
         self.document = document
     }
