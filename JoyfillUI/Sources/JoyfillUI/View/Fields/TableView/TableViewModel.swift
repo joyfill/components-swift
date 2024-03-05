@@ -9,37 +9,42 @@ import Foundation
 import SwiftUI
 import JoyfillModel
 
+
+
 class TableViewModel: ObservableObject {
     private let mode: Mode
-    private let joyDocModel: JoyDocField?
+    private var joyDocModel: JoyDocField?
     
     @Published var isTableModalViewPresented = false
-    @Published var shouldShowTableTitle = false
     @Published var shouldShowAddRowButton: Bool = false
     @Published var shouldShowDeleteRowButton: Bool = false
+    @Published var showRowSelector: Bool = false
     @Published var tableViewTitle: String = ""
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
+    @Published var rowsSelection: [Bool] = []
     @Published var columns: [String] = []
     @Published var quickViewRowCount: Int = 0
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
+    private var selectedRow: Int?
     
     init(mode: Mode, joyDocModel: JoyDocField?) {
         self.mode = mode
         self.joyDocModel = joyDocModel
+        self.showRowSelector = mode == .fill
+        self.shouldShowAddRowButton = mode == .fill
+        
+        setupColumns(joyDocModel: joyDocModel)
         setup()
     }
     
     private func setup() {
-        setupColumns(joyDocModel: joyDocModel)
         setupRows(joyDocModel: joyDocModel)
+        rowsSelection = Array.init(repeating: false, count: rows.count)
         
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
-        
-        shouldShowTableTitle = !(joyDocModel?.title?.isEmpty ?? true)
-        shouldShowAddRowButton = mode == .fill
-        shouldShowDeleteRowButton = mode == .fill
+        setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
         tableViewTitle = joyDocModel?.title ?? ""
     }
@@ -57,7 +62,45 @@ class TableViewModel: ObservableObject {
         return columnIdToColumnMap[columns[index]]?.title ?? ""
     }
     
+    func toggleSelection(at index: Int? = nil) {
+        if let lastSelectedRow = selectedRow {
+            rowsSelection[lastSelectedRow].toggle()
+            selectedRow = nil
+        }
+        
+        guard let index = index else {
+            return
+        }
+        
+        rowsSelection[index].toggle()
+        selectedRow = rowsSelection[index] ? index : nil
+    }
     
+    func resetLastSelection() {
+        selectedRow = nil
+    }
+    
+    func setDeleteButtonVisibility() {
+        shouldShowDeleteRowButton = (mode == .fill && selectedRow != nil)
+    }
+    
+    func deleteSelectedRow() {
+        guard let selectedRow = selectedRow else {
+            return
+        }
+        
+        joyDocModel?.deleteRow(id: rows[selectedRow])
+        rowToCellMap.removeValue(forKey: rows[selectedRow])
+        resetLastSelection()
+        setup()
+    }
+    
+    func addRow() {
+        let id = generateObjectId()
+        joyDocModel?.addRow(id: id)
+        resetLastSelection()
+        setup()
+    }
     
     private func setupColumns(joyDocModel: JoyDocField?) {
         guard let joyDocModel = joyDocModel else { return }
@@ -79,11 +122,11 @@ class TableViewModel: ObservableObject {
         
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
         
-        guard !nonDeletedRows.isEmpty else {
-            // this is the case when all the rows are deleted
-            // add at least one dummy row
-            return
-        }
+//        guard !nonDeletedRows.isEmpty else {
+//            // this is the case when all the rows are deleted
+//            // add at least one dummy row
+//            return
+//        }
         
         let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: joyDocModel.rowOrder)
         

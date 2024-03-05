@@ -66,6 +66,28 @@ public struct JoyDocField: Codable, Identifiable {
         }
     }
     
+    public mutating func deleteRow(id: String) {
+        guard var elements = valueToValueElements, let index = elements.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+        
+        var element = elements[index]
+        element.setDeleted()
+        elements[index] = element
+
+        self.value = ValueUnion.valueElementArray(elements)
+    }
+    
+    public mutating func addRow(id: String) {
+        guard var elements = valueToValueElements else {
+            return
+        }
+        
+        elements.append(ValueElement(id: id))
+        self.value = ValueUnion.valueElementArray(elements)
+        rowOrder?.append(id)
+    }
+    
 }
 
 // MARK: - Metadata
@@ -169,6 +191,10 @@ public struct ValueElement: Codable {
         case id = "_id"
         case url, fileName, filePath, deleted, title, description, points, cells
     }
+    
+    public mutating func setDeleted() {
+        deleted = true
+    }
 }
 
 // MARK: - Point
@@ -255,4 +281,19 @@ public struct ModelView: Codable {
         case type, pageOrder, pages
         case id = "_id"
     }
+}
+
+// Function to generate ID
+public func generateObjectId() -> String {
+    let characters = "65111466f7a5f25393fd0ac7"
+    let length = characters.count
+    var objectId = "6"
+    
+    for _ in 1..<24 {
+        let randomIndex = Int.random(in: 0..<length)
+        let randomCharacter = characters[characters.index(characters.startIndex, offsetBy: randomIndex)]
+        objectId.append(randomCharacter)
+    }
+    
+    return objectId
 }
