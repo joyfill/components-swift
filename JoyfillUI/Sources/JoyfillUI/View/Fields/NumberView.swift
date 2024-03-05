@@ -13,8 +13,8 @@ struct NumberView: View {
     @State var number: String = ""
     private let fieldDependency: FieldDependency
     @State var numberViewTitle: String = ""
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    @FocusState private var isFocused: Bool
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
@@ -25,9 +25,11 @@ struct NumberView: View {
                 .fontWeight(.bold)
             
             TextField("", text: $number)
+                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 16)
-                .keyboardType(.numberPad)
-                .frame(height: 40)
+                .padding(.vertical, 5)
+                .keyboardType(.decimalPad)
+                .frame(minHeight: 40)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
