@@ -40,7 +40,6 @@ struct DateTimeView: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.gray, lineWidth: 1)
-                                .padding(.horizontal, -10)
                         )
                 } else {
                     if isDatePickerPresented {
@@ -49,7 +48,6 @@ struct DateTimeView: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.gray, lineWidth: 1)
-                                    .padding(.horizontal, -10)
                             )
                     } else {
                         HStack {
@@ -62,7 +60,6 @@ struct DateTimeView: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.gray, lineWidth: 1)
-                                .padding(.horizontal, -10)
                         )
                         .onTapGesture {
                             isDatePickerPresented = true

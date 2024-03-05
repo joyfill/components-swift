@@ -11,16 +11,22 @@ import JoyfillModel
 
 struct TextView: View {
     @State var enterText: String = ""
-    @State var textViewTitle: String = ""
-    let fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool // Declare a FocusState property
+    private let fieldDependency: FieldDependency
+    @FocusState private var isFocused: Bool 
+    
+    public init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(textViewTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             TextField("", text: $enterText)
+                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
                 .overlay(
@@ -43,9 +49,6 @@ struct TextView: View {
         .onAppear {
             if let text = fieldDependency.fieldData?.value?.text {
                 enterText = text
-            }
-            if let title = fieldDependency.fieldData?.title {
-                textViewTitle = title
             }
         }
         .onChange(of: enterText) { oldValue, newValue in
