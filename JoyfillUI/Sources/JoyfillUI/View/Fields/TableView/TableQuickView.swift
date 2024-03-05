@@ -38,12 +38,9 @@ struct TableQuickView : View {
         
         VStack {
             HStack {
-                
-                if(viewModel.shouldShowTableTitle) {
-                    Text(viewModel.tableViewTitle)
-                        .lineLimit(1)
-                        .fontWeight(.bold)
-                }
+                Text(viewModel.tableViewTitle)
+                    .lineLimit(1)
+                    .fontWeight(.bold)
                 
                 Spacer()
                 

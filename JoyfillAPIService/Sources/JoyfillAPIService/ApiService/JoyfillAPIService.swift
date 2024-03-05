@@ -163,20 +163,44 @@ public class APIService {
     }
     
     public func loadImage(from urlString: String, completion: @escaping (Data?) -> Void) {
+        if urlString.hasPrefix("data:") {
+            if let commaIndex = urlString.range(of: ",")?.upperBound {
+                let base64String = String(urlString[commaIndex...])
+                if let data = Data(base64Encoded: base64String) {
+                    completion(data)
+                    return
+                }
+            }
+            completion(nil)
+            return
+        }
+        
         guard let url = URL(string: urlString) else {
             completion(nil)
             return
         }
         
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
+        if url.isFileURL {
+            do {
+                let imageData = try Data(contentsOf: url)
+                completion(imageData)
+            } catch {
+                print("Error loading image from file URL: \(error.localizedDescription)")
                 completion(nil)
-                return
             }
-            completion(data)
+        } else {
+            let task = URLSession.shared.dataTask(with: url) { data, response, error in
+                guard let data = data, error == nil else {
+                    print("Error loading image from URL: \(error?.localizedDescription ?? "Unknown error")")
+                    completion(nil)
+                    return
+                }
+                completion(data)
+            }
+            task.resume()
         }
-        task.resume()
     }
+
     
     public func fetchGroups(completion: @escaping (Result<[GroupData], Error>) -> Void) {
         let request = urlRequest(type: .groups())

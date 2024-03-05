@@ -8,6 +8,10 @@
 import SwiftUI
 
 struct TableModalTopNavigationView: View {
+    @Binding var isDeleteButtonVisible: Bool
+    var onDeleteTap: (() -> Void)?
+    var onAddRowTap: (() -> Void)?
+    
     var body: some View {
         HStack {
             Text("Table Title")
@@ -15,17 +19,22 @@ struct TableModalTopNavigationView: View {
                 .fontWeight(.bold)
             
             Spacer()
-            Button(action: {}) {
-                Text("Delete")
-                    .foregroundStyle(.red)
-                    .font(.system(size: 14))
-                    .frame(width: 80, height: 27)
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.red, lineWidth: 1))
+            if isDeleteButtonVisible {
+                Button(action: {
+                    onDeleteTap?()
+                }) {
+                    Text("Delete")
+                        .foregroundStyle(.red)
+                        .font(.system(size: 14))
+                        .frame(width: 80, height: 27)
+                        .overlay(RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.red, lineWidth: 1))
+                }
             }
+          
             
             Button(action: {
-                
+                onAddRowTap?()
             }) {
                 Text("Add Row +")
                     .foregroundStyle(.black)
@@ -40,5 +49,5 @@ struct TableModalTopNavigationView: View {
 }
 
 #Preview {
-    TableModalTopNavigationView()
+    TableModalTopNavigationView(isDeleteButtonVisible: .constant(true))
 }

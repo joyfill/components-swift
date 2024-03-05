@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Nand Kishore on 04/03/24.
 //
@@ -20,9 +20,15 @@ struct TableModalView : View {
     
     var body: some View {
         VStack {
-            TableModalTopNavigationView()
-                .padding(10)
+            TableModalTopNavigationView(isDeleteButtonVisible: $tableViewModel.shouldShowDeleteRowButton, onDeleteTap: {
+                tableViewModel.deleteSelectedRow()
+            }, onAddRowTap: {
+                tableViewModel.addRow()
+            })
+            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+            
             scrollArea
+                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
     }
     
@@ -31,10 +37,15 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             
             VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    Text("")
-                    Text("#")
-                }.frame(width: 80, height: 50)
+                HStack(alignment: .center) {
+                    if tableViewModel.showRowSelector  {
+                        Spacer()
+                            .frame(height: 40)
+                    }
+                    
+                    Text("#").frame(width: 40)
+                }.frame(width: tableViewModel.showRowSelector ? 80 : 40, height: 50)
+                    .background(Color.tableColumnBgColor)
                 
                 ScrollView([.vertical]) {
                     rowsHeader
@@ -44,12 +55,14 @@ struct TableModalView : View {
                 .scrollIndicators(.hidden)
                 .disabled(true)
             }
+            
             VStack(alignment: .leading, spacing: 0) {
                 ScrollView([.horizontal]) {
                     colsHeader
                         .offset(x: offset.x)
                 }
                 .disabled(true)
+                .background(Color.tableCellBorderColor)
                 
                 table
                     .coordinateSpace(name: "scroll")
@@ -62,7 +75,6 @@ struct TableModalView : View {
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(tableViewModel.columns, id: \.self) { col in
-                
                 ZStack {
                     Rectangle()
                         .stroke()
@@ -74,24 +86,26 @@ struct TableModalView : View {
         }
     }
     
+    
     var rowsHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(tableViewModel.rows.enumerated()), id: \.offset) { (index, row) in
+            ForEach(Array(tableViewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
                 HStack(spacing: 0) {
-                    Button(action: {
-                        
-                    }, label: {
-                        Image(systemName: false ? "record.circle.fill" : "circle")
+                    if tableViewModel.showRowSelector { Image(systemName: row ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: 50)
                             .border(Color.tableCellBorderColor)
-                    })
-                    
+                            .onTapGesture {
+                                tableViewModel.toggleSelection(at: index)
+                                tableViewModel.setDeleteButtonVisibility()
+                            }
+                        
+                    }
                     Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
                         .frame(width: 40, height: 50)
                         .border(Color.tableCellBorderColor)
-                        .id("\(row)")
+                        .id("\(index)")
                 }
             }
         }
@@ -124,6 +138,8 @@ struct TableModalView : View {
                 .onPreferenceChange(ViewOffsetKey.self) { value in
                     //ScrollView scrolling, offset changed
                     offset = value
+                    tableViewModel.toggleSelection()
+                    tableViewModel.setDeleteButtonVisibility()
                 }
             }
         }
