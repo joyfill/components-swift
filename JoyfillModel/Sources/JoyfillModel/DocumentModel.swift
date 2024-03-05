@@ -116,6 +116,22 @@ public enum FieldTypes: String, Codable {
     case table
     case image
 }
+public enum DateFormatType: String {
+    case dateOnly = "MM/DD/YYYY"
+    case timeOnly = "hh:mma"
+    case dateTime = "MM/DD/YYYY hh:mma"
+
+   public var dateFormat: String {
+        switch self {
+        case .dateOnly:
+            return "MMMM d, yyyy"
+        case .timeOnly:
+            return "hh:mm a"
+        case .dateTime:
+            return "MMMM d, yyyy h:mm a"
+        }
+    }
+}
 
 public extension ValueUnion {
     var text: String? {
