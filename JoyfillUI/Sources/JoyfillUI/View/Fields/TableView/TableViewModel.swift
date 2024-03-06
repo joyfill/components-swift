@@ -22,10 +22,13 @@ class TableViewModel: ObservableObject {
     @Published var tableViewTitle: String = ""
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
+    @Published var quickRows: [String] = []
     @Published var rowsSelection: [Bool] = []
     @Published var columns: [String] = []
+    @Published var quickColumns: [String] = []
     @Published var quickViewRowCount: Int = 0
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
+    private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
     private var selectedRow: Int?
     
@@ -52,6 +55,11 @@ class TableViewModel: ObservableObject {
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
         return rowToCellMap[row]?[col]
     }
+    
+    func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
+        return quickRowToCellMap[row]?[col]
+    }
+
     
     func getColumnTitle(columnId: String) -> String {
         return columnIdToColumnMap[columnId]?.title ?? ""
@@ -110,26 +118,21 @@ class TableViewModel: ObservableObject {
         }
         
         self.columns = joyDocModel.tableColumnOrder ?? []
+        self.quickColumns = columns
+        while quickColumns.count > 3 {
+            quickColumns.removeLast()
+        }
     }
     
     private func setupRows(joyDocModel: JoyDocField?) {
         guard let joyDocModel = joyDocModel else { return }
         guard let valueElements = joyDocModel.valueToValueElements, !valueElements.isEmpty else {
-            // no row received
-            // add at least one dummy row
+            setupQuickTableViewRows()
             return
         }
         
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        
-//        guard !nonDeletedRows.isEmpty else {
-//            // this is the case when all the rows are deleted
-//            // add at least one dummy row
-//            return
-//        }
-        
         let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: joyDocModel.rowOrder)
-        
         var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
         
         for row in sortedRows {
@@ -137,7 +140,7 @@ class TableViewModel: ObservableObject {
             for column in joyDocModel.tableColumnOrder ?? [] {
                 var cell = joyDocModel.tableColumns?.first { $0.id == column }
                 cell?.title = ""
-                if case .string(let str) = row.cells?.first { $0.key == column }?.value {
+                if case .string(let str) = row.cells?.first(where: { $0.key == column })?.value {
                     cell?.title = str
                     
                     if cell?.type == "dropdown" {
@@ -150,7 +153,24 @@ class TableViewModel: ObservableObject {
         }
         
         self.rows = sortedRows.map { $0.id ?? "" }
+        self.quickRows = self.rows
         self.rowToCellMap = rowToCellMap
+        self.quickRowToCellMap = rowToCellMap
+        setupQuickTableViewRows()
+    }
+    
+    func setupQuickTableViewRows() {
+        if quickRows.isEmpty {
+            quickRowToCellMap = [:]
+            let id = generateObjectId()
+            quickRows = [id]
+            quickRowToCellMap = [id : joyDocModel?.tableColumns ?? []]
+        }
+        else {
+            while quickRows.count > 3 {
+                quickRows.removeLast()
+            }
+        }
     }
     
     func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
