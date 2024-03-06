@@ -98,7 +98,9 @@ struct DateTimeView: View {
         case .dateTime:
             return [.date, .hourAndMinute]
         case .none:
-            return []
+            return [.date, .hourAndMinute]
+        case .some(.empty):
+            return [.date, .hourAndMinute]
         }
     }
 }

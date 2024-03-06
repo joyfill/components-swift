@@ -120,7 +120,8 @@ public enum DateFormatType: String {
     case dateOnly = "MM/DD/YYYY"
     case timeOnly = "hh:mma"
     case dateTime = "MM/DD/YYYY hh:mma"
-
+    case empty = ""
+    
    public var dateFormat: String {
         switch self {
         case .dateOnly:
@@ -128,6 +129,8 @@ public enum DateFormatType: String {
         case .timeOnly:
             return "hh:mm a"
         case .dateTime:
+            return "MMMM d, yyyy h:mm a"
+        case .empty:
             return "MMMM d, yyyy h:mm a"
         }
     }
