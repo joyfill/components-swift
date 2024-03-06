@@ -13,7 +13,6 @@ struct SignatureView: View {
     @State var signatureImage: UIImage?
     @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
-    @State var signatureViewTitle: String = ""
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
@@ -24,8 +23,10 @@ struct SignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(signatureViewTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.gray, lineWidth: 1)
@@ -44,7 +45,7 @@ struct SignatureView: View {
             NavigationLink {
                 CanvasSignatureView(lines: $lines, signatureImage: $signatureImage)
             } label: {
-                Text("Sign")
+                Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .frame(height: 40)
@@ -60,9 +61,6 @@ struct SignatureView: View {
             self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
             if !imageLoaded {
                 loadImageFromURL()
-            }
-            if let title = fieldDependency.fieldData?.title {
-                signatureViewTitle = title
             }
         }
         .padding(.horizontal, 16)
@@ -136,7 +134,7 @@ struct CanvasSignatureView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("Signature")
+                Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .fontWeight(.bold)
                 Spacer()
                 Button(action: {
@@ -149,25 +147,15 @@ struct CanvasSignatureView: View {
             }
             
             CanvasView(lines: $lines)
-                .frame(height: 200)
+                .frame(height: 150)
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
                 )
-            
-        
         
             HStack {
-                TextField("Type to sign", text: $enterYourSignName)
-                    .padding(.horizontal, 10)
-                    .frame(height: 40)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
-                    .cornerRadius(10)
-                
+                Spacer()
                 Button(action: {
                     self.lines = []
                 }, label: {
@@ -181,10 +169,6 @@ struct CanvasSignatureView: View {
                         )
                 })
                 
-            }
-            .padding(.top, 10)
-            HStack {
-                Spacer()
                 Button(action: {
                     DispatchQueue.main.async {
                         signatureImage = CanvasView(lines: $lines)
@@ -194,15 +178,19 @@ struct CanvasSignatureView: View {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Save")
+                        .frame(minWidth: 100, maxWidth: .infinity)
                 })
                 .buttonStyle(.borderedProminent)
                 Spacer()
             }
+            .padding(.top, 10)
             Spacer()
         }
         .padding(.horizontal, 16.0)
         .navigationBarBackButtonHidden()
-        
+        .onAppear() {
+            self.lines = []
+        }
     }
 }
 extension View {
