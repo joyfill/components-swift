@@ -33,9 +33,7 @@ struct TableModalView : View {
     }
     
     var scrollArea: some View {
-        
         HStack(alignment: .top, spacing: 0) {
-            
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center) {
                     if tableViewModel.showRowSelector  {
@@ -46,14 +44,13 @@ struct TableModalView : View {
                     Text("#").frame(width: 40)
                 }.frame(width: tableViewModel.showRowSelector ? 80 : 40, height: 50)
                     .background(Color.tableColumnBgColor)
+                    .cornerRadius(14, corners: [.topLeft])
                 
                 ScrollView([.vertical]) {
                     rowsHeader
                         .offset(y: offset.y)
-                    
                 }
                 .scrollIndicators(.hidden)
-                .disabled(true)
             }
             
             VStack(alignment: .leading, spacing: 0) {
@@ -63,6 +60,7 @@ struct TableModalView : View {
                 }
                 .disabled(true)
                 .background(Color.tableCellBorderColor)
+                .cornerRadius(14, corners: [.topRight])
                 
                 table
                     .coordinateSpace(name: "scroll")
@@ -141,7 +139,7 @@ struct TableModalView : View {
                     tableViewModel.toggleSelection()
                     tableViewModel.setDeleteButtonVisibility()
                 }
-            }
+            }.scrollIndicators(.hidden)
         }
     }
 }
@@ -309,12 +307,20 @@ let response = """
                             "title": "Text Column",
                             "width": 0,
                             "identifier": "field_column_65c77d9ec51d700b47d4f9f2"
+                        },
+                        {
+                            "_id": "65c7643bce0aff8c2346400e",
+                            "type": "text",
+                            "title": "Text Column",
+                            "width": 0,
+                            "identifier": "field_column_65c77d9ec51d700b47d4f9f2"
                         }
                     ],
                     "tableColumnOrder": [
                         "65c7643b970dfa70f906eacf",
                         "65c7643b7afdd89dda43bf28",
-                        "65c7643bce0aff8c2346400d"
+                        "65c7643bce0aff8c2346400d",
+                        "65c7643bce0aff8c2346400e"
                     ],
                     "file": "65c7637bcca019774a4ca5e2"
                 }
