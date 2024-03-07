@@ -166,12 +166,12 @@ struct MoreImageView: View {
 struct UploadDeleteView: View {
     @Binding var imagesArray: [UIImage]
     @Binding var selectedImages: Set<UIImage>
+    @StateObject var imageViewModel = ImageFieldViewModel()
     
     private let mode: Mode = .fill
     private let eventHandler: Events
     private let fieldPosition: FieldPosition
     private var fieldData: JoyDocField?
-    @StateObject var imageViewModel = ImageFieldViewModel()
     
     public init(imagesArray: Binding<[UIImage]>,
                 selectedImages: Binding<Set<UIImage>>,
@@ -184,39 +184,71 @@ struct UploadDeleteView: View {
         self.fieldPosition = fieldPosition
         self.fieldData = fieldData
     }
+    
     var body: some View {
         HStack {
-            Button(action: {
-                if fieldData?.multi == false ?? true {
-                    imagesArray = []
-                }
-                let uploadEvent = UploadEvent(field: fieldData!) { urls in
-                    loadImagesFromURLs(imageURLs: urls)
-                }
-                eventHandler.onUpload(event: uploadEvent)
-            }, label: {
-                    Image("UploadButton")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 28)
-            })
+            uploadButton
             
-            Button(action: {
-                deleteSelectedImages()
-            }, label: {
-                Image(selectedImages.count > 0 ? "DeleteButton" : "")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 28)
-            })
+            if selectedImages.count > 0 {
+                deleteButton
+            }
+            
             Spacer()
         }
     }
+    
+    var uploadButton: some View {
+        Button(action: {
+            if fieldData?.multi == false ?? true {
+                imagesArray = []
+            }
+            let uploadEvent = UploadEvent(field: fieldData!) { urls in
+                loadImagesFromURLs(imageURLs: urls)
+            }
+            eventHandler.onUpload(event: uploadEvent)
+        }, label: {
+            HStack(spacing: 8) {
+                Text("Upload")
+                    .foregroundColor(.gray)
+                
+                Image(systemName: "icloud.and.arrow.up")
+                    .foregroundColor(.gray)
+            }
+            .padding(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    .foregroundColor(.gray)
+            )
+        })
+    }
+    
+    var deleteButton: some View {
+        Button(action: {
+            deleteSelectedImages()
+        }, label: {
+            HStack(spacing: 8) {
+                Text("Delete")
+                    .foregroundColor(.red)
+                
+                Image(systemName: "trash.fill")
+                    .foregroundColor(.red)
+            }
+            .padding(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.red, lineWidth: 1)
+                    .foregroundColor(.red)
+            )
+        })
+    }
+    
     func loadImagesFromURLs(imageURLs: [String]) {
         imageViewModel.loadImageFromURL(imageURLs: imageURLs) { images in
             imagesArray.append(contentsOf: images)
         }
     }
+    
     func deleteSelectedImages() {
         imagesArray = imagesArray.filter { !selectedImages.contains($0) }
         selectedImages.removeAll()
@@ -285,7 +317,6 @@ struct ImagePickerView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let imagePicker = UIImagePickerController()
         imagePicker.allowsEditing = true
-//        imagePicker.cameraCaptureMode = .photo
         imagePicker.delegate = context.coordinator
         imagePicker.sourceType = isCamera ? .camera : .photoLibrary
         return imagePicker
