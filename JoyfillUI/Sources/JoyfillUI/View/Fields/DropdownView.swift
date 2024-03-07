@@ -12,6 +12,7 @@ struct DropdownView: View {
     @State private var isSheetPresented = false
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
+    @FocusState private var buttonFocused: Bool
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
@@ -26,6 +27,8 @@ struct DropdownView: View {
             
             Button(action: {
                 isSheetPresented = true
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {
                     Text(selectedDropdownValue ?? "Select Option")

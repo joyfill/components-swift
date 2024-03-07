@@ -49,6 +49,8 @@ struct ImageView: View {
                         
                         Button(action: {
                             showMoreImages = true
+                            let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                            fieldDependency.eventHandler.onFocus(event: fieldEvent)
                         }, label: {
                             HStack {
                                 Text("More > ")
@@ -73,6 +75,8 @@ struct ImageView: View {
                             showProgressView = true
                         }
                         fieldDependency.eventHandler.onUpload(event: uploadEvent)
+                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     }, label: {
                         ZStack {
                             Image("ImageUploadRectSmall")

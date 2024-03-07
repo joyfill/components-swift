@@ -13,6 +13,8 @@ struct SignatureView: View {
     @State var signatureImage: UIImage?
     @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
+    @State private var showCanvasSignatureView: Bool = false
+    
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
@@ -42,9 +44,11 @@ struct SignatureView: View {
                         .scaledToFit()
                 )
             
-            NavigationLink {
-                CanvasSignatureView(lines: $lines, signatureImage: $signatureImage)
-            } label: {
+            Button(action: {
+                showCanvasSignatureView = true
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+            }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
@@ -54,8 +58,12 @@ struct SignatureView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.gray, lineWidth: 1)
                     )
+            })
+            .padding(.vertical, 10)
+            
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
+                EmptyView()
             }
-            .padding(.top, 10)
         }
         .onAppear{
             self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
