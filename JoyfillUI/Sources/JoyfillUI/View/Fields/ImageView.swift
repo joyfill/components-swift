@@ -39,10 +39,14 @@ struct ImageView: View {
             
             if !imagesArray.isEmpty {
                     ZStack {
-                        Image(uiImage: imagesArray[0])
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .cornerRadius(20)
+                        RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.gray, lineWidth: 1)
+                                .background(
+                                    Image(uiImage: imagesArray[0])
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                )
+                        
                         Button(action: {
                             showMoreImages = true
                         }, label: {
@@ -52,16 +56,15 @@ struct ImageView: View {
                                 Text("+\(imagesArray.count)")
                                     .foregroundColor(.black)
                             }
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 5)
                             .background(Color.white)
                             .cornerRadius(10)
                         })
                         .padding(.top, screenHeight * 0.2)
-                        .padding(.leading, screenWidth * 0.6)
-                        .sheet(isPresented: $showMoreImages, content: {
-                            MoreImageView(isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: fieldDependency.eventHandler, fieldPosition: fieldDependency.fieldPosition, fieldData: fieldDependency.fieldData)
-                        })
+                        .padding(.bottom, 10)
+                        .padding(.leading, screenWidth * 0.65)
+                        .shadow(radius: 4)
                     }
                 } else {
                     Button(action: {
@@ -84,13 +87,18 @@ struct ImageView: View {
                             }
                         }
                     })
+                    .disabled(showProgressView)
                 }
         }
+        .sheet(isPresented: $showMoreImages, content: {
+            MoreImageView(isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: fieldDependency.eventHandler, fieldPosition: fieldDependency.fieldPosition, fieldData: fieldDependency.fieldData)
+        })
         .padding(.horizontal, 16)
         .onAppear {
             if let imageURLs = fieldDependency.fieldData?.value?.imageURLs {
                 for imageURL in imageURLs {
                     self.imageURLs.append(imageURL)
+                    showProgressView = true
                 }
             }
             if !imageLoaded {
@@ -148,7 +156,7 @@ struct MoreImageView: View {
             } else {
                 UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
             }
-            ImageGridView(images: $images, selectedImages: $selectedImages)
+            ImageGridView(primaryDisplayOnly: fieldPosition.primaryDisplayOnly ?? false, images: $images, selectedImages: $selectedImages)
             Spacer()
         }
         .padding(.horizontal, 16.0)
@@ -179,6 +187,9 @@ struct UploadDeleteView: View {
     var body: some View {
         HStack {
             Button(action: {
+                if fieldData?.multi == false ?? true {
+                    imagesArray = []
+                }
                 let uploadEvent = UploadEvent(field: fieldData!) { urls in
                     loadImagesFromURLs(imageURLs: urls)
                 }
@@ -213,6 +224,7 @@ struct UploadDeleteView: View {
 }
 
 struct ImageGridView:View {
+    var primaryDisplayOnly: Bool
     @Binding var images: [UIImage]
     @Binding var selectedImages: Set<UIImage>
     let screenWidth = UIScreen.main.bounds.width
@@ -224,30 +236,39 @@ struct ImageGridView:View {
                 ForEach(images, id: \.self) { image in
                     Image(uiImage: image)
                         .resizable()
-//                        .scaledToFill()
                         .scaledToFit()
                         .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
-//                        .clipped()
                         .overlay(content: {
-                            RoundedRectangle(cornerRadius: 10)
-                                               .stroke(Color.gray, lineWidth: 1)
-                                               .background(
-                            Image(selectedImages.contains(image) ? "Selected_Icon" : "UnSelected_Icon")
-                                .offset(
-                                    x: 60,
-                                    y: -60
-                                )
-                            )
+                            if !primaryDisplayOnly {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray, lineWidth: 1)
+                                    .background(
+                                        Image(selectedImages.contains(image) ? "Selected_Icon" : "UnSelected_Icon")
+                                            .offset(
+                                                x: 60,
+                                                y: -60
+                                            )
+                                    )
+                            } else {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray, lineWidth: 1)
+                            }
                         })
                         .onTapGesture {
-                            if selectedImages.contains(image) {
-                                selectedImages.remove(image)
-                            } else {
-                                selectedImages.insert(image)
-                            }
+                            handleImageSelection(image)
                         }
                 }
             }
+        }
+    }
+    
+    private func handleImageSelection(_ image: UIImage) {
+        guard !primaryDisplayOnly else { return }
+        
+        if selectedImages.contains(image) {
+            selectedImages.remove(image)
+        } else {
+            selectedImages.insert(image)
         }
     }
 }
