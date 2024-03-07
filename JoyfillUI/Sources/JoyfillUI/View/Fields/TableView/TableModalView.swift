@@ -11,19 +11,19 @@ import JoyfillModel
 
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
-    @ObservedObject var tableViewModel: TableViewModel
+    @ObservedObject var viewModel: TableViewModel
     
-    init(tableViewModel: TableViewModel) {
-        self.tableViewModel = tableViewModel
+    init(viewModel: TableViewModel) {
+        self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
     }
     
     var body: some View {
         VStack {
-            TableModalTopNavigationView(isDeleteButtonVisible: $tableViewModel.shouldShowDeleteRowButton, onDeleteTap: {
-                tableViewModel.deleteSelectedRow()
+            TableModalTopNavigationView(isDeleteButtonVisible: $viewModel.shouldShowDeleteRowButton, onDeleteTap: {
+                viewModel.deleteSelectedRow()
             }, onAddRowTap: {
-                tableViewModel.addRow()
+                viewModel.addRow()
             })
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             
@@ -36,13 +36,13 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center) {
-                    if tableViewModel.showRowSelector  {
+                    if viewModel.showRowSelector  {
                         Spacer()
                             .frame(height: 40)
                     }
                     
                     Text("#").frame(width: 40)
-                }.frame(width: tableViewModel.showRowSelector ? 80 : 40, height: 50)
+                }.frame(width: viewModel.showRowSelector ? 80 : 40, height: 50)
                     .background(Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topLeft])
                 
@@ -72,29 +72,28 @@ struct TableModalView : View {
     
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(tableViewModel.columns, id: \.self) { col in
+            ForEach(viewModel.columns, id: \.self) { col in
                 ZStack {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    Text(tableViewModel.getColumnTitle(columnId: col))
+                    Text(viewModel.getColumnTitle(columnId: col))
                 }.background(Color.tableColumnBgColor).frame(width: 170, height: 50)
                 
             }
         }
     }
     
-    
     var rowsHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(tableViewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
+            ForEach(Array(viewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
                 HStack(spacing: 0) {
-                    if tableViewModel.showRowSelector { Image(systemName: row ? "record.circle.fill" : "circle")
+                    if viewModel.showRowSelector { Image(systemName: row ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
-                                tableViewModel.toggleSelection(at: index)
-                                tableViewModel.setDeleteButtonVisibility()
+                                viewModel.toggleSelection(at: index)
+                                viewModel.setDeleteButtonVisibility()
                             }
                         
                     }
@@ -113,17 +112,16 @@ struct TableModalView : View {
         ScrollViewReader { cellProxy in
             ScrollView([.vertical, .horizontal]) {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(tableViewModel.rows, id: \.self) { row in
+                    ForEach(viewModel.rows, id: \.self) { row in
                         HStack(alignment: .top, spacing: 0) {
-                            ForEach(Array(tableViewModel.columns.enumerated()), id: \.offset) { index, col in
+                            ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
                                 // Cell
-                                let t = tableViewModel.getFieldTableColumn(row: row, col: index)
+                                let cell = viewModel.getFieldTableColumn(row: row, col: index)
                                 ZStack {
                                     Rectangle()
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
-                                    // TODO: Switch view here
-                                    Text(t?.title ?? "(\(row), \(col))")
+                                    TableViewCellBuilder(data: cell)
                                 }.frame(width: 170, height: 50).id("\(row)_\(col)")
                             }
                         }
@@ -136,16 +134,14 @@ struct TableModalView : View {
                 .onPreferenceChange(ViewOffsetKey.self) { value in
                     //ScrollView scrolling, offset changed
                     offset = value
-                    tableViewModel.toggleSelection()
-                    tableViewModel.setDeleteButtonVisibility()
+                    viewModel.toggleSelection()
+                    viewModel.setDeleteButtonVisibility()
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
-            }.scrollIndicators(.hidden)
+            }
+            .scrollIndicators(.hidden)
         }
     }
-}
-
-#Preview {
-    TableModalView(tableViewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }
 
 struct ViewOffsetKey: PreferenceKey {
@@ -157,171 +153,8 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
-
-
-//TODO: Remove this
-func fakeTableData() -> JoyDocField? {
-    let data = response.data(using: .utf8)!
-    do {
-        return try? JSONDecoder().decode(JoyDocField.self, from: data)
-    } catch {
-        return nil
-    }
+#Preview {
+    TableModalView(viewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }
 
-let response = """
-{
-                    "type": "table",
-                    "_id": "65c77d9a72b975711c99bd50",
-                    "identifier": "field_65c77d9e631e9e53679fdda4",
-                    "title": "Table",
-                    "description": "",
-                    "value": [
-                        {
-                            "_id": "65c7643b72de876e31fc30f7",
-                            "deleted": false,
-                            "cells": {
-                                "65c7643b970dfa70f906eacf": "Hi, First Row",
-                                "65c7643b7afdd89dda43bf28": "65c7643b8157b971f6c65174",
-                                "65c7643bce0aff8c2346400d": "last column, first row"
-                            }
-                        },
-                        {
-                            "_id": "65c7643b7bc07d67096dfeb3",
-                            "deleted": false,
-                            "cells": {
-                                "65c7643b970dfa70f906eacf": "",
-                                "65c7643b7afdd89dda43bf28": "65c7643b9c4d5149e7fe997a"
-                            }
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacde",
-                            "deleted": false,
-                            "cells": {
-                                "65c7643b970dfa70f906eacf": "Last Row, First column",
-                                "65c7643bce0aff8c2346400d": "last, last"
-                            }
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdf",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdg",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdh",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdi",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdj",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdk",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdl",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdm",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdn",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdo",
-                            "deleted": false
-                        },
-                        {
-                            "_id": "65c7643b0100c4d3899dacdp",
-                            "deleted": false
-                        },
 
-                    ],
-                    "required": false,
-                    "tipTitle": "",
-                    "tipDescription": "",
-                    "tipVisible": false,
-                    "metadata": {},
-                    "rowOrder": [
-                        "65c7643b72de876e31fc30f7",
-                        "65c7643b7bc07d67096dfeb3",
-                        "65c7643b0100c4d3899dacde",
-                        "65c7643b0100c4d3899dacdf",
-                        "65c7643b0100c4d3899dacdg",
-                        "65c7643b0100c4d3899dacdh",
-                        "65c7643b0100c4d3899dacdi",
-                        "65c7643b0100c4d3899dacdj",
-                        "65c7643b0100c4d3899dacdk",
-                        "65c7643b0100c4d3899dacdl",
-                        "65c7643b0100c4d3899dacdm",
-                        "65c7643b0100c4d3899dacdn",
-                        "65c7643b0100c4d3899dacdo",
-                        "65c7643b0100c4d3899dacdp"
-                    ],
-                    "tableColumns": [
-                        {
-                            "_id": "65c7643b970dfa70f906eacf",
-                            "type": "text",
-                            "title": "Text Column",
-                            "width": 0,
-                            "identifier": "field_column_65c77d9ed79e7e7cc5ef0f3e"
-                        },
-                        {
-                            "_id": "65c7643b7afdd89dda43bf28",
-                            "type": "dropdown",
-                            "title": "Dropdown Column",
-                            "width": 0,
-                            "identifier": "field_column_65c77d9e726506a0ed24eab8",
-                            "options": [
-                                {
-                                    "_id": "65c7643b9c4d5149e7fe997a",
-                                    "value": "Yes",
-                                    "deleted": false
-                                },
-                                {
-                                    "_id": "65c7643b83ed521e925907f8",
-                                    "value": "No",
-                                    "deleted": false
-                                },
-                                {
-                                    "_id": "65c7643b8157b971f6c65174",
-                                    "value": "N/A",
-                                    "deleted": false
-                                }
-                            ]
-                        },
-                        {
-                            "_id": "65c7643bce0aff8c2346400d",
-                            "type": "text",
-                            "title": "Text Column",
-                            "width": 0,
-                            "identifier": "field_column_65c77d9ec51d700b47d4f9f2"
-                        },
-                        {
-                            "_id": "65c7643bce0aff8c2346400e",
-                            "type": "text",
-                            "title": "Text Column",
-                            "width": 0,
-                            "identifier": "field_column_65c77d9ec51d700b47d4f9f2"
-                        }
-                    ],
-                    "tableColumnOrder": [
-                        "65c7643b970dfa70f906eacf",
-                        "65c7643b7afdd89dda43bf28",
-                        "65c7643bce0aff8c2346400d",
-                        "65c7643bce0aff8c2346400e"
-                    ],
-                    "file": "65c7637bcca019774a4ca5e2"
-                }
-"""

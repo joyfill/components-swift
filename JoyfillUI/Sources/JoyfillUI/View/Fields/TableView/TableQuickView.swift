@@ -6,22 +6,16 @@
 //
 
 import SwiftUI
+import JoyfillModel
 
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
-    private var data  = Array(1...3) // TODO: replace with actual rows
-    private var data2  = Array(1...9) // TODO: replace with actual rows
-    private let adaptiveColumn = [
-        GridItem(.flexible(), spacing: 0),
-        GridItem(.flexible(), spacing: 0),
-        GridItem(.flexible(), spacing: 0)
-    ]
-    
+    private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: TableViewModel
     
     //TODO: Remove this
-    init(tableViewModel: TableViewModel) {
-        self.viewModel = tableViewModel
+    init(viewModel: TableViewModel) {
+        self.viewModel = viewModel
     }
     
     // TODO: Uncomment this
@@ -47,7 +41,7 @@ struct TableQuickView : View {
                 
                 HStack(alignment: .center, spacing: 0) {
                     Text("View")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.blue)
                     
                     Image(systemName: "chevron.forward")
@@ -56,7 +50,7 @@ struct TableQuickView : View {
                         .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
                     
                     Text(viewModel.viewMoreText)
-                        .font(.system(size: 14))
+                        .font(.system(size: 16))
                 }
             }
             .padding(EdgeInsets(top: 0, leading: 14, bottom: 0, trailing: 14))
@@ -64,7 +58,7 @@ struct TableQuickView : View {
                 viewModel.isTableModalViewPresented.toggle()
             }
             .sheet(isPresented: $viewModel.isTableModalViewPresented) {
-                TableModalView(tableViewModel: viewModel)
+                TableModalView(viewModel: viewModel)
             }
             
             HStack {
@@ -75,9 +69,10 @@ struct TableQuickView : View {
                     }
                     .disabled(true)
                     .background(Color.tableCellBorderColor)
-                    .cornerRadius(14, corners: [.topRight])
+                    .cornerRadius(14, corners: [.topRight, .topLeft])
                     
                     table
+                        .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
                 }
             }
             .overlay(
@@ -100,8 +95,7 @@ struct TableQuickView : View {
                     Text(viewModel.getColumnTitle(columnId: col))
                 }
                 .background(Color.tableColumnBgColor)
-                .frame(width: (UIScreen.main.bounds.width / 3)-8, height: 50)
-                
+                .frame(width: (screenWidth / 3) - 8, height: 50)
             }
         }
     }
@@ -114,14 +108,13 @@ struct TableQuickView : View {
                         HStack(alignment: .top, spacing: 0) {
                             ForEach(Array(viewModel.quickColumns.enumerated()), id: \.offset) { index, col in
                                 // Cell
-                                let t = viewModel.getQuickFieldTableColumn(row: row, col: index)
+                                let cell = viewModel.getQuickFieldTableColumn(row: row, col: index)
                                 ZStack {
                                     Rectangle()
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
-                                    // TODO: Switch view here
-                                    Text(t?.title ?? "(\(row), \(col))")
-                                }.frame(width: (UIScreen.main.bounds.width / 3)-8, height: 50).id("\(row)_\(col)")
+                                    TableViewCellBuilder(data: cell)
+                                }.frame(width: (screenWidth / 3) - 8, height: 50).id("\(row)_\(col)")
                             }
                         }
                     }
@@ -131,8 +124,26 @@ struct TableQuickView : View {
             .disabled(true)
         }
     }
+    
+    @ViewBuilder
+    func buildView(cell: FieldTableColumn?) -> some View {
+        if let cell = cell {
+            switch cell.type {
+            case "text":
+                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"))
+            case "dropdown":
+                TableDropDownOptionListView(data: cell)
+            case "image":
+                TableImageView(data: cell)
+            default:
+                Text("")
+            }
+        } else {
+            Text("")
+        }
+    }
 }
 
 #Preview {
-    TableQuickView(tableViewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
+    TableQuickView(viewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }

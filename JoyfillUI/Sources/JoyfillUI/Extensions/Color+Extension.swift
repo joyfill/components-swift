@@ -13,7 +13,7 @@ extension Color {
     static let tableColumnBgColor = Color(hex: "#F3F4F8")
     static let tableCellBorderColor = Color(hex: "#E6E7EA")
     static let buttonBorderColor = Color(hex: "#E2E3E7")
-    
+    static let tableDropdownBorderColor = Color(hex: "#D1D1D6")
     
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
