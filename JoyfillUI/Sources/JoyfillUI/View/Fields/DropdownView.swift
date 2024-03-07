@@ -12,7 +12,6 @@ struct DropdownView: View {
     @State private var isSheetPresented = false
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
-    @FocusState private var buttonFocused: Bool
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
@@ -49,22 +48,19 @@ struct DropdownView: View {
                     .presentationDetents([.medium])
             }
         }
-        .focused($isFocused) // Observe focus state
-        .onChange(of: isFocused) { focused in
-            if focused {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
-            } else {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onBlur(event: fieldEvent)
-            }
-        }
+        .padding(.horizontal, 16)
+        .focused($isFocused)
         .onAppear{
             if let value = fieldDependency.fieldData?.value {
                 self.selectedDropdownValue = fieldDependency.fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
             }
         }
-        .padding(.horizontal, 16)
+        .onChange(of: selectedDropdownValue) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue ?? "")
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+        }
     }
 }
 

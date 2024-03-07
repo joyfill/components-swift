@@ -12,12 +12,10 @@ import JoyfillAPIService
 
 struct ImageView: View {
     @State var imageURL: String?
-    @State var profileImage: UIImage?
     @State private var showImagePicker: Bool = false
     @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
-    @State var imageViewTitle: String = ""
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
     
@@ -27,72 +25,74 @@ struct ImageView: View {
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(imageViewTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             if !imagesArray.isEmpty {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.gray, lineWidth: 1)
-                                .background(
-                                    Image(uiImage: imagesArray[0])
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                )
-                        
-                        Button(action: {
-                            showMoreImages = true
-                            let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                            fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                        }, label: {
-                            HStack {
-                                Text("More > ")
-                                
-                                Text("+\(imagesArray.count)")
-                                    .foregroundColor(.black)
-                            }
-                            .padding(.vertical, 5)
-                            .padding(.horizontal, 5)
-                            .background(Color.white)
-                            .cornerRadius(10)
-                        })
-                        .padding(.top, screenHeight * 0.2)
-                        .padding(.bottom, 10)
-                        .padding(.leading, screenWidth * 0.65)
-                        .shadow(radius: 4)
-                    }
-                } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.gray, lineWidth: 1)
+                        .background(
+                            Image(uiImage: imagesArray[0])
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        )
+                    
                     Button(action: {
-                        let uploadEvent = UploadEvent(field: fieldDependency.fieldData!) { urls in
-                            loadImageFromURL(imageURLs: urls)
-                            showProgressView = true
-                        }
-                        fieldDependency.eventHandler.onUpload(event: uploadEvent)
+                        showMoreImages = true
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     }, label: {
-                        ZStack {
-                            Image("ImageUploadRectSmall")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(height: 100)
-                            Image("Upload_Icon")
-                                .resizable()
-                                .frame(width: 69,height: 18)
-                            if showProgressView {
-                                ProgressView()
-                            }
+                        HStack {
+                            Text("More > ")
+                            
+                            Text("+\(imagesArray.count)")
+                                .foregroundColor(.black)
                         }
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 5)
+                        .background(Color.white)
+                        .cornerRadius(10)
                     })
-                    .disabled(showProgressView)
+                    .padding(.top, screenHeight * 0.2)
+                    .padding(.bottom, 10)
+                    .padding(.leading, screenWidth * 0.65)
+                    .shadow(radius: 4)
                 }
+            } else {
+                Button(action: {
+                    let uploadEvent = UploadEvent(field: fieldDependency.fieldData!) { urls in
+                        loadImageFromURL(imageURLs: urls)
+                        showProgressView = true
+                    }
+                    fieldDependency.eventHandler.onUpload(event: uploadEvent)
+                    let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                    fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                }, label: {
+                    ZStack {
+                        Image("ImageUploadRectSmall")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 100)
+                        Image("Upload_Icon")
+                            .resizable()
+                            .frame(width: 69,height: 18)
+                        if showProgressView {
+                            ProgressView()
+                        }
+                    }
+                })
+                .disabled(showProgressView)
+            }
         }
         .sheet(isPresented: $showMoreImages, content: {
             MoreImageView(isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: fieldDependency.eventHandler, fieldPosition: fieldDependency.fieldPosition, fieldData: fieldDependency.fieldData)
@@ -108,9 +108,12 @@ struct ImageView: View {
             if !imageLoaded {
                 loadImageFromURL(imageURLs: self.imageURLs)
             }
-            if let title = fieldDependency.fieldData?.title {
-                imageViewTitle = title
-            }
+        }
+        .onChange(of: imageURLs) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .array(newValue)
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
         }
     }
     func loadImageFromURL(imageURLs: [String]) {

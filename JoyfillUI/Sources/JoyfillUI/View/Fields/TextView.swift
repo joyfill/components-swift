@@ -12,7 +12,7 @@ import JoyfillModel
 struct TextView: View {
     @State var enterText: String = ""
     private let fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool 
+    @FocusState private var isFocused: Bool
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency

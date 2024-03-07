@@ -11,7 +11,6 @@ import JoyfillModel
 
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
-    @State var multiLineText: String = ""
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
 
@@ -21,38 +20,43 @@ struct MultiLineTextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(multiLineText)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
-                TextEditor(text: $multilineText)
-                    .disabled(fieldDependency.mode == .readonly)
-                    .autocorrectionDisabled()
-                    .frame(maxHeight: 200)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
-                    .cornerRadius(10)
-                    .focused($isFocused)
-                    .onChange(of: isFocused) { focused in
-                        if focused {
-                            let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                            fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                        } else {
-                            let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                            fieldDependency.eventHandler.onBlur(event: fieldEvent)
-                        }
+            TextEditor(text: $multilineText)
+                .disabled(fieldDependency.mode == .readonly)
+                .autocorrectionDisabled()
+                .frame(maxHeight: 200)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.gray, lineWidth: 1)
+                )
+                .cornerRadius(10)
+                .focused($isFocused)
+                .onChange(of: isFocused) { focused in
+                    if focused {
+                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                    } else {
+                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        fieldDependency.eventHandler.onBlur(event: fieldEvent)
                     }
-        }
-        .onAppear{
-            if let multilineText = fieldDependency.fieldData?.value?.multilineText{
-                self.multilineText = multilineText
-            }
-            if let multiLineTextTitle = fieldDependency.fieldData?.title {
-                multiLineText = multiLineTextTitle
-            }
+                }
         }
         .padding(.horizontal, 16)
+        .onAppear{
+            if let multilineText = fieldDependency.fieldData?.value?.multilineText {
+                self.multilineText = multilineText
+            }
+        }
+        .onChange(of: multilineText) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue)
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+        }
     }
 }
 

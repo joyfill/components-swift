@@ -12,7 +12,6 @@ import JoyfillModel
 struct NumberView: View {
     @State var number: String = ""
     private let fieldDependency: FieldDependency
-    @State var numberViewTitle: String = ""
     @FocusState private var isFocused: Bool
     
     public init(fieldDependency: FieldDependency) {
@@ -21,8 +20,10 @@ struct NumberView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(numberViewTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             TextField("", text: $number)
                 .disabled(fieldDependency.mode == .readonly)
@@ -51,9 +52,12 @@ struct NumberView: View {
             if let number = fieldDependency.fieldData?.value?.number {
                 self.number = String(number)
             }
-            if let title = fieldDependency.fieldData?.title {
-                numberViewTitle = title
-            }
+        }
+        .onChange(of: number) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue)
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
         }
     }
 }

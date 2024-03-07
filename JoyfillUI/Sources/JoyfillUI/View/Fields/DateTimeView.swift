@@ -13,11 +13,10 @@ struct DateTimeView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
-    @State var dateTimeTitle: String = ""
-
+    
     var fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool
-
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
@@ -30,8 +29,10 @@ struct DateTimeView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(dateTimeTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             Group {
                 if showDefaultDate == false {
@@ -68,6 +69,7 @@ struct DateTimeView: View {
                 }
             }
         }
+        .padding(.horizontal, 16)
         .onAppear{
             if let value = fieldDependency.fieldData?.value {
                 let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
@@ -76,11 +78,7 @@ struct DateTimeView: View {
                     showDefaultDate = false
                 }
             }
-            if let title = fieldDependency.fieldData?.title {
-                dateTimeTitle = title
-            }
         }
-        .padding(.horizontal, 16)
     }
     
     func stringToDate(_ dateString: String, format: String) -> Date? {
