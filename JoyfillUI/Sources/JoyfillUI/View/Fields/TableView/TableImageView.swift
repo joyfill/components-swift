@@ -70,7 +70,7 @@ struct TableMoreImageView: View {
             
             TableUploadDeleteView(imagesArray: $images, selectedImages: $selectedImages, data: data)
             
-            ImageGridView(images: $images, selectedImages: $selectedImages)
+            ImageGridView(primaryDisplayOnly: false, images: $images, selectedImages: $selectedImages)
             Spacer()
         }
         .padding(.horizontal, 16.0)

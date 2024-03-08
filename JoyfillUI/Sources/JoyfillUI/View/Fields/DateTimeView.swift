@@ -13,12 +13,10 @@ struct DateTimeView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
     @State private var showDefaultDate: Bool = true
-    @State var dateTimeTitle: String = ""
-//    @Binding var fieldData: JoyDocField?
-
+    
     var fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    @FocusState private var isFocused: Bool
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
@@ -31,28 +29,26 @@ struct DateTimeView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(dateTimeTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             Group {
                 if showDefaultDate == false {
-                    DatePicker("Date-Time", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
-                        .frame(height: 40)
+                    DatePicker("Date-Time", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
                         .padding(.all, 10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.gray, lineWidth: 1)
-                                .frame(maxWidth: .infinity)
                         )
                 } else {
                     if isDatePickerPresented {
-                        DatePicker("Date-Time", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
-                            .frame(height: 40)
+                        DatePicker("Date-Time", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
                             .padding(.all, 10)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.gray, lineWidth: 1)
-                                    .frame(maxWidth: .infinity)
                             )
                     } else {
                         HStack {
@@ -61,12 +57,10 @@ struct DateTimeView: View {
                             Image(systemName: "calendar")
                         }
                         .frame(maxWidth: .infinity)
-                        .frame(height: 40)
                         .padding(.all, 10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.gray, lineWidth: 1)
-                                .frame(maxWidth: .infinity)
                         )
                         .onTapGesture {
                             isDatePickerPresented = true
@@ -75,6 +69,7 @@ struct DateTimeView: View {
                 }
             }
         }
+        .padding(.horizontal, 16)
         .onAppear{
             if let value = fieldDependency.fieldData?.value {
                 let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
@@ -83,17 +78,28 @@ struct DateTimeView: View {
                     showDefaultDate = false
                 }
             }
-            if let title = fieldDependency.fieldData?.title {
-                dateTimeTitle = title
-            }
         }
-        .padding(.horizontal, 16)
     }
     
     func stringToDate(_ dateString: String, format: String) -> Date? {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM d, yyyy"
+        dateFormatter.dateFormat = DateFormatType(rawValue: format)?.dateFormat ?? ""
         return dateFormatter.date(from: dateString)
+    }
+    
+    func getDateType(format: String) -> DatePickerComponents {
+        switch DateFormatType(rawValue: format) {
+        case .dateOnly:
+            return [.date]
+        case .timeOnly:
+            return [.hourAndMinute]
+        case .dateTime:
+            return [.date, .hourAndMinute]
+        case .none:
+            return [.date, .hourAndMinute]
+        case .some(.empty):
+            return [.date, .hourAndMinute]
+        }
     }
 }
 

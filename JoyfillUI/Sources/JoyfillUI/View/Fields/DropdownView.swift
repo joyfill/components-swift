@@ -8,10 +8,9 @@ import SwiftUI
 import JoyfillModel
 
 struct DropdownView: View {
-    @State var selectedDropdownValue: String?
+    @State var selectedDropdownValueID: String?
     @State private var isSheetPresented = false
     private let fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool // Declare a FocusState property
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
@@ -26,9 +25,13 @@ struct DropdownView: View {
             
             Button(action: {
                 isSheetPresented = true
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {
-                    Text(selectedDropdownValue ?? "Select Option")
+                    Text(fieldDependency.fieldData?.options?.filter {
+                        $0.id == selectedDropdownValueID
+                    }.first?.value  ?? "Select Option")
                         .lineLimit(1)
                     Spacer()
                     Image(systemName: "chevron.down")
@@ -42,26 +45,22 @@ struct DropdownView: View {
                     .stroke(Color.black, lineWidth: 1)
             )
             .sheet(isPresented: $isSheetPresented) {
-                DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValue: $selectedDropdownValue)
+                DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValue: $selectedDropdownValueID)
                     .presentationDetents([.medium])
             }
         }
-        .focused($isFocused) // Observe focus state
-        .onChange(of: isFocused) { focused in
-            if focused {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
-            } else {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onBlur(event: fieldEvent)
-            }
-        }
-        .onAppear{
-            if let value = fieldDependency.fieldData?.value {
-                self.selectedDropdownValue = fieldDependency.fieldData?.options?.filter { $0.id == value.dropdownValue }.first?.value ?? ""
-            }
-        }
         .padding(.horizontal, 16)
+        .onAppear {
+            if let value = fieldDependency.fieldData?.value?.dropdownValue {
+                self.selectedDropdownValueID = value
+            }
+        }
+        .onChange(of: selectedDropdownValueID) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue ?? "")
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+        }
     }
 }
 
@@ -93,7 +92,7 @@ struct DropDownOptionList: View {
                 if let options = fieldDependency.fieldData?.options {
                     ForEach(options) { option in
                         Button(action: {
-                            selectedDropdownValue = option.value
+                            selectedDropdownValue = option.id
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack {

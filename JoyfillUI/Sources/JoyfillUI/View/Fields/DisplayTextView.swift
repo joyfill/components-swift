@@ -22,9 +22,10 @@ struct DisplayTextView: View {
             Text("\(displayText)")
                 .fontWeight(.bold)
         }
+        .padding(.horizontal, 16)
         .onAppear {
-            if let hello = fieldDependency.fieldData?.value?.displayText {
-                displayText = hello
+            if let data = fieldDependency.fieldData?.value?.displayText {
+                displayText = data
             }
         }
         .onChange(of: displayText, { oldValue, newValue in
@@ -33,7 +34,6 @@ struct DisplayTextView: View {
             let change = Change(changeData: ["value" : newValue])
             fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
         })
-        .padding(.horizontal, 16)
     }
 }
 

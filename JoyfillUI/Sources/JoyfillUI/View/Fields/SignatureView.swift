@@ -13,6 +13,8 @@ struct SignatureView: View {
     @State var signatureImage: UIImage?
     @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
+    @State private var showCanvasSignatureView: Bool = false
+    
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
@@ -42,9 +44,11 @@ struct SignatureView: View {
                         .scaledToFit()
                 )
             
-            NavigationLink {
-                CanvasSignatureView(lines: $lines, signatureImage: $signatureImage)
-            } label: {
+            Button(action: {
+                showCanvasSignatureView = true
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+            }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
@@ -54,16 +58,26 @@ struct SignatureView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.gray, lineWidth: 1)
                     )
+            })
+            .padding(.vertical, 10)
+            
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
+                EmptyView()
             }
-            .padding(.top, 10)
         }
+        .padding(.horizontal, 16)
         .onAppear{
             self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
             if !imageLoaded {
                 loadImageFromURL()
             }
         }
-        .padding(.horizontal, 16)
+        .onChange(of: signatureURL) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue)
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+        }
     }
     func loadImageFromURL() {
         APIService().loadImage(from: signatureURL ?? "") { imageData in
@@ -88,28 +102,28 @@ struct Line {
 struct CanvasView: View {
     @State var currentLine = Line()
     @Binding var lines: [Line]
-
+    
     var body: some View {
-            ZStack {
-                Canvas{context ,size in
-                    for line in lines {
-                        var path = Path()
-                        path.addLines(line.points)
-                        context.stroke(path, with: .color(line.color),style:StrokeStyle(lineWidth: line.lineWidth, lineCap: .round, lineJoin: .round))
-                    }
+        ZStack {
+            Canvas{context ,size in
+                for line in lines {
+                    var path = Path()
+                    path.addLines(line.points)
+                    context.stroke(path, with: .color(line.color),style:StrokeStyle(lineWidth: line.lineWidth, lineCap: .round, lineJoin: .round))
                 }
-                .gesture(DragGesture(minimumDistance: 0,coordinateSpace: .local)
-                    .onChanged({value in
-                        let newPoint = value.location
-                        currentLine.points.append(newPoint)
-                        self.lines.append(currentLine)
-                    })
-                        .onEnded({value in
-                            self.currentLine = Line(points: [])
-                        }))
             }
+            .gesture(DragGesture(minimumDistance: 0,coordinateSpace: .local)
+                .onChanged({value in
+                    let newPoint = value.location
+                    currentLine.points.append(newPoint)
+                    self.lines.append(currentLine)
+                })
+                    .onEnded({value in
+                        self.currentLine = Line(points: [])
+                    }))
         }
-        
+    }
+    
     private func getDigits(number: Int) -> [Int] {
         guard number > 0 else { return [number] }
         var firstDigit = number
@@ -120,7 +134,7 @@ struct CanvasView: View {
         }
         return digits.reversed()
     }
-  
+    
 }
 
 struct CanvasSignatureView: View {
@@ -130,7 +144,7 @@ struct CanvasSignatureView: View {
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -153,7 +167,7 @@ struct CanvasSignatureView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
                 )
-        
+            
             HStack {
                 Spacer()
                 Button(action: {
@@ -173,7 +187,7 @@ struct CanvasSignatureView: View {
                     DispatchQueue.main.async {
                         signatureImage = CanvasView(lines: $lines)
                             .frame(width: screenWidth, height: 220)
-                             .snapshot()
+                            .snapshot()
                     }
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
@@ -197,13 +211,13 @@ extension View {
     func snapshot() -> UIImage {
         let controller = UIHostingController(rootView: self)
         let view = controller.view
-
+        
         let targetSize = controller.view.intrinsicContentSize
         view?.bounds = CGRect(origin: .zero, size: targetSize)
         view?.backgroundColor = .clear
-
+        
         let renderer = UIGraphicsImageRenderer(size: targetSize)
-
+        
         return renderer.image { _ in
             view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }

@@ -116,6 +116,25 @@ public enum FieldTypes: String, Codable {
     case table
     case image
 }
+public enum DateFormatType: String {
+    case dateOnly = "MM/DD/YYYY"
+    case timeOnly = "hh:mma"
+    case dateTime = "MM/DD/YYYY hh:mma"
+    case empty = ""
+    
+   public var dateFormat: String {
+        switch self {
+        case .dateOnly:
+            return "MMMM d, yyyy"
+        case .timeOnly:
+            return "hh:mm a"
+        case .dateTime:
+            return "MMMM d, yyyy h:mm a"
+        case .empty:
+            return "MMMM d, yyyy h:mm a"
+        }
+    }
+}
 
 public extension ValueUnion {
     var text: String? {
@@ -299,12 +318,18 @@ public enum Mode {
 public protocol FormInterface {
     var document: JoyDoc { get }
     var mode: Mode { get }
-    var events: Events? { get set}
+    var events: FormChangeEvent? { get set}
 }
 
-public protocol Events {
+public protocol FormChangeEvent {
     func onChange(event: ChangeEvent)
     func onFocus(event: FieldEvent)
     func onBlur(event: FieldEvent)
+    func onUpload(event:UploadEvent)
+}
+
+public protocol FieldChangeEvents {
+    func onChange(event: ChangeEvent)
+    func onFocus(event: FieldEvent)
     func onUpload(event:UploadEvent)
 }

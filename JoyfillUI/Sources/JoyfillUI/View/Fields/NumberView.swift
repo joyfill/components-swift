@@ -12,22 +12,25 @@ import JoyfillModel
 struct NumberView: View {
     @State var number: String = ""
     private let fieldDependency: FieldDependency
-    @State var numberViewTitle: String = ""
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    @FocusState private var isFocused: Bool
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(numberViewTitle)")
-                .fontWeight(.bold)
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .fontWeight(.bold)
+            }
             
             TextField("", text: $number)
+                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 16)
-                .keyboardType(.numberPad)
-                .frame(height: 40)
+                .padding(.vertical, 5)
+                .keyboardType(.decimalPad)
+                .frame(minHeight: 40)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
@@ -38,9 +41,6 @@ struct NumberView: View {
                     if focused {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    } else {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onBlur(event: fieldEvent)
                     }
                 }
         }
@@ -49,9 +49,12 @@ struct NumberView: View {
             if let number = fieldDependency.fieldData?.value?.number {
                 self.number = String(number)
             }
-            if let title = fieldDependency.fieldData?.title {
-                numberViewTitle = title
-            }
+        }
+        .onChange(of: number) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .string(newValue)
+            let change = Change(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
         }
     }
 }
