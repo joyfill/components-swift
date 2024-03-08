@@ -18,5 +18,5 @@ public struct Constants {
     static let saveFormBaseURL = "\(baseURL)/changelogs"
     
     // See https://docs.joyfill.io/docs/authentication#user-access-tokens
-    public static let userAccessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk"
+    public static let userAccessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY0MjIyMjU0NjE2NzcyZmFmYzdhNzc2MiJ9.vjw0KYOQ6hlo98ar7BDz-6ADYZndV4hwFRF4XAQtz58"
 }

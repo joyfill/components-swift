@@ -200,7 +200,7 @@ public class APIService {
             task.resume()
         }
     }
-
+    
     
     public func fetchGroups(completion: @escaping (Result<[GroupData], Error>) -> Void) {
         let request = urlRequest(type: .groups())
@@ -301,40 +301,47 @@ public class APIService {
     }
     
     public func createDocument(joyDocJSON: Result<Data, any Error>, identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        var jsonData: Data?
-        do {
-            let data = try joyDocJSON.get() as! Data
-            var dictionaryObject = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            // We remove some of the uneeded keys, specifically changing the "type" to "document"
-            dictionaryObject?.removeValue(forKey: "_id")
-            dictionaryObject?.removeValue(forKey: "createdOn")
-            dictionaryObject?.removeValue(forKey: "deleted")
-            dictionaryObject?.removeValue(forKey: "categories")
-            dictionaryObject?.removeValue(forKey: "stage")
-            dictionaryObject?.removeValue(forKey: "identifier")
-            dictionaryObject?.removeValue(forKey: "metadata")
-            dictionaryObject?.updateValue("document", forKey: "type")
-            dictionaryObject?.updateValue(identifier, forKey: "template")
-            dictionaryObject?.updateValue(identifier, forKey: "source")
-            
-            let jsonData = try JSONSerialization.data(withJSONObject: dictionaryObject ?? [:], options: [])
-            
-            let request = urlRequest(type: .documents(), method: "POST", httpBody: jsonData)
-            makeAPICall(with: request) { data, response, error in
-                if let error = error {
+        guard let url = URL(string: "\(Constants.documentsBaseURL)") else {
+            completion(.failure(APIError.invalidURL))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        let data = try! joyDocJSON.get() as! Data
+        
+        var dictionaryObject = try! JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+
+        // We remove some of the uneeded keys, specifically changing the "type" to "document"
+        dictionaryObject?.removeValue(forKey: "_id")
+        dictionaryObject?.removeValue(forKey: "createdOn")
+        dictionaryObject?.removeValue(forKey: "deleted")
+        dictionaryObject?.removeValue(forKey: "categories")
+        dictionaryObject?.removeValue(forKey: "stage")
+        dictionaryObject?.removeValue(forKey: "identifier")
+        dictionaryObject?.removeValue(forKey: "metadata")
+        dictionaryObject?.updateValue("document", forKey: "type")
+        dictionaryObject?.updateValue(identifier, forKey: "template")
+        dictionaryObject?.updateValue(identifier, forKey: "source")
+        let jsonData = try! JSONSerialization.data(withJSONObject: dictionaryObject ?? [:], options: [])
+        
+        request.httpBody = jsonData
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+            } else if let data = data {
+                do {
+                    let jsonRes = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                    completion(.success(jsonRes))
+                } catch {
                     completion(.failure(error))
-                } else if let data = data {
-                    do {
-                        let jsonRes = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-                        completion(.success(jsonRes))
-                    } catch {
-                        completion(.failure(error))
-                    }
                 }
             }
-        } catch {
-            completion(.failure(error))
         }
+        .resume()
     }
 }
 
