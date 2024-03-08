@@ -52,9 +52,11 @@ struct NumberView: View {
         }
         .onChange(of: number) { oldValue, newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue)
+            let convertStringToInt = Double(newValue)
+            fieldData.value = .integer(convertStringToInt ?? 0)
             let change = Change(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldData, changes: [change]))
+            print(newValue)
         }
     }
 }

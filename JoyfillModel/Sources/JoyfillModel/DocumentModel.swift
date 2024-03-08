@@ -183,7 +183,7 @@ public extension ValueUnion {
         }
     }
     
-    var number: Int? {
+    var number: Double? {
         switch self {
         case .integer(let int):
             return int
@@ -221,7 +221,7 @@ public extension ValueUnion {
             let date = getTimeFromISO8601Format(iso8601String: string)
             return date
         case .integer(let integer):
-            let date = timestampMillisecondsToDate(value: integer, format: format)
+            let date = timestampMillisecondsToDate(value: Int(integer), format: format)
             return date
         default:
             return nil
@@ -259,6 +259,12 @@ public func timestampMillisecondsToDate(value: Int, format: String) -> String {
     
     let formattedDate = dateFormatter.string(from: date)
     return formattedDate
+}
+
+public func dateToTimestampMilliseconds(date: Date) -> Double {
+    let timestampSeconds = date.timeIntervalSince1970
+    let timestampMilliseconds = Double(timestampSeconds * 1000)
+    return timestampMilliseconds
 }
 
 public struct FieldEvent {
