@@ -60,6 +60,22 @@ public class DocumentsViewModel: ObservableObject {
         }
     }
     
+    func fetchTemplates() {
+        apiService.fetchTemplates { result in
+            DispatchQueue.main.async {
+                self.documentsLoading = false
+                switch result {
+                case .success(let templates):
+                    print("Retrieved \(templates.count) documents")
+                    self.documents = templates
+                case .failure(let error):
+                    print("Error fetching templates: \(error.localizedDescription)")
+                    self.error = error.localizedDescription
+                }
+            }
+        }
+    }
+    
     // MARK: - Submissions
     public func fetchDocumentSubmissions(identifier: String) {
         apiService.fetchDocumentSubmissions(identifier: identifier) { result in

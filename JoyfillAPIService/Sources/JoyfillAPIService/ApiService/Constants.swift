@@ -13,6 +13,7 @@ public struct Constants {
     public static let baseURL = "https://api-joy.joyfill.io/v1"
     
     static let documentsBaseURL = "\(baseURL)/documents"
+    static let templatesBaseURL = "\(baseURL)/templates"
     static let groupsBaseURL = "\(baseURL)/groups"
     static let usersBaseURL = "\(baseURL)/users"
     static let saveFormBaseURL = "\(baseURL)/changelogs"

@@ -32,7 +32,7 @@ public struct DocumentListView: View {
                 }
             }
             .onAppear() {
-                documentsViewModel.fetchDocuments()
+                documentsViewModel.fetchTemplates()
             }
         }
     }

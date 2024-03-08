@@ -27,7 +27,7 @@ enum JoyfillAPI {
             if let identifier = identifier {
                 return URL(string: "\(Constants.documentsBaseURL)?template=\(identifier)&page=1&limit=25")!
             }
-            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+            return URL(string: "\(Constants.templatesBaseURL)?&page=1&limit=25")!
         case .groups(identifier: let identifier):
             if let identifier = identifier {
                 return URL(string: "\(Constants.groupsBaseURL)/\(identifier)")!
@@ -126,6 +126,23 @@ public class APIService {
                     let documents = try JSONDecoder().decode(DocumentListResponse.self, from: data)
                     completion(.success(documents.data))
                 } catch {
+                    completion(.failure(error))
+                }
+            } else {
+                completion(.failure(error ?? APIError.unknownError))
+            }
+        }
+    }
+    
+    public func fetchTemplates(completion: @escaping (Result<[Document], Error>) -> Void) {
+        let request = urlRequest(type: .templates())
+        makeAPICall(with: request) { data, response, error in
+            if let data = data, error == nil {
+                do {
+                    let documents = try JSONDecoder().decode(DocumentListResponse.self, from: data)
+                    completion(.success(documents.data))
+                } catch {
+                    print(error)
                     completion(.failure(error))
                 }
             } else {
