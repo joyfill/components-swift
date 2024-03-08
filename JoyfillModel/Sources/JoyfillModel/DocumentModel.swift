@@ -318,12 +318,18 @@ public enum Mode {
 public protocol FormInterface {
     var document: JoyDoc { get }
     var mode: Mode { get }
-    var events: Events? { get set}
+    var events: FormChangeEvent? { get set}
 }
 
-public protocol Events {
+public protocol FormChangeEvent {
     func onChange(event: ChangeEvent)
     func onFocus(event: FieldEvent)
     func onBlur(event: FieldEvent)
+    func onUpload(event:UploadEvent)
+}
+
+public protocol FieldChangeEvents {
+    func onChange(event: ChangeEvent)
+    func onFocus(event: FieldEvent)
     func onUpload(event:UploadEvent)
 }

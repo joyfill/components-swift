@@ -41,9 +41,6 @@ struct NumberView: View {
                     if focused {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    } else {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onBlur(event: fieldEvent)
                     }
                 }
         }

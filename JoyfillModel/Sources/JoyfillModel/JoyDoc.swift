@@ -30,7 +30,11 @@ public struct JoyDoc: Codable {
 }
 
 // MARK: - JoyDocField
-public struct JoyDocField: Codable, Identifiable {
+public struct JoyDocField: Codable, Identifiable, Equatable {
+    public static func == (lhs: JoyDocField, rhs: JoyDocField) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     public var type, id, identifier, title: String?
     public var value: ValueUnion?
     public var fieldRequired: Bool?
