@@ -11,7 +11,7 @@ import JoyfillModel
 
 struct TextView: View {
     @State var enterText: String = ""
-    private let fieldDependency: FieldDependency
+    private var fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool
     
     public init(fieldDependency: FieldDependency) {
@@ -52,7 +52,7 @@ struct TextView: View {
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue)
             let change = Change(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldData, changes: [change]))
         }
     }
 }
