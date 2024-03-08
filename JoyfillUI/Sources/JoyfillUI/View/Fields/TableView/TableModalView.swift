@@ -110,33 +110,36 @@ struct TableModalView : View {
     
     var table: some View {
         ScrollViewReader { cellProxy in
-            ScrollView([.vertical, .horizontal]) {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(viewModel.rows, id: \.self) { row in
-                        HStack(alignment: .top, spacing: 0) {
-                            ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
-                                // Cell
-                                let cell = viewModel.getFieldTableColumn(row: row, col: index)
-                                ZStack {
-                                    Rectangle()
-                                        .stroke()
-                                        .foregroundColor(Color.tableCellBorderColor)
-                                    TableViewCellBuilder(data: cell)
-                                }.frame(width: 170, height: 50).id("\(row)_\(col)")
+            GeometryReader { geometry in
+                ScrollView([.vertical, .horizontal]) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(viewModel.rows, id: \.self) { row in
+                            HStack(alignment: .top, spacing: 0) {
+                                ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
+                                    // Cell
+                                    let cell = viewModel.getFieldTableColumn(row: row, col: index)
+                                    ZStack {
+                                        Rectangle()
+                                            .stroke()
+                                            .foregroundColor(Color.tableCellBorderColor)
+                                        TableViewCellBuilder(data: cell)
+                                    }.frame(width: 170, height: 50).id("\(row)_\(col)")
+                                }
                             }
                         }
                     }
-                }
-                .background( GeometryReader { geo in
-                    Color.clear
-                        .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
-                })
-                .onPreferenceChange(ViewOffsetKey.self) { value in
-                    //ScrollView scrolling, offset changed
-                    offset = value
-                    viewModel.toggleSelection()
-                    viewModel.setDeleteButtonVisibility()
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
+                    .background( GeometryReader { geo in
+                        Color.clear
+                            .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
+                    })
+                    .onPreferenceChange(ViewOffsetKey.self) { value in
+                        //ScrollView scrolling, offset changed
+                        offset = value
+                        viewModel.toggleSelection()
+                        viewModel.setDeleteButtonVisibility()
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
             }
             .scrollIndicators(.hidden)
