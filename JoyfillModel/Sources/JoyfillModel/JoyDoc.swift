@@ -1,5 +1,6 @@
 import Foundation
 
+
 // MARK: - JoyDoc
 public struct JoyDoc: Codable {
     public var id, type, stage: String?
@@ -291,17 +292,18 @@ public struct ModelView: Codable {
     }
 }
 
-// Function to generate ID
 public func generateObjectId() -> String {
-    let characters = "65111466f7a5f25393fd0ac7"
-    let length = characters.count
-    var objectId = "6"
+    // Get the current timestamp in seconds and convert to a hexadecimal string
+    let timestamp = Int(Date().timeIntervalSince1970)
+    let timestampHex = String(format: "%08x", timestamp)
     
-    for _ in 1..<24 {
-        let randomIndex = Int.random(in: 0..<length)
-        let randomCharacter = characters[characters.index(characters.startIndex, offsetBy: randomIndex)]
-        objectId.append(randomCharacter)
+    // Generate a random string of 16 hexadecimal characters
+    var randomHex = ""
+    for _ in 0..<8 {
+        let randomValue = UInt32.random(in: 0..<UInt32.max)
+        randomHex += String(format: "%08x", randomValue)
     }
     
-    return objectId
+    // Concatenate the timestamp hex and a portion of the random hex string to match the desired length
+    return timestampHex + randomHex.prefix(16)
 }
