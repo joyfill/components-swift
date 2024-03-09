@@ -84,7 +84,7 @@ struct DateTimeView: View {
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
             fieldData.value = .integer(convertDateToInt)
             let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
     

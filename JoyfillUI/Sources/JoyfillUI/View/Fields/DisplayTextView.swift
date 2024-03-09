@@ -32,7 +32,7 @@ struct DisplayTextView: View {
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue)
             let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         })
     }
 }

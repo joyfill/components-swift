@@ -113,7 +113,7 @@ struct ImageView: View {
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .array(newValue)
             let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
     func loadImageFromURL(imageURLs: [String]) {

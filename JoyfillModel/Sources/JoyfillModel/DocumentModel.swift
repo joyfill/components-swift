@@ -291,7 +291,7 @@ public struct FieldChange {
     }
 }
 
-public struct ChangeEvent {
+public struct FieldChangeEvent {
     public let fieldPosition: FieldPosition
     public let field: JoyDocField?
     public var page: Page?
@@ -310,9 +310,9 @@ public struct ChangeEvent {
 }
 
 public struct UploadEvent {
-    public let field: JoyDocField
-    public let page: Page?
-    public let file: File?
+    public var field: JoyDocField
+    public var page: Page?
+    public var file: File?
     public var uploadHandler: ([String]) -> Void
     
     public init(field: JoyDocField, page: Page? = nil, file: File? = nil, uploadHandler: @escaping ([String]) -> Void) {
@@ -372,14 +372,14 @@ public protocol FormChangeEvent {
 }
 
 public protocol FormChangeEventInternal {
-    func onChange(event: ChangeEvent)
+    func onChange(event: FieldChangeEvent)
     func onFocus(event: FieldEvent)
     func onBlur(event: FieldEvent)
     func onUpload(event:UploadEvent)
 }
 
 public protocol FieldChangeEvents {
-    func onChange(event: ChangeEvent)
+    func onChange(event: FieldChangeEvent)
     func onFocus(event: FieldEvent)
     func onUpload(event:UploadEvent)
 }

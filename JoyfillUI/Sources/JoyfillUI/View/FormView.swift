@@ -24,10 +24,10 @@ public struct JoyFillView: View {
 }
 
 extension JoyFillView: FormChangeEventInternal {
-    public func onChange(event: JoyfillModel.ChangeEvent) {
+    public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
         event.document = document
-        let change = Change(v: 1213,
+        let change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
                             _id: document.id!,
@@ -88,7 +88,7 @@ struct FileView: View {
 }
 
 extension FileView: FormChangeEventInternal {
-    func onChange(event: JoyfillModel.ChangeEvent) {
+    func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
         event.file = file
         events?.onChange(event: event)
@@ -107,6 +107,8 @@ extension FileView: FormChangeEventInternal {
     }
     
     func onUpload(event: JoyfillModel.UploadEvent) {
+        var event = event
+        event.file = file
         events?.onUpload(event: event)
     }
 }
@@ -138,7 +140,7 @@ struct PageView: View {
 }
 
 extension PageView: FormChangeEventInternal {
-    func onChange(event: JoyfillModel.ChangeEvent) {
+    func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
         event.page = page
         events?.onChange(event: event)
@@ -157,6 +159,8 @@ extension PageView: FormChangeEventInternal {
     }
     
     func onUpload(event: JoyfillModel.UploadEvent) {
+        var event = event
+        event.page = page
         events?.onUpload(event: event)
     }
 }
@@ -230,7 +234,7 @@ struct FormView: View {
 }
 
 extension FormView: FieldChangeEvents {
-    func onChange(event: ChangeEvent) {
+    func onChange(event: FieldChangeEvent) {
         currentFocusedFielsData = event.field
         fieldsData = fieldsData?.compactMap { data in
             if data.id == event.field?.id {
