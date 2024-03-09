@@ -157,8 +157,7 @@ struct FormView: View {
     @Binding var fieldsData: [JoyDocField]?
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEvent?
-    @State var currentFocusedFielsData: JoyDocField?
-    @State var lastFocusedFielsData: JoyDocField?
+    @State var currentFocusedFielsData: JoyDocField? = nil
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
@@ -172,7 +171,7 @@ struct FormView: View {
         case .block:
             DisplayTextView(fieldDependency: fieldDependency)
         case .multiSelect:
-            MultiSelectionView(fieldDependency: fieldDependency)
+            MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
         case .dropdown:
             DropdownView(fieldDependency: fieldDependency)
         case .textarea:
@@ -202,6 +201,7 @@ struct FormView: View {
             }
         }
         .onChange(of: currentFocusedFielsData) { oldValue, newValue in
+            guard newValue != nil else { return }
             guard oldValue != newValue else { return }
             if oldValue != nil {
                 let fieldEvent = FieldEvent(field: oldValue)
@@ -226,9 +226,8 @@ extension FormView: FieldChangeEvents {
     }
     
     func onFocus(event: FieldEvent) {
-        lastFocusedFielsData = currentFocusedFielsData
         currentFocusedFielsData = event.field
-        eventHandler?.onFocus(event: event)
+        print("Current focus is ---\(currentFocusedFielsData?.title)")
     }
     
     func onUpload(event: UploadEvent) {

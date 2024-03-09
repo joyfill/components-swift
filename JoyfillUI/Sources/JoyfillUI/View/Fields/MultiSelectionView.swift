@@ -15,10 +15,12 @@ struct MultiSelectionView: View {
     @State var multiselectionViewTitle: String = ""
     
     private let fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool // Declare a FocusState property
+    private let currentFocusedFielsData: JoyDocField?
+    @FocusState private var isFocused: Bool
     
-    public init(fieldDependency: FieldDependency) {
+    public init(fieldDependency: FieldDependency,currentFocusedFielsData: JoyDocField?) {
         self.fieldDependency = fieldDependency
+        self.currentFocusedFielsData = currentFocusedFielsData
     }
     
     var body: some View {
@@ -37,12 +39,12 @@ struct MultiSelectionView: View {
                             $0 == options[index].id
                         }) != nil
                         if fieldDependency.fieldData?.multi ?? true {
-                            MultiSelection(option: optionValue, isSelected: isSelected)
+                            MultiSelection(option: optionValue, isSelected: isSelected,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency)
                             if index < options.count - 1 {
                                 Divider()
                             }
                         } else {
-                            RadioView(option: optionValue, selectedOption: $selectedOption)
+                            RadioView(option: optionValue, selectedOption: $selectedOption,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency)
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -73,9 +75,17 @@ struct MultiSelectionView: View {
 struct MultiSelection: View {
     var option: String
     @State var isSelected: Bool
+    var isAlreadyFocused: Bool
+    var fieldDependency: FieldDependency
+    
     var body: some View {
         Button(action: {
             isSelected.toggle()
+            if isAlreadyFocused == false {
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+            }
+            
         }, label: {
             
             HStack {
@@ -95,10 +105,16 @@ struct MultiSelection: View {
 struct RadioView: View {
     var option: String
     @Binding var selectedOption: String
+    var isAlreadyFocused: Bool
+    var fieldDependency: FieldDependency
     
     var body: some View {
         Button(action: {
             selectedOption = option
+            if isAlreadyFocused == false {
+                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+            }
         }, label: {
             HStack {
                 Image(systemName: selectedOption == option ? "largecircle.fill.circle" : "circle")
