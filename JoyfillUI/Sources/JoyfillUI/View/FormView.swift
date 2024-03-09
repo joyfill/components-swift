@@ -23,11 +23,23 @@ public struct JoyFillView: View {
     }
 }
 
-extension JoyFillView: FormChangeEvent {
+extension JoyFillView: FormChangeEventInternal {
     public func onChange(event: JoyfillModel.ChangeEvent) {
         var event = event
         event.document = document
-        events?.onChange(event: event)
+        let change = Change(v: 1213,
+                            sdk: "swift",
+                            target: "field.update",
+                            _id: document.id!,
+                            identifier: document.identifier,
+                            fileId: event.file!.id!,
+                            pageId: event.page!.id!,
+                            fieldId: event.field!.id!,
+                            fieldIdentifier: event.field!.identifier!,
+                            fieldPositionId: event.fieldPosition.id!,
+                            change: event.changes.changeData,
+                            createdOn: Date().timeIntervalSince1970)
+        events?.onChange(event: change)
     }
     
     public func onFocus(event: JoyfillModel.FieldEvent) {
@@ -47,7 +59,7 @@ struct FilesView: View {
     @Binding var fieldsData: [JoyDocField]?
     var files: [File]
     let mode: Mode
-    let events: FormChangeEvent?
+    let events: FormChangeEventInternal?
     
     var body: some View {
         FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events)
@@ -58,7 +70,7 @@ struct FileView: View {
     @Binding var fieldsData: [JoyDocField]?
     var file: File?
     let mode: Mode
-    let events: FormChangeEvent?
+    let events: FormChangeEventInternal?
     
     var body: some View {
         if file?.views?.count != 0 {
@@ -75,8 +87,10 @@ struct FileView: View {
     }
 }
 
-extension FileView: FormChangeEvent {
+extension FileView: FormChangeEventInternal {
     func onChange(event: JoyfillModel.ChangeEvent) {
+        var event = event
+        event.file = file
         events?.onChange(event: event)
     }
     
@@ -101,7 +115,7 @@ struct PagesView: View {
     @Binding var fieldsData: [JoyDocField]?
     let pages: [Page]
     let mode: Mode
-    let events: FormChangeEvent?
+    let events: FormChangeEventInternal?
     
     var body: some View {
         if let page = pages.first {
@@ -114,7 +128,7 @@ struct PageView: View {
     @Binding var fieldsData: [JoyDocField]?
     let page: Page
     let mode: Mode
-    let events: FormChangeEvent?
+    let events: FormChangeEventInternal?
 
     var body: some View {
         if let fieldPositions = page.fieldPositions {
@@ -123,8 +137,10 @@ struct PageView: View {
     }
 }
 
-extension PageView: FormChangeEvent {
+extension PageView: FormChangeEventInternal {
     func onChange(event: JoyfillModel.ChangeEvent) {
+        var event = event
+        event.page = page
         events?.onChange(event: event)
     }
     
@@ -156,7 +172,7 @@ struct FormView: View {
     @State var fieldPositions: [FieldPosition]
     @Binding var fieldsData: [JoyDocField]?
     @State var mode: Mode = .fill
-    let eventHandler: FormChangeEvent?
+    let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
 
     @ViewBuilder

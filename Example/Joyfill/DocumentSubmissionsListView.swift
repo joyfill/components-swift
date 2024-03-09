@@ -12,10 +12,10 @@ import JoyfillUI
 struct DocumentSubmissionsListView: View {
     @State var template: Document
     @State var documents: [Document] = []
-    var allDocuments: [Document] = []
     @State var document: JoyDoc? = nil
     @State private var showDocumentDetails = false
     let apiService: APIService = APIService()
+    var allDocuments: [Document] = []
     
     var body: some View {
         Group {
@@ -83,8 +83,8 @@ struct DocumentSubmissionsListView: View {
 }
 
 extension DocumentSubmissionsListView: FormChangeEvent {
-    func onChange(event: ChangeEvent) {
-        print(">>>>>>>>onChange", event.field?.value)
+    func onChange(event: JoyfillModel.Change) {
+        print(">>>>>>>>onChange", event)
     }
     
     func onFocus(event: FieldEvent) {

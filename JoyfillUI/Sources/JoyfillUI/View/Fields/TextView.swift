@@ -51,8 +51,8 @@ struct TextView: View {
         .onChange(of: enterText) { oldValue, newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue)
-            let change = Change(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldData, changes: [change]))
+            let change = FieldChange(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: ChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
 }
