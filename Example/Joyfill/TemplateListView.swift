@@ -15,11 +15,13 @@ public struct TemplateListView: View {
     let apiService: APIService = APIService()
     @State private var showDocuments = false
     @State private var path: [Document] = []
+    let screenWidth = UIScreen.main.bounds.width
+    let screenHeight = UIScreen.main.bounds.height
 
     public var body: some View {
         NavigationStack(path: $path) {
         if isLoading {
-            Text("Loading...")
+           ProgressView()
                 .onAppear() {
                     fetchTemplates() {
                         fetchDocuments() {
@@ -45,6 +47,7 @@ public struct TemplateListView: View {
                                 })
                             }, label: {
                                 Text("Fill New +")
+                                    .padding(.leading, screenWidth * 0.6)
                             })
                         }
                     }

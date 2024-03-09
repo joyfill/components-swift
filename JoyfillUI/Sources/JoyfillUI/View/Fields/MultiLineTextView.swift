@@ -27,8 +27,9 @@ struct MultiLineTextView: View {
             
             TextEditor(text: $multilineText)
                 .disabled(fieldDependency.mode == .readonly)
+                .padding(.all, 10)
                 .autocorrectionDisabled()
-                .frame(maxHeight: 200)
+                .frame(minHeight: 200, maxHeight: 200)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
