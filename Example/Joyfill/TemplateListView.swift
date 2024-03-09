@@ -15,8 +15,6 @@ public struct TemplateListView: View {
     let apiService: APIService = APIService()
     @State private var showDocuments = false
     @State private var path: [Document] = []
-    let screenWidth = UIScreen.main.bounds.width
-    let screenHeight = UIScreen.main.bounds.height
 
     public var body: some View {
         NavigationStack(path: $path) {
@@ -24,8 +22,7 @@ public struct TemplateListView: View {
            ProgressView()
                 .onAppear() {
                     fetchTemplates() {
-                        fetchDocuments() {
-                        }
+                        fetchDocuments()
                     }
                 }
         } else {
@@ -34,22 +31,28 @@ public struct TemplateListView: View {
                         .font(.title.bold())
                     List {
                         ForEach(templates) { template in
-                            NavigationLink(value: template, label: {
-                                HStack {
-                                    Image(systemName: "doc")
-                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
-                                    Text(template.name)
-                                }
-                            })
-                            Button(action: {
-                                createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
-                                    fetchDocumentSubmissions(identifier: template.identifier)
+                            VStack(alignment: .trailing) {
+                                NavigationLink(value: template, label: {
+                                    HStack {
+                                        Image(systemName: "doc")
+                                            .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
+                                        Text(template.name)
+                                    }
                                 })
-                            }, label: {
-                                Text("Fill New +")
-                                    .padding(.leading, screenWidth * 0.6)
-                            })
+                            
+                                Button(action: {
+                                    createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
+                                        fetchDocumentSubmissions(identifier: template.identifier)
+                                    })
+                                }, label: {
+                                    Text("Fill New +")
+                                })
+                                .buttonStyle(.borderedProminent)
+                            }
                         }
+                        .padding(20)
+                        .border(Color.gray, width: 2)
+                        .cornerRadius(2)
                     }
                     .navigationDestination(for: Document.self) { template in
                         DocumentSubmissionsListView(template: template, allDocuments: documents)
@@ -60,7 +63,7 @@ public struct TemplateListView: View {
     }
     
     // MARK: - Templates (Fetches documents or templates from Joyfill API)
-        func fetchDocuments(completion: @escaping () -> Void) {
+        func fetchDocuments() {
             self.isLoading = true
             apiService.fetchDocuments() { result in
                 DispatchQueue.main.async {
@@ -73,7 +76,6 @@ public struct TemplateListView: View {
                         print("Error fetching documents: \(error.localizedDescription)")
                         self.error = error.localizedDescription
                     }
-                    completion()
                 }
             }
     }
