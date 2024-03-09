@@ -7,10 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA0E8B6B2B8B315A00FDF71E /* DocumentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0E8B692B8B315A00FDF71E /* DocumentListView.swift */; };
+		FA0E8B6B2B8B315A00FDF71E /* TemplateListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0E8B692B8B315A00FDF71E /* TemplateListView.swift */; };
 		FA0E8B6C2B8B315A00FDF71E /* DocumentSubmissionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0E8B6A2B8B315A00FDF71E /* DocumentSubmissionsListView.swift */; };
-		FA0E8B702B8B347500FDF71E /* DocumentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0E8B6E2B8B31B300FDF71E /* DocumentsViewModel.swift */; };
-		FA0E8B712B8B347800FDF71E /* JoyDocViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0E8B6F2B8B31B300FDF71E /* JoyDocViewModel.swift */; };
 		FA625BCE2B822B8900FA5889 /* JoyfillApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA625BCD2B822B8900FA5889 /* JoyfillApp.swift */; };
 		FA625BD02B822B8900FA5889 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA625BCF2B822B8900FA5889 /* ContentView.swift */; };
 		FA625BD22B822B8A00FA5889 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA625BD12B822B8A00FA5889 /* Assets.xcassets */; };
@@ -49,10 +47,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		FA0E8B692B8B315A00FDF71E /* DocumentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentListView.swift; sourceTree = "<group>"; };
+		FA0E8B692B8B315A00FDF71E /* TemplateListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateListView.swift; sourceTree = "<group>"; };
 		FA0E8B6A2B8B315A00FDF71E /* DocumentSubmissionsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentSubmissionsListView.swift; sourceTree = "<group>"; };
-		FA0E8B6E2B8B31B300FDF71E /* DocumentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentsViewModel.swift; sourceTree = "<group>"; };
-		FA0E8B6F2B8B31B300FDF71E /* JoyDocViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyDocViewModel.swift; sourceTree = "<group>"; };
 		FA625BCA2B822B8900FA5889 /* Joyfill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Joyfill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA625BCD2B822B8900FA5889 /* JoyfillApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillApp.swift; sourceTree = "<group>"; };
 		FA625BCF2B822B8900FA5889 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -102,15 +98,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		FA0E8B6D2B8B31B300FDF71E /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				FA0E8B6E2B8B31B300FDF71E /* DocumentsViewModel.swift */,
-				FA0E8B6F2B8B31B300FDF71E /* JoyDocViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
 		FA625BC12B822B8900FA5889 = {
 			isa = PBXGroup;
 			children = (
@@ -136,9 +123,8 @@
 			children = (
 				FA625BCD2B822B8900FA5889 /* JoyfillApp.swift */,
 				FA625BCF2B822B8900FA5889 /* ContentView.swift */,
-				FA0E8B692B8B315A00FDF71E /* DocumentListView.swift */,
+				FA0E8B692B8B315A00FDF71E /* TemplateListView.swift */,
 				FA0E8B6A2B8B315A00FDF71E /* DocumentSubmissionsListView.swift */,
-				FA0E8B6D2B8B31B300FDF71E /* ViewModel */,
 				FA9ECDD42B8B135900129FC6 /* Sample JSON */,
 				FA625BD12B822B8A00FA5889 /* Assets.xcassets */,
 				FA625BD32B822B8A00FA5889 /* Joyfill.entitlements */,
@@ -330,12 +316,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA0E8B6B2B8B315A00FDF71E /* DocumentListView.swift in Sources */,
+				FA0E8B6B2B8B315A00FDF71E /* TemplateListView.swift in Sources */,
 				FA625BD02B822B8900FA5889 /* ContentView.swift in Sources */,
-				FA0E8B712B8B347800FDF71E /* JoyDocViewModel.swift in Sources */,
 				FA625BCE2B822B8900FA5889 /* JoyfillApp.swift in Sources */,
 				FA0E8B6C2B8B315A00FDF71E /* DocumentSubmissionsListView.swift in Sources */,
-				FA0E8B702B8B347500FDF71E /* DocumentsViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

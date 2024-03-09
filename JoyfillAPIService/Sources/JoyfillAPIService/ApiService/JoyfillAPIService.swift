@@ -25,7 +25,7 @@ enum JoyfillAPI {
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         case .templates(identifier: let identifier):
             if let identifier = identifier {
-                return URL(string: "\(Constants.documentsBaseURL)?template=\(identifier)&page=1&limit=25")!
+                return URL(string: "\(Constants.templatesBaseURL)?template=\(identifier)&page=1&limit=25")!
             }
             return URL(string: "\(Constants.templatesBaseURL)?&page=1&limit=25")!
         case .groups(identifier: let identifier):
@@ -119,7 +119,7 @@ public class APIService {
             return
         }
         
-        let request = urlRequest(type: .templates(identifier: identifier))
+        let request = urlRequest(type: .documents(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
             if let data = data, error == nil {
                 do {

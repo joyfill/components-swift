@@ -6,17 +6,22 @@
 
 import Foundation
 
-public struct Document: Codable {
+public struct Document: Codable, Hashable {
+    public static func == (lhs: Document, rhs: Document) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     public var _id: String
     public var type: String
     public var identifier: String
+    public var source: String?
     public var name: String
     public var stage: String
     public var createdOn: Int
     public var files: [Files] = []
     public var deleted: Bool
     
-    public struct Files: Codable {
+    public struct Files: Codable, Hashable {
         public let _id: String
         public let version: Int
         public let name: String
@@ -24,7 +29,7 @@ public struct Document: Codable {
         public let pages: [Pages]
     }
     
-    public struct Pages: Codable {
+    public struct Pages: Codable, Hashable {
         public let _id: String
         public let name: String
         public let width: Int
