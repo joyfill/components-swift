@@ -18,17 +18,12 @@ public struct TemplateListView: View {
     
     public var body: some View {
         NavigationStack(path: $path) {
-            if isLoading {
-                ProgressView()
-                    .onAppear() {
-                        fetchTemplates() {
-                            fetchDocuments()
-                        }
-                    }
-            } else {
-                VStack {
-                    Text("Templates List")
-                        .font(.title.bold())
+            VStack {
+                Text("Templates List")
+                    .font(.title.bold())
+                if isLoading {
+                    ProgressView()
+                } else {
                     List {
                         ForEach(templates) { template in
                             VStack(alignment: .trailing) {
@@ -39,7 +34,6 @@ public struct TemplateListView: View {
                                         Text(template.name)
                                     }
                                 })
-                                
                                 Button(action: {
                                     createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
                                         fetchDocumentSubmissions(identifier: template.identifier)
@@ -54,11 +48,20 @@ public struct TemplateListView: View {
                         .border(Color.gray, width: 2)
                         .cornerRadius(2)
                     }
+                    .refreshable(action: fetchData)
                     .navigationDestination(for: Document.self) { template in
                         DocumentSubmissionsListView(template: template, allDocuments: documents)
                     }
                 }
             }
+        }
+        .onAppear(perform: fetchData)
+    }
+    
+    @Sendable
+    func fetchData() {
+        fetchTemplates() {
+            fetchDocuments()
         }
     }
     
