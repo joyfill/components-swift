@@ -21,7 +21,6 @@ struct DocumentSubmissionsListView: View {
         Group {
             List {
                 VStack(alignment: .leading) {
-                    Text(template.identifier)
                     Text(template.name)
                         .font(.system(size: 20, weight: .semibold))
                     Text("Submissions")
@@ -44,6 +43,7 @@ struct DocumentSubmissionsListView: View {
                     JoyFillView(document: document!, mode: .fill, events: self)
                 }
             })
+            .navigationTitle("...\(template.title)")
         }
         .onAppear() {
             updateDocuments(template: template, allDocuments: allDocuments)
@@ -60,7 +60,7 @@ struct DocumentSubmissionsListView: View {
         }
         self.documents = documentsWithSourceAsDoc + documentsWithSourceAsTemplate
     }
-
+    
     // Function to make the API call
     private func makeAPICallForSubmission(_ submission: Document) {
         apiService.fetchJoyDoc(identifier: submission.identifier) { result in
@@ -99,5 +99,11 @@ extension DocumentSubmissionsListView: FormChangeEvent {
         print(">>>>>>>>onUpload", event.field.identifier!)
         event.uploadHandler(["https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg",
                              "https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg"])
+    }
+}
+
+extension Document {
+    public var title: String {
+        String(_id.suffix(8))
     }
 }

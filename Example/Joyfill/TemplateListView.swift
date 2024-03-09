@@ -15,17 +15,17 @@ public struct TemplateListView: View {
     let apiService: APIService = APIService()
     @State private var showDocuments = false
     @State private var path: [Document] = []
-
+    
     public var body: some View {
         NavigationStack(path: $path) {
-        if isLoading {
-           ProgressView()
-                .onAppear() {
-                    fetchTemplates() {
-                        fetchDocuments()
+            if isLoading {
+                ProgressView()
+                    .onAppear() {
+                        fetchTemplates() {
+                            fetchDocuments()
+                        }
                     }
-                }
-        } else {
+            } else {
                 VStack {
                     Text("Templates List")
                         .font(.title.bold())
@@ -39,7 +39,7 @@ public struct TemplateListView: View {
                                         Text(template.name)
                                     }
                                 })
-                            
+                                
                                 Button(action: {
                                     createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
                                         fetchDocumentSubmissions(identifier: template.identifier)
@@ -63,21 +63,21 @@ public struct TemplateListView: View {
     }
     
     // MARK: - Templates (Fetches documents or templates from Joyfill API)
-        func fetchDocuments() {
-            self.isLoading = true
-            apiService.fetchDocuments() { result in
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    switch result {
-                    case .success(let documents):
-                        print("Retrieved \(documents.count) documents")
-                        self.documents = documents
-                    case .failure(let error):
-                        print("Error fetching documents: \(error.localizedDescription)")
-                        self.error = error.localizedDescription
-                    }
+    func fetchDocuments() {
+        self.isLoading = true
+        apiService.fetchDocuments() { result in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                switch result {
+                case .success(let documents):
+                    print("Retrieved \(documents.count) documents")
+                    self.documents = documents
+                case .failure(let error):
+                    print("Error fetching documents: \(error.localizedDescription)")
+                    self.error = error.localizedDescription
                 }
             }
+        }
     }
     
     func fetchTemplates(completion:  @escaping () -> Void) {
