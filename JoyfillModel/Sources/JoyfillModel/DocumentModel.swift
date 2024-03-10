@@ -6,17 +6,22 @@
 
 import Foundation
 
-public struct Document: Codable {
+public struct Document: Codable, Hashable {
+    public static func == (lhs: Document, rhs: Document) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     public var _id: String
     public var type: String
     public var identifier: String
+    public var source: String?
     public var name: String
     public var stage: String
     public var createdOn: Int
     public var files: [Files] = []
     public var deleted: Bool
     
-    public struct Files: Codable {
+    public struct Files: Codable, Hashable {
         public let _id: String
         public let version: Int
         public let name: String
@@ -24,7 +29,7 @@ public struct Document: Codable {
         public let pages: [Pages]
     }
     
-    public struct Pages: Codable {
+    public struct Pages: Codable, Hashable {
         public let _id: String
         public let name: String
         public let width: Int
@@ -183,7 +188,7 @@ public extension ValueUnion {
         }
     }
     
-    var number: Int? {
+    var number: Double? {
         switch self {
         case .integer(let int):
             return int
@@ -221,7 +226,7 @@ public extension ValueUnion {
             let date = getTimeFromISO8601Format(iso8601String: string)
             return date
         case .integer(let integer):
-            let date = timestampMillisecondsToDate(value: integer, format: format)
+            let date = timestampMillisecondsToDate(value: Int(integer), format: format)
             return date
         default:
             return nil
@@ -261,6 +266,12 @@ public func timestampMillisecondsToDate(value: Int, format: String) -> String {
     return formattedDate
 }
 
+public func dateToTimestampMilliseconds(date: Date) -> Double {
+    let timestampSeconds = date.timeIntervalSince1970
+    let timestampMilliseconds = Double(timestampSeconds * 1000)
+    return timestampMilliseconds
+}
+
 public struct FieldEvent {
     public let field: JoyDocField?
     public var page: Page?
@@ -273,21 +284,23 @@ public struct FieldEvent {
     }
 }
 
-public struct Change {
+public struct FieldChange {
     public let changeData: [String: Any]
     public init(changeData: [String : Any]) {
         self.changeData = changeData
     }
 }
 
-public struct ChangeEvent {
+public struct FieldChangeEvent {
+    public let fieldPosition: FieldPosition
     public let field: JoyDocField?
     public var page: Page?
     public var file: File?
-    public let changes: [Change]
+    public let changes: FieldChange
     public var document: JoyDoc?
     
-    public init(field: JoyDocField?, page: Page? = nil, file: File? = nil, changes: [Change], document: JoyDoc? = nil) {
+    public init(fieldPosition: FieldPosition, field: JoyDocField?, page: Page? = nil, file: File? = nil, changes: FieldChange, document: JoyDoc? = nil) {
+        self.fieldPosition = fieldPosition
         self.field = field
         self.page = page
         self.file = file
@@ -297,9 +310,9 @@ public struct ChangeEvent {
 }
 
 public struct UploadEvent {
-    public let field: JoyDocField
-    public let page: Page?
-    public let file: File?
+    public var field: JoyDocField
+    public var page: Page?
+    public var file: File?
     public var uploadHandler: ([String]) -> Void
     
     public init(field: JoyDocField, page: Page? = nil, file: File? = nil, uploadHandler: @escaping ([String]) -> Void) {
@@ -321,15 +334,52 @@ public protocol FormInterface {
     var events: FormChangeEvent? { get set}
 }
 
+public struct Change {
+    public var v: Int
+    public var sdk: String
+    public var target: String
+    public var _id: String
+    public var identifier: String?
+    public var fileId: String
+    public var pageId: String
+    public var fieldId: String
+    public var fieldIdentifier: String
+    public var fieldPositionId: String
+    public var change: [String: Any]
+    public var createdOn: Double
+    
+    public init(v: Int, sdk: String, target: String, _id: String, identifier: String?, fileId: String, pageId: String, fieldId: String, fieldIdentifier: String, fieldPositionId: String, change: [String : Any], createdOn: Double) {
+        self.v = v
+        self.sdk = sdk
+        self.target = target
+        self._id = _id
+        self.identifier = identifier
+        self.fileId = fileId
+        self.pageId = pageId
+        self.fieldId = fieldId
+        self.fieldIdentifier = fieldIdentifier
+        self.fieldPositionId = fieldPositionId
+        self.change = change
+        self.createdOn = createdOn
+    }
+}
+
 public protocol FormChangeEvent {
-    func onChange(event: ChangeEvent)
+    func onChange(event: Change)
+    func onFocus(event: FieldEvent)
+    func onBlur(event: FieldEvent)
+    func onUpload(event:UploadEvent)
+}
+
+public protocol FormChangeEventInternal {
+    func onChange(event: FieldChangeEvent)
     func onFocus(event: FieldEvent)
     func onBlur(event: FieldEvent)
     func onUpload(event:UploadEvent)
 }
 
 public protocol FieldChangeEvents {
-    func onChange(event: ChangeEvent)
+    func onChange(event: FieldChangeEvent)
     func onFocus(event: FieldEvent)
     func onUpload(event:UploadEvent)
 }

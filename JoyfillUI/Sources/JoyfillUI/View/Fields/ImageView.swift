@@ -112,8 +112,8 @@ struct ImageView: View {
         .onChange(of: imageURLs) { oldValue, newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .array(newValue)
-            let change = Change(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+            let change = FieldChange(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
     func loadImageFromURL(imageURLs: [String]) {

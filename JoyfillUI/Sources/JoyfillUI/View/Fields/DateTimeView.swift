@@ -79,6 +79,13 @@ struct DateTimeView: View {
                 }
             }
         }
+        .onChange(of: selectedDate) { oldValue, newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
+            fieldData.value = .integer(convertDateToInt)
+            let change = FieldChange(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+        }
     }
     
     func stringToDate(_ dateString: String, format: String) -> Date? {

@@ -10,33 +10,24 @@ import JoyfillAPIService
 import JoyfillUI
 
 struct DocumentSubmissionsListView: View {
-    var identifier: String
-    var name: String
-    @State var showForm: Bool = false
+    @State var template: Document
+    @State var documents: [Document] = []
     @State var document: JoyDoc? = nil
-    let apiService: APIService = APIService()
     @State private var showDocumentDetails = false
-    
-    @ObservedObject var documentsViewModel = DocumentsViewModel()
+    let apiService: APIService = APIService()
+    var allDocuments: [Document] = []
     
     var body: some View {
         Group {
             List {
                 VStack(alignment: .leading) {
-                    Text(name)
+                    Text(template.name)
                         .font(.system(size: 20, weight: .semibold))
                     Text("Submissions")
                         .font(.system(size: 16, weight: .semibold)).foregroundStyle(.gray)
                 }
-                Button(action: {
-                    documentsViewModel.createDocumentSubmission(identifier: identifier, completion: { joyDocJSON in
-                        documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
-                    })
-                }, label: {
-                    Text("Fill New +")
-                })
                 
-                ForEach(documentsViewModel.submissions) { submission in
+                ForEach(documents) { submission in
                     Button(action: {
                         makeAPICallForSubmission(submission)
                     }) {
@@ -46,17 +37,28 @@ struct DocumentSubmissionsListView: View {
                         }
                     }
                 }
-                
             }
-            NavigationLink(destination: LazyView(isLoading: !showForm, content: {
-                JoyFillView(document: document!, mode: .fill, events: self)
-            }), isActive: $showForm) {
-                EmptyView()
-            }
+            .navigationDestination(isPresented: $showDocumentDetails, destination: {
+                if showDocumentDetails {
+                    JoyFillView(document: document!, mode: .fill, events: self)
+                }
+            })
+            .navigationTitle("...\(template.title)")
         }
         .onAppear() {
-            documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
+            updateDocuments(template: template, allDocuments: allDocuments)
         }
+    }
+    
+    func updateDocuments(template: Document, allDocuments: [Document]) {
+        let documentsWithSourceAsTemplate =  allDocuments.filter { document in
+            document.source == template.identifier
+        }
+        var documentsWithSourceAsDoc = [Document]()
+        documentsWithSourceAsTemplate.forEach { document in
+            documentsWithSourceAsDoc = allDocuments.filter {  $0.source?.contains(document.id) ?? false }
+        }
+        self.documents = documentsWithSourceAsDoc + documentsWithSourceAsTemplate
     }
     
     // Function to make the API call
@@ -68,7 +70,7 @@ struct DocumentSubmissionsListView: View {
                     let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
                     DispatchQueue.main.async {
                         self.document = joyDocStruct
-                        showForm = true
+                        showDocumentDetails = true
                     }
                 } catch {
                     print("Error decoding JSON: \(error)")
@@ -80,25 +82,9 @@ struct DocumentSubmissionsListView: View {
     }
 }
 
-#Preview {
-    DocumentSubmissionsListView(identifier: "sadfsedf efe  e erdocuments", name: "New Document", document: testDocument())
-}
-
-struct LazyView<Content: View>: View {
-    let isLoading: Bool
-    let content: () -> Content
-    var body: some View {
-        if isLoading {
-            ProgressView()
-        } else {
-            content()
-        }
-    }
-}
-
 extension DocumentSubmissionsListView: FormChangeEvent {
-    func onChange(event: ChangeEvent) {
-        print(">>>>>>>>onChange", event.field?.value)
+    func onChange(event: JoyfillModel.Change) {
+        print(">>>>>>>>onChange", event)
     }
     
     func onFocus(event: FieldEvent) {
@@ -113,5 +99,11 @@ extension DocumentSubmissionsListView: FormChangeEvent {
         print(">>>>>>>>onUpload", event.field.identifier!)
         event.uploadHandler(["https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg",
                              "https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg"])
+    }
+}
+
+extension Document {
+    public var title: String {
+        String(_id.suffix(8))
     }
 }

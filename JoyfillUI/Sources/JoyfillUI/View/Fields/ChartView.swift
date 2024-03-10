@@ -14,6 +14,6 @@ struct ChartView: View {
         self.fieldDependency = fieldDependency
     }
     var body: some View {
-        Text("Hello, World!")
+        Text("ChartView")
     }
 }

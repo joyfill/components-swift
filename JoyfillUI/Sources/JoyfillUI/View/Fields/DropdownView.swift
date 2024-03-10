@@ -45,7 +45,7 @@ struct DropdownView: View {
                     .stroke(Color.black, lineWidth: 1)
             )
             .sheet(isPresented: $isSheetPresented) {
-                DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValue: $selectedDropdownValueID)
+                DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
                     .presentationDetents([.medium])
             }
         }
@@ -58,8 +58,8 @@ struct DropdownView: View {
         .onChange(of: selectedDropdownValueID) { oldValue, newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue ?? "")
-            let change = Change(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+            let change = FieldChange(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
 }
@@ -68,11 +68,11 @@ struct DropdownView: View {
 struct DropDownOptionList: View {
     @Environment(\.presentationMode) var presentationMode
     private let fieldDependency: FieldDependency
-    @Binding var selectedDropdownValue: String?
+    @Binding var selectedDropdownValueID: String?
     
-    public init(fieldDependency: FieldDependency, selectedDropdownValue: Binding<String?>) {
+    public init(fieldDependency: FieldDependency, selectedDropdownValueID: Binding<String?>) {
         self.fieldDependency = fieldDependency
-        self._selectedDropdownValue = selectedDropdownValue
+        self._selectedDropdownValueID = selectedDropdownValueID
     }
     
     var body: some View {
@@ -92,11 +92,11 @@ struct DropDownOptionList: View {
                 if let options = fieldDependency.fieldData?.options {
                     ForEach(options) { option in
                         Button(action: {
-                            selectedDropdownValue = option.id
+                            selectedDropdownValueID = option.id
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack {
-                                Image(systemName: (selectedDropdownValue == option.value) ? "largecircle.fill.circle" : "circle")
+                                Image(systemName: (selectedDropdownValueID == option.id) ? "largecircle.fill.circle" : "circle")
                                 Text(option.value ?? "")
                                     .foregroundColor(.black)
                                 Spacer()

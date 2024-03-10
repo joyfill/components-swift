@@ -27,8 +27,9 @@ struct MultiLineTextView: View {
             
             TextEditor(text: $multilineText)
                 .disabled(fieldDependency.mode == .readonly)
+                .padding(.all, 10)
                 .autocorrectionDisabled()
-                .frame(maxHeight: 200)
+                .frame(minHeight: 200, maxHeight: 200)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.gray, lineWidth: 1)
@@ -51,8 +52,8 @@ struct MultiLineTextView: View {
         .onChange(of: multilineText) { oldValue, newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue)
-            let change = Change(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: ChangeEvent(field: fieldDependency.fieldData, changes: [change]))
+            let change = FieldChange(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
 }

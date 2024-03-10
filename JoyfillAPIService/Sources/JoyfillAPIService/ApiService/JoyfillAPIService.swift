@@ -25,9 +25,9 @@ enum JoyfillAPI {
             return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
         case .templates(identifier: let identifier):
             if let identifier = identifier {
-                return URL(string: "\(Constants.documentsBaseURL)?template=\(identifier)&page=1&limit=25")!
+                return URL(string: "\(Constants.templatesBaseURL)?template=\(identifier)&page=1&limit=25")!
             }
-            return URL(string: "\(Constants.documentsBaseURL)?&page=1&limit=25")!
+            return URL(string: "\(Constants.templatesBaseURL)?&page=1&limit=25")!
         case .groups(identifier: let identifier):
             if let identifier = identifier {
                 return URL(string: "\(Constants.groupsBaseURL)/\(identifier)")!
@@ -119,13 +119,30 @@ public class APIService {
             return
         }
         
-        let request = urlRequest(type: .templates(identifier: identifier))
+        let request = urlRequest(type: .documents(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
             if let data = data, error == nil {
                 do {
                     let documents = try JSONDecoder().decode(DocumentListResponse.self, from: data)
                     completion(.success(documents.data))
                 } catch {
+                    completion(.failure(error))
+                }
+            } else {
+                completion(.failure(error ?? APIError.unknownError))
+            }
+        }
+    }
+    
+    public func fetchTemplates(completion: @escaping (Result<[Document], Error>) -> Void) {
+        let request = urlRequest(type: .templates())
+        makeAPICall(with: request) { data, response, error in
+            if let data = data, error == nil {
+                do {
+                    let documents = try JSONDecoder().decode(DocumentListResponse.self, from: data)
+                    completion(.success(documents.data))
+                } catch {
+                    print(error)
                     completion(.failure(error))
                 }
             } else {
@@ -200,7 +217,7 @@ public class APIService {
             task.resume()
         }
     }
-
+    
     
     public func fetchGroups(completion: @escaping (Result<[GroupData], Error>) -> Void) {
         let request = urlRequest(type: .groups())
@@ -301,40 +318,47 @@ public class APIService {
     }
     
     public func createDocument(joyDocJSON: Result<Data, any Error>, identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        var jsonData: Data?
-        do {
-            let data = try joyDocJSON.get() as! Data
-            var dictionaryObject = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            // We remove some of the uneeded keys, specifically changing the "type" to "document"
-            dictionaryObject?.removeValue(forKey: "_id")
-            dictionaryObject?.removeValue(forKey: "createdOn")
-            dictionaryObject?.removeValue(forKey: "deleted")
-            dictionaryObject?.removeValue(forKey: "categories")
-            dictionaryObject?.removeValue(forKey: "stage")
-            dictionaryObject?.removeValue(forKey: "identifier")
-            dictionaryObject?.removeValue(forKey: "metadata")
-            dictionaryObject?.updateValue("document", forKey: "type")
-            dictionaryObject?.updateValue(identifier, forKey: "template")
-            dictionaryObject?.updateValue(identifier, forKey: "source")
-            
-            let jsonData = try JSONSerialization.data(withJSONObject: dictionaryObject ?? [:], options: [])
-            
-            let request = urlRequest(type: .documents(), method: "POST", httpBody: jsonData)
-            makeAPICall(with: request) { data, response, error in
-                if let error = error {
+        guard let url = URL(string: "\(Constants.documentsBaseURL)") else {
+            completion(.failure(APIError.invalidURL))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        let data = try! joyDocJSON.get() as! Data
+        
+        var dictionaryObject = try! JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+
+        // We remove some of the uneeded keys, specifically changing the "type" to "document"
+        dictionaryObject?.removeValue(forKey: "_id")
+        dictionaryObject?.removeValue(forKey: "createdOn")
+        dictionaryObject?.removeValue(forKey: "deleted")
+        dictionaryObject?.removeValue(forKey: "categories")
+        dictionaryObject?.removeValue(forKey: "stage")
+        dictionaryObject?.removeValue(forKey: "identifier")
+        dictionaryObject?.removeValue(forKey: "metadata")
+        dictionaryObject?.updateValue("document", forKey: "type")
+        dictionaryObject?.updateValue(identifier, forKey: "template")
+        dictionaryObject?.updateValue(identifier, forKey: "source")
+        let jsonData = try! JSONSerialization.data(withJSONObject: dictionaryObject ?? [:], options: [])
+        
+        request.httpBody = jsonData
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+            } else if let data = data {
+                do {
+                    let jsonRes = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                    completion(.success(jsonRes))
+                } catch {
                     completion(.failure(error))
-                } else if let data = data {
-                    do {
-                        let jsonRes = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-                        completion(.success(jsonRes))
-                    } catch {
-                        completion(.failure(error))
-                    }
                 }
             }
-        } catch {
-            completion(.failure(error))
         }
+        .resume()
     }
 }
 
