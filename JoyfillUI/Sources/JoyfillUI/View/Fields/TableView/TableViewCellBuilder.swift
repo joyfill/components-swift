@@ -24,7 +24,7 @@ struct TableViewCellBuilder: View {
         if let cell = cell {
             switch cell.type {
             case "text":
-                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"))
+                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"), axis: .vertical)
                     .padding(4)
             case "dropdown":
                 TableDropDownOptionListView(data: cell)
