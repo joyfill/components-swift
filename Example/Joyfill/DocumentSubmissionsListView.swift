@@ -16,7 +16,8 @@ struct DocumentSubmissionsListView: View {
     @State private var showDocumentDetails = false
     let apiService: APIService = APIService()
     var allDocuments: [Document] = []
-    
+    @State var currentPage: Int
+
     var body: some View {
         Group {
             List {
@@ -40,7 +41,7 @@ struct DocumentSubmissionsListView: View {
             }
             .navigationDestination(isPresented: $showDocumentDetails, destination: {
                 if showDocumentDetails {
-                    JoyFillView(document: document!, mode: .fill, events: self)
+                    JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
                 }
             })
             .navigationTitle("...\(template.title)")

@@ -10,16 +10,18 @@ import JoyfillModel
 public struct JoyFillView: View {
     @State public var document: JoyDoc
     @State public var mode: Mode
+    @Binding public var currentPage: Int
     public var events: FormChangeEvent?
 
-    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil) {
+    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, currentPage: Binding<Int>) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = State(initialValue: document)
+        _currentPage = currentPage
     }
 
     public var body: some View {
-        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self)
+        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPage: $currentPage)
     }
 }
 
@@ -60,9 +62,10 @@ struct FilesView: View {
     var files: [File]
     let mode: Mode
     let events: FormChangeEventInternal?
+    @Binding var currentPage: Int
     
     var body: some View {
-        FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events)
+        FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events, currentPage: $currentPage)
     }
 }
 
@@ -71,17 +74,18 @@ struct FileView: View {
     var file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
+    @Binding var currentPage: Int
     
     var body: some View {
         if file?.views?.count != 0 {
             if let view = file?.views?.first {
                 if let pages = view.pages {
-                    PagesView(fieldsData: $fieldsData, pages: pages, mode: mode, events: self)
+                    PagesView(fieldsData: $fieldsData, currentPage: $currentPage, pages: pages, mode: mode, events: self)
                 }
             }
         } else {
             if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, pages: pages, mode: mode, events: self)
+                PagesView(fieldsData: $fieldsData, currentPage: $currentPage, pages: pages, mode: mode, events: self)
             }
         }
     }
@@ -115,14 +119,16 @@ extension FileView: FormChangeEventInternal {
 
 struct PagesView: View {
     @Binding var fieldsData: [JoyDocField]?
+    @Binding var currentPage: Int
     let pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
     
     var body: some View {
-        if let page = pages.first {
-            PageView(fieldsData: $fieldsData, page: page, mode: mode, events: events)
-        }
+        PageView(fieldsData: $fieldsData, page: pages[currentPage], mode: mode, events: events)
+            .onChange(of: currentPage) { oldValue, newValue in
+                print(newValue)
+            }
     }
 }
 
