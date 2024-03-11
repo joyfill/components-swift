@@ -93,6 +93,51 @@ public struct JoyDocField: Codable, Identifiable, Equatable {
         rowOrder?.append(id)
     }
     
+    public mutating func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
+        guard var elements = valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
+            return
+        }
+        
+        if var cells = elements[index].cells {
+            if let cellIndex = cells.firstIndex(where: { $0.key == editedCell.id }) {
+                if editedCell.type == "text" {
+                    cells[editedCell.id ?? ""] = ValueUnion.string(editedCell.title ?? "")
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
+                
+                if editedCell.type == "dropdown" {
+                    cells[editedCell.id ?? ""] = ValueUnion.string(editedCell.defaultDropdownSelectedId ?? "")
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
+            }
+            else {
+                if editedCell.type == "text" {
+                    cells[editedCell.id ?? ""] = ValueUnion.string(editedCell.title ?? "")
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
+                
+                if editedCell.type == "dropdown" {
+                    cells[editedCell.id ?? ""] = ValueUnion.string(editedCell.defaultDropdownSelectedId ?? "")
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
+            }
+        } else {
+            if editedCell.type == "text" {
+                elements[index].cells = [editedCell.id ?? "" : ValueUnion.string(editedCell.title ?? "")]
+                self.value = ValueUnion.valueElementArray(elements)
+            }
+            
+            if editedCell.type == "dropdown" {
+                elements[index].cells = [editedCell.id ?? "" : ValueUnion.string(editedCell.defaultDropdownSelectedId ?? "")]
+                self.value = ValueUnion.valueElementArray(elements)
+            }
+        }
+    }
+    
 }
 
 // MARK: - Metadata
@@ -125,6 +170,7 @@ public struct FieldTableColumn: Codable {
     public let options: [Option]?
     public let value: String?
     public var defaultDropdownSelectedId: String?
+    public var images: [ValueElement]?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"

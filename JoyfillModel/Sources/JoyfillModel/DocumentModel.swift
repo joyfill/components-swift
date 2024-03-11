@@ -170,6 +170,7 @@ public extension ValueUnion {
             return nil
         }
     }
+    
     var signatureURL: String? {
         switch self {
         case .string(let string):
@@ -228,6 +229,15 @@ public extension ValueUnion {
         case .integer(let integer):
             let date = timestampMillisecondsToDate(value: Int(integer), format: format)
             return date
+        default:
+            return nil
+        }
+    }
+    
+    var images: [ValueElement]? {
+        switch self {
+        case .valueElementArray(let valueElements):
+            return valueElements
         default:
             return nil
         }
