@@ -122,7 +122,7 @@ struct TableModalView : View {
                                         Rectangle()
                                             .stroke()
                                             .foregroundColor(Color.tableCellBorderColor)
-                                        TableViewCellBuilder(data: cell)
+                                        TableViewCellBuilder(data: cell, viewMode: .modalView)
                                     }.frame(width: 170, height: 50).id("\(row)_\(col)")
                                 }
                             }

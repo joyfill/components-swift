@@ -8,11 +8,22 @@
 import SwiftUI
 import JoyfillModel
 
+enum TableViewMode {
+    case quickView
+    case modalView
+}
+
 struct TableViewCellBuilder: View {
     private var data: FieldTableColumn?
+    private var viewMode: TableViewMode
     
-    public init(data: FieldTableColumn?) {
+    private var textFieldAxis: Axis {
+        viewMode == .quickView ? .horizontal : .vertical
+    }
+    
+    public init(data: FieldTableColumn?, viewMode: TableViewMode) {
         self.data = data
+        self.viewMode = viewMode
     }
     
     var body: some View {
@@ -24,7 +35,7 @@ struct TableViewCellBuilder: View {
         if let cell = cell {
             switch cell.type {
             case "text":
-                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"), axis: .vertical)
+                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"), axis: textFieldAxis)
                     .padding(4)
             case "dropdown":
                 TableDropDownOptionListView(data: cell)
@@ -40,5 +51,5 @@ struct TableViewCellBuilder: View {
 }
 
 #Preview {
-    TableViewCellBuilder(data: nil)
+    TableViewCellBuilder(data: nil,  viewMode: .modalView)
 }
