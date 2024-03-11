@@ -13,7 +13,7 @@ struct MultiLineTextView: View {
     @State var multilineText: String = ""
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
@@ -32,7 +32,7 @@ struct MultiLineTextView: View {
                 .frame(minHeight: 200, maxHeight: 200)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray, lineWidth: 1)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
                 .cornerRadius(10)
                 .focused($isFocused)
@@ -43,7 +43,6 @@ struct MultiLineTextView: View {
                     } 
                 }
         }
-        .padding(.horizontal, 16)
         .onAppear{
             if let multilineText = fieldDependency.fieldData?.value?.multilineText {
                 self.multilineText = multilineText

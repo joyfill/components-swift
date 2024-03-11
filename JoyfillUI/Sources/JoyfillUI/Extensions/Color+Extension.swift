@@ -14,6 +14,7 @@ extension Color {
     static let tableCellBorderColor = Color(hex: "#E6E7EA")
     static let buttonBorderColor = Color(hex: "#E2E3E7")
     static let tableDropdownBorderColor = Color(hex: "#D1D1D6")
+    static let allFieldBorderColor = Color(hex: "#AAAAAE")
     
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

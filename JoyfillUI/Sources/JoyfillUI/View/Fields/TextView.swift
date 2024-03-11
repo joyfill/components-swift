@@ -31,7 +31,7 @@ struct TextView: View {
                 .frame(height: 40)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray, lineWidth: 1)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
                 .cornerRadius(10)
                 .focused($isFocused)
@@ -42,7 +42,6 @@ struct TextView: View {
                     } 
                 }
         }
-        .padding(.horizontal, 16)
         .onAppear {
             if let text = fieldDependency.fieldData?.value?.text {
                 enterText = text

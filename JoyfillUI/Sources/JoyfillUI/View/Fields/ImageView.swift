@@ -39,35 +39,43 @@ struct ImageView: View {
             
             if !imagesArray.isEmpty {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.gray, lineWidth: 1)
-                        .background(
-                            Image(uiImage: imagesArray[0])
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
+                    Image(uiImage: imagesArray[0])
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                .frame(width: screenWidth * 0.9, height: 250)
                         )
+                    
+                    //                    RoundedRectangle(cornerRadius: 20)
+                    //                        .stroke(Color.gray, lineWidth: 1)
+                    //                        .background(
+                    //                            Image(uiImage: imagesArray[0])
+                    //                                .resizable()
+                    //                                .aspectRatio(contentMode: .fit)
+                    //                        )
                     
                     Button(action: {
                         showMoreImages = true
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     }, label: {
-                        HStack {
+                        HStack(alignment: .center, spacing: 0) {
                             Text("More > ")
-                            
                             Text("+\(imagesArray.count)")
                                 .foregroundColor(.black)
                         }
-                        .padding(.vertical, 5)
-                        .padding(.horizontal, 5)
+                        .padding(.all, 5)
                         .background(Color.white)
                         .cornerRadius(10)
                     })
-                    .padding(.top, screenHeight * 0.2)
-                    .padding(.bottom, 10)
-                    .padding(.leading, screenWidth * 0.65)
+                    .padding(.top, screenHeight * 0.22)
+                    .padding(.bottom, 8)
+                    .padding(.leading, screenWidth * 0.6)
                     .shadow(radius: 4)
                 }
+                .frame(width: screenWidth * 0.9, height: 250)
             } else {
                 Button(action: {
                     let uploadEvent = UploadEvent(field: fieldDependency.fieldData!) { urls in
@@ -93,11 +101,11 @@ struct ImageView: View {
                 })
                 .disabled(showProgressView)
             }
+            
+            NavigationLink(destination: MoreImageView(isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: fieldDependency.eventHandler, fieldPosition: fieldDependency.fieldPosition, fieldData: fieldDependency.fieldData), isActive: $showMoreImages) {
+                EmptyView()
+            }
         }
-        .sheet(isPresented: $showMoreImages, content: {
-            MoreImageView(isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false, imagesArray: $imagesArray,eventHandler: fieldDependency.eventHandler, fieldPosition: fieldDependency.fieldPosition, fieldData: fieldDependency.fieldData)
-        })
-        .padding(.horizontal, 16)
         .onAppear {
             if let imageURLs = fieldDependency.fieldData?.value?.imageURLs {
                 for imageURL in imageURLs {
@@ -145,18 +153,9 @@ struct MoreImageView: View {
     }
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Text("More Images")
-                    .fontWeight(.bold)
-                Spacer()
-                Button(action: {
-                    presentationMode.wrappedValue.dismiss()
-                }, label: {
-                    Image(systemName: "xmark.circle")
-                        .foregroundStyle(.black)
-                        .fontWeight(.bold)
-                })
-            }
+            Text("More Images")
+                .fontWeight(.bold)
+            
             if isUploadHidden {
                 UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     .hidden()
@@ -199,7 +198,6 @@ struct UploadDeleteView: View {
             if selectedImages.count > 0 {
                 deleteButton
             }
-            
             Spacer()
         }
     }
@@ -280,7 +278,7 @@ struct ImageGridView:View {
                         .overlay(content: {
                             if !primaryDisplayOnly {
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                     .background(
                                         Image(selectedImages.contains(image) ? "Selected_Icon" : "UnSelected_Icon")
                                             .offset(
@@ -290,7 +288,7 @@ struct ImageGridView:View {
                                     )
                             } else {
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             }
                         })
                         .onTapGesture {

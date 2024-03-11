@@ -30,36 +30,10 @@ struct TableQuickView : View {
      */
     
     var body: some View {
-        
-        VStack {
-            HStack {
+        VStack(alignment: .leading) {
                 Text(viewModel.tableViewTitle)
                     .lineLimit(1)
                     .fontWeight(.bold)
-                
-                Spacer()
-                
-                HStack(alignment: .center, spacing: 0) {
-                    Text("View")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.blue)
-                    
-                    Image(systemName: "chevron.forward")
-                        .foregroundStyle(.blue)
-                        .font(.system(size: 8, weight: .heavy))
-                        .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
-                    
-                    Text(viewModel.viewMoreText)
-                        .font(.system(size: 16))
-                }
-            }
-            .padding(EdgeInsets(top: 0, leading: 14, bottom: 0, trailing: 14))
-            .onTapGesture {
-                viewModel.isTableModalViewPresented.toggle()
-            }
-            .sheet(isPresented: $viewModel.isTableModalViewPresented) {
-                TableModalView(viewModel: viewModel)
-            }
             
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
@@ -77,12 +51,40 @@ struct TableQuickView : View {
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.tableBorderBgColor, lineWidth: 1)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
-            .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
             
+            Button(action: {
+                viewModel.isTableModalViewPresented.toggle()
+            }, label: {
+                HStack(alignment: .center, spacing: 0) {
+                    Text("View")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.blue)
+                    
+                    Image(systemName: "chevron.forward")
+                        .foregroundStyle(.blue)
+                        .font(.system(size: 8, weight: .heavy))
+                        .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
+                    
+                    Text(viewModel.viewMoreText)
+                        .font(.system(size: 16))
+                }
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+            })
+            .padding(.top, 10)
+            
+            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
+                EmptyView()
+            }
         }
-        
     }
     
     var colsHeader: some View {
