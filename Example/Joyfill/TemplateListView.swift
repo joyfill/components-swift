@@ -15,7 +15,7 @@ public struct TemplateListView: View {
     let apiService: APIService = APIService()
     @State private var showDocuments = false
     @State private var path: [Document] = []
-    
+
     public var body: some View {
         NavigationStack(path: $path) {
             VStack {
@@ -50,7 +50,7 @@ public struct TemplateListView: View {
                     }
                     .refreshable(action: fetchData)
                     .navigationDestination(for: Document.self) { template in
-                        DocumentSubmissionsListView(template: template, allDocuments: documents)
+                        DocumentSubmissionsListView(template: template, allDocuments: documents, currentPage: 0)
                     }
                 }
             }
