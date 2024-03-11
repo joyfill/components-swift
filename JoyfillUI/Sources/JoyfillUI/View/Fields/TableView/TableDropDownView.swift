@@ -13,9 +13,13 @@ struct TableDropDownOptionListView: View {
     @State private var isSheetPresented = false
     private let data: FieldTableColumn
     @FocusState private var isFocused: Bool // Declare a FocusState property
+    @State private var lastSelectedValue: String?
+    private var didChange: ((_ cell: FieldTableColumn) -> Void)?
     
-    public init(data: FieldTableColumn) {
+    public init(data: FieldTableColumn, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
         self.data = data
+        lastSelectedValue = data.options?.filter { $0.id == data.defaultDropdownSelectedId }.first?.value ?? ""
+        self.didChange = delegate
     }
     
     var body: some View {
@@ -43,15 +47,15 @@ struct TableDropDownOptionListView: View {
             }
         }
         .focused($isFocused) // Observe focus state
-        .onChange(of: isFocused) { focused in
-            if focused {
-                print("dropdown in focus")
-            } else {
-                print("dropdown in blur")
-            }
-        }
         .onAppear {
             self.selectedDropdownValue = data.options?.filter { $0.id == data.defaultDropdownSelectedId }.first?.value ?? ""
+        }
+        .onChange(of: selectedDropdownValue) { value in
+            var editedCell = data
+            editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
+            if editedCell.defaultDropdownSelectedId != data.defaultDropdownSelectedId {
+                didChange?(editedCell)
+            }
         }
         .padding(4)
     }

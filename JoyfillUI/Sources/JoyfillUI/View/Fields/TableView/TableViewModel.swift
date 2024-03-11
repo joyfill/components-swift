@@ -110,6 +110,11 @@ class TableViewModel: ObservableObject {
         setup()
     }
     
+    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
+        joyDocModel?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+        setup()
+    }
+    
     private func setupColumns(joyDocModel: JoyDocField?) {
         guard let joyDocModel = joyDocModel else { return }
         
@@ -138,15 +143,8 @@ class TableViewModel: ObservableObject {
         for row in sortedRows {
             var cells: [FieldTableColumn?] = []
             for column in joyDocModel.tableColumnOrder ?? [] {
-                var cell = joyDocModel.tableColumns?.first { $0.id == column }
-                cell?.title = ""
-                if case .string(let str) = row.cells?.first(where: { $0.key == column })?.value {
-                    cell?.title = str
-                    
-                    if cell?.type == "dropdown" {
-                        cell?.defaultDropdownSelectedId = str
-                    }
-                }
+                let columnData = joyDocModel.tableColumns?.first { $0.id == column }
+                let cell = buildCell(data: columnData, row: row, column: column)
                 cells.append(cell)
             }
             rowToCellMap[row.id] = cells
@@ -157,6 +155,22 @@ class TableViewModel: ObservableObject {
         self.rowToCellMap = rowToCellMap
         self.quickRowToCellMap = rowToCellMap
         setupQuickTableViewRows()
+    }
+    
+    private func buildCell(data: FieldTableColumn?, row: ValueElement, column: String) -> FieldTableColumn? {
+        var cell = data
+        let valueUnion = row.cells?.first(where: { $0.key == column })?.value
+        switch data?.type {
+        case "text":
+            cell?.title = valueUnion?.text
+        case "dropdown":
+            cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
+        case "image":
+            cell?.images = valueUnion?.images
+        default:
+            return nil
+        }
+        return cell
     }
     
     func setupQuickTableViewRows() {

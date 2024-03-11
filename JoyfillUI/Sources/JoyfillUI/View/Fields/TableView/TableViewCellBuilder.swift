@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Nand Kishore on 06/03/24.
 //
@@ -8,11 +8,24 @@
 import SwiftUI
 import JoyfillModel
 
+enum TableViewMode {
+    case quickView
+    case modalView
+}
+
 struct TableViewCellBuilder: View {
     private var data: FieldTableColumn?
+    private var viewMode: TableViewMode
+    private var didChange: ((_ cell: FieldTableColumn) -> Void)?
     
-    public init(data: FieldTableColumn?) {
+    private var textFieldAxis: Axis {
+        viewMode == .quickView ? .horizontal : .vertical
+    }
+    
+    public init(data: FieldTableColumn?, viewMode: TableViewMode, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
         self.data = data
+        self.viewMode = viewMode
+        self.didChange = delegate
     }
     
     var body: some View {
@@ -24,10 +37,11 @@ struct TableViewCellBuilder: View {
         if let cell = cell {
             switch cell.type {
             case "text":
-                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"), axis: .vertical)
-                    .padding(4)
+                textField(cell: cell)
             case "dropdown":
-                TableDropDownOptionListView(data: cell)
+                TableDropDownOptionListView(data: cell) { editedCell in
+                    didChange?(editedCell)
+                }
             case "image":
                 TableImageView(data: cell)
             default:
@@ -37,8 +51,32 @@ struct TableViewCellBuilder: View {
             Text("")
         }
     }
+    
+    @State private var text = ""
+    @FocusState private var isTextFieldFocused: Bool
+    
+    @ViewBuilder
+    func textField(cell: FieldTableColumn) -> some View {
+        if viewMode == .quickView {
+            Text(cell.title ?? "")
+        }
+        else {
+            TextField(text, text: $text, axis: textFieldAxis)
+                .padding(4)
+                .focused($isTextFieldFocused)
+                .onChange(of: isTextFieldFocused) { isFocused in
+                    if !isFocused, cell.title != text {
+                        var editedCell = cell
+                        editedCell.title = text
+                        didChange?(editedCell)
+                    }
+                }.onAppear {
+                    text = cell.title ?? ""
+                }
+        }
+    }
 }
 
 #Preview {
-    TableViewCellBuilder(data: nil)
+    TableViewCellBuilder(data: nil,  viewMode: .modalView)
 }
