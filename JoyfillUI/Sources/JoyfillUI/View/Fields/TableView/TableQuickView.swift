@@ -85,6 +85,7 @@ struct TableQuickView : View {
                 EmptyView()
             }
         }
+        }.padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
     
     var colsHeader: some View {
@@ -97,7 +98,7 @@ struct TableQuickView : View {
                     Text(viewModel.getColumnTitle(columnId: col))
                 }
                 .background(Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3), height: 50)
+                .frame(width: (screenWidth / 3) - 8, height: 50)
             }
         }
     }
@@ -116,7 +117,7 @@ struct TableQuickView : View {
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
                                     TableViewCellBuilder(data: cell, viewMode: .quickView)
-                                }.frame(width: (screenWidth / 3), height: 50).id("\(row)_\(col)")
+                                }.frame(width: (screenWidth / 3) - 8, height: 50).id("\(row)_\(col)")
                             }
                         }
                     }
