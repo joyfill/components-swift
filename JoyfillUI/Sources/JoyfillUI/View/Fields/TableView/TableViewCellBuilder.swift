@@ -59,6 +59,8 @@ struct TableViewCellBuilder: View {
     func textField(cell: FieldTableColumn) -> some View {
         if viewMode == .quickView {
             Text(cell.title ?? "")
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         else {
             TextField(text, text: $text, axis: textFieldAxis)
