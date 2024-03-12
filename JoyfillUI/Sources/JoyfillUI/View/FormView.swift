@@ -225,7 +225,6 @@ struct FormView: View {
             VStack(spacing: 20) {
                 ForEach(fieldPositions, id: \.field) { fieldPosition in
                     fieldView(fieldPosition: fieldPosition)
-                    Divider()
                 }
             }
             .padding(.horizontal, 16)

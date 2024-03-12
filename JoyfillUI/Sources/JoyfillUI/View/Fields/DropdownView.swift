@@ -94,9 +94,11 @@ struct DropDownOptionList: View {
                             selectedDropdownValueID = option.id
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
-                            HStack {
+                            HStack(alignment: .top) {
                                 Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
+                                    .padding(.top, 3)
                                 Text(option.value ?? "")
+                                    .multilineTextAlignment(.leading)
                                     .foregroundColor(.black)
                                 Spacer()
                             }

@@ -107,7 +107,11 @@ struct RadioView: View {
     
     var body: some View {
         Button(action: {
-            selectedOption = option
+            if selectedOption == option {
+                selectedOption = ""
+            } else {
+                selectedOption = option
+            }
             if isAlreadyFocused == false {
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
