@@ -18,11 +18,9 @@ struct DisplayTextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            
             Text("\(displayText)")
                 .fontWeight(.bold)
         }
-        .padding(.horizontal, 16)
         .onAppear {
             if let data = fieldDependency.fieldData?.value?.displayText {
                 displayText = data

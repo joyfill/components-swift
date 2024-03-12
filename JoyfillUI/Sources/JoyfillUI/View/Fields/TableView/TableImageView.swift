@@ -63,8 +63,8 @@ struct TableMoreImageView: View {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Image(systemName: "xmark.circle")
-                        .foregroundStyle(.black)
-                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                        .imageScale(.large)
                 })
             }
             

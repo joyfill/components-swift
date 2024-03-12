@@ -222,9 +222,12 @@ struct FormView: View {
     
     var body: some View {
         ScrollView {
-            ForEach(fieldPositions, id: \.field) { fieldPosition in
-                fieldView(fieldPosition: fieldPosition)
+            VStack(spacing: 20) {
+                ForEach(fieldPositions, id: \.field) { fieldPosition in
+                    fieldView(fieldPosition: fieldPosition)
+                }
             }
+            .padding(.horizontal, 16)
         }
         .onChange(of: currentFocusedFielsData) { oldValue, newValue in
             guard newValue != nil else { return }

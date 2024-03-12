@@ -28,8 +28,6 @@ struct MultiSelectionView: View {
             if let title = fieldDependency.fieldData?.title {
                 Text("\(title)")
                     .fontWeight(.bold)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
             }
             VStack {
                 if let options = fieldDependency.fieldData?.options {
@@ -54,12 +52,11 @@ struct MultiSelectionView: View {
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.gray, lineWidth: 1)
-                    .padding(.vertical,-10)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .padding(.vertical, -10)
             )
-            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
         }
-        .padding(.vertical, 10)
         .onAppear{
             selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
         }
@@ -117,7 +114,7 @@ struct RadioView: View {
             }
         }, label: {
             HStack {
-                Image(systemName: selectedOption == option ? "largecircle.fill.circle" : "circle")
+                Image(systemName: selectedOption == option ? "smallcircle.filled.circle.fill" : "circle")
                 Text(option)
                     .foregroundColor(.black)
                 Spacer()

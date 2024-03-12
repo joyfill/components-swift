@@ -32,7 +32,7 @@ struct DropdownView: View {
                     Text(fieldDependency.fieldData?.options?.filter {
                         $0.id == selectedDropdownValueID
                     }.first?.value  ?? "Select Option")
-                        .lineLimit(1)
+                    .lineLimit(1)
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
@@ -42,14 +42,13 @@ struct DropdownView: View {
             })
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.black, lineWidth: 1)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
             .sheet(isPresented: $isSheetPresented) {
                 DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
                     .presentationDetents([.medium])
             }
         }
-        .padding(.horizontal, 16)
         .onAppear {
             if let value = fieldDependency.fieldData?.value?.dropdownValue {
                 self.selectedDropdownValueID = value
@@ -96,7 +95,7 @@ struct DropDownOptionList: View {
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack {
-                                Image(systemName: (selectedDropdownValueID == option.id) ? "largecircle.fill.circle" : "circle")
+                                Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
                                 Text(option.value ?? "")
                                     .foregroundColor(.black)
                                 Spacer()

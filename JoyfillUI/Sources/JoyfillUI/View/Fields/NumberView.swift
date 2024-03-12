@@ -33,7 +33,7 @@ struct NumberView: View {
                 .frame(minHeight: 40)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray, lineWidth: 1)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
                 .cornerRadius(10)
                 .focused($isFocused)
@@ -44,7 +44,6 @@ struct NumberView: View {
                     }
                 }
         }
-        .padding(.horizontal, 16)
         .onAppear {
             if let number = fieldDependency.fieldData?.value?.number {
                 self.number = String(number)

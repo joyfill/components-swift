@@ -18,7 +18,7 @@ struct SignatureView: View {
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
-
+    
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
@@ -31,7 +31,7 @@ struct SignatureView: View {
             }
             
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.gray, lineWidth: 1)
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
                 .overlay(
                     signatureImage != nil ?
@@ -56,16 +56,15 @@ struct SignatureView: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray, lineWidth: 1)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
             })
-            .padding(.vertical, 10)
+            .padding(.top, 10)
             
             NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
         }
-        .padding(.horizontal, 16)
         .onAppear{
             self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
             if !imageLoaded {
@@ -147,25 +146,15 @@ struct CanvasSignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
-                    .fontWeight(.bold)
-                Spacer()
-                Button(action: {
-                    presentationMode.wrappedValue.dismiss()
-                }, label: {
-                    Image(systemName: "xmark.circle")
-                        .foregroundStyle(.black)
-                        .fontWeight(.bold)
-                })
-            }
+            Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
+                .fontWeight(.bold)
             
             CanvasView(lines: $lines)
                 .frame(height: 150)
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.gray, lineWidth: 1)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             
             HStack {
@@ -179,7 +168,7 @@ struct CanvasSignatureView: View {
                         .cornerRadius(10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                 })
                 
@@ -201,10 +190,6 @@ struct CanvasSignatureView: View {
             Spacer()
         }
         .padding(.horizontal, 16.0)
-        .navigationBarBackButtonHidden()
-        .onAppear() {
-            self.lines = []
-        }
     }
 }
 extension View {

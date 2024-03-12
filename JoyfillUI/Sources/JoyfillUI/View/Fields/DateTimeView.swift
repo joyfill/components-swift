@@ -36,19 +36,23 @@ struct DateTimeView: View {
             
             Group {
                 if showDefaultDate == false {
-                    DatePicker("Date-Time", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
-                        .padding(.all, 10)
+                    DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .labelsHidden()
+                        .padding(.all, 8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                 } else {
                     if isDatePickerPresented {
-                        DatePicker("Date-Time", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
-                            .padding(.all, 10)
+                        DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .labelsHidden()
+                            .padding(.all, 8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray, lineWidth: 1)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                     } else {
                         HStack {
@@ -60,7 +64,7 @@ struct DateTimeView: View {
                         .padding(.all, 10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray, lineWidth: 1)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                         .onTapGesture {
                             isDatePickerPresented = true
@@ -69,7 +73,6 @@ struct DateTimeView: View {
                 }
             }
         }
-        .padding(.horizontal, 16)
         .onAppear{
             if let value = fieldDependency.fieldData?.value {
                 let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
