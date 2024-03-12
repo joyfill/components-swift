@@ -12,6 +12,7 @@ import JoyfillModel
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
+    private let rowHeight: CGFloat = 50
     
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
@@ -42,7 +43,7 @@ struct TableModalView : View {
                     }
                     
                     Text("#").frame(width: 40)
-                }.frame(width: viewModel.showRowSelector ? 80 : 40, height: 50)
+                }.frame(width: viewModel.showRowSelector ? 80 : 40, height: rowHeight)
                     .background(Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topLeft])
                 
@@ -79,7 +80,7 @@ struct TableModalView : View {
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
                     Text(viewModel.getColumnTitle(columnId: col))
-                }.background(Color.tableColumnBgColor).frame(width: 170, height: 50)
+                }.background(Color.tableColumnBgColor).frame(width: 170, height: rowHeight)
                 
             }
         }
@@ -90,7 +91,7 @@ struct TableModalView : View {
             ForEach(Array(viewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector { Image(systemName: row ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: 50)
+                            .frame(width: 40, height: rowHeight)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
                                 viewModel.toggleSelection(at: index)
@@ -101,7 +102,7 @@ struct TableModalView : View {
                     Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                        .frame(width: 40, height: 50)
+                        .frame(width: 40, height: rowHeight)
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                 }
@@ -126,7 +127,7 @@ struct TableModalView : View {
                                         TableViewCellBuilder(data: cell, viewMode: .modalView) { editedCell  in
                                             viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
                                         }
-                                    }.frame(width: 170, height: 50).id("\(row)_\(col)")
+                                    }.frame(width: 170, height: rowHeight).id("\(row)_\(col)")
                                 }
                             }
                         }

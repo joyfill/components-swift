@@ -8,10 +8,20 @@
 import SwiftUI
 import JoyfillModel
 
+//TODO: Remove this after development
+public struct TempTableEntryView: View {
+    let vm = TableViewModel(mode: .fill, joyDocModel: fakeTableData())
+    public init() {}
+    public var body: some View {
+        TableQuickView(viewModel: vm)
+    }
+}
+
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
     private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: TableViewModel
+    private let rowHeight: CGFloat = 50
     
     //TODO: Remove this
     init(viewModel: TableViewModel) {
@@ -47,7 +57,7 @@ struct TableQuickView : View {
                     
                     table
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
-                }
+                }.frame(maxHeight: CGFloat(viewModel.quickRows.count) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -87,7 +97,8 @@ struct TableQuickView : View {
 //            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
 //                EmptyView()
 //            }
-        }.padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
+        }
+        .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
     
     var colsHeader: some View {
@@ -100,7 +111,7 @@ struct TableQuickView : View {
                     Text(viewModel.getColumnTitle(columnId: col))
                 }
                 .background(Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3) - 8, height: 50)
+                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
             }
         }
     }
@@ -119,7 +130,7 @@ struct TableQuickView : View {
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
                                     TableViewCellBuilder(data: cell, viewMode: .quickView)
-                                }.frame(width: (screenWidth / 3) - 8, height: 50).id("\(row)_\(col)")
+                                }.frame(width: (screenWidth / 3) - 8, height: rowHeight).id("\(row)_\(col)")
                             }
                         }
                     }
