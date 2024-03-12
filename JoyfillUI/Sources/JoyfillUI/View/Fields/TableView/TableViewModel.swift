@@ -162,7 +162,7 @@ class TableViewModel: ObservableObject {
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
         case "text":
-            cell?.title = valueUnion?.text
+            cell?.title = valueUnion?.text ?? ""
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
