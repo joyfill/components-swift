@@ -84,12 +84,12 @@ struct MultiSelection: View {
             }
             
         }, label: {
-            
             HStack {
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
                     .imageScale(.large)
                 Text(option)
                     .foregroundStyle(.black)
+                    .multilineTextAlignment(.leading)
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -117,6 +117,7 @@ struct RadioView: View {
                 Image(systemName: selectedOption == option ? "smallcircle.filled.circle.fill" : "circle")
                 Text(option)
                     .foregroundColor(.black)
+                    .multilineTextAlignment(.leading)
                 Spacer()
             }
             .padding(.horizontal, 16)
