@@ -126,24 +126,6 @@ struct TableQuickView : View {
             .disabled(true)
         }
     }
-    
-    @ViewBuilder
-    func buildView(cell: FieldTableColumn?) -> some View {
-        if let cell = cell {
-            switch cell.type {
-            case "text":
-                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"))
-            case "dropdown":
-                TableDropDownOptionListView(data: cell)
-            case "image":
-                TableImageView(data: cell)
-            default:
-                Text("")
-            }
-        } else {
-            Text("")
-        }
-    }
 }
 
 #Preview {
