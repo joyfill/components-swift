@@ -31,9 +31,9 @@ struct TableQuickView : View {
     
     var body: some View {
         VStack(alignment: .leading) {
-                Text(viewModel.tableViewTitle)
-                    .lineLimit(1)
-                    .fontWeight(.bold)
+            Text(viewModel.tableViewTitle)
+                .lineLimit(1)
+                .fontWeight(.bold)
             
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
@@ -97,7 +97,7 @@ struct TableQuickView : View {
                     Text(viewModel.getColumnTitle(columnId: col))
                 }
                 .background(Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3) - 8, height: 50)
+                .frame(width: (screenWidth / 3), height: 50)
             }
         }
     }
@@ -116,7 +116,7 @@ struct TableQuickView : View {
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
                                     TableViewCellBuilder(data: cell, viewMode: .quickView)
-                                }.frame(width: (screenWidth / 3) - 8, height: 50).id("\(row)_\(col)")
+                                }.frame(width: (screenWidth / 3), height: 50).id("\(row)_\(col)")
                             }
                         }
                     }

@@ -51,6 +51,7 @@ struct TableModalView : View {
                         .offset(y: offset.y)
                 }
                 .scrollIndicators(.hidden)
+                .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
             }
             
             VStack(alignment: .leading, spacing: 0) {
