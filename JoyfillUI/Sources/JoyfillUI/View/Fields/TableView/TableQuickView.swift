@@ -80,10 +80,13 @@ struct TableQuickView : View {
                 )
             })
             .padding(.top, 10)
+            .sheet(isPresented: $viewModel.isTableModalViewPresented, content: {
+                TableModalView(viewModel: viewModel)
+            })
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
-                EmptyView()
-            }
+//            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
+//                EmptyView()
+//            }
         }.padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
     
