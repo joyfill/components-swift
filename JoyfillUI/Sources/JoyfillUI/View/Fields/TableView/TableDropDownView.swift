@@ -37,10 +37,6 @@ struct TableDropDownOptionListView: View {
                 .padding(.all, 10)
                 .foregroundColor(.black)
             })
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.tableDropdownBorderColor, lineWidth: 1)
-            )
             .sheet(isPresented: $isSheetPresented) {
                 TableDropDownOptionList(data: data, selectedDropdownValue: $selectedDropdownValue)
                     .presentationDetents([.medium])
