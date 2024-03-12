@@ -22,6 +22,10 @@ struct TableViewCellBuilder: View {
         viewMode == .quickView ? .horizontal : .vertical
     }
     
+    private var lineLimit: Int? {
+        viewMode == .quickView ? 1 : nil
+    }
+    
     public init(data: FieldTableColumn?, viewMode: TableViewMode, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
         self.data = data
         self.viewMode = viewMode
@@ -54,28 +58,20 @@ struct TableViewCellBuilder: View {
     
     @State private var text = ""
     @FocusState private var isTextFieldFocused: Bool
-    
-    @ViewBuilder
     func textField(cell: FieldTableColumn) -> some View {
-        if viewMode == .quickView {
-            Text(cell.title ?? "")
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        else {
-            TextField(text, text: $text, axis: textFieldAxis)
-                .padding(4)
-                .focused($isTextFieldFocused)
-                .onChange(of: isTextFieldFocused) { isFocused in
-                    if !isFocused, cell.title != text {
-                        var editedCell = cell
-                        editedCell.title = text
-                        didChange?(editedCell)
-                    }
-                }.onAppear {
-                    text = cell.title ?? ""
+        return TextField(text, text: $text, axis: textFieldAxis)
+            .lineLimit(lineLimit)
+            .padding(4)
+            .focused($isTextFieldFocused)
+            .onChange(of: isTextFieldFocused) { isFocused in
+                if !isFocused, cell.title != text {
+                    var editedCell = cell
+                    editedCell.title = text
+                    didChange?(editedCell)
                 }
-        }
+            }.onAppear {
+                text = cell.title ?? ""
+            }
     }
 }
 
