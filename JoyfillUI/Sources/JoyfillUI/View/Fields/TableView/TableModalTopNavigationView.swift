@@ -16,7 +16,7 @@ struct TableModalTopNavigationView: View {
         HStack {
             Text("Table Title")
                 .lineLimit(1)
-                .fontWeight(.bold)
+//                .fontWeight(.bold)
             
             Spacer()
             if isDeleteButtonVisible {

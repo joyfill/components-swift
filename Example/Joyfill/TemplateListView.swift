@@ -17,7 +17,7 @@ public struct TemplateListView: View {
     @State private var path: [Document] = []
 
     public var body: some View {
-        NavigationStack(path: $path) {
+//        NavigationStack(path: $path) {
             VStack {
                 Text("Templates List")
                     .font(.title.bold())
@@ -27,13 +27,13 @@ public struct TemplateListView: View {
                     List {
                         ForEach(templates) { template in
                             VStack(alignment: .trailing) {
-                                NavigationLink(value: template, label: {
+//                                NavigationLink(value: template, label: {
                                     HStack {
                                         Image(systemName: "doc")
                                             .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
                                         Text(template.name)
                                     }
-                                })
+//                                })
                                 Button(action: {
                                     createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
                                         fetchDocumentSubmissions(identifier: template.identifier)
@@ -49,11 +49,11 @@ public struct TemplateListView: View {
                         .cornerRadius(2)
                     }
                     .refreshable(action: fetchData)
-                    .navigationDestination(for: Document.self) { template in
-                        DocumentSubmissionsListView(template: template, allDocuments: documents, currentPage: 0)
-                    }
+//                    .navigationDestination(for: Document.self) { template in
+//                        DocumentSubmissionsListView(template: template, allDocuments: documents, currentPage: 0)
+//                    }
                 }
-            }
+//            }
         }
         .onAppear(perform: fetchData)
     }

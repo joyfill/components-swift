@@ -51,7 +51,7 @@ struct TableModalView : View {
                     rowsHeader
                         .offset(y: offset.y)
                 }
-                .scrollIndicators(.hidden)
+//                .scrollIndicators(.hidden)
                 .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
             }
             
@@ -146,7 +146,7 @@ struct TableModalView : View {
                     }
                 }
             }
-            .scrollIndicators(.hidden)
+//            .scrollIndicators(.hidden)
         }
     }
 }

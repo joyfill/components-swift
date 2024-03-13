@@ -126,7 +126,7 @@ struct PagesView: View {
     
     var body: some View {
         PageView(fieldsData: $fieldsData, page: pages[currentPage], mode: mode, events: events)
-            .onChange(of: currentPage) { oldValue, newValue in
+            .onChange(of: currentPage) { newValue in
                 print(newValue)
             }
     }
@@ -229,13 +229,13 @@ struct FormView: View {
             }
             .padding(.horizontal, 16)
         }
-        .onChange(of: currentFocusedFielsData) { oldValue, newValue in
+        .onChange(of: currentFocusedFielsData) { newValue in
             guard newValue != nil else { return }
-            guard oldValue != newValue else { return }
-            if oldValue != nil {
-                let fieldEvent = FieldEvent(field: oldValue)
-                eventHandler?.onBlur(event: fieldEvent)
-            }
+//            guard oldValue != newValue else { return }
+//            if oldValue != nil {
+//                let fieldEvent = FieldEvent(field: oldValue)
+//                eventHandler?.onBlur(event: fieldEvent)
+//            }
             let fieldEvent = FieldEvent(field: newValue)
             eventHandler?.onFocus(event: fieldEvent)
         }

@@ -46,7 +46,7 @@ struct DropdownView: View {
             )
             .sheet(isPresented: $isSheetPresented) {
                 DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
-                    .presentationDetents([.medium])
+//                    .presentationDetents([.medium])
             }
         }
         .onAppear {
@@ -54,7 +54,7 @@ struct DropdownView: View {
                 self.selectedDropdownValueID = value
             }
         }
-        .onChange(of: selectedDropdownValueID) { oldValue, newValue in
+        .onChange(of: selectedDropdownValueID) { newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue ?? "")
             let change = FieldChange(changeData: ["value" : newValue])

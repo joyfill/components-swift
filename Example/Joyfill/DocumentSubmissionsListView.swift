@@ -39,11 +39,11 @@ struct DocumentSubmissionsListView: View {
                     }
                 }
             }
-            .navigationDestination(isPresented: $showDocumentDetails, destination: {
-                if showDocumentDetails {
-                    JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
-                }
-            })
+//            .navigationDestination(isPresented: $showDocumentDetails, destination: {
+//                if showDocumentDetails {
+//                    JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
+//                }
+//            })
             .navigationTitle("...\(template.title)")
         }
         .onAppear() {

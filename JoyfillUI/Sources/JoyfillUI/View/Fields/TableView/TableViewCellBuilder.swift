@@ -59,19 +59,20 @@ struct TableViewCellBuilder: View {
     @State private var text = ""
     @FocusState private var isTextFieldFocused: Bool
     func textField(cell: FieldTableColumn) -> some View {
-        return TextField(text, text: $text, axis: textFieldAxis)
-            .lineLimit(lineLimit)
-            .padding(4)
-            .focused($isTextFieldFocused)
-            .onChange(of: isTextFieldFocused) { isFocused in
-                if !isFocused, cell.title != text {
-                    var editedCell = cell
-                    editedCell.title = text
-                    didChange?(editedCell)
-                }
-            }.onAppear {
-                text = cell.title ?? ""
-            }
+        TextField(text, text: $text)
+//        return TextField(text, text: $text, axis: textFieldAxis)
+//            .lineLimit(lineLimit)
+//            .padding(4)
+//            .focused($isTextFieldFocused)
+//            .onChange(of: isTextFieldFocused) { isFocused in
+//                if !isFocused, cell.title != text {
+//                    var editedCell = cell
+//                    editedCell.title = text
+//                    didChange?(editedCell)
+//                }
+//            }.onAppear {
+//                text = cell.title ?? ""
+//            }
     }
 }
 

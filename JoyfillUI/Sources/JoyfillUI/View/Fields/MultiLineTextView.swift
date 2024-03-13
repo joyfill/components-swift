@@ -48,7 +48,7 @@ struct MultiLineTextView: View {
                 self.multilineText = multilineText
             }
         }
-        .onChange(of: multilineText) { oldValue, newValue in
+        .onChange(of: multilineText) { newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue)
             let change = FieldChange(changeData: ["value" : newValue])

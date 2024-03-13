@@ -49,7 +49,7 @@ struct NumberView: View {
                 self.number = String(number)
             }
         }
-        .onChange(of: number) { oldValue, newValue in
+        .onChange(of: number) {  newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             let convertStringToInt = Double(newValue)
             fieldData.value = .integer(convertStringToInt ?? 0)

@@ -43,7 +43,7 @@ struct TableQuickView : View {
         VStack(alignment: .leading) {
             Text(viewModel.tableViewTitle)
                 .lineLimit(1)
-                .fontWeight(.bold)
+//                .fontWeight(.bold)
             
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
@@ -136,7 +136,7 @@ struct TableQuickView : View {
                     }
                 }
             }
-            .scrollIndicators(.hidden)
+//            .scrollIndicators(.hidden)
             .disabled(true)
         }
     }

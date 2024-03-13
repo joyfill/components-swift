@@ -60,7 +60,7 @@ struct MultiSelectionView: View {
         .onAppear{
             selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
         }
-        .onChange(of: selectedOption) { oldValue, newValue in
+        .onChange(of: selectedOption) { newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue)
             let change = FieldChange(changeData: ["value" : newValue])

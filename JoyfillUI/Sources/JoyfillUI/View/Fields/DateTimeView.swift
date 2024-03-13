@@ -82,7 +82,7 @@ struct DateTimeView: View {
                 }
             }
         }
-        .onChange(of: selectedDate) { oldValue, newValue in
+        .onChange(of: selectedDate) { newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
             fieldData.value = .integer(convertDateToInt)
