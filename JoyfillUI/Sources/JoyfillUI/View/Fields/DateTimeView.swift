@@ -30,8 +30,16 @@ struct DateTimeView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                Text("\(title)")
-                    .fontWeight(.bold)
+                HStack(spacing: 30) {
+                    Text("\(title)")
+                        .font(.headline.bold())
+                    
+                    if fieldDependency.fieldData?.fieldRequired == true && showDefaultDate == true {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
+                    }
+                }
             }
             
             Group {
@@ -68,12 +76,13 @@ struct DateTimeView: View {
                         )
                         .onTapGesture {
                             isDatePickerPresented = true
+                            showDefaultDate = false
                         }
                     }
                 }
             }
         }
-        .onAppear{
+        .onAppear {
             if let value = fieldDependency.fieldData?.value {
                 let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
                 if let date = stringToDate(dateString, format: fieldDependency.fieldPosition.format ?? "") {
