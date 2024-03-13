@@ -1,0 +1,651 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FA529C4E2BA1D251000200F5 /* JoyfillExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C4D2BA1D251000200F5 /* JoyfillExampleApp.swift */; };
+		FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA529C512BA1D253000200F5 /* Assets.xcassets */; };
+		FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA529C552BA1D253000200F5 /* Preview Assets.xcassets */; };
+		FA529C602BA1D253000200F5 /* JoyfillExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C5F2BA1D253000200F5 /* JoyfillExampleTests.swift */; };
+		FA529C6A2BA1D253000200F5 /* JoyfillExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C692BA1D253000200F5 /* JoyfillExampleUITests.swift */; };
+		FA529C6C2BA1D253000200F5 /* JoyfillExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C6B2BA1D253000200F5 /* JoyfillExampleUITestsLaunchTests.swift */; };
+		FA529C7D2BA1D28B000200F5 /* TemplateListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C792BA1D28B000200F5 /* TemplateListView.swift */; };
+		FA529C7E2BA1D28B000200F5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C7A2BA1D28B000200F5 /* ContentView.swift */; };
+		FA529C7F2BA1D28B000200F5 /* DocumentSubmissionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */; };
+		FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA529C812BA1D2D2000200F5 /* Joyfill */; };
+		FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FAACBA5F2BA1D3AD00B610AB /* Joyfill */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FA529C5C2BA1D253000200F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FA529C422BA1D251000200F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA529C492BA1D251000200F5;
+			remoteInfo = JoyfillExample;
+		};
+		FA529C662BA1D253000200F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FA529C422BA1D251000200F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA529C492BA1D251000200F5;
+			remoteInfo = JoyfillExample;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		FA529C4A2BA1D251000200F5 /* JoyfillExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JoyfillExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA529C4D2BA1D251000200F5 /* JoyfillExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillExampleApp.swift; sourceTree = "<group>"; };
+		FA529C512BA1D253000200F5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FA529C532BA1D253000200F5 /* JoyfillExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JoyfillExample.entitlements; sourceTree = "<group>"; };
+		FA529C552BA1D253000200F5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		FA529C5B2BA1D253000200F5 /* JoyfillExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA529C5F2BA1D253000200F5 /* JoyfillExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillExampleTests.swift; sourceTree = "<group>"; };
+		FA529C652BA1D253000200F5 /* JoyfillExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA529C692BA1D253000200F5 /* JoyfillExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillExampleUITests.swift; sourceTree = "<group>"; };
+		FA529C6B2BA1D253000200F5 /* JoyfillExampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillExampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		FA529C792BA1D28B000200F5 /* TemplateListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplateListView.swift; sourceTree = "<group>"; };
+		FA529C7A2BA1D28B000200F5 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentSubmissionsListView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FA529C472BA1D251000200F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
+				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA529C582BA1D253000200F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA529C622BA1D253000200F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FA529C412BA1D251000200F5 = {
+			isa = PBXGroup;
+			children = (
+				FA529C4C2BA1D251000200F5 /* JoyfillExample */,
+				FA529C5E2BA1D253000200F5 /* JoyfillExampleTests */,
+				FA529C682BA1D253000200F5 /* JoyfillExampleUITests */,
+				FA529C4B2BA1D251000200F5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FA529C4B2BA1D251000200F5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FA529C4A2BA1D251000200F5 /* JoyfillExample.app */,
+				FA529C5B2BA1D253000200F5 /* JoyfillExampleTests.xctest */,
+				FA529C652BA1D253000200F5 /* JoyfillExampleUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FA529C4C2BA1D251000200F5 /* JoyfillExample */ = {
+			isa = PBXGroup;
+			children = (
+				FA529C7A2BA1D28B000200F5 /* ContentView.swift */,
+				FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */,
+				FA529C4D2BA1D251000200F5 /* JoyfillExampleApp.swift */,
+				FA529C792BA1D28B000200F5 /* TemplateListView.swift */,
+				FA529C512BA1D253000200F5 /* Assets.xcassets */,
+				FA529C532BA1D253000200F5 /* JoyfillExample.entitlements */,
+				FA529C542BA1D253000200F5 /* Preview Content */,
+			);
+			path = JoyfillExample;
+			sourceTree = "<group>";
+		};
+		FA529C542BA1D253000200F5 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				FA529C552BA1D253000200F5 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		FA529C5E2BA1D253000200F5 /* JoyfillExampleTests */ = {
+			isa = PBXGroup;
+			children = (
+				FA529C5F2BA1D253000200F5 /* JoyfillExampleTests.swift */,
+			);
+			path = JoyfillExampleTests;
+			sourceTree = "<group>";
+		};
+		FA529C682BA1D253000200F5 /* JoyfillExampleUITests */ = {
+			isa = PBXGroup;
+			children = (
+				FA529C692BA1D253000200F5 /* JoyfillExampleUITests.swift */,
+				FA529C6B2BA1D253000200F5 /* JoyfillExampleUITestsLaunchTests.swift */,
+			);
+			path = JoyfillExampleUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FA529C492BA1D251000200F5 /* JoyfillExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA529C6F2BA1D253000200F5 /* Build configuration list for PBXNativeTarget "JoyfillExample" */;
+			buildPhases = (
+				FA529C462BA1D251000200F5 /* Sources */,
+				FA529C472BA1D251000200F5 /* Frameworks */,
+				FA529C482BA1D251000200F5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JoyfillExample;
+			packageProductDependencies = (
+				FA529C812BA1D2D2000200F5 /* Joyfill */,
+				FAACBA5F2BA1D3AD00B610AB /* Joyfill */,
+			);
+			productName = JoyfillExample;
+			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FA529C5A2BA1D253000200F5 /* JoyfillExampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA529C722BA1D253000200F5 /* Build configuration list for PBXNativeTarget "JoyfillExampleTests" */;
+			buildPhases = (
+				FA529C572BA1D253000200F5 /* Sources */,
+				FA529C582BA1D253000200F5 /* Frameworks */,
+				FA529C592BA1D253000200F5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FA529C5D2BA1D253000200F5 /* PBXTargetDependency */,
+			);
+			name = JoyfillExampleTests;
+			productName = JoyfillExampleTests;
+			productReference = FA529C5B2BA1D253000200F5 /* JoyfillExampleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		FA529C642BA1D253000200F5 /* JoyfillExampleUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA529C752BA1D253000200F5 /* Build configuration list for PBXNativeTarget "JoyfillExampleUITests" */;
+			buildPhases = (
+				FA529C612BA1D253000200F5 /* Sources */,
+				FA529C622BA1D253000200F5 /* Frameworks */,
+				FA529C632BA1D253000200F5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FA529C672BA1D253000200F5 /* PBXTargetDependency */,
+			);
+			name = JoyfillExampleUITests;
+			productName = JoyfillExampleUITests;
+			productReference = FA529C652BA1D253000200F5 /* JoyfillExampleUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FA529C422BA1D251000200F5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					FA529C492BA1D251000200F5 = {
+						CreatedOnToolsVersion = 15.2;
+					};
+					FA529C5A2BA1D253000200F5 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = FA529C492BA1D251000200F5;
+					};
+					FA529C642BA1D253000200F5 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = FA529C492BA1D251000200F5;
+					};
+				};
+			};
+			buildConfigurationList = FA529C452BA1D251000200F5 /* Build configuration list for PBXProject "JoyfillExample" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FA529C412BA1D251000200F5;
+			packageReferences = (
+				FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */,
+			);
+			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FA529C492BA1D251000200F5 /* JoyfillExample */,
+				FA529C5A2BA1D253000200F5 /* JoyfillExampleTests */,
+				FA529C642BA1D253000200F5 /* JoyfillExampleUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FA529C482BA1D251000200F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
+				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA529C592BA1D253000200F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA529C632BA1D253000200F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FA529C462BA1D251000200F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA529C7D2BA1D28B000200F5 /* TemplateListView.swift in Sources */,
+				FA529C7F2BA1D28B000200F5 /* DocumentSubmissionsListView.swift in Sources */,
+				FA529C7E2BA1D28B000200F5 /* ContentView.swift in Sources */,
+				FA529C4E2BA1D251000200F5 /* JoyfillExampleApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA529C572BA1D253000200F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA529C602BA1D253000200F5 /* JoyfillExampleTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA529C612BA1D253000200F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA529C6A2BA1D253000200F5 /* JoyfillExampleUITests.swift in Sources */,
+				FA529C6C2BA1D253000200F5 /* JoyfillExampleUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FA529C5D2BA1D253000200F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA529C492BA1D251000200F5 /* JoyfillExample */;
+			targetProxy = FA529C5C2BA1D253000200F5 /* PBXContainerItemProxy */;
+		};
+		FA529C672BA1D253000200F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA529C492BA1D251000200F5 /* JoyfillExample */;
+			targetProxy = FA529C662BA1D253000200F5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		FA529C6D2BA1D253000200F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		FA529C6E2BA1D253000200F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		FA529C702BA1D253000200F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FA529C712BA1D253000200F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		FA529C732BA1D253000200F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExampleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JoyfillExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JoyfillExample";
+			};
+			name = Debug;
+		};
+		FA529C742BA1D253000200F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExampleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JoyfillExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JoyfillExample";
+			};
+			name = Release;
+		};
+		FA529C762BA1D253000200F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExampleUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JoyfillExample;
+			};
+			name = Debug;
+		};
+		FA529C772BA1D253000200F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExampleUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JoyfillExample;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FA529C452BA1D251000200F5 /* Build configuration list for PBXProject "JoyfillExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA529C6D2BA1D253000200F5 /* Debug */,
+				FA529C6E2BA1D253000200F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA529C6F2BA1D253000200F5 /* Build configuration list for PBXNativeTarget "JoyfillExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA529C702BA1D253000200F5 /* Debug */,
+				FA529C712BA1D253000200F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA529C722BA1D253000200F5 /* Build configuration list for PBXNativeTarget "JoyfillExampleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA529C732BA1D253000200F5 /* Debug */,
+				FA529C742BA1D253000200F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA529C752BA1D253000200F5 /* Build configuration list for PBXNativeTarget "JoyfillExampleUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA529C762BA1D253000200F5 /* Debug */,
+				FA529C772BA1D253000200F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FA529C812BA1D2D2000200F5 /* Joyfill */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Joyfill;
+		};
+		FAACBA5F2BA1D3AD00B610AB /* Joyfill */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Joyfill;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = FA529C422BA1D251000200F5 /* Project object */;
+}
