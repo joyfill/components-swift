@@ -59,7 +59,7 @@ struct SignatureView: View {
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
             })
-            .padding(.top, 10)
+            .padding(.top, 6)
             
             NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
                 EmptyView()

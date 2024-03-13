@@ -69,7 +69,7 @@ struct TableQuickView : View {
                 viewModel.isTableModalViewPresented.toggle()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
-                    Text("View")
+                    Text("Table View")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.blue)
                     
@@ -90,7 +90,7 @@ struct TableQuickView : View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
-            .padding(.top, 10)
+            .padding(.top, 6)
             .sheet(isPresented: $viewModel.isTableModalViewPresented, content: {
                 TableModalView(viewModel: viewModel)
             })
