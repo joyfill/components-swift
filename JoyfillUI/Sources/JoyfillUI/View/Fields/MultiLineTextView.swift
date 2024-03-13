@@ -40,19 +40,16 @@ struct MultiLineTextView: View {
                     if focused {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    } 
+                    } else {
+                        let change = FieldChange(changeData: ["value" : multilineText])
+                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
+                    }
                 }
         }
         .onAppear{
             if let multilineText = fieldDependency.fieldData?.value?.multilineText {
                 self.multilineText = multilineText
             }
-        }
-        .onChange(of: multilineText) { oldValue, newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
 }
