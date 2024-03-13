@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "JoyfillUI",
     platforms: [
-        .iOS(.v15) // Set the minimum deployment target to iOS 13
+        .iOS(.v15) // Set the minimum deployment target to iOS 15
     ], products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
