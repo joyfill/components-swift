@@ -21,8 +21,16 @@ struct MultiLineTextView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                Text("\(title)")
-                    .fontWeight(.bold)
+                HStack(spacing: 30) {
+                    Text("\(title)")
+                        .font(.headline.bold())
+                    
+                    if fieldDependency.fieldData?.fieldRequired == true && multilineText.isEmpty {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
+                    }
+                }
             }
             
             TextEditor(text: $multilineText)
@@ -40,19 +48,16 @@ struct MultiLineTextView: View {
                     if focused {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    } 
+                    } else {
+                        let change = FieldChange(changeData: ["value" : multilineText])
+                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
+                    }
                 }
         }
         .onAppear{
             if let multilineText = fieldDependency.fieldData?.value?.multilineText {
                 self.multilineText = multilineText
             }
-        }
-        .onChange(of: multilineText) { oldValue, newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
 }

@@ -21,8 +21,16 @@ struct NumberView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                Text("\(title)")
-                    .fontWeight(.bold)
+                HStack(spacing: 30) {
+                    Text("\(title)")
+                        .font(.headline.bold())
+                    
+                    if fieldDependency.fieldData?.fieldRequired == true && number.isEmpty {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
+                    }
+                }
             }
             
             TextField("", text: $number)
@@ -41,6 +49,9 @@ struct NumberView: View {
                     if focused {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                    } else {
+                        let change = FieldChange(changeData: ["value" : number])
+                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
                     }
                 }
         }
@@ -48,13 +59,6 @@ struct NumberView: View {
             if let number = fieldDependency.fieldData?.value?.number {
                 self.number = String(number)
             }
-        }
-        .onChange(of: number) { oldValue, newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            let convertStringToInt = Double(newValue)
-            fieldData.value = .integer(convertStringToInt ?? 0)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
     }
 }

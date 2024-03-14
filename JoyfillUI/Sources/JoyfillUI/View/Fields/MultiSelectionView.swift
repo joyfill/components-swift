@@ -12,7 +12,7 @@ import JoyfillModel
 struct MultiSelectionView: View {
     @State var isSelected: Bool = false
     @State private var selectedOption: String = ""
-    @State var multiselectionViewTitle: String = ""
+    @State var selectedOptionArray: [String] = []
     
     private let fieldDependency: FieldDependency
     private let currentFocusedFielsData: JoyDocField?
@@ -26,8 +26,16 @@ struct MultiSelectionView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                Text("\(title)")
-                    .fontWeight(.bold)
+                HStack(spacing: 30) {
+                    Text("\(title)")
+                        .font(.headline.bold())
+                    
+                    if fieldDependency.fieldData?.fieldRequired == true && selectedOptionArray.isEmpty {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
+                    }
+                }
             }
             VStack {
                 if let options = fieldDependency.fieldData?.options {
@@ -37,7 +45,7 @@ struct MultiSelectionView: View {
                             $0 == options[index].id
                         }) != nil
                         if fieldDependency.fieldData?.multi ?? true {
-                            MultiSelection(option: optionValue, isSelected: isSelected,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency)
+                            MultiSelection(option: optionValue, isSelected: isSelected, selectedOptionArray: $selectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -58,7 +66,13 @@ struct MultiSelectionView: View {
             .padding(.vertical, 10)
         }
         .onAppear{
-            selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
+            if fieldDependency.fieldData?.multi ?? true {
+                if let values = fieldDependency.fieldData?.value?.multiSelector {
+                    selectedOptionArray = values
+                }
+            } else {
+                selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
+            }
         }
         .onChange(of: selectedOption) { oldValue, newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
@@ -72,8 +86,10 @@ struct MultiSelectionView: View {
 struct MultiSelection: View {
     var option: String
     @State var isSelected: Bool
+    @Binding var selectedOptionArray: [String]
     var isAlreadyFocused: Bool
     var fieldDependency: FieldDependency
+    var selectedItemId: String
     
     var body: some View {
         Button(action: {
@@ -82,7 +98,11 @@ struct MultiSelection: View {
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }
-            
+            if let index = selectedOptionArray.firstIndex(of: selectedItemId) {
+                    selectedOptionArray.remove(at: index) // Item exists, so remove it
+                } else {
+                    selectedOptionArray.append(selectedItemId) // Item doesn't exist, so add it
+                }
         }, label: {
             HStack {
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
