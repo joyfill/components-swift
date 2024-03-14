@@ -7,6 +7,7 @@
 import SwiftUI
 import JoyfillModel
 import JoyfillAPIService
+import Joyfill
 
 struct DocumentSubmissionsListView: View {
     @State var template: Document
@@ -16,38 +17,55 @@ struct DocumentSubmissionsListView: View {
     let apiService: APIService = APIService()
     var allDocuments: [Document] = []
     @State var currentPage: Int
+    @State private var isloading = true
+
 
     var body: some View {
-        Group {
-            List {
-                VStack(alignment: .leading) {
-                    Text(template.name)
-                        .font(.system(size: 20, weight: .semibold))
-                    Text("Submissions")
-                        .font(.system(size: 16, weight: .semibold)).foregroundStyle(.gray)
+        if isloading {
+            ProgressView()
+                .onAppear() {
+                    updateDocuments(template: template, allDocuments: allDocuments)
+                    isloading = false
                 }
-                
-                ForEach(documents) { submission in
-                    Button(action: {
-                        makeAPICallForSubmission(submission)
-                    }) {
-                        HStack {
-                            Image(systemName: "doc")
-                            Text(submission.name)
-                        }
+        } else {
+            Group {
+                List {
+                    VStack(alignment: .leading) {
+                        Text(template.name)
+                            .font(.system(size: 20, weight: .semibold))
+                        Text("Submissions")
+                            .font(.system(size: 16, weight: .semibold)).foregroundStyle(.gray)
                     }
+                    
+                    ForEach(documents) { submission in
+                        NavigationLink(destination:
+                                        LazyView(isLoading: $showDocumentDetails, content: {
+                            JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
+                        }), isActive: $showDocumentDetails) {
+                                        
+                        }
+                        Button(action: {
+                            makeAPICallForSubmission(submission)
+                        }) {
+                            HStack {
+                                Image(systemName: "doc")
+                                Text(submission.name)
+                            }
+                        } 
+                        
+                       
+                    }
+                    .navigationTitle("...\(template.title)")
+                }
+                .onAppear() {
                 }
             }
-//            .navigationDestination(isPresented: $showDocumentDetails, destination: {
-//                if showDocumentDetails {
-//                    JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
+        }
+//            .onChange(showDocumentDetails) { value in
+//                if value == false {
+//                    updateDocuments(template: template, allDocuments: allDocuments)
 //                }
-//            })
-            .navigationTitle("...\(template.title)")
-        }
-        .onAppear() {
-            updateDocuments(template: template, allDocuments: allDocuments)
-        }
+//            }
     }
     
     func updateDocuments(template: Document, allDocuments: [Document]) {
@@ -105,5 +123,43 @@ extension DocumentSubmissionsListView: FormChangeEvent {
 extension Document {
     public var title: String {
         String(_id.suffix(8))
+    }
+}
+
+
+//struct NavigationLazyView<Content: View>: View {
+//    let build: () -> Content
+//    @Binding var isLoading: Bool
+//    
+////    init(build: @autoclosure  @escaping () -> Content, isLoading: Binding<Bool>) {
+////        self.isLoading = isLoading
+////        self.build = build
+////    }
+//
+////    init(_ build: @autoclosure @escaping () -> Content, isLoading: Binding<Bool>) {
+////        self.build = build
+////        self.isLoading = isLoading
+////    }
+//    var body: some View {
+//        if isLoading {
+//            Text("Loading....")
+//        } else {
+//            build()
+//        }
+//    }
+
+//}
+
+
+
+struct LazyView<Content: View>: View {
+    @Binding var isLoading: Bool
+    let content: () -> Content
+    var body: some View {
+        if isLoading {
+            ProgressView()
+        } else {
+            content()
+        }
     }
 }
