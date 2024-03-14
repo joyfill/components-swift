@@ -233,6 +233,8 @@
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
 				FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */,
+				3FCE032F2BA3784B000119D9 /* XCLocalSwiftPackageReference "../JoyfillModel" */,
+				3FCE03302BA3785A000119D9 /* XCLocalSwiftPackageReference "../JoyfillAPIService" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -630,6 +632,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		3FCE032F2BA3784B000119D9 /* XCLocalSwiftPackageReference "../JoyfillModel" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../JoyfillModel;
+		};
+		3FCE03302BA3785A000119D9 /* XCLocalSwiftPackageReference "../JoyfillAPIService" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../JoyfillAPIService;
+		};
 		FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
