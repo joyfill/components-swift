@@ -107,7 +107,7 @@ extension DocumentSubmissionsListView: FormChangeEvent {
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.field.identifier!)
         event.uploadHandler(["https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg",
-                             "https://png.pngtree.com/png-vector/20191121/ourmid/pngtree-blue-bird-vector-or-color-illustration-png-image_2013004.jpg"])
+                             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
 }
 
