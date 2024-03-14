@@ -14,70 +14,53 @@ enum TableViewMode {
 }
 
 struct TableViewCellBuilder: View {
-    private var data: FieldTableColumn?
-    private var viewMode: TableViewMode
-    private var didChange: ((_ cell: FieldTableColumn) -> Void)?
+    private var cellModel: TableCellModel
     
     private var textFieldAxis: Axis {
-        viewMode == .quickView ? .horizontal : .vertical
+        cellModel.viewMode == .quickView ? .horizontal : .vertical
     }
     
     private var lineLimit: Int? {
-        viewMode == .quickView ? 1 : nil
+        cellModel.viewMode == .quickView ? 1 : nil
     }
     
-    public init(data: FieldTableColumn?, viewMode: TableViewMode, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
-        self.data = data
-        self.viewMode = viewMode
-        self.didChange = delegate
+    public init(cellModel: TableCellModel) {
+        self.cellModel = cellModel
     }
     
     var body: some View {
-        buildView(cell: data)
+        buildView()
     }
     
     @ViewBuilder
-    func buildView(cell: FieldTableColumn?) -> some View {
-        if let cell = cell {
-            switch cell.type {
-            case "text":
-                textField(cell: cell)
-            case "dropdown":
-                TableDropDownOptionListView(data: cell) { editedCell in
-                    didChange?(editedCell)
-                }
-            case "image":
-                TableImageView(data: cell) { editedCell in
-                    didChange?(editedCell)
-                }
-            default:
-                Text("")
-            }
-        } else {
+    func buildView() -> some View {
+        switch cellModel.data.type {
+        case "text":
+            textField()
+        case "dropdown":
+            TableDropDownOptionListView(cellModel: cellModel)
+        case "image":
+            TableImageView(cellModel: cellModel)
+        default:
             Text("")
         }
     }
     
     @State private var text = ""
     @FocusState private var isTextFieldFocused: Bool
-    func textField(cell: FieldTableColumn) -> some View {
+    func textField() -> some View {
         TextField(text, text: $text)
-        //        TextField(text, text: $text, axis: textFieldAxis)
             .lineLimit(lineLimit)
             .padding(4)
             .focused($isTextFieldFocused)
             .onChange(of: isTextFieldFocused) { isFocused in
-                if !isFocused, cell.title != text {
-                    var editedCell = cell
+                if !isFocused, cellModel.data.title != text {
+                    var editedCell = cellModel.data
                     editedCell.title = text
-                    didChange?(editedCell)
+                    cellModel.didChange?(editedCell)
                 }
             }.onAppear {
-                text = cell.title ?? ""
+                text = cellModel.data.title ?? ""
             }
     }
-}
-
-#Preview {
-    TableViewCellBuilder(data: nil,  viewMode: .modalView)
 }

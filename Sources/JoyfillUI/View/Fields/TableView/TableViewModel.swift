@@ -9,11 +9,9 @@ import Foundation
 import SwiftUI
 import JoyfillModel
 
-
-
 class TableViewModel: ObservableObject {
     private let mode: Mode
-    private var joyDocModel: JoyDocField?
+    var fieldDependency: FieldDependency
     
     @Published var isTableModalViewPresented = false
     @Published var shouldShowAddRowButton: Bool = false
@@ -31,28 +29,27 @@ class TableViewModel: ObservableObject {
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
     private var selectedRow: Int?
-    private let fieldDependency: FieldDependency
+
     private var tableDataDidChange = false
     
     init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
         self.mode = fieldDependency.mode
-        self.joyDocModel = fieldDependency.fieldData
         self.showRowSelector = mode == .fill
         self.shouldShowAddRowButton = mode == .fill
         
-        setupColumns(joyDocModel: joyDocModel)
+        setupColumns()
         setup()
     }
     
     private func setup() {
-        setupRows(joyDocModel: joyDocModel)
+        setupRows()
         rowsSelection = Array.init(repeating: false, count: rows.count)
         
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
-        tableViewTitle = joyDocModel?.title ?? ""
+        tableViewTitle = fieldDependency.fieldData?.title ?? ""
     }
     
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
@@ -101,7 +98,7 @@ class TableViewModel: ObservableObject {
         }
         setTableDataDidChange(to: true)
         
-        joyDocModel?.deleteRow(id: rows[selectedRow])
+        fieldDependency.fieldData?.deleteRow(id: rows[selectedRow])
         rowToCellMap.removeValue(forKey: rows[selectedRow])
         resetLastSelection()
         setup()
@@ -114,19 +111,19 @@ class TableViewModel: ObservableObject {
     func addRow() {
         setTableDataDidChange(to: true)
         let id = generateObjectId()
-        joyDocModel?.addRow(id: id)
+        fieldDependency.fieldData?.addRow(id: id)
         resetLastSelection()
         setup()
     }
     
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
         setTableDataDidChange(to: true)
-        joyDocModel?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+        fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
         setup()
     }
     
-    private func setupColumns(joyDocModel: JoyDocField?) {
-        guard let joyDocModel = joyDocModel else { return }
+    private func setupColumns() {
+        guard let joyDocModel = fieldDependency.fieldData else { return }
         
         for column in joyDocModel.tableColumnOrder ?? [] {
             columnIdToColumnMap[column] = joyDocModel.tableColumns?.first { $0.id == column }
@@ -139,8 +136,8 @@ class TableViewModel: ObservableObject {
         }
     }
     
-    private func setupRows(joyDocModel: JoyDocField?) {
-        guard let joyDocModel = joyDocModel else { return }
+    private func setupRows() {
+        guard let joyDocModel = fieldDependency.fieldData else { return }
         guard let valueElements = joyDocModel.valueToValueElements, !valueElements.isEmpty else {
             setupQuickTableViewRows()
             return
@@ -188,7 +185,7 @@ class TableViewModel: ObservableObject {
             quickRowToCellMap = [:]
             let id = generateObjectId()
             quickRows = [id]
-            quickRowToCellMap = [id : joyDocModel?.tableColumns ?? []]
+            quickRowToCellMap = [id : fieldDependency.fieldData?.tableColumns ?? []]
         }
         else {
             while quickRows.count > 3 {
@@ -211,7 +208,7 @@ class TableViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         if tableDataDidChange {
             setTableDataDidChange(to: false)
-            let change = FieldChange(changeData: ["value" : joyDocModel])
+            let change = FieldChange(changeData: ["value" : fieldDependency.fieldData])
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
         }
     }

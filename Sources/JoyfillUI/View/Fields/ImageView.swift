@@ -16,9 +16,11 @@ struct ImageView: View {
     @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
+    
     @State var uiImagesArray: [UIImage] = []
-    @State var imageURLs: [String] = []
-    @State private var imageDictionary: [String: UIImage] = [:]
+    @State var valueElements: [ValueElement] = []
+    
+    @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State private var hasAppeared = false
     @State var showToast: Bool = false
     
@@ -32,7 +34,7 @@ struct ImageView: View {
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
-    
+        
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
@@ -40,7 +42,7 @@ struct ImageView: View {
                     Text("\(title)")
                         .font(.headline.bold())
                     
-                    if fieldDependency.fieldData?.fieldRequired == true && imageURLs.isEmpty {
+                    if fieldDependency.fieldData?.fieldRequired == true && valueElements.isEmpty {
                         Image(systemName: "asterisk")
                             .foregroundColor(.red)
                             .imageScale(.small)
@@ -48,9 +50,9 @@ struct ImageView: View {
                 }
             }
             
-            if !uiImagesArray.isEmpty {
+            if let uiImage = uiImagesArray.first {
                 ZStack {
-                    Image(uiImage: uiImagesArray[0])
+                    Image(uiImage: uiImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .overlay(
@@ -74,7 +76,7 @@ struct ImageView: View {
                     }, label: {
                         HStack(alignment: .center, spacing: 0) {
                             Text("More > ")
-                            Text("+\(uiImagesArray.count)")
+                            Text("+\(valueElements.count)")
                                 .foregroundColor(.black)
                         }
                         .padding(.all, 5)
@@ -109,49 +111,55 @@ struct ImageView: View {
                 .disabled(showProgressView)
             }
             
-            NavigationLink(destination: MoreImageView(imageUrlArray: $imageURLs, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, imageDictionary: $imageDictionary, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false), isActive: $showMoreImages) {
+            NavigationLink(destination:
+                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false)
+                           
+                           , isActive: $showMoreImages) {
                 EmptyView()
             }
         }
         .onAppear {
             //for first time
             if !hasAppeared {
-                if let imageURLs = fieldDependency.fieldData?.value?.imageURLs {
-                    for imageURL in imageURLs {
-                        self.imageURLs.append(imageURL)
-                        showProgressView = true
-                        
-                        imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
-                            self.uiImagesArray.append(image)
-                            self.imageDictionary[imageURL] = image
-                            print("imageDictionary \(imageDictionary)")
-                            showProgressView = false
-                        })
-                    }
-                }
+                self.valueElements = fieldDependency.fieldData?.value?.images ?? []
                 hasAppeared = true
             } else {
-                // for rest of time appear
-                self.uiImagesArray = []
-                if imageURLs.count > 0 {
-                    for imageURL in imageURLs {
-                        showProgressView = true
-                        imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
-                            self.uiImagesArray.append(image)
-                            showProgressView = false
-                            print("imageDictionary \(imageDictionary)")
-                        })
-                    }
-                } else {
-                    showProgressView = false
-                }
+//                // for rest of time appear
+//                self.uiImagesArray = []
+//                if valueElements.count > 0 {
+//                    for valueElement in valueElements {
+//                        showProgressView = true
+//                        imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+//                            self.uiImagesArray.append(image)
+//                            showProgressView = false
+//                            print("imageDictionary \(imageDictionary)")
+//                        })
+//                    }
+//                } else {
+//                    showProgressView = false
+//                }
             }
         }
-        .onChange(of: imageURLs) { newValue in
+        .onChange(of: valueElements) { newValue in
+            fetchImages()
             guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .array(newValue)
+            fieldData.value = .valueElementArray(newValue)
             let change = FieldChange(changeData: ["value" : newValue])
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+        }
+    }
+    
+    func fetchImages() {
+        uiImagesArray = []
+        if let valueElement = valueElements.first {
+            showProgressView = true
+            imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+                showProgressView = false
+                self.uiImagesArray.append(image)
+                self.imageDictionary[valueElement] = image
+                print("imageDictionary \(imageDictionary)")
+                showProgressView = false
+            })
         }
     }
 
@@ -160,19 +168,19 @@ struct ImageView: View {
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
-                    self.imageDictionary[imageURL] = image
+                    let valueElement = valueElements.first { valueElement in
+                        if valueElement.url == imageURL {
+                            return true
+                        }
+                        return false
+                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+                    self.imageDictionary[valueElement] = image
+                    valueElements.append(valueElement)
+                    // valueElements upade
                     self.uiImagesArray.append(image)
                     showProgressView = false
-                    print("imageDictionary \(imageDictionary)")
+                    print("imageDictionary \(urls)")
                 })
-            }
-            for url in urls{
-                if imageURLs.contains(url) {
-                    showToast = true
-                } else {
-                    imageURLs.append(url)
-                }
-               
             }
         }
         fieldDependency.eventHandler.onUpload(event: uploadEvent)
@@ -183,10 +191,10 @@ struct MoreImageView: View {
     
     @State var images: [UIImage] = []
     @State var selectedImages: Set<UIImage> = Set()
-    @Binding var imageUrlArray: [String]
+    @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
-    @State var showProgressView: Bool = true
-    @Binding var imageDictionary: [String: UIImage]
+    @State var showProgressView: Bool = false
+    @State var imageDictionary: [ValueElement: UIImage] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -199,10 +207,10 @@ struct MoreImageView: View {
                 .fontWeight(.bold)
 
             if isUploadHidden {
-                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,isMultiEnabled: $isMultiEnabled,imageURLArray: $imageUrlArray, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
+                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
                     .hidden()
             } else {
-                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,isMultiEnabled: $isMultiEnabled,imageURLArray: $imageUrlArray, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
+                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
             }
             if showProgressView {
                 ProgressView()
@@ -215,24 +223,16 @@ struct MoreImageView: View {
         .padding(.vertical, 16)
         .onAppear{
             self.imageDictionary = [:]
-            for imageURL in imageUrlArray {
-                imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
+            for valueElement in valueElements {
+                imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
                     self.images.append(image)
-                    self.imageDictionary[imageURL] = image
+                    self.imageDictionary[valueElement] = image
                     print("imageDictionary \(imageDictionary)")
                     showProgressView = false
                 })
             }
         }
-//        .onChange(of: imageUrlArray) { newValue in
-          //  let addedImages = newValue.difference(from: oldValue).inferringMoves()
-//            for change in addedImages {
-//                if case .insert(_, let element, _) = change {
-//                    loadSingleImageFromUrl(imageUrl: element)
-//                }
-//            }
-//        }
-        .onDisappear{
+        .onDisappear {
             images = []
         }
         .overlay(content: {
@@ -241,10 +241,23 @@ struct MoreImageView: View {
                        Spacer()
                        ToastMessageView(message: "Image is already uploaded", duration: 2.0, isPresented: $showToast)
                            .padding(.top, 50)
-                           .opacity(showToast ? 1.0 : 0.0) 
+                           .opacity(showToast ? 1.0 : 0.0)
                    }
             }
         })
+        .onChange(of: valueElements) { newValue in
+            print(newValue.count)
+            self.imageDictionary = [:]
+            self.images = []
+            for valueElement in valueElements {
+                imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+                    self.images.append(image)
+                    self.imageDictionary[valueElement] = image
+                    print("imageDictionary \(imageDictionary)")
+                    showProgressView = false
+                })
+            }
+        }
     }
     
     func loadImageFromURL(imageURLs: [String]) {
@@ -255,7 +268,11 @@ struct MoreImageView: View {
     }
     func loadSingleImageFromUrl(imageUrl: String) {
         imageViewModel.loadSingleURL(imageURL: imageUrl, completion: { image in
-            self.imageDictionary[imageUrl] = image
+            for valueElement in valueElements {
+                if imageUrl == valueElement.url {
+                    self.imageDictionary[valueElement] = image
+                }
+            }
             self.images.append(image)
         })
     }
@@ -264,18 +281,19 @@ struct MoreImageView: View {
         for image in selectedImages {
             print("image\(image)")
             let urlToDelete = imageDictionary.first { $0.value == image }?.key
-            imageUrlArray.removeAll { $0 == urlToDelete }
+            valueElements.removeAll { $0 == urlToDelete }
         }
         images = images.filter { !selectedImages.contains($0) }
         selectedImages.removeAll()
     }
+
 }
 struct UploadDeleteView: View {
     @Binding var imagesArray: [UIImage]
     @Binding var selectedImages: Set<UIImage>
     @StateObject var imageViewModel = ImageFieldViewModel()
     @Binding var isMultiEnabled: Bool
-    @Binding var imageURLArray: [String]
+    @Binding var valueElements: [ValueElement]
     var uploadAction: () -> Void
     var deleteAction: () -> Void
     
@@ -294,7 +312,7 @@ struct UploadDeleteView: View {
         Button(action: {
             if isMultiEnabled == false ?? true {
                 imagesArray = []
-                imageURLArray = []
+                valueElements = []
             }
             uploadAction()
         }, label: {
