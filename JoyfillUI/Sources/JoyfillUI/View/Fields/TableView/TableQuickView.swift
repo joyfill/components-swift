@@ -8,10 +8,21 @@
 import SwiftUI
 import JoyfillModel
 
+//TODO: Remove this after development
+public struct TempTableEntryView: View {
+    let vm = TableViewModel(mode: .fill, joyDocModel: fakeTableData())
+    public init() {}
+    public var body: some View {
+        TableQuickView(viewModel: vm)
+    }
+}
+
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
     private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: TableViewModel
+    private let rowHeight: CGFloat = 50
+    @State private var refreshID = UUID()
     
     //TODO: Remove this
     init(viewModel: TableViewModel) {
@@ -31,9 +42,9 @@ struct TableQuickView : View {
     
     var body: some View {
         VStack(alignment: .leading) {
-                Text(viewModel.tableViewTitle)
-                    .lineLimit(1)
-                    .fontWeight(.bold)
+            Text(viewModel.tableViewTitle)
+                .lineLimit(1)
+                .fontWeight(.bold)
             
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
@@ -47,7 +58,7 @@ struct TableQuickView : View {
                     
                     table
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
-                }
+                }.frame(maxHeight: CGFloat(viewModel.quickRows.count) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -58,7 +69,7 @@ struct TableQuickView : View {
                 viewModel.isTableModalViewPresented.toggle()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
-                    Text("View")
+                    Text("Table View")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.blue)
                     
@@ -79,12 +90,16 @@ struct TableQuickView : View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
-            .padding(.top, 10)
+            .padding(.top, 6)
+            .sheet(isPresented: $viewModel.isTableModalViewPresented, content: {
+                TableModalView(viewModel: viewModel)
+            })
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
-                EmptyView()
-            }
+//            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
+//                EmptyView()
+//            }
         }
+        .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
     
     var colsHeader: some View {
@@ -97,7 +112,7 @@ struct TableQuickView : View {
                     Text(viewModel.getColumnTitle(columnId: col))
                 }
                 .background(Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3) - 8, height: 50)
+                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
             }
         }
     }
@@ -116,32 +131,19 @@ struct TableQuickView : View {
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
                                     TableViewCellBuilder(data: cell, viewMode: .quickView)
-                                }.frame(width: (screenWidth / 3) - 8, height: 50).id("\(row)_\(col)")
+                                }
+                                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                             }
                         }
+                    } 
+                    .id(refreshID)
+                    .onReceive(viewModel.$rows) { _ in
+                        self.refreshID = UUID()
                     }
                 }
             }
             .scrollIndicators(.hidden)
             .disabled(true)
-        }
-    }
-    
-    @ViewBuilder
-    func buildView(cell: FieldTableColumn?) -> some View {
-        if let cell = cell {
-            switch cell.type {
-            case "text":
-                TextField(cell.title ?? "", text: .constant("\(cell.title ?? "")"))
-            case "dropdown":
-                TableDropDownOptionListView(data: cell)
-            case "image":
-                TableImageView(data: cell)
-            default:
-                Text("")
-            }
-        } else {
-            Text("")
         }
     }
 }

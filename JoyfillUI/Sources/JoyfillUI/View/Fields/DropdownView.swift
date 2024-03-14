@@ -19,8 +19,16 @@ struct DropdownView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                Text("\(title)")
-                    .fontWeight(.bold)
+                HStack(spacing: 30) {
+                    Text("\(title)")
+                        .font(.headline.bold())
+                    
+                    if fieldDependency.fieldData?.fieldRequired == true && selectedDropdownValueID == nil {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
+                    }
+                }
             }
             
             Button(action: {
@@ -45,8 +53,12 @@ struct DropdownView: View {
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
             .sheet(isPresented: $isSheetPresented) {
-                DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
-                    .presentationDetents([.medium])
+                if #available(iOS 16, *) {
+                    DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
+                        .presentationDetents([.medium])
+                    } else {
+                        DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
+                    }
             }
         }
         .onAppear {
@@ -94,9 +106,11 @@ struct DropDownOptionList: View {
                             selectedDropdownValueID = option.id
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
-                            HStack {
+                            HStack(alignment: .top) {
                                 Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
+                                    .padding(.top, 3)
                                 Text(option.value ?? "")
+                                    .multilineTextAlignment(.leading)
                                     .foregroundColor(.black)
                                 Spacer()
                             }
