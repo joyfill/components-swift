@@ -31,8 +31,7 @@ struct TableModalTopNavigationView: View {
                             .stroke(Color.red, lineWidth: 1))
                 }
             }
-          
-            
+                      
             Button(action: {
                 onAddRowTap?()
             }) {
@@ -43,7 +42,6 @@ struct TableModalTopNavigationView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6)
                         .stroke(Color.buttonBorderColor, lineWidth: 1))
             }
-            
         }
     }
 }

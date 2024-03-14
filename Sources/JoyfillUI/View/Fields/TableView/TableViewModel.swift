@@ -9,11 +9,10 @@ import Foundation
 import SwiftUI
 import JoyfillModel
 
-
-
 class TableViewModel: ObservableObject {
     private let mode: Mode
-    private var joyDocModel: JoyDocField?
+    private (set) var joyDocModel: JoyDocField?
+    let fieldDependency: FieldDependency
     
     @Published var isTableModalViewPresented = false
     @Published var shouldShowAddRowButton: Bool = false
@@ -31,7 +30,7 @@ class TableViewModel: ObservableObject {
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
     private var selectedRow: Int?
-    private let fieldDependency: FieldDependency
+
     private var tableDataDidChange = false
     
     init(fieldDependency: FieldDependency) {
@@ -215,20 +214,4 @@ class TableViewModel: ObservableObject {
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
         }
     }
-    
-    func uploadAction() {
-        let uploadEvent = UploadEvent(field: joyDocModel!) { urls in
-            for imageURL in urls {
-//                let valueElement = valueElements.first { valueElement in
-//                    if valueElement.url == imageURL {
-//                        return true
-//                    }
-//                    return false
-//                } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-//                valueElements.append(valueElement)
-            }
-        }
-         fieldDependency.eventHandler.onUpload(event: uploadEvent)
-    }
-    
 }

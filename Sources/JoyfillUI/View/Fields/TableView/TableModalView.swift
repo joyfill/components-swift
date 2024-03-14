@@ -127,18 +127,23 @@ struct TableModalView : View {
                                 ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
                                     // Cell
                                     let cell = viewModel.getFieldTableColumn(row: row, col: index)
-                                    ZStack {
-                                        Rectangle()
-                                            .stroke()
-                                            .foregroundColor(Color.tableCellBorderColor)
-                                        TableViewCellBuilder(data: cell, viewMode: .modalView) { editedCell  in
+                                    if let cell = cell {
+                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.joyDocModel, viewMode: .quickView) { editedCell  in
                                             viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
                                         }
+                                        
+                                        ZStack {
+                                            Rectangle()
+                                                .stroke()
+                                                .foregroundColor(Color.tableCellBorderColor)
+                                            TableViewCellBuilder(cellModel: cellModel)
+                                        }
+                                        .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                                        .background(GeometryReader { proxy in
+                                            Color.clear.preference(key: HeightPreferenceKey.self, value: [i: proxy.size.height])
+                                        })
                                     }
-                                    .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
-                                    .background(GeometryReader { proxy in
-                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [i: proxy.size.height])
-                                    })
+                                   
                                 }
                             }
                         }

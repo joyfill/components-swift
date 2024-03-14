@@ -11,15 +11,13 @@ import JoyfillModel
 struct TableDropDownOptionListView: View {
     @State var selectedDropdownValue: String?
     @State private var isSheetPresented = false
-    private let data: FieldTableColumn
+    private var cellModel: TableCellModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State private var lastSelectedValue: String?
-    private var didChange: ((_ cell: FieldTableColumn) -> Void)?
     
-    public init(data: FieldTableColumn, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
-        self.data = data
-        lastSelectedValue = data.options?.filter { $0.id == data.defaultDropdownSelectedId }.first?.value ?? ""
-        self.didChange = delegate
+    public init(cellModel: TableCellModel) {
+        self.cellModel = cellModel
+        lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
     }
     
     var body: some View {
@@ -38,18 +36,18 @@ struct TableDropDownOptionListView: View {
                 .foregroundColor(.black)
             })
             .sheet(isPresented: $isSheetPresented) {
-                TableDropDownOptionList(data: data, selectedDropdownValue: $selectedDropdownValue)
+                TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
             }
         }
         .focused($isFocused) // Observe focus state
         .onAppear {
-            self.selectedDropdownValue = data.options?.filter { $0.id == data.defaultDropdownSelectedId }.first?.value ?? ""
+            self.selectedDropdownValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
         }
         .onChange(of: selectedDropdownValue) { value in
-            var editedCell = data
+            var editedCell = cellModel.data
             editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
-            if editedCell.defaultDropdownSelectedId != data.defaultDropdownSelectedId {
-                didChange?(editedCell)
+            if editedCell.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId {
+                cellModel.didChange?(editedCell)
             }
         }
         .padding(4)

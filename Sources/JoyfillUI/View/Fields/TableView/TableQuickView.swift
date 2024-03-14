@@ -18,7 +18,7 @@ struct TableQuickView : View {
     public init(fieldDependency: FieldDependency) {
         self.viewModel = TableViewModel(fieldDependency: fieldDependency)
     }
-    
+        
     var body: some View {
         VStack(alignment: .leading) {
             Text(viewModel.tableViewTitle)
@@ -101,16 +101,19 @@ struct TableQuickView : View {
                             ForEach(Array(viewModel.quickColumns.enumerated()), id: \.offset) { index, col in
                                 // Cell
                                 let cell = viewModel.getQuickFieldTableColumn(row: row, col: index)
-                                ZStack {
-                                    Rectangle()
-                                        .stroke()
-                                        .foregroundColor(Color.tableCellBorderColor)
-                                    TableViewCellBuilder(data: cell, viewMode: .quickView)
+                                if let cell = cell {
+                                    let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.joyDocModel, viewMode: .quickView, didChange: nil)
+                                    ZStack {
+                                        Rectangle()
+                                            .stroke()
+                                            .foregroundColor(Color.tableCellBorderColor)
+                                        TableViewCellBuilder(cellModel: cellModel)
+                                    }
+                                    .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                                 }
-                                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                             }
                         }
-                    } 
+                    }
                     .id(refreshID)
                     .onReceive(viewModel.$rows) { _ in
                         self.refreshID = UUID()
