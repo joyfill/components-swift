@@ -38,6 +38,10 @@ struct TableModalView : View {
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
         })
+        .onAppear(perform: {
+            let fieldEvent = FieldEvent(field: viewModel.fieldDependency.fieldData)
+            viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
+        })
     }
     
     var scrollArea: some View {
