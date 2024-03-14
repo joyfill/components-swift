@@ -49,8 +49,8 @@ enum JoyfillAPI {
 public class APIService {
     private let accessToken: String
     
-    public init(accessToken: String = Constants.userAccessToken) {
-        self.accessToken = accessToken
+    public init() {
+        self.accessToken = Constants.userAccessToken
     }
     
     private func urlRequest(type: JoyfillAPI, method: String? = nil, httpBody: Data? = nil) -> URLRequest {

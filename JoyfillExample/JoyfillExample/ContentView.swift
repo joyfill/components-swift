@@ -5,7 +5,6 @@
 //
 
 import SwiftUI
-import Joyfill
 
 struct ContentView: View {
     var body: some View {

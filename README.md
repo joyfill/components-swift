@@ -3,102 +3,94 @@
 # @joyfill/components-swift
 We recommend visiting our official Swift setup guide https://docs.joyfill.io/docs/swift.
 
+We offer three libraries for Swift completed build in Swift and SwiftUI:
+
+  **Joyfill**: The main library for integrating Joyfill into your Swift app. This library includes all the necessary UI components for displaying and interacting with Joyfill documents.
+
+  **JoyFillModel**: A library for integrating Joyfill models into your Swift app. 
+
+  **JoyfillAPIService**: A liberary for all the network interactions with the Joyfill API.
+
 ## Project Requirements
 Note userAccessTokens & identifiers will need to be stored on your end (usually on a user and set of existing form field-based data) in order to interact with our API and UI Components effectively
 
-- minimum deployment target to iOS 13
+See our [API Documentation](https://docs.joyfill.io/docs) for more information on how to interact with our API.
+
+- Minimum deployment target to iOS 13
 
 ## Install Dependency
 
-### React-Native CLI (bare)
 
-```shell npm
-$ npm install @joyfill/components-react-native@latest react-native-webview react-native-svg @react-native-community/datetimepicker --save
-$ cd ios && pod install
+Add Joyfill SDKs to your app
+Use Swift Package Manager to install and manage Joyfill dependencies.
+
+In Xcode, with your app project open, navigate to File > Add Packages.
+When prompted, add the Joyfill Apple platforms SDK repository:
+
 ```
-```Text Yarn
-$ yarn add @joyfill/components-react-native@latest react-native-webview react-native-svg @react-native-community/datetimepicker
-$ cd ios && pod install
-```
-
-### Expo (managed)
-
-```shell npm
-$ npx expo install @joyfill/components-react-native@latest react-native-webview react-native-svg @react-native-community/datetimepicker
+  https://github.com/joyfill/components-swift
 ```
 
-## Implement your code
+Select the SDK version that you want to use.
 
-For full examples please see [https://docs.joyfill.io/docs/react-native](https://docs.joyfill.io/docs/react-native#implement-your-code).
+Note: We recommend using the default (latest) SDK version, but you can choose an older version if needed.
+Choose the Joyfill libraries you want to use.
 
-Below is a usable example of our react-native document native embedded. This will show a readonly or fillable depending on the `mode` form to your users. The document (form) shown is based on your `documentId`.
+When finished, Xcode will automatically begin resolving and downloading your dependencies in the background.
 
-Make sure to replace the `userAccessToken` and `documentId`. Note that `documentId` is just for this example, you can call our [List all documents](ref:list-all-documents) endpoint and grab an ID from there.
+## Getting Started
 
-```javascript
+### Initilize the JoyfillAPIService
 
-import React, { useState, useEffect } from 'react';
-import { Dimensions, View } from 'react-native';
-import { joyfillRetrieve } from './api.js';
-import { JoyDoc, getDefaultDocument } from '@joyfill/components-react-native';
+```swift
+import JoyfillAPIService
 
-const screenWidth = Dimensions.get('window').width;
-
-const userAccessToken = '<REPLACE_ME>';
-const documentId = '<REPLACE_ME>';
-
-function Document() {
-
-  const [doc, setDoc] = useState(getDefaultDocument());
-
-  // retrieve the document from our api (you can also pass an initial documentId into JoyDoc)
-  useEffect(() => {
-    const response = await joyfillRetrieve(documentId, userAccessToken).then(doc => {
-      setDoc(response);
-    });
-  }, []);
-
-  return (
-    <View style={{flex: 1}}>
-      <JoyDoc
-        mode="fill"
-        doc={doc}
-        width={screenWidth}
-        onChange={(changelogs, doc) => {
-          console.log('onChange doc: ', doc);
-          setDoc(doc);
-        }}
-        onUploadAsync={async (params, fileUploads) => {
-          // to see a full utilization of upload see api.js -> examples
-          console.log('onUploadAsync: ', fileUploads);
-        }}
-      />
-    </View>
-  );
+@main
+struct JoyfillExampleApp: App {
+    init() {
+        JoyfillAPIService.initialize(
+        // Replace with your userAccessToken
+            userAccessToken: "",
+        // Replace with your baseURL
+            baseURL: "https://api-joy.joyfill.io/v1")
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
 }
+```
 
-export default Document;
+### Show a Joyfill Document with `JoyFillView` SwiftUI View
 
+```swift
+    JoyFillView(document: document)
 ```
 
 ### JoyDoc Params
 
 * `mode: 'fill' | 'readonly'`
-  * **Required***
   * Enables and disables certain JoyDoc functionality and features. 
+  * Default is `fill`.
   * Options
     * `fill` is the mode where you simply input the field data into the form
     * `readonly` is the mode where everything in the form is set to read-only.
-* `doc: object`
+* `document: JoyDoc`
   * The JoyDoc JSON object to load into the SDK. Must be in the JoyDoc JSON data structure.
   * The SDK uses object reference equality checks to determine if the `doc` or any of its internal `pages` or `fields` have changed in the JSON. Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK. This will ensure your changes are properly detected and reflected in the SDK.
-* `initialPageId: string`
+* `currentPage: Int`
   * Specify the initial page to display in the form. 
   * Utilize the `_id` property of a Page object. For instance, `page._id`.
   * If page is not found within the `doc` it will fallback to displaying the first page in the `pages` array.
-* `navigation: object`
-  * Display/hide page navigation.
-  * Set the `pages` property to true (display) or false (hide). For instance, `{pages: false}` hides the page navigation.
+  * Default is `0`.
+  * You can use this property to navigate to a specific page in the form.
+
+* `events: FormChangeEvent`
+  * Used to listen to form events.
+
+### FormChangeEvent Params
 * `onChange: (changelogs: object_array, doc: object) => {}` 
   * Used to listen to any field change events.
   * `changelogs: object_array`
@@ -119,42 +111,6 @@ export default Document;
   * Used to listen to field focus events.
   * `params: object`
     * Specifies information about the blurred field.
-
-* `theme: object`
-  * Specify custom theme properties.
-  * Sample theme object `{ fontFamily: { regular: "Ariel", bold: "Ariel-bold" }, button: { primary: { fontWeight: "bold", borderRadius: "10px", ... } }` 
-  * The button `primary`, `secondary`, and `danger` support the React Native Supported Styles
-  * `fontFamily: object`
-      * `fontFamily.regular: string`
-      * `fontFamily.bold: string`
-    * Apply custom font family to display text.
-    * **IMPORTANT:** If you're using a custom font, you are responsible to ensure the fonts are loaded before rendering the component. Could result in an error if font is not loaded properly before render.
-  * `button: object`
-    * `button.primary: object` 
-      * Specifies styles for primary field buttons.
-    * `button.secondary: object`
-      * Specifies styles for secondary internal field buttons.
-    * `button.danger: object`
-      * Specifies styles for delete buttons.
-
-## SDK Helper Methods
-
-* `getDefaultDocument`
-  * Get a default Joyfill Document object
-* `getDefaultTemplate`
-  * Get a default Joyfill Template object
-* `getDocumentFromTemplate: ( template: object )`
-  * Generate a Joyfill Document object from a Joyfill Template object
-* `duplicate: ( original: object, defaults: object )`
-  * Duplicate a Joyfill Document or Template object.
-* `duplicatePage: ( original: object, fileId: string, pageId: string )`
-  * Duplicate a Joyfill Document or Template Page object.
-  * Returns: `{ doc: object, changelogs: array }`
-    * `doc` fully updated Document or Template with the page added
-    * `changelogs` array of changelogs for new duplicate page.
-* `applyLogic: ( items: object_array, fields: object_array, fieldLookupKey: string )`
-  * Apply show/hide logic to pages and fields for external filtering.
-  * Wrapper around `@joyfill/conditional-logic` library. [View library](https://github.com/joyfill/conditional-logic#readme)
 
 ## Field Events
 

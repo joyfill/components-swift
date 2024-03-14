@@ -13,11 +13,15 @@ public struct JoyFillView: View {
     @Binding public var currentPage: Int
     public var events: FormChangeEvent?
 
-    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, currentPage: Binding<Int>) {
+    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, currentPage: Binding<Int>? = nil) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = State(initialValue: document)
-        _currentPage = currentPage
+        _currentPage = currentPage ?? Binding(get: {
+            0
+        }, set: { value in
+        
+        })
     }
 
     public var body: some View {
