@@ -26,8 +26,16 @@ struct SignatureView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                Text("\(title)")
-                    .fontWeight(.bold)
+                HStack(spacing: 30) {
+                    Text("\(title)")
+                        .font(.headline.bold())
+                    
+                    if fieldDependency.fieldData?.fieldRequired == true && signatureImage == nil {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
+                    }
+                }
             }
             
             RoundedRectangle(cornerRadius: 10)

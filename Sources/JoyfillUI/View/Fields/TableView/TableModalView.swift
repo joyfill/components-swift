@@ -8,21 +8,25 @@
 import SwiftUI
 import JoyfillModel
 
-
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
+    @State private var heights: [Int: CGFloat] = [:]
+    @State private var refreshID = UUID()
+    @State private var rowsCount: Int = 0
     
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
+        self.rowsCount = self.viewModel.rows.count
     }
     
     var body: some View {
         VStack {
             TableModalTopNavigationView(isDeleteButtonVisible: $viewModel.shouldShowDeleteRowButton, onDeleteTap: {
                 viewModel.deleteSelectedRow()
+                heights = [:]
             }, onAddRowTap: {
                 viewModel.addRow()
             })
@@ -42,10 +46,12 @@ struct TableModalView : View {
                             .frame(height: 40)
                     }
                     
-                    Text("#").frame(width: 40)
-                }.frame(width: viewModel.showRowSelector ? 80 : 40, height: rowHeight)
-                    .background(Color.tableColumnBgColor)
-                    .cornerRadius(14, corners: [.topLeft])
+                    Text("#")
+                        .frame(width: 40)
+                }
+                .frame(width: viewModel.showRowSelector ? 80 : 40, height: rowHeight)
+                .background(Color.tableColumnBgColor)
+                .cornerRadius(14, corners: [.topLeft])
                 
                 ScrollView([.vertical]) {
                     rowsHeader
@@ -68,7 +74,6 @@ struct TableModalView : View {
                     .coordinateSpace(name: "scroll")
             }
         }
-        
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
     
@@ -80,8 +85,8 @@ struct TableModalView : View {
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
                     Text(viewModel.getColumnTitle(columnId: col))
-                }.background(Color.tableColumnBgColor).frame(width: 170, height: rowHeight)
-                
+                }
+                .background(Color.tableColumnBgColor).frame(width: 170, height: rowHeight)
             }
         }
     }
@@ -91,7 +96,7 @@ struct TableModalView : View {
             ForEach(Array(viewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector { Image(systemName: row ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: rowHeight)
+                            .frame(width: 40, height: heights[index] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
                                 viewModel.toggleSelection(at: index)
@@ -102,7 +107,7 @@ struct TableModalView : View {
                     Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                        .frame(width: 40, height: rowHeight)
+                        .frame(width: 40, height: heights[index] ?? 50)
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                 }
@@ -115,7 +120,7 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal]) {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(viewModel.rows, id: \.self) { row in
+                        ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { i, row in
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
                                     // Cell
@@ -127,18 +132,29 @@ struct TableModalView : View {
                                         TableViewCellBuilder(data: cell, viewMode: .modalView) { editedCell  in
                                             viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
                                         }
-                                    }.frame(width: 170, height: rowHeight).id("\(row)_\(col)")
+                                    }
+                                    .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                                    .background(GeometryReader { proxy in
+                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [i: proxy.size.height])
+                                    })
                                 }
                             }
                         }
+                        .id(refreshID)
+                        .onReceive(viewModel.$rows) { _ in
+                            refreshUUIDIfNeeded()
+                        }
+                        .onPreferenceChange(HeightPreferenceKey.self) { value in
+                            updateNewHeight(newValue: value)
+                        }
                     }
+                    .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
                     })
                     .onPreferenceChange(ViewOffsetKey.self) { value in
-                        //ScrollView scrolling, offset changed
                         offset = value
                         viewModel.toggleSelection()
                         viewModel.setDeleteButtonVisibility()
@@ -147,6 +163,33 @@ struct TableModalView : View {
                 }
             }
 //            .scrollIndicators(.hidden)
+        }
+    }
+    
+    // Note: This is an optimisation to stop force re-render entire table
+    private func refreshUUIDIfNeeded() {
+        if rowsCount != viewModel.rows.count {
+            self.rowsCount = viewModel.rows.count
+            self.refreshID = UUID()
+        }
+    }
+    
+    private func updateNewHeight(newValue: [Int: CGFloat]) {
+        for (key, value) in newValue {
+            heights[key] = max(value, heights[key] ?? 0)
+        }
+    }
+}
+
+struct HeightPreferenceKey: PreferenceKey {
+    static var defaultValue: [Int: CGFloat] = [:]
+    static func reduce(value: inout [Int: CGFloat], nextValue: () -> [Int: CGFloat]) {
+        for (key, newValue) in nextValue() {
+            if let currentValue = value[key] {
+                value[key] = max(currentValue, newValue)
+            } else {
+                value[key] = newValue
+            }
         }
     }
 }

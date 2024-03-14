@@ -21,8 +21,16 @@ struct TextView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                Text("\(title)")
-                    .fontWeight(.bold)
+                HStack(spacing: 30) {
+                    Text("\(title)")
+                        .font(.headline.bold())
+                    
+                    if fieldDependency.fieldData?.fieldRequired == true && enterText.isEmpty {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
+                    }
+                }
             }
             
             TextField("", text: $enterText)
@@ -49,10 +57,6 @@ struct TextView: View {
             if let text = fieldDependency.fieldData?.value?.text {
                 enterText = text
             }
-        }
-        .onChange(of: enterText) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue)
         }
     }
 }

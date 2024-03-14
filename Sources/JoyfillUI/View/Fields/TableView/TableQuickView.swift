@@ -22,6 +22,7 @@ struct TableQuickView : View {
     private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
+    @State private var refreshID = UUID()
     
     //TODO: Remove this
     init(viewModel: TableViewModel) {
@@ -130,9 +131,14 @@ struct TableQuickView : View {
                                         .stroke()
                                         .foregroundColor(Color.tableCellBorderColor)
                                     TableViewCellBuilder(data: cell, viewMode: .quickView)
-                                }.frame(width: (screenWidth / 3) - 8, height: rowHeight).id("\(row)_\(col)")
+                                }
+                                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                             }
                         }
+                    } 
+                    .id(refreshID)
+                    .onReceive(viewModel.$rows) { _ in
+                        self.refreshID = UUID()
                     }
                 }
             }
