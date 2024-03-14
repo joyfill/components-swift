@@ -30,6 +30,10 @@ struct DocumentSubmissionsListView: View {
         } else {
             Group {
                 List {
+                    if showDocumentDetails {
+                        NavigationLink("", destination: JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
+                                       , isActive: $showDocumentDetails)
+                    }
                     VStack(alignment: .leading) {
                         Text(template.name)
                             .font(.system(size: 20, weight: .semibold))
@@ -38,12 +42,6 @@ struct DocumentSubmissionsListView: View {
                     }
                     
                     ForEach(documents) { submission in
-                        NavigationLink(destination:
-                                        LazyView(isLoading: $showDocumentDetails, content: {
-                            JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
-                        }), isActive: $showDocumentDetails) {
-                                        
-                        }
                         Button(action: {
                             makeAPICallForSubmission(submission)
                         }) {
@@ -52,8 +50,6 @@ struct DocumentSubmissionsListView: View {
                                 Text(submission.name)
                             }
                         } 
-                        
-                       
                     }
                     .navigationTitle("...\(template.title)")
                 }
@@ -61,11 +57,6 @@ struct DocumentSubmissionsListView: View {
                 }
             }
         }
-//            .onChange(showDocumentDetails) { value in
-//                if value == false {
-//                    updateDocuments(template: template, allDocuments: allDocuments)
-//                }
-//            }
     }
     
     func updateDocuments(template: Document, allDocuments: [Document]) {
@@ -123,43 +114,5 @@ extension DocumentSubmissionsListView: FormChangeEvent {
 extension Document {
     public var title: String {
         String(_id.suffix(8))
-    }
-}
-
-
-//struct NavigationLazyView<Content: View>: View {
-//    let build: () -> Content
-//    @Binding var isLoading: Bool
-//    
-////    init(build: @autoclosure  @escaping () -> Content, isLoading: Binding<Bool>) {
-////        self.isLoading = isLoading
-////        self.build = build
-////    }
-//
-////    init(_ build: @autoclosure @escaping () -> Content, isLoading: Binding<Bool>) {
-////        self.build = build
-////        self.isLoading = isLoading
-////    }
-//    var body: some View {
-//        if isLoading {
-//            Text("Loading....")
-//        } else {
-//            build()
-//        }
-//    }
-
-//}
-
-
-
-struct LazyView<Content: View>: View {
-    @Binding var isLoading: Bool
-    let content: () -> Content
-    var body: some View {
-        if isLoading {
-            ProgressView()
-        } else {
-            content()
-        }
     }
 }
