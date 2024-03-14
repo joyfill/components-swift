@@ -35,6 +35,9 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .onDisappear(perform: {
+            viewModel.sendEventsIfNeeded()
+        })
     }
     
     var scrollArea: some View {
@@ -199,10 +202,6 @@ struct ViewOffsetKey: PreferenceKey {
         value.x += nextValue().x
         value.y += nextValue().y
     }
-}
-
-#Preview {
-    TableModalView(viewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }
 
 

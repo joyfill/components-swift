@@ -8,15 +8,6 @@
 import SwiftUI
 import JoyfillModel
 
-//TODO: Remove this after development
-public struct TempTableEntryView: View {
-    let vm = TableViewModel(mode: .fill, joyDocModel: fakeTableData())
-    public init() {}
-    public var body: some View {
-        TableQuickView(viewModel: vm)
-    }
-}
-
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
     private let screenWidth = UIScreen.main.bounds.width
@@ -24,21 +15,9 @@ struct TableQuickView : View {
     private let rowHeight: CGFloat = 50
     @State private var refreshID = UUID()
     
-    //TODO: Remove this
-    init(viewModel: TableViewModel) {
-        self.viewModel = viewModel
+    public init(fieldDependency: FieldDependency) {
+        self.viewModel = TableViewModel(fieldDependency: fieldDependency)
     }
-    
-    // TODO: Uncomment this
-    /*
-     private let fieldDependency: FieldDependency
-     @FocusState private var isFocused: Bool // Declare a FocusState property
-     
-     public init(fieldDependency: FieldDependency) {
-     self.fieldDependency = fieldDependency
-     self.viewModel = TableViewModel(mode: fieldDependency.mode, joyDocModel: fieldDependency.fieldData)
-     }
-     */
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -141,8 +120,4 @@ struct TableQuickView : View {
             .disabled(true)
         }
     }
-}
-
-#Preview {
-    TableQuickView(viewModel: TableViewModel(mode: .fill, joyDocModel: fakeTableData()))
 }

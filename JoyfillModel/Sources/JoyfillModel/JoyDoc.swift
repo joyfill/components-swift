@@ -111,6 +111,12 @@ public struct JoyDocField: Codable, Identifiable, Equatable {
                     elements[index].cells = cells
                     self.value = ValueUnion.valueElementArray(elements)
                 }
+                
+                if editedCell.type == "image" {
+                    cells[editedCell.id ?? ""] = ValueUnion.valueElementArray(editedCell.images ?? [])
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
             }
             else {
                 if editedCell.type == "text" {
@@ -124,6 +130,12 @@ public struct JoyDocField: Codable, Identifiable, Equatable {
                     elements[index].cells = cells
                     self.value = ValueUnion.valueElementArray(elements)
                 }
+                
+                if editedCell.type == "image" {
+                    cells[editedCell.id ?? ""] = ValueUnion.valueElementArray(editedCell.images ?? [])
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
             }
         } else {
             if editedCell.type == "text" {
@@ -133,6 +145,11 @@ public struct JoyDocField: Codable, Identifiable, Equatable {
             
             if editedCell.type == "dropdown" {
                 elements[index].cells = [editedCell.id ?? "" : ValueUnion.string(editedCell.defaultDropdownSelectedId ?? "")]
+                self.value = ValueUnion.valueElementArray(elements)
+            }
+            
+            if editedCell.type == "image" {
+                elements[index].cells = [editedCell.id ?? "" : ValueUnion.valueElementArray(editedCell.images ?? [])]
                 self.value = ValueUnion.valueElementArray(elements)
             }
         }

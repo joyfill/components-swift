@@ -47,7 +47,9 @@ struct TableViewCellBuilder: View {
                     didChange?(editedCell)
                 }
             case "image":
-                TableImageView(data: cell)
+                TableImageView(data: cell) { editedCell in
+                    didChange?(editedCell)
+                }
             default:
                 Text("")
             }
