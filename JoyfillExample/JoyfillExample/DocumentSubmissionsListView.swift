@@ -44,6 +44,7 @@ struct DocumentSubmissionsListView: View {
                     ForEach(documents) { submission in
                         Button(action: {
                             makeAPICallForSubmission(submission)
+                            isloading = true
                         }) {
                             HStack {
                                 Image(systemName: "doc")
@@ -80,6 +81,7 @@ struct DocumentSubmissionsListView: View {
                     DispatchQueue.main.async {
                         self.document = joyDocStruct
                         showDocumentDetails = true
+                        isloading = false
                     }
                 } catch {
                     print("Error decoding JSON: \(error)")
