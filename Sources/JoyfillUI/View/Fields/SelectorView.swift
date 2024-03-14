@@ -14,8 +14,7 @@ struct SelectorView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("Selector")
-                .fontWeight(.bold)
-            
+                .font(.headline.bold())
             Button(action: {
                 toggle.toggle()
             }, label: {

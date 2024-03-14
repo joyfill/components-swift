@@ -44,8 +44,7 @@ struct TableQuickView : View {
         VStack(alignment: .leading) {
             Text(viewModel.tableViewTitle)
                 .lineLimit(1)
-//                .fontWeight(.bold)
-            
+                .font(.headline.bold())
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     ScrollView([.horizontal]) {
@@ -91,13 +90,10 @@ struct TableQuickView : View {
                 )
             })
             .padding(.top, 6)
-            .sheet(isPresented: $viewModel.isTableModalViewPresented, content: {
-                TableModalView(viewModel: viewModel)
-            })
             
-//            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
-//                EmptyView()
-//            }
+            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
+                EmptyView()
+            }
         }
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
@@ -119,7 +115,7 @@ struct TableQuickView : View {
     
     var table: some View {
         ScrollViewReader { cellProxy in
-            ScrollView([.vertical, .horizontal]) {
+            ScrollView([.vertical, .horizontal], showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(viewModel.quickRows, id: \.self) { row in
                         HStack(alignment: .top, spacing: 0) {
@@ -142,7 +138,6 @@ struct TableQuickView : View {
                     }
                 }
             }
-//            .scrollIndicators(.hidden)
             .disabled(true)
         }
     }

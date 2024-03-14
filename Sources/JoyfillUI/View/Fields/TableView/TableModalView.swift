@@ -53,11 +53,10 @@ struct TableModalView : View {
                 .background(Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
-                ScrollView([.vertical]) {
+                ScrollView([.vertical], showsIndicators: false) {
                     rowsHeader
                         .offset(y: offset.y)
                 }
-//                .scrollIndicators(.hidden)
                 .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
             }
             
@@ -118,7 +117,7 @@ struct TableModalView : View {
     var table: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
-                ScrollView([.vertical, .horizontal]) {
+                ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { i, row in
                             HStack(alignment: .top, spacing: 0) {
@@ -162,7 +161,6 @@ struct TableModalView : View {
                     }
                 }
             }
-//            .scrollIndicators(.hidden)
         }
     }
     

@@ -39,7 +39,6 @@ struct TableDropDownOptionListView: View {
             })
             .sheet(isPresented: $isSheetPresented) {
                 TableDropDownOptionList(data: data, selectedDropdownValue: $selectedDropdownValue)
-//                    .presentationDetents([.medium])
             }
         }
         .focused($isFocused) // Observe focus state

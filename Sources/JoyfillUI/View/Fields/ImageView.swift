@@ -163,7 +163,7 @@ struct MoreImageView: View {
         VStack(alignment: .leading) {
             Text("More Images")
                 .fontWeight(.bold)
-            
+
             if isUploadHidden {
                 UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,eventHandler: eventHandler, fieldPosition: fieldPosition, fieldData: fieldData)
                     .hidden()
