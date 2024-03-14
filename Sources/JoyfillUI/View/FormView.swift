@@ -12,7 +12,7 @@ public struct JoyFillView: View {
     @State public var mode: Mode
     @Binding public var currentPage: Int
     public var events: FormChangeEvent?
-
+    
     public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, currentPage: Binding<Int>? = nil) {
         self.events = events
         _mode = State(initialValue: mode)
@@ -20,10 +20,10 @@ public struct JoyFillView: View {
         _currentPage = currentPage ?? Binding(get: {
             0
         }, set: { value in
-        
+            
         })
     }
-
+    
     public var body: some View {
         FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPage: $currentPage)
     }
@@ -45,7 +45,7 @@ extension JoyFillView: FormChangeEventInternal {
                             fieldPositionId: event.fieldPosition.id!,
                             change: event.changes.changeData,
                             createdOn: Date().timeIntervalSince1970)
-        events?.onChange(event: change)
+        events?.onChange(change: change, document: document)
     }
     
     public func onFocus(event: JoyfillModel.FieldEvent) {
@@ -188,7 +188,7 @@ struct FormView: View {
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
-
+    
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
         let fieldData = fieldsData?.first(where: {
@@ -234,11 +234,11 @@ struct FormView: View {
         }
         .onChange(of: currentFocusedFielsData) { newValue in
             guard newValue != nil else { return }
-//            guard oldValue != newValue else { return }
-//            if oldValue != nil {
-//                let fieldEvent = FieldEvent(field: oldValue)
-//                eventHandler?.onBlur(event: fieldEvent)
-//            }
+            //            guard oldValue != newValue else { return }
+            //            if oldValue != nil {
+            //                let fieldEvent = FieldEvent(field: oldValue)
+            //                eventHandler?.onBlur(event: fieldEvent)
+            //            }
             let fieldEvent = FieldEvent(field: newValue)
             eventHandler?.onFocus(event: fieldEvent)
         }
@@ -248,12 +248,14 @@ struct FormView: View {
 extension FormView: FieldChangeEvents {
     func onChange(event: FieldChangeEvent) {
         currentFocusedFielsData = event.field
-        fieldsData = fieldsData?.compactMap { data in
+        let temp = fieldsData?.compactMap { data in
             if data.id == event.field?.id {
                 return event.field
             }
             return data
         }
+        fieldsData?.removeAll()
+        self.fieldsData = temp
         eventHandler?.onChange(event: event)
     }
     
