@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Nand Kishore on 04/03/24.
 //
@@ -31,10 +31,13 @@ class TableViewModel: ObservableObject {
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
     private var selectedRow: Int?
+    private let fieldDependency: FieldDependency
+    private var tableDataDidChange = false
     
-    init(mode: Mode, joyDocModel: JoyDocField?) {
-        self.mode = mode
-        self.joyDocModel = joyDocModel
+    init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
+        self.mode = fieldDependency.mode
+        self.joyDocModel = fieldDependency.fieldData
         self.showRowSelector = mode == .fill
         self.shouldShowAddRowButton = mode == .fill
         
@@ -59,7 +62,7 @@ class TableViewModel: ObservableObject {
     func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
         return quickRowToCellMap[row]?[col]
     }
-
+    
     
     func getColumnTitle(columnId: String) -> String {
         return columnIdToColumnMap[columnId]?.title ?? ""
@@ -96,6 +99,7 @@ class TableViewModel: ObservableObject {
         guard let selectedRow = selectedRow else {
             return
         }
+        setTableDataDidChange(to: true)
         
         joyDocModel?.deleteRow(id: rows[selectedRow])
         rowToCellMap.removeValue(forKey: rows[selectedRow])
@@ -103,7 +107,12 @@ class TableViewModel: ObservableObject {
         setup()
     }
     
+    func setTableDataDidChange(to: Bool) {
+        tableDataDidChange = to
+    }
+    
     func addRow() {
+        setTableDataDidChange(to: true)
         let id = generateObjectId()
         joyDocModel?.addRow(id: id)
         resetLastSelection()
@@ -111,6 +120,7 @@ class TableViewModel: ObservableObject {
     }
     
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
+        setTableDataDidChange(to: true)
         joyDocModel?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
         setup()
     }
@@ -196,5 +206,13 @@ class TableViewModel: ObservableObject {
             return false
         }
         return sortedRows
+    }
+    
+    func sendEventsIfNeeded() {
+        if tableDataDidChange {
+            setTableDataDidChange(to: false)
+            let change = FieldChange(changeData: ["value" : joyDocModel])
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
+        }
     }
 }
