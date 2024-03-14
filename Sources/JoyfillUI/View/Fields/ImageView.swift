@@ -224,15 +224,14 @@ struct MoreImageView: View {
                 })
             }
         }
-        .onChange(of: imageUrlArray) { oldValue, newValue in
-            let addedImages = newValue.difference(from: oldValue).inferringMoves()
-            
-            for change in addedImages {
-                if case .insert(_, let element, _) = change {
-                    loadSingleImageFromUrl(imageUrl: element)
-                }
-            }
-        }
+//        .onChange(of: imageUrlArray) { newValue in
+          //  let addedImages = newValue.difference(from: oldValue).inferringMoves()
+//            for change in addedImages {
+//                if case .insert(_, let element, _) = change {
+//                    loadSingleImageFromUrl(imageUrl: element)
+//                }
+//            }
+//        }
         .onDisappear{
             images = []
         }

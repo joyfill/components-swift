@@ -92,8 +92,11 @@ struct DocumentSubmissionsListView: View {
 }
 
 extension DocumentSubmissionsListView: FormChangeEvent {
+    func onChange(change: JoyfillModel.Change, document: JoyfillModel.JoyDoc) {
+        print(">>>>>>>>onChange", change)
+    }
+    
     func onChange(event: JoyfillModel.Change) {
-        print(">>>>>>>>onChange", event)
     }
     
     func onFocus(event: FieldEvent) {

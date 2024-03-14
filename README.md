@@ -111,6 +111,10 @@ struct JoyfillExampleApp: App {
   * Used to listen to field focus events.
   * `params: object`
     * Specifies information about the blurred field.
+* `onUpload: (params: object) => {}`
+  * Used to listen to file upload events.
+  * `params: object`
+    * Specifies information about the uploaded file.
 
 ## Field Events
 
