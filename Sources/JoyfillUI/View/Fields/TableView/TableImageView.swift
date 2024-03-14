@@ -13,9 +13,12 @@ import JoyfillModel
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
     private let data: FieldTableColumn
+     private let t: [ValueElement] = []
+     private var didChange: ((_ cell: FieldTableColumn) -> Void)?
     
-    public init(data: FieldTableColumn) {
+     public init(data: FieldTableColumn, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
         self.data = data
+         self.didChange = delegate
     }
     
     var body: some View {
@@ -30,6 +33,11 @@ import JoyfillModel
                     .foregroundColor(.black)
             }
         })
+        .onChange(of: imagesArray) { arr in
+            var editedCell = data
+            editedCell.images = t
+            didChange?(editedCell)
+        }
         .sheet(isPresented: $showMoreImages) {
             TableMoreImageView(isUploadHidden: false, imagesArray: $imagesArray, data: data)
         }
