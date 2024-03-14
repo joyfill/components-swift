@@ -264,6 +264,18 @@ public struct ValueElement: Codable,Hashable {
         case url, fileName, filePath, deleted, title, description, points, cells
     }
     
+    public init(id: String? = nil, url: String? = nil, fileName: String? = nil, filePath: String? = nil, deleted: Bool? = nil, title: String? = nil, description: String? = nil, points: [Point]? = nil, cells: [String : ValueUnion]? = nil) {
+        self.id = id
+        self.url = url
+        self.fileName = fileName
+        self.filePath = filePath
+        self.deleted = deleted
+        self.title = title
+        self.description = description
+        self.points = points
+        self.cells = cells
+    }
+    
     public mutating func setDeleted() {
         deleted = true
     }

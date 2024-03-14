@@ -16,8 +16,10 @@ struct ImageView: View {
     @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
+    
     @State var uiImagesArray: [UIImage] = []
     @State var valueElements: [ValueElement] = []
+    
     @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State private var hasAppeared = false
     @State var showToast: Bool = false
@@ -32,6 +34,8 @@ struct ImageView: View {
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
+    
+//    public var uploadHandler: ([String]) -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -109,7 +113,10 @@ struct ImageView: View {
                 .disabled(showProgressView)
             }
             
-            NavigationLink(destination: MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, imageDictionary: $imageDictionary, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false), isActive: $showMoreImages) {
+            NavigationLink(destination:
+                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, imageDictionary: $imageDictionary, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false)
+                           
+                           , isActive: $showMoreImages) {
                 EmptyView()
             }
         }
@@ -161,24 +168,19 @@ struct ImageView: View {
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
-                    for valueElement in valueElements {
+                    let valueElement = valueElements.first { valueElement in
                         if valueElement.url == imageURL {
-                            self.imageDictionary[valueElement] = image
+                            return true
                         }
-                    }
+                        return false
+                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+                    self.imageDictionary[valueElement] = image
+                    valueElements.append(valueElement)
+                    // valueElements upade
                     self.uiImagesArray.append(image)
                     showProgressView = false
-                    print("imageDictionary \(imageDictionary)")
+                    print("imageDictionary \(urls)")
                 })
-            }
-            for url in urls{
-                for valueElement in valueElements {
-                    if valueElement.url == url{
-                        showToast = true
-                    } else {
-                        valueElements.append(valueElement)
-                    }
-                }
             }
         }
         fieldDependency.eventHandler.onUpload(event: uploadEvent)
@@ -252,6 +254,18 @@ struct MoreImageView: View {
                    }
             }
         })
+        .onChange(of: valueElements) { newValue in
+            print(newValue.count)
+            self.imageDictionary = [:]
+            for valueElement in valueElements {
+                imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+                    self.images.append(image)
+                    self.imageDictionary[valueElement] = image
+                    print("imageDictionary \(imageDictionary)")
+                    showProgressView = false
+                })
+            }
+        }
     }
     
     func loadImageFromURL(imageURLs: [String]) {
@@ -279,6 +293,28 @@ struct MoreImageView: View {
         }
         images = images.filter { !selectedImages.contains($0) }
         selectedImages.removeAll()
+    }
+    
+    var uploadHandler: ([String]) -> Void {
+        return { urls in
+            for imageURL in urls {
+                showProgressView = true
+                imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
+                    let valueElement = valueElements.first { valueElement in
+                        if valueElement.url == imageURL {
+                            return true
+                        }
+                        return false
+                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+                    self.imageDictionary[valueElement] = image
+                    valueElements.append(valueElement)
+                    // valueElements upade
+//                    self.uiImagesArray.append(image)
+                    showProgressView = false
+                    print("imageDictionary \(urls)")
+                })
+            }
+        }
     }
 }
 struct UploadDeleteView: View {
