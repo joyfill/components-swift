@@ -248,12 +248,14 @@ struct FormView: View {
 extension FormView: FieldChangeEvents {
     func onChange(event: FieldChangeEvent) {
         currentFocusedFielsData = event.field
-        fieldsData = fieldsData?.compactMap { data in
+        let temp = fieldsData?.compactMap { data in
             if data.id == event.field?.id {
                 return event.field
             }
             return data
         }
+        fieldsData?.removeAll()
+        self.fieldsData = temp
         eventHandler?.onChange(event: event)
     }
     
