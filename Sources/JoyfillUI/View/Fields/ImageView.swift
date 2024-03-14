@@ -96,18 +96,26 @@ struct ImageView: View {
                     fieldDependency.eventHandler.onFocus(event: fieldEvent)
                 }, label: {
                     ZStack {
-                        Image("ImageUploadRectSmall")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 100)
-                        Image("Upload_Icon")
-                            .resizable()
-                            .frame(width: 69,height: 18)
+                        HStack(spacing: 8) {
+                            Text("Upload")
+                                .foregroundColor(.gray)
+                            
+                            Image(systemName: "icloud.and.arrow.up")
+                                .foregroundColor(.gray)
+                        }
+                        .padding(8)
                         if showProgressView {
                             ProgressView()
                         }
                     }
                 })
+                .frame(height: 120)
+                .frame(maxWidth: .infinity)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                        .foregroundColor(.gray)
+                )
                 .disabled(showProgressView)
             }
             
@@ -378,7 +386,8 @@ struct ImageGridView:View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                     .background(
-                                        Image(selectedImages.contains(image) ? "Selected_Icon" : "UnSelected_Icon")
+                                        Image(systemName: selectedImages.contains(image) ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(selectedImages.contains(image) ? .blue : .white)
                                             .offset(
                                                 x: 60,
                                                 y: -60
