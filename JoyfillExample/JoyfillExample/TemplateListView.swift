@@ -17,7 +17,7 @@ public struct TemplateListView: View {
     @State private var path: [Document] = []
 
     public var body: some View {
-//        NavigationStack(path: $path) {
+        NavigationView {
             VStack {
                 Text("Templates List")
                     .font(.title.bold())
@@ -27,13 +27,17 @@ public struct TemplateListView: View {
                     List {
                         ForEach(templates) { template in
                             VStack(alignment: .trailing) {
-//                                NavigationLink(value: template, label: {
+                                NavigationLink {
+                                    DocumentSubmissionsListView(template: template, allDocuments: documents, currentPage: 0)
+                                    
+                                } label: {
                                     HStack {
                                         Image(systemName: "doc")
                                             .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
                                         Text(template.name)
                                     }
-//                                })
+                                }
+                                                        
                                 Button(action: {
                                     createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
                                         fetchDocumentSubmissions(identifier: template.identifier)
@@ -49,13 +53,10 @@ public struct TemplateListView: View {
                         .cornerRadius(2)
                     }
                     .refreshable(action: fetchData)
-//                    .navigationDestination(for: Document.self) { template in
-//                        DocumentSubmissionsListView(template: template, allDocuments: documents, currentPage: 0)
-//                    }
                 }
-//            }
+            }
+            .onAppear(perform: fetchData)
         }
-        .onAppear(perform: fetchData)
     }
     
     @Sendable
@@ -83,23 +84,23 @@ public struct TemplateListView: View {
         }
     }
     
-    func fetchTemplates(completion:  @escaping () -> Void) {
-        self.isLoading = true
-        apiService.fetchTemplates { result in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let templates):
-                    print("Retrieved \(templates.count) documents")
-                    self.templates = templates
-                case .failure(let error):
-                    print("Error fetching templates: \(error.localizedDescription)")
-                    self.error = error.localizedDescription
+        func fetchTemplates(completion:  @escaping () -> Void) {
+            self.isLoading = true
+            apiService.fetchTemplates { result in
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    switch result {
+                    case .success(let templates):
+                        print("Retrieved \(templates.count) documents")
+                        self.templates = templates
+                    case .failure(let error):
+                        print("Error fetching templates: \(error.localizedDescription)")
+                        self.error = error.localizedDescription
+                    }
+                    completion()
                 }
-                completion()
+                
             }
-            
-        }
     }
     
     

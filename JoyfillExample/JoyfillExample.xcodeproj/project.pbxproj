@@ -103,10 +103,10 @@
 		FA529C4C2BA1D251000200F5 /* JoyfillExample */ = {
 			isa = PBXGroup;
 			children = (
-				FA529C7A2BA1D28B000200F5 /* ContentView.swift */,
-				FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */,
 				FA529C4D2BA1D251000200F5 /* JoyfillExampleApp.swift */,
+				FA529C7A2BA1D28B000200F5 /* ContentView.swift */,
 				FA529C792BA1D28B000200F5 /* TemplateListView.swift */,
+				FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */,
 				FA529C512BA1D253000200F5 /* Assets.xcassets */,
 				FA529C532BA1D253000200F5 /* JoyfillExample.entitlements */,
 				FA529C542BA1D253000200F5 /* Preview Content */,
