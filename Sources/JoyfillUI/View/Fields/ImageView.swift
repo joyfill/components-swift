@@ -34,9 +34,7 @@ struct ImageView: View {
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
     }
-    
-//    public var uploadHandler: ([String]) -> Void
-    
+        
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
@@ -52,9 +50,9 @@ struct ImageView: View {
                 }
             }
             
-            if !uiImagesArray.isEmpty {
+            if let uiImage = uiImagesArray.first {
                 ZStack {
-                    Image(uiImage: uiImagesArray[0])
+                    Image(uiImage: uiImage)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .overlay(
@@ -78,7 +76,7 @@ struct ImageView: View {
                     }, label: {
                         HStack(alignment: .center, spacing: 0) {
                             Text("More > ")
-                            Text("+\(uiImagesArray.count)")
+                            Text("+\(valueElements.count)")
                                 .foregroundColor(.black)
                         }
                         .padding(.all, 5)
@@ -123,44 +121,46 @@ struct ImageView: View {
         .onAppear {
             //for first time
             if !hasAppeared {
-                if let valueElements = fieldDependency.fieldData?.value?.images {
-                    for valueElement in valueElements {
-                        self.valueElements.append(valueElement)
-                        showProgressView = true
-                        
-                        imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
-                            self.uiImagesArray.append(image)
-                            self.imageDictionary[valueElement] = image
-                            print("imageDictionary \(imageDictionary)")
-                            showProgressView = false
-                        })
-                    }
-                }
+                self.valueElements = fieldDependency.fieldData?.value?.images ?? []
                 hasAppeared = true
             } else {
-                // for rest of time appear
-                self.uiImagesArray = []
-                if valueElements.count > 0 {
-                    for valueElement in valueElements {
-                        showProgressView = true
-                        imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
-                            self.uiImagesArray.append(image)
-                            showProgressView = false
-                            print("imageDictionary \(imageDictionary)")
-                        })
-                    }
-                } else {
-                    showProgressView = false
-                }
+//                // for rest of time appear
+//                self.uiImagesArray = []
+//                if valueElements.count > 0 {
+//                    for valueElement in valueElements {
+//                        showProgressView = true
+//                        imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+//                            self.uiImagesArray.append(image)
+//                            showProgressView = false
+//                            print("imageDictionary \(imageDictionary)")
+//                        })
+//                    }
+//                } else {
+//                    showProgressView = false
+//                }
             }
         }
-
-//        .onChange(of: valueElements) { oldValue, newValue in
-//            guard var fieldData = fieldDependency.fieldData else { return }
-//            fieldData.value = .array(newValue)
-//            let change = FieldChange(changeData: ["value" : newValue])
-//            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
-//        }
+        .onChange(of: valueElements) { newValue in
+            fetchImages()
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .valueElementArray(newValue)
+            let change = FieldChange(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+        }
+    }
+    
+    func fetchImages() {
+        uiImagesArray = []
+        if let valueElement = valueElements.first {
+            showProgressView = true
+            imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+                showProgressView = false
+                self.uiImagesArray.append(image)
+                self.imageDictionary[valueElement] = image
+                print("imageDictionary \(imageDictionary)")
+                showProgressView = false
+            })
+        }
     }
 
     func uploadAction() {
@@ -232,16 +232,7 @@ struct MoreImageView: View {
                 })
             }
         }
-//        .onChange(of: valueElements) { oldValue, newValue in
-//            let addedValueElements = newValue.difference(from: oldValue).inferringMoves()
-//            
-//            for valueElement in addedValueElements {
-//                if case .insert(_, let element, _) = valueElement {
-//                    loadSingleImageFromUrl(imageUrl: element.url ?? "")
-//                }
-//            }
-//        }
-        .onDisappear{
+        .onDisappear {
             images = []
         }
         .overlay(content: {
@@ -294,28 +285,7 @@ struct MoreImageView: View {
         images = images.filter { !selectedImages.contains($0) }
         selectedImages.removeAll()
     }
-    
-    var uploadHandler: ([String]) -> Void {
-        return { urls in
-            for imageURL in urls {
-                showProgressView = true
-                imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
-                    let valueElement = valueElements.first { valueElement in
-                        if valueElement.url == imageURL {
-                            return true
-                        }
-                        return false
-                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-                    self.imageDictionary[valueElement] = image
-                    valueElements.append(valueElement)
-                    // valueElements upade
-//                    self.uiImagesArray.append(image)
-                    showProgressView = false
-                    print("imageDictionary \(urls)")
-                })
-            }
-        }
-    }
+
 }
 struct UploadDeleteView: View {
     @Binding var imagesArray: [UIImage]
