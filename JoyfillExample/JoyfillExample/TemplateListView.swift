@@ -23,13 +23,13 @@ public struct TemplateListView: View {
                     .font(.title.bold())
                 if isLoading {
                     ProgressView()
+                        .onAppear(perform: fetchData)
                 } else {
                     List {
                         ForEach(templates) { template in
                             VStack(alignment: .trailing) {
                                 NavigationLink {
                                     DocumentSubmissionsListView(template: template, allDocuments: documents, currentPage: 0)
-                                    
                                 } label: {
                                     HStack {
                                         Image(systemName: "doc")
@@ -55,7 +55,6 @@ public struct TemplateListView: View {
                     .refreshable(action: fetchData)
                 }
             }
-            .onAppear(perform: fetchData)
         }
     }
     
