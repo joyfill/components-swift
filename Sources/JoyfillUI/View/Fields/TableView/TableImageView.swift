@@ -16,7 +16,7 @@ import JoyfillModel
     @State private var valueElements: [ValueElement] = []
     private var didChange: ((_ cell: FieldTableColumn) -> Void)?
     @State var showToast: Bool = false
-     var uploadAction: () -> Void
+//     var uploadAction: () -> Void
 
      public init(data: FieldTableColumn, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
         self.data = data
@@ -41,12 +41,12 @@ import JoyfillModel
             didChange?(editedCell)
         }
         .sheet(isPresented: $showMoreImages) {
-            MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+//            MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
 
         }
     }
      
-     func uploadAction() {
+//     func uploadAction() {
  //         let uploadEvent = UploadEvent(field: fieldDependency.fieldData!) { urls in
  //             for imageURL in urls {
  //                 showProgressView = true
@@ -66,8 +66,8 @@ import JoyfillModel
  //                 })
  //             }
  //         }
-          fieldDependency.eventHandler.onUpload(event: uploadEvent)
-     }
+//          fieldDependency.eventHandler.onUpload(event: uploadEvent)
+//     }
 }
 
 struct TableMoreImageView: View {
