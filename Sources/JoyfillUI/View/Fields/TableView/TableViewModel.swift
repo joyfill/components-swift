@@ -215,4 +215,20 @@ class TableViewModel: ObservableObject {
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
         }
     }
+    
+    func uploadAction() {
+        let uploadEvent = UploadEvent(field: joyDocModel!) { urls in
+            for imageURL in urls {
+//                let valueElement = valueElements.first { valueElement in
+//                    if valueElement.url == imageURL {
+//                        return true
+//                    }
+//                    return false
+//                } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+//                valueElements.append(valueElement)
+            }
+        }
+         fieldDependency.eventHandler.onUpload(event: uploadEvent)
+    }
+    
 }

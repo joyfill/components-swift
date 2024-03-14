@@ -13,9 +13,11 @@ import JoyfillModel
     @State var imagesArray: [UIImage] = []
     @State var imageURLs: [String] = []
     private let data: FieldTableColumn
-     private let t: [ValueElement] = []
-     private var didChange: ((_ cell: FieldTableColumn) -> Void)?
-    
+    @State private var valueElements: [ValueElement] = []
+    private var didChange: ((_ cell: FieldTableColumn) -> Void)?
+    @State var showToast: Bool = false
+     var uploadAction: () -> Void
+
      public init(data: FieldTableColumn, _ delegate: ((_ cell: FieldTableColumn) -> Void)? = nil) {
         self.data = data
          self.didChange = delegate
@@ -35,13 +37,37 @@ import JoyfillModel
         })
         .onChange(of: imagesArray) { arr in
             var editedCell = data
-            editedCell.images = t
+            editedCell.images = valueElements
             didChange?(editedCell)
         }
         .sheet(isPresented: $showMoreImages) {
-            TableMoreImageView(isUploadHidden: false, imagesArray: $imagesArray, data: data)
+            MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+
         }
     }
+     
+     func uploadAction() {
+ //         let uploadEvent = UploadEvent(field: fieldDependency.fieldData!) { urls in
+ //             for imageURL in urls {
+ //                 showProgressView = true
+ //                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
+ //                     let valueElement = valueElements.first { valueElement in
+ //                         if valueElement.url == imageURL {
+ //                             return true
+ //                         }
+ //                         return false
+ //                     } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+ //                     self.imageDictionary[valueElement] = image
+ //                     valueElements.append(valueElement)
+ //                     // valueElements upade
+ //                     self.uiImagesArray.append(image)
+ //                     showProgressView = false
+ //                     print("imageDictionary \(urls)")
+ //                 })
+ //             }
+ //         }
+          fieldDependency.eventHandler.onUpload(event: uploadEvent)
+     }
 }
 
 struct TableMoreImageView: View {

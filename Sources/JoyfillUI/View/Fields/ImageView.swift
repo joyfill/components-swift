@@ -114,7 +114,7 @@ struct ImageView: View {
             }
             
             NavigationLink(destination:
-                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, imageDictionary: $imageDictionary, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false)
+                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false)
                            
                            , isActive: $showMoreImages) {
                 EmptyView()
@@ -193,8 +193,8 @@ struct MoreImageView: View {
     @State var selectedImages: Set<UIImage> = Set()
     @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
-    @State var showProgressView: Bool = true
-    @Binding var imageDictionary: [ValueElement: UIImage]
+    @State var showProgressView: Bool = false
+    @State var imageDictionary: [ValueElement: UIImage] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
     
