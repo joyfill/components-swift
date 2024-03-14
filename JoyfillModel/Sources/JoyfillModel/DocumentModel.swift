@@ -375,7 +375,7 @@ public struct Change {
 }
 
 public protocol FormChangeEvent {
-    func onChange(event: Change)
+    func onChange(change: Change, document: JoyDoc)
     func onFocus(event: FieldEvent)
     func onBlur(event: FieldEvent)
     func onUpload(event:UploadEvent)

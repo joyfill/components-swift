@@ -3,7 +3,7 @@
 # @joyfill/components-swift
 We recommend visiting our official Swift setup guide https://docs.joyfill.io/docs/swift.
 
-We offer three libraries for Swift completed build in Swift and SwiftUI:
+We offer three libraries for Swift entirely build in Swift and SwiftUI:
 
   **Joyfill**: The main library for integrating Joyfill into your Swift app. This library includes all the necessary UI components for displaying and interacting with Joyfill documents.
 
@@ -111,6 +111,10 @@ struct JoyfillExampleApp: App {
   * Used to listen to field focus events.
   * `params: object`
     * Specifies information about the blurred field.
+* `onUpload: (params: object) => {}`
+  * Used to listen to file upload events.
+  * `params: object`
+    * Specifies information about the uploaded file.
 
 ## Field Events
 

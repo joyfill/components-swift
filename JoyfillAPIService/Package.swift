@@ -22,9 +22,7 @@ let package = Package(
             dependencies: [
                 "JoyfillModel"
             ],
-            resources: [
-                    .copy("Resources/FetchDocument.json")
-                ]
+            resources: []
         ),
         .testTarget(
             name: "JoyfillAPIServiceTests",
