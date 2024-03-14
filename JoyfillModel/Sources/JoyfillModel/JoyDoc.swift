@@ -111,6 +111,12 @@ public struct JoyDocField: Codable, Identifiable, Equatable {
                     elements[index].cells = cells
                     self.value = ValueUnion.valueElementArray(elements)
                 }
+                
+                if editedCell.type == "image" {
+                    cells[editedCell.id ?? ""] = ValueUnion.valueElementArray(editedCell.images ?? [])
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
             }
             else {
                 if editedCell.type == "text" {
@@ -124,6 +130,12 @@ public struct JoyDocField: Codable, Identifiable, Equatable {
                     elements[index].cells = cells
                     self.value = ValueUnion.valueElementArray(elements)
                 }
+                
+                if editedCell.type == "image" {
+                    cells[editedCell.id ?? ""] = ValueUnion.valueElementArray(editedCell.images ?? [])
+                    elements[index].cells = cells
+                    self.value = ValueUnion.valueElementArray(elements)
+                }
             }
         } else {
             if editedCell.type == "text" {
@@ -133,6 +145,11 @@ public struct JoyDocField: Codable, Identifiable, Equatable {
             
             if editedCell.type == "dropdown" {
                 elements[index].cells = [editedCell.id ?? "" : ValueUnion.string(editedCell.defaultDropdownSelectedId ?? "")]
+                self.value = ValueUnion.valueElementArray(elements)
+            }
+            
+            if editedCell.type == "image" {
+                elements[index].cells = [editedCell.id ?? "" : ValueUnion.valueElementArray(editedCell.images ?? [])]
                 self.value = ValueUnion.valueElementArray(elements)
             }
         }
@@ -178,7 +195,7 @@ public struct FieldTableColumn: Codable {
     }
 }
 
-public enum ValueUnion: Codable {
+public enum ValueUnion: Codable,Hashable{
     case integer(Double)
     case string(String)
     case array([String])
@@ -233,7 +250,7 @@ public enum ValueUnion: Codable {
 }
 
 // MARK: - ValueElement
-public struct ValueElement: Codable {
+public struct ValueElement: Codable,Hashable {
     public var id: String?
     public var url: String?
     public var fileName, filePath: String?
@@ -247,13 +264,25 @@ public struct ValueElement: Codable {
         case url, fileName, filePath, deleted, title, description, points, cells
     }
     
+    public init(id: String? = nil, url: String? = nil, fileName: String? = nil, filePath: String? = nil, deleted: Bool? = nil, title: String? = nil, description: String? = nil, points: [Point]? = nil, cells: [String : ValueUnion]? = nil) {
+        self.id = id
+        self.url = url
+        self.fileName = fileName
+        self.filePath = filePath
+        self.deleted = deleted
+        self.title = title
+        self.description = description
+        self.points = points
+        self.cells = cells
+    }
+    
     public mutating func setDeleted() {
         deleted = true
     }
 }
 
 // MARK: - Point
-public struct Point: Codable {
+public struct Point: Codable,Hashable {
     public var id, label: String?
     public var y, x: CGFloat?
     
