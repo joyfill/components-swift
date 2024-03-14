@@ -16,8 +16,7 @@
 		FA529C7D2BA1D28B000200F5 /* TemplateListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C792BA1D28B000200F5 /* TemplateListView.swift */; };
 		FA529C7E2BA1D28B000200F5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C7A2BA1D28B000200F5 /* ContentView.swift */; };
 		FA529C7F2BA1D28B000200F5 /* DocumentSubmissionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */; };
-		FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA529C812BA1D2D2000200F5 /* Joyfill */; };
-		FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FAACBA5F2BA1D3AD00B610AB /* Joyfill */; };
+		FA82CEBE2BA35A0300F85126 /* JoyfillUI in Frameworks */ = {isa = PBXBuildFile; productRef = FA82CEBD2BA35A0300F85126 /* JoyfillUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,8 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
-				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
+				FA82CEBE2BA35A0300F85126 /* JoyfillUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,8 +154,7 @@
 			);
 			name = JoyfillExample;
 			packageProductDependencies = (
-				FA529C812BA1D2D2000200F5 /* Joyfill */,
-				FAACBA5F2BA1D3AD00B610AB /* Joyfill */,
+				FA82CEBD2BA35A0300F85126 /* JoyfillUI */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -232,7 +229,7 @@
 			);
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
-				FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */,
+				FA82CEBC2BA35A0300F85126 /* XCLocalSwiftPackageReference ".." */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -630,20 +627,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */ = {
+		FA82CEBC2BA35A0300F85126 /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FA529C812BA1D2D2000200F5 /* Joyfill */ = {
+		FA82CEBD2BA35A0300F85126 /* JoyfillUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Joyfill;
-		};
-		FAACBA5F2BA1D3AD00B610AB /* Joyfill */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Joyfill;
+			productName = JoyfillUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

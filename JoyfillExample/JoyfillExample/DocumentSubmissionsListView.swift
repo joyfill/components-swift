@@ -7,7 +7,7 @@
 import SwiftUI
 import JoyfillModel
 import JoyfillAPIService
-import Joyfill
+import JoyfillUI
 
 struct DocumentSubmissionsListView: View {
     @State var template: Document
