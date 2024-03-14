@@ -16,7 +16,7 @@ Note userAccessTokens & identifiers will need to be stored on your end (usually 
 
 See our [API Documentation](https://docs.joyfill.io/docs) for more information on how to interact with our API.
 
-- Minimum deployment target to iOS 13
+- Minimum deployment target to iOS 15
 
 ## Install Dependency
 
