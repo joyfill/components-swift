@@ -195,7 +195,7 @@ public struct FieldTableColumn: Codable {
     }
 }
 
-public enum ValueUnion: Codable {
+public enum ValueUnion: Codable,Hashable{
     case integer(Double)
     case string(String)
     case array([String])
@@ -250,7 +250,7 @@ public enum ValueUnion: Codable {
 }
 
 // MARK: - ValueElement
-public struct ValueElement: Codable {
+public struct ValueElement: Codable,Hashable {
     public var id: String?
     public var url: String?
     public var fileName, filePath: String?
@@ -270,7 +270,7 @@ public struct ValueElement: Codable {
 }
 
 // MARK: - Point
-public struct Point: Codable {
+public struct Point: Codable,Hashable {
     public var id, label: String?
     public var y, x: CGFloat?
     
