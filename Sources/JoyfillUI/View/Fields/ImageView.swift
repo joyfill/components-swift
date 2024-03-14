@@ -248,6 +248,7 @@ struct MoreImageView: View {
         .onChange(of: valueElements) { newValue in
             print(newValue.count)
             self.imageDictionary = [:]
+            self.images = []
             for valueElement in valueElements {
                 imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
                     self.images.append(image)

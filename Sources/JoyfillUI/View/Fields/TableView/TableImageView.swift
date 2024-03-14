@@ -52,10 +52,10 @@ import JoyfillModel
                  } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                  valueElements.append(valueElement)
              }
+             var editedCell = cellModel.data
+             editedCell.images = valueElements
+             cellModel.didChange?(editedCell)
          }
-         var editedCell = cellModel.data
-         editedCell.images = valueElements
-         cellModel.didChange?(editedCell)
          cellModel.eventHandler.onUpload(event: uploadEvent)
      }
 }
