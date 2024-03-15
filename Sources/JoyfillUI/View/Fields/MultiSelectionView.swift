@@ -72,12 +72,15 @@ struct MultiSelectionView: View {
             )
             .padding(.vertical, 10)
         }
-        .onAppear{
-           
-        }
         .onChange(of: selectedOption) { newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(newValue)
+            let change = FieldChange(changeData: ["value" : newValue])
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+        }
+        .onChange(of: selectedOptionArray) { newValue in
+            guard var fieldData = fieldDependency.fieldData else { return }
+            fieldData.value = .array(newValue)
             let change = FieldChange(changeData: ["value" : newValue])
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
