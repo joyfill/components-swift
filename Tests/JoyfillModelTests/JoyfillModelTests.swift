@@ -1,7 +1,7 @@
 import XCTest
-@testable import JoyfillUI
+@testable import JoyfillModel
 
-final class JoyfillUITests: XCTestCase {
+final class JoyfillModelTests: XCTestCase {
     func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest
