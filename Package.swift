@@ -1,27 +1,29 @@
 // swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
-
 import PackageDescription
 
 let package = Package(
-    name: "JoyfillModel",
+    name: "JoyfillUI",
+    platforms: [.iOS(.v15)],
     products: [
         .library(
-            name: "JoyfillModel",
-            targets: ["JoyfillModel"]),
+            name: "JoyfillUI",
+            targets: ["JoyfillUI"]),
     ],
     dependencies: [
-        // Add your dependencies here, if any.
+        .package(path: "./JoyfillAPIService"),
+        .package(path: "./JoyfillModel"),
     ],
     targets: [
         .target(
-            name: "JoyfillModel",
+            name: "JoyfillUI",
             dependencies: [
-                // Add your target dependencies here, if any.
+                "JoyfillAPIService",
+                "JoyfillModel"
             ]
         ),
         .testTarget(
-            name: "JoyfillModelTests",
-            dependencies: ["JoyfillModel"]),
+            name: "JoyfillUITests",
+            dependencies: ["JoyfillUI"]),
     ]
 )
