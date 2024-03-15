@@ -21,6 +21,13 @@ struct MultiSelectionView: View {
     public init(fieldDependency: FieldDependency,currentFocusedFielsData: JoyDocField?) {
         self.fieldDependency = fieldDependency
         self.currentFocusedFielsData = currentFocusedFielsData
+        if fieldDependency.fieldData?.multi ?? true {
+            if let values = fieldDependency.fieldData?.value?.multiSelector {
+                _selectedOptionArray = State(initialValue: values)
+            }
+        } else {
+            _selectedOption = State(initialValue: fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? "")
+        }
     }
     
     var body: some View {
@@ -66,13 +73,7 @@ struct MultiSelectionView: View {
             .padding(.vertical, 10)
         }
         .onAppear{
-            if fieldDependency.fieldData?.multi ?? true {
-                if let values = fieldDependency.fieldData?.value?.multiSelector {
-                    selectedOptionArray = values
-                }
-            } else {
-                selectedOption = fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? ""
-            }
+           
         }
         .onChange(of: selectedOption) { newValue in
             guard var fieldData = fieldDependency.fieldData else { return }
