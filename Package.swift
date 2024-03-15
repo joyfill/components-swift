@@ -11,13 +11,13 @@ let package = Package(
             targets: ["JoyfillAPIService"]),
     ],
     dependencies: [
-//        .package(path: "./JoyfillModel"),
+        .package(url: "https://github.com/joyfill/components-swift-models", branch: "main"),
     ],
     targets: [
         .target(
             name: "JoyfillAPIService",
             dependencies: [
-//                "JoyfillModel"
+                "components-swift-models"
             ]
         ),
         .testTarget(
