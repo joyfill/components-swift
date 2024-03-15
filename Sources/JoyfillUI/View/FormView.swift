@@ -154,18 +154,14 @@ struct PageView: View {
         fieldPositions
             .sorted { fp1, fp2 in
                 if let y2 = fp2.y, let y1 = fp1.y {
-                    let fpY1 = Int(y1)
-                    let fpY2 = Int(y2)
-                    return fpY1 < fpY2
+                    return Int(y1) < Int(y2)
                 }
                 return true
             }
         
         var resultFieldPositions =  [FieldPosition]()
         for fp in sortedFieldPositions {
-            if !resultFieldPositions.contains(where: { fieldPosition in
-                fieldPosition.field == fp.field
-            }) {
+            if !resultFieldPositions.contains(where: { $0.field == fp.field }) {
                 resultFieldPositions.append(fp)
             }
         }
