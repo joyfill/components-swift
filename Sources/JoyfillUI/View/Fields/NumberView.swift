@@ -16,6 +16,9 @@ struct NumberView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
+        if let number = fieldDependency.fieldData?.value?.number {
+            _number = State(initialValue: String(number))
+        }
     }
     
     var body: some View {
@@ -54,11 +57,6 @@ struct NumberView: View {
                         fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
                     }
                 }
-        }
-        .onAppear {
-            if let number = fieldDependency.fieldData?.value?.number {
-                self.number = String(number)
-            }
         }
     }
 }

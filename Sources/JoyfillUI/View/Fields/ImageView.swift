@@ -21,7 +21,6 @@ struct ImageView: View {
     @State var valueElements: [ValueElement] = []
     
     @State private var imageDictionary: [ValueElement: UIImage] = [:]
-    @State private var hasAppeared = false
     @State var showToast: Bool = false
     
     @StateObject var imageViewModel = ImageFieldViewModel()
@@ -33,6 +32,7 @@ struct ImageView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
+        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
     }
         
     var body: some View {
@@ -124,28 +124,6 @@ struct ImageView: View {
                            
                            , isActive: $showMoreImages) {
                 EmptyView()
-            }
-        }
-        .onAppear {
-            //for first time
-            if !hasAppeared {
-                self.valueElements = fieldDependency.fieldData?.value?.images ?? []
-                hasAppeared = true
-            } else {
-//                // for rest of time appear
-//                self.uiImagesArray = []
-//                if valueElements.count > 0 {
-//                    for valueElement in valueElements {
-//                        showProgressView = true
-//                        imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
-//                            self.uiImagesArray.append(image)
-//                            showProgressView = false
-//                            print("imageDictionary \(imageDictionary)")
-//                        })
-//                    }
-//                } else {
-//                    showProgressView = false
-//                }
             }
         }
         .onChange(of: valueElements) { newValue in

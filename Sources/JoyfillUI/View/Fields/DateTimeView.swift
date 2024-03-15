@@ -19,6 +19,13 @@ struct DateTimeView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
+        if let value = fieldDependency.fieldData?.value {
+            let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
+            if let date = stringToDate(dateString, format: fieldDependency.fieldPosition.format ?? "") {
+                _selectedDate = State(initialValue: date)
+                _showDefaultDate = State(initialValue: false)
+            }
+        }
     }
     
     private let dateFormatter: DateFormatter = {
@@ -79,15 +86,6 @@ struct DateTimeView: View {
                             showDefaultDate = false
                         }
                     }
-                }
-            }
-        }
-        .onAppear {
-            if let value = fieldDependency.fieldData?.value {
-                let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
-                if let date = stringToDate(dateString, format: fieldDependency.fieldPosition.format ?? "") {
-                    selectedDate = date
-                    showDefaultDate = false
                 }
             }
         }

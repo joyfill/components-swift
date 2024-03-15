@@ -14,6 +14,9 @@ struct DropdownView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
+        if let value = fieldDependency.fieldData?.value?.dropdownValue {
+            _selectedDropdownValueID = State(initialValue: value)
+        }
     }
     
     var body: some View {
@@ -60,11 +63,6 @@ struct DropdownView: View {
                     } else {
                         DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
                     }
-            }
-        }
-        .onAppear {
-            if let value = fieldDependency.fieldData?.value?.dropdownValue {
-                self.selectedDropdownValueID = value
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in

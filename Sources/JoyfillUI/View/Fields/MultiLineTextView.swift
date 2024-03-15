@@ -16,6 +16,9 @@ struct MultiLineTextView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
+        if let multilineText = fieldDependency.fieldData?.value?.multilineText {
+            _multilineText = State(initialValue: multilineText)
+        }
     }
     
     var body: some View {
@@ -53,11 +56,6 @@ struct MultiLineTextView: View {
                         fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
                     }
                 }
-        }
-        .onAppear{
-            if let multilineText = fieldDependency.fieldData?.value?.multilineText {
-                self.multilineText = multilineText
-            }
         }
     }
 }
