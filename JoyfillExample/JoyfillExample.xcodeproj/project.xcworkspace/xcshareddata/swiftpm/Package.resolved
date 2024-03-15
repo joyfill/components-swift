@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/joyfill/JoyfillAPIService",
       "state" : {
-        "branch" : "main",
-        "revision" : "5751e67024ca821b35b6640a877d463928635edc"
+        "revision" : "a0a9f94ba7586addf4545f48b8bc26a28afba927",
+        "version" : "0.2.2"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/joyfill/JoyfillModel",
       "state" : {
-        "branch" : "main",
-        "revision" : "43ea82a6b9cbe9d6a300f16b35267628d5fb2f35"
+        "revision" : "43ea82a6b9cbe9d6a300f16b35267628d5fb2f35",
+        "version" : "0.2.1"
       }
     }
   ],
