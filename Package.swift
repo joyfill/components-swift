@@ -23,8 +23,8 @@ let package = Package(
         .target(
             name: "Joyfill",
             dependencies: [
-                "components-swift-models",
-                "components-swift-apiservice"
+                "JoyfillModel",
+                "JoyfillAPIService"
             ]
         ),
         .testTarget(

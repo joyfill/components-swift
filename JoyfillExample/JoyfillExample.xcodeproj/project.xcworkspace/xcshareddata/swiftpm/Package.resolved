@@ -1,0 +1,32 @@
+{
+  "pins" : [
+    {
+      "identity" : "components-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/joyfill/components-swift",
+      "state" : {
+        "branch" : "fix-spm",
+        "revision" : "ad6fc88433be0a8f70d2a9394e4067b11e300fa4"
+      }
+    },
+    {
+      "identity" : "components-swift-apiservice",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/joyfill/components-swift-apiservice",
+      "state" : {
+        "branch" : "main",
+        "revision" : "eb7cf1d94c4394b4f665b08124749c069b25e05c"
+      }
+    },
+    {
+      "identity" : "components-swift-models",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/joyfill/components-swift-models",
+      "state" : {
+        "branch" : "main",
+        "revision" : "26ef8d831bca8723459f2d34b95658183f813bce"
+      }
+    }
+  ],
+  "version" : 2
+}
