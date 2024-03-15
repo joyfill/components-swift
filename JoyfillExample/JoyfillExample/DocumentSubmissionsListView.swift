@@ -10,84 +10,73 @@ import JoyfillAPIService
 import Joyfill
 
 struct DocumentSubmissionsListView: View {
-    @State var template: Document
     @State var documents: [Document] = []
     @State var document: JoyDoc? = nil
     @State private var showDocumentDetails = false
-    let apiService: APIService = APIService()
-    var allDocuments: [Document] = []
-    @State var currentPage: Int
-    @State private var isloading = true
-
-
-    var body: some View {
-        if isloading {
-            ProgressView()
-                .onAppear() {
-                    updateDocuments(template: template, allDocuments: allDocuments)
-                    isloading = false
-                }
-        } else {
-            Group {
-                List {
-                    if showDocumentDetails {
-                        NavigationLink("", destination: JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
-                                       , isActive: $showDocumentDetails)
-                    }
-                    VStack(alignment: .leading) {
-                        Text(template.name)
-                            .font(.system(size: 20, weight: .semibold))
-                        Text("Submissions")
-                            .font(.system(size: 16, weight: .semibold)).foregroundStyle(.gray)
-                    }
-                    
-                    ForEach(documents) { submission in
-                        Button(action: {
-                            makeAPICallForSubmission(submission)
-                            isloading = true
-                        }) {
-                            HStack {
-                                Image(systemName: "doc")
-                                Text(submission.name)
-                            }
-                        } 
-                    }
-                    .navigationTitle("...\(template.title)")
-                }
-                .onAppear() {
-                }
-            }
-        }
-    }
+    @State var currentPage: Int = 0
+    @State private var isloading = false
+   
+    private let title: String
+    private let apiService: APIService = APIService()
+    private var allDocuments: [Document] = []
     
-    func updateDocuments(template: Document, allDocuments: [Document]) {
-        let documentsWithSourceAsTemplate =  allDocuments.filter { document in
-            document.source == template.identifier
+    init(templateIdentifier: String, documents: [Document]) {
+        title = String(templateIdentifier.suffix(8))
+        let documentsWithSourceAsTemplate =  documents.filter { document in
+            document.source == templateIdentifier
         }
         var documentsWithSourceAsDoc = [Document]()
         documentsWithSourceAsTemplate.forEach { document in
-            documentsWithSourceAsDoc = allDocuments.filter {  $0.source?.contains(document.id) ?? false }
+            documentsWithSourceAsDoc = documents.filter {  $0.source?.contains(document.id) ?? false }
         }
-        self.documents = documentsWithSourceAsDoc + documentsWithSourceAsTemplate
+        _documents = State(initialValue: documentsWithSourceAsDoc + documentsWithSourceAsTemplate)
     }
     
-    // Function to make the API call
+    var body: some View {
+        if isloading {
+            ProgressView()
+        } else {
+            VStack(alignment: .leading) {
+                if showDocumentDetails {
+                    NavigationLink("",
+                                   destination: JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage),
+                                   isActive: $showDocumentDetails)
+                }
+                Text("Document List")
+                    .padding()
+                    .font(.title.bold())
+                List(documents) { submission in
+                    Button(action: {
+                        makeAPICallForSubmission(submission)
+                        isloading = true
+                    }) {
+                        HStack {
+                            Image(systemName: "doc")
+                            Text(submission.name)
+                        }
+                    }
+                }
+            }
+            .navigationTitle(self.title)
+        }
+    }
+    
     private func makeAPICallForSubmission(_ submission: Document) {
         apiService.fetchJoyDoc(identifier: submission.identifier) { result in
-            switch result {
-            case .success(let data):
-                do {
-                    let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
-                    DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                isloading = false
+                switch result {
+                case .success(let data):
+                    do {
+                        let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
                         self.document = joyDocStruct
                         showDocumentDetails = true
-                        isloading = false
+                    } catch {
+                        print("Error decoding JSON: \(error)")
                     }
-                } catch {
-                    print("Error decoding JSON: \(error)")
+                case .failure(let error):
+                    print("error: \(error.localizedDescription)")
                 }
-            case .failure(let error):
-                print("error: \(error.localizedDescription)")
             }
         }
     }
@@ -112,11 +101,5 @@ extension DocumentSubmissionsListView: FormChangeEvent {
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.field.identifier!)
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
-    }
-}
-
-extension Document {
-    public var title: String {
-        String(_id.suffix(8))
     }
 }
