@@ -4,31 +4,28 @@
 import PackageDescription
 
 let package = Package(
-    name: "Joyfill",
-    platforms: [
-        .iOS(.v15) // Set the minimum deployment target to iOS 15
-    ], products: [
+    name: "JoyfillAPIService",
+    products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "Joyfill",
-            targets: ["Joyfill"]),
+            name: "JoyfillAPIService",
+            targets: ["JoyfillAPIService"]),
     ],
     dependencies: [
-        .package(path: "./JoyfillModel"),
-        .package(path: "./JoyfillAPIService"),
+        .package(name: "JoyfillModel", path: "../JoyfillModel")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Joyfill",
+            name: "JoyfillAPIService",
             dependencies: [
-                "JoyfillModel",
-                "JoyfillAPIService"
-            ]
+                "JoyfillModel"
+            ],
+            resources: []
         ),
         .testTarget(
-            name: "JoyfillTests",
-            dependencies: ["Joyfill"]),
+            name: "JoyfillAPIServiceTests",
+            dependencies: ["JoyfillAPIService"]),
     ]
 )
