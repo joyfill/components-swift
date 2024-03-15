@@ -26,11 +26,11 @@ struct MultiSelectionView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                HStack(spacing: 30) {
+                HStack(alignment: .top) {
                     Text("\(title)")
                         .font(.headline.bold())
                     
-                    if fieldDependency.fieldData?.fieldRequired == true && selectedOptionArray.isEmpty {
+                    if fieldDependency.fieldData?.fieldRequired == true && selectedOptionArray.isEmpty  && selectedOption.isEmpty {
                         Image(systemName: "asterisk")
                             .foregroundColor(.red)
                             .imageScale(.small)
@@ -104,8 +104,9 @@ struct MultiSelection: View {
                     selectedOptionArray.append(selectedItemId) // Item doesn't exist, so add it
                 }
         }, label: {
-            HStack {
+            HStack(alignment: .top) {
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                    .padding(.top, 4)
                     .imageScale(.large)
                 Text(option)
                     .foregroundStyle(.black)
@@ -137,8 +138,9 @@ struct RadioView: View {
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }
         }, label: {
-            HStack {
+            HStack(alignment: .top) {
                 Image(systemName: selectedOption == option ? "smallcircle.filled.circle.fill" : "circle")
+                    .padding(.top, 4)
                 Text(option)
                     .foregroundColor(.black)
                     .multilineTextAlignment(.leading)

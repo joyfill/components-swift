@@ -30,7 +30,7 @@ struct DateTimeView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                HStack(spacing: 30) {
+                HStack(alignment: .top) {
                     Text("\(title)")
                         .font(.headline.bold())
                     

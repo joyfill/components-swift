@@ -19,7 +19,7 @@ struct DropdownView: View {
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
-                HStack(spacing: 30) {
+                HStack(alignment: .top) {
                     Text("\(title)")
                         .font(.headline.bold())
                     
@@ -109,7 +109,7 @@ struct DropDownOptionList: View {
                         }, label: {
                             HStack(alignment: .top) {
                                 Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
-                                    .padding(.top, 3)
+                                    .padding(.top, 4)
                                 Text(option.value ?? "")
                                     .multilineTextAlignment(.leading)
                                     .foregroundColor(.black)
