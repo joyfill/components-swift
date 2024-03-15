@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA1FEAC72BA44A6200ABD018 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAC62BA44A6200ABD018 /* JoyfillModel */; };
 		FA529C4E2BA1D251000200F5 /* JoyfillExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA529C4D2BA1D251000200F5 /* JoyfillExampleApp.swift */; };
 		FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA529C512BA1D253000200F5 /* Assets.xcassets */; };
 		FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA529C552BA1D253000200F5 /* Preview Assets.xcassets */; };
@@ -58,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1FEAC72BA44A6200ABD018 /* JoyfillModel in Frameworks */,
 				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
 				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
 			);
@@ -158,6 +160,7 @@
 			packageProductDependencies = (
 				FA529C812BA1D2D2000200F5 /* Joyfill */,
 				FAACBA5F2BA1D3AD00B610AB /* Joyfill */,
+				FA1FEAC62BA44A6200ABD018 /* JoyfillModel */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -232,9 +235,7 @@
 			);
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
-				FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */,
-				3FCE032F2BA3784B000119D9 /* XCLocalSwiftPackageReference "../JoyfillModel" */,
-				3FCE03302BA3785A000119D9 /* XCLocalSwiftPackageReference "../JoyfillAPIService" */,
+				FA1FEAC52BA44A6200ABD018 /* XCRemoteSwiftPackageReference "components-swift-models" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -631,22 +632,23 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		3FCE032F2BA3784B000119D9 /* XCLocalSwiftPackageReference "../JoyfillModel" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../JoyfillModel;
+/* Begin XCRemoteSwiftPackageReference section */
+		FA1FEAC52BA44A6200ABD018 /* XCRemoteSwiftPackageReference "components-swift-models" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joyfill/components-swift-models";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
 		};
-		3FCE03302BA3785A000119D9 /* XCLocalSwiftPackageReference "../JoyfillAPIService" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../JoyfillAPIService;
-		};
-		FAACBA5E2BA1D3AD00B610AB /* XCLocalSwiftPackageReference ".." */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ..;
-		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		FA1FEAC62BA44A6200ABD018 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA1FEAC52BA44A6200ABD018 /* XCRemoteSwiftPackageReference "components-swift-models" */;
+			productName = JoyfillModel;
+		};
 		FA529C812BA1D2D2000200F5 /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Joyfill;
