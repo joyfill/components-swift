@@ -144,8 +144,32 @@ struct PageView: View {
 
     var body: some View {
         if let fieldPositions = page.fieldPositions {
-            FormView(fieldPositions: fieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+          let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
+            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
         }
+    }
+    
+    func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+        let sortedFieldPositions =
+        fieldPositions
+            .sorted { fp1, fp2 in
+                if let y2 = fp2.y, let y1 = fp1.y {
+                    let fpY1 = Int(y1)
+                    let fpY2 = Int(y2)
+                    return fpY1 < fpY2
+                }
+                return true
+            }
+        
+        var resultFieldPositions =  [FieldPosition]()
+        for fp in sortedFieldPositions {
+            if !resultFieldPositions.contains(where: { fieldPosition in
+                fieldPosition.field == fp.field
+            }) {
+                resultFieldPositions.append(fp)
+            }
+        }
+        return resultFieldPositions
     }
 }
 
