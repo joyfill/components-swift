@@ -14,8 +14,8 @@ let package = Package(
             targets: ["Joyfill"]),
     ],
     dependencies: [
-        .package(path: "./JoyfillModel"),
-        .package(path: "./JoyfillAPIService"),
+        .package(url: "https://github.com/joyfill/components-swift-models", branch: "main"),
+        .package(url: "https://github.com/joyfill/components-swift-apiservice", branch: "main"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -23,8 +23,8 @@ let package = Package(
         .target(
             name: "Joyfill",
             dependencies: [
-                "JoyfillModel",
-                "JoyfillAPIService"
+                "components-swift-models",
+                "components-swift-apiservice"
             ]
         ),
         .testTarget(
