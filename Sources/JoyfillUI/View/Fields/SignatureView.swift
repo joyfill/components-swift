@@ -21,6 +21,10 @@ struct SignatureView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
+        _signatureURL = State(initialValue: fieldDependency.fieldData?.value?.signatureURL ?? "")
+        if !imageLoaded {
+            loadImageFromURL()
+        }
     }
     
     var body: some View {
@@ -71,12 +75,6 @@ struct SignatureView: View {
             
             NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
                 EmptyView()
-            }
-        }
-        .onAppear{
-            self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
-            if !imageLoaded {
-                loadImageFromURL()
             }
         }
         .onChange(of: signatureURL) { newValue in

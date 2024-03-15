@@ -16,6 +16,9 @@ struct TextView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
+        if let text = fieldDependency.fieldData?.value?.text {
+            _enterText = State(initialValue: text)
+        }
     }
     
     var body: some View {
@@ -52,11 +55,6 @@ struct TextView: View {
                         fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
                     }
                 }
-        }
-        .onAppear {
-            if let text = fieldDependency.fieldData?.value?.text {
-                enterText = text
-            }
         }
     }
 }
