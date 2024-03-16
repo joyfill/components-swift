@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "components-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/joyfill/components-swift",
-      "state" : {
-        "revision" : "93438b3431ff8e7746a4df7c8031d03ad80e2941",
-        "version" : "0.2.11"
-      }
-    },
-    {
       "identity" : "joyfillapiservice",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/joyfill/JoyfillAPIService",
@@ -25,6 +16,15 @@
       "state" : {
         "revision" : "43ea82a6b9cbe9d6a300f16b35267628d5fb2f35",
         "version" : "0.2.1"
+      }
+    },
+    {
+      "identity" : "swiftuicharts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/willdale/SwiftUICharts.git",
+      "state" : {
+        "revision" : "53a3a2f16730af6709283f83a9dc75a3dde252ff",
+        "version" : "2.10.2"
       }
     }
   ],
