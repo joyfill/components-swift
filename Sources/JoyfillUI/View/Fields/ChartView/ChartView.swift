@@ -12,7 +12,7 @@ struct ChartView: View {
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State var valueElements: [ValueElement] = []
-    @State var showCanvasSignatureView: Bool = false
+    @State var showDetailChartView: Bool = false
     
     let data : MultiLineChartData
     public init(fieldDependency: FieldDependency) {
@@ -57,7 +57,7 @@ struct ChartView: View {
                 )
             
             Button(action: {
-                showCanvasSignatureView = true
+                showDetailChartView = true
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
@@ -73,7 +73,7 @@ struct ChartView: View {
             })
             .padding(.top, 6)
             
-            NavigationLink(destination: ChartDetailView(), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: ChartDetailView(chartData: data), isActive: $showDetailChartView) {
                 EmptyView()
             }
         }
