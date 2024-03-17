@@ -9,6 +9,7 @@ import SwiftUICharts
 
 struct ChartDetailView: View {
     var chartData: MultiLineChartData
+    @State var isCoordinateVisible: Bool = false
     
     var body: some View {
         VStack {
@@ -27,8 +28,92 @@ struct ChartDetailView: View {
                     .id(chartData.id)
                     .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
                     .padding(.horizontal)
+                
+                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible)
+                
                 LinesView()
+                
             }
+        }
+    }
+}
+struct ChartCoordinateView: View {
+    @Binding var isCoordinateVisible: Bool
+    @State var verticletitle: String = "Verticle"
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text("Chart Coordinates")
+                
+                Spacer()
+                
+                showCoordinatesButton
+            }
+            
+            if isCoordinateVisible {
+                Group {
+                    xAndYCordinate(title: $verticletitle, isXAxis: false)
+                    xAndYCordinate(title: $verticletitle, isXAxis: true)
+                }
+                .padding(.all,10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+            }
+        }
+        .padding(.all,10)
+    }
+    
+    var showCoordinatesButton: some View {
+        Button(action: {
+            isCoordinateVisible.toggle()
+        }, label: {
+            HStack(spacing: 5){
+                Text(isCoordinateVisible ? "Hide" : "Show")
+                    .foregroundColor(.blue)
+                
+                Image(systemName: "chevron.down")
+                    .foregroundColor(.blue)
+            }
+            
+        })
+    }
+}
+struct xAndYCordinate: View {
+    @Binding var title: String
+    var isXAxis: Bool
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(isXAxis ? "Horizontal (X)" : "Vertical (Y)")
+                
+                TextField("", text: $title)
+//                            .disabled(fieldDependency.mode == .readonly)
+                    .padding(.horizontal, 10)
+                    .frame(height: 40)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    )
+                    .cornerRadius(10)
+                
+            }
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Min")
+                    
+                    xAndYAxisCoordinateView(xOrYValue: "45")
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("Max")
+                    
+                    xAndYAxisCoordinateView(xOrYValue: "45")
+                }
+            }
+            
         }
     }
 }
@@ -61,11 +146,12 @@ struct LinesView: View {
             Image(systemName: "circlebadge.fill")
                 .foregroundColor(.green)
             Text("Line #1")
+                .foregroundColor(.green)
         }
         .padding(.all,5)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                .stroke(Color.green, lineWidth: 1)
         )
         .padding([.leading,.top], 10)
     }
