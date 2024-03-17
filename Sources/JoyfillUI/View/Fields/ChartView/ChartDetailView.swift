@@ -9,6 +9,7 @@ import SwiftUICharts
 
 struct ChartDetailView: View {
     var chartData: MultiLineChartData
+    
     var body: some View {
         VStack {
             ScrollView {
@@ -35,63 +36,73 @@ struct LinesView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                HStack{
-                    Image(systemName: "circlebadge.fill")
-                        .foregroundColor(.green)
-                    Text("Line #1")
-                }
-                .padding(.all,5)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .padding([.leading,.top], 10)
+                lineNumberBadge
                 
                 Spacer()
                 
-                Button(action: {
-                    
-                }, label: {
-                    HStack{
-                        Text("Remove")
-                            .foregroundColor(.black)
-                        
-                        Image(systemName: "minus.circle")
-                            .foregroundColor(.black)
-                    }
-                    .padding(.all,5)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
-                    .padding([.trailing,.top], 10)
-                })
-                
+                removeLineButton
             }
             
             LineView()
                 .padding([.leading,.trailing,.bottom], 10)
             
-            Button(action: {
-
-            }, label: {
-                Text("Add Line")
-                    .foregroundStyle(.black)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 40)
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
-            })
-            .padding(.all,10)
+            addLineButton
+                .padding(.all,10)
         }
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
         )
         .padding(.all,10)
+    }
+    
+    var lineNumberBadge: some View {
+        HStack{
+            Image(systemName: "circlebadge.fill")
+                .foregroundColor(.green)
+            Text("Line #1")
+        }
+        .padding(.all,5)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+        )
+        .padding([.leading,.top], 10)
+    }
+    
+    var removeLineButton: some View {
+        Button(action: {
+            
+        }, label: {
+            HStack{
+                Text("Remove")
+                    .foregroundColor(.black)
+                
+                Image(systemName: "minus.circle")
+                    .foregroundColor(.black)
+            }
+            .padding(.all,5)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+            )
+            .padding([.trailing,.top], 10)
+        })
+    }
+    var addLineButton: some View {
+        Button(action: {
+            
+        }, label: {
+            Text("Add Line")
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+        })
     }
 }
 
@@ -109,27 +120,9 @@ struct PointsView: View {
     @State var lineDescription: String = "Line Description"
     var body: some View {
         VStack(alignment: .leading){
-            Text("Title & Description")
             
-            TextField("", text: $lineTitle)
-//                .disabled(fieldDependency.mode == .readonly)
-                .padding(.horizontal, 10)
-                .frame(height: 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .cornerRadius(10)
+            titleAndDescription
             
-            TextField("", text: $lineDescription)
-//                .disabled(fieldDependency.mode == .readonly)
-                .padding(.horizontal, 10)
-                .frame(height: 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .cornerRadius(10)
             HStack {
                 Text("Points")
                 
@@ -151,6 +144,31 @@ struct PointsView: View {
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
             }
+        }
+    }
+    var titleAndDescription: some View {
+        VStack(alignment: .leading) {
+            Text("Title & Description")
+            
+            TextField("", text: $lineTitle)
+            //                .disabled(fieldDependency.mode == .readonly)
+                .padding(.horizontal, 10)
+                .frame(height: 40)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+                .cornerRadius(10)
+            
+            TextField("", text: $lineDescription)
+            //                .disabled(fieldDependency.mode == .readonly)
+                .padding(.horizontal, 10)
+                .frame(height: 40)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+                .cornerRadius(10)
         }
     }
 }
@@ -189,19 +207,15 @@ struct PointView: View {
 struct xAndYAxisCoordinateView: View {
     @State var xOrYValue: String
     var body: some View {
-//        VStack(alignment: .leading){
-//            Text("xOrY")
-            
-            TextField("", text: $xOrYValue)
-//                .disabled(fieldDependency.mode == .readonly)
-                .padding(.horizontal, 10)
-                .frame(height: 40)
-                .keyboardType(.decimalPad)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .cornerRadius(10)
-//        }
+        TextField("", text: $xOrYValue)
+        //                .disabled(fieldDependency.mode == .readonly)
+            .padding(.horizontal, 10)
+            .frame(height: 40)
+            .keyboardType(.decimalPad)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+            )
+            .cornerRadius(10)
     }
 }
