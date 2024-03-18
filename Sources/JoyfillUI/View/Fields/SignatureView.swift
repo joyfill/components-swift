@@ -14,17 +14,17 @@ struct SignatureView: View {
     @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
     @State private var showCanvasSignatureView: Bool = false
-    
+    @State var hasAppeared: Bool = false
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
-        _signatureURL = State(initialValue: fieldDependency.fieldData?.value?.signatureURL ?? "")
-        if !imageLoaded {
-            loadImageFromURL()
-        }
+//        _signatureURL = State(initialValue: fieldDependency.fieldData?.value?.signatureURL ?? "")
+//        if !imageLoaded {
+//            loadImageFromURL()
+//        }
     }
     
     var body: some View {
@@ -77,12 +77,23 @@ struct SignatureView: View {
                 EmptyView()
             }
         }
-        .onChange(of: signatureURL) { newValue in
+        .onAppear{
+            if !hasAppeared {
+                self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
+                hasAppeared = true
+            }
+            if !imageLoaded {
+                loadImageFromURL()
+            }
+        }
+        .onChange(of: signatureImage) { newValue in
+            let url = convertImageToBase64(newValue ?? UIImage())
             guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
+            fieldData.value = .string(url ?? "")
+            let change = FieldChange(changeData: ["value" : url])
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
         }
+            
     }
     func loadImageFromURL() {
         APIService().loadImage(from: signatureURL ?? "") { imageData in
@@ -92,9 +103,16 @@ struct SignatureView: View {
                     imageLoaded = true
                 }
             } else {
-                print("Failed to load image from URL: \(String(describing: signatureURL))")
+                print("\(String(describing: signatureURL))")
             }
         }
+    }
+    func convertImageToBase64(_ image: UIImage) -> String? {
+        guard let imageData = image.pngData() else {
+            print("Failed to convert UIImage to Data.")
+            return nil
+        }
+        return imageData.base64EncodedString()
     }
 }
 

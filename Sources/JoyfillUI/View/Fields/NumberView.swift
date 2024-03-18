@@ -53,7 +53,8 @@ struct NumberView: View {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
-                        let change = FieldChange(changeData: ["value" : number])
+                        let convertStringToInt = Double(number)
+                        let change = FieldChange(changeData: ["value" : convertStringToInt])
                         fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
                     }
                 }

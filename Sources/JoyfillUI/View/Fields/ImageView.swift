@@ -16,6 +16,7 @@ struct ImageView: View {
     @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
+    @State var hasAppeared: Bool = false
     
     @State var uiImagesArray: [UIImage] = []
     @State var valueElements: [ValueElement] = []
@@ -32,7 +33,7 @@ struct ImageView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
-        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
+//        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
     }
         
     var body: some View {
@@ -124,6 +125,12 @@ struct ImageView: View {
                            
                            , isActive: $showMoreImages) {
                 EmptyView()
+            }
+        }
+        .onAppear {
+            if !hasAppeared {
+                self.valueElements = fieldDependency.fieldData?.value?.images ?? []
+                hasAppeared = true
             }
         }
         .onChange(of: valueElements) { newValue in
