@@ -118,8 +118,10 @@ struct xAndYCordinate: View {
     }
 }
 struct LinesView: View {
+    var lines: [Int] = [1,2]
     var body: some View {
         VStack(alignment: .leading) {
+            ForEach(lines, id: \.self) {line in
             HStack {
                 lineNumberBadge
                 
@@ -128,8 +130,12 @@ struct LinesView: View {
                 removeLineButton
             }
             
-            LineView()
-                .padding([.leading,.trailing,.bottom], 10)
+                LineView()
+                    .padding([.leading,.trailing,.bottom], 10)
+                Divider()
+            }
+            
+//            Divider()
             
             addLineButton
                 .padding(.all,10)
