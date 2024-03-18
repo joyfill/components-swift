@@ -1,21 +1,12 @@
 {
   "pins" : [
     {
-      "identity" : "components-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/joyfill/components-swift",
-      "state" : {
-        "revision" : "93438b3431ff8e7746a4df7c8031d03ad80e2941",
-        "version" : "0.2.11"
-      }
-    },
-    {
       "identity" : "joyfillapiservice",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/joyfill/JoyfillAPIService",
       "state" : {
-        "revision" : "a0a9f94ba7586addf4545f48b8bc26a28afba927",
-        "version" : "0.2.2"
+        "revision" : "1513117cc8a592c963527f2d8c5f2e01ccdc2800",
+        "version" : "0.2.3"
       }
     },
     {
@@ -23,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/joyfill/JoyfillModel",
       "state" : {
-        "revision" : "43ea82a6b9cbe9d6a300f16b35267628d5fb2f35",
-        "version" : "0.2.1"
+        "revision" : "6810ada19ec804521570835b6209a3067937019c",
+        "version" : "0.2.2"
       }
     }
   ],
