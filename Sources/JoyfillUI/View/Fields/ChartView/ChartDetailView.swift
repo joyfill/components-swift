@@ -6,10 +6,19 @@
 
 import SwiftUI
 import SwiftUICharts
+import JoyfillModel
 
 struct ChartDetailView: View {
     var chartData: MultiLineChartData
+    let fieldDependency: FieldDependency
+    @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
+    
+    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
+        self.chartData = chartData
+        self.fieldDependency = fieldDependency
+        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
+    }
     
     var body: some View {
         VStack {
@@ -31,7 +40,7 @@ struct ChartDetailView: View {
                 
                 ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible)
                 
-                LinesView()
+                LinesView(valueElements: $valueElements)
                 
             }
         }
@@ -118,25 +127,36 @@ struct xAndYCordinate: View {
     }
 }
 struct LinesView: View {
-    var lines: [Int] = [1,2]
+    @Binding var valueElements: [ValueElement]
+    
     var body: some View {
         VStack(alignment: .leading) {
-            ForEach(lines, id: \.self) {line in
-            HStack {
-                lineNumberBadge
+            ForEach(Array(valueElements.enumerated()), id: \.element.id) { index, valueElement in
+                HStack {
+                    HStack{
+                        Image(systemName: "circlebadge.fill")
+                            .foregroundColor(.green)
+                        Text("Line #\(index + 1)")
+                            .foregroundColor(.green)
+                    }
+                    .padding(.all,5)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.green, lineWidth: 1)
+                    )
+                    .padding([.leading,.top], 10)
+                    
+                    Spacer()
+                    
+                    removeLineButton
+                }
                 
-                Spacer()
-                
-                removeLineButton
-            }
-            
-                LineView()
+                LineView(valueElement: valueElement)
                     .padding([.leading,.trailing,.bottom], 10)
+                
                 Divider()
             }
-            
-//            Divider()
-            
+                        
             addLineButton
                 .padding(.all,10)
         }
@@ -145,21 +165,6 @@ struct LinesView: View {
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
         )
         .padding(.all,10)
-    }
-    
-    var lineNumberBadge: some View {
-        HStack{
-            Image(systemName: "circlebadge.fill")
-                .foregroundColor(.green)
-            Text("Line #1")
-                .foregroundColor(.green)
-        }
-        .padding(.all,5)
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.green, lineWidth: 1)
-        )
-        .padding([.leading,.top], 10)
     }
     
     var removeLineButton: some View {
@@ -199,22 +204,50 @@ struct LinesView: View {
 }
 
 struct LineView: View {
+    @State var valueElement: ValueElement
+    @State var lineTitle: String = "Line Title"
+    @State var lineDescription: String = "Line Description"
     var body: some View {
         VStack {
-            PointsView()
+            titleAndDescription
+            
+            PointsView(points: valueElement.points ?? [])
+        }
+    }
+    var titleAndDescription: some View {
+        VStack(alignment: .leading) {
+            Text("Title & Description")
+            
+            TextField("", text: Binding.constant(valueElement.title ?? ""))
+            //                .disabled(fieldDependency.mode == .readonly)
+                .padding(.horizontal, 10)
+                .frame(height: 40)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+                .cornerRadius(10)
+            
+            TextField("", text: Binding.constant(valueElement.description ?? ""))
+            //                .disabled(fieldDependency.mode == .readonly)
+                .padding(.horizontal, 10)
+                .frame(height: 40)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+                .cornerRadius(10)
         }
     }
 }
 
 struct PointsView: View {
-    var points: [Int] = [1,2]
-    @State var lineTitle: String = "Line Title"
-    @State var lineDescription: String = "Line Description"
+//    var points: [Int] = [1,2]
+    @State var points: [Point]
+   
     var body: some View {
         VStack(alignment: .leading){
-            
-            titleAndDescription
-            
+                        
             HStack {
                 Text("Points")
                 
@@ -229,49 +262,23 @@ struct PointsView: View {
             }
             
             ForEach(points, id: \.self){ point in
-                PointView(pointLabel: "Point1")
-                    .padding(.all, 10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
+                PointView(point: point)
+                    .padding(.bottom, 10)
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 10)
+//                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+//                    )
             }
         }
     }
-    var titleAndDescription: some View {
-        VStack(alignment: .leading) {
-            Text("Title & Description")
-            
-            TextField("", text: $lineTitle)
-            //                .disabled(fieldDependency.mode == .readonly)
-                .padding(.horizontal, 10)
-                .frame(height: 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .cornerRadius(10)
-            
-            TextField("", text: $lineDescription)
-            //                .disabled(fieldDependency.mode == .readonly)
-                .padding(.horizontal, 10)
-                .frame(height: 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .cornerRadius(10)
-        }
-    }
+    
 }
 struct PointView: View {
-    @State var pointLabel: String
+    var point: Point
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("Label")
-                
-                TextField("", text: $pointLabel)
+                TextField("", text: Binding.constant(point.label ?? ""))
                 //                .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
@@ -282,8 +289,8 @@ struct PointView: View {
                     .cornerRadius(10)
                 
                 HStack {
-                    xAndYAxisCoordinateView(xOrYValue: "45")
-                    xAndYAxisCoordinateView(xOrYValue: "45")
+                    xAndYAxisCoordinateView(xOrYValue: "\(point.x!)")
+                    xAndYAxisCoordinateView(xOrYValue: "\(point.y!)")
                 }
             }
             

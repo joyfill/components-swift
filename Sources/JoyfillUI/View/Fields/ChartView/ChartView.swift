@@ -73,7 +73,7 @@ struct ChartView: View {
             })
             .padding(.top, 6)
             
-            NavigationLink(destination: ChartDetailView(chartData: data), isActive: $showDetailChartView) {
+            NavigationLink(destination: ChartDetailView(chartData: data,fieldDependency: fieldDependency), isActive: $showDetailChartView) {
                 EmptyView()
             }
         }
