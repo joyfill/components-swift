@@ -10,7 +10,7 @@ import JoyfillModel
 
 struct ChartDetailView: View {
     var chartData: MultiLineChartData
-    let fieldDependency: FieldDependency
+    var fieldDependency: FieldDependency
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
     
@@ -38,7 +38,7 @@ struct ChartDetailView: View {
                     .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
                     .padding(.horizontal)
                 
-                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible)
+                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, fieldDependency: fieldDependency)
                 
                 LinesView(valueElements: $valueElements)
                 
@@ -48,7 +48,7 @@ struct ChartDetailView: View {
 }
 struct ChartCoordinateView: View {
     @Binding var isCoordinateVisible: Bool
-    @State var verticletitle: String = "Verticle"
+    var fieldDependency: FieldDependency
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -62,8 +62,8 @@ struct ChartCoordinateView: View {
             
             if isCoordinateVisible {
                 Group {
-                    xAndYCordinate(title: $verticletitle, isXAxis: false)
-                    xAndYCordinate(title: $verticletitle, isXAxis: true)
+                    xAndYCordinate(fieldDependency: fieldDependency, isXAxis: false)
+                    xAndYCordinate(fieldDependency: fieldDependency, isXAxis: true)
                 }
                 .padding(.all,10)
                 .overlay(
@@ -91,14 +91,15 @@ struct ChartCoordinateView: View {
     }
 }
 struct xAndYCordinate: View {
-    @Binding var title: String
+    @State var title: String = "dsfghj"
+    var fieldDependency: FieldDependency
     var isXAxis: Bool
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
                 Text(isXAxis ? "Horizontal (X)" : "Vertical (Y)")
                 
-                TextField("", text: $title)
+                TextField("", text: isXAxis ? Binding.constant(fieldDependency.fieldData?.xTitle ?? "") : Binding.constant(fieldDependency.fieldData?.yTitle ?? ""))
 //                            .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
@@ -113,13 +114,13 @@ struct xAndYCordinate: View {
                 VStack(alignment: .leading) {
                     Text("Min")
                     
-                    xAndYAxisCoordinateView(xOrYValue: "45")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMin!)" : "\(fieldDependency.fieldData?.yMin!)")
                 }
                 
                 VStack(alignment: .leading) {
                     Text("Max")
                     
-                    xAndYAxisCoordinateView(xOrYValue: "45")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMax!)" : "\(fieldDependency.fieldData?.yMax!)")
                 }
             }
             
