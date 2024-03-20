@@ -70,7 +70,6 @@ public struct TemplateListView: View {
                 self.isLoading = false
                 switch result {
                 case .success(let documents):
-                    print("Retrieved \(documents.count) documents")
                     self.documents = documents
                 case .failure(let error):
                     print("Error fetching documents: \(error.localizedDescription)")
@@ -87,7 +86,6 @@ public struct TemplateListView: View {
                 self.isLoading = false
                 switch result {
                 case .success(let templates):
-                    print("Retrieved \(templates.count) documents")
                     self.templates = templates
                 case .failure(let error):
                     print("Error fetching templates: \(error.localizedDescription)")
@@ -106,7 +104,6 @@ public struct TemplateListView: View {
                 switch result {
                 case .success(let submissions):
                     self.documents = submissions
-                    print("Retrieved \(submissions.count) document submissions")
                 case .failure(let error):
                     print("Error fetching document submissions: \(error.localizedDescription)")
                     self.error = error.localizedDescription
@@ -122,7 +119,7 @@ public struct TemplateListView: View {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let jsonRes):
-                    print("COMPLETE CREATED DOC jsonRes: ", jsonRes)
+                    break
                 case .failure(let error):
                     print("Error creating submission: \(error.localizedDescription)")
                 }

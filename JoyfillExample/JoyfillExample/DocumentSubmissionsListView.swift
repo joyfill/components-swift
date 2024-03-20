@@ -87,9 +87,6 @@ extension DocumentSubmissionsListView: FormChangeEvent {
         print(">>>>>>>>onChange", change)
     }
     
-    func onChange(event: JoyfillModel.Change) {
-    }
-    
     func onFocus(event: FieldEvent) {
         print(">>>>>>>>onFocus", event.field!.identifier!)
     }
