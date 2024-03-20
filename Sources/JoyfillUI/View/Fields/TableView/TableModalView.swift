@@ -60,6 +60,7 @@ struct TableModalView : View {
                 .background(Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
+                
                 ScrollView([.vertical], showsIndicators: false) {
                     rowsHeader
                         .offset(y: offset.y)
@@ -148,7 +149,6 @@ struct TableModalView : View {
                                             Color.clear.preference(key: HeightPreferenceKey.self, value: [i: proxy.size.height])
                                         })
                                     }
-                                    
                                 }
                             }
                         }
@@ -166,15 +166,18 @@ struct TableModalView : View {
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
                     })
-                    .onPreferenceChange(ViewOffsetKey.self) { value in
-                        offset = value
-                        viewModel.toggleSelection()
-                        viewModel.setDeleteButtonVisibility()
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
                 }
+                .gesture(DragGesture().onChanged({ _ in
+                    dismissKeyboard()
+                }))
             }
         }
+    }
+    
+    private func dismissKeyboard() {
+        viewModel.toggleSelection()
+        viewModel.setDeleteButtonVisibility()
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
     // Note: This is an optimisation to stop force re-render entire table
