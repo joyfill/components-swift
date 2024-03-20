@@ -245,7 +245,7 @@ struct FormView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            LazyVStack(spacing: 20) {
                 ForEach(fieldPositions, id: \.field) { fieldPosition in
                     fieldView(fieldPosition: fieldPosition)
                 }
