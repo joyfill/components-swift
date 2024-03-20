@@ -130,9 +130,6 @@ struct PagesView: View {
     
     var body: some View {
         PageView(fieldsData: $fieldsData, page: pages[currentPage], mode: mode, events: events)
-            .onChange(of: currentPage) { newValue in
-                print(newValue)
-            }
     }
 }
 
@@ -281,7 +278,6 @@ extension FormView: FieldChangeEvents {
     
     func onFocus(event: FieldEvent) {
         currentFocusedFielsData = event.field
-        print("Current focus is ---\(currentFocusedFielsData?.title)")
     }
     
     func onUpload(event: UploadEvent) {
