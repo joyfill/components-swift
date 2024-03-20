@@ -101,7 +101,8 @@ struct TableModalView : View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(viewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
                 HStack(spacing: 0) {
-                    if viewModel.showRowSelector { Image(systemName: row ? "record.circle.fill" : "circle")
+                    if viewModel.showRowSelector {
+                        Image(systemName: row ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: heights[index] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
@@ -132,7 +133,7 @@ struct TableModalView : View {
                                     // Cell
                                     let cell = viewModel.getFieldTableColumn(row: row, col: index)
                                     if let cell = cell {
-                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .quickView) { editedCell  in
+                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView) { editedCell  in
                                             viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
                                         }
                                         
@@ -147,7 +148,7 @@ struct TableModalView : View {
                                             Color.clear.preference(key: HeightPreferenceKey.self, value: [i: proxy.size.height])
                                         })
                                     }
-                                   
+                                    
                                 }
                             }
                         }
