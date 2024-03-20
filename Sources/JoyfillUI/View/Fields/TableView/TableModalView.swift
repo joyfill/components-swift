@@ -166,6 +166,9 @@ struct TableModalView : View {
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
                     })
+                    .onPreferenceChange(ViewOffsetKey.self) { value in
+                        offset = value
+                    }
                 }
                 .gesture(DragGesture().onChanged({ _ in
                     dismissKeyboard()
