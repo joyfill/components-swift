@@ -52,8 +52,10 @@ struct MultiLineTextView: View {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
+                        guard var fieldData = fieldDependency.fieldData else { return }
+                        fieldData.value = .string(multilineText ?? "")
                         let change = FieldChange(changeData: ["value" : multilineText])
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
+                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
                     }
                 }
         }
