@@ -114,13 +114,13 @@ struct xAndYCordinate: View {
                 VStack(alignment: .leading) {
                     Text("Min")
                     
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMin!)" : "\(fieldDependency.fieldData?.yMin!)")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMin ?? 0)" : "\(fieldDependency.fieldData?.yMin ?? 0)")
                 }
                 
                 VStack(alignment: .leading) {
                     Text("Max")
                     
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMax!)" : "\(fieldDependency.fieldData?.yMax!)")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMax ?? 0)" : "\(fieldDependency.fieldData?.yMax ?? 0)")
                 }
             }
             
