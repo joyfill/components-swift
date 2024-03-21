@@ -118,7 +118,9 @@ struct SignatureView: View {
 
 struct Line {
     var points = [CGPoint]()
-    var color: Color = Color.black
+    var color: Color {
+        Color.primary
+    }
     var lineWidth: Double = 2.0
 }
 
