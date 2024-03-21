@@ -249,6 +249,9 @@ struct FormView: View {
             }
             .padding(.horizontal, 16)
         }
+        .gesture(DragGesture().onChanged({ _ in
+            dismissKeyboardOnScroll()
+        }))
         .onChange(of: currentFocusedFielsData) { newValue in
             guard newValue != nil else { return }
             //            guard oldValue != newValue else { return }
@@ -259,6 +262,9 @@ struct FormView: View {
             let fieldEvent = FieldEvent(field: newValue)
             eventHandler?.onFocus(event: fieldEvent)
         }
+    }
+    private func dismissKeyboardOnScroll() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
