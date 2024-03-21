@@ -43,13 +43,13 @@ struct DropdownView: View {
                     Text(fieldDependency.fieldData?.options?.filter {
                         $0.id == selectedDropdownValueID
                     }.first?.value  ?? "Select Option")
+                    .darkLightThemeColor()
                     .lineLimit(1)
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
-                .foregroundColor(.black)
             })
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
@@ -93,7 +93,6 @@ struct DropDownOptionList: View {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Image(systemName: "xmark.circle")
-                        .foregroundColor(.black)
                         .imageScale(.large)
                 })
                 .padding(.horizontal, 16)
@@ -109,8 +108,8 @@ struct DropDownOptionList: View {
                                 Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
                                     .padding(.top, 4)
                                 Text(option.value ?? "")
+                                    .darkLightThemeColor()
                                     .multilineTextAlignment(.leading)
-                                    .foregroundColor(.black)
                                 Spacer()
                             }
                             .padding(.horizontal, 28)

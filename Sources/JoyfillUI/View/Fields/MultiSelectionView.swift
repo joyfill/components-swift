@@ -115,7 +115,7 @@ struct MultiSelection: View {
                     .padding(.top, 4)
                     .imageScale(.large)
                 Text(option)
-                    .foregroundStyle(.black)
+                    .darkLightThemeColor()
                     .multilineTextAlignment(.leading)
                 Spacer()
             }
@@ -149,7 +149,7 @@ struct RadioView: View {
                 Image(systemName: singleSelectedOptionArray == [selectedItemId] ? "smallcircle.filled.circle.fill" : "circle")
                     .padding(.top, 4)
                 Text(option)
-                    .foregroundColor(.black)
+                    .darkLightThemeColor()
                     .multilineTextAlignment(.leading)
                 Spacer()
             }
