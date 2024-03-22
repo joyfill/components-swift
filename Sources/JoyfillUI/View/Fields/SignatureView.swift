@@ -88,8 +88,12 @@ struct SignatureView: View {
         }
         .onChange(of: signatureImage) { newValue in
             let url = convertImageToBase64(newValue ?? UIImage())
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(url ?? "")
+            let newSignatureImageValue = ValueUnion.string(url ?? "")
+            guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newSignatureImageValue
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
             

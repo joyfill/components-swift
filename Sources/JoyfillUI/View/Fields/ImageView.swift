@@ -135,8 +135,12 @@ struct ImageView: View {
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .valueElementArray(newValue)
+            let newImageValue = ValueUnion.valueElementArray(newValue)
+            guard fieldDependency.fieldData?.value != newImageValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newImageValue
             fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
     }

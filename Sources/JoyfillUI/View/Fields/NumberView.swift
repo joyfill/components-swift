@@ -53,9 +53,13 @@ struct NumberView: View {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
-                        guard var fieldData = fieldDependency.fieldData else { return }
                         let convertStringToInt = Double(number)
-                        fieldData.value = .integer(convertStringToInt ?? 0.0)
+                        let newValue = ValueUnion.integer(convertStringToInt ?? 0.0)
+                        guard fieldDependency.fieldData?.value != newValue else { return }
+                        guard var fieldData = fieldDependency.fieldData else {
+                            fatalError("FieldData should never be null")
+                        }
+                        fieldData.value = newValue                        
                         fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
                     }
                 }
