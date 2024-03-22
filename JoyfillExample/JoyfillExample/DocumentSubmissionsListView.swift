@@ -105,7 +105,10 @@ struct FormContainer: View {
                     saveJoyDoc()
                 }) {
                     Text("Save")
+                        .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.borderedProminent)
+                .padding(.horizontal, 40)
             }
         }
     }
