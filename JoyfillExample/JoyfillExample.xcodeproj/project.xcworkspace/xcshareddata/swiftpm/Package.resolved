@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "joyfillmodel",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/joyfill/JoyfillModel",
-      "state" : {
-        "revision" : "43ea82a6b9cbe9d6a300f16b35267628d5fb2f35",
-        "version" : "0.2.1"
-      }
-    },
-    {
       "identity" : "swiftuicharts",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/willdale/SwiftUICharts.git",

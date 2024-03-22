@@ -40,9 +40,38 @@ struct ChartDetailView: View {
                 
                 ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, fieldDependency: fieldDependency)
                 
-                LinesView(valueElements: $valueElements)
-                
+                LinesView(valueElements: $valueElements,addNewLineAction: addNewLine, deleteLineAction: deleteLine, deletePointAction: deletePoint, addPointAction: addNewPoint)
             }
+        }
+    }
+    
+    func addNewLine() {
+        var points: [Point] = []
+        for i in 0..<3 {
+            let point: Point = Point(id: generateObjectId())
+            points.append(point)
+        }
+        
+        var valueElement: ValueElement = ValueElement(id: generateObjectId(),points: points)
+        
+        valueElements.append(valueElement)
+    }
+    
+    func addNewPoint(id: String) {
+        if let valueElementIndex = valueElements.firstIndex(where: { $0.id == id }) {
+            let point: Point = Point(id: generateObjectId())
+            
+            valueElements[valueElementIndex].points?.append(point)
+        }
+    }
+    
+    func deleteLine(lineId: String) {
+        valueElements.removeAll(where: { $0.id == lineId })
+    }
+    
+    func deletePoint(from lineId: String, pointId: String) {
+        if let valueElementIndex = valueElements.firstIndex(where: { $0.id == lineId }) {
+            valueElements[valueElementIndex].points?.removeAll(where: { $0.id == pointId })
         }
     }
 }
@@ -129,6 +158,10 @@ struct xAndYCordinate: View {
 }
 struct LinesView: View {
     @Binding var valueElements: [ValueElement]
+    var addNewLineAction: () -> Void
+    var deleteLineAction: (String) -> Void
+    var deletePointAction: (String, String) -> Void
+    var addPointAction: (String) -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -149,10 +182,33 @@ struct LinesView: View {
                     
                     Spacer()
                     
-                    removeLineButton
+                    Button(action: {
+                        deleteLineAction(valueElement.id ?? "")
+                    }, label: {
+                        HStack{
+                            Text("Remove")
+                                .foregroundColor(.black)
+                            
+                            Image(systemName: "minus.circle")
+                                .foregroundColor(.black)
+                        }
+                        .padding(.all,5)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                        .padding([.trailing,.top], 10)
+                    })
                 }
+                 var valueElementBinding : Binding<ValueElement> {
+                        Binding {
+                            return valueElement
+                        } set: { newValueElement in
+                            valueElements[index] = newValueElement
+                        }
+                    }
                 
-                LineView(valueElement: valueElement)
+                LineView(valueElement: valueElementBinding,deletePointAction: deletePointAction,addPointAction: addPointAction)
                     .padding([.leading,.trailing,.bottom], 10)
                 
                 Divider()
@@ -168,28 +224,10 @@ struct LinesView: View {
         .padding(.all,10)
     }
     
-    var removeLineButton: some View {
-        Button(action: {
-            
-        }, label: {
-            HStack{
-                Text("Remove")
-                    .foregroundColor(.black)
-                
-                Image(systemName: "minus.circle")
-                    .foregroundColor(.black)
-            }
-            .padding(.all,5)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-            )
-            .padding([.trailing,.top], 10)
-        })
-    }
+    
     var addLineButton: some View {
         Button(action: {
-            
+            addNewLineAction()
         }, label: {
             Text("Add Line")
                 .foregroundStyle(.black)
@@ -205,14 +243,16 @@ struct LinesView: View {
 }
 
 struct LineView: View {
-    @State var valueElement: ValueElement
-    @State var lineTitle: String = "Line Title"
-    @State var lineDescription: String = "Line Description"
+    @Binding var valueElement: ValueElement
+    var deletePointAction: (String, String) -> Void
+    var addPointAction: (String) -> Void
+    
     var body: some View {
         VStack {
             titleAndDescription
             
-            PointsView(points: valueElement.points ?? [])
+            PointsView(points: $valueElement.points, deletePointAction: deletePointAction, lineId: valueElement.id ?? "", addPointAction: addPointAction)
+            
         }
     }
     var titleAndDescription: some View {
@@ -243,39 +283,50 @@ struct LineView: View {
 }
 
 struct PointsView: View {
-//    var points: [Int] = [1,2]
-    @State var points: [Point]
+    @Binding var points: [Point]?
+    var deletePointAction: (String, String) -> Void
+    var lineId: String
+    var addPointAction: (String) -> Void
    
     var body: some View {
         VStack(alignment: .leading){
-                        
+            
             HStack {
                 Text("Points")
                 
                 Spacer()
                 
                 Button(action: {
-                    
+                    addPointAction(lineId)
                 }, label: {
-                        Text("Add Point +")
+                    Text("Add Point +")
                         .padding(.all,5)
                 })
             }
-            
-            ForEach(points, id: \.self){ point in
-                PointView(point: point)
-                    .padding(.bottom, 10)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 10)
-//                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-//                    )
+            ForEach(Array(points?.enumerated() ?? [Point]().enumerated()) , id: \.element.id){ index,point in
+                    var pointBinding : Binding<Point> {
+                           Binding {
+                                return point
+                           } set: { newPoint in
+                               points?[index] = newPoint
+                           }
+                       }
+                    PointView(point: pointBinding, deletePointAction: deletePointAction, lineId: lineId)
+                        .padding(.bottom, 20)
+                    //                    .overlay(
+                    //                        RoundedRectangle(cornerRadius: 10)
+                    //                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    //                    )
+                }
             }
-        }
     }
     
 }
 struct PointView: View {
-    var point: Point
+    @Binding var point: Point
+    var deletePointAction: (String, String) -> Void
+    var lineId: String
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -290,13 +341,13 @@ struct PointView: View {
                     .cornerRadius(10)
                 
                 HStack {
-                    xAndYAxisCoordinateView(xOrYValue: "\(point.x!)")
-                    xAndYAxisCoordinateView(xOrYValue: "\(point.y!)")
+                    xAndYAxisCoordinateView(xOrYValue: "\(point.x ?? 0)")
+                    xAndYAxisCoordinateView(xOrYValue: "\(point.y ?? 0)")
                 }
             }
             
             Button(action: {
-                
+                deletePointAction(lineId, point.id ?? "")
             }, label: {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.red)
@@ -319,3 +370,4 @@ struct xAndYAxisCoordinateView: View {
             .cornerRadius(10)
     }
 }
+
