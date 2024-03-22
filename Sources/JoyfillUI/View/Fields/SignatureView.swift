@@ -62,7 +62,7 @@ struct SignatureView: View {
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
-                    .foregroundStyle(.black)
+                    .darkLightThemeColor()
                     .frame(maxWidth: .infinity)
                     .frame(height: 40)
                     .cornerRadius(10)
@@ -121,7 +121,9 @@ struct SignatureView: View {
 
 struct Line {
     var points = [CGPoint]()
-    var color: Color = Color.black
+    var color: Color {
+        Color.primary
+    }
     var lineWidth: Double = 2.0
 }
 
@@ -190,7 +192,7 @@ struct CanvasSignatureView: View {
                     self.lines = []
                 }, label: {
                     Text("Clear")
-                        .foregroundStyle(.black)
+                        .darkLightThemeColor()
                         .frame(width: screenWidth * 0.3,height: 40)
                         .cornerRadius(10)
                         .overlay(

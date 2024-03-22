@@ -41,3 +41,17 @@ extension Color {
         )
     }
 }
+
+struct DarkLightThemeColor: ViewModifier {
+    @Environment(\.colorScheme) var colorScheme
+
+    func body(content: Content) -> some View {
+        content.foregroundColor(colorScheme == .dark ? Color.white : Color.black)
+    }
+}
+
+extension Text {
+    func darkLightThemeColor() -> some View {
+        self.modifier(DarkLightThemeColor())
+    }
+}
