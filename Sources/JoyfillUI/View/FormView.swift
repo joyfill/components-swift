@@ -43,9 +43,9 @@ extension JoyFillView: FormChangeEventInternal {
                             fieldId: event.field!.id!,
                             fieldIdentifier: event.field!.identifier!,
                             fieldPositionId: event.fieldPosition.id!,
-                            change: event.changes.changeData,
+                            change: event.field!.value!,
                             createdOn: Date().timeIntervalSince1970)
-        events?.onChange(change: change, document: document)
+        events?.onChange(change: [change], document: document)
     }
     
     public func onFocus(event: JoyfillModel.FieldEvent) {

@@ -56,8 +56,7 @@ struct NumberView: View {
                         guard var fieldData = fieldDependency.fieldData else { return }
                         let convertStringToInt = Double(number)
                         fieldData.value = .integer(convertStringToInt ?? 0.0)
-                        let change = FieldChange(changeData: ["value" : convertStringToInt])
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
                     }
                 }
         }

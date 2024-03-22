@@ -208,8 +208,7 @@ class TableViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         if tableDataDidChange {
             setTableDataDidChange(to: false)
-            let change = FieldChange(changeData: ["value" : fieldDependency.fieldData])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData))
         }
     }
 }

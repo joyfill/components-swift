@@ -76,7 +76,7 @@ class ViewController: UIHostingController<JoyFillView> {
 }
 
 class ChangeHandler: FormChangeEvent {
-    func onChange(change: JoyfillModel.Change, document: JoyfillModel.JoyDoc) {
+    func onChange(change: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
         print(">>>>>>>>onChange", change)
     }
     

@@ -90,8 +90,7 @@ struct SignatureView: View {
             let url = convertImageToBase64(newValue ?? UIImage())
             guard var fieldData = fieldDependency.fieldData else { return }
             fieldData.value = .string(url ?? "")
-            let change = FieldChange(changeData: ["value" : url])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
             
     }
