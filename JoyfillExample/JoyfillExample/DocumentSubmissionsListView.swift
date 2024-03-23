@@ -151,7 +151,7 @@ struct FormContainer: View {
     
     func updateDocumentChangelogs(identifier: String, docChangeLogs: ChangeDelta) {
         do {
-            let baseURL = "https://api-joy.joyfill.io/v1"
+            let baseURL = "https://api-joy.joyfill.io/v1/documents"
             let userAccessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk"
 
             guard let url = URL(string: "\(baseURL)/\(identifier)/changelogs") else {
@@ -160,7 +160,8 @@ struct FormContainer: View {
             }
 
             let jsonData = try JSONEncoder().encode(docChangeLogs)
-
+//            let convertedString = String(data: jsonData, encoding: .utf8) // the data will be converted to the string
+//            print(convertedString)
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.httpBody = jsonData
