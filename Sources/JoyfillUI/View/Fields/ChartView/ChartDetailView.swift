@@ -13,11 +13,13 @@ struct ChartDetailView: View {
     var fieldDependency: FieldDependency
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
+    @State var chartCoordinatesData: ChartAxisConfiguration
     
     public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
         self.chartData = chartData
         self.fieldDependency = fieldDependency
         _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
+        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: fieldDependency.fieldData?.yTitle, yMax: fieldDependency.fieldData?.yMax, yMin: fieldDependency.fieldData?.yMin, xTitle: fieldDependency.fieldData?.xTitle, xMax: fieldDependency.fieldData?.xMax, xMin: fieldDependency.fieldData?.xMin))
     }
     
     var body: some View {
@@ -38,13 +40,24 @@ struct ChartDetailView: View {
                     .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
                     .padding(.horizontal)
                 
-                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, fieldDependency: fieldDependency)
+                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency)
                 
                 LinesView(valueElements: $valueElements,addNewLineAction: addNewLine, deleteLineAction: deleteLine, deletePointAction: deletePoint, addPointAction: addNewPoint)
             }
             .onChange(of: valueElements, perform: { newValue in
                 guard var fieldData = fieldDependency.fieldData else { return }
                 fieldData.value = .valueElementArray(newValue)
+                let change = FieldChange(changeData: ["value" : newValue])
+                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            })
+            .onChange(of: chartCoordinatesData,perform:  { newValue in
+                guard var fieldData = fieldDependency.fieldData else { return }
+                fieldData.xTitle = newValue.xTitle
+                fieldData.yTitle = newValue.yTitle
+                fieldData.xMax = newValue.xMax
+                fieldData.xMin = newValue.xMin
+                fieldData.yMax = newValue.yMax
+                fieldData.yMin = newValue.yMin
                 let change = FieldChange(changeData: ["value" : newValue])
                 fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
             })
@@ -83,6 +96,7 @@ struct ChartDetailView: View {
 }
 struct ChartCoordinateView: View {
     @Binding var isCoordinateVisible: Bool
+    @Binding var chartCoordinatesData: ChartAxisConfiguration
     var fieldDependency: FieldDependency
     
     var body: some View {
@@ -97,8 +111,8 @@ struct ChartCoordinateView: View {
             
             if isCoordinateVisible {
                 Group {
-                    xAndYCordinate(fieldDependency: fieldDependency, isXAxis: false)
-                    xAndYCordinate(fieldDependency: fieldDependency, isXAxis: true)
+                    xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false)
+                xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: true)
                 }
                 .padding(.all,10)
                 .overlay(
@@ -126,7 +140,7 @@ struct ChartCoordinateView: View {
     }
 }
 struct xAndYCordinate: View {
-    @State var title: String = "dsfghj"
+    @Binding var chartCoordinatesData: ChartAxisConfiguration
     var fieldDependency: FieldDependency
     var isXAxis: Bool
     var body: some View {
@@ -134,7 +148,22 @@ struct xAndYCordinate: View {
             VStack(alignment: .leading) {
                 Text(isXAxis ? "Horizontal (X)" : "Vertical (Y)")
                 
-                TextField("", text: isXAxis ? Binding.constant(fieldDependency.fieldData?.xTitle ?? "") : Binding.constant(fieldDependency.fieldData?.yTitle ?? ""))
+                var xTitle : Binding<String> {
+                    Binding {
+                        return chartCoordinatesData.xTitle ?? ""
+                    } set: { newXTitle in
+                        chartCoordinatesData.xTitle = newXTitle
+                    }
+                }
+                var yTitle : Binding<String> {
+                    Binding {
+                        return chartCoordinatesData.yTitle ?? ""
+                    } set: { newYTitle in
+                        chartCoordinatesData.yTitle = newYTitle
+                    }
+                }
+                
+                TextField("", text: isXAxis ? xTitle : yTitle )
 //                            .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
@@ -145,19 +174,48 @@ struct xAndYCordinate: View {
                     .cornerRadius(10)
                 
             }
+            var xMinBinding : Binding<String> {
+                Binding {
+                    return "\(chartCoordinatesData.xMin ?? 0)"
+                } set: { newXMin in
+                    chartCoordinatesData.xMin = Int(newXMin)
+                }
+            }
+            var yMinBinding : Binding<String> {
+                Binding {
+                    return "\(chartCoordinatesData.yMin ?? 0)"
+                } set: { newXMin in
+                    chartCoordinatesData.yMin = Int(newXMin)
+                }
+            }
+            var xMaxBinding : Binding<String> {
+                Binding {
+                    return "\(chartCoordinatesData.xMax ?? 0)"
+                } set: { newXMin in
+                    chartCoordinatesData.xMax = Int(newXMin)
+                }
+            }
+            var yMaxBinding : Binding<String> {
+                Binding {
+                    return "\(chartCoordinatesData.yMax ?? 0)"
+                } set: { newXMin in
+                    chartCoordinatesData.yMax = Int(newXMin)
+                }
+            }
             HStack {
                 VStack(alignment: .leading) {
                     Text("Min")
                     
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMin ?? 0)" : "\(fieldDependency.fieldData?.yMin ?? 0)")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMinBinding : yMinBinding)
                 }
                 
                 VStack(alignment: .leading) {
                     Text("Max")
                     
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? "\(fieldDependency.fieldData?.xMax ?? 0)" : "\(fieldDependency.fieldData?.yMax ?? 0)")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMaxBinding : yMaxBinding)
                 }
             }
+          
             
         }
     }
@@ -369,8 +427,22 @@ struct PointView: View {
                     .cornerRadius(10)
                 
                 HStack {
-                    xAndYAxisCoordinateView(xOrYValue: "\(point.x ?? 0)")
-                    xAndYAxisCoordinateView(xOrYValue: "\(point.y ?? 0)")
+                    var xBinding : Binding<String> {
+                           Binding {
+                               return "\(point.x ?? 0)"
+                           } set: { newX in
+                               point.x = CGFloat(Double(newX) ?? 0)
+                           }
+                       }
+                    var yBinding : Binding<String> {
+                           Binding {
+                               return "\(point.y ?? 0)"
+                           } set: { newY in
+                               point.y = CGFloat(Double(newY) ?? 0)
+                           }
+                       }
+                    xAndYAxisCoordinateView(xOrYValue: xBinding)
+                    xAndYAxisCoordinateView(xOrYValue: yBinding)
                 }
             }
             
@@ -384,7 +456,7 @@ struct PointView: View {
     }
 }
 struct xAndYAxisCoordinateView: View {
-    @State var xOrYValue: String
+    @Binding var xOrYValue: String
     var body: some View {
         TextField("", text: $xOrYValue)
         //                .disabled(fieldDependency.mode == .readonly)
