@@ -115,18 +115,6 @@ struct FormContainer: View {
     
     @MainActor private func saveJoyDoc() {
         isloading = true
-//        updateDocumentChangelogs(identifier: (document?.identifier)!, docChangeLogs: [:])
-//        apiService.saveJoyDoc(joyDoc: document!) { result in
-//            DispatchQueue.main.async {
-//                isloading = false
-//                switch result {
-//                case .success(let data):
-//                    print("success: \(data)")
-//                case .failure(let error):
-//                    print("error: \(error.localizedDescription)")
-//                }
-//            }
-//        }
     }
     
     private func makeAPICallForSubmission(_ submission: Document) {
@@ -150,34 +138,16 @@ struct FormContainer: View {
     }
     
     func updateDocumentChangelogs(identifier: String, docChangeLogs: ChangeDelta) {
-        do {
-            let baseURL = "https://api-joy.joyfill.io/v1/documents"
-            let userAccessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk"
-
-            guard let url = URL(string: "\(baseURL)/\(identifier)/changelogs") else {
-                print("Invalid json url")
-                return
-            }
-
-            let jsonData = try JSONEncoder().encode(docChangeLogs)
-//            let convertedString = String(data: jsonData, encoding: .utf8) // the data will be converted to the string
-//            print(convertedString)
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.httpBody = jsonData
-            request.setValue("Bearer \(userAccessToken)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("Error updating changelogs: \(error)")
-                } else if let data = data {
-                    let json = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-                    let _ = json as? NSDictionary
+        apiService.updateDocumentChangelogs(identifier: identifier, docChangeLogs: docChangeLogs) { result in
+            DispatchQueue.main.async {
+                isloading = false
+                switch result {
+                case .success(let data):
+                    print("success: \(data)")
+                case .failure(let error):
+                    print("error: \(error.localizedDescription)")
                 }
-            }.resume()
-        } catch {
-            print("Error serializing JSON: \(error)")
+            }
         }
     }
 }
@@ -185,7 +155,6 @@ struct FormContainer: View {
 extension FormContainer: FormChangeEvent {
     func onChange(change: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
         print(">>>>>>>>onChange", change)
-//        let docChangeLogs = ["changelogs": change.toDict()]
         let changeDelta = ChangeDelta(changelogs: change)
         updateDocumentChangelogs(identifier: document.identifier!, docChangeLogs: changeDelta)
     }
@@ -203,40 +172,3 @@ extension FormContainer: FormChangeEvent {
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
 }
-
-struct ChangeDelta: Codable {
-    let changelogs: [JoyfillModel.Change]
-}
-
-//
-//
-//protocol JSONAble {}
-//
-//extension JoyfillModel.Change: JSONAble {
-//    
-//}
-//
-//extension JSONAble {
-//    func toDict() -> [String:Any] {
-//        var dict = [String: Any]()
-//        let otherSelf = Mirror(reflecting: self)
-//        for child in otherSelf.children {
-//            if let key = child.label {
-//                dict[key] = child.value
-//            }
-//        }
-//        return dict
-//    }
-//}
-//
-//extension Encodable {
-//    /// Converting object to postable dictionary
-//    func toDictionary(_ encoder: JSONEncoder = JSONEncoder()) throws -> [String: Any] {
-//        let data = try encoder.encode(self)
-//        let object = try JSONSerialization.jsonObject(with: data)
-//        if let json = object as? [String: Any]  { return json }
-//        
-//        let context = DecodingError.Context(codingPath: [], debugDescription: "Deserialized object is not a dictionary")
-//        throw DecodingError.typeMismatch(type(of: object), context)
-//    }
-//}
