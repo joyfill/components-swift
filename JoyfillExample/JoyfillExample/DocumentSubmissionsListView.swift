@@ -39,7 +39,13 @@ struct DocumentSubmissionsListView: View {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
                     NavigationLink("",
-                                   destination: FormContainer(document: $document),
+                                   destination: FormContainer(document: SwiftUI.Binding(
+                                    get: { 
+                                        document!
+                                    },
+                                    set: { 
+                                        document = $0
+                                    })),
                                    isActive: $showDocumentDetails)
                 }
                 Text("Document List")
@@ -83,14 +89,14 @@ struct DocumentSubmissionsListView: View {
 }
 
 struct FormContainer: View {
-    @Binding var document: JoyDoc?
+    @Binding var document: JoyDoc
     @State private var showDocumentDetails = false
     @State var currentPage: Int = 0
     @State private var isloading = true
     private let apiService: APIService = APIService()
     private var changelogs: ChangeDelta? = nil
 
-    init(document: Binding<JoyDoc?>) {
+    init(document: Binding<JoyDoc>) {
         _document = document
     }
     
@@ -100,7 +106,7 @@ struct FormContainer: View {
                 .onAppear() { isloading = false }
         } else {
             VStack {
-                JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage)
+                JoyFillView(document: $document, mode: .fill, events: self, currentPage: $currentPage)
                 Button(action: {
                     saveJoyDoc()
                 }) {
@@ -115,6 +121,17 @@ struct FormContainer: View {
     
     @MainActor private func saveJoyDoc() {
         isloading = true
+        apiService.updateDocument(identifier: document.identifier!, document: document) { result in
+            DispatchQueue.main.async {
+                isloading = false
+                switch result {
+                case .success(let data):
+                    print("success: \(data)")
+                case .failure(let error):
+                    print("error: \(error.localizedDescription)")
+                }
+            }
+        }
     }
     
     private func makeAPICallForSubmission(_ submission: Document) {
@@ -140,7 +157,6 @@ struct FormContainer: View {
     func updateDocumentChangelogs(identifier: String, docChangeLogs: ChangeDelta) {
         apiService.updateDocumentChangelogs(identifier: identifier, docChangeLogs: docChangeLogs) { result in
             DispatchQueue.main.async {
-                isloading = false
                 switch result {
                 case .success(let data):
                     print("success: \(data)")
@@ -156,7 +172,7 @@ extension FormContainer: FormChangeEvent {
     func onChange(change: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
         print(">>>>>>>>onChange", change)
         let changeDelta = ChangeDelta(changelogs: change)
-        updateDocumentChangelogs(identifier: document.identifier!, docChangeLogs: changeDelta)
+//        updateDocumentChangelogs(identifier: document.identifier!, docChangeLogs: changeDelta)
     }
     
     func onFocus(event: FieldEvent) {
