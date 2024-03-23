@@ -11,7 +11,7 @@ import Joyfill
 
 struct DocumentSubmissionsListView: View {
     @State var documents: [Document] = []
-    @State var document: JoyDoc? = nil
+    @State var document: JoyDoc?
     @State private var showDocumentDetails = false
     @State var currentPage: Int = 0
     @State private var isloading = false
@@ -39,7 +39,13 @@ struct DocumentSubmissionsListView: View {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
                     NavigationLink("",
-                                   destination: JoyFillView(document: document!, mode: .fill, events: self, currentPage: $currentPage),
+                                   destination: FormContainer(document: SwiftUI.Binding(
+                                    get: { 
+                                        document!
+                                    },
+                                    set: { 
+                                        document = $0
+                                    })),
                                    isActive: $showDocumentDetails)
                 }
                 Text("Document List")
@@ -82,9 +88,90 @@ struct DocumentSubmissionsListView: View {
     }
 }
 
-extension DocumentSubmissionsListView: FormChangeEvent {
-    func onChange(change: JoyfillModel.Change, document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", change)
+struct FormContainer: View {
+    @Binding var document: JoyDoc
+    @State private var showDocumentDetails = false
+    @State var currentPage: Int = 0
+    @State private var isloading = true
+    private let apiService: APIService = APIService()
+
+    init(document: Binding<JoyDoc>) {
+        _document = document
+    }
+    
+    var body: some View {
+        if isloading {
+            ProgressView()
+                .onAppear() { isloading = false }
+        } else {
+            VStack {
+                JoyFillView(document: $document, mode: .fill, events: self, currentPage: $currentPage)
+                Button(action: {
+                    saveJoyDoc()
+                }) {
+                    Text("Save")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.horizontal, 40)
+            }
+        }
+    }
+    
+    @MainActor private func saveJoyDoc() {
+        isloading = true
+        apiService.updateDocument(identifier: document.identifier!, document: document) { result in
+            DispatchQueue.main.async {
+                isloading = false
+                switch result {
+                case .success(let data):
+                    print("success: \(data)")
+                case .failure(let error):
+                    print("error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func makeAPICallForSubmission(_ submission: Document) {
+        apiService.fetchJoyDoc(identifier: submission.identifier) { result in
+            DispatchQueue.main.async {
+                isloading = false
+                switch result {
+                case .success(let data):
+                    do {
+                        let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
+                        self.document = joyDocStruct
+                        showDocumentDetails = true
+                    } catch {
+                        print("Error decoding JSON: \(error)")
+                    }
+                case .failure(let error):
+                    print("error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func updateDocument(identifier: String, changeLogs: Changelog) {
+        apiService.updateDocument(identifier: identifier, changeLogs: changeLogs) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let data):
+                    print("success: \(data)")
+                case .failure(let error):
+                    print("error: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+}
+
+extension FormContainer: FormChangeEvent {
+    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+        print(">>>>>>>>onChange", changes)
+        let changeLogs = Changelog(changelogs: changes)
+        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
     
     func onFocus(event: FieldEvent) {

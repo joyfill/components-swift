@@ -75,16 +75,22 @@ struct MultiSelectionView: View {
             .padding(.vertical, 10)
         }
         .onChange(of: singleSelectedOptionArray) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .array(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            let newSingleSelectedValue = ValueUnion.array(newValue)
+            guard fieldDependency.fieldData?.value != newSingleSelectedValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newSingleSelectedValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .array(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            let newMultiSelectedValue = ValueUnion.array(newValue)
+            guard fieldDependency.fieldData?.value != newMultiSelectedValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newMultiSelectedValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
     }
 }

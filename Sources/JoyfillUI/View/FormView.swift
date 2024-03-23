@@ -8,15 +8,15 @@ import SwiftUI
 import JoyfillModel
 
 public struct JoyFillView: View {
-    @State public var document: JoyDoc
+    @Binding public var document: JoyDoc
     @State public var mode: Mode
     @Binding public var currentPage: Int
     public var events: FormChangeEvent?
     
-    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, currentPage: Binding<Int>? = nil) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, currentPage: Binding<Int>? = nil) {
         self.events = events
         _mode = State(initialValue: mode)
-        _document = State(initialValue: document)
+        _document = document
         _currentPage = currentPage ?? Binding(get: {
             0
         }, set: { value in
@@ -32,7 +32,7 @@ public struct JoyFillView: View {
 extension JoyFillView: FormChangeEventInternal {
     public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
-        event.document = document
+        let fieldChange = FieldChange(value: event.field!.value!)
         let change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
@@ -43,9 +43,9 @@ extension JoyFillView: FormChangeEventInternal {
                             fieldId: event.field!.id!,
                             fieldIdentifier: event.field!.identifier!,
                             fieldPositionId: event.fieldPosition.id!,
-                            change: event.changes.changeData,
+                            change: fieldChange,
                             createdOn: Date().timeIntervalSince1970)
-        events?.onChange(change: change, document: document)
+        events?.onChange(changes: [change], document: document)
     }
     
     public func onFocus(event: JoyfillModel.FieldEvent) {

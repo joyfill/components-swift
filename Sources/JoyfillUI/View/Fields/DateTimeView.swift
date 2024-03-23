@@ -90,11 +90,14 @@ struct DateTimeView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
-            fieldData.value = .integer(convertDateToInt)
-            let change = FieldChange(changeData: ["value" : convertDateToInt])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            let newDateValue = ValueUnion.integer(convertDateToInt)
+            guard fieldDependency.fieldData?.value != newDateValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newDateValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
     }
     
