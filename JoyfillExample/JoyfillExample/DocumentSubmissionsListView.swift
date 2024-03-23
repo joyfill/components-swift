@@ -94,7 +94,6 @@ struct FormContainer: View {
     @State var currentPage: Int = 0
     @State private var isloading = true
     private let apiService: APIService = APIService()
-    private var changelogs: ChangeDelta? = nil
 
     init(document: Binding<JoyDoc>) {
         _document = document
@@ -154,8 +153,8 @@ struct FormContainer: View {
         }
     }
     
-    func updateDocumentChangelogs(identifier: String, docChangeLogs: ChangeDelta) {
-        apiService.updateDocumentChangelogs(identifier: identifier, docChangeLogs: docChangeLogs) { result in
+    func updateDocument(identifier: String, changeLogs: Changelog) {
+        apiService.updateDocument(identifier: identifier, changeLogs: changeLogs) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let data):
@@ -169,10 +168,10 @@ struct FormContainer: View {
 }
 
 extension FormContainer: FormChangeEvent {
-    func onChange(change: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", change)
-        let changeDelta = ChangeDelta(changelogs: change)
-//        updateDocumentChangelogs(identifier: document.identifier!, docChangeLogs: changeDelta)
+    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+        print(">>>>>>>>onChange", changes)
+        let changeLogs = Changelog(changelogs: changes)
+        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
     
     func onFocus(event: FieldEvent) {
