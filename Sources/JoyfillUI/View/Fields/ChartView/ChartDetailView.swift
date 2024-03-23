@@ -42,6 +42,12 @@ struct ChartDetailView: View {
                 
                 LinesView(valueElements: $valueElements,addNewLineAction: addNewLine, deleteLineAction: deleteLine, deletePointAction: deletePoint, addPointAction: addNewPoint)
             }
+            .onChange(of: valueElements, perform: { newValue in
+                guard var fieldData = fieldDependency.fieldData else { return }
+                fieldData.value = .valueElementArray(newValue)
+                let change = FieldChange(changeData: ["value" : newValue])
+                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            })
         }
     }
     
@@ -258,8 +264,15 @@ struct LineView: View {
     var titleAndDescription: some View {
         VStack(alignment: .leading) {
             Text("Title & Description")
+            var linetitleBinding : Binding<String> {
+                Binding {
+                    return valueElement.title ?? ""
+                } set: { newLineTitle in
+                    valueElement.title = newLineTitle
+                }
+            }
             
-            TextField("", text: Binding.constant(valueElement.title ?? ""))
+            TextField("", text: linetitleBinding)
             //                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
@@ -269,7 +282,15 @@ struct LineView: View {
                 )
                 .cornerRadius(10)
             
-            TextField("", text: Binding.constant(valueElement.description ?? ""))
+            var lineDescriptionBinding : Binding<String> {
+                Binding {
+                    return valueElement.description ?? ""
+                } set: { newLineDescription in
+                    valueElement.description = newLineDescription
+                }
+            }
+            
+            TextField("", text: lineDescriptionBinding)
             //                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
@@ -330,7 +351,14 @@ struct PointView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                TextField("", text: Binding.constant(point.label ?? ""))
+                var pointLabelBinding : Binding<String> {
+                    Binding {
+                        return point.label ?? ""
+                    } set: { newPointLabel in
+                        point.label = newPointLabel
+                    }
+                }
+                TextField("", text: pointLabelBinding)
                 //                .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
