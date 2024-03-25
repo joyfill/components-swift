@@ -11,8 +11,8 @@ import JoyfillModel
 
 struct MultiSelectionView: View {
     @State var isSelected: Bool = false
-    @State private var selectedOption: String = ""
-    @State var selectedOptionArray: [String] = []
+    @State var singleSelectedOptionArray: [String] = []
+    @State var multiSelectedOptionArray: [String] = []
     
     private let fieldDependency: FieldDependency
     private let currentFocusedFielsData: JoyDocField?
@@ -23,10 +23,12 @@ struct MultiSelectionView: View {
         self.currentFocusedFielsData = currentFocusedFielsData
         if fieldDependency.fieldData?.multi ?? true {
             if let values = fieldDependency.fieldData?.value?.multiSelector {
-                _selectedOptionArray = State(initialValue: values)
+                _multiSelectedOptionArray = State(initialValue: values)
             }
         } else {
-            _selectedOption = State(initialValue: fieldDependency.fieldData?.options?.filter { $0.id == fieldDependency.fieldData?.value?.multiSelector?[0] }.first?.value ?? "")
+            if let values = fieldDependency.fieldData?.value?.multiSelector {
+                _singleSelectedOptionArray = State(initialValue: values)
+            }
         }
     }
     
@@ -37,7 +39,7 @@ struct MultiSelectionView: View {
                     Text("\(title)")
                         .font(.headline.bold())
                     
-                    if fieldDependency.fieldData?.fieldRequired == true && selectedOptionArray.isEmpty  && selectedOption.isEmpty {
+                    if fieldDependency.fieldData?.fieldRequired == true && multiSelectedOptionArray.isEmpty  && singleSelectedOptionArray.isEmpty {
                         Image(systemName: "asterisk")
                             .foregroundColor(.red)
                             .imageScale(.small)
@@ -46,18 +48,18 @@ struct MultiSelectionView: View {
             }
             VStack {
                 if let options = fieldDependency.fieldData?.options {
-                    ForEach(0..<options.count) { index in
+                    ForEach(0..<options.count, id: \.self) { index in
                         let optionValue = options[index].value ?? ""
                         let isSelected = fieldDependency.fieldData?.value?.multiSelector?.first(where: {
                             $0 == options[index].id
                         }) != nil
                         if fieldDependency.fieldData?.multi ?? true {
-                            MultiSelection(option: optionValue, isSelected: isSelected, selectedOptionArray: $selectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
+                            MultiSelection(option: optionValue, isSelected: isSelected, multiSelectedOptionArray: $multiSelectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
                                 Divider()
                             }
                         } else {
-                            RadioView(option: optionValue, selectedOption: $selectedOption,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency)
+                            RadioView(option: optionValue, singleSelectedOptionArray: $singleSelectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -72,17 +74,23 @@ struct MultiSelectionView: View {
             )
             .padding(.vertical, 10)
         }
-        .onChange(of: selectedOption) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+        .onChange(of: singleSelectedOptionArray) { newValue in
+            let newSingleSelectedValue = ValueUnion.array(newValue)
+            guard fieldDependency.fieldData?.value != newSingleSelectedValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newSingleSelectedValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
-        .onChange(of: selectedOptionArray) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .array(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+        .onChange(of: multiSelectedOptionArray) { newValue in
+            let newMultiSelectedValue = ValueUnion.array(newValue)
+            guard fieldDependency.fieldData?.value != newMultiSelectedValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newMultiSelectedValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
     }
 }
@@ -90,7 +98,7 @@ struct MultiSelectionView: View {
 struct MultiSelection: View {
     var option: String
     @State var isSelected: Bool
-    @Binding var selectedOptionArray: [String]
+    @Binding var multiSelectedOptionArray: [String]
     var isAlreadyFocused: Bool
     var fieldDependency: FieldDependency
     var selectedItemId: String
@@ -102,10 +110,10 @@ struct MultiSelection: View {
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }
-            if let index = selectedOptionArray.firstIndex(of: selectedItemId) {
-                    selectedOptionArray.remove(at: index) // Item exists, so remove it
+            if let index = multiSelectedOptionArray.firstIndex(of: selectedItemId) {
+                multiSelectedOptionArray.remove(at: index) // Item exists, so remove it
                 } else {
-                    selectedOptionArray.append(selectedItemId) // Item doesn't exist, so add it
+                    multiSelectedOptionArray.append(selectedItemId) // Item doesn't exist, so add it
                 }
         }, label: {
             HStack(alignment: .top) {
@@ -113,7 +121,7 @@ struct MultiSelection: View {
                     .padding(.top, 4)
                     .imageScale(.large)
                 Text(option)
-                    .foregroundStyle(.black)
+                    .darkLightThemeColor()
                     .multilineTextAlignment(.leading)
                 Spacer()
             }
@@ -126,16 +134,17 @@ struct MultiSelection: View {
 //Select only one choice
 struct RadioView: View {
     var option: String
-    @Binding var selectedOption: String
+    @Binding var singleSelectedOptionArray: [String]
     var isAlreadyFocused: Bool
     var fieldDependency: FieldDependency
+    var selectedItemId: String
     
     var body: some View {
         Button(action: {
-            if selectedOption == option {
-                selectedOption = ""
+            if singleSelectedOptionArray.contains(selectedItemId) {
+                singleSelectedOptionArray = []
             } else {
-                selectedOption = option
+                singleSelectedOptionArray = [selectedItemId]
             }
             if isAlreadyFocused == false {
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
@@ -143,10 +152,10 @@ struct RadioView: View {
             }
         }, label: {
             HStack(alignment: .top) {
-                Image(systemName: selectedOption == option ? "smallcircle.filled.circle.fill" : "circle")
+                Image(systemName: singleSelectedOptionArray == [selectedItemId] ? "smallcircle.filled.circle.fill" : "circle")
                     .padding(.top, 4)
                 Text(option)
-                    .foregroundColor(.black)
+                    .darkLightThemeColor()
                     .multilineTextAlignment(.leading)
                 Spacer()
             }

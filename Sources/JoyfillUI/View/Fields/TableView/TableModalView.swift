@@ -60,6 +60,7 @@ struct TableModalView : View {
                 .background(Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
+                
                 ScrollView([.vertical], showsIndicators: false) {
                     rowsHeader
                         .offset(y: offset.y)
@@ -101,7 +102,8 @@ struct TableModalView : View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(viewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
                 HStack(spacing: 0) {
-                    if viewModel.showRowSelector { Image(systemName: row ? "record.circle.fill" : "circle")
+                    if viewModel.showRowSelector {
+                        Image(systemName: row ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: heights[index] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
@@ -132,7 +134,7 @@ struct TableModalView : View {
                                     // Cell
                                     let cell = viewModel.getFieldTableColumn(row: row, col: index)
                                     if let cell = cell {
-                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .quickView) { editedCell  in
+                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView) { editedCell  in
                                             viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
                                         }
                                         
@@ -147,7 +149,6 @@ struct TableModalView : View {
                                             Color.clear.preference(key: HeightPreferenceKey.self, value: [i: proxy.size.height])
                                         })
                                     }
-                                   
                                 }
                             }
                         }
@@ -167,13 +168,19 @@ struct TableModalView : View {
                     })
                     .onPreferenceChange(ViewOffsetKey.self) { value in
                         offset = value
-                        viewModel.toggleSelection()
-                        viewModel.setDeleteButtonVisibility()
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }
                 }
+                .gesture(DragGesture().onChanged({ _ in
+                    dismissKeyboard()
+                }))
             }
         }
+    }
+    
+    private func dismissKeyboard() {
+        viewModel.toggleSelection()
+        viewModel.setDeleteButtonVisibility()
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
     // Note: This is an optimisation to stop force re-render entire table

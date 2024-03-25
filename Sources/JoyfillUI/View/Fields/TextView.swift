@@ -51,8 +51,13 @@ struct TextView: View {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
-                        let change = FieldChange(changeData: ["value" : enterText])
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData, changes: change))
+                        let newText = ValueUnion.string(enterText)
+                        guard fieldDependency.fieldData?.value != newText else { return }
+                        guard var fieldData = fieldDependency.fieldData else {
+                            fatalError("FieldData should never be null")
+                        }
+                        fieldData.value = newText
+                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
                     }
                 }
         }

@@ -13,7 +13,6 @@ struct TableQuickView : View {
     private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
-    @State private var refreshID = UUID()
     
     public init(fieldDependency: FieldDependency) {
         self.viewModel = TableViewModel(fieldDependency: fieldDependency)
@@ -113,10 +112,6 @@ struct TableQuickView : View {
                                 }
                             }
                         }
-                    }
-                    .id(refreshID)
-                    .onReceive(viewModel.$rows) { _ in
-                        self.refreshID = UUID()
                     }
                 }
             }

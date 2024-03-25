@@ -43,13 +43,13 @@ struct DropdownView: View {
                     Text(fieldDependency.fieldData?.options?.filter {
                         $0.id == selectedDropdownValueID
                     }.first?.value  ?? "Select Option")
+                    .darkLightThemeColor()
                     .lineLimit(1)
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
-                .foregroundColor(.black)
             })
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
@@ -66,10 +66,13 @@ struct DropdownView: View {
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue ?? "")
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            let newDrodDownValue = ValueUnion.string(newValue ?? "")
+            guard fieldDependency.fieldData?.value != newDrodDownValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newDrodDownValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
     }
 }
@@ -93,7 +96,6 @@ struct DropDownOptionList: View {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Image(systemName: "xmark.circle")
-                        .foregroundColor(.black)
                         .imageScale(.large)
                 })
                 .padding(.horizontal, 16)
@@ -109,8 +111,8 @@ struct DropDownOptionList: View {
                                 Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
                                     .padding(.top, 4)
                                 Text(option.value ?? "")
+                                    .darkLightThemeColor()
                                     .multilineTextAlignment(.leading)
-                                    .foregroundColor(.black)
                                 Spacer()
                             }
                             .padding(.horizontal, 28)

@@ -16,6 +16,7 @@ struct ImageView: View {
     @State private var showMoreImages: Bool = false
     @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
+    @State var hasAppeared: Bool = false
     
     @State var uiImagesArray: [UIImage] = []
     @State var valueElements: [ValueElement] = []
@@ -32,7 +33,7 @@ struct ImageView: View {
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
-        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
+//        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
     }
         
     var body: some View {
@@ -126,12 +127,21 @@ struct ImageView: View {
                 EmptyView()
             }
         }
+        .onAppear {
+            if !hasAppeared {
+                self.valueElements = fieldDependency.fieldData?.value?.images ?? []
+                hasAppeared = true
+            }
+        }
         .onChange(of: valueElements) { newValue in
             fetchImages()
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .valueElementArray(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+            let newImageValue = ValueUnion.valueElementArray(newValue)
+            guard fieldDependency.fieldData?.value != newImageValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newImageValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
     }
     

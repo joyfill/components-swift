@@ -14,17 +14,17 @@ struct SignatureView: View {
     @State var signatureURL: String = ""
     @State private var imageLoaded: Bool = false
     @State private var showCanvasSignatureView: Bool = false
-    
+    @State var hasAppeared: Bool = false
     
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
-        _signatureURL = State(initialValue: fieldDependency.fieldData?.value?.signatureURL ?? "")
-        if !imageLoaded {
-            loadImageFromURL()
-        }
+//        _signatureURL = State(initialValue: fieldDependency.fieldData?.value?.signatureURL ?? "")
+//        if !imageLoaded {
+//            loadImageFromURL()
+//        }
     }
     
     var body: some View {
@@ -62,7 +62,7 @@ struct SignatureView: View {
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
-                    .foregroundStyle(.black)
+                    .darkLightThemeColor()
                     .frame(maxWidth: .infinity)
                     .frame(height: 40)
                     .cornerRadius(10)
@@ -77,12 +77,26 @@ struct SignatureView: View {
                 EmptyView()
             }
         }
-        .onChange(of: signatureURL) { newValue in
-            guard var fieldData = fieldDependency.fieldData else { return }
-            fieldData.value = .string(newValue)
-            let change = FieldChange(changeData: ["value" : newValue])
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+        .onAppear{
+            if !hasAppeared {
+                self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
+                hasAppeared = true
+            }
+            if !imageLoaded {
+                loadImageFromURL()
+            }
         }
+        .onChange(of: signatureImage) { newValue in
+            let url = convertImageToBase64(newValue ?? UIImage())
+            let newSignatureImageValue = ValueUnion.string(url ?? "")
+            guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
+            guard var fieldData = fieldDependency.fieldData else {
+                fatalError("FieldData should never be null")
+            }
+            fieldData.value = newSignatureImageValue
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+        }
+            
     }
     func loadImageFromURL() {
         APIService().loadImage(from: signatureURL ?? "") { imageData in
@@ -92,15 +106,24 @@ struct SignatureView: View {
                     imageLoaded = true
                 }
             } else {
-                print("Failed to load image from URL: \(String(describing: signatureURL))")
+                print("\(String(describing: signatureURL))")
             }
         }
+    }
+    func convertImageToBase64(_ image: UIImage) -> String? {
+        guard let imageData = image.pngData() else {
+            print("Failed to convert UIImage to Data.")
+            return nil
+        }
+        return imageData.base64EncodedString()
     }
 }
 
 struct Line {
     var points = [CGPoint]()
-    var color: Color = Color.black
+    var color: Color {
+        Color.primary
+    }
     var lineWidth: Double = 2.0
 }
 
@@ -169,7 +192,7 @@ struct CanvasSignatureView: View {
                     self.lines = []
                 }, label: {
                     Text("Clear")
-                        .foregroundStyle(.black)
+                        .darkLightThemeColor()
                         .frame(width: screenWidth * 0.3,height: 40)
                         .cornerRadius(10)
                         .overlay(

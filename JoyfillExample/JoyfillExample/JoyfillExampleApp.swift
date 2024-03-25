@@ -18,7 +18,7 @@ struct JoyfillExampleApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TemplateListView()
         }
     }
 }
