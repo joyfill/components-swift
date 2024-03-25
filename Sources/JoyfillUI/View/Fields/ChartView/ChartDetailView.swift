@@ -47,8 +47,7 @@ struct ChartDetailView: View {
             .onChange(of: valueElements, perform: { newValue in
                 guard var fieldData = fieldDependency.fieldData else { return }
                 fieldData.value = .valueElementArray(newValue)
-                let change = FieldChange(changeData: ["value" : newValue])
-                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
             })
             .onChange(of: chartCoordinatesData,perform:  { newValue in
                 guard var fieldData = fieldDependency.fieldData else { return }
@@ -58,8 +57,7 @@ struct ChartDetailView: View {
                 fieldData.xMin = newValue.xMin
                 fieldData.yMax = newValue.yMax
                 fieldData.yMin = newValue.yMin
-                let change = FieldChange(changeData: ["value" : newValue])
-                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData, changes: change))
+                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
             })
         }
     }
