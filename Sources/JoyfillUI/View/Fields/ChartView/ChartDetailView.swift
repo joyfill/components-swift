@@ -197,11 +197,11 @@ struct xAndYCordinate: View {
                 VStack(alignment: .leading) {
                     Text("Min")
                     
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMinBinding : yMinBinding)
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMinBinding : yMinBinding, placeHolder: "")
                 }
                 VStack(alignment: .leading) {
                     Text("Max")
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMaxBinding : yMaxBinding)
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMaxBinding : yMaxBinding, placeHolder: "")
                 }
             }
         }
@@ -317,7 +317,7 @@ struct LineView: View {
                 }
             }
             
-            TextField("", text: linetitleBinding)
+            TextField("Type title", text: linetitleBinding)
             //                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
@@ -335,7 +335,7 @@ struct LineView: View {
                 }
             }
             
-            TextField("", text: lineDescriptionBinding)
+            TextField("Type description", text: lineDescriptionBinding)
             //                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
@@ -400,7 +400,7 @@ struct PointView: View {
                         point.label = newPointLabel
                     }
                 }
-                TextField("", text: pointLabelBinding)
+                TextField("Label", text: pointLabelBinding)
                 //                .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
@@ -433,8 +433,8 @@ struct PointView: View {
                                setY(y: newY)
                            }
                        }
-                    xAndYAxisCoordinateView(xOrYValue: xBinding)
-                    xAndYAxisCoordinateView(xOrYValue: yBinding)
+                    xAndYAxisCoordinateView(xOrYValue: xBinding, placeHolder: "Horizontal value")
+                    xAndYAxisCoordinateView(xOrYValue: yBinding, placeHolder: "Vertical value")
                 }
             }
             
@@ -466,8 +466,9 @@ struct PointView: View {
 
 struct xAndYAxisCoordinateView: View {
     @Binding var xOrYValue: String
+    var placeHolder: String
     var body: some View {
-        TextField("", text: $xOrYValue)
+        TextField(placeHolder, text: $xOrYValue)
         //                .disabled(fieldDependency.mode == .readonly)
             .padding(.horizontal, 10)
             .frame(height: 40)
