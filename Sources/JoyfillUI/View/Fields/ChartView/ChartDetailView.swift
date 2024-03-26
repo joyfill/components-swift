@@ -43,7 +43,6 @@ struct ChartDetailView: View {
 //                    .padding(.horizontal)
                 
                 ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency)
-                
                 LinesView(valueElements: $valueElements,addNewLineAction: addNewLine, deleteLineAction: deleteLine, deletePointAction: deletePoint, addPointAction: addNewPoint)
             }
             .onChange(of: valueElements, perform: { newValue in
@@ -70,16 +69,13 @@ struct ChartDetailView: View {
             let point: Point = Point(id: generateObjectId())
             points.append(point)
         }
-        
         var valueElement: ValueElement = ValueElement(id: generateObjectId(),points: points)
-        
         valueElements.append(valueElement)
     }
     
     func addNewPoint(id: String) {
         if let valueElementIndex = valueElements.firstIndex(where: { $0.id == id }) {
             let point: Point = Point(id: generateObjectId())
-            
             valueElements[valueElementIndex].points?.append(point)
         }
     }
@@ -103,12 +99,9 @@ struct ChartCoordinateView: View {
         VStack(alignment: .leading) {
             HStack {
                 Text("Chart Coordinates")
-                
                 Spacer()
-                
                 showCoordinatesButton
             }
-            
             if isCoordinateVisible {
                 Group {
                     xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false)
@@ -147,7 +140,6 @@ struct xAndYCordinate: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(isXAxis ? "Horizontal (X)" : "Vertical (Y)")
-                
                 var xTitle : Binding<String> {
                     Binding {
                         return chartCoordinatesData.xTitle ?? ""
@@ -162,7 +154,6 @@ struct xAndYCordinate: View {
                         chartCoordinatesData.yTitle = newYTitle
                     }
                 }
-                
                 TextField("", text: isXAxis ? xTitle : yTitle )
 //                            .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
@@ -208,15 +199,11 @@ struct xAndYCordinate: View {
                     
                     xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMinBinding : yMinBinding)
                 }
-                
                 VStack(alignment: .leading) {
                     Text("Max")
-                    
                     xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMaxBinding : yMaxBinding)
                 }
             }
-          
-            
         }
     }
 }
@@ -272,7 +259,7 @@ struct LinesView: View {
                         }
                     }
                 
-                LineView(valueElement: valueElementBinding,deletePointAction: deletePointAction,addPointAction: addPointAction)
+                LineView(valueElement: valueElementBinding,deletePointAction: deletePointAction, addPointAction: addPointAction)
                     .padding([.leading,.trailing,.bottom], 10)
                 
                 Divider()
@@ -369,12 +356,9 @@ struct PointsView: View {
    
     var body: some View {
         VStack(alignment: .leading){
-            
             HStack {
                 Text("Points")
-                
                 Spacer()
-                
                 Button(action: {
                     addPointAction(lineId)
                 }, label: {
@@ -382,7 +366,7 @@ struct PointsView: View {
                         .padding(.all,5)
                 })
             }
-            ForEach(Array(points?.enumerated() ?? [Point]().enumerated()) , id: \.element.id){ index,point in
+            ForEach(Array(points?.enumerated() ?? [Point]().enumerated()) , id: \.element.id){ index, point in
                     var pointBinding : Binding<Point> {
                            Binding {
                                 return point
@@ -429,16 +413,24 @@ struct PointView: View {
                 HStack {
                     var xBinding : Binding<String> {
                            Binding {
-                               return "\(point.x ?? 0)"
+                               let formatter = NumberFormatter()
+                               formatter.numberStyle = .decimal
+                               formatter.usesGroupingSeparator = false
+                               let formattedNumberString = formatter.string(from: NSNumber(value: point.x ?? 0)) ?? ""
+                               return formattedNumberString
                            } set: { newX in
-                               point.x = CGFloat(Double(newX) ?? 0)
+                               setX(x: newX)
                            }
                        }
                     var yBinding : Binding<String> {
                            Binding {
-                               return "\(point.y ?? 0)"
+                               let formatter = NumberFormatter()
+                               formatter.numberStyle = .decimal
+                               formatter.usesGroupingSeparator = false
+                               let formattedNumberString = formatter.string(from: NSNumber(value: point.y ?? 0)) ?? ""
+                               return formattedNumberString
                            } set: { newY in
-                               point.y = CGFloat(Double(newY) ?? 0)
+                               setY(y: newY)
                            }
                        }
                     xAndYAxisCoordinateView(xOrYValue: xBinding)
@@ -454,7 +446,24 @@ struct PointView: View {
             })
         }
     }
+    
+    func setY(y: String) {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        let number = formatter.number(from: y)
+        self.point.y = CGFloat(number?.doubleValue ?? 0)
+    }
+    
+    func setX(x: String) {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        let number = formatter.number(from: x)
+        self.point.x = CGFloat(number?.doubleValue ?? 0)
+    }
 }
+
 struct xAndYAxisCoordinateView: View {
     @Binding var xOrYValue: String
     var body: some View {

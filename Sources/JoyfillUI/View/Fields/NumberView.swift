@@ -17,7 +17,15 @@ struct NumberView: View {
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
         if let number = fieldDependency.fieldData?.value?.number {
-            _number = State(initialValue: String(number))
+            let formatter = NumberFormatter()
+            formatter.minimumFractionDigits = 0
+            formatter.maximumFractionDigits = 10
+            formatter.numberStyle = .decimal
+            formatter.usesGroupingSeparator = false
+
+            let formattedNumberString = formatter.string(from: NSNumber(value: number)) ?? ""
+            print(formattedNumberString)
+            _number = State(initialValue: formattedNumberString)
         }
     }
     

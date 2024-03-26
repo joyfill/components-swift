@@ -21,7 +21,6 @@ struct ChartView: View {
 //        data = ChartView.getData(fieldDependency: fieldDependency)
     }
     
-    
     var body: some View {
         VStack(alignment: .leading) {
             if let title = fieldDependency.fieldData?.title {
