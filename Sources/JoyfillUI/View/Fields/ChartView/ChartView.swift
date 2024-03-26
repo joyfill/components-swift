@@ -60,15 +60,18 @@ struct ChartView: View {
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
-                Text("View more")
-                    .foregroundStyle(.black)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 40)
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
+                HStack {
+                    Image(systemName: "chart.xyaxis.line")
+                    Text("Chart View")
+                }
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
             })
             .padding(.top, 6)
             
