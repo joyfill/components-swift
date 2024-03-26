@@ -209,7 +209,8 @@ struct FormView: View {
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
-    
+    @State var lastFocusedFielsData: JoyDocField? = nil
+
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
         let fieldData = fieldsData?.first(where: {
@@ -258,11 +259,11 @@ struct FormView: View {
         }))
         .onChange(of: currentFocusedFielsData) { newValue in
             guard newValue != nil else { return }
-            //            guard oldValue != newValue else { return }
-            //            if oldValue != nil {
-            //                let fieldEvent = FieldEvent(field: oldValue)
-            //                eventHandler?.onBlur(event: fieldEvent)
-            //            }
+            guard lastFocusedFielsData != newValue else { return }
+            if lastFocusedFielsData != nil {
+                let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+                eventHandler?.onBlur(event: fieldEvent)
+            }
             let fieldEvent = FieldEvent(field: newValue)
             eventHandler?.onFocus(event: fieldEvent)
         }
@@ -287,6 +288,7 @@ extension FormView: FieldChangeEvents {
     }
     
     func onFocus(event: FieldEvent) {
+        lastFocusedFielsData = currentFocusedFielsData
         currentFocusedFielsData = event.field
     }
     
