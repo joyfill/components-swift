@@ -1,12 +1,21 @@
 {
   "pins" : [
     {
-      "identity" : "swiftuicharts",
+      "identity" : "joyfillapiservice",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/willdale/SwiftUICharts.git",
+      "location" : "https://github.com/joyfill/JoyfillAPIService",
       "state" : {
-        "revision" : "53a3a2f16730af6709283f83a9dc75a3dde252ff",
-        "version" : "2.10.2"
+        "revision" : "dfc3316eb93c2231eb2d1749dd8d7f6e3060ec0b",
+        "version" : "0.2.4"
+      }
+    },
+    {
+      "identity" : "joyfillmodel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/joyfill/JoyfillModel",
+      "state" : {
+        "revision" : "f8cb0b210bbe4fce644154f90c47a6138ee6e1c4",
+        "version" : "0.2.3"
       }
     }
   ],
