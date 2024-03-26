@@ -91,7 +91,7 @@ struct DateTimeView: View {
         }
         .onChange(of: selectedDate) { newValue in
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
-            let newDateValue = ValueUnion.integer(convertDateToInt)
+            let newDateValue = ValueUnion.double(convertDateToInt)
             guard fieldDependency.fieldData?.value != newDateValue else { return }
             guard var fieldData = fieldDependency.fieldData else {
                 fatalError("FieldData should never be null")
