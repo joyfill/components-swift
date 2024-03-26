@@ -17,7 +17,15 @@ struct NumberView: View {
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
         if let number = fieldDependency.fieldData?.value?.number {
-            _number = State(initialValue: String(number))
+            let formatter = NumberFormatter()
+            formatter.minimumFractionDigits = 0
+            formatter.maximumFractionDigits = 10
+            formatter.numberStyle = .decimal
+            formatter.usesGroupingSeparator = false
+
+            let formattedNumberString = formatter.string(from: NSNumber(value: number)) ?? ""
+            print(formattedNumberString)
+            _number = State(initialValue: formattedNumberString)
         }
     }
     
@@ -54,7 +62,7 @@ struct NumberView: View {
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let convertStringToInt = Double(number)
-                        let newValue = ValueUnion.integer(convertStringToInt ?? 0.0)
+                        let newValue = ValueUnion.double(convertStringToInt ?? 0.0)
                         guard fieldDependency.fieldData?.value != newValue else { return }
                         guard var fieldData = fieldDependency.fieldData else {
                             fatalError("FieldData should never be null")

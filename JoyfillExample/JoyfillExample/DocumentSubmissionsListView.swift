@@ -91,12 +91,13 @@ struct DocumentSubmissionsListView: View {
 struct FormContainer: View {
     @Binding var document: JoyDoc
     @State private var showDocumentDetails = false
-    @State var currentPage: Int = 0
+    @State var currentPageID: String
     @State private var isloading = true
     private let apiService: APIService = APIService()
 
     init(document: Binding<JoyDoc>) {
         _document = document
+        _currentPageID = State(initialValue: document.wrappedValue.files[0].pages?[0].id ?? "")
     }
     
     var body: some View {
@@ -105,7 +106,7 @@ struct FormContainer: View {
                 .onAppear() { isloading = false }
         } else {
             VStack {
-                JoyFillView(document: $document, mode: .fill, events: self, currentPage: $currentPage)
+                JoyFillView(document: $document, mode: .fill, events: self, currentPageID: $currentPageID)
                 Button(action: {
                     saveJoyDoc()
                 }) {
