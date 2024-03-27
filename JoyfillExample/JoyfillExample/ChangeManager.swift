@@ -1,9 +1,6 @@
 //
 //  ChangeManager.swift
 //  JoyfillExample
-//
-//  Created by ianmol's Macbook on 27/03/24.
-//
 
 import Foundation
 import JoyfillModel
@@ -12,11 +9,11 @@ import JoyfillAPIService
 class ChangeManager {
     private let apiService: APIService = APIService()
     private let showImagePicker: (([String]) -> Void) -> Void
-    
+
     init(showImagePicker: @escaping (([String]) -> Void) -> Void) {
         self.showImagePicker = showImagePicker
     }
-    
+
     func saveJoyDoc(document: JoyDoc) {
         apiService.updateDocument(identifier: document.identifier!, document: document) { result in
             DispatchQueue.main.async {
@@ -29,7 +26,7 @@ class ChangeManager {
             }
         }
     }
-    
+
     func updateDocument(identifier: String, changeLogs: Changelog) {
         apiService.updateDocument(identifier: identifier, changeLogs: changeLogs) { result in
             DispatchQueue.main.async {
@@ -64,4 +61,3 @@ extension ChangeManager: FormChangeEvent {
         showImagePicker(event.uploadHandler)
     }
 }
-
