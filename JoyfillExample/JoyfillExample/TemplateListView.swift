@@ -28,7 +28,7 @@ public struct TemplateListView: View {
                         ForEach(templates) { template in
                             VStack(alignment: .trailing) {
                                 NavigationLink {
-                                    DocumentSubmissionsListView(templateIdentifier: template.identifier, documents: documents)
+                                    DocumentSubmissionsListView(documents: allDocuments(for: template.identifier), title: String(template.identifier.suffix(8)))
                                 } label: {
                                     HStack {
                                         Image(systemName: "doc")
@@ -61,6 +61,17 @@ public struct TemplateListView: View {
         fetchTemplates() {
             fetchDocuments()
         }
+    }
+    
+    func allDocuments(for templateIdentifier: String) -> [Document] {
+        let documentsWithSourceAsTemplate =  documents.filter { document in
+            document.source == templateIdentifier
+        }
+        var documentsWithSourceAsDoc = [Document]()
+        documentsWithSourceAsTemplate.forEach { document in
+            documentsWithSourceAsDoc = documents.filter {  $0.source?.contains(document.id) ?? false }
+        }
+       return documentsWithSourceAsDoc + documentsWithSourceAsTemplate
     }
     
     func fetchDocuments() {

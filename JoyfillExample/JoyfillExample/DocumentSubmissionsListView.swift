@@ -13,24 +13,10 @@ struct DocumentSubmissionsListView: View {
     @State var documents: [Document] = []
     @State var document: JoyDoc?
     @State private var showDocumentDetails = false
-    @State var currentPage: Int = 0
     @State private var isloading = false
     
-    private let title: String
+    let title: String
     private let apiService: APIService = APIService()
-    private var allDocuments: [Document] = []
-    
-    init(templateIdentifier: String, documents: [Document]) {
-        title = String(templateIdentifier.suffix(8))
-        let documentsWithSourceAsTemplate =  documents.filter { document in
-            document.source == templateIdentifier
-        }
-        var documentsWithSourceAsDoc = [Document]()
-        documentsWithSourceAsTemplate.forEach { document in
-            documentsWithSourceAsDoc = documents.filter {  $0.source?.contains(document.id) ?? false }
-        }
-        _documents = State(initialValue: documentsWithSourceAsDoc + documentsWithSourceAsTemplate)
-    }
     
     var body: some View {
         if isloading {
@@ -38,12 +24,7 @@ struct DocumentSubmissionsListView: View {
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
-                    NavigationLink("",
-                                   destination: FormContainerView(document: Binding(
-                                                                    get: { document! },
-                                                                    set: { document = $0 }),
-                                                                  currentPageID: document!.files[0].pages?[0].id ?? "", changeManager: ChangeManager(showImagePicker: showImagePicker)),
-                                   isActive: $showDocumentDetails)
+                    NavigationLink("", destination: FormContainerView(document: documentBinding, currentPageID: currentPageID, changeManager: changeManager), isActive: $showDocumentDetails)
                 }
                 Text("Document List")
                     .padding()
@@ -63,8 +44,19 @@ struct DocumentSubmissionsListView: View {
         }
     }
     
+    private var documentBinding: Binding<JoyDoc> {
+        Binding(get: { document! }, set: { document = $0 })
+    }
     
-    func showImagePicker(uploadHandler: ([String]) -> Void) {
+    private var currentPageID: String {
+        document!.files[0].pages?[0].id ?? ""
+    }
+    
+    private var changeManager: ChangeManager {
+        ChangeManager(showImagePicker: showImagePicker)
+    }
+    
+    private func showImagePicker(uploadHandler: ([String]) -> Void) {
         uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
     
