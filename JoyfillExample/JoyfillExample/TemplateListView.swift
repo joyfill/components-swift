@@ -25,18 +25,17 @@ public struct TemplateListView: View {
                     ForEach(templates) { template in
                         VStack(alignment: .trailing) {
                             NavigationLink {
-                                DocumentSubmissionsListView(documents: allDocuments(for: template.identifier), title: String(template.identifier.suffix(8)))
+                                DocumentSubmissionsListView(documents: allDocuments(for: template.identifier),
+                                                            title: String(template.identifier.suffix(8)))
                             } label: {
                                 HStack {
                                     Image(systemName: "doc")
-                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
+                                        .padding(5)
                                     Text(template.name)
                                 }
                             }
                             Button(action: {
-                                createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
-                                    fetchDocumentSubmissions(identifier: template.identifier)
-                                })
+                                createDocumentSubmission(identifier: template.identifier, completion: { _ in })
                             }, label: {
                                 Text("Fill New +")
                             })
@@ -99,21 +98,6 @@ extension TemplateListView {
                     print("Error fetching templates: \(error.localizedDescription)")
                 }
                 completion()
-            }
-        }
-    }
-    
-    private func fetchDocumentSubmissions(identifier: String) {
-        self.isLoading = true
-        apiService.fetchDocumentSubmissions(identifier: identifier) { result in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let submissions):
-                    self.documents = submissions
-                case .failure(let error):
-                    print("Error fetching document submissions: \(error.localizedDescription)")
-                }
             }
         }
     }
