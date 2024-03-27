@@ -11,6 +11,11 @@ import JoyfillAPIService
 
 class ChangeManager {
     private let apiService: APIService = APIService()
+    private let showImagePicker: (([String]) -> Void) -> Void
+    
+    init(showImagePicker: @escaping (([String]) -> Void) -> Void) {
+        self.showImagePicker = showImagePicker
+    }
     
     func saveJoyDoc(document: JoyDoc) {
         apiService.updateDocument(identifier: document.identifier!, document: document) { result in
@@ -56,7 +61,7 @@ extension ChangeManager: FormChangeEvent {
     
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.field.identifier!)
-        event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
+        showImagePicker(event.uploadHandler)
     }
 }
 

@@ -42,7 +42,7 @@ struct DocumentSubmissionsListView: View {
                                    destination: FormContainerView(document: Binding(
                                                                     get: { document! },
                                                                     set: { document = $0 }),
-                                                              currentPageID: document!.files[0].pages?[0].id ?? ""),
+                                                                  currentPageID: document!.files[0].pages?[0].id ?? "", changeManager: ChangeManager(showImagePicker: showImagePicker)),
                                    isActive: $showDocumentDetails)
                 }
                 Text("Document List")
@@ -61,6 +61,11 @@ struct DocumentSubmissionsListView: View {
             }
             .navigationTitle(self.title)
         }
+    }
+    
+    
+    func showImagePicker(uploadHandler: ([String]) -> Void) {
+        uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
     
     private func makeAPICallForSubmission(_ submission: Document) {
