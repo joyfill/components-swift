@@ -22,6 +22,7 @@ struct SaveButtonView: View {
             }
             .buttonStyle(.borderedProminent)
             .padding(.horizontal, 40)
+            .padding(.top, 20)
         }
     }
 }
