@@ -5,7 +5,6 @@
 //
 
 import SwiftUI
-import SwiftUICharts
 import JoyfillModel
 
 struct ChartDetailView: View {
