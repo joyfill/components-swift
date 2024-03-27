@@ -31,7 +31,6 @@ struct TableModalView : View {
                 viewModel.addRow()
             })
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-            
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
@@ -83,7 +82,7 @@ struct TableModalView : View {
         }
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
-    
+
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(viewModel.columns, id: \.self) { col in
@@ -219,5 +218,3 @@ struct ViewOffsetKey: PreferenceKey {
         value.y += nextValue().y
     }
 }
-
-

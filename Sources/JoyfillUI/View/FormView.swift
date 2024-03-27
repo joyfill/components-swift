@@ -17,11 +17,7 @@ public struct JoyFillView: View {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
-        _currentPageID = currentPageID ?? Binding(get: {
-            return (document.files[0].wrappedValue.pages?[0].id ?? "")
-        }, set: { value in
-            
-        })
+        _currentPageID = currentPageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
     }
     
     public var body: some View {
