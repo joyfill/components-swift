@@ -86,7 +86,7 @@ struct FormContainerView: View {
 
 See our example project for more details.
 
-### JoyDoc Params
+### `JoyFillView` Params
 
 * `mode: 'fill' | 'readonly'`
   * Enables and disables certain JoyDoc functionality and features. 
