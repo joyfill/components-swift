@@ -14,10 +14,10 @@ struct DocumentSubmissionsListView: View {
     @State var document: JoyDoc?
     @State private var showDocumentDetails = false
     @State private var isloading = false
-    
+
     let title: String
     private let apiService: APIService = APIService()
-    
+
     var body: some View {
         if isloading {
             ProgressView()
@@ -31,7 +31,7 @@ struct DocumentSubmissionsListView: View {
                     .font(.title.bold())
                 List(documents) { submission in
                     Button(action: {
-                        makeAPICallForSubmission(submission)
+                        fetchDocument(submission)
                     }) {
                         HStack {
                             Image(systemName: "doc")
@@ -40,7 +40,7 @@ struct DocumentSubmissionsListView: View {
                     }
                 }
             }
-            .navigationTitle(self.title)
+            .navigationTitle(title)
         }
     }
     
@@ -60,7 +60,7 @@ struct DocumentSubmissionsListView: View {
         uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
     
-    private func makeAPICallForSubmission(_ submission: Document) {
+    private func fetchDocument(_ submission: Document) {
         isloading = true
         apiService.fetchJoyDoc(identifier: submission.identifier) { result in
             DispatchQueue.main.async {

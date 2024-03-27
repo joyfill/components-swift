@@ -11,10 +11,8 @@ public struct TemplateListView: View {
     @State var documents: [Document] = []
     @State var templates: [Document] = []
     @State var isLoading = true
-    @State var error: String?
-    
     let apiService: APIService = APIService()
-    
+
     public var body: some View {
         NavigationView {
             VStack {
@@ -55,7 +53,9 @@ public struct TemplateListView: View {
             }
         }
     }
-    
+}
+
+extension TemplateListView {
     @Sendable
     func fetchData() {
         fetchTemplates() {
@@ -63,7 +63,7 @@ public struct TemplateListView: View {
         }
     }
     
-    func allDocuments(for templateIdentifier: String) -> [Document] {
+    private func allDocuments(for templateIdentifier: String) -> [Document] {
         let documentsWithSourceAsTemplate =  documents.filter { document in
             document.source == templateIdentifier
         }
@@ -74,7 +74,7 @@ public struct TemplateListView: View {
        return documentsWithSourceAsDoc + documentsWithSourceAsTemplate
     }
     
-    func fetchDocuments() {
+    private func fetchDocuments() {
         self.isLoading = true
         apiService.fetchDocuments() { result in
             DispatchQueue.main.async {
@@ -84,13 +84,12 @@ public struct TemplateListView: View {
                     self.documents = documents
                 case .failure(let error):
                     print("Error fetching documents: \(error.localizedDescription)")
-                    self.error = error.localizedDescription
                 }
             }
         }
     }
     
-    func fetchTemplates(completion:  @escaping () -> Void) {
+    private func fetchTemplates(completion:  @escaping () -> Void) {
         self.isLoading = true
         apiService.fetchTemplates { result in
             DispatchQueue.main.async {
@@ -100,14 +99,13 @@ public struct TemplateListView: View {
                     self.templates = templates
                 case .failure(let error):
                     print("Error fetching templates: \(error.localizedDescription)")
-                    self.error = error.localizedDescription
                 }
                 completion()
             }
         }
     }
     
-    public func fetchDocumentSubmissions(identifier: String) {
+    private func fetchDocumentSubmissions(identifier: String) {
         self.isLoading = true
         apiService.fetchDocumentSubmissions(identifier: identifier) { result in
             DispatchQueue.main.async {
@@ -117,13 +115,12 @@ public struct TemplateListView: View {
                     self.documents = submissions
                 case .failure(let error):
                     print("Error fetching document submissions: \(error.localizedDescription)")
-                    self.error = error.localizedDescription
                 }
             }
         }
     }
     
-    public func createDocumentSubmission(identifier: String, completion: @escaping ((Any) -> Void)) {
+    private func createDocumentSubmission(identifier: String, completion: @escaping ((Any) -> Void)) {
         self.isLoading = true
         apiService.createDocumentSubmission(identifier: identifier) { result in
             self.isLoading = false
