@@ -11,45 +11,43 @@ public struct TemplateListView: View {
     @State var documents: [Document] = []
     @State var templates: [Document] = []
     @State var isLoading = true
-    let apiService: APIService = APIService()
+    private let apiService: APIService = APIService()
 
     public var body: some View {
         NavigationView {
-            VStack {
-                if isLoading {
-                    ProgressView()
-                        .onAppear(perform: fetchData)
-                } else {
-                    List {
-                        Text("Templates List")
-                            .font(.title.bold())
-                        ForEach(templates) { template in
-                            VStack(alignment: .trailing) {
-                                NavigationLink {
-                                    DocumentSubmissionsListView(documents: allDocuments(for: template.identifier), title: String(template.identifier.suffix(8)))
-                                } label: {
-                                    HStack {
-                                        Image(systemName: "doc")
-                                            .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
-                                        Text(template.name)
-                                    }
+            if isLoading {
+                ProgressView()
+                    .onAppear(perform: fetchData)
+            } else {
+                List {
+                    Text("Templates List")
+                        .font(.title.bold())
+                    ForEach(templates) { template in
+                        VStack(alignment: .trailing) {
+                            NavigationLink {
+                                DocumentSubmissionsListView(documents: allDocuments(for: template.identifier), title: String(template.identifier.suffix(8)))
+                            } label: {
+                                HStack {
+                                    Image(systemName: "doc")
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 5))
+                                    Text(template.name)
                                 }
-                                Button(action: {
-                                    createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
-                                        fetchDocumentSubmissions(identifier: template.identifier)
-                                    })
-                                }, label: {
-                                    Text("Fill New +")
-                                })
-                                .buttonStyle(.borderedProminent)
                             }
+                            Button(action: {
+                                createDocumentSubmission(identifier: template.identifier, completion: { joyDocJSON in
+                                    fetchDocumentSubmissions(identifier: template.identifier)
+                                })
+                            }, label: {
+                                Text("Fill New +")
+                            })
+                            .buttonStyle(.borderedProminent)
                         }
-                        .padding(20)
-                        .border(Color.gray, width: 2)
-                        .cornerRadius(2)
                     }
-                    .refreshable(action: fetchData)
+                    .padding(20)
+                    .border(Color.gray, width: 2)
+                    .cornerRadius(2)
                 }
+                .refreshable(action: fetchData)
             }
         }
     }
