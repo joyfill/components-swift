@@ -104,7 +104,11 @@ struct DropDownOptionList: View {
                 if let options = fieldDependency.fieldData?.options {
                     ForEach(options) { option in
                         Button(action: {
-                            selectedDropdownValueID = option.id
+                            if selectedDropdownValueID == option.id {
+                                selectedDropdownValueID = nil
+                            } else {
+                                selectedDropdownValueID = option.id
+                            }
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack(alignment: .top) {
