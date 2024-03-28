@@ -192,7 +192,7 @@ struct TableModalView : View {
     
     private func updateNewHeight(newValue: [Int: CGFloat]) {
         for (key, value) in newValue {
-            heights[key] = max(value, heights[key] ?? 0)
+            heights[key] = value > 0 ? value : heights[key] ?? 50
         }
     }
 }

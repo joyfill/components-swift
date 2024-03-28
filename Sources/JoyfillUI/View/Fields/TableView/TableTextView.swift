@@ -23,8 +23,9 @@ struct TableTextView: View {
         } else {
             ExpandingTextView(text: $text, height: $textHeight, isFocused: $isTextFieldFocused, mode: cellModel.viewMode)
                 .frame(height: textHeight)
-                .onChange(of: isTextFieldFocused) { isFocused in
-                    if !isFocused, cellModel.data.title != text {
+                .onChange(of: text) { newText in
+                    text = newText
+                    if cellModel.data.title != text {
                         var editedCell = cellModel.data
                         editedCell.title = text
                         cellModel.didChange?(editedCell)
