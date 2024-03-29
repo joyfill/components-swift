@@ -242,13 +242,16 @@ struct FormView: View {
     }
     
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                ForEach(fieldPositions, id: \.field) { fieldPosition in
-                    fieldView(fieldPosition: fieldPosition)
-                }
+        List {
+            ForEach(fieldPositions, id: \.field) { fieldPosition in
+                fieldView(fieldPosition: fieldPosition)
+                    .listRowSeparator(.hidden)
             }
-            .padding(.horizontal, 16)
+//            .padding(.horizontal, 16)
+        }
+        .listStyle(PlainListStyle())
+        .onAppear {
+            UITableView.appearance().separatorStyle = .none
         }
         .gesture(DragGesture().onChanged({ _ in
             dismissKeyboardOnScroll()
