@@ -53,43 +53,42 @@ struct ImageView: View {
             
             if let uiImage = uiImagesArray.first {
                 ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        .frame(height: 250)
+                    
                     Image(uiImage: uiImage)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                .frame(width: screenWidth * 0.9, height: 250)
-                        )
-                    
-                    //                    RoundedRectangle(cornerRadius: 20)
-                    //                        .stroke(Color.gray, lineWidth: 1)
-                    //                        .background(
-                    //                            Image(uiImage: imagesArray[0])
-                    //                                .resizable()
-                    //                                .aspectRatio(contentMode: .fit)
-                    //                        )
-                    
-                    Button(action: {
-                        showMoreImages = true
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    }, label: {
-                        HStack(alignment: .center, spacing: 0) {
-                            Text("More > ")
-                            Text("+\(valueElements.count)")
-                                .foregroundColor(.black)
-                        }
-                        .padding(.all, 5)
-                        .background(Color.white)
+                        .frame(height: 250)
+                        .scaledToFit()
                         .cornerRadius(10)
-                    })
-                    .padding(.top, screenHeight * 0.22)
-                    .padding(.bottom, 8)
-                    .padding(.leading, screenWidth * 0.6)
-                    .shadow(radius: 4)
+                         
+                    VStack {
+                        Spacer()
+                        
+                        HStack {
+                            Spacer()
+                            
+                            Button(action: {
+                                showMoreImages = true
+                                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                            }, label: {
+                                HStack(alignment: .center, spacing: 0) {
+                                    Text("More > ")
+                                    Text("+\(valueElements.count)")
+                                        .foregroundColor(.black)
+                                }
+                                .padding(.all, 5)
+                                .background(Color.white)
+                                .cornerRadius(10)
+                            })
+                            .shadow(radius: 4)
+                        }
+                        .padding(.trailing, 10)
+                    }
+                    .padding(.bottom, 10)
                 }
-                .frame(width: screenWidth * 0.9, height: 250)
             } else {
                 Button(action: {
                     uploadAction()
