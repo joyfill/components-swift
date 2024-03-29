@@ -63,7 +63,7 @@ struct JoyfillExampleApp: App {
 }
 ```
 
-### Show a Joyfill Document with `JoyFillView` SwiftUI View
+### Show a Joyfill Document with SwiftUI `JoyFillView` view
 
 ```swift
 import SwiftUI
@@ -84,7 +84,9 @@ struct FormContainerView: View {
 }
 ```
 
-### JoyDoc Params
+See our example project for more details.
+
+### `JoyFillView` Params
 
 * `mode: 'fill' | 'readonly'`
   * Enables and disables certain JoyDoc functionality and features. 
