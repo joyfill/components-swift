@@ -237,10 +237,10 @@ struct LinesView: View {
                     }, label: {
                         HStack{
                             Text("Remove")
-                                .foregroundColor(.black)
+                                .darkLightThemeColor()
                             
                             Image(systemName: "minus.circle")
-                                .foregroundColor(.black)
+                                .foregroundColor(.red)
                         }
                         .padding(.all,5)
                         .overlay(
@@ -280,7 +280,7 @@ struct LinesView: View {
             addNewLineAction()
         }, label: {
             Text("Add Line")
-                .foregroundStyle(.black)
+                .darkLightThemeColor()
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)

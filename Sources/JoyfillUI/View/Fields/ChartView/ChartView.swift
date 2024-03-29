@@ -63,8 +63,8 @@ struct ChartView: View {
                 HStack {
                     Image(systemName: "chart.xyaxis.line")
                     Text("Chart View")
+                        .darkLightThemeColor()
                 }
-                .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)
