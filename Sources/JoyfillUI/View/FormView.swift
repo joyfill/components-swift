@@ -242,17 +242,11 @@ struct FormView: View {
     }
     
     var body: some View {
-        List {
-            ForEach(fieldPositions, id: \.field) { fieldPosition in
-                fieldView(fieldPosition: fieldPosition)
-                    .listRowSeparator(.hidden)
-            }
-//            .padding(.horizontal, 16)
+        List(fieldPositions, id: \.field) { fieldPosition in
+            fieldView(fieldPosition: fieldPosition)
+                .listRowSeparator(.hidden)
         }
         .listStyle(PlainListStyle())
-        .onAppear {
-            UITableView.appearance().separatorStyle = .none
-        }
         .gesture(DragGesture().onChanged({ _ in
             dismissKeyboardOnScroll()
         }))
