@@ -24,7 +24,6 @@ struct NumberView: View {
             formatter.usesGroupingSeparator = false
 
             let formattedNumberString = formatter.string(from: NSNumber(value: number)) ?? ""
-            print(formattedNumberString)
             _number = State(initialValue: formattedNumberString)
         }
     }
