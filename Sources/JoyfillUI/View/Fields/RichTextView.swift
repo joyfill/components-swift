@@ -20,7 +20,10 @@ struct RichTextView: View {
     }
     
     var body: some View {
-        Text(text)
+        HStack {
+            Text(text)
+            Spacer()
+        }
     }
 }
 
