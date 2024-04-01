@@ -119,12 +119,11 @@ struct ImageView: View {
                 .disabled(showProgressView)
             }
             
-            NavigationLink(destination:
-                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false)
-                           
-                           , isActive: $showMoreImages) {
+            NavigationLink(destination: MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false) , isActive: $showMoreImages) {
                 EmptyView()
             }
+            .frame(width: 0, height: 0)
+            .hidden()
         }
         .onAppear {
             if !hasAppeared {

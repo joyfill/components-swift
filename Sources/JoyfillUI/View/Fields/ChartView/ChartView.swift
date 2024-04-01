@@ -78,6 +78,8 @@ struct ChartView: View {
             NavigationLink(destination: ChartDetailView(fieldDependency: fieldDependency), isActive: $showDetailChartView) {
                 EmptyView()
             }
+            .frame(width: 0, height: 0)
+            .hidden()
         }
     }
     

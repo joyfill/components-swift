@@ -72,6 +72,8 @@ struct TableQuickView : View {
             NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
                 EmptyView()
             }
+            .frame(width: 0, height: 0)
+            .hidden()
         }
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }

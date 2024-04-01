@@ -76,6 +76,8 @@ struct SignatureView: View {
             NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
+            .frame(width: 0, height: 0)
+            .hidden()
         }
         .onAppear{
             if !hasAppeared {
