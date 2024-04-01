@@ -46,14 +46,16 @@ public struct TemplateListView: View {
                     .border(Color.gray, width: 2)
                     .cornerRadius(2)
                 }
-                .refreshable(action: fetchData)
+                .refreshable {
+                    fetchData()
+                }
             }
         }
     }
 }
 
 extension TemplateListView {
-    @Sendable
+
     func fetchData() {
         fetchTemplates() {
             fetchDocuments()
@@ -109,6 +111,8 @@ extension TemplateListView {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let jsonRes):
+                    let id = (jsonRes as! [String: Any])["_id"] as! String
+                    print("Created document submission: \(id)")
                     break
                 case .failure(let error):
                     print("Error creating submission: \(error.localizedDescription)")
