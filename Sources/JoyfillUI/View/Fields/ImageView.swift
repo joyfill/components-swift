@@ -120,8 +120,7 @@ struct ImageView: View {
             }
             
             NavigationLink(destination: 
-                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? false)
-                .disabled(fieldDependency.mode == .readonly)
+                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? (fieldDependency.mode == .readonly))
                            , isActive: $showMoreImages) {
                 EmptyView()
             }
@@ -203,10 +202,7 @@ struct MoreImageView: View {
             Text("More Images")
                 .fontWeight(.bold)
 
-            if isUploadHidden {
-                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
-                    .hidden()
-            } else {
+            if !isUploadHidden {
                 UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
             }
             if showProgressView {
