@@ -21,7 +21,6 @@ struct DisplayTextView: View {
     var body: some View {
         HStack {
             Text("\(displayText)")
-                .fontWeight(.bold)
             Spacer()
         }
     }
