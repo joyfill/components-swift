@@ -47,15 +47,15 @@ extension ChangeManager: FormChangeEvent {
         let changeLogs = Changelog(changelogs: changes)
         updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
-    
+
     func onFocus(event: FieldEvent) {
         print(">>>>>>>>onFocus", event.field!.identifier!)
     }
-    
+
     func onBlur(event: FieldEvent) {
         print(">>>>>>>>onBlur", event.field!.identifier!)
     }
-    
+
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.field.identifier!)
         showImagePicker(event.uploadHandler)

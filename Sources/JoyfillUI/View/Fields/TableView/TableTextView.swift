@@ -15,11 +15,12 @@ struct TableTextView: View {
     
     public init(cellModel: TableCellModel) {
         self.cellModel = cellModel
+        _text = State(initialValue: cellModel.data.title ?? "")
     }
     
     var body: some View {
         if cellModel.viewMode == .quickView {
-            Text(cellModel.data.title ?? "")
+            Text(text)
         } else {
             ExpandingTextView(text: $text, height: $textHeight, isFocused: $isTextFieldFocused, mode: cellModel.viewMode)
                 .frame(height: textHeight)
@@ -29,9 +30,6 @@ struct TableTextView: View {
                         editedCell.title = text
                         cellModel.didChange?(editedCell)
                     }
-                }
-                .onAppear {
-                    text = cellModel.data.title ?? ""
                 }
         }
     }
