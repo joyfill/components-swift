@@ -24,7 +24,6 @@ struct TableTextView: View {
             ExpandingTextView(text: $text, height: $textHeight, isFocused: $isTextFieldFocused, mode: cellModel.viewMode)
                 .frame(height: textHeight)
                 .onChange(of: text) { newText in
-                    text = newText
                     if cellModel.data.title != text {
                         var editedCell = cellModel.data
                         editedCell.title = text
