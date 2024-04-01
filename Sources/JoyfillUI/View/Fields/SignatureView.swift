@@ -12,19 +12,16 @@ struct SignatureView: View {
     @State private var lines: [Line] = []
     @State var signatureImage: UIImage?
     @State var signatureURL: String = ""
-    @State private var imageLoaded: Bool = false
     @State private var showCanvasSignatureView: Bool = false
+
     @State var hasAppeared: Bool = false
-    
+    @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
+
     private let fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
-//        _signatureURL = State(initialValue: fieldDependency.fieldData?.value?.signatureURL ?? "")
-//        if !imageLoaded {
-//            loadImageFromURL()
-//        }
     }
     
     var body: some View {
@@ -83,29 +80,36 @@ struct SignatureView: View {
             if !hasAppeared {
                 self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
                 hasAppeared = true
-            }
-            if !imageLoaded {
                 loadImageFromURL()
             }
         }
         .onChange(of: signatureImage) { newValue in
-            let url = convertImageToBase64(newValue ?? UIImage())
-            let newSignatureImageValue = ValueUnion.string(url ?? "")
-            guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
-            guard var fieldData = fieldDependency.fieldData else {
-                fatalError("FieldData should never be null")
+            guard !ignoreOnChangeOnDefaultImageLoad else {
+                ignoreOnChangeOnDefaultImageLoad = false
+                return
             }
-            fieldData.value = newSignatureImageValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            DispatchQueue.global().async {
+                guard let signatureImage = signatureImage else { return }
+                let url = convertImageToBase64(signatureImage)
+                let newSignatureImageValue = ValueUnion.string(url ?? "")
+                guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
+                guard var fieldData = fieldDependency.fieldData else {
+                    fatalError("FieldData should never be null")
+                }
+                fieldData.value = newSignatureImageValue
+                DispatchQueue.main.async {
+                    fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+                }
+            }
         }
-            
     }
+
     func loadImageFromURL() {
         APIService().loadImage(from: signatureURL ?? "") { imageData in
             if let imageData = imageData, let image = UIImage(data: imageData) {
                 DispatchQueue.main.async {
                     self.signatureImage = image
-                    imageLoaded = true
+                    ignoreOnChangeOnDefaultImageLoad = true
                 }
             } else {
                 print("\(String(describing: signatureURL))")
