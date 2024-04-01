@@ -245,6 +245,7 @@ struct FormView: View {
         List(fieldPositions, id: \.field) { fieldPosition in
             fieldView(fieldPosition: fieldPosition)
                 .listRowSeparator(.hidden)
+                .buttonStyle(.borderless)
         }
         .listStyle(PlainListStyle())
         .gesture(DragGesture().onChanged({ _ in
