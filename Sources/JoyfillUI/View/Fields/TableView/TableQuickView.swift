@@ -13,6 +13,7 @@ struct TableQuickView : View {
     private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
+    @Environment(\.colorScheme) var colorScheme
     
     public init(fieldDependency: FieldDependency) {
         self.viewModel = TableViewModel(fieldDependency: fieldDependency)
@@ -87,7 +88,7 @@ struct TableQuickView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     Text(viewModel.getColumnTitle(columnId: col))
                 }
-                .background(Color.tableColumnBgColor)
+                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .frame(width: (screenWidth / 3) - 8, height: rowHeight)
             }
         }

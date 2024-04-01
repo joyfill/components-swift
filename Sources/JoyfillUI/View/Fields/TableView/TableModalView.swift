@@ -15,6 +15,7 @@ struct TableModalView : View {
     @State private var heights: [Int: CGFloat] = [:]
     @State private var refreshID = UUID()
     @State private var rowsCount: Int = 0
+    @Environment(\.colorScheme) var colorScheme
     
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
@@ -56,7 +57,7 @@ struct TableModalView : View {
                         .frame(width: 40)
                 }
                 .frame(width: viewModel.showRowSelector ? 80 : 40, height: rowHeight)
-                .background(Color.tableColumnBgColor)
+                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
                 
@@ -92,7 +93,8 @@ struct TableModalView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     Text(viewModel.getColumnTitle(columnId: col))
                 }
-                .background(Color.tableColumnBgColor).frame(width: 170, height: rowHeight)
+                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                .frame(width: 170, height: rowHeight)
             }
         }
     }
