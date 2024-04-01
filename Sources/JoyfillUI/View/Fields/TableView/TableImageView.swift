@@ -38,6 +38,7 @@ import JoyfillModel
         }
         .sheet(isPresented: $showMoreImages) {
             MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                .disabled(cellModel.editMode == .readonly)
         }
     }
      

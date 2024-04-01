@@ -43,6 +43,7 @@ struct ChartDetailView: View {
                 
                 ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency)
                 LinesView(valueElements: $valueElements,addNewLineAction: addNewLine, deleteLineAction: deleteLine, deletePointAction: deletePoint, addPointAction: addNewPoint)
+                    .disabled(fieldDependency.mode == .readonly)
             }
             .onChange(of: valueElements, perform: { newValue in
                 guard var fieldData = fieldDependency.fieldData else { return }
@@ -104,7 +105,9 @@ struct ChartCoordinateView: View {
             if isCoordinateVisible {
                 Group {
                     xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false)
+                        .disabled(fieldDependency.mode == .readonly)
                 xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: true)
+                        .disabled(fieldDependency.mode == .readonly)
                 }
                 .padding(.all,10)
                 .overlay(

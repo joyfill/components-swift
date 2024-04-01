@@ -14,7 +14,7 @@ struct FormContainerView: View {
 
     var body: some View {
         VStack {
-            JoyFillView(document: $document, mode: .fill, events: changeManager, currentPageID: $currentPageID)
+            JoyFillView(document: $document, mode: .readonly, events: changeManager, currentPageID: $currentPageID)
             SaveButtonView(changeManager: changeManager, document: $document)
         }
     }
