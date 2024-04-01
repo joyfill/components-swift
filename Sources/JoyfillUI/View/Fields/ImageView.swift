@@ -87,7 +87,7 @@ struct ImageView: View {
                         }
                         .padding(.trailing, 10)
                     }
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 20)
                 }
             } else {
                 Button(action: {
