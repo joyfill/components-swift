@@ -24,8 +24,10 @@ struct TableViewCellBuilder: View {
         switch cellModel.data.type {
         case "text":
             TableTextView(cellModel: cellModel)
+                .disabled(cellModel.editMode == .readonly)
         case "dropdown":
             TableDropDownOptionListView(cellModel: cellModel)
+                .disabled(cellModel.editMode == .readonly)
         case "image":
             TableImageView(cellModel: cellModel)
         default:

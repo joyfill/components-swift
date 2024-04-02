@@ -193,7 +193,7 @@ extension PageView: FormChangeEventInternal {
 }
 
 struct FieldDependency {
-    let mode: Mode = .fill
+    let mode: Mode
     let eventHandler: FieldChangeEvents
     let fieldPosition: FieldPosition
     var fieldData: JoyDocField?
@@ -212,28 +212,37 @@ struct FormView: View {
         let fieldData = fieldsData?.first(where: {
             $0.id == fieldPosition.field
         })
-        let fieldDependency = FieldDependency(eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
+        let fieldDependency = FieldDependency(mode: mode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
         switch fieldPosition.type {
         case .text:
             TextView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .block:
             DisplayTextView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .multiSelect:
             MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
+                .disabled(mode == .readonly)
         case .dropdown:
             DropdownView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .textarea:
             MultiLineTextView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .date:
             DateTimeView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .signature:
             SignatureView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .number:
             NumberView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .chart:
             ChartView(fieldDependency: fieldDependency)
         case .richText:
             RichTextView(fieldDependency: fieldDependency)
+                .disabled(mode == .readonly)
         case .table:
             TableQuickView(fieldDependency: fieldDependency)
         case .image:

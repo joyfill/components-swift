@@ -13,5 +13,6 @@ struct TableCellModel {
     let eventHandler: FieldChangeEvents
     let fieldData: JoyDocField?
     let viewMode: TableViewMode
+    let editMode: Mode
     let didChange: ((_ cell: FieldTableColumn) -> Void)?
 }

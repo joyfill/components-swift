@@ -135,7 +135,7 @@ struct TableModalView : View {
                                     // Cell
                                     let cell = viewModel.getFieldTableColumn(row: row, col: index)
                                     if let cell = cell {
-                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView) { editedCell  in
+                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode) { editedCell  in
                                             viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
                                         }
                                         
