@@ -9,12 +9,12 @@ import JoyfillModel
 
 struct FormContainerView: View {
     @Binding var document: JoyDoc
-    @State var currentPageID: String
+    @State var pageID: String
     let changeManager: ChangeManager
 
     var body: some View {
         VStack {
-            JoyFillView(document: $document, mode: .fill, events: changeManager, currentPageID: $currentPageID)
+            Form(document: $document, mode: .fill, events: changeManager, pageID: $pageID)
             SaveButtonView(changeManager: changeManager, document: $document)
         }
     }

@@ -24,7 +24,7 @@ struct DocumentSubmissionsListView: View {
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
-                    NavigationLink("", destination: FormContainerView(document: documentBinding, currentPageID: currentPageID, changeManager: changeManager), isActive: $showDocumentDetails)
+                    NavigationLink("", destination: FormContainerView(document: documentBinding, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
                 }
                 Text("Document List")
                     .padding()
@@ -48,7 +48,7 @@ struct DocumentSubmissionsListView: View {
         Binding(get: { document! }, set: { document = $0 })
     }
     
-    private var currentPageID: String {
+    private var pageID: String {
         document!.files[0].pages?[0].id ?? ""
     }
     

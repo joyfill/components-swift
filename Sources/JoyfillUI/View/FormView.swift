@@ -7,17 +7,17 @@
 import SwiftUI
 import JoyfillModel
 
-public struct JoyFillView: View {
+public struct Form: View {
     @Binding public var document: JoyDoc
     @State public var mode: Mode
     @Binding public var currentPageID: String
     public var events: FormChangeEvent?
     
-    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, currentPageID: Binding<String>? = nil) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
-        _currentPageID = currentPageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
+        _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
     }
     
     public var body: some View {
@@ -25,7 +25,7 @@ public struct JoyFillView: View {
     }
 }
 
-extension JoyFillView: FormChangeEventInternal {
+extension Form: FormChangeEventInternal {
     public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
         let fieldChange = FieldChange(value: event.field!.value!)
