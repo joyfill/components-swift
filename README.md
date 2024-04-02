@@ -72,12 +72,12 @@ import JoyfillModel
 
 struct FormContainerView: View {
     @Binding var document: JoyDoc
-    @State var currentPageID: String
+    @State var pageID: String
     private let changeManager = ChangeManager()
     
     var body: some View {
         VStack {
-            JoyFillView(document: $document, mode: .fill, events: changeManager, currentPageID: $currentPageID)
+            Form(document: $document, mode: .fill, events: changeManager, pageID: $pageID)
             SaveButtonView(changeManager: changeManager, document: $document)
         }
     }
@@ -97,8 +97,8 @@ See our example project for more details.
 * `document: JoyDoc`
   * The JoyDoc JSON object to load into the SDK. Must be in the JoyDoc JSON data structure.
   * The SDK uses object reference equality checks to determine if the `doc` or any of its internal `pages` or `fields` have changed in the JSON. Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK. This will ensure your changes are properly detected and reflected in the SDK.
-* `currentPageID: String`
-  * Specify the initial page to display in the form. 
+* `pageID: String`
+  * Specify the the page to display in the form. 
   * Utilize the `_id` property of a Page object. For instance, `page._id`.
   * If page is not found within the `doc` it will fallback to displaying the first page in the `pages` array.
   * You can use this property to navigate to a specific page in the form.
