@@ -42,16 +42,13 @@ struct SignatureView: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
-                .overlay(
-                    signatureImage != nil ?
-                    Image(uiImage: signatureImage!)
-                        .resizable()
-                        .scaledToFit()
-                    :
-                        Image("")
-                        .resizable()
-                        .scaledToFit()
-                )
+                .overlay(content: {
+                    if let signatureImage = signatureImage {
+                        Image(uiImage: signatureImage)
+                            .resizable()
+                            .scaledToFit()
+                    }
+                })
             
             Button(action: {
                 showCanvasSignatureView = true
