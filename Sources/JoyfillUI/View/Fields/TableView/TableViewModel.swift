@@ -31,6 +31,7 @@ class TableViewModel: ObservableObject {
     private var selectedRow: Int?
 
     private var tableDataDidChange = false
+    @State var uuid = UUID()
     
     init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
@@ -102,6 +103,7 @@ class TableViewModel: ObservableObject {
         rowToCellMap.removeValue(forKey: rows[selectedRow])
         resetLastSelection()
         setup()
+        uuid = UUID()
     }
     
     func setTableDataDidChange(to: Bool) {
@@ -114,12 +116,14 @@ class TableViewModel: ObservableObject {
         fieldDependency.fieldData?.addRow(id: id)
         resetLastSelection()
         setup()
+        uuid = UUID()
     }
     
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
         setTableDataDidChange(to: true)
         fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
         setup()
+        uuid = UUID()
     }
     
     private func setupColumns() {

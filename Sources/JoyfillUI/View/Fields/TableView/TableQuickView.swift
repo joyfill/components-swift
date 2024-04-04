@@ -118,6 +118,7 @@ struct TableQuickView : View {
                     }
                 }
             }
+            .id(viewModel.uuid)
             .disabled(true)
         }
     }
