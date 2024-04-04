@@ -171,6 +171,11 @@ struct TableModalView : View {
                         offset = value
                     }
                 }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
+                        cellProxy.scrollTo(0, anchor: .leading)
+                    })
+                }
                 .gesture(DragGesture().onChanged({ _ in
                     dismissKeyboard()
                 }))
