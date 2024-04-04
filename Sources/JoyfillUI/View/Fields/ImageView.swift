@@ -56,13 +56,13 @@ struct ImageView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         .frame(height: 250)
-                    
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .frame(height: 250)
-                        .scaledToFit()
-                        .cornerRadius(10)
-                         
+                        .overlay(content: {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .cornerRadius(10)
+                        })
+   
                     VStack {
                         Spacer()
                         
