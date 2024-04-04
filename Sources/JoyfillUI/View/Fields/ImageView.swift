@@ -153,7 +153,6 @@ struct ImageView: View {
                 showProgressView = false
                 self.uiImagesArray.append(image)
                 self.imageDictionary[valueElement] = image
-                print("imageDictionary \(imageDictionary)")
                 showProgressView = false
             })
         }
@@ -175,7 +174,6 @@ struct ImageView: View {
                     // valueElements upade
                     self.uiImagesArray.append(image)
                     showProgressView = false
-                    print("imageDictionary \(urls)")
                 })
             }
         }
@@ -220,7 +218,6 @@ struct MoreImageView: View {
                 imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
                     self.images.append(image)
                     self.imageDictionary[valueElement] = image
-                    print("imageDictionary \(imageDictionary)")
                     showProgressView = false
                 })
             }
@@ -239,14 +236,12 @@ struct MoreImageView: View {
             }
         })
         .onChange(of: valueElements) { newValue in
-            print(newValue.count)
             self.imageDictionary = [:]
             self.images = []
             for valueElement in valueElements {
                 imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
                     self.images.append(image)
                     self.imageDictionary[valueElement] = image
-                    print("imageDictionary \(imageDictionary)")
                     showProgressView = false
                 })
             }
@@ -272,7 +267,6 @@ struct MoreImageView: View {
     func deleteSelectedImages() {
         // Logic to delete selected Images from imageUrls
         for image in selectedImages {
-            print("image\(image)")
             let urlToDelete = imageDictionary.first { $0.value == image }?.key
             valueElements.removeAll { $0 == urlToDelete }
         }

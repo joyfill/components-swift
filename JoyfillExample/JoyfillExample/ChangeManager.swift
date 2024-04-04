@@ -18,8 +18,8 @@ class ChangeManager {
         apiService.updateDocument(identifier: document.identifier!, document: document) { result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let data):
-                    print("success: \(data)")
+                case .success(_):
+                    print("success")
                 case .failure(let error):
                     print("error: \(error.localizedDescription)")
                 }
@@ -31,8 +31,8 @@ class ChangeManager {
         apiService.updateDocument(identifier: identifier, changeLogs: changeLogs) { result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let data):
-                    print("success: \(data)")
+                case .success(_):
+                    print("success:")
                 case .failure(let error):
                     print("error: \(error.localizedDescription)")
                 }
@@ -43,21 +43,21 @@ class ChangeManager {
 
 extension ChangeManager: FormChangeEvent {
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes)
+        print(">>>>>>>>onChange", changes.first!._id)
         let changeLogs = Changelog(changelogs: changes)
         updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
 
     func onFocus(event: FieldEvent) {
-        print(">>>>>>>>onFocus", event.field!.identifier!)
+        print(">>>>>>>>onFocus", event.field!.id!)
     }
 
     func onBlur(event: FieldEvent) {
-        print(">>>>>>>>onBlur", event.field!.identifier!)
+        print(">>>>>>>>onBlur", event.field!.id!)
     }
 
     func onUpload(event: UploadEvent) {
-        print(">>>>>>>>onUpload", event.field.identifier!)
+        print(">>>>>>>>onUpload", event.field.id!)
         showImagePicker(event.uploadHandler)
     }
 }
