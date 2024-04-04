@@ -27,13 +27,13 @@ struct TableDropDownOptionListView: View {
             }, label: {
                 HStack {
                     Text(selectedDropdownValue ?? "Select Option")
+                        .darkLightThemeColor()
                         .lineLimit(1)
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
-                .foregroundColor(.black)
             })
             .sheet(isPresented: $isSheetPresented) {
                 TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
@@ -73,7 +73,6 @@ struct TableDropDownOptionList: View {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Image(systemName: "xmark.circle")
-                        .foregroundColor(.black)
                         .imageScale(.large)
                 })
                 .padding(.horizontal, 16)
@@ -88,7 +87,7 @@ struct TableDropDownOptionList: View {
                             HStack {
                                 Image(systemName: (selectedDropdownValue == option.value) ? "largecircle.fill.circle" : "circle")
                                 Text(option.value ?? "")
-                                    .foregroundColor(.black)
+                                    .darkLightThemeColor()
                                 Spacer()
                             }
                             .padding(.horizontal, 28)
