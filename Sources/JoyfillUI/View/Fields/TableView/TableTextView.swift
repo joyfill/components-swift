@@ -17,13 +17,18 @@ struct TableTextView: View {
     }
     
     var body: some View {
-        TextEditor(text: $text)
-            .onChange(of: text) { newText in
-                if cellModel.data.title != text {
-                    var editedCell = cellModel.data
-                    editedCell.title = text
-                    cellModel.didChange?(editedCell)
+        if cellModel.viewMode == .quickView {
+            Text(text)
+                .lineLimit(1)
+        } else {
+            TextEditor(text: $text)
+                .onChange(of: text) { newText in
+                    if cellModel.data.title != text {
+                        var editedCell = cellModel.data
+                        editedCell.title = text
+                        cellModel.didChange?(editedCell)
+                    }
                 }
-            }
+        }
     }
 }

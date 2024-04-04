@@ -76,7 +76,6 @@ struct TableQuickView : View {
             .frame(width: 0, height: 0)
             .hidden()
         }
-        .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
     
     var colsHeader: some View {
@@ -87,6 +86,7 @@ struct TableQuickView : View {
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
                     Text(viewModel.getColumnTitle(columnId: col))
+                        .padding(.horizontal, 4)
                 }
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .frame(width: (screenWidth / 3) - 8, height: rowHeight)

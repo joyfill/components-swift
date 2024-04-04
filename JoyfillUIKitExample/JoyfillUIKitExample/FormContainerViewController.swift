@@ -52,23 +52,20 @@ class FormContainerViewController: UIViewController {
 }
 
 class ChangeHandler: FormChangeEvent {
-    func onChange(changes change: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", change)
-    }
-
-    func onChange(event: JoyfillModel.Change) {
+    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+        print(">>>>>>>>onChange", change.first!.identifier)
     }
 
     func onFocus(event: FieldEvent) {
-        print(">>>>>>>>onFocus", event.field!.identifier!)
+        print(">>>>>>>>onFocus", event.field!.id!)
     }
 
     func onBlur(event: FieldEvent) {
-        print(">>>>>>>>onBlur", event.field!.identifier!)
+        print(">>>>>>>>onBlur", event.field!.id!)
     }
 
     func onUpload(event: UploadEvent) {
-        print(">>>>>>>>onUpload", event.field.identifier!)
+        print(">>>>>>>>onUpload", event.field.id!)
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
 }

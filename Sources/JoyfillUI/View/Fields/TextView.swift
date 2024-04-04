@@ -53,6 +53,7 @@ struct TextView: View {
                     } else {
                         let newText = ValueUnion.string(enterText)
                         guard fieldDependency.fieldData?.value != newText else { return }
+                        guard !((fieldDependency.fieldData?.value == nil) && enterText.isEmpty) else { return }
                         guard var fieldData = fieldDependency.fieldData else {
                             fatalError("FieldData should never be null")
                         }
