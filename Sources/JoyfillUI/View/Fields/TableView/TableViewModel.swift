@@ -31,7 +31,7 @@ class TableViewModel: ObservableObject {
     private var selectedRow: Int?
 
     private var tableDataDidChange = false
-    @State var uuid = UUID()
+    @Published var uuid = UUID()
     
     init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
