@@ -205,11 +205,9 @@ struct CanvasSignatureView: View {
                 })
                 
                 Button(action: {
-                    DispatchQueue.main.async {
-                        signatureImage = CanvasView(lines: $lines)
-                            .frame(width: screenWidth, height: 220)
-                            .snapshot()
-                    }
+                    signatureImage = CanvasView(lines: $lines)
+                        .frame(width: screenWidth, height: 220)
+                        .snapshot()
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Save")
