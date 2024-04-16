@@ -9,7 +9,7 @@ import UIKit
 
 class APIService {
 
-    public func loadImage(from urlString: String, completion: @escaping (Data?) -> Void) {
+    static func loadImage(from urlString: String, completion: @escaping (Data?) -> Void) {
         let base64String = String(urlString)
         if let data = Data(base64Encoded: base64String) {
             completion(data)
@@ -50,7 +50,7 @@ public class ImageFieldViewModel: ObservableObject {
         
         for imageURL in imageURLs {
             group.enter()
-            APIService().loadImage(from: imageURL) { imageData in
+            APIService.loadImage(from: imageURL) { imageData in
                 defer { group.leave() }
                 
                 if let imageData = imageData, let image = UIImage(data: imageData) {
@@ -67,7 +67,7 @@ public class ImageFieldViewModel: ObservableObject {
     }
 
     func loadSingleURL(imageURL: String, completion: @escaping (UIImage?) -> Void) {
-        APIService().loadImage(from: imageURL) { imageData in
+        APIService.loadImage(from: imageURL) { imageData in
             if let imageData = imageData, let image = UIImage(data: imageData) {
                 completion(image)
             } else {
