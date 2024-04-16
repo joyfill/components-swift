@@ -34,18 +34,7 @@ struct MultiSelectionView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if let title = fieldDependency.fieldData?.title {
-                HStack(alignment: .top) {
-                    Text("\(title)")
-                        .font(.headline.bold())
-                    
-                    if fieldDependency.fieldData?.fieldRequired == true && multiSelectedOptionArray.isEmpty  && singleSelectedOptionArray.isEmpty {
-                        Image(systemName: "asterisk")
-                            .foregroundColor(.red)
-                            .imageScale(.small)
-                    }
-                }
-            }
+            FieldHeaderView(fieldDependency)
             VStack {
                 if let options = fieldDependency.fieldData?.options {
                     ForEach(0..<options.count, id: \.self) { index in
