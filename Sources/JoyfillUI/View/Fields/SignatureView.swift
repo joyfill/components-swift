@@ -6,7 +6,6 @@
 
 import SwiftUI
 import JoyfillModel
-import JoyfillAPIService
 
 struct SignatureView: View {
     @State private var lines: [Line] = []
