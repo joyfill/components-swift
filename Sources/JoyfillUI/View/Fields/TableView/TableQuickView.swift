@@ -21,9 +21,7 @@ struct TableQuickView : View {
         
     var body: some View {
         VStack(alignment: .leading) {
-            Text(viewModel.tableViewTitle)
-                .lineLimit(1)
-                .font(.headline.bold())
+            FieldHeaderView(viewModel.fieldDependency)
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     ScrollView([.horizontal]) {

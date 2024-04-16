@@ -17,7 +17,6 @@ class TableViewModel: ObservableObject {
     @Published var shouldShowAddRowButton: Bool = false
     @Published var shouldShowDeleteRowButton: Bool = false
     @Published var showRowSelector: Bool = false
-    @Published var tableViewTitle: String = ""
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
     @Published var quickRows: [String] = []
@@ -50,7 +49,6 @@ class TableViewModel: ObservableObject {
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
-        tableViewTitle = fieldDependency.fieldData?.title ?? ""
     }
     
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {

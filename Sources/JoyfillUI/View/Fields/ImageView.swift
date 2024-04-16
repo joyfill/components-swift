@@ -38,19 +38,7 @@ struct ImageView: View {
         
     var body: some View {
         VStack(alignment: .leading) {
-            if let title = fieldDependency.fieldData?.title {
-                HStack(alignment: .top) {
-                    Text("\(title)")
-                        .font(.headline.bold())
-                    
-                    if fieldDependency.fieldData?.fieldRequired == true && valueElements.isEmpty {
-                        Image(systemName: "asterisk")
-                            .foregroundColor(.red)
-                            .imageScale(.small)
-                    }
-                }
-            }
-            
+            FieldHeaderView(fieldDependency)
             if let uiImage = uiImagesArray.first {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)

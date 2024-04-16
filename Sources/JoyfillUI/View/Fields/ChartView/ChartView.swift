@@ -23,18 +23,7 @@ struct ChartView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if let title = fieldDependency.fieldData?.title {
-                HStack(alignment: .top) {
-                    Text("\(title)")
-                        .font(.headline.bold())
-                    
-                    if fieldDependency.fieldData?.fieldRequired == true && valueElements.isEmpty {
-                        Image(systemName: "asterisk")
-                            .foregroundColor(.red)
-                            .imageScale(.small)
-                    }
-                }
-            }
+           FieldHeaderView(fieldDependency)
             
 //            RoundedRectangle(cornerRadius: 10)
 //                .stroke(Color.allFieldBorderColor, lineWidth: 1)

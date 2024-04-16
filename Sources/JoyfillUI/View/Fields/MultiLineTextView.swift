@@ -23,19 +23,7 @@ struct MultiLineTextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if let title = fieldDependency.fieldData?.title {
-                HStack(alignment: .top) {
-                    Text("\(title)")
-                        .font(.headline.bold())
-                    
-                    if fieldDependency.fieldData?.fieldRequired == true && multilineText.isEmpty {
-                        Image(systemName: "asterisk")
-                            .foregroundColor(.red)
-                            .imageScale(.small)
-                    }
-                }
-            }
-            
+            FieldHeaderView(fieldDependency)
             TextEditor(text: $multilineText)
                 .disabled(fieldDependency.mode == .readonly)
                 .padding(.all, 10)
