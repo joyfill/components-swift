@@ -6,7 +6,6 @@
 
 import SwiftUI
 import JoyfillModel
-import JoyfillAPIService
 
 struct SignatureView: View {
     @State private var lines: [Line] = []
@@ -75,7 +74,7 @@ struct SignatureView: View {
             }
             DispatchQueue.global().async {
                 guard let signatureImage = signatureImage else { return }
-                let url = convertImageToBase64(signatureImage)
+                let url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
                 let newSignatureImageValue = ValueUnion.string(url ?? "")
                 guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
                 guard var fieldData = fieldDependency.fieldData else {
@@ -90,7 +89,7 @@ struct SignatureView: View {
     }
 
     func loadImageFromURL() {
-        APIService().loadImage(from: signatureURL ?? "") { imageData in
+        APIService.loadImage(from: signatureURL ?? "") { imageData in
             if let imageData = imageData, let image = UIImage(data: imageData) {
                 DispatchQueue.main.async {
                     self.signatureImage = image

@@ -6,7 +6,6 @@
 
 import SwiftUI
 import JoyfillModel
-import JoyfillAPIService
 
 // Logo or Graphic
 
@@ -139,9 +138,9 @@ struct ImageView: View {
             showProgressView = true
             imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
                 showProgressView = false
+                guard let image = image else { return }
                 self.uiImagesArray.append(image)
                 self.imageDictionary[valueElement] = image
-                showProgressView = false
             })
         }
     }
@@ -159,9 +158,10 @@ struct ImageView: View {
                     } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                     self.imageDictionary[valueElement] = image
                     valueElements.append(valueElement)
+                    showProgressView = false
+                    guard let image = image else { return }
                     // valueElements upade
                     self.uiImagesArray.append(image)
-                    showProgressView = false
                 })
             }
         }
@@ -204,9 +204,10 @@ struct MoreImageView: View {
             self.imageDictionary = [:]
             for valueElement in valueElements {
                 imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+                    showProgressView = false
+                    guard let image = image else { return }
                     self.images.append(image)
                     self.imageDictionary[valueElement] = image
-                    showProgressView = false
                 })
             }
         }
@@ -228,9 +229,10 @@ struct MoreImageView: View {
             self.images = []
             for valueElement in valueElements {
                 imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
+                    showProgressView = false
+                    guard let image = image else { return }
                     self.images.append(image)
                     self.imageDictionary[valueElement] = image
-                    showProgressView = false
                 })
             }
         }
@@ -244,6 +246,7 @@ struct MoreImageView: View {
     }
     func loadSingleImageFromUrl(imageUrl: String) {
         imageViewModel.loadSingleURL(imageURL: imageUrl, completion: { image in
+            guard let image = image else { return }
             for valueElement in valueElements {
                 if imageUrl == valueElement.url {
                     self.imageDictionary[valueElement] = image
