@@ -58,7 +58,7 @@ extension Form: FormChangeEventInternal {
 }
 
 struct FilesView: View {
-    @Binding var fieldsData: [JoyDocField]?
+    @Binding var fieldsData: [JoyDocField]
     var files: [File]
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -70,7 +70,7 @@ struct FilesView: View {
 }
 
 struct FileView: View {
-    @Binding var fieldsData: [JoyDocField]?
+    @Binding var fieldsData: [JoyDocField]
     var file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -118,7 +118,7 @@ extension FileView: FormChangeEventInternal {
 }
 
 struct PagesView: View {
-    @Binding var fieldsData: [JoyDocField]?
+    @Binding var fieldsData: [JoyDocField]
     @Binding var currentPageID: String
     let pages: [Page]
     let mode: Mode
@@ -134,7 +134,7 @@ struct PagesView: View {
 }
 
 struct PageView: View {
-    @Binding var fieldsData: [JoyDocField]?
+    @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -201,7 +201,7 @@ struct FieldDependency {
 
 struct FormView: View {
     @State var fieldPositions: [FieldPosition]
-    @Binding var fieldsData: [JoyDocField]?
+    @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
@@ -209,7 +209,7 @@ struct FormView: View {
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
-        let fieldData = fieldsData?.first(where: {
+        let fieldData = fieldsData.first(where: {
             $0.id == fieldPosition.field
         })
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
@@ -280,13 +280,13 @@ struct FormView: View {
 extension FormView: FieldChangeEvents {
     func onChange(event: FieldChangeEvent) {
         currentFocusedFielsData = event.field
-        let temp = fieldsData?.compactMap { data in
+        let temp = fieldsData.compactMap { data in
             if data.id == event.field?.id {
                 return event.field
             }
             return data
         }
-        fieldsData?.removeAll()
+        fieldsData.removeAll()
         self.fieldsData = temp
         eventHandler?.onChange(event: event)
     }

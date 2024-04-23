@@ -68,9 +68,10 @@ struct DocumentSubmissionsListView: View {
                 switch result {
                 case .success(let data):
                     do {
-                        let joyDocStruct = try JSONDecoder().decode(JoyDoc.self, from: data)
-                        self.document = joyDocStruct
-                        showDocumentDetails = true
+                        if let dictionary = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any] {
+                            self.document = JoyDoc(dictionary: dictionary)
+                            showDocumentDetails = true
+                        }
                     } catch {
                         print("Error decoding JSON: \(error)")
                     }
