@@ -45,7 +45,7 @@ extension ChangeManager: FormChangeEvent {
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
         print(">>>>>>>>onChange", changes.first!._id)
         let changeLogs = Changelog(changelogs: changes)
-        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
+//        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
 
     func onFocus(event: FieldEvent) {

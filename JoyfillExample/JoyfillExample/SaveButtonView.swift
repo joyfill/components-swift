@@ -15,7 +15,7 @@ struct SaveButtonView: View {
     var body: some View {
         VStack {
             Button(action: {
-                changeManager.saveJoyDoc(document: document)
+//                changeManager.saveJoyDoc(document: document)
             }) {
                 Text("Save")
                     .frame(maxWidth: .infinity)

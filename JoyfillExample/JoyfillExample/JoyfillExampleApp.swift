@@ -12,7 +12,7 @@ import JoyfillAPIService
 struct JoyfillExampleApp: App {
     init() {
         JoyfillAPIService.initialize(
-            userAccessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY2MjhlNTQxNDg5MjYxOGZjMTE3NjkyYyJ9.8zLjjWy5tZJb7sryRomtzJl6_hiCVpKt4EkKMcNcGBY",
+            userAccessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY2MjhmMTIzNDg5MjYxOGZjMTE4NTc3MyJ9.JofMjGzwWc_nOUcxAyOpuoX_IWIERX7fWJILPda_7ys",
             baseURL: "https://api-joy.joyfill.io/v1")
     }
     
