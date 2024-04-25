@@ -76,7 +76,9 @@ struct ChartDetailView: View {
     func addNewPoint(id: String) {
         if let valueElementIndex = valueElements.firstIndex(where: { $0.id == id }) {
             let point: Point = Point(id: generateObjectId())
-            valueElements[valueElementIndex].points?.append(point)
+            var points = valueElements[valueElementIndex].points ?? []
+            points.append(point)
+            valueElements[valueElementIndex].points = points
         }
     }
     
