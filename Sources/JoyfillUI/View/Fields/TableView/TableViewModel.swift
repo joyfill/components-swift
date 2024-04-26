@@ -175,7 +175,7 @@ class TableViewModel: ObservableObject {
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
-            cell?.images = valueUnion?.images
+            cell?.images = valueUnion?.valueElements
         default:
             return nil
         }
