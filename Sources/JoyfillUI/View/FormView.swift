@@ -28,7 +28,6 @@ public struct Form: View {
 extension Form: FormChangeEventInternal {
     public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
-        let fieldChange = FieldChange(value: event.field!.value!)
         let change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
@@ -39,9 +38,9 @@ extension Form: FormChangeEventInternal {
                             fieldId: event.field!.id!,
                             fieldIdentifier: event.field!.identifier!,
                             fieldPositionId: event.fieldPosition.id!,
-                            change: fieldChange,
+                            change: ["value": event.field!.value!.anyDictonary],
                             createdOn: Date().timeIntervalSince1970)
-        events?.onChange(changes: [change], document: document)
+        events?.onChange(changes: [change.dictionary], document: document)
     }
     
     public func onFocus(event: JoyfillModel.FieldEvent) {

@@ -27,7 +27,7 @@ class ChangeManager {
         }
     }
 
-    func updateDocument(identifier: String, changeLogs: Changelog) {
+    func updateDocument(identifier: String, changeLogs: [String: Any]) {
         apiService.updateDocument(identifier: identifier, changeLogs: changeLogs) { result in
             DispatchQueue.main.async {
                 switch result {
@@ -42,9 +42,9 @@ class ChangeManager {
 }
 
 extension ChangeManager: FormChangeEvent {
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!._id)
-        let changeLogs = Changelog(changelogs: changes)
+    func onChange(changes: [[String: Any]], document: JoyfillModel.JoyDoc) {
+        print(">>>>>>>>onChange", changes.first!["_id"])
+        let changeLogs = ["changelogs": changes]
 //        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
 
