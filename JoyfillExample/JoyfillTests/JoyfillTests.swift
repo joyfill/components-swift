@@ -12,51 +12,49 @@ import JoyfillModel
 
 final class JoyfillTests: XCTestCase {
     
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    var document: JoyDoc!
+    
+    override func setUp() {
+        super.setUp()
+        let path = Bundle.main.path(forResource: "Joydocjson", ofType: "json")!
+        let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+        let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
+        document = JoyDoc(dictionary: dict)
     }
     
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+    override func setUpWithError() throws { }
+    
+    override func tearDownWithError() throws { }
     
     func testPerformanceExample() throws {
-        // This is an example of a performance test case.
         measure {
-            // Put the code you want to measure the time of here.
         }
     }
     
     func testJoyDoc() {
-        let path = Bundle.main.path(forResource: "Joydocjson", ofType: "json")!
-        let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-        let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
-        
-        var document = JoyDoc(dictionary: dict)
-        
         XCTAssertEqual(document.id, "6629fc6367b3a40644096182")
         XCTAssertEqual(document.type, "document")
         XCTAssertEqual(document.stage, "published")
         XCTAssertEqual(document.source, "template_6629fab38559d3017b0308b0")
-        XCTAssertTrue(document.metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.identifier, "doc_6629fc6367b3a40644096182")
         XCTAssertEqual(document.name, "All Fields Template")
         XCTAssertEqual(document.createdOn, 1714027619864)
-        
-        // Test cases for file fields
+        XCTAssertEqual(document.deleted, false)
+    }
+    
+    func testFileFields() {
         XCTAssertEqual(document.files.count, 1)
         XCTAssertEqual(document.files[0].id, "6629fab3c0ba3fb775b4a55c")
-        XCTAssertTrue(document.files[0].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.files[0].name, "All Fields Template")
         XCTAssertEqual(document.files[0].version, 1)
         XCTAssertTrue(document.files[0].styles!.dictionary.isEmpty)
         XCTAssertEqual(document.files[0].pageOrder, ["6629fab320fca7c8107a6cf6"])
         XCTAssertTrue(document.files[0].views!.isEmpty)
         
-        // Test cases for file fields
         XCTAssertEqual(document.fields.count, 16)
-        
-        //Test cases for first(image) field
+    }
+    
+    func testImageField() {
         XCTAssertEqual(document.fields[0].type, "image")
         XCTAssertEqual(document.fields[0].id, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(document.fields[0].identifier, "field_6629fab87c5c8ff831b8d223")
@@ -70,11 +68,11 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[0].tipTitle, "")
         XCTAssertEqual(document.fields[0].tipDescription, "")
         XCTAssertEqual(document.fields[0].tipVisible, false)
-        XCTAssertTrue(document.fields[0].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[0].multi, false)
         XCTAssertEqual(document.fields[0].file, "6629fab3c0ba3fb775b4a55c")
-        
-        //Test cases for second(block) field
+    }
+    
+    func testHeadingField() {
         XCTAssertEqual(document.fields[1].type, "block")
         XCTAssertEqual(document.fields[1].id, "6629fad980958bff0608cd4a")
         XCTAssertEqual(document.fields[1].identifier, "field_6629fadcfc73f30cbb7b785a")
@@ -85,10 +83,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[1].tipTitle, "")
         XCTAssertEqual(document.fields[1].tipDescription, "")
         XCTAssertEqual(document.fields[1].tipVisible, false)
-        XCTAssertTrue(document.fields[1].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[1].file, "6629fab3c0ba3fb775b4a55c")
-        
-        //Test cases for third(block) field
+    }
+    
+    func testDisplayTextField() {
         XCTAssertEqual(document.fields[2].type, "block")
         XCTAssertEqual(document.fields[2].id, "6629faf0868164d68b4cf359")
         XCTAssertEqual(document.fields[2].identifier, "field_6629faf7fb9bfd2cfc6bb830")
@@ -99,10 +97,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[2].tipTitle, "")
         XCTAssertEqual(document.fields[2].tipDescription, "")
         XCTAssertEqual(document.fields[2].tipVisible, false)
-        XCTAssertTrue(document.fields[2].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[2].file, "6629fab3c0ba3fb775b4a55c")
-        
-        //Test cases for fourth(emptyspace) field
+    }
+    
+    func testEmptySpaceField() {
         XCTAssertEqual(document.fields[3].type, "block")
         XCTAssertEqual(document.fields[3].id, "6629fb050c62b1fe457b58e0")
         XCTAssertEqual(document.fields[3].identifier, "field_6629fb0b3079250a86dac94f")
@@ -113,10 +111,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[3].tipTitle, "")
         XCTAssertEqual(document.fields[3].tipDescription, "")
         XCTAssertEqual(document.fields[3].tipVisible, false)
-        XCTAssertTrue(document.fields[3].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[3].file, "6629fab3c0ba3fb775b4a55c")
-
-        // Test cases for the fifth (text) field
+    }
+    
+    func testTextField() {
         XCTAssertEqual(document.fields[4].type, "text")
         XCTAssertEqual(document.fields[4].id, "6629fb1d92a76d06750ca4a1")
         XCTAssertEqual(document.fields[4].identifier, "field_6629fb20c9e72451c769df47")
@@ -127,10 +125,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[4].tipTitle, "")
         XCTAssertEqual(document.fields[4].tipDescription, "")
         XCTAssertEqual(document.fields[4].tipVisible, false)
-        XCTAssertTrue(document.fields[4].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[4].file, "6629fab3c0ba3fb775b4a55c")
-
-        // Test cases for the sixth (multiline text) field
+    }
+    
+    func testMultilineTextField() {
         XCTAssertEqual(document.fields[5].type, "textarea")
         XCTAssertEqual(document.fields[5].id, "6629fb2b9a487ce1c1f35f6c")
         XCTAssertEqual(document.fields[5].identifier, "field_6629fb2feff29e90331e4e8e")
@@ -141,10 +139,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[5].tipTitle, "")
         XCTAssertEqual(document.fields[5].tipDescription, "")
         XCTAssertEqual(document.fields[5].tipVisible, false)
-        XCTAssertTrue(document.fields[5].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[5].file, "6629fab3c0ba3fb775b4a55c")
-
-        // Test cases for the seventh (number) field
+    }
+    
+    func testNumberField() {
         XCTAssertEqual(document.fields[6].type, "number")
         XCTAssertEqual(document.fields[6].id, "6629fb3df03de10b26270ab3")
         XCTAssertEqual(document.fields[6].identifier, "field_6629fb3fabb87e37c9578b8b")
@@ -155,10 +153,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[6].tipTitle, "")
         XCTAssertEqual(document.fields[6].tipDescription, "")
         XCTAssertEqual(document.fields[6].tipVisible, false)
-        XCTAssertTrue(document.fields[6].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[6].file, "6629fab3c0ba3fb775b4a55c")
-
-        // Test cases for the eight (date) field
+    }
+    
+    func testDateField() {
         XCTAssertEqual(document.fields[7].type, "date")
         XCTAssertEqual(document.fields[7].id, "6629fb44c79bb16ce072d233")
         XCTAssertEqual(document.fields[7].identifier, "field_6629fb44309fbfe84376095e")
@@ -169,10 +167,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[7].tipTitle, "")
         XCTAssertEqual(document.fields[7].tipDescription, "")
         XCTAssertEqual(document.fields[7].tipVisible, false)
-        XCTAssertTrue(document.fields[7].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[7].file, "6629fab3c0ba3fb775b4a55c")
-
-        // Test cases for the ninth (time) field
+    }
+    
+    func testTimeField() {
         XCTAssertEqual(document.fields[8].type, "date")
         XCTAssertEqual(document.fields[8].id, "6629fb638e230f348d0a8682")
         XCTAssertEqual(document.fields[8].identifier, "field_6629fb669a6d216e2a9c8dcd")
@@ -183,10 +181,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[8].tipTitle, "")
         XCTAssertEqual(document.fields[8].tipDescription, "")
         XCTAssertEqual(document.fields[8].tipVisible, false)
-        XCTAssertTrue(document.fields[8].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[8].file, "6629fab3c0ba3fb775b4a55c")
-
-        // Test cases for the tenth (date time) field
+    }
+    
+    func testDateTimeField() {
         XCTAssertEqual(document.fields[9].type, "date")
         XCTAssertEqual(document.fields[9].id, "6629fb6ec5d88d3aadf548ca")
         XCTAssertEqual(document.fields[9].identifier, "field_6629fb74e6c43707ad6101f7")
@@ -197,10 +195,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[9].tipTitle, "")
         XCTAssertEqual(document.fields[9].tipDescription, "")
         XCTAssertEqual(document.fields[9].tipVisible, false)
-        XCTAssertTrue(document.fields[9].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[9].file, "6629fab3c0ba3fb775b4a55c")
-        
-        // Test cases for the eleventh (dropdown) field
+    }
+    
+    func testDropdownField() {
         XCTAssertEqual(document.fields[10].type, "dropdown")
         XCTAssertEqual(document.fields[10].id, "6629fb77593e3791638628bb")
         XCTAssertEqual(document.fields[10].identifier, "field_6629fb8e57f251ebbbc8c915")
@@ -211,14 +209,14 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[10].tipTitle, "")
         XCTAssertEqual(document.fields[10].tipDescription, "")
         XCTAssertEqual(document.fields[10].tipVisible, false)
-        XCTAssertTrue(document.fields[10].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[10].file, "6629fab3c0ba3fb775b4a55c")
         XCTAssertEqual(document.fields[10].options?.count, 3)
         XCTAssertEqual(document.fields[10].options?[0].id, "6628f2e183591f3efa7f76f9")
         XCTAssertEqual(document.fields[10].options?[1].id, "6628f2e15cea1b971f6a9383")
         XCTAssertEqual(document.fields[10].options?[2].id, "6628f2e1817f03440bc70a46")
-
-        // Test cases for the twelve (multiple choice) field
+    }
+    
+    func testMultipleChoiceField() {
         XCTAssertEqual(document.fields[11].type, "multiSelect")
         XCTAssertEqual(document.fields[11].id, "6629fb9f4d912053577652b1")
         XCTAssertEqual(document.fields[11].identifier, "field_6629fbb02b40c2f4d0c95b38")
@@ -229,14 +227,14 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[11].tipTitle, "")
         XCTAssertEqual(document.fields[11].tipDescription, "")
         XCTAssertEqual(document.fields[11].tipVisible, false)
-        XCTAssertTrue(document.fields[11].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[11].file, "6629fab3c0ba3fb775b4a55c")
         XCTAssertEqual(document.fields[11].options?.count, 3)
         XCTAssertEqual(document.fields[11].options?[0].id, "6628f2e1d0c98c6987cc6021")
         XCTAssertEqual(document.fields[11].options?[1].id, "6628f2e19c3cba4fdf9e5f19")
         XCTAssertEqual(document.fields[11].options?[2].id, "6628f2e1679bcf815adfa0f6")
-
-        // Test cases for the thirteen (single choice) field
+    }
+    
+    func testSingleChoiceField() {
         XCTAssertEqual(document.fields[12].type, "multiSelect")
         XCTAssertEqual(document.fields[12].id, "6629fbb2bf4f965b9d04f153")
         XCTAssertEqual(document.fields[12].identifier, "field_6629fbb5b16c74b78381af3b")
@@ -247,14 +245,14 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[12].tipTitle, "")
         XCTAssertEqual(document.fields[12].tipDescription, "")
         XCTAssertEqual(document.fields[12].tipVisible, false)
-        XCTAssertTrue(document.fields[12].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[12].file, "6629fab3c0ba3fb775b4a55c")
         XCTAssertEqual(document.fields[12].options?.count, 3)
         XCTAssertEqual(document.fields[12].options?[0].id, "6628f2e1fae456e6b850e85e")
         XCTAssertEqual(document.fields[12].options?[1].id, "6628f2e13e1e340a51d9ecca")
         XCTAssertEqual(document.fields[12].options?[2].id, "6628f2e16bf0362dd5498eb4")
-
-        // Test cases for the fourteen (signature) field
+    }
+    
+    func testSignatureField() {
         XCTAssertEqual(document.fields[13].type, "signature")
         XCTAssertEqual(document.fields[13].id, "6629fbb8cd16c0c4d308a252")
         XCTAssertEqual(document.fields[13].identifier, "field_6629fbbcb1f415665455fea4")
@@ -265,10 +263,10 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[13].tipTitle, "")
         XCTAssertEqual(document.fields[13].tipDescription, "")
         XCTAssertEqual(document.fields[13].tipVisible, false)
-        XCTAssertTrue(document.fields[13].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[13].file, "6629fab3c0ba3fb775b4a55c")
-
-        // Test cases for the fifteen (table) field
+    }
+    
+    func testTableField() {
         XCTAssertEqual(document.fields[14].type, "table")
         XCTAssertEqual(document.fields[14].id, "6629fbc0d449f4216e871e3f")
         XCTAssertEqual(document.fields[14].identifier, "field_6629fbc7915c00c8678c9430")
@@ -278,7 +276,6 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[14].tipTitle, "")
         XCTAssertEqual(document.fields[14].tipDescription, "")
         XCTAssertEqual(document.fields[14].tipVisible, false)
-        XCTAssertTrue(document.fields[14].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[14].file, "6629fab3c0ba3fb775b4a55c")
         
         XCTAssertEqual(document.fields[14].value?.valueElements?.count, 3)
@@ -325,8 +322,9 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[14].tableColumnOrder?[0], "6628f2e11a2b28119985cfbb")
         XCTAssertEqual(document.fields[14].tableColumnOrder?[1], "6628f2e123ca77fa82a2c45e")
         XCTAssertEqual(document.fields[14].tableColumnOrder?[2], "6628f2e1355b7d93cea30f3c")
-
-        // Test cases for the fourteen (chart) field
+    }
+    
+    func testChartField() {
         XCTAssertEqual(document.fields[15].type, "chart")
         XCTAssertEqual(document.fields[15].id, "6629fbd957d928a973b1b42b")
         XCTAssertEqual(document.fields[15].identifier, "field_6629fbdd498f2c3131051bb4")
@@ -336,7 +334,6 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[15].tipTitle, "")
         XCTAssertEqual(document.fields[15].tipDescription, "")
         XCTAssertEqual(document.fields[15].tipVisible, false)
-        XCTAssertTrue(document.fields[15].metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.fields[15].file, "6629fab3c0ba3fb775b4a55c")
         XCTAssertEqual(document.fields[15].value?.valueElements?[0].id, "662a4ac36cb46cb39dd48090")
         XCTAssertEqual(document.fields[15].value?.valueElements?[0].points?[0].id, "662a4ac3a09a7fa900990da3")
@@ -348,13 +345,12 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.fields[15].xTitle, "Horizontal")
         XCTAssertEqual(document.fields[15].xMax, 100)
         XCTAssertEqual(document.fields[15].xMin, 0)
-
-        
-        // Test cases for page fields
+    }
+    
+    func testPageField() {
         XCTAssertEqual(document.files[0].pages?.count, 1)
         XCTAssertEqual(document.files[0].pages?[0].name, "New Page")
         XCTAssertEqual(document.files[0].pages?[0].fieldPositions?.count, 16)
-        XCTAssertTrue(document.metadata!.dictionary.isEmpty)
         XCTAssertEqual(document.files[0].pages?[0].hidden, false)
         XCTAssertEqual(document.files[0].pages?[0].width, 816)
         XCTAssertEqual(document.files[0].pages?[0].height, 1056)
@@ -366,8 +362,9 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.files[0].pages?[0].padding, 0)
         XCTAssertEqual(document.files[0].pages?[0].borderWidth, 0)
         XCTAssertEqual(document.files[0].pages?[0].id, "6629fab320fca7c8107a6cf6")
-        
-        // Test cases for field position for image field
+    }
+    
+    func testImageFieldPosition() {
         XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[0].field, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[0].displayType, "original")
         XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[0].width, 9)
@@ -376,7 +373,182 @@ final class JoyfillTests: XCTestCase {
         XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[0].y, 12)
         XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[0].id, "6629fab82ddb5cdd73a2f27f")
         XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[0].type, FieldTypes.image)
-        
     }
     
+    func testHeadingTextPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].field, "6629fad980958bff0608cd4a")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].height, 5)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].y, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].fontSize, 28)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].fontWeight, "bold")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].id, "6629fadcacdb1bb9b9bbfdce")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[1].type, FieldTypes.block)
+    }
+    
+    func testDisplayTextPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].field, "6629faf0868164d68b4cf359")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].height, 5)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].y, 7)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].id, "6629faf7cdcf955b0b3d2daa")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[2].type, FieldTypes.block)
+    }
+    
+    func testEmptySpacePosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].field, "6629fb050c62b1fe457b58e0")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].height, 2)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].y, 5)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].borderColor, "transparent")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].backgroundColor, "transparent")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].id, "6629fb0b7b10702947a43488")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[3].type, FieldTypes.block)
+    }
+    
+    func testTextPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].field, "6629fb1d92a76d06750ca4a1")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].height, 8)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].y, 35)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].id, "6629fb203149d1c34cc6d6f8")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[4].type, FieldTypes.text)
+    }
+    
+    func testMultiLineTextPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].field, "6629fb2b9a487ce1c1f35f6c")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].height, 20)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].y, 43)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].id, "6629fb2fca14b3e2ef978349")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[5].type, FieldTypes.textarea)
+    }
+    
+    func testNumberPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].field, "6629fb3df03de10b26270ab3")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].height, 8)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].y, 63)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].id, "6629fb3f2eff74a9ca322bb5")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[6].type, FieldTypes.number)
+    }
+    
+    func testDatePosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].field, "6629fb44c79bb16ce072d233")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].height, 8)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].y, 71)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].format, "MM/DD/YYYY")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].id, "6629fb4451f3bf2eb2f46567")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[7].type, FieldTypes.date)
+    }
+    
+    func testTimePosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].field, "6629fb638e230f348d0a8682")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].height, 8)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].y, 79)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].format, "hh:mma")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].id, "6629fb66420b995d026e480b")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[8].type, FieldTypes.date)
+    }
+    
+    func testDateTimePosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].field, "6629fb6ec5d88d3aadf548ca")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].height, 8)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].y, 87)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].format, "MM/DD/YYYY hh:mma")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].id, "6629fb749d0c1af5e94dbac7")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[9].type, FieldTypes.date)
+    }
+    
+    func testDropdownPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].field, "6629fb77593e3791638628bb")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].height, 8)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].y, 95)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].targetValue, "6628f2e183591f3efa7f76f9")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].id, "6629fb8ea500024170241af3")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[10].type, FieldTypes.dropdown)
+    }
+    
+    func testMultiselectPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].field, "6629fb9f4d912053577652b1")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].height, 15)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].y, 103)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].targetValue, "6628f2e1d0c98c6987cc6021")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].id, "6629fbb06e14e0bcaeabf05b")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[11].type, FieldTypes.multiSelect)
+    }
+    
+    func testSingleSelectPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].field, "6629fbb2bf4f965b9d04f153")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].height, 15)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].y, 118)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].targetValue, "6628f2e1fae456e6b850e85e")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].id, "6629fbb5daa40d68bf26525f")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[12].type, FieldTypes.multiSelect)
+    }
+    
+    func testSignaturePosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].field, "6629fbb8cd16c0c4d308a252")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].height, 23)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].y, 133)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].id, "6629fbbc88ec687f865a53da")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[13].type, FieldTypes.signature)
+    }
+    
+    func testTablePosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].field, "6629fbc0d449f4216e871e3f")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].width, 24)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].height, 15)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].y, 156)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].id, "6629fbc736d179b9014abae0")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[14].type, FieldTypes.table)
+    }
+    
+    func testChartPosition() {
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].field, "6629fbd957d928a973b1b42b")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].displayType, "original")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].width, 12)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].height, 27)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].x, 0)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].y, 171)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].primaryDisplayOnly, true)
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].id, "6629fbddabbd2a54f548bb95")
+        XCTAssertEqual(document.files[0].pages?[0].fieldPositions?[15].type, FieldTypes.chart)
+    }
 }
+
