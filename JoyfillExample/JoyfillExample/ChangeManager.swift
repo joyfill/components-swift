@@ -42,9 +42,9 @@ class ChangeManager {
 }
 
 extension ChangeManager: FormChangeEvent {
-    func onChange(changes: [[String: Any]], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!["_id"])
-        let changeLogs = ["changelogs": changes]
+    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
+        print(">>>>>>>>onChange", changes.first!.id)
+        let changeLogs = ["changelogs": changes.map { $0.dictionary }]
 //        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
 

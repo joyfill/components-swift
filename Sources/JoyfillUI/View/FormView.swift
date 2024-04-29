@@ -40,7 +40,7 @@ extension Form: FormChangeEventInternal {
                             fieldPositionId: event.fieldPosition.id!,
                             change: ["value": event.field!.value!.anyDictonary],
                             createdOn: Date().timeIntervalSince1970)
-        events?.onChange(changes: [change.dictionary], document: document)
+        events?.onChange(changes: [change], document: document)
     }
     
     public func onFocus(event: JoyfillModel.FieldEvent) {
