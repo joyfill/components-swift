@@ -38,7 +38,7 @@ extension Form: FormChangeEventInternal {
                             fieldId: event.field!.id!,
                             fieldIdentifier: event.field!.identifier!,
                             fieldPositionId: event.fieldPosition.id!,
-                            change: ["value": event.field!.value!.anyDictonary],
+                            change: ["value": event.field!.value!.dictonary],
                             createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
