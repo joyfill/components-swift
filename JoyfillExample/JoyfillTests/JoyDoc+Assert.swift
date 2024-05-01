@@ -125,6 +125,7 @@ extension JoyDoc {
         XCTAssertEqual(fields[7].tipVisible, false)
         XCTAssertEqual(fields[7].file, "6629fab3c0ba3fb775b4a55c")
     }
+    
     func assertTimeField() {
         XCTAssertEqual(fields[8].type, "date")
         XCTAssertEqual(fields[8].id, "6629fb638e230f348d0a8682")
@@ -277,6 +278,7 @@ extension JoyDoc {
         XCTAssertEqual(fields[14].tableColumnOrder?[1], "6628f2e123ca77fa82a2c45e")
         XCTAssertEqual(fields[14].tableColumnOrder?[2], "6628f2e1355b7d93cea30f3c")
     }
+    
     func asssertChartField() {
         XCTAssertEqual(fields[15].type, "chart")
         XCTAssertEqual(fields[15].id, "6629fbd957d928a973b1b42b")
@@ -341,7 +343,6 @@ extension JoyDoc {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[1].type, FieldTypes.block)
     }
     
-    
     func assertDisplayTextPosition() {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[2].field, "6629faf0868164d68b4cf359")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[2].displayType, "original")
@@ -388,6 +389,7 @@ extension JoyDoc {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[5].id, "6629fb2fca14b3e2ef978349")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[5].type, FieldTypes.textarea)
     }
+    
     func assertNumberPosition() {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[6].field, "6629fb3df03de10b26270ab3")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[6].displayType, "original")
@@ -398,6 +400,7 @@ extension JoyDoc {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[6].id, "6629fb3f2eff74a9ca322bb5")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[6].type, FieldTypes.number)
     }
+    
     func assertDatePosition() {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].field, "6629fb44c79bb16ce072d233")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].displayType, "original")
@@ -457,7 +460,6 @@ extension JoyDoc {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[11].id, "6629fbb06e14e0bcaeabf05b")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[11].type, FieldTypes.multiSelect)
     }
-    
     
     func assertSingleSelectPosition() {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[12].field, "6629fbb2bf4f965b9d04f153")

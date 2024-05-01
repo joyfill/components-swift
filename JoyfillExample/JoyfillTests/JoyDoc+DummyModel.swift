@@ -75,7 +75,6 @@ extension JoyDoc {
         return document
     }
     
-    
     func setDisplayText() -> JoyDoc {
         var field = JoyDocField()
         field.type = "block"
@@ -202,7 +201,6 @@ extension JoyDoc {
         return document
     }
     
-    
     func setDateTimeField() -> JoyDoc {
         var field = JoyDocField()
         field.type = "date"
@@ -322,36 +320,30 @@ extension JoyDoc {
             "6628f2e1a6b5e93e8dde45f8",
             "6628f2e1750679d671be36b8"
         ]
-        
         var column1 = FieldTableColumn()
         column1.id = "6628f2e11a2b28119985cfbb"
         column1.type = "text"
         column1.title = "Text Column"
         column1.width = 0
         column1.identifier = "field_column_6629fbc70c9e53f683a18007"
-        
         var column2 = FieldTableColumn()
         column2.id = "6628f2e123ca77fa82a2c45e"
         column2.type = "dropdown"
         column2.title = "Dropdown Column"
         column2.width = 0
         column2.identifier = "field_column_6629fbc7e2493a155a32c509"
-        
         var column3 = FieldTableColumn()
         column3.id = "6628f2e1355b7d93cea30f3c"
         column3.type = "text"
         column3.title = "Text Column"
         column3.width = 0
         column3.identifier = "field_column_6629fbc782667100aa64d18d"
-        
         field.tableColumns = [column1,column2,column3]
-        
         field.tableColumnOrder = [
             "6628f2e11a2b28119985cfbb",
             "6628f2e123ca77fa82a2c45e",
             "6628f2e1355b7d93cea30f3c"
         ]
-        
         var document = self
         document.fields.append(field)
         return document
@@ -388,7 +380,6 @@ extension JoyDoc {
     func setPageField() -> JoyDoc {
         var page = Page()
         page.name = "New Page"
-        //        pagefiles[0].pages?[0].fieldPositions = [FieldPosition]()
         page.hidden = false
         page.width = 816
         page.height = 1056
@@ -659,5 +650,4 @@ extension JoyDoc {
         document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
-    
 }
