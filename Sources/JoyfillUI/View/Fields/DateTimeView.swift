@@ -1,13 +1,5 @@
-//
-//  DateTimeView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
-
-// Date and time
 
 struct DateTimeView: View {
     @State private var isDatePickerPresented = false
@@ -38,6 +30,7 @@ struct DateTimeView: View {
         Group {
             if isDatePickerPresented {
                 DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
+                    .accessibilityIdentifier("field_6629fb44309fbfe84376095e")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
                     .padding(.all, 8)

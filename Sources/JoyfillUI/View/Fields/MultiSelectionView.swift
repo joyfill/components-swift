@@ -1,13 +1,5 @@
-//
-//  MultiSelectionView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
-
-// Select multiple options
 
 struct MultiSelectionView: View {
     @State var isSelected: Bool = false
@@ -117,6 +109,7 @@ struct MultiSelection: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         })
+        .accessibilityIdentifier("MultiSelectionIdenitfier")
         .frame(maxWidth: .infinity)
     }
 }
@@ -151,6 +144,7 @@ struct RadioView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         })
+        .accessibilityIdentifier("SingleSelectionIdentifier")
         .frame(maxWidth: .infinity)
     }
 }

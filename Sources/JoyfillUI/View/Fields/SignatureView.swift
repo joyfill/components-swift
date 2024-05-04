@@ -1,9 +1,3 @@
-//
-//  SignatureView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
 

@@ -1,9 +1,3 @@
-//
-//  ChartView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import UIKit
 

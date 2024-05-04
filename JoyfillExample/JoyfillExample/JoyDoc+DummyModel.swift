@@ -1,5 +1,4 @@
 import Foundation
-import XCTest
 import JoyfillModel
 
 extension JoyDoc {
@@ -25,7 +24,7 @@ extension JoyDoc {
         file.version = 1
         file.styles = Metadata(dictionary: [:])
         file.pageOrder = ["6629fab320fca7c8107a6cf6"]
-        file.views?.isEmpty
+        file.views = []
         
         var document = self
         document.files.append(file)

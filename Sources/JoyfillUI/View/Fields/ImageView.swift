@@ -1,13 +1,5 @@
-//
-//  ImageView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
-
-// Logo or Graphic
 
 struct ImageView: View {
     @State var imageURL: String?
