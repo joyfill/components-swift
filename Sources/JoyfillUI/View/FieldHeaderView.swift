@@ -18,7 +18,7 @@ struct FieldHeaderView: View {
                 Text("\(title)")
                     .font(.headline.bold())
                 
-                if fieldDependency.fieldData?.fieldRequired == true {
+                if fieldDependency.fieldData?.required == true {
                     Image(systemName: "asterisk")
                         .foregroundColor(.red)
                         .imageScale(.small)

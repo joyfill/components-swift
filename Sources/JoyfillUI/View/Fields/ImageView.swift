@@ -116,7 +116,7 @@ struct ImageView: View {
         }
         .onAppear {
             if !hasAppeared {
-                self.valueElements = fieldDependency.fieldData?.value?.images ?? []
+                self.valueElements = fieldDependency.fieldData?.value?.valueElements ?? []
                 hasAppeared = true
             }
         }

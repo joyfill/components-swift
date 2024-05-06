@@ -17,7 +17,7 @@ struct ChartView: View {
 //    let data : MultiLineChartData
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
-        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
+        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
 //        data = ChartView.getData(fieldDependency: fieldDependency)
     }
     

@@ -16,10 +16,9 @@ struct ChartDetailView: View {
     
 //    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
     public init(fieldDependency: FieldDependency) {
-
 //        self.chartData = chartData
         self.fieldDependency = fieldDependency
-        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
+        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
         _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: fieldDependency.fieldData?.yTitle, yMax: fieldDependency.fieldData?.yMax, yMin: fieldDependency.fieldData?.yMin, xTitle: fieldDependency.fieldData?.xTitle, xMax: fieldDependency.fieldData?.xMax, xMin: fieldDependency.fieldData?.xMin))
     }
     
@@ -42,15 +41,10 @@ struct ChartDetailView: View {
 //                    .padding(.horizontal)
                 
                 ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency)
-                LinesView(valueElements: $valueElements,addNewLineAction: addNewLine, deleteLineAction: deleteLine, deletePointAction: deletePoint, addPointAction: addNewPoint)
+                LinesView(valueElements: $valueElements, updateValueElements: updateValueElements)
                     .disabled(fieldDependency.mode == .readonly)
             }
-            .onChange(of: valueElements, perform: { newValue in
-                guard var fieldData = fieldDependency.fieldData else { return }
-                fieldData.value = .valueElementArray(newValue)
-                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
-            })
-            .onChange(of: chartCoordinatesData,perform:  { newValue in
+            .onChange(of: chartCoordinatesData, perform:  { newValue in
                 guard var fieldData = fieldDependency.fieldData else { return }
                 fieldData.xTitle = newValue.xTitle
                 fieldData.yTitle = newValue.yTitle
@@ -62,34 +56,16 @@ struct ChartDetailView: View {
             })
         }
     }
-    
-    func addNewLine() {
-        var points: [Point] = []
-        for i in 0..<3 {
-            let point: Point = Point(id: generateObjectId())
-            points.append(point)
-        }
-        var valueElement: ValueElement = ValueElement(id: generateObjectId(),points: points)
-        valueElements.append(valueElement)
-    }
-    
-    func addNewPoint(id: String) {
-        if let valueElementIndex = valueElements.firstIndex(where: { $0.id == id }) {
-            let point: Point = Point(id: generateObjectId())
-            valueElements[valueElementIndex].points?.append(point)
-        }
-    }
-    
-    func deleteLine(lineId: String) {
-        valueElements.removeAll(where: { $0.id == lineId })
-    }
-    
-    func deletePoint(from lineId: String, pointId: String) {
-        if let valueElementIndex = valueElements.firstIndex(where: { $0.id == lineId }) {
-            valueElements[valueElementIndex].points?.removeAll(where: { $0.id == pointId })
-        }
+
+    func updateValueElements(valueElements: [ValueElement]) {
+        self.valueElements.removeAll()
+        self.valueElements = valueElements
+        guard var fieldData = fieldDependency.fieldData else { return }
+        fieldData.value = .valueElementArray(valueElements)
+        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
     }
 }
+
 struct ChartCoordinateView: View {
     @Binding var isCoordinateVisible: Bool
     @Binding var chartCoordinatesData: ChartAxisConfiguration
@@ -138,6 +114,7 @@ struct xAndYCordinate: View {
     @Binding var chartCoordinatesData: ChartAxisConfiguration
     var fieldDependency: FieldDependency
     var isXAxis: Bool
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -209,13 +186,11 @@ struct xAndYCordinate: View {
         }
     }
 }
+
 struct LinesView: View {
     @Binding var valueElements: [ValueElement]
-    var addNewLineAction: () -> Void
-    var deleteLineAction: (String) -> Void
-    var deletePointAction: (String, String) -> Void
-    var addPointAction: (String) -> Void
-    
+    var updateValueElements: ([ValueElement]) -> Void
+
     var body: some View {
         VStack(alignment: .leading) {
             ForEach(Array(valueElements.enumerated()), id: \.element.id) { index, valueElement in
@@ -236,7 +211,7 @@ struct LinesView: View {
                     Spacer()
                     
                     Button(action: {
-                        deleteLineAction(valueElement.id ?? "")
+                        deleteLine(lineId: valueElement.id!)
                     }, label: {
                         HStack{
                             Text("Remove")
@@ -253,17 +228,8 @@ struct LinesView: View {
                         .padding([.trailing,.top], 10)
                     })
                 }
-                 var valueElementBinding : Binding<ValueElement> {
-                        Binding {
-                            return valueElement
-                        } set: { newValueElement in
-                            valueElements[index] = newValueElement
-                        }
-                    }
-                
-                LineView(valueElement: valueElementBinding,deletePointAction: deletePointAction, addPointAction: addPointAction)
+                LineView(valueElement: valueElement, updateValueElement: updateValueElement)
                     .padding([.leading,.trailing,.bottom], 10)
-                
                 Divider()
             }
                         
@@ -280,7 +246,7 @@ struct LinesView: View {
     
     var addLineButton: some View {
         Button(action: {
-            addNewLineAction()
+            addNewLine()
         }, label: {
             Text("Add Line")
                 .darkLightThemeColor()
@@ -293,21 +259,49 @@ struct LinesView: View {
                 )
         })
     }
+
+    func addNewLine() {
+        var points: [Point] = []
+        for i in 0..<3 {
+            let point: Point = Point(id: generateObjectId())
+            points.append(point)
+        }
+        var valueElement: ValueElement = ValueElement(id: generateObjectId(),points: points)
+        valueElements.append(valueElement)
+        updateValueElements(valueElements)
+    }
+
+    func updateValueElement(valueElement: ValueElement) {
+        if let valueElementIndex = valueElements.firstIndex(where: { $0.id == valueElement.id }) {
+            var elements = valueElements
+            elements[valueElementIndex] = valueElement
+            updateValueElements(elements)
+        }
+    }
+
+    func deleteLine(lineId: String) {
+        valueElements.removeAll(where: { $0.id == lineId })
+        updateValueElements(valueElements)
+    }
 }
 
 struct LineView: View {
-    @Binding var valueElement: ValueElement
-    var deletePointAction: (String, String) -> Void
-    var addPointAction: (String) -> Void
-    
+    let valueElement: ValueElement
+    let updateValueElement: (ValueElement) -> Void
+
     var body: some View {
         VStack {
             titleAndDescription
-            
-            PointsView(points: $valueElement.points, deletePointAction: deletePointAction, lineId: valueElement.id ?? "", addPointAction: addPointAction)
-            
+            PointsView(points: valueElement.points, lineId: valueElement.id ?? "", updatePoints: updatePoints)
         }
     }
+
+    func updatePoints(points: [Point]?) {
+        var valueElement = valueElement
+        valueElement.points = points
+        updateValueElement(valueElement)
+    }
+
     var titleAndDescription: some View {
         VStack(alignment: .leading) {
             Text("Title & Description")
@@ -315,7 +309,9 @@ struct LineView: View {
                 Binding {
                     return valueElement.title ?? ""
                 } set: { newLineTitle in
+                    var valueElement = valueElement
                     valueElement.title = newLineTitle
+                    updateValueElement(valueElement)
                 }
             }
             
@@ -333,7 +329,9 @@ struct LineView: View {
                 Binding {
                     return valueElement.description ?? ""
                 } set: { newLineDescription in
+                    var valueElement = valueElement
                     valueElement.description = newLineDescription
+                    updateValueElement(valueElement)
                 }
             }
             
@@ -351,47 +349,57 @@ struct LineView: View {
 }
 
 struct PointsView: View {
-    @Binding var points: [Point]?
-    var deletePointAction: (String, String) -> Void
+    let points: [Point]?
     var lineId: String
-    var addPointAction: (String) -> Void
-   
+    let updatePoints: ([Point]?) -> Void
+
     var body: some View {
         VStack(alignment: .leading){
             HStack {
                 Text("Points")
                 Spacer()
                 Button(action: {
-                    addPointAction(lineId)
+                    addNewPoint(id: lineId)
                 }, label: {
                     Text("Add Point +")
                         .padding(.all,5)
                 })
             }
-            ForEach(Array(points?.enumerated() ?? [Point]().enumerated()) , id: \.element.id){ index, point in
-                    var pointBinding : Binding<Point> {
-                           Binding {
-                                return point
-                           } set: { newPoint in
-                               points?[index] = newPoint
-                           }
-                       }
-                    PointView(point: pointBinding, deletePointAction: deletePointAction, lineId: lineId)
-                        .padding(.bottom, 20)
-                    //                    .overlay(
-                    //                        RoundedRectangle(cornerRadius: 10)
-                    //                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    //                    )
-                }
+            
+            ForEach(points ?? [], id: \.id) { point in
+                PointView(point: point, deletePointAction: deletePoint, lineId: lineId, updatePoint: updatePoint)
+                    .padding(.bottom, 20)
             }
+        }
     }
-    
+
+    func updatePoint(point: Point) {
+        let index = (points?.firstIndex(where: { $0.id == point.id }))!
+        var points = points
+        points?[index] = point
+        updatePoints(points)
+    }
+
+    func addNewPoint(id: String? = nil) {
+        var points = points ?? []
+        points.append(Point(id: generateObjectId()))
+        updatePoints(points)
+    }
+
+    func deletePoint(from lineId: String, pointId: String) {
+        var points = points
+        points?.removeAll(where: { $0.id == pointId })
+        updatePoints(points)
+    }
+
 }
+
 struct PointView: View {
-    @Binding var point: Point
+    let point: Point
     var deletePointAction: (String, String) -> Void
     var lineId: String
-    
+    var updatePoint: (Point) -> Void
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -399,7 +407,9 @@ struct PointView: View {
                     Binding {
                         return point.label ?? ""
                     } set: { newPointLabel in
+                        var point = point
                         point.label = newPointLabel
+                        updatePoint(point)
                     }
                 }
                 TextField("Label", text: pointLabelBinding)
@@ -454,7 +464,9 @@ struct PointView: View {
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
         let number = formatter.number(from: y)
-        self.point.y = CGFloat(number?.doubleValue ?? 0)
+        var point = self.point
+        point.y = CGFloat(number?.doubleValue ?? 0)
+        updatePoint(point)
     }
     
     func setX(x: String) {
@@ -462,7 +474,9 @@ struct PointView: View {
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
         let number = formatter.number(from: x)
-        self.point.x = CGFloat(number?.doubleValue ?? 0)
+        var point = self.point
+        point.x = CGFloat(number?.doubleValue ?? 0)
+        updatePoint(point)
     }
 }
 
