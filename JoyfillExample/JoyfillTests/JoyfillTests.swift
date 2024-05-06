@@ -586,24 +586,7 @@ final class JoyfillTests: XCTestCase {
     }
     
     func testSetSignaturePosition() {
-        document
-            .setDocument()
-            .setFile()
-            .setPageField()
-            .setImageFieldPosition()
-            .setHeadingTextPosition()
-            .setDisplayTextPosition()
-            .setEmptySpacePosition()
-            .setTextPosition()
-            .setMultiLineTextPosition()
-            .setNumberPosition()
-            .setDatePosition()
-            .setTimePosition()
-            .setDateTimePosition()
-            .setDropdownPosition()
-            .setMultiselectPosition()
-            .setSingleSelectPosition()
-            .setSignaturePosition()
+        getSignaturePositionWithDependentFields()
             .assertSignaturePosition()
     }
     
@@ -612,25 +595,7 @@ final class JoyfillTests: XCTestCase {
     }
     
     func testSetTablePosition() {
-        document
-            .setDocument()
-            .setFile()
-            .setPageField()
-            .setImageFieldPosition()
-            .setHeadingTextPosition()
-            .setDisplayTextPosition()
-            .setEmptySpacePosition()
-            .setTextPosition()
-            .setMultiLineTextPosition()
-            .setNumberPosition()
-            .setDatePosition()
-            .setTimePosition()
-            .setDateTimePosition()
-            .setDropdownPosition()
-            .setMultiselectPosition()
-            .setSingleSelectPosition()
-            .setSignaturePosition()
-            .setTablePosition()
+        getTablePositionWithDependentFields()
             .assertTablePosition()
     }
     
@@ -639,7 +604,13 @@ final class JoyfillTests: XCTestCase {
     }
     
     func testSetChartPosition() {
-        document
+        getTablePositionWithDependentFields()
+            .setChartPosition()
+            .assertChartPosition()
+    }
+
+    func getSignaturePositionWithDependentFields() -> JoyDoc {
+        return document
             .setDocument()
             .setFile()
             .setPageField()
@@ -657,8 +628,10 @@ final class JoyfillTests: XCTestCase {
             .setMultiselectPosition()
             .setSingleSelectPosition()
             .setSignaturePosition()
+    }
+
+    func getTablePositionWithDependentFields() -> JoyDoc {
+        return getSignaturePositionWithDependentFields()
             .setTablePosition()
-            .setChartPosition()
-            .assertChartPosition()
     }
 }
