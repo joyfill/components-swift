@@ -15,6 +15,8 @@ struct DisplayTextView: View {
     var body: some View {
         HStack {
             Text("\(displayText)")
+                .font((fieldDependency.fieldPosition.fontWeight == "bold") ? .title : .title3)
+                .fontWeight((fieldDependency.fieldPosition.fontWeight == "bold") ? .bold : .regular)
             Spacer()
         }
     }
