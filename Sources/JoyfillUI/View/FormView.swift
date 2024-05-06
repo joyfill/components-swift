@@ -76,11 +76,9 @@ struct FileView: View {
     @Binding var currentPageID: String
     
     var body: some View {
-        if file?.views?.count != 0 {
-            if let view = file?.views?.first {
-                if let pages = view.pages {
-                    PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
-                }
+        if let views = file?.views, !views.isEmpty, let view = views.first {
+            if let pages = view.pages {
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
             }
         } else {
             if let pages = file?.pages {
