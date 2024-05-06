@@ -50,18 +50,30 @@ final class JoyfillUITests: XCTestCase {
         XCTAssertEqual("98789345.0", resultField.label)
     }
     
-    //    func testDateField() throws {
-    //        let app = appLaunch()
-    //        app.swipeUp()
-    //        let datePicker = app.datePickers["field_6629fb44309fbfe84376095e"]
-    //
-    //        // Set the date to January 1, 2022
-    //        let newDate = DateComponents(calendar: .current, year: 2022, month: 1, day: 1).date!
-    //        datePicker.adjust(toPickerWheelValue: DateFormatter.localizedString(from: newDate, dateStyle: .long, timeStyle: .none))
-    //
-    //        // Check if the date was correctly set
-    //        XCTAssertEqual(datePicker.value as? String, "January 1, 2022", "Date picker value is correct")
-    //    }
+    func testDatePicker() {
+        let app = appLaunch()
+        app.swipeUp()
+        let datePicker = app.datePickers.element(boundBy: 0)
+        XCTAssertTrue(datePicker.exists)
+        XCTAssertEqual(datePicker.label, "")
+    }
+    
+    func testTimePicker() {
+        let app = appLaunch()
+        app.swipeUp()
+        let datePicker = app.datePickers.element(boundBy: 1)
+        datePicker.tap()
+        XCTAssertTrue(datePicker.exists)
+        XCTAssertEqual(datePicker.label, "")
+    }
+    
+    func testDateTimePicker() {
+        let app = appLaunch()
+        app.swipeUp()
+        let datePicker = app.datePickers.element(boundBy: 2)
+        XCTAssertTrue(datePicker.exists)
+        XCTAssertEqual(datePicker.label, "")
+    }
     
     func testDropdownField() throws {
         let app = appLaunch()
@@ -103,5 +115,8 @@ final class JoyfillUITests: XCTestCase {
         XCTAssertEqual("6628f2e16bf0362dd5498eb4", resultField.label)
     }
     
+    func testSignatureField() throws {
+        
+    }
     
 }

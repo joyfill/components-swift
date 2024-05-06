@@ -30,7 +30,7 @@ struct DateTimeView: View {
         Group {
             if isDatePickerPresented {
                 DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
-                    .accessibilityIdentifier("field_6629fb44309fbfe84376095e")
+                    .accessibilityIdentifier("DateIdenitfier")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
                     .padding(.all, 8)
