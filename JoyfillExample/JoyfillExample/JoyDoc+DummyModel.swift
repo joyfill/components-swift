@@ -363,7 +363,7 @@ extension JoyDoc {
         let point1 = Point(dictionary: ["_id" : "662a4ac3a09a7fa900990da3"])
         let point2 = Point(dictionary: ["_id" : "662a4ac332c49d08cc4da9b8"])
         let point3 = Point(dictionary: ["_id" : "662a4ac305c6948e2ffe8ab1"])
-        let pointValueElement: ValueElement = ValueElement(id: "662a4ac36cb46cb39dd48090", url: "", points: [point1, point2, point3])
+        let pointValueElement: ValueElement = ValueElement(id: "662a4ac36cb46cb39dd48090", points: [point1, point2, point3])
         field.value = .valueElementArray([pointValueElement])
         field.yTitle = "Vertical"
         field.yMax = 100

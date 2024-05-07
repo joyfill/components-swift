@@ -109,12 +109,12 @@ class TableViewModel: ObservableObject {
     }
     
     func addRow() {
-        setTableDataDidChange(to: true)
         let id = generateObjectId()
         fieldDependency.fieldData?.addRow(id: id)
         resetLastSelection()
         setup()
         uuid = UUID()
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData))
     }
     
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
