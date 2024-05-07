@@ -393,7 +393,12 @@ extension JoyDoc {
         page.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
         page.id = "6629fab320fca7c8107a6cf6"
         var document = self
-        document.files[0].pages?.append(page)
+        if var pages = document.files[0].pages {
+            pages.append(page)
+            document.files[0].pages = pages
+        } else {
+            document.files[0].pages = [page]
+        }
         return document
     }
     
