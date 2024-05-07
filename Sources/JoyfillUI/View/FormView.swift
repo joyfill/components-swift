@@ -28,7 +28,8 @@ public struct Form: View {
 extension Form: FormChangeEventInternal {
     public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
-        let change = Change(v: 1,
+
+        var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
                             _id: document.id!,
@@ -38,11 +39,31 @@ extension Form: FormChangeEventInternal {
                             fieldId: event.field!.id!,
                             fieldIdentifier: event.field!.identifier!,
                             fieldPositionId: event.fieldPosition.id!,
-                            change: ["value": event.field!.value!.dictionary],
+                            change: changes(fieldData: event.field!),
                             createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
-    
+
+    private func changes(fieldData: JoyDocField) -> [String: Any] {
+        switch fieldData.type {
+        case "chart":
+            return chartChanges(fieldData: fieldData)
+        default:
+            return ["value": fieldData.value!.dictionary]
+        }
+    }
+
+    private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
+        var valueDict = ["value": fieldData.value!.dictionary]
+        valueDict["yTitle"] = fieldData.yTitle
+        valueDict["yMin"] = fieldData.yMin
+        valueDict["yMax"] = fieldData.yMax
+        valueDict["xTitle"] = fieldData.xTitle
+        valueDict["xMin"] = fieldData.xMin
+        valueDict["xMax"] = fieldData.xMax
+        return valueDict
+    }
+
     public func onFocus(event: JoyfillModel.FieldEvent) {
         events?.onFocus(event: event)
     }
