@@ -95,6 +95,7 @@ final class JoyfillUITests: XCTestCase {
     func testMultiSelectionView() throws {
         let app = appLaunch()
         app.swipeUp()
+        app.swipeUp()
         let multiButtons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
         for button in multiButtons.allElementsBoundByIndex {
             button.tap()
