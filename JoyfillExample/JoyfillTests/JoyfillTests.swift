@@ -11,6 +11,7 @@ final class JoyfillTests: XCTestCase {
         let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
         return JoyDoc(dictionary: dict)
     }
+
     var document = JoyDoc()
     
     func testGetJoyDoc() {

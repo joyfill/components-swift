@@ -30,15 +30,17 @@ import JoyfillModel
                     .foregroundColor(.black)
             }
         })
-        .onAppear(perform: {
-            
-        })
         .onAppear {
             valueElements = cellModel.data.images ?? []
         }
         .sheet(isPresented: $showMoreImages) {
             MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                 .disabled(cellModel.editMode == .readonly)
+        }
+        .onChange(of: valueElements) { newValue in
+            var editedCell = cellModel.data
+            editedCell.images = valueElements
+            cellModel.didChange?(editedCell)
         }
     }
      
