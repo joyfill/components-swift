@@ -16,6 +16,7 @@
 		1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 132493792BA570F9002C6ADC /* Joyfill */; };
 		1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 1324937C2BAD5A42002C6ADC /* JoyfillModel */; };
 		134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 134FC0792BDA82E9008B7030 /* JoyfillTests.swift */; };
+		3607878F2BEA5D3900D9A187 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 3607878E2BEA5D3900D9A187 /* JoyfillAPIService */; };
 		362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 3622113F2BCEB10200BD98B5 /* JoyfillAPIService */; };
 		36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F192BD67884006C03A6 /* JoyfillModel */; };
 		36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F1C2BD67FC4006C03A6 /* JoyfillAPIService */; };
@@ -113,6 +114,7 @@
 				1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */,
 				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
 				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
+				3607878F2BEA5D3900D9A187 /* JoyfillAPIService in Frameworks */,
 				36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -257,6 +259,7 @@
 				3622113F2BCEB10200BD98B5 /* JoyfillAPIService */,
 				36294F192BD67884006C03A6 /* JoyfillModel */,
 				36294F1C2BD67FC4006C03A6 /* JoyfillAPIService */,
+				3607878E2BEA5D3900D9A187 /* JoyfillAPIService */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -336,8 +339,7 @@
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
 				132493782BA570F9002C6ADC /* XCLocalSwiftPackageReference ".." */,
-				36294F182BD67884006C03A6 /* XCLocalSwiftPackageReference "../../JoyfillModel" */,
-				36294F1B2BD67FC4006C03A6 /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */,
+				3607878D2BEA5D3900D9A187 /* XCRemoteSwiftPackageReference "JoyfillAPIService" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -824,15 +826,18 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
 		};
-		36294F182BD67884006C03A6 /* XCLocalSwiftPackageReference "../../JoyfillModel" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../JoyfillModel;
-		};
-		36294F1B2BD67FC4006C03A6 /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../JoyfillAPIService;
-		};
 /* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3607878D2BEA5D3900D9A187 /* XCRemoteSwiftPackageReference "JoyfillAPIService" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joyfill/JoyfillAPIService";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		132493792BA570F9002C6ADC /* Joyfill */ = {
@@ -842,6 +847,11 @@
 		1324937C2BAD5A42002C6ADC /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillModel;
+		};
+		3607878E2BEA5D3900D9A187 /* JoyfillAPIService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3607878D2BEA5D3900D9A187 /* XCRemoteSwiftPackageReference "JoyfillAPIService" */;
+			productName = JoyfillAPIService;
 		};
 		3622113F2BCEB10200BD98B5 /* JoyfillAPIService */ = {
 			isa = XCSwiftPackageProductDependency;
