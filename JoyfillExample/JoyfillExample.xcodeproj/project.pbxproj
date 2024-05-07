@@ -68,6 +68,7 @@
 		134FC0792BDA82E9008B7030 /* JoyfillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillTests.swift; sourceTree = "<group>"; };
 		13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestFormContainerView.swift; sourceTree = "<group>"; };
 		3607877F2BE900C400D9A187 /* JoyfillUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillUITests.xctestplan; sourceTree = "<group>"; };
+		360787802BE911C400D9A187 /* JoyfillExample.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillExample.xctestplan; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
 		FA28C9682BB4356000A2D65C /* SaveButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonView.swift; sourceTree = "<group>"; };
 		FA28C96A2BB4359600A2D65C /* ChangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeManager.swift; sourceTree = "<group>"; };
@@ -140,6 +141,7 @@
 		FA529C412BA1D251000200F5 = {
 			isa = PBXGroup;
 			children = (
+				360787802BE911C400D9A187 /* JoyfillExample.xctestplan */,
 				3607877F2BE900C400D9A187 /* JoyfillUITests.xctestplan */,
 				FA529C4C2BA1D251000200F5 /* JoyfillExample */,
 				134FC0782BDA82E9008B7030 /* JoyfillTests */,
