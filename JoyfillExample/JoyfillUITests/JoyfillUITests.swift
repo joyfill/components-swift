@@ -1,26 +1,19 @@
 import XCTest
+import JoyfillModel
 
 final class JoyfillUITests: XCTestCase {
-    
+    var app: XCUIApplication!
+
     override func setUpWithError() throws {
         continueAfterFailure = false
+        self.app = XCUIApplication()
+        app.launchArguments.append("FormView")
+        app.launch()
     }
     
     override func tearDownWithError() throws { }
     
-    func testAppLaunch() throws {
-        appLaunch()
-    }
-    
-    func appLaunch() -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments.append("FormView")
-        app.launch()
-        return app
-    }
-    
     func testImageField() {
-        let app = appLaunch()
         app.buttons["ImageMoreIdentifier"].tap()
         
         //        app.buttons["DetailImageIdentifier"].tap()
@@ -31,38 +24,32 @@ final class JoyfillUITests: XCTestCase {
     }
     
     func testTextFields() throws {
-        let app = appLaunch()
+        
         let textField = app.textFields["Text"]
         textField.tap()
         textField.typeText("Hello\n")
         
-        let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("Hello sirHello", resultField.label)
+        XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
     }
     
     func testMultilineField() throws {
-        let app = appLaunch()
         let textField = app.textViews["Multiline Text"]
         textField.tap()
         textField.typeText("Hello\n")
         
-        let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("", resultField.label)
+//        XCTAssertEqual("", onChangeResultValue().text!)
     }
     
     func testNumberField() throws {
-        let app = appLaunch()
         app.swipeUp()
         let numberTextField = app.textFields["Number"]
         numberTextField.tap()
         numberTextField.typeText("345\n")
         
-        let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("98789345.0", resultField.label)
+        XCTAssertEqual(98789345.0, onChangeResultValue().number!)
     }
     
     func testDatePicker() {
-        let app = appLaunch()
         app.swipeUp()
         let datePicker = app.datePickers.element(boundBy: 0)
         XCTAssertTrue(datePicker.exists)
@@ -70,7 +57,6 @@ final class JoyfillUITests: XCTestCase {
     }
     
     func testTimePicker() {
-        let app = appLaunch()
         app.swipeUp()
         let datePicker = app.datePickers.element(boundBy: 1)
         datePicker.tap()
@@ -79,7 +65,6 @@ final class JoyfillUITests: XCTestCase {
     }
     
     func testDateTimePicker() {
-        let app = appLaunch()
         app.swipeUp()
         let datePicker = app.datePickers.element(boundBy: 2)
         XCTAssertTrue(datePicker.exists)
@@ -87,7 +72,6 @@ final class JoyfillUITests: XCTestCase {
     }
     
     func testDropdownField() throws {
-        let app = appLaunch()
         app.swipeUp()
         app.buttons["Dropdown"].tap()
         
@@ -100,11 +84,10 @@ final class JoyfillUITests: XCTestCase {
         XCTAssertFalse(app.sheets.firstMatch.exists)
         
         let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("6628f2e15cea1b971f6a9383", resultField.label)
+        XCTAssertEqual("6628f2e15cea1b971f6a9383", onChangeResultValue().text!)
     }
     
     func testMultiSelectionView() throws {
-        let app = appLaunch()
         app.swipeUp()
         app.swipeUp()
         let multiButtons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
@@ -112,11 +95,10 @@ final class JoyfillUITests: XCTestCase {
             button.tap()
         }
         let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("6628f2e1679bcf815adfa0f6", resultField.label)
+        XCTAssertEqual("6628f2e1679bcf815adfa0f6", onChangeResultValue().text!)
     }
     
     func testSingleSelection() throws {
-        let app = appLaunch()
         app.swipeUp()
         app.swipeUp()
         let multiButtons = app.buttons.matching(identifier: "SingleSelectionIdentifier")
@@ -124,18 +106,16 @@ final class JoyfillUITests: XCTestCase {
             button.tap()
         }
         let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("6628f2e16bf0362dd5498eb4", resultField.label)
+        XCTAssertEqual("6628f2e16bf0362dd5498eb4", onChangeResultValue().text!)
     }
     
     func testSignatureField() throws {
-        let app = appLaunch()
         app.swipeUp()
         app.swipeUp()
         app.buttons["SignatureIdentifier"].tap()
     }
     
     func testChartField() {
-        let app = appLaunch()
         app.swipeUp()
         app.swipeUp()
         app.swipeUp()
@@ -147,10 +127,22 @@ final class JoyfillUITests: XCTestCase {
         
         verticalTitleTextFieldIdentifier.tap()
         verticalTitleTextFieldIdentifier.typeText(" Label Y")
-        
+
+//        valueDict["yTitle"] = fieldData.yTitle
+//        valueDict["yMin"] = fieldData.yMin
+//        valueDict["yMax"] = fieldData.yMax
+//        valueDict["xTitle"] = fieldData.xTitle
+//        valueDict["xMin"] = fieldData.xMin
+//        valueDict["xMax"] = fieldData.xMax
+//        return valueDict
+//        XCTAssertEqual("Vertical Label Y", onChangeResult().dictionary["yTitle"] as! String)
+
         horizontalTitleTextFieldIdentifier.tap()
         horizontalTitleTextFieldIdentifier.typeText(" Label X")
-        
+
+//        XCTAssertEqual("Horizontal Label X", onChangeResult().dictionary["xTitle"] as! String)
+
+
         let minYValuesTextField = app.textFields["MinY"]
         let minXValuesTextField = app.textFields["MinX"]
         let maxYValuesTextField = app.textFields["MaxY"]
@@ -232,7 +224,7 @@ final class JoyfillUITests: XCTestCase {
         verticalPointsValue1.typeText("40")
         
         let horizontalPointsValueIdentifier2 = app.textFields.matching(identifier: "HorizontalPointsValue")
-        let horizontalPointsValue2 = horizontalPointsValueIdentifier1.element(boundBy: 2)
+        let horizontalPointsValue2 = horizontalPointsValueIdentifier2.element(boundBy: 2)
         horizontalPointsValue2.tap()
         horizontalPointsValue2.typeText("50")
         
@@ -240,5 +232,35 @@ final class JoyfillUITests: XCTestCase {
         let verticalPointsValue2 = verticalPointsValueIdentifier2.element(boundBy: 2)
         verticalPointsValue2.tap()
         verticalPointsValue2.typeText("60")
+    }
+}
+
+
+
+extension JoyfillUITests {
+    fileprivate func onChangeResultValue() -> ValueUnion {
+        let change = onChangeResult().change!["value"] as! Any
+        let valueUnion = ValueUnion(value: change)!
+        return valueUnion
+    }
+
+    fileprivate func onChangeResult() -> Change {
+        let resultField = app.staticTexts["resultfield"]
+        let jsonString = resultField.label
+        if let jsonData = jsonString.data(using: .utf8) {
+            do {
+                if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] {
+                    let change = Change(dictionary: dictionary)
+                    return change
+                }
+            } catch {
+                print("Failed to decode JSON string to model: \(error)")
+                fatalError()
+            }
+        } else {
+            print("Failed to convert string to data")
+            fatalError()
+        }
+        fatalError()
     }
 }

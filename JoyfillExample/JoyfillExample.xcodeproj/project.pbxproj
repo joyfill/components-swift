@@ -18,6 +18,7 @@
 		134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 134FC0792BDA82E9008B7030 /* JoyfillTests.swift */; };
 		13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
 		13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */; };
+		3607879B2BEB8CF600D9A187 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 3607879A2BEB8CF600D9A187 /* JoyfillModel */; };
 		362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 3622113F2BCEB10200BD98B5 /* JoyfillAPIService */; };
 		36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F192BD67884006C03A6 /* JoyfillModel */; };
 		36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F1C2BD67FC4006C03A6 /* JoyfillAPIService */; };
@@ -86,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3607879B2BEB8CF600D9A187 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,6 +140,13 @@
 			path = JoyfillTests;
 			sourceTree = "<group>";
 		};
+		360787992BEB8CF600D9A187 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FA529C412BA1D251000200F5 = {
 			isa = PBXGroup;
 			children = (
@@ -147,6 +156,7 @@
 				134FC0782BDA82E9008B7030 /* JoyfillTests */,
 				1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */,
 				FA529C4B2BA1D251000200F5 /* Products */,
+				360787992BEB8CF600D9A187 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -204,6 +214,9 @@
 				1307CF202BE36ECE00B19FBA /* PBXTargetDependency */,
 			);
 			name = JoyfillUITests;
+			packageProductDependencies = (
+				3607879A2BEB8CF600D9A187 /* JoyfillModel */,
+			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -715,6 +728,11 @@
 		};
 		1324937C2BAD5A42002C6ADC /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
+		3607879A2BEB8CF600D9A187 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36294F182BD67884006C03A6 /* XCLocalSwiftPackageReference "../../JoyfillModel" */;
 			productName = JoyfillModel;
 		};
 		3622113F2BCEB10200BD98B5 /* JoyfillAPIService */ = {
