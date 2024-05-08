@@ -46,6 +46,7 @@ struct SignatureView: View {
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
             })
+            .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
             NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
