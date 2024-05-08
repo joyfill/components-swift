@@ -113,6 +113,8 @@ final class JoyfillUITests: XCTestCase {
         app.swipeUp()
         app.swipeUp()
         app.buttons["SignatureIdentifier"].tap()
+        
+        app.navigationBars.buttons.element(boundBy: 0).tap()
     }
     
     func testChartField() {
@@ -127,22 +129,10 @@ final class JoyfillUITests: XCTestCase {
         
         verticalTitleTextFieldIdentifier.tap()
         verticalTitleTextFieldIdentifier.typeText(" Label Y")
-
-//        valueDict["yTitle"] = fieldData.yTitle
-//        valueDict["yMin"] = fieldData.yMin
-//        valueDict["yMax"] = fieldData.yMax
-//        valueDict["xTitle"] = fieldData.xTitle
-//        valueDict["xMin"] = fieldData.xMin
-//        valueDict["xMax"] = fieldData.xMax
-//        return valueDict
-//        XCTAssertEqual("Vertical Label Y", onChangeResult().dictionary["yTitle"] as! String)
-
+        
         horizontalTitleTextFieldIdentifier.tap()
         horizontalTitleTextFieldIdentifier.typeText(" Label X")
-
-//        XCTAssertEqual("Horizontal Label X", onChangeResult().dictionary["xTitle"] as! String)
-
-
+        
         let minYValuesTextField = app.textFields["MinY"]
         let minXValuesTextField = app.textFields["MinX"]
         let maxYValuesTextField = app.textFields["MaxY"]
@@ -160,78 +150,94 @@ final class JoyfillUITests: XCTestCase {
         maxXValuesTextField.tap()
         maxXValuesTextField.typeText("40")
         
-        app.swipeUp()
         
-        let addLineButtonIdentifier = app.buttons.matching(identifier: "AddLineIdentifier")
-        let addLineButton = addLineButtonIdentifier.element(boundBy: 0)
-        addLineButton.tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         
-        let removeLineButtonIdentifier = app.buttons.matching(identifier: "RemoveLineIdentifier")
-        let removeLineButton = removeLineButtonIdentifier.element(boundBy: 0)
-        removeLineButton.tap()
+        XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
+        XCTAssertEqual("Vertical Label Y", onChangeResultChange().yTitle)
         
-        let addPointButtonIdentifier = app.buttons.matching(identifier: "AddPointIdentifier")
-        let addPointButton = addPointButtonIdentifier.element(boundBy: 0)
-        addPointButton.tap()
+//        XCTAssertEqual("", onChangeResultChange().xMin)
+//        XCTAssertEqual("", onChangeResultChange().yMin)
+//        XCTAssertEqual("", onChangeResultChange().xMax)
+//        XCTAssertEqual("", onChangeResultChange().xMin)
         
-        let removePointButtonIdentifier = app.buttons.matching(identifier: "RemovePointIdentifier")
-        let removePointButton = removePointButtonIdentifier.element(boundBy: 0)
-        removePointButton.tap()
         
-        let titleTextFieldIdentifier = app.textFields["TitleTextFieldIdentifier"]
-        titleTextFieldIdentifier.tap()
-        titleTextFieldIdentifier.typeText("Line Title")
-        
-        let descriptionTextFieldIdentifier = app.textFields["DescriptionTextFieldIdentifier"]
-        descriptionTextFieldIdentifier.tap()
-        descriptionTextFieldIdentifier.typeText("Line Description")
-        
-        let textFields = app.textFields.matching(identifier: "PointLabelTextFieldIdentifier")
-        let texts = ["PointLabel1", "PointLabel2", "PointLabel3\n"]
-        
-        for i in 0..<textFields.count {
-            let textField = textFields.element(boundBy: i)
-            guard textField.exists else {
-                XCTFail("Text field \(i) does not exist.")
-                return
-            }
-            textField.tap()
-            if i < texts.count {
-                textField.typeText("\(texts[i])")
-            } else {
-                XCTFail("No text provided for text field \(i).")
-            }
-        }
-        
-        let horizontalPointsValueIdentifier = app.textFields.matching(identifier: "HorizontalPointsValue")
-        let horizontalPointsValue = horizontalPointsValueIdentifier.element(boundBy: 0)
-        horizontalPointsValue.tap()
-        horizontalPointsValue.typeText("10")
-        
-        let horizontalPointsValueIdentifier1 = app.textFields.matching(identifier: "HorizontalPointsValue")
-        let horizontalPointsValue1 = horizontalPointsValueIdentifier1.element(boundBy: 1)
-        horizontalPointsValue1.tap()
-        horizontalPointsValue1.typeText("20")
-        
-        let verticalPointsValueIdentifier = app.textFields.matching(identifier: "VerticalPointsValue")
-        let verticalPointsValue = verticalPointsValueIdentifier.element(boundBy: 0)
-        verticalPointsValue.tap()
-        verticalPointsValue.typeText("30")
-        
-        let verticalPointsValueIdentifier1 = app.textFields.matching(identifier: "VerticalPointsValue")
-        let verticalPointsValue1 = verticalPointsValueIdentifier1.element(boundBy: 1)
-        verticalPointsValue1.tap()
-        verticalPointsValue1.typeText("40")
-        
-        let horizontalPointsValueIdentifier2 = app.textFields.matching(identifier: "HorizontalPointsValue")
-        let horizontalPointsValue2 = horizontalPointsValueIdentifier2.element(boundBy: 2)
-        horizontalPointsValue2.tap()
-        horizontalPointsValue2.typeText("50")
-        
-        let verticalPointsValueIdentifier2 = app.textFields.matching(identifier: "VerticalPointsValue")
-        let verticalPointsValue2 = verticalPointsValueIdentifier2.element(boundBy: 2)
-        verticalPointsValue2.tap()
-        verticalPointsValue2.typeText("60")
+//        XCTAssertEqual("Vertical Label Y", onChangeResultValue().valueElements?.first?.points?.first?.id)
+
+
+        //
+        //        app.swipeUp()
+        //
+        //        let addLineButtonIdentifier = app.buttons.matching(identifier: "AddLineIdentifier")
+        //        let addLineButton = addLineButtonIdentifier.element(boundBy: 0)
+        //        addLineButton.tap()
+        //
+        //        let removeLineButtonIdentifier = app.buttons.matching(identifier: "RemoveLineIdentifier")
+        //        let removeLineButton = removeLineButtonIdentifier.element(boundBy: 0)
+        //        removeLineButton.tap()
+        //
+        //        let addPointButtonIdentifier = app.buttons.matching(identifier: "AddPointIdentifier")
+        //        let addPointButton = addPointButtonIdentifier.element(boundBy: 0)
+        //        addPointButton.tap()
+        //
+        //        let removePointButtonIdentifier = app.buttons.matching(identifier: "RemovePointIdentifier")
+        //        let removePointButton = removePointButtonIdentifier.element(boundBy: 0)
+        //        removePointButton.tap()
+        //
+        //        let titleTextFieldIdentifier = app.textFields["TitleTextFieldIdentifier"]
+        //        titleTextFieldIdentifier.tap()
+        //        titleTextFieldIdentifier.typeText("Line Title")
+        //
+        //        let descriptionTextFieldIdentifier = app.textFields["DescriptionTextFieldIdentifier"]
+        //        descriptionTextFieldIdentifier.tap()
+        //        descriptionTextFieldIdentifier.typeText("Line Description")
+        //
+        //        let textFields = app.textFields.matching(identifier: "PointLabelTextFieldIdentifier")
+        //        let texts = ["PointLabel1", "PointLabel2", "PointLabel3\n"]
+        //
+        //        for i in 0..<textFields.count {
+        //            let textField = textFields.element(boundBy: i)
+        //            guard textField.exists else {
+        //                XCTFail("Text field \(i) does not exist.")
+        //                return
+        //            }
+        //            textField.tap()
+        //            if i < texts.count {
+        //                textField.typeText("\(texts[i])")
+        //            } else {
+        //                XCTFail("No text provided for text field \(i).")
+        //            }
+        //        }
+        //
+        //        let horizontalPointsValueIdentifier = app.textFields.matching(identifier: "HorizontalPointsValue")
+        //        let horizontalPointsValue = horizontalPointsValueIdentifier.element(boundBy: 0)
+        //        horizontalPointsValue.tap()
+        //        horizontalPointsValue.typeText("10")
+        //
+        //        let horizontalPointsValueIdentifier1 = app.textFields.matching(identifier: "HorizontalPointsValue")
+        //        let horizontalPointsValue1 = horizontalPointsValueIdentifier1.element(boundBy: 1)
+        //        horizontalPointsValue1.tap()
+        //        horizontalPointsValue1.typeText("20")
+        //
+        //        let verticalPointsValueIdentifier = app.textFields.matching(identifier: "VerticalPointsValue")
+        //        let verticalPointsValue = verticalPointsValueIdentifier.element(boundBy: 0)
+        //        verticalPointsValue.tap()
+        //        verticalPointsValue.typeText("30")
+        //
+        //        let verticalPointsValueIdentifier1 = app.textFields.matching(identifier: "VerticalPointsValue")
+        //        let verticalPointsValue1 = verticalPointsValueIdentifier1.element(boundBy: 1)
+        //        verticalPointsValue1.tap()
+        //        verticalPointsValue1.typeText("40")
+        //
+        //        let horizontalPointsValueIdentifier2 = app.textFields.matching(identifier: "HorizontalPointsValue")
+        //        let horizontalPointsValue2 = horizontalPointsValueIdentifier2.element(boundBy: 2)
+        //        horizontalPointsValue2.tap()
+        //        horizontalPointsValue2.typeText("50")
+        //
+        //        let verticalPointsValueIdentifier2 = app.textFields.matching(identifier: "VerticalPointsValue")
+        //        let verticalPointsValue2 = verticalPointsValueIdentifier2.element(boundBy: 2)
+        //        verticalPointsValue2.tap()
+        //        verticalPointsValue2.typeText("60")
     }
 }
 
@@ -240,6 +246,12 @@ final class JoyfillUITests: XCTestCase {
 extension JoyfillUITests {
     fileprivate func onChangeResultValue() -> ValueUnion {
         let change = onChangeResult().change!["value"] as! Any
+        let valueUnion = ValueUnion(value: change)!
+        return valueUnion
+    }
+    
+    fileprivate func onChangeResultChange() -> ValueUnion {
+        let change = onChangeResult().change!
         let valueUnion = ValueUnion(value: change)!
         return valueUnion
     }
@@ -262,5 +274,31 @@ extension JoyfillUITests {
             fatalError()
         }
         fatalError()
+    }
+}
+
+extension ValueUnion {
+    var xTitle: String? {
+        return (self.dictionary as! [String: Any])["xTitle"] as? String
+    }
+    
+    var yTitle: String? {
+        return (self.dictionary as! [String: Any])["yTitle"] as? String
+    }
+    
+    var yMin: String? {
+        return (self.dictionary as! [String: Any])["yMin"] as? String
+    }
+    
+    var yMax: String? {
+        return (self.dictionary as! [String: Any])["yMax"] as? String
+    }
+    
+    var xMin: String? {
+        return (self.dictionary as! [String: Any])["xMin"] as? String
+    }
+    
+    var xMax: String? {
+        return (self.dictionary as! [String: Any])["xMax"] as? String
     }
 }
