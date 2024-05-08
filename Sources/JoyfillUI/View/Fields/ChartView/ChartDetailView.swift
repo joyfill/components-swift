@@ -207,7 +207,7 @@ struct LinesView: View {
                     .padding(.all,5)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.green, lineWidth: 1)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
                     .padding([.leading,.top], 10)
                     
@@ -327,7 +327,7 @@ struct LineView: View {
                 .frame(height: 40)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.blue, lineWidth: 1)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
                 .cornerRadius(10)
             
@@ -348,7 +348,7 @@ struct LineView: View {
                 .frame(height: 40)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.green, lineWidth: 1)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
                 .cornerRadius(10)
         }
@@ -427,7 +427,7 @@ struct PointView: View {
                     .frame(height: 40)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.yellow, lineWidth: 1)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
                     .cornerRadius(10)
                 
@@ -503,7 +503,7 @@ struct xAndYAxisCoordinateView: View {
             .keyboardType(.decimalPad)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.red, lineWidth: 1)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
             .cornerRadius(10)
     }
