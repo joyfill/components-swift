@@ -95,7 +95,7 @@ final class JoyfillUITests: XCTestCase {
             button.tap()
         }
         let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("6628f2e1679bcf815adfa0f6", onChangeResultValue().text!)
+        XCTAssertEqual("6628f2e1679bcf815adfa0f6", onChangeResultValue().multiSelector?.first!)
     }
     
     func testSingleSelection() throws {
@@ -106,7 +106,7 @@ final class JoyfillUITests: XCTestCase {
             button.tap()
         }
         let resultField = app.staticTexts["resultfield"]
-        XCTAssertEqual("6628f2e16bf0362dd5498eb4", onChangeResultValue().text!)
+        XCTAssertEqual("6628f2e16bf0362dd5498eb4", onChangeResultValue().multiSelector?.first!)
     }
     
     func testSignatureField() throws {
