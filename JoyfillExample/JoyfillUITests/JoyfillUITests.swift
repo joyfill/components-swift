@@ -150,6 +150,10 @@ final class JoyfillUITests: XCTestCase {
         
         XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
         XCTAssertEqual("Vertical Label Y", onChangeResultChange().yTitle)
+        XCTAssertEqual(10040.0, onChangeResultChange().xMax)
+        XCTAssertEqual(20.0, onChangeResultChange().xMin)
+        XCTAssertEqual(10030.0, onChangeResultChange().yMax)
+        XCTAssertEqual(10.0, onChangeResultChange().yMin)
     }
     
     func testChartLineButton() throws {
@@ -279,19 +283,19 @@ extension ValueUnion {
         return (self.dictionary as! [String: Any])["yTitle"] as? String
     }
     
-    var yMin: String? {
-        return (self.dictionary as! [String: Any])["yMin"] as? String
+    var yMin: Double? {
+        return (self.dictionary as! [String: Any])["yMin"] as? Double
     }
     
-    var yMax: String? {
-        return (self.dictionary as! [String: Any])["yMax"] as? String
+    var yMax: Double? {
+        return (self.dictionary as! [String: Any])["yMax"] as? Double
     }
     
-    var xMin: String? {
-        return (self.dictionary as! [String: Any])["xMin"] as? String
+    var xMin: Double? {
+        return (self.dictionary as! [String: Any])["xMin"] as? Double
     }
     
-    var xMax: String? {
-        return (self.dictionary as! [String: Any])["xMax"] as? String
+    var xMax: Double? {
+        return (self.dictionary as! [String: Any])["xMax"] as? Double
     }
 }
