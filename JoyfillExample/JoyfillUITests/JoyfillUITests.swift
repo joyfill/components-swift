@@ -15,29 +15,26 @@ final class JoyfillUITests: XCTestCase {
     
     func testImageField() {
         app.buttons["ImageMoreIdentifier"].tap()
-        
         //        app.buttons["DetailImageIdentifier"].tap()
-        
         //        app.buttons["ImageDeleteImageIdentifier"].tap()
-        
         app.buttons["ImageUploadImageIdentifier"].tap()
     }
     
     func testTextFields() throws {
-        
         let textField = app.textFields["Text"]
         textField.tap()
         textField.typeText("Hello\n")
-        
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
     }
     
     func testMultilineField() throws {
-        let textField = app.textViews["Multiline Text"]
+        let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
+        multiLineTextField.tap()
+        multiLineTextField.typeText("Hello")
+//        tap textfield to trigger onChange
+        let textField = app.textFields["Text"]
         textField.tap()
-        textField.typeText("Hello\n")
-        
-        //        XCTAssertEqual("", onChangeResultValue().text!)
+        XCTAssertEqual("HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", onChangeResultValue().multilineText)
     }
     
     func testNumberField() throws {
@@ -45,7 +42,6 @@ final class JoyfillUITests: XCTestCase {
         let numberTextField = app.textFields["Number"]
         numberTextField.tap()
         numberTextField.typeText("345\n")
-        
         XCTAssertEqual(98789345.0, onChangeResultValue().number!)
     }
     
@@ -109,7 +105,6 @@ final class JoyfillUITests: XCTestCase {
         app.swipeUp()
         app.swipeUp()
         app.buttons["SignatureIdentifier"].tap()
-        
         app.navigationBars.buttons.element(boundBy: 0).tap()
     }
     
@@ -164,6 +159,10 @@ final class JoyfillUITests: XCTestCase {
         let removeLineButtonIdentifier = app.buttons.matching(identifier: "RemoveLineIdentifier")
         let removeLineButton = removeLineButtonIdentifier.element(boundBy: 0)
         removeLineButton.tap()
+        
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        XCTAssertEqual(1, onChangeResultValue().valueElements?.count)
     }
     
     func testChartAddPoint() throws {
@@ -177,9 +176,11 @@ final class JoyfillUITests: XCTestCase {
         removePointButton.tap()
         
         app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        XCTAssertEqual(3, onChangeResultValue().valueElements?.first?.points?.count)
     }
     
-    func testChartPoints() throws {
+    func testChartPointTitleAndDescription() throws {
         goToChartDetailField()
         let titleTextFieldIdentifier = app.textFields["TitleTextFieldIdentifier"]
         titleTextFieldIdentifier.tap()
@@ -189,8 +190,17 @@ final class JoyfillUITests: XCTestCase {
         descriptionTextFieldIdentifier.tap()
         descriptionTextFieldIdentifier.typeText("Line Description")
         
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        XCTAssertEqual("Line Title", onChangeResultValue().valueElements?[0].title)
+        XCTAssertEqual("Line Description", onChangeResultValue().valueElements?[0].description)
+        
+    }
+    
+    func testChartPointsLabel() throws {
+        goToChartDetailField()
         let textFields = app.textFields.matching(identifier: "PointLabelTextFieldIdentifier")
-        let texts = ["PointLabel1", "PointLabel2", "PointLabel3\n"]
+        let texts = ["PointLabel1", "PointLabel2", "PointLabel3"]
         
         for i in 0..<textFields.count {
             let textField = textFields.element(boundBy: i)
@@ -206,6 +216,15 @@ final class JoyfillUITests: XCTestCase {
             }
         }
         
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        XCTAssertEqual("PointLabel1", onChangeResultValue().valueElements?[0].points?[0].label)
+        XCTAssertEqual("PointLabel2", onChangeResultValue().valueElements?[0].points?[1].label)
+        XCTAssertEqual("PointLabel3", onChangeResultValue().valueElements?[0].points?[2].label)
+    }
+    
+    func testChartPointsValue() throws {
+        goToChartDetailField()
         let horizontalPointsValueIdentifier = app.textFields.matching(identifier: "HorizontalPointsValue")
         let horizontalPointsValue = horizontalPointsValueIdentifier.element(boundBy: 0)
         horizontalPointsValue.tap()
@@ -235,14 +254,21 @@ final class JoyfillUITests: XCTestCase {
         let verticalPointsValue2 = verticalPointsValueIdentifier2.element(boundBy: 2)
         verticalPointsValue2.tap()
         verticalPointsValue2.typeText("60")
+        
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        XCTAssertEqual(10, onChangeResultValue().valueElements?[0].points?[0].x)
+        XCTAssertEqual(30, onChangeResultValue().valueElements?[0].points?[0].y)
+        XCTAssertEqual(20, onChangeResultValue().valueElements?[0].points?[1].x)
+        XCTAssertEqual(40, onChangeResultValue().valueElements?[0].points?[1].y)
+        XCTAssertEqual(50, onChangeResultValue().valueElements?[0].points?[2].x)
+        XCTAssertEqual(60, onChangeResultValue().valueElements?[0].points?[2].y)
     }
 }
 
-
-
 extension JoyfillUITests {
     fileprivate func onChangeResultValue() -> ValueUnion {
-        let change = onChangeResult().change!["value"] as! Any
+        let change = onChangeResult().change!["value"]!
         let valueUnion = ValueUnion(value: change)!
         return valueUnion
     }
@@ -256,6 +282,7 @@ extension JoyfillUITests {
     fileprivate func onChangeResult() -> Change {
         let resultField = app.staticTexts["resultfield"]
         let jsonString = resultField.label
+        print("resultField.label: \(resultField.label)")
         if let jsonData = jsonString.data(using: .utf8) {
             do {
                 if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] {
