@@ -15,9 +15,12 @@ final class JoyfillUITests: XCTestCase {
     
     func testImageField() {
         app.buttons["ImageMoreIdentifier"].tap()
-        //        app.buttons["DetailImageIdentifier"].tap()
-        //        app.buttons["ImageDeleteImageIdentifier"].tap()
+        XCUIApplication().scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailImageIdentifier").element(boundBy: 0).tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", onChangeResultValue().imageURLs?.first)
+
     }
     
     func testTextFields() throws {
