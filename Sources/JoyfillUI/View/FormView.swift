@@ -186,7 +186,7 @@ struct PageView: View {
 
     var body: some View {
         if let fieldPositions = page.fieldPositions {
-          let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
+            let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
             FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
         }
     }
