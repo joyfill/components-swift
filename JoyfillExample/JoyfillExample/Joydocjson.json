@@ -485,8 +485,16 @@
           "_id": "6628f2e142ffeada4206bbdb",
           "deleted": false,
           "cells": {
-            "6628f2e11a2b28119985cfbb": "Hello",
-            "6628f2e123ca77fa82a2c45e": "6628f2e1846cc78241aa6b11"
+              "6628f2e11a2b28119985cfbb": "Hello",
+              "6628f2e123ca77fa82a2c45e": "6628f2e1846cc78241aa6b11",
+              "663dcdcfcd08ad955955fd95": [
+                  {
+                      "_id": "663dce17fac5fcba600f0b04",
+                      "url": "https://s3.amazonaws.com/docspace.production.documents/6628f1034892618fc118503b/documents/doc_663dcddf95255501dfa00ee5/663dce179e381b4f29128820-1715326487573.jpg",
+                      "fileName": "663dce179e381b4f29128820-1715326487573.jpg",
+                      "filePath": "6628f1034892618fc118503b/documents/doc_663dcddf95255501dfa00ee5"
+                  }
+              ],
           }
         },
         {
@@ -549,17 +557,19 @@
           ]
         },
         {
-          "_id": "6628f2e1355b7d93cea30f3c",
-          "type": "text",
-          "title": "Text Column",
-          "width": 0,
-          "identifier": "field_column_6629fbc782667100aa64d18d"
+            "_id": "663dcdcfcd08ad955955fd95",
+            "type": "image",
+            "title": "Image Column",
+            "width": 0,
+            "identifier": "",
+            "maxImageWidth": 0,
+            "maxImageHeight": 0
         }
       ],
       "tableColumnOrder": [
         "6628f2e11a2b28119985cfbb",
         "6628f2e123ca77fa82a2c45e",
-        "6628f2e1355b7d93cea30f3c"
+        "663dcdcfcd08ad955955fd95"
       ],
       "file": "6629fab3c0ba3fb775b4a55c"
     },
