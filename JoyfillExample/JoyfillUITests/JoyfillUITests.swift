@@ -134,7 +134,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
         let firstImageButton = imageButtons.element(boundBy: 0)
         firstImageButton.tap()
-        XCUIApplication().scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
         app.buttons["ImageDeleteIdentifier"].tap()
         let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
         let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))

@@ -1,19 +1,8 @@
 import XCTest
 
-final class JoyfillUITestsLaunchTests: XCTestCase {
-
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
-    }
-
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
+final class JoyfillUITestsLaunchTests: JoyfillUITestsBaseClass {
 
     func testLaunch() throws {
-        let app = XCUIApplication()
-        app.launch()
-
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"
         attachment.lifetime = .keepAlways
