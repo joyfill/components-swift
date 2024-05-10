@@ -16,6 +16,7 @@
 		1321F1782BECEC9400594112 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 132493792BA570F9002C6ADC /* Joyfill */; };
 		1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 1324937C2BAD5A42002C6ADC /* JoyfillModel */; };
+		1338AB962BEE38DD0001C203 /* TableFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1338AB952BEE38DD0001C203 /* TableFieldTests.swift */; };
 		134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 134FC0792BDA82E9008B7030 /* JoyfillTests.swift */; };
 		13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
 		13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */; };
@@ -70,6 +71,7 @@
 		1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITests.swift; sourceTree = "<group>"; };
 		1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		1338AB952BEE38DD0001C203 /* TableFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableFieldTests.swift; sourceTree = "<group>"; };
 		134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		134FC0792BDA82E9008B7030 /* JoyfillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillTests.swift; sourceTree = "<group>"; };
 		13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestFormContainerView.swift; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */,
 				362A560A2BEE2EE600B54C14 /* ImageFieldTests.swift */,
 				362A560E2BEE359400B54C14 /* ChartFieldTests.swift */,
+				1338AB952BEE38DD0001C203 /* TableFieldTests.swift */,
 				362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */,
 				1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */,
 			);
@@ -369,6 +372,7 @@
 			files = (
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
 				362A560B2BEE2EE600B54C14 /* ImageFieldTests.swift in Sources */,
+				1338AB962BEE38DD0001C203 /* TableFieldTests.swift in Sources */,
 				1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */,
 				362A56112BEE36CE00B54C14 /* DateTimeFieldTests.swift in Sources */,
 				362A560F2BEE359400B54C14 /* ChartFieldTests.swift in Sources */,
