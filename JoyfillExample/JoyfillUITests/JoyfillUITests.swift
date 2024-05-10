@@ -20,7 +20,7 @@ final class JoyfillUITests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         
         XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", onChangeResultValue().imageURLs?.first)
-
+        
     }
     
     func testTextFields() throws {
@@ -36,7 +36,7 @@ final class JoyfillUITests: XCTestCase {
         XCTAssertEqual("Hello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", multiLineTextField.value as! String)
         multiLineTextField.tap()
         multiLineTextField.typeText("Hello")
-//        tap textfield to trigger onChange
+        //        tap textfield to trigger onChange
         let textField = app.textFields["Text"]
         textField.tap()
         XCTAssertEqual("HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", onChangeResultValue().multilineText)
@@ -310,7 +310,6 @@ final class JoyfillUITests: XCTestCase {
         let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
         let firstdropdownButton = dropdownButtons.element(boundBy: 0)
         firstdropdownButton.tap()
-        
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         let firstOption = dropdownOptions.element(boundBy: 1)
@@ -328,33 +327,18 @@ final class JoyfillUITests: XCTestCase {
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(3, lastIndex)
     }
-
+    
     func testTableDeleteRow() throws {
         goToTableDetailPage()
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
         app.buttons["TableDeleteRowIdentifier"].tap()
-
         app.navigationBars.buttons.element(boundBy: 0).tap()
-
         sleep(2)
-
         let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
         let lastRow = try XCTUnwrap(valueElements.last)
         XCTAssertTrue(lastRow.deleted!)
         XCTAssertEqual(3, valueElements.count)
     }
-
-//    private func setupRows() {
-//        guard let joyDocModel = fieldDependency.fieldData else { return }
-//        guard let valueElements = joyDocModel.valueToValueElements, !valueElements.isEmpty else {
-//            setupQuickTableViewRows()
-//            return
-//        }
-//        
-//        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-//        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: joyDocModel.rowOrder)
-//        var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
-        
 }
 
 extension JoyfillUITests {
