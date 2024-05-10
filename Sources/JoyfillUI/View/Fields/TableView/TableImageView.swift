@@ -25,6 +25,7 @@ import JoyfillModel
                     .foregroundColor(.black)
             }
         })
+        .accessibilityIdentifier("TableImageIdentifier")
         .onAppear {
             valueElements = cellModel.data.images ?? []
         }

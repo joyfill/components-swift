@@ -15,12 +15,11 @@ final class JoyfillUITests: XCTestCase {
     
     func testImageField() {
         app.buttons["ImageMoreIdentifier"].tap()
-        XCUIApplication().scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailImageIdentifier").element(boundBy: 0).tap()
+        XCUIApplication().scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         
         XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", onChangeResultValue().imageURLs?.first)
-        
     }
     
     func testTextFields() throws {
@@ -280,29 +279,17 @@ final class JoyfillUITests: XCTestCase {
     func testTableTextFields() throws {
         goToTableDetailPage()
         
-        let hello = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        hello.tap()
-        hello.typeText("hello")
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("First")
         
-        let hello1 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        hello1.tap()
-        hello1.typeText("hello1")
+        let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        secondTableTextField.tap()
+        secondTableTextField.typeText("Second")
         
-        let hello2 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
-        hello2.tap()
-        hello2.typeText("hello2")
-        
-        let hello3 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
-        hello3.tap()
-        hello3.typeText("hello3")
-        
-        let hello4 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
-        hello4.tap()
-        hello4.typeText("hello4")
-        
-        let hello5 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
-        hello5.tap()
-        hello5.typeText("hello5")
+        let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        thirdTableTextField.tap()
+        thirdTableTextField.typeText("Third")
     }
     
     func testTableDropdownOption() throws {
@@ -315,6 +302,23 @@ final class JoyfillUITests: XCTestCase {
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         XCTAssertFalse(app.sheets.firstMatch.exists)
+    }
+    
+    func testTableImageField() throws {
+        goToTableDetailPage()
+        let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
+        let firstImageButton = imageButtons.element(boundBy: 0)
+        firstImageButton.tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+    }
+    
+    func testTabelDeleteImage() throws {
+        goToTableDetailPage()
+        let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
+        let firstImageButton = imageButtons.element(boundBy: 0)
+        firstImageButton.tap()
+        XCUIApplication().scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
+        app.buttons["ImageDeleteIdentifier"].tap()
     }
     
     func testTableAddRow() throws {

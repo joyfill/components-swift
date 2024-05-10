@@ -322,7 +322,7 @@ struct UploadDeleteView: View {
                     .foregroundColor(.red)
             )
         })
-        .accessibilityIdentifier("ImageDeleteImageIdentifier")
+        .accessibilityIdentifier("ImageDeleteIdentifier")
     }
     
     func loadImagesFromURLs(imageURLs: [String]) {
@@ -367,7 +367,7 @@ struct ImageGridView:View {
                         .onTapGesture {
                             handleImageSelection(image)
                         }
-                        .accessibilityIdentifier("DetailImageIdentifier")
+                        .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                 }
             }
         }
