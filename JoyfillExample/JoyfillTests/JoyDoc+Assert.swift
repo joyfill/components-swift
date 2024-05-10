@@ -267,16 +267,16 @@ extension JoyDoc {
         XCTAssertEqual(fields[14].tableColumns?[1].width, 0)
         XCTAssertEqual(fields[14].tableColumns?[1].identifier, "field_column_6629fbc7e2493a155a32c509")
         
-        XCTAssertEqual(fields[14].tableColumns?[2].id, "6628f2e1355b7d93cea30f3c")
-        XCTAssertEqual(fields[14].tableColumns?[2].type, "text")
-        XCTAssertEqual(fields[14].tableColumns?[2].title, "Text Column")
+        XCTAssertEqual(fields[14].tableColumns?[2].id, "663dcdcfcd08ad955955fd95")
+        XCTAssertEqual(fields[14].tableColumns?[2].type, "image")
+        XCTAssertEqual(fields[14].tableColumns?[2].title, "Image Column")
         XCTAssertEqual(fields[14].tableColumns?[2].width, 0)
-        XCTAssertEqual(fields[14].tableColumns?[2].identifier, "field_column_6629fbc782667100aa64d18d")
+        XCTAssertEqual(fields[14].tableColumns?[2].identifier, "")
         
         XCTAssertEqual(fields[14].tableColumnOrder?.count, 3)
         XCTAssertEqual(fields[14].tableColumnOrder?[0], "6628f2e11a2b28119985cfbb")
         XCTAssertEqual(fields[14].tableColumnOrder?[1], "6628f2e123ca77fa82a2c45e")
-        XCTAssertEqual(fields[14].tableColumnOrder?[2], "6628f2e1355b7d93cea30f3c")
+        XCTAssertEqual(fields[14].tableColumnOrder?[2], "663dcdcfcd08ad955955fd95")
     }
     
     func asssertChartField() {
