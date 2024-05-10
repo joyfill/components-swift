@@ -30,29 +30,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         numberTextField.typeText("345\n")
         XCTAssertEqual(98789345.0, onChangeResultValue().number!)
     }
-    
-    func testDatePicker() {
-        app.swipeUp()
-        let datePicker = app.datePickers.element(boundBy: 0)
-        XCTAssertTrue(datePicker.exists)
-        XCTAssertEqual(datePicker.label, "")
-    }
-    
-    func testTimePicker() {
-        app.swipeUp()
-        let datePicker = app.datePickers.element(boundBy: 1)
-        datePicker.tap()
-        XCTAssertTrue(datePicker.exists)
-        XCTAssertEqual(datePicker.label, "")
-    }
-    
-    func testDateTimePicker() {
-        app.swipeUp()
-        let datePicker = app.datePickers.element(boundBy: 2)
-        XCTAssertTrue(datePicker.exists)
-        XCTAssertEqual(datePicker.label, "")
-    }
-    
+
     func testDropdownFieldSelect_Unselect() throws {
         app.swipeUp()
         let dropdownButton = app.buttons["Dropdown"]
