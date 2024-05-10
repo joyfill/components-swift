@@ -333,13 +333,15 @@ final class JoyfillUITests: XCTestCase {
         goToTableDetailPage()
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
         app.buttons["TableDeleteRowIdentifier"].tap()
+
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
-        let value = onChangeResultValue()
-        let valueElements = value.valueElements
-        let count = valueElements?.count
+        sleep(2)
 
-        XCTAssertEqual(4, count)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        let lastRow = try XCTUnwrap(valueElements.last)
+        XCTAssertTrue(lastRow.deleted!)
+        XCTAssertEqual(3, valueElements.count)
     }
 
 //    private func setupRows() {
