@@ -320,22 +320,28 @@ final class JoyfillUITests: XCTestCase {
     
     func testTableAddRow() throws {
         goToTableDetailPage()
-        
-//        app.buttons["TableAddRowIdentifier"].tap()
-        
-        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
-        
-        app.buttons["TableDeleteRowIdentifier"].tap()
-        
+        app.buttons["TableAddRowIdentifier"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(3, lastIndex)
+    }
+
+    func testTableDeleteRow() throws {
+        goToTableDetailPage()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
         let value = onChangeResultValue()
         let valueElements = value.valueElements
         let count = valueElements?.count
-        
+
         XCTAssertEqual(4, count)
     }
-    
+
 //    private func setupRows() {
 //        guard let joyDocModel = fieldDependency.fieldData else { return }
 //        guard let valueElements = joyDocModel.valueToValueElements, !valueElements.isEmpty else {
