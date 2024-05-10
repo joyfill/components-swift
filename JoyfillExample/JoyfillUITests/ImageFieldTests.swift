@@ -10,12 +10,12 @@ import XCTest
 final class ImageFieldTests: JoyfillUITestsBaseClass {
    
     func testImageFieldDelete() {
-        goToImageDetailPageAndDeleteImage()
+        goToImageDetailPageAndDeleteImageAndGoBack()
         emptyImageAssert()
     }
 
     func testImageUploadFromMainPage() {
-        goToImageDetailPageAndDeleteImage()
+        goToImageDetailPageAndDeleteImageAndGoBack()
         emptyImageAssert()
 
         app.buttons["ImageIdentifier"].tap()
@@ -24,12 +24,15 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
 
     func testImageUploadFromDetailPage() {
         goToImageDetailPage()
-
-        app.buttons["ImageUploadImageIdentifier"].tap()
-        app.buttons["ImageUploadImageIdentifier"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-
+        uploadImageOnDetailPageAndGoBack()
         imageAssert()
+    }
+
+    func testMultipleImageUploadFromDetailPage() {
+        goToImageDetailPage()
+        uploadImageOnDetailPage()
+//        uploadImageOnDetailPageAndGoBack()
+//        imageAssertCount(count: 2)
     }
 }
 
@@ -39,17 +42,31 @@ extension ImageFieldTests {
         app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
     }
 
-    private func goToImageDetailPageAndDeleteImage() {
+    private func goToImageDetailPageAndDeleteImageAndGoBack() {
         goToImageDetailPage()
         app.buttons["ImageDeleteIdentifier"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        goBack()
     }
 
     private func imageAssert() {
+        imageAssertCount(count: 1)
         XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", onChangeResultValue().imageURLs?.first)
+    }
+
+    private func imageAssertCount(count: Int) {
+        XCTAssertEqual(count, onChangeResultValue().imageURLs?.count)
     }
 
     private func emptyImageAssert() {
         XCTAssertNil(onChangeResultValue().imageURLs)
+    }
+
+    private func uploadImageOnDetailPageAndGoBack() {
+        uploadImageOnDetailPage()
+        goBack()
+    }
+
+    private func uploadImageOnDetailPage() {
+        app.buttons["ImageUploadImageIdentifier"].tap()
     }
 }

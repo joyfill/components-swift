@@ -22,6 +22,10 @@ class JoyfillUITestsBaseClass: XCTestCase {
         app = nil
     }
 
+    func goBack() {
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+    }
+
 }
 
 extension JoyfillUITestsBaseClass {
