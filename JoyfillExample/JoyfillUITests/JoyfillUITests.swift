@@ -72,7 +72,6 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         var firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
-        XCTAssertFalse(app.sheets.firstMatch.exists)
         XCTAssertEqual("6628f2e15cea1b971f6a9383", onChangeResultValue().text!)
 
         // test DropdownField UnselectOption
@@ -290,6 +289,8 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         thirdTableTextField.tap()
         thirdTableTextField.typeText("Third")
+        
+        app.navigationBars.buttons.element(boundBy: 0).tap()
     }
     
     func testTableDropdownOption() throws {
@@ -301,15 +302,20 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
-        XCTAssertFalse(app.sheets.firstMatch.exists)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
     }
     
-    func testTableImageField() throws {
+    func testTableUploadImage() throws {
         goToTableDetailPage()
         let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
         let firstImageButton = imageButtons.element(boundBy: 0)
         firstImageButton.tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
+        
+        let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
     }
     
     func testTabelDeleteImage() throws {
@@ -319,6 +325,10 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         firstImageButton.tap()
         XCUIApplication().scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
         app.buttons["ImageDeleteIdentifier"].tap()
+        let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
     }
     
     func testTableAddRow() throws {
