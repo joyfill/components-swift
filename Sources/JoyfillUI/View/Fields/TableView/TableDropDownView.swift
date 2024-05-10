@@ -35,6 +35,7 @@ struct TableDropDownOptionListView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
             })
+            .accessibilityIdentifier("TableDropdownIdentifier")
             .sheet(isPresented: $isSheetPresented) {
                 TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
             }
@@ -93,6 +94,7 @@ struct TableDropDownOptionList: View {
                             .padding(.horizontal, 28)
                             .padding(.vertical, 10)
                         })
+                        .accessibilityIdentifier("TableDropdownOptionsIdentifier")
                         Divider()
                             .padding(.horizontal, 16)
                     }

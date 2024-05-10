@@ -1,10 +1,5 @@
 //
 //  SwiftUIView.swift
-//
-//
-//  Created by Nand Kishore on 06/03/24.
-//
-
 import SwiftUI
 import JoyfillModel
 

@@ -66,6 +66,7 @@ struct TableQuickView : View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
+            .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
             NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {

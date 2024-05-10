@@ -22,6 +22,7 @@ struct TableTextView: View {
                 .lineLimit(1)
         } else {
             TextEditor(text: $text)
+                .accessibilityIdentifier("TabelTextFieldIdentifier")
                 .onChange(of: text) { newText in
                     if cellModel.data.title != text {
                         var editedCell = cellModel.data

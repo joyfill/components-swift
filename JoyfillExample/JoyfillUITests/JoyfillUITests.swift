@@ -25,6 +25,7 @@ final class JoyfillUITests: XCTestCase {
     
     func testTextFields() throws {
         let textField = app.textFields["Text"]
+        XCTAssertEqual("Hello sir", textField.value as! String)
         textField.tap()
         textField.typeText("Hello\n")
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
@@ -32,6 +33,7 @@ final class JoyfillUITests: XCTestCase {
     
     func testMultilineField() throws {
         let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
+        XCTAssertEqual("Hello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", multiLineTextField.value as! String)
         multiLineTextField.tap()
         multiLineTextField.typeText("Hello")
 //        tap textfield to trigger onChange
@@ -43,6 +45,7 @@ final class JoyfillUITests: XCTestCase {
     func testNumberField() throws {
         app.swipeUp()
         let numberTextField = app.textFields["Number"]
+        XCTAssertEqual("98789", numberTextField.value as! String)
         numberTextField.tap()
         numberTextField.typeText("345\n")
         XCTAssertEqual(98789345.0, onChangeResultValue().number!)
@@ -72,14 +75,13 @@ final class JoyfillUITests: XCTestCase {
     
     func testDropdownField() throws {
         app.swipeUp()
-        app.buttons["Dropdown"].tap()
-        
-        let dropdownOptions = app.buttons.matching(identifier: "6628f2e15cea1b971f6a9383")
+        let dropdownButton = app.buttons["Dropdown"]
+        XCTAssertEqual("Yes", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "DropdownoptionIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
-        
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
-        
         XCTAssertFalse(app.sheets.firstMatch.exists)
         XCTAssertEqual("6628f2e15cea1b971f6a9383", onChangeResultValue().text!)
     }
@@ -267,12 +269,93 @@ final class JoyfillUITests: XCTestCase {
         XCTAssertEqual(50, onChangeResultValue().valueElements?[0].points?[2].x)
         XCTAssertEqual(60, onChangeResultValue().valueElements?[0].points?[2].y)
     }
+    
+    func goToTableDetailPage() {
+        app.swipeUp()
+        app.swipeUp()
+        app.swipeUp()
+        app.buttons["TableDetailViewIdentifier"].tap()
+    }
+    
+    func testTableTextFields() throws {
+        goToTableDetailPage()
+        
+        let hello = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        hello.tap()
+        hello.typeText("hello")
+        
+        let hello1 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        hello1.tap()
+        hello1.typeText("hello1")
+        
+        let hello2 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        hello2.tap()
+        hello2.typeText("hello2")
+        
+        let hello3 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        hello3.tap()
+        hello3.typeText("hello3")
+        
+        let hello4 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        hello4.tap()
+        hello4.typeText("hello4")
+        
+        let hello5 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
+        hello5.tap()
+        hello5.typeText("hello5")
+    }
+    
+    func testTableDropdownOption() throws {
+        goToTableDetailPage()
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        let firstdropdownButton = dropdownButtons.element(boundBy: 0)
+        firstdropdownButton.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        XCTAssertFalse(app.sheets.firstMatch.exists)
+    }
+    
+    func testTableAddRow() throws {
+        goToTableDetailPage()
+        
+//        app.buttons["TableAddRowIdentifier"].tap()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        
+        let value = onChangeResultValue()
+        let valueElements = value.valueElements
+        let count = valueElements?.count
+        
+        XCTAssertEqual(4, count)
+    }
+    
+//    private func setupRows() {
+//        guard let joyDocModel = fieldDependency.fieldData else { return }
+//        guard let valueElements = joyDocModel.valueToValueElements, !valueElements.isEmpty else {
+//            setupQuickTableViewRows()
+//            return
+//        }
+//        
+//        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
+//        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: joyDocModel.rowOrder)
+//        var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
+        
 }
 
 extension JoyfillUITests {
     fileprivate func onChangeResultValue() -> ValueUnion {
-        let change = onChangeResult().change!["value"]!
-        let valueUnion = ValueUnion(value: change)!
+        let result = onChangeResult()
+        let change = result.change!
+        let value = change["value"]!
+        
+        let valueUnion = ValueUnion(value: value)!
         return valueUnion
     }
     
