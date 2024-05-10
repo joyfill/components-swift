@@ -1,27 +1,18 @@
 import XCTest
 import JoyfillModel
 
-final class JoyfillUITests: XCTestCase {
-    var app: XCUIApplication!
-    
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-        self.app = XCUIApplication()
-        app.launchArguments.append("JoyfillUITests")
-        app.launch()
-    }
-    
-    override func tearDownWithError() throws { }
-    
-    func testImageField() {
+final class JoyfillUITests: JoyfillUITestsBaseClass {
+
+
+    func testMultipleImageUploadFromDetailPage() {
         app.buttons["ImageMoreIdentifier"].tap()
         XCUIApplication().scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        
+
         XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", onChangeResultValue().imageURLs?.first)
     }
-    
+
     func testTextFields() throws {
         let textField = app.textFields["Text"]
         XCTAssertEqual("Hello sir", textField.value as! String)
@@ -72,19 +63,28 @@ final class JoyfillUITests: XCTestCase {
         XCTAssertEqual(datePicker.label, "")
     }
     
-    func testDropdownField() throws {
+    func testDropdownFieldSelect_Unselect() throws {
         app.swipeUp()
         let dropdownButton = app.buttons["Dropdown"]
         XCTAssertEqual("Yes", dropdownButton.label)
         dropdownButton.tap()
-        let dropdownOptions = app.buttons.matching(identifier: "DropdownoptionIdentifier")
+        var dropdownOptions = app.buttons.matching(identifier: "DropdownoptionIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
-        let firstOption = dropdownOptions.element(boundBy: 1)
+        var firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         XCTAssertFalse(app.sheets.firstMatch.exists)
         XCTAssertEqual("6628f2e15cea1b971f6a9383", onChangeResultValue().text!)
+
+        // test DropdownField UnselectOption
+        dropdownButton.tap()
+        dropdownOptions = app.buttons.matching(identifier: "DropdownoptionIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        XCTAssertFalse(app.sheets.firstMatch.exists)
+        XCTAssertEqual("", onChangeResultValue().text!)
     }
-    
+
     func testMultiSelectionView() throws {
         app.swipeUp()
         app.swipeUp()
@@ -345,44 +345,6 @@ final class JoyfillUITests: XCTestCase {
     }
 }
 
-extension JoyfillUITests {
-    fileprivate func onChangeResultValue() -> ValueUnion {
-        let result = onChangeResult()
-        let change = result.change!
-        let value = change["value"]!
-        
-        let valueUnion = ValueUnion(value: value)!
-        return valueUnion
-    }
-    
-    fileprivate func onChangeResultChange() -> ValueUnion {
-        let change = onChangeResult().change!
-        let valueUnion = ValueUnion(value: change)!
-        return valueUnion
-    }
-    
-    fileprivate func onChangeResult() -> Change {
-        let resultField = app.staticTexts["resultfield"]
-        let jsonString = resultField.label
-        print("resultField.label: \(resultField.label)")
-        if let jsonData = jsonString.data(using: .utf8) {
-            do {
-                if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] {
-                    let change = Change(dictionary: dictionary)
-                    return change
-                }
-            } catch {
-                print("Failed to decode JSON string to model: \(error)")
-                fatalError()
-            }
-        } else {
-            print("Failed to convert string to data")
-            fatalError()
-        }
-        fatalError()
-    }
-}
-
 extension ValueUnion {
     var xTitle: String? {
         return (self.dictionary as! [String: Any])["xTitle"] as? String
@@ -408,3 +370,4 @@ extension ValueUnion {
         return (self.dictionary as! [String: Any])["xMax"] as? Double
     }
 }
+
