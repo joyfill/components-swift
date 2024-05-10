@@ -19,21 +19,18 @@ struct JoyfillExampleApp: App {
     
     var body: some Scene {
         WindowGroup {
-            //            if CommandLine.arguments.contains("FormView") {
-            NavigationView {
-                UITestFormContainerView()
+            if joyfillUITestsMode {
+                NavigationView {
+                    UITestFormContainerView()
+                }
+            } else {
+                TemplateListView()
             }
-            //            } else {
-            //                TemplateListView()
-            //            }
         }
     }
     
 }
-    func jsonDocument() -> JoyDoc {
-        let path = Bundle.main.path(forResource: "Joydocjson", ofType: "json")!
-        let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-        let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
-        return JoyDoc(dictionary: dict)
-    }
 
+var joyfillUITestsMode: Bool {
+    CommandLine.arguments.contains("JoyfillUITests")
+}

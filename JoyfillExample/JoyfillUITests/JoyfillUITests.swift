@@ -7,7 +7,7 @@ final class JoyfillUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         self.app = XCUIApplication()
-        app.launchArguments.append("FormView")
+        app.launchArguments.append("JoyfillUITests")
         app.launch()
     }
     
