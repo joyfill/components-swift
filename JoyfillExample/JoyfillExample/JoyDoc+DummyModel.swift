@@ -38,7 +38,7 @@ extension JoyDoc {
         field.identifier = "field_6629fab87c5c8ff831b8d223"
         field.title = "Image"
         field.description = ""
-        var dict = ["url":"https://s3.amazonaws.com/docspace.production.documents/6628f1034892618fc118503b/documents/template_6629fab38559d3017b0308b0/6629fad945f22ce76d678f37-1714027225742.png",
+        var dict = ["url":"https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw",
                     "fileName":"6629fad945f22ce76d678f37-1714027225742.png",
                     "_id":"6629fad9a6d0c81c8c217fc5",
                     "filePath":"6628f1034892618fc118503b/documents/template_6629fab38559d3017b0308b0"

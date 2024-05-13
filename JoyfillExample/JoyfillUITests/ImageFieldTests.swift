@@ -1,10 +1,3 @@
-//
-//  ImageFieldTests.swift
-//  JoyfillUITests
-//
-//  Created by Vishnu Dutt on 10/05/24.
-//
-
 import XCTest
 
 final class ImageFieldTests: JoyfillUITestsBaseClass {

@@ -55,6 +55,8 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeUp()
         let multiButtons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
+        XCTAssertEqual("Yes", multiButtons.element(boundBy: 0).label)
+        XCTAssertEqual("No", multiButtons.element(boundBy: 1).label)
         for button in multiButtons.allElementsBoundByIndex {
             button.tap()
         }
@@ -65,6 +67,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeUp()
         let multiButtons = app.buttons.matching(identifier: "SingleSelectionIdentifier")
+        XCTAssertEqual("Yes", multiButtons.firstMatch.label)
         for button in multiButtons.allElementsBoundByIndex {
             button.tap()
         }
@@ -75,31 +78,6 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeUp()
         app.buttons["SignatureIdentifier"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-    }
-
-    func goToTableDetailPage() {
-        app.swipeUp()
-        app.swipeUp()
-        app.swipeUp()
-        app.buttons["TableDetailViewIdentifier"].tap()
-    }
-    
-    func testTableTextFields() throws {
-        goToTableDetailPage()
-        
-        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        firstTableTextField.tap()
-        firstTableTextField.typeText("First")
-        
-        let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        secondTableTextField.tap()
-        secondTableTextField.typeText("Second")
-        
-        let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
-        thirdTableTextField.tap()
-        thirdTableTextField.typeText("Third")
-        
         app.navigationBars.buttons.element(boundBy: 0).tap()
     }
 }

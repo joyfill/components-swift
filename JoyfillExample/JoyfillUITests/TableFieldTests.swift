@@ -18,14 +18,17 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Hello", firstTableTextField.value as! String)
         firstTableTextField.tap()
         firstTableTextField.typeText("First")
         
         let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("His", secondTableTextField.value as! String)
         secondTableTextField.tap()
         secondTableTextField.typeText("Second")
         
         let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("His", thirdTableTextField.value as! String)
         thirdTableTextField.tap()
         thirdTableTextField.typeText("Third")
         
@@ -35,6 +38,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testTableDropdownOption() throws {
         goToTableDetailPage()
         let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", dropdownButtons.element(boundBy: 0).label)
+        XCTAssertEqual("No", dropdownButtons.element(boundBy: 1).label)
+        XCTAssertEqual("No", dropdownButtons.element(boundBy: 2).label)
         let firstdropdownButton = dropdownButtons.element(boundBy: 0)
         firstdropdownButton.tap()
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")

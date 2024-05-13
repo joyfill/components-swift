@@ -31,7 +31,7 @@ extension JoyDoc {
         XCTAssertEqual(fields[0].title, "Image")
         XCTAssertEqual(fields[0].description, "")
         XCTAssertEqual(fields[0].value?.valueElements?[0].id , "6629fad9a6d0c81c8c217fc5")
-        XCTAssertEqual(fields[0].value?.valueElements?[0].url, "https://s3.amazonaws.com/docspace.production.documents/6628f1034892618fc118503b/documents/template_6629fab38559d3017b0308b0/6629fad945f22ce76d678f37-1714027225742.png")
+        XCTAssertEqual(fields[0].value?.valueElements?[0].url, "https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw")
         XCTAssertEqual(fields[0].value?.valueElements?[0].fileName, "6629fad945f22ce76d678f37-1714027225742.png")
         XCTAssertEqual(fields[0].value?.valueElements?[0].filePath, "6628f1034892618fc118503b/documents/template_6629fab38559d3017b0308b0")
         XCTAssertEqual(fields[0].required, false)
