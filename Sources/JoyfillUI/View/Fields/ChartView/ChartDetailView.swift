@@ -142,7 +142,7 @@ struct xAndYCordinate: View {
                     .frame(height: 40)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.black, lineWidth: 1)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
                     .cornerRadius(10)
                 
@@ -207,7 +207,7 @@ struct LinesView: View {
                     .padding(.all,5)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            .stroke(Color.green, lineWidth: 1)
                     )
                     .padding([.leading,.top], 10)
                     
