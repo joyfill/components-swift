@@ -1,10 +1,3 @@
-//
-//  SwiftUIView.swift
-//
-//
-//  Created by Nand Kishore on 04/03/24.
-//
-
 import SwiftUI
 import JoyfillModel
 
@@ -111,6 +104,7 @@ struct TableModalView : View {
                                 viewModel.toggleSelection(at: index)
                                 viewModel.setDeleteButtonVisibility()
                             }
+                            .accessibilityIdentifier("MyButton")
                         
                     }
                     Text("\(index+1)")

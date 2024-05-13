@@ -1,9 +1,3 @@
-//
-//  DisplayTextView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
 

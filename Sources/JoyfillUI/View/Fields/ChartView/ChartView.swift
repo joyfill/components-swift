@@ -62,6 +62,7 @@ struct ChartView: View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
+            .accessibilityIdentifier("ChartViewIdentifier")
             .padding(.top, 6)
             
             NavigationLink(destination: ChartDetailView(fieldDependency: fieldDependency), isActive: $showDetailChartView) {

@@ -1,13 +1,5 @@
-//
-//  MultiLineTextView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
-
-// MultiLine text
 
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
@@ -25,6 +17,7 @@ struct MultiLineTextView: View {
         VStack(alignment: .leading) {
             FieldHeaderView(fieldDependency)
             TextEditor(text: $multilineText)
+                .accessibilityIdentifier("MultilineTextFieldIdentifier")
                 .disabled(fieldDependency.mode == .readonly)
                 .padding(.all, 10)
                 .autocorrectionDisabled()

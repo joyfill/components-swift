@@ -80,9 +80,9 @@ struct ChartCoordinateView: View {
             }
             if isCoordinateVisible {
                 Group {
-                    xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false)
+                    xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false, identifier: "VerticalTextFieldIdentifier")
                         .disabled(fieldDependency.mode == .readonly)
-                xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: true)
+                xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: true, identifier: "HorizontalTextFieldIdentifier")
                         .disabled(fieldDependency.mode == .readonly)
                 }
                 .padding(.all,10)
@@ -108,12 +108,14 @@ struct ChartCoordinateView: View {
             }
             
         })
+        .accessibilityIdentifier("ShowHideButtonIdentifier")
     }
 }
 struct xAndYCordinate: View {
     @Binding var chartCoordinatesData: ChartAxisConfiguration
     var fieldDependency: FieldDependency
     var isXAxis: Bool
+    var identifier: String
 
     var body: some View {
         HStack {
@@ -134,6 +136,7 @@ struct xAndYCordinate: View {
                     }
                 }
                 TextField("", text: isXAxis ? xTitle : yTitle )
+                    .accessibilityIdentifier(identifier)
 //                            .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
@@ -176,11 +179,11 @@ struct xAndYCordinate: View {
                 VStack(alignment: .leading) {
                     Text("Min")
                     
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMinBinding : yMinBinding, placeHolder: "")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMinBinding : yMinBinding, placeHolder: "", identifier: !isXAxis ? "MinY": "MinX")
                 }
                 VStack(alignment: .leading) {
                     Text("Max")
-                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMaxBinding : yMaxBinding, placeHolder: "")
+                    xAndYAxisCoordinateView(xOrYValue: isXAxis ? xMaxBinding : yMaxBinding, placeHolder: "", identifier: !isXAxis ? "MaxY": "MaxX")
                 }
             }
         }
@@ -227,6 +230,7 @@ struct LinesView: View {
                         )
                         .padding([.trailing,.top], 10)
                     })
+                    .accessibilityIdentifier("RemoveLineIdentifier")
                 }
                 LineView(valueElement: valueElement, updateValueElement: updateValueElement)
                     .padding([.leading,.trailing,.bottom], 10)
@@ -258,6 +262,7 @@ struct LinesView: View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
         })
+        .accessibilityIdentifier("AddLineIdentifier")
     }
 
     func addNewLine() {
@@ -316,6 +321,7 @@ struct LineView: View {
             }
             
             TextField("Type title", text: linetitleBinding)
+                .accessibilityIdentifier("TitleTextFieldIdentifier")
             //                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
@@ -336,6 +342,7 @@ struct LineView: View {
             }
             
             TextField("Type description", text: lineDescriptionBinding)
+                .accessibilityIdentifier("DescriptionTextFieldIdentifier")
             //                .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
@@ -364,6 +371,7 @@ struct PointsView: View {
                     Text("Add Point +")
                         .padding(.all,5)
                 })
+                .accessibilityIdentifier("AddPointIdentifier")
             }
             
             ForEach(points ?? [], id: \.id) { point in
@@ -413,6 +421,7 @@ struct PointView: View {
                     }
                 }
                 TextField("Label", text: pointLabelBinding)
+                    .accessibilityIdentifier("PointLabelTextFieldIdentifier")
                 //                .disabled(fieldDependency.mode == .readonly)
                     .padding(.horizontal, 10)
                     .frame(height: 40)
@@ -445,8 +454,8 @@ struct PointView: View {
                                setY(y: newY)
                            }
                        }
-                    xAndYAxisCoordinateView(xOrYValue: xBinding, placeHolder: "Horizontal value")
-                    xAndYAxisCoordinateView(xOrYValue: yBinding, placeHolder: "Vertical value")
+                    xAndYAxisCoordinateView(xOrYValue: xBinding, placeHolder: "Horizontal value", identifier: "HorizontalPointsValue")
+                    xAndYAxisCoordinateView(xOrYValue: yBinding, placeHolder: "Vertical value", identifier: "VerticalPointsValue")
                 }
             }
             
@@ -456,6 +465,7 @@ struct PointView: View {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.red)
             })
+            .accessibilityIdentifier("RemovePointIdentifier")
         }
     }
     
@@ -483,8 +493,10 @@ struct PointView: View {
 struct xAndYAxisCoordinateView: View {
     @Binding var xOrYValue: String
     var placeHolder: String
+    var identifier: String
     var body: some View {
         TextField(placeHolder, text: $xOrYValue)
+            .accessibilityIdentifier(identifier)
         //                .disabled(fieldDependency.mode == .readonly)
             .padding(.horizontal, 10)
             .frame(height: 40)

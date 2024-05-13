@@ -1,10 +1,3 @@
-//
-//  SwiftUIView.swift
-//  
-//
-//  Created by Nand Kishore on 04/03/24.
-//
-
 import SwiftUI
 
 struct TableModalTopNavigationView: View {
@@ -30,6 +23,7 @@ struct TableModalTopNavigationView: View {
                         .overlay(RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.red, lineWidth: 1))
                 }
+                .accessibilityIdentifier("TableDeleteRowIdentifier")
             }
                       
             Button(action: {
@@ -43,6 +37,7 @@ struct TableModalTopNavigationView: View {
                         .stroke(Color.buttonBorderColor, lineWidth: 1))
                     
             }
+            .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
 }

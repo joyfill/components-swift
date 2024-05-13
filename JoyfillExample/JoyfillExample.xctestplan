@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "C151220E-D0DD-428B-AF41-7987D90CCA35",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:JoyfillExample.xcodeproj",
+      "identifier" : "FA529C492BA1D251000200F5",
+      "name" : "JoyfillExample"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:JoyfillExample.xcodeproj",
+        "identifier" : "1307CF182BE36ECD00B19FBA",
+        "name" : "JoyfillUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

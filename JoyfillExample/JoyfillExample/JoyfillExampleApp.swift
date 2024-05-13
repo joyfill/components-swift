@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillAPIService
+import JoyfillModel
 
 @main
 struct JoyfillExampleApp: App {
@@ -18,7 +19,18 @@ struct JoyfillExampleApp: App {
     
     var body: some Scene {
         WindowGroup {
-            TemplateListView()
+            if joyfillUITestsMode {
+                NavigationView {
+                    UITestFormContainerView()
+                }
+            } else {
+                TemplateListView()
+            }
         }
     }
+    
+}
+
+var joyfillUITestsMode: Bool {
+    CommandLine.arguments.contains("JoyfillUITests")
 }

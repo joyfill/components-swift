@@ -1,13 +1,5 @@
-//
-//  NumberView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
-
-// Numeric value only
 
 struct NumberView: View {
     @State var number: String = ""
@@ -32,6 +24,7 @@ struct NumberView: View {
         VStack(alignment: .leading) {
             FieldHeaderView(fieldDependency)
             TextField("", text: $number)
+                .accessibilityIdentifier("Number")
                 .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 5)
@@ -54,7 +47,7 @@ struct NumberView: View {
                         guard var fieldData = fieldDependency.fieldData else {
                             fatalError("FieldData should never be null")
                         }
-                        fieldData.value = newValue                        
+                        fieldData.value = newValue
                         fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
                     }
                 }

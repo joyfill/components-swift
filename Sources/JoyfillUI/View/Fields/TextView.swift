@@ -1,13 +1,5 @@
-//
-//  TextView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
-
-// Single line text
 
 struct TextView: View {
     @State var enterText: String = ""
@@ -25,6 +17,7 @@ struct TextView: View {
         VStack(alignment: .leading) {
             FieldHeaderView(fieldDependency)
             TextField("", text: $enterText)
+                .accessibilityIdentifier("Text")
                 .disabled(fieldDependency.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)

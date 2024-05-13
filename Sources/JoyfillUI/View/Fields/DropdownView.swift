@@ -1,9 +1,3 @@
-//
-//  DropdownView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
 
@@ -39,6 +33,7 @@ struct DropdownView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
             })
+            .accessibilityIdentifier("Dropdown")
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -110,6 +105,7 @@ struct DropDownOptionList: View {
                             .padding(.horizontal, 28)
                             .padding(.vertical, 10)
                         })
+                        .accessibilityIdentifier("DropdownoptionIdentifier")
                         Divider()
                             .padding(.horizontal, 16)
                     }

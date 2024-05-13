@@ -1,10 +1,5 @@
 //
 //  SwiftUIView.swift
-//
-//
-//  Created by Nand Kishore on 06/03/24.
-//
-
 import SwiftUI
 import JoyfillModel
 
@@ -25,11 +20,12 @@ import JoyfillModel
             HStack(spacing: 2) {
                 Image(systemName: "photo")
                     .font(.title2)
-                    .foregroundColor(valueElements.count == 0 ? .gray : .black)
+                    .grayLightThemeColor()
                 Text(valueElements.count == 0 ? "" : "+\(valueElements.count)")
-                    .foregroundColor(.black)
+                    .darkLightThemeColor()
             }
         })
+        .accessibilityIdentifier("TableImageIdentifier")
         .onAppear {
             valueElements = cellModel.data.images ?? []
         }

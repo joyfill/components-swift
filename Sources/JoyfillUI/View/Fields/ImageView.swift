@@ -1,13 +1,5 @@
-//
-//  ImageView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
-
-// Logo or Graphic
 
 struct ImageView: View {
     @State var imageURL: String?
@@ -49,7 +41,6 @@ struct ImageView: View {
                                 .scaledToFit()
                                 .cornerRadius(10)
                         })
-   
                     VStack {
                         Spacer()
                         
@@ -70,6 +61,7 @@ struct ImageView: View {
                                 .background(Color.white)
                                 .cornerRadius(10)
                             })
+                            .accessibilityIdentifier("ImageMoreIdentifier")
                             .shadow(radius: 4)
                         }
                         .padding(.trailing, 10)
@@ -96,6 +88,7 @@ struct ImageView: View {
                         }
                     }
                 })
+                .accessibilityIdentifier("ImageIdentifier")
                 .frame(height: 120)
                 .frame(maxWidth: .infinity)
                 .overlay(
@@ -308,6 +301,7 @@ struct UploadDeleteView: View {
                     .foregroundColor(.gray)
             )
         })
+        .accessibilityIdentifier("ImageUploadImageIdentifier")
     }
     
     var deleteButton: some View {
@@ -328,6 +322,7 @@ struct UploadDeleteView: View {
                     .foregroundColor(.red)
             )
         })
+        .accessibilityIdentifier("ImageDeleteIdentifier")
     }
     
     func loadImagesFromURLs(imageURLs: [String]) {
@@ -372,6 +367,7 @@ struct ImageGridView:View {
                         .onTapGesture {
                             handleImageSelection(image)
                         }
+                        .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                 }
             }
         }
