@@ -13,9 +13,6 @@
 		3628CEBF2BBBCD06008346C5 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 3628CEBE2BBBCD06008346C5 /* Base */; };
 		3628CEC12BBBCD08008346C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3628CEC02BBBCD08008346C5 /* Assets.xcassets */; };
 		3628CEC42BBBCD08008346C5 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 3628CEC32BBBCD08008346C5 /* Base */; };
-		3628CECF2BBBCD08008346C5 /* JoyfillUIKitExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3628CECE2BBBCD08008346C5 /* JoyfillUIKitExampleTests.swift */; };
-		3628CED92BBBCD08008346C5 /* JoyfillUIKitExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3628CED82BBBCD08008346C5 /* JoyfillUIKitExampleUITests.swift */; };
-		3628CEDB2BBBCD08008346C5 /* JoyfillUIKitExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3628CEDA2BBBCD08008346C5 /* JoyfillUIKitExampleUITestsLaunchTests.swift */; };
 		3628CEE92BBBCD34008346C5 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 3628CEE82BBBCD34008346C5 /* Joyfill */; };
 		3628CEEA2BBBE738008346C5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3628CEBD2BBBCD06008346C5 /* Main.storyboard */; };
 		3628CEEC2BBBFD26008346C5 /* FormContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3628CEEB2BBBFD26008346C5 /* FormContainerViewController.swift */; };
@@ -48,10 +45,7 @@
 		3628CEC32BBBCD08008346C5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3628CEC52BBBCD08008346C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3628CECA2BBBCD08008346C5 /* JoyfillUIKitExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillUIKitExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		3628CECE2BBBCD08008346C5 /* JoyfillUIKitExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUIKitExampleTests.swift; sourceTree = "<group>"; };
 		3628CED42BBBCD08008346C5 /* JoyfillUIKitExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillUIKitExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		3628CED82BBBCD08008346C5 /* JoyfillUIKitExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUIKitExampleUITests.swift; sourceTree = "<group>"; };
-		3628CEDA2BBBCD08008346C5 /* JoyfillUIKitExampleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUIKitExampleUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		3628CEEB2BBBFD26008346C5 /* FormContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,8 +79,6 @@
 			isa = PBXGroup;
 			children = (
 				3628CEB62BBBCD06008346C5 /* JoyfillUIKitExample */,
-				3628CECD2BBBCD08008346C5 /* JoyfillUIKitExampleTests */,
-				3628CED72BBBCD08008346C5 /* JoyfillUIKitExampleUITests */,
 				3628CEB52BBBCD06008346C5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -114,23 +106,6 @@
 				3628CEC52BBBCD08008346C5 /* Info.plist */,
 			);
 			path = JoyfillUIKitExample;
-			sourceTree = "<group>";
-		};
-		3628CECD2BBBCD08008346C5 /* JoyfillUIKitExampleTests */ = {
-			isa = PBXGroup;
-			children = (
-				3628CECE2BBBCD08008346C5 /* JoyfillUIKitExampleTests.swift */,
-			);
-			path = JoyfillUIKitExampleTests;
-			sourceTree = "<group>";
-		};
-		3628CED72BBBCD08008346C5 /* JoyfillUIKitExampleUITests */ = {
-			isa = PBXGroup;
-			children = (
-				3628CED82BBBCD08008346C5 /* JoyfillUIKitExampleUITests.swift */,
-				3628CEDA2BBBCD08008346C5 /* JoyfillUIKitExampleUITestsLaunchTests.swift */,
-			);
-			path = JoyfillUIKitExampleUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -282,7 +257,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3628CECF2BBBCD08008346C5 /* JoyfillUIKitExampleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,8 +264,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3628CEDB2BBBCD08008346C5 /* JoyfillUIKitExampleUITestsLaunchTests.swift in Sources */,
-				3628CED92BBBCD08008346C5 /* JoyfillUIKitExampleUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
