@@ -50,8 +50,20 @@ struct DarkLightThemeColor: ViewModifier {
     }
 }
 
-extension Text {
+struct GrayLightThemeColor: ViewModifier {
+    @Environment(\.colorScheme) var colorScheme
+
+    func body(content: Content) -> some View {
+        content.foregroundColor(colorScheme == .dark ? Color.white : Color.gray)
+    }
+}
+
+extension View {
     func darkLightThemeColor() -> some View {
         self.modifier(DarkLightThemeColor())
+    }
+    
+    func grayLightThemeColor() -> some View {
+        self.modifier(GrayLightThemeColor())
     }
 }
