@@ -82,7 +82,11 @@ struct TableDropDownOptionList: View {
                 if let options = data.options {
                     ForEach(options) { option in
                         Button(action: {
-                            selectedDropdownValue = option.value
+                            if selectedDropdownValue == option.value {
+                                selectedDropdownValue = nil
+                            } else {
+                                selectedDropdownValue = option.value
+                            }
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack {
