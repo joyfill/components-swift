@@ -33,6 +33,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         thirdTableTextField.typeText("Third")
         
         goBack()
+        sleep(1)
+        XCTAssertEqual("FirstHello", onChangeResultValue().valueElements?[0].cells?["6628f2e11a2b28119985cfbb"]?.text)
+        XCTAssertEqual("SecondHis", onChangeResultValue().valueElements?[1].cells?["6628f2e11a2b28119985cfbb"]?.text)
+        XCTAssertEqual("ThiHisrd", onChangeResultValue().valueElements?[2].cells?["6628f2e11a2b28119985cfbb"]?.text)
     }
     
     func testTableDropdownOption() throws {
@@ -48,6 +52,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         goBack()
+        sleep(1)
+        XCTAssertEqual("6628f2e1c12db4664e9eb38f", onChangeResultValue().valueElements?[0].cells?["6628f2e123ca77fa82a2c45e"]?.text)
     }
     
     func testTableUploadImage() throws {
@@ -58,6 +64,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ImageUploadImageIdentifier"].tap()
         dismissSheet()
         goBack()
+        sleep(1)
+        XCTAssertEqual("https://s3.amazonaws.com/docspace.production.documents/6628f1034892618fc118503b/documents/doc_663dcddf95255501dfa00ee5/663dce179e381b4f29128820-1715326487573.jpg", onChangeResultValue().valueElements?[0].cells?["663dcdcfcd08ad955955fd95"]?.valueElements?.first?.url)
     }
     
     func testTabelDeleteImage() throws {
@@ -69,6 +77,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ImageDeleteIdentifier"].tap()
         dismissSheet()
         goBack()
+        sleep(1)
+        XCTAssertEqual(nil, onChangeResultValue().valueElements?[0].cells?["663dcdcfcd08ad955955fd95"]?.valueElements?.first?.url)
     }
     
     func testTableAddRow() throws {

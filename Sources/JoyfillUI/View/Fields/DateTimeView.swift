@@ -28,31 +28,63 @@ struct DateTimeView: View {
     var body: some View {
         FieldHeaderView(fieldDependency)
         Group {
-            if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
-                    .accessibilityIdentifier("DateIdenitfier")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .labelsHidden()
-                    .padding(.all, 8)
+            if joyfillUITestsMode {
+                if isDatePickerPresented {
+                    DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
+                        .accessibilityIdentifier("DateIdenitfier")
+                        .datePickerStyle(.wheel)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .labelsHidden()
+                        .padding(.all, 8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                } else {
+                    HStack {
+                        Text("Select a Date -")
+                        Spacer()
+                        Image(systemName: "calendar")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.all, 10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
-            } else {
-                HStack {
-                    Text("Select a Date -")
-                    Spacer()
-                    Image(systemName: "calendar")
+                    .onTapGesture {
+                        isDatePickerPresented = true
+                        selectedDate = Date()
+                    }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.all, 10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .onTapGesture {
-                    isDatePickerPresented = true
-                    selectedDate = Date()
+            } else {
+                if isDatePickerPresented {
+                    DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
+                        .accessibilityIdentifier("DateIdenitfier")
+                        .datePickerStyle(.wheel)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .labelsHidden()
+                        .padding(.all, 8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                } else {
+                    HStack {
+                        Text("Select a Date -")
+                        Spacer()
+                        Image(systemName: "calendar")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.all, 10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    )
+                    .onTapGesture {
+                        isDatePickerPresented = true
+                        selectedDate = Date()
+                    }
                 }
             }
         }
@@ -88,4 +120,8 @@ struct DateTimeView: View {
             return [.date, .hourAndMinute]
         }
     }
+}
+
+var joyfillUITestsMode: Bool {
+    CommandLine.arguments.contains("JoyfillUITests")
 }
