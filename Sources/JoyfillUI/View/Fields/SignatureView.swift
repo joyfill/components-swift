@@ -68,8 +68,10 @@ struct SignatureView: View {
                 return
             }
             DispatchQueue.global().async {
-                guard let signatureImage = signatureImage else { return }
-                let url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
+                var url = ""
+                if let signatureImage = signatureImage {
+                    url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
+                }
                 let newSignatureImageValue = ValueUnion.string(url ?? "")
                 guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
                 guard var fieldData = fieldDependency.fieldData else {
@@ -104,7 +106,7 @@ struct SignatureView: View {
     }
 }
 
-struct Line {
+struct Line: Equatable {
     var points = [CGPoint]()
     var color: Color {
         Color.primary
@@ -157,7 +159,7 @@ struct CanvasSignatureView: View {
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
@@ -185,8 +187,13 @@ struct CanvasSignatureView: View {
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                 })
-                
+
                 Button(action: {
+                    guard !lines.isEmpty else {
+                        signatureImage = nil
+                        presentationMode.wrappedValue.dismiss()
+                        return
+                    }
                     signatureImage = CanvasView(lines: $lines)
                         .frame(width: screenWidth, height: 220)
                         .snapshot()
