@@ -31,7 +31,7 @@ struct DateTimeView: View {
             if joyfillUITestsMode {
                 if isDatePickerPresented {
                     DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
-                        .accessibilityIdentifier("DateIdenitfier")
+                        .accessibilityIdentifier("DateIdenitfier-\(fieldDependency.fieldPosition.format!)")
                         .datePickerStyle(.wheel)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .labelsHidden()

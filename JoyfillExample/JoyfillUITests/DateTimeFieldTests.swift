@@ -2,13 +2,13 @@ import XCTest
 
 final class DateTimeFieldTests: JoyfillUITestsBaseClass {
     
-    func testDatePickerr() {
+    func testDatePicker() {
         app.swipeUp()
-        let firstDatePicker = app.datePickers.element(boundBy: 0)
-        XCTAssertEqual("", firstDatePicker.value as! String)
-        XCTAssertTrue(firstDatePicker.exists, "The first date picker does not exist.")
-        firstDatePicker.tap()
-        
+
+        let firstDatePicker = app.datePickers.matching(identifier: "DateIdenitfier-MM/DD/YYYY")
+        let firstPicker = firstDatePicker.element(boundBy: 0)
+        firstPicker.tap()
+
         let dayWheel = firstDatePicker.pickerWheels.element(boundBy: 0)
         dayWheel.adjust(toPickerWheelValue: "11")
         
@@ -20,14 +20,14 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
         
         XCTAssertEqual(1781116200000.0, onChangeResultValue().number!)
     }
-    func testTimePickerrr() {
+
+    func testTimePicker() {
         app.swipeUp()
         
-        let secondDatePicker = app.datePickers.element(boundBy: 1)
-        XCTAssertEqual("", secondDatePicker.value as! String)
-        XCTAssertTrue(secondDatePicker.exists, "The second date picker does not exist.")
-        secondDatePicker.tap()
-        
+        let secondDatePicker = app.datePickers.matching(identifier: "DateIdenitfier-hh:mma")
+        let secondPicker = app.datePickers.element(boundBy: 1)
+        secondPicker.tap()
+
         let hourWheel = secondDatePicker.pickerWheels.element(boundBy: 0)
         hourWheel.adjust(toPickerWheelValue: "5")
         
@@ -35,22 +35,22 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
         minuteWheel.adjust(toPickerWheelValue: "30")
         XCTAssertEqual(946728000000.0, onChangeResultValue().number!)
     }
+
     func testDateTimePicker() {
         app.swipeUp()
         app.swipeUp()
-        app.swipeUp()
+
+        let thirdDatePicker = app.datePickers.matching(identifier: "DateIdenitfier-MM/DD/YYYY hh:mma")
+        let thirdPicker = app.datePickers.element(boundBy: 1)
+        thirdPicker.tap()
         
-        let thirdDatePicker = app.datePickers.element(boundBy: 2)
-        XCTAssertTrue(thirdDatePicker.exists, "The third date picker does not exist.")
-        thirdDatePicker.tap()
-        
-        let dateWheel = thirdDatePicker.pickerWheels.element(boundBy: 6)
-        dateWheel.adjust(toPickerWheelValue: "Tue 9 Apr")
-        
-        let hourWheel = thirdDatePicker.pickerWheels.element(boundBy: 7)
+        let hourWheel = thirdDatePicker.pickerWheels.element(boundBy: 1)
         hourWheel.adjust(toPickerWheelValue: "5")
-        
-        let minuteWheel = thirdDatePicker.pickerWheels.element(boundBy: 8)
+
+        let minuteWheel = thirdDatePicker.pickerWheels.element(boundBy: 2)
         minuteWheel.adjust(toPickerWheelValue: "30")
+
+        let dateWheel = thirdDatePicker.pickerWheels.element(boundBy: 0)
+        dateWheel.adjust(toPickerWheelValue: "Sat, 7 Apr")
     }
 }
