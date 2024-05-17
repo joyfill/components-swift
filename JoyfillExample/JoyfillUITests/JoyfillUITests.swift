@@ -33,6 +33,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
 
     func testDropdownFieldSelect_Unselect() throws {
         app.swipeUp()
+        app.swipeUp()
         let dropdownButton = app.buttons["Dropdown"]
         XCTAssertEqual("Yes", dropdownButton.label)
         dropdownButton.tap()
@@ -48,6 +49,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
+        XCTAssertEqual("Select Option", dropdownButton.label)
         XCTAssertEqual("", onChangeResultValue().text!)
     }
 
