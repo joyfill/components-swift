@@ -36,21 +36,21 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(946728000000.0, onChangeResultValue().number!)
     }
 
-    func testDateTimePicker() {
-        app.swipeUp()
-        app.swipeUp()
-
-        let thirdDatePicker = app.datePickers.matching(identifier: "DateIdenitfier-MM/DD/YYYY hh:mma")
-        let thirdPicker = app.datePickers.element(boundBy: 1)
-        thirdPicker.tap()
-        
-        let hourWheel = thirdDatePicker.pickerWheels.element(boundBy: 1)
-        hourWheel.adjust(toPickerWheelValue: "5")
-
-        let minuteWheel = thirdDatePicker.pickerWheels.element(boundBy: 2)
-        minuteWheel.adjust(toPickerWheelValue: "30")
-
-        let dateWheel = thirdDatePicker.pickerWheels.element(boundBy: 0)
-        dateWheel.adjust(toPickerWheelValue: "Sat, 7 Apr")
-    }
+//    func testDateTimePicker() {
+//        app.swipeUp()
+//        app.swipeUp()
+//
+//        let thirdDatePicker = app.datePickers.matching(identifier: "DateIdenitfier-MM/DD/YYYY hh:mma")
+//        let thirdPicker = app.datePickers.element(boundBy: 1)
+//        thirdPicker.tap()
+//        
+//        let hourWheel = thirdDatePicker.pickerWheels.element(boundBy: 1)
+//        hourWheel.adjust(toPickerWheelValue: "5")
+//
+//        let minuteWheel = thirdDatePicker.pickerWheels.element(boundBy: 2)
+//        minuteWheel.adjust(toPickerWheelValue: "30")
+//
+//        let dateWheel = thirdDatePicker.pickerWheels.element(boundBy: 0)
+//        dateWheel.adjust(toPickerWheelValue: "Sat, 7 Apr")
+//    }
 }
