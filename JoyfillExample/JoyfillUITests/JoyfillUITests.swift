@@ -9,6 +9,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         textField.tap()
         textField.typeText("Hello\n")
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: textFieldOnChange)!)
     }
     
     func testMultilineField() throws {
