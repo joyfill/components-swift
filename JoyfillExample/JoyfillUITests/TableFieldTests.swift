@@ -39,7 +39,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("THi", onChangeResultValue().valueElements?[2].cells?["6628f2e11a2b28119985cfbb"]?.text)
     }
     
-    func testTableDropdownOption() throws {
+    func testTableDropdownSelect() throws {
         goToTableDetailPage()
         let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Yes", dropdownButtons.element(boundBy: 0).label)

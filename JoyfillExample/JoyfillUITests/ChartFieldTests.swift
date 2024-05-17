@@ -10,7 +10,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ChartViewIdentifier"].tap()
     }
 
-    func testChartField() {
+    func testChartCoordinateField() {
         goToChartDetailField()
 
         app.buttons["ShowHideButtonIdentifier"].tap()
@@ -46,7 +46,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(10.0, onChangeResultChange().yMin)
     }
 
-    func testChartLineButton() throws {
+    func testChartAddRemoveLineButton() throws {
         goToChartDetailField()
         let addLineButtonIdentifier = app.buttons.matching(identifier: "AddLineIdentifier")
         let addLineButton = addLineButtonIdentifier.element(boundBy: 0)
@@ -60,7 +60,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(1, onChangeResultValue().valueElements?.count)
     }
 
-    func testChartAddPoint() throws {
+    func testChartAddRemovePoint() throws {
         goToChartDetailField()
         let addPointButtonIdentifier = app.buttons.matching(identifier: "AddPointIdentifier")
         let addPointButton = addPointButtonIdentifier.element(boundBy: 0)
