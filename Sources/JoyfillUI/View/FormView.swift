@@ -1,12 +1,24 @@
-//
-//  FormView.swift
-//  JoyFill
-//
-//
-
 import SwiftUI
 import JoyfillModel
 
+/**
+ Enables and disables certain JoyDoc functionality and features.
+ 
+ - Parameters:
+    - document: The JoyDoc JSON object to load into the SDK. Must be in the JoyDoc JSON data structure.
+                The SDK uses object reference equality checks to determine if the `doc` or any of its internal `pages` or `fields` have changed in the JSON.
+                Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
+                This will ensure your changes are properly detected and reflected in the SDK.
+    - mode: The mode of the form. Default is `fill`.
+            Options:
+            - `fill`: The mode where you simply input the field data into the form.
+            - `readonly`: The mode where everything in the form is set to read-only.
+    - events: Used to listen to form events.
+    - pageID: Specify the page to display in the form.
+              Utilize the `_id` property of a Page object. For instance, `page._id`.
+              If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
+              You can use this property to navigate to a specific page in the form.
+ */
 public struct Form: View {
     @Binding public var document: JoyDoc
     @State public var mode: Mode
