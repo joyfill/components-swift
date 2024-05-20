@@ -53,7 +53,13 @@ extension Form: FormChangeEventInternal {
                             createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
-    
+    /**
+     Calls the `onChange` function when any field change events occur.
+
+     - Parameters:
+       - changelogs: An `array of objects`. Each object represents a changelog. A changelog can be of any supported changelog object types. For more information about changelogs, see (https://docs.joyfill.io/docs/changelogs).
+       - doc: An object that represents the fully updated JoyDoc JSON structure with all changes applied.
+*/
     public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var change = Change(v: 1,
                             sdk: "swift",
@@ -96,7 +102,17 @@ extension Form: FormChangeEventInternal {
         valueDict["targetRowIndex"] = fieldData.value!.valueElements!.lastIndex(of: lastValueElement!)!
         return valueDict
     }
+    /**
+     Listens to field focus events.
 
+     - Parameters:
+       - params: An `object` that specifies information about the focused field.
+       - e: An object that provides helper methods for the element. One of these methods is `blur`, which triggers the field blur event for the focused field.
+
+     If there are pending changes in the field that have not triggered the `onChange` event yet, then the `e.blur()` function will trigger both the change and blur events in the following order: 1) `onChange` 2) `onBlur`.
+
+     If the focused field utilizes a modal for field modification, i.e., signature, image, tables, etc., the `e.blur()` will close the modal.
+    */
     public func onFocus(event: JoyfillModel.FieldEvent) {
         events?.onFocus(event: event)
     }
