@@ -5,6 +5,7 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
     func testImageFieldDelete() {
         goToImageDetailPageAndDeleteImageAndGoBack()
         emptyImageAssert()
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: imageDeleteFieldOnChange)!)
     }
 
     func testImageUploadFromMainPage() {
@@ -13,12 +14,14 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
 
         app.buttons["ImageIdentifier"].tap()
         imageAssert()
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: imageUploadFromMainPageFieldOnChange)!)
     }
 
     func testImageUploadFromDetailPage() {
         goToImageDetailPage()
         uploadImageOnDetailPageAndGoBack()
         imageAssert()
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: imageUploadFromDetailPageFieldOnChange)!)
     }
 
     func testMultipleImageUploadFromDetailPage() {

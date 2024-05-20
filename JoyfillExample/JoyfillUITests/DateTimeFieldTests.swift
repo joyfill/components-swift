@@ -19,6 +19,7 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
         yearWheel.adjust(toPickerWheelValue: "2026")
         
         XCTAssertEqual(1781116200000.0, onChangeResultValue().number!)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: singleSelectionFieldOnChange)!)
     }
 
     func testTimePicker() {
@@ -34,6 +35,7 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
         let minuteWheel = secondDatePicker.pickerWheels.element(boundBy: 1)
         minuteWheel.adjust(toPickerWheelValue: "30")
         XCTAssertEqual(946728000000.0, onChangeResultValue().number!)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: singleSelectionFieldOnChange)!)
     }
 
 //    func testDateTimePicker() {

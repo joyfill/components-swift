@@ -37,6 +37,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("FirstHello", onChangeResultValue().valueElements?[0].cells?["6628f2e11a2b28119985cfbb"]?.text)
         XCTAssertEqual("SHi", onChangeResultValue().valueElements?[1].cells?["6628f2e11a2b28119985cfbb"]?.text)
         XCTAssertEqual("THi", onChangeResultValue().valueElements?[2].cells?["6628f2e11a2b28119985cfbb"]?.text)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tableTextFieldOnChange)!)
     }
     
     func testTableDropdownSelect() throws {
@@ -55,6 +56,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         goBack()
         sleep(1)
         XCTAssertEqual("6628f2e1c12db4664e9eb38f", onChangeResultValue().valueElements?[0].cells?["6628f2e123ca77fa82a2c45e"]?.text)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tableDropdownSelectFieldOnChange)!)
     }
 
     func testTableDropdownUnselect() throws {
@@ -73,6 +75,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         goBack()
         sleep(1)
         XCTAssertEqual("", onChangeResultValue().valueElements?[0].cells?["6628f2e123ca77fa82a2c45e"]?.text)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tableDropdownUnSelectFieldOnChange)!)
     }
 
     func testTableUploadImage() throws {
@@ -96,6 +99,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(images.count, 1)
         let imageURL = try XCTUnwrap(images[0].url)
         XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", imageURL)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tableUploadImageFieldOnChange)!)
     }
 
     func testTableUploadMoreImage() throws {
@@ -119,6 +123,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(images.count, 2)
         let imageURL = try XCTUnwrap(images[1].url)
         XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", imageURL)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tableUploadMoreImagecFieldOnChange)!)
     }
 
     func testTabelDeleteImage() throws {
@@ -145,6 +150,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let cells = valueElements?.first?.cells
         let images = cells!["663dcdcfcd08ad955955fd95"]
         XCTAssertNil(images?.valueElements)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tabelDeleteImageFieldOnChange)!)
     }
 
 
@@ -182,6 +188,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(images.count, 1)
         let imageURL = try XCTUnwrap(images[0].url)
         XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", imageURL)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tabelDeleteMoreImageFieldOnChange)!)
     }
 
     func testTableAddRow() throws {
@@ -193,6 +200,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(3, lastIndex)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tableAddRowFieldOnChange)!)
     }
     
     func testTableDeleteRow() throws {
@@ -205,6 +213,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let lastRow = try XCTUnwrap(valueElements.last)
         XCTAssertTrue(lastRow.deleted!)
         XCTAssertEqual(3, valueElements.count)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: tableDeleteRowFieldOnChange)!)
     }
 }
 

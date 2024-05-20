@@ -21,6 +21,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         let textField = app.textFields["Text"]
         textField.tap()
         XCTAssertEqual("HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", onChangeResultValue().multilineText)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: multiLineTextFieldOnChange)!)
     }
     
     func testNumberField() throws {
@@ -30,6 +31,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         numberTextField.tap()
         numberTextField.typeText("345\n")
         XCTAssertEqual(98789345.0, onChangeResultValue().number!)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: numberFieldOnChange)!)
     }
 
     func testDropdownFieldSelect_Unselect() throws {
@@ -52,6 +54,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         firstOption.tap()
         XCTAssertEqual("Select Option", dropdownButton.label)
         XCTAssertEqual("", onChangeResultValue().text!)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: dropdownFieldOnChange)!)
     }
 
     func testMultiSelectionView() throws {
@@ -64,6 +67,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
             button.tap()
         }
         XCTAssertEqual("6628f2e1679bcf815adfa0f6", onChangeResultValue().multiSelector?.first!)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: multiSelectionFieldOnChange)!)
     }
     
     func testSingleSelection() throws {
@@ -75,6 +79,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
             button.tap()
         }
         XCTAssertEqual("6628f2e16bf0362dd5498eb4", onChangeResultValue().multiSelector?.first!)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: singleSelectionFieldOnChange)!)
     }
 }
 

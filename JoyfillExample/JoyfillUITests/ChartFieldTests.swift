@@ -44,6 +44,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(20.0, onChangeResultChange().xMin)
         XCTAssertEqual(10030.0, onChangeResultChange().yMax)
         XCTAssertEqual(10.0, onChangeResultChange().yMin)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: chartCoordinateFieldOnChange)!)
     }
 
     func testChartAddRemoveLineButton() throws {
@@ -58,6 +59,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         goBack()
 
         XCTAssertEqual(1, onChangeResultValue().valueElements?.count)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: chartAddRemoveLineFieldOnChange)!)
     }
 
     func testChartAddRemovePoint() throws {
@@ -73,6 +75,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         goBack()
 
         XCTAssertEqual(3, onChangeResultValue().valueElements?.first?.points?.count)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: chartAddRemovePointFieldOnChange)!)
     }
 
     func testChartPointTitleAndDescription() throws {
@@ -89,6 +92,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 
         XCTAssertEqual("Line Title", onChangeResultValue().valueElements?[0].title)
         XCTAssertEqual("Line Description", onChangeResultValue().valueElements?[0].description)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: chartPointTitleAndDescriptionFieldOnChange)!)
 
     }
 
@@ -116,6 +120,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("PointLabel1", onChangeResultValue().valueElements?[0].points?[0].label)
         XCTAssertEqual("PointLabel2", onChangeResultValue().valueElements?[0].points?[1].label)
         XCTAssertEqual("PointLabel3", onChangeResultValue().valueElements?[0].points?[2].label)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: chartPointsLabelFieldOnChange)!)
     }
 
     func testChartPointsValue() throws {
@@ -158,6 +163,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(40, onChangeResultValue().valueElements?[0].points?[1].y)
         XCTAssertEqual(50, onChangeResultValue().valueElements?[0].points?[2].x)
         XCTAssertEqual(60, onChangeResultValue().valueElements?[0].points?[2].y)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: chartPointsValueFieldOnChange)!)
     }
 
 }

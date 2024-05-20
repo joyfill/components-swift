@@ -11,6 +11,7 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         app.buttons["SaveSignatureIdentifier"].tap()
         XCTAssertEqual("Edit Signature", signatureDetailButton.label)
         XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: saveSignatureFieldOnChange)!)
     }
     
     func testClearSignature() throws {
@@ -23,6 +24,7 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         app.buttons["SaveSignatureIdentifier"].tap()
         XCTAssertEqual("Add Signature", signatureDetailButton.label)
         XCTAssertEqual("", onChangeResultValue().signatureURL)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: clearSignatureFieldOnChange)!)
     }
     
     func testSaveEmptySignature() throws {
@@ -33,6 +35,7 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         app.buttons["SaveSignatureIdentifier"].tap()
         XCTAssertEqual("Add Signature", signatureDetailButton.label)
         XCTAssertEqual("", onChangeResultValue().signatureURL)
+        XCTAssertEqual(onChangeOptionalResult()!, expectedChange(for: saveEmptySignatureFieldOnChange)!)
     }
     
     func drawSignatureLine() {

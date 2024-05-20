@@ -28,7 +28,7 @@ let multiLineTextFieldOnChange = """
   "fieldId" : "6629fb2b9a487ce1c1f35f6c",
   "v" : 1,
   "change" : {
-    "value" : "HelloHello sirnHello sirnHello sirnHello sirnHello sirnHello sirnHello sirnHello sirnHello sir"
+    "value" : "HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir"
   },
   "fileId" : "6629fab3c0ba3fb775b4a55c",
   "fieldPositionId" : "6629fb2fca14b3e2ef978349",

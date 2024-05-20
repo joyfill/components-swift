@@ -93,7 +93,7 @@ extension Change: Equatable {
         lhs.fieldId == rhs.fieldId &&
         lhs.fieldIdentifier == rhs.fieldIdentifier &&
         lhs.fieldPositionId == rhs.fieldPositionId &&
-        lhs.chnageValue == rhs.chnageValue &&
+//        lhs.chnageValue == rhs.chnageValue &&
 //        lhs.createdOn == rhs.createdOn &&
         lhs.xTitle == rhs.xTitle
     }
