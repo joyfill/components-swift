@@ -175,13 +175,19 @@ struct FilesView: View {
     }
 }
 
+/// A view that represents a single `file`.
+///
+/// It uses a `JoyDocField` object, a `File` object, a `Mode`, a `FormChangeEventInternal`, and a `currentPageID` to manage and display the file.
 struct FileView: View {
     @Binding var fieldsData: [JoyDocField]
     var file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
     @Binding var currentPageID: String
-
+    
+    /// The body of the `FileView`. This is a SwiftUI view that represents a single file.
+    ///
+    /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
         if let views = file?.views, !views.isEmpty, let view = views.first {
             if let pages = view.pages {
