@@ -29,13 +29,34 @@ public struct Form: View {
     ///  Used to listen to form events.
     public var events: FormChangeEvent?
 
+    /// Creates a new `Form` view with the given document, mode, events, and page ID.
+    ///
+    /// - Parameters:
+    ///   - document: The `JoyDoc` object to load into the SDK.
+    ///   - mode: The mode of the form. The default is `fill`.
+    ///   - events: The events delegate for the form.
+    ///   - pageID: The ID of the page to display in the form.
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
     }
-
+    
+    /**
+     A SwiftUI view representing a form view.
+     
+     Use this view to display a form with files.
+     
+     - Parameters:
+     - fieldsData: The data for the form fields.
+     - files: The files associated with the form.
+     - mode: The mode of the form view.
+     - events: The events delegate for the form view.
+     - currentPageID: The ID of the current page.
+     
+     - Returns: A SwiftUI view representing the form view.
+     */
     public var body: some View {
         FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID)
     }
