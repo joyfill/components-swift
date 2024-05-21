@@ -148,13 +148,28 @@ extension Form: FormChangeEventInternal {
     }
 }
 
+/// A view that displays a list of files.
+///
+/// Use `FilesView` to display a list of files along with other form fields.
 struct FilesView: View {
+    /// The `JoyDocField` objects that represent the data for each field in the form.
     @Binding var fieldsData: [JoyDocField]
+    
+    /// The `File` objects that represent the files to be displayed.
     var files: [File]
+    
+    /// The mode of the form.
     let mode: Mode
+    
+    /// The events delegate for the form. This is used to listen to form events.
     let events: FormChangeEventInternal?
+    
+    /// The ID of the current page being displayed in the form.
     @Binding var currentPageID: String
-
+    
+    /// The body of the `FilesView`. This is a SwiftUI view that represents a collection of files.
+    ///
+    /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
         FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events, currentPageID: $currentPageID)
     }
