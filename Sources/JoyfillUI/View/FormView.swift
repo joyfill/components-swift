@@ -95,6 +95,9 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: [change], document: document)
     }
 
+    /// Returns the changes for the given field data.
+    /// - Parameter fieldData: The field data containing information about the field.
+    /// - Returns: A dictionary containing the changes for the field.
     private func changes(fieldData: JoyDocField) -> [String: Any] {
         switch fieldData.type {
         case "chart":
@@ -104,6 +107,12 @@ extension Form: FormChangeEventInternal {
         }
     }
 
+    /// Returns a dictionary containing the changes for a chart based on the given field data.
+    ///
+    /// - Parameters:
+    ///   - fieldData: The field data used to generate the chart changes.
+    ///
+    /// - Returns: A dictionary containing the chart changes.
     private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
         var valueDict = ["value": fieldData.value!.dictionary]
         valueDict["yTitle"] = fieldData.yTitle
@@ -115,6 +124,10 @@ extension Form: FormChangeEventInternal {
         return valueDict
     }
 
+    /// Adds row changes to the form view.
+    ///
+    /// - Parameter fieldData: The field data containing the value elements.
+    /// - Returns: A dictionary containing the row changes.
     private func addRowChanges(fieldData: JoyDocField) -> [String: Any] {
         let lastValueElement = fieldData.value!.valueElements!.last
         var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
