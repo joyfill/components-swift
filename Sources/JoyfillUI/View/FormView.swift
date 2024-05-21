@@ -1,28 +1,32 @@
 import SwiftUI
 import JoyfillModel
 
-/**
- Enables and disables certain JoyDoc functionality and features.
 
- - Parameters:
- - document: The JoyDoc JSON object to load into the SDK. Must be in the JoyDoc JSON data structure.
- The SDK uses object reference equality checks to determine if the `doc` or any of its internal `pages` or `fields` have changed in the JSON.
- Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
- This will ensure your changes are properly detected and reflected in the SDK.
- - mode: The mode of the form. Default is `fill`.
- Options:
- - `fill`: The mode where you simply input the field data into the form.
- - `readonly`: The mode where everything in the form is set to read-only.
- - events: Used to listen to form events.
- - pageID: Specify the page to display in the form.
- Utilize the `_id` property of a Page object. For instance, `page._id`.
- If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
- You can use this property to navigate to a specific page in the form.
- */
 public struct Form: View {
+    ///  The JoyDoc JSON object to load into the SDK. Must be in the JoyDoc JSON data structure.
+    ///
+    ///  The SDK uses object reference equality checks to determine if the `doc` or any of its internal `pages` or `fields` have changed in the JSON.
+    ///  Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
+    ///  This will ensure your changes are properly detected and reflected in the SDK.
     @Binding public var document: JoyDoc
+    
+    /// Enables and disables certain JoyDoc functionality and features.
+    ///
+    /// The mode of the form default is `fill`.
+    ///
+    /// Options:
+    /// - `fill` :  The mode where you simply input the field data into the form.
+    /// - `readonly` :  The mode where everything in the form is set to read-only.
     @State public var mode: Mode
+    
+    /// Specify the page to display in the form.
+    ///
+    /// Utilize the `_id` property of a Page object. For instance, `page._id`.
+    /// If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
+    /// You can use this property to navigate to a specific page in the form.
     @Binding public var currentPageID: String
+    
+    ///  Used to listen to form events.
     public var events: FormChangeEvent?
 
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil) {
@@ -53,15 +57,7 @@ extension Form: FormChangeEventInternal {
                             createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
-
-    /**
-     `onChange`: (changelogs: object_array, doc: object) => {}
-     - Calls the `onChange` function when any field change events occur.
-
-     - Parameters:
-     - changelogs: An `array of objects`. Each object represents a changelog. A changelog can be of any supported changelog object types. For more information about changelogs, see (https://docs.joyfill.io/docs/changelogs).
-     - doc: An object that represents the fully updated JoyDoc JSON structure with all changes applied.
-     */
+    
     public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var change = Change(v: 1,
                             sdk: "swift",
@@ -104,43 +100,15 @@ extension Form: FormChangeEventInternal {
         valueDict["targetRowIndex"] = fieldData.value!.valueElements!.lastIndex(of: lastValueElement!)!
         return valueDict
     }
-
-    /**
-     `onFocus`: (params: object, e: object) => {}
-     Listens to field focus events.
-
-     - Parameters:
-     - params: An `object` that specifies information about the focused field.
-     - e: An object that provides helper methods for the element. One of these methods is `blur`, which triggers the field blur event for the focused field.
-
-     If there are pending changes in the field that have not triggered the `onChange` event yet, then the `e.blur()` function will trigger both the change and blur events in the following order: 1) `onChange` 2) `onBlur`.
-
-     If the focused field utilizes a modal for field modification, i.e., signature, image, tables, etc., the `e.blur()` will close the modal.
-     */
+    
     public func onFocus(event: JoyfillModel.FieldEvent) {
         events?.onFocus(event: event)
     }
-
-    /**
-     `onBlur`: (params: object) => {}
-     Listens to field blur events.
-
-     - Parameter params: An `object` that specifies information about the `blurred` field.
-
-     This method is used to listen to field blur events. It takes a parameter `params` which is an object that specifies information about the blurred field.
-     */
+    
     public func onBlur(event: JoyfillModel.FieldEvent) {
         events?.onBlur(event: event)
     }
-
-    /**
-     `onUpload`: (params: object) => {}
-     Listens to file upload events.
-
-     - Parameter params: An `object` that specifies information about the uploaded file.
-
-     This method is used to listen to file upload events. It takes a parameter `params` which is an object that specifies information about the uploaded file.
-     */
+    
     public func onUpload(event: JoyfillModel.UploadEvent) {
         events?.onUpload(event: event)
     }
