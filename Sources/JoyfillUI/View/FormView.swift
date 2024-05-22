@@ -1,41 +1,18 @@
+//
+//  FormView.swift
+//  JoyFill
+//
+//
+
 import SwiftUI
 import JoyfillModel
 
-
 public struct Form: View {
-    ///  The JoyDoc JSON object to load into the SDK. Must be in the JoyDoc JSON data structure.
-    ///
-    ///  The SDK uses object reference equality checks to determine if the `doc` or any of its internal `pages` or `fields` have changed in the JSON.
-    ///  Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
-    ///  This will ensure your changes are properly detected and reflected in the SDK.
     @Binding public var document: JoyDoc
-    
-    /// Enables and disables certain JoyDoc functionality and features.
-    ///
-    /// The mode of the form default is `fill`.
-    ///
-    /// Options:
-    /// - `fill` :  The mode where you simply input the field data into the form.
-    /// - `readonly` :  The mode where everything in the form is set to read-only.
     @State public var mode: Mode
-    
-    /// Specify the page to display in the form.
-    ///
-    /// Utilize the `_id` property of a Page object. For instance, `page._id`.
-    /// If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
-    /// You can use this property to navigate to a specific page in the form.
     @Binding public var currentPageID: String
-    
-    ///  Used to listen to form events.
     public var events: FormChangeEvent?
-
-    /// Creates a new `Form` view with the given document, mode, events, and page ID.
-    ///
-    /// - Parameters:
-    ///   - document: The `JoyDoc` object to load into the SDK.
-    ///   - mode: The mode of the form. The default is `fill`.
-    ///   - events: The events delegate for the form.
-    ///   - pageID: The ID of the page to display in the form.
+    
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil) {
         self.events = events
         _mode = State(initialValue: mode)
@@ -43,20 +20,6 @@ public struct Form: View {
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
     }
     
-    /**
-     A SwiftUI view representing a form view.
-     
-     Use this view to display a form with files.
-     
-     - Parameters:
-     - fieldsData: The data for the form fields.
-     - files: The files associated with the form.
-     - mode: The mode of the form view.
-     - events: The events delegate for the form view.
-     - currentPageID: The ID of the current page.
-     
-     - Returns: A SwiftUI view representing the form view.
-     */
     public var body: some View {
         FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID)
     }
@@ -121,7 +84,7 @@ extension Form: FormChangeEventInternal {
         valueDict["targetRowIndex"] = fieldData.value!.valueElements!.lastIndex(of: lastValueElement!)!
         return valueDict
     }
-    
+
     public func onFocus(event: JoyfillModel.FieldEvent) {
         events?.onFocus(event: event)
     }
@@ -173,25 +136,25 @@ extension FileView: FormChangeEventInternal {
         event.file = file
         events?.addRow(event: event)
     }
-
+    
     func onChange(event: JoyfillModel.FieldChangeEvent) {
         var event = event
         event.file = file
         events?.onChange(event: event)
     }
-
+    
     func onFocus(event: JoyfillModel.FieldEvent) {
         var event = event
         event.file = file
         events?.onFocus(event: event)
     }
-
+    
     func onBlur(event: JoyfillModel.FieldEvent) {
         var event = event
         event.file = file
         events?.onBlur(event: event)
     }
-
+    
     func onUpload(event: JoyfillModel.UploadEvent) {
         var event = event
         event.file = file
@@ -237,7 +200,7 @@ struct PageView: View {
                 }
                 return true
             }
-
+        
         var resultFieldPositions =  [FieldPosition]()
         for fp in sortedFieldPositions {
             if !resultFieldPositions.contains(where: { $0.field == fp.field }) {
@@ -338,7 +301,7 @@ struct FormView: View {
             ImageView(fieldDependency: fieldDependency)
         }
     }
-
+    
     var body: some View {
         List(fieldPositions, id: \.field) { fieldPosition in
             fieldView(fieldPosition: fieldPosition)
@@ -378,7 +341,7 @@ extension FormView: FieldChangeEvents {
         self.fieldsData = temp
         eventHandler?.addRow(event: event)
     }
-
+    
     func onChange(event: FieldChangeEvent) {
         currentFocusedFielsData = event.field
         let temp = fieldsData.compactMap { data in
@@ -391,12 +354,12 @@ extension FormView: FieldChangeEvents {
         self.fieldsData = temp
         eventHandler?.onChange(event: event)
     }
-
+    
     func onFocus(event: FieldEvent) {
         lastFocusedFielsData = currentFocusedFielsData
         currentFocusedFielsData = event.field
     }
-
+    
     func onUpload(event: UploadEvent) {
         eventHandler?.onUpload(event: event)
     }
