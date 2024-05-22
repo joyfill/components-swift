@@ -95,6 +95,9 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: [change], document: document)
     }
 
+    /// Returns the changes for the given field data.
+    /// - Parameter fieldData: The field data containing information about the field.
+    /// - Returns: A dictionary containing the changes for the field.
     private func changes(fieldData: JoyDocField) -> [String: Any] {
         switch fieldData.type {
         case "chart":
@@ -104,6 +107,12 @@ extension Form: FormChangeEventInternal {
         }
     }
 
+    /// Returns a dictionary containing the changes for a chart based on the given field data.
+    ///
+    /// - Parameters:
+    ///   - fieldData: The field data used to generate the chart changes.
+    ///
+    /// - Returns: A dictionary containing the chart changes.
     private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
         var valueDict = ["value": fieldData.value!.dictionary]
         valueDict["yTitle"] = fieldData.yTitle
@@ -115,6 +124,10 @@ extension Form: FormChangeEventInternal {
         return valueDict
     }
 
+    /// Adds row changes to the form view.
+    ///
+    /// - Parameter fieldData: The field data containing the value elements.
+    /// - Returns: A dictionary containing the row changes.
     private func addRowChanges(fieldData: JoyDocField) -> [String: Any] {
         let lastValueElement = fieldData.value!.valueElements!.last
         var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
@@ -135,18 +148,36 @@ extension Form: FormChangeEventInternal {
     }
 }
 
+/// A view that displays a list of files.
+///
+/// Use `FilesView` to display a list of files along with other form fields.
 struct FilesView: View {
+    /// The `JoyDocField` objects that represent the data for each field in the form.
     @Binding var fieldsData: [JoyDocField]
+    
+    /// The `File` objects that represent the files to be displayed.
     var files: [File]
+    
+    /// The mode of the form.
     let mode: Mode
+    
+    /// The events delegate for the form. This is used to listen to form events.
     let events: FormChangeEventInternal?
+    
+    /// The ID of the current page being displayed in the form.
     @Binding var currentPageID: String
     
+    /// The body of the `FilesView`. This is a SwiftUI view that represents a collection of files.
+    ///
+    /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
         FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events, currentPageID: $currentPageID)
     }
 }
 
+/// A view that represents a single `file`.
+///
+/// It uses a `JoyDocField` object, a `File` object, a `Mode`, a `FormChangeEventInternal`, and a `currentPageID` to manage and display the file.
 struct FileView: View {
     @Binding var fieldsData: [JoyDocField]
     var file: File?
@@ -154,6 +185,9 @@ struct FileView: View {
     let events: FormChangeEventInternal?
     @Binding var currentPageID: String
     
+    /// The body of the `FileView`. This is a SwiftUI view that represents a single file.
+    ///
+    /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
         if let views = file?.views, !views.isEmpty, let view = views.first {
             if let pages = view.pages {
@@ -199,6 +233,7 @@ extension FileView: FormChangeEventInternal {
     }
 }
 
+/// A view that represents a collection of pages.
 struct PagesView: View {
     @Binding var fieldsData: [JoyDocField]
     @Binding var currentPageID: String
@@ -206,21 +241,32 @@ struct PagesView: View {
     let mode: Mode
     let events: FormChangeEventInternal?
     
+    /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
+    ///
+    /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
         PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
     }
     
+    /// Returns the page with the given ID.
+    ///
+    /// - Parameter currentPageID: The ID of the page to return.
+    /// - Returns: The page with the given ID, or the first page if the page with the given ID is not found.
     func page(currentPageID: String) -> Page? {
         return pages.first { $0.id == currentPageID } ?? pages.first
     }
 }
 
+/// A `View` that represents a page in a form.
 struct PageView: View {
     @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
 
+    /// The body of the `PageView`.
+    ///
+    /// If the page has field positions, it creates a `FormView` with the field positions mapped from web view to mobile view.
     var body: some View {
         if let fieldPositions = page.fieldPositions {
             let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
@@ -228,6 +274,10 @@ struct PageView: View {
         }
     }
     
+    /// Maps the field positions from web view to mobile view.
+    ///
+    /// - Parameter fieldPositions: An array of `FieldPosition` objects representing the positions of fields in a web view.
+    /// - Returns: An array of `FieldPosition` objects representing the positions of fields in a mobile view.
     func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
         let sortedFieldPositions =
         fieldPositions
@@ -280,10 +330,20 @@ extension PageView: FormChangeEventInternal {
     }
 }
 
+/// `FieldDependency` is a struct that encapsulates the dependencies of a field in a form.
+///
+/// It contains the mode of the form, an event handler for field changes, the position of the field, and the data of the field.
 struct FieldDependency {
+    /// The mode in which the form is being displayed.
     let mode: Mode
+    
+    /// The event handler that handles field change events.
     let eventHandler: FieldChangeEvents
+    
+    /// The position of the field in the form.
     let fieldPosition: FieldPosition
+    
+    /// The data of the field. This is optional and can be `nil`.
     var fieldData: JoyDocField?
 }
 
