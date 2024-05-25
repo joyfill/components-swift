@@ -189,14 +189,17 @@ struct FileView: View {
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
-        if let views = file?.views, !views.isEmpty, let view = views.first {
-            if let pages = view.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
-            }
-        } else {
-            if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
-            }
+//        if let views = file?.views, !views.isEmpty, let view = views.first {
+//            if let pages = view.pages {
+//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+//            }
+//        } else {
+//            if let pages = file?.pages {
+//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+//            }
+//        }
+        if let pages = file?.pages {
+            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
         }
     }
 }
@@ -263,6 +266,7 @@ struct PageView: View {
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
+   @State var backGorundImage: UIImage?
 
     /// The body of the `PageView`.
     ///
@@ -270,7 +274,22 @@ struct PageView: View {
     var body: some View {
         if let fieldPositions = page.fieldPositions {
             let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
-            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+            ScrollView([ .vertical, .horizontal]) {
+                ZStack {
+                    if let image = backGorundImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .frame(width: CGFloat(page.width ?? 0),height: CGFloat(page.height ?? 0))
+                    }
+                    
+                    FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+                }
+            }
+            .onAppear {
+                loadSingleURL(imageURL: page.backgroundImage ?? "") { downloadedImage in
+                    self.backGorundImage = downloadedImage
+                }
+            }
         }
     }
     
@@ -295,6 +314,17 @@ struct PageView: View {
             }
         }
         return resultFieldPositions
+    }
+    
+    func loadSingleURL(imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        APIService.loadImage(from: imageURL) { imageData in
+            if let imageData = imageData, let image = UIImage(data: imageData) {
+                completion(image)
+            } else {
+                print("Failed to load image from URL: \(String(describing: imageURL))")
+                completion(nil)
+            }
+        }
     }
 }
 
@@ -398,14 +428,83 @@ struct FormView: View {
             ImageView(fieldDependency: fieldDependency)
         }
     }
+    
+    @ViewBuilder
+    fileprivate func pdfFieldView(fieldPosition: FieldPosition) -> some View {
+        let fieldData = fieldsData.first(where: {
+            $0.id == fieldPosition.field
+        })
+        let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+        let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
+        switch fieldPosition.type {
+        case .text:
+            PDFTextView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .block:
+            PDFDisplayTextView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .multiSelect:
+            Rectangle()
+                .fill(.red)
+//            PDFMultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
+//                .disabled(fieldEditMode == .readonly)
+        case .dropdown:
+            PDFDropdownView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .textarea:
+            PDFMultiLineTextView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .date:
+            PDFDateTimeView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .signature:
+            PDFSignatureView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .number:
+            PDFNumberView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .chart:
+            Rectangle()
+                .fill(.red)
+//            PDFChartView(fieldDependency: fieldDependency)
+//                .disabled(fieldEditMode == .readonly)
+        case .richText:
+            Rectangle()
+                .fill(.red)
+//            PDFRichTextView(fieldDependency: fieldDependency)
+//                .disabled(fieldEditMode == .readonly)
+        case .table:
+            PDFTableQuickView(fieldDependency: fieldDependency)
+        case .image:
+            PDFImageView(fieldDependency: fieldDependency)
+        }
+    }
 
     var body: some View {
-        List(fieldPositions, id: \.field) { fieldPosition in
-            fieldView(fieldPosition: fieldPosition)
-                .listRowSeparator(.hidden)
-                .buttonStyle(.borderless)
+//        List(fieldPositions, id: \.field) { fieldPosition in
+//            fieldView(fieldPosition: fieldPosition)
+//                .listRowSeparator(.hidden)
+//                .buttonStyle(.borderless)
+//        }
+//        .listStyle(PlainListStyle())
+//        .gesture(DragGesture().onChanged({ _ in
+//            dismissKeyboardOnScroll()
+//        }))
+//        .onChange(of: currentFocusedFielsData) { newValue in
+//            guard newValue != nil else { return }
+//            guard lastFocusedFielsData != newValue else { return }
+//            if lastFocusedFielsData != nil {
+//                let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+//                eventHandler?.onBlur(event: fieldEvent)
+//            }
+//            let fieldEvent = FieldEvent(field: newValue)
+//            eventHandler?.onFocus(event: fieldEvent)
+//        }
+        ForEach(fieldPositions) { fieldPosition in
+            pdfFieldView(fieldPosition: fieldPosition)
+                .frame(width: CGFloat(fieldPosition.width ?? 0), height: CGFloat(fieldPosition.height ?? 0))
+                .position(x: calculateXOrY(xOrY: fieldPosition.x, widthOrHeight: fieldPosition.width), y: calculateXOrY(xOrY: fieldPosition.y, widthOrHeight: fieldPosition.height))
         }
-        .listStyle(PlainListStyle())
         .gesture(DragGesture().onChanged({ _ in
             dismissKeyboardOnScroll()
         }))
@@ -422,6 +521,10 @@ struct FormView: View {
     }
     private func dismissKeyboardOnScroll() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    private func calculateXOrY(xOrY: Double? ,widthOrHeight: Double?) -> CGFloat {
+        return xOrY! + widthOrHeight! / 2
     }
 }
 
