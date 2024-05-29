@@ -267,6 +267,7 @@ struct PageView: View {
     let mode: Mode
     let events: FormChangeEventInternal?
    @State var backGorundImage: UIImage?
+    @State private var zoom: CGFloat = 1.0
 
     /// The body of the `PageView`.
     ///
@@ -284,6 +285,13 @@ struct PageView: View {
                     
                     FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
                 }
+                .gesture(
+                    MagnificationGesture()
+                        .onChanged { value in
+                            self.zoom = value.magnitude
+                        }
+                )
+                .scaleEffect(zoom)
             }
             .onAppear {
                 loadSingleURL(imageURL: page.backgroundImage ?? "") { downloadedImage in
@@ -384,6 +392,7 @@ struct FormView: View {
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
     @State var lastFocusedFielsData: JoyDocField? = nil
+    @State private var zoom: CGFloat = 1.0
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
@@ -449,8 +458,10 @@ struct FormView: View {
 //            PDFMultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
 //                .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            PDFDropdownView(fieldDependency: fieldDependency)
-                .disabled(fieldEditMode == .readonly)
+            Rectangle()
+                .fill(.yellow)
+//            PDFDropdownView(fieldDependency: fieldDependency)
+//                .disabled(fieldEditMode == .readonly)
         case .textarea:
             PDFMultiLineTextView(fieldDependency: fieldDependency)
                 .disabled(fieldEditMode == .readonly)
@@ -500,7 +511,7 @@ struct FormView: View {
 //            let fieldEvent = FieldEvent(field: newValue)
 //            eventHandler?.onFocus(event: fieldEvent)
 //        }
-        ForEach(fieldPositions) { fieldPosition in
+        ForEach(fieldPositions, id: \.id) { fieldPosition in
             pdfFieldView(fieldPosition: fieldPosition)
                 .frame(width: CGFloat(fieldPosition.width ?? 0), height: CGFloat(fieldPosition.height ?? 0))
                 .position(x: calculateXOrY(xOrY: fieldPosition.x, widthOrHeight: fieldPosition.width), y: calculateXOrY(xOrY: fieldPosition.y, widthOrHeight: fieldPosition.height))

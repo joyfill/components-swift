@@ -14,38 +14,58 @@ struct PDFDropdownView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Button(action: {
-                isSheetPresented = true
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
-            }, label: {
-                HStack {
-                    Text(fieldDependency.fieldData?.options?.filter {
-                        $0.id == selectedDropdownValueID
-                    }.first?.value  ?? "Select Option")
-                    .darkLightThemeColor()
-                    .lineLimit(1)
-                    Spacer()
-                    Image(systemName: "chevron.down")
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.all, 10)
-            })
-            .accessibilityIdentifier("Dropdown")
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-            )
-            .sheet(isPresented: $isSheetPresented) {
-
-                if #available(iOS 16, *) {
-                    PDFDropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
-                        .presentationDetents([.medium])
-                    } else {
-                        PDFDropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
+        HStack() {
+            
+            if let options = fieldDependency.fieldData?.options {
+                let optionID = fieldDependency.fieldData?.options![0].id
+                if optionID == fieldDependency.fieldPosition.targetValue {
+                    ForEach(options) { option in
+                        Button(action: {
+                            let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                            fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                            if selectedDropdownValueID == option.id {
+                                selectedDropdownValueID = nil
+                            } else {
+                                selectedDropdownValueID = option.id
+                            }
+                        }, label: {
+                            Image(systemName: "checkmark")
+                        })
                     }
+                }
             }
+            
+//            Button(action: {
+//                isSheetPresented = true
+//                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+//                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+//            }, label: {
+//                HStack {
+//                    Text(fieldDependency.fieldData?.options?.filter {
+//                        $0.id == selectedDropdownValueID
+//                    }.first?.value  ?? "Select Option")
+//                    .darkLightThemeColor()
+//                    .lineLimit(1)
+//                    Spacer()
+//                    Image(systemName: "chevron.down")
+//                }
+//                .frame(maxWidth: .infinity)
+//                .padding(.all, 10)
+//            })
+//            .accessibilityIdentifier("Dropdown")
+//            .overlay(
+//                RoundedRectangle(cornerRadius: 10)
+//                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+//            )
+//            .sheet(isPresented: $isSheetPresented) {
+//
+//                if #available(iOS 16, *) {
+//                    PDFDropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
+//                        .presentationDetents([.medium])
+//                    } else {
+//                        PDFDropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
+//                    }
+//            }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
             let newDrodDownValue = ValueUnion.string(newValue ?? "")

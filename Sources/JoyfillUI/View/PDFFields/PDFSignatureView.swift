@@ -30,10 +30,6 @@ struct PDFSignatureView: View {
                     Text("Sign")
                         .darkLightThemeColor()
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
             })
             .accessibilityIdentifier("SignatureIdentifier")
             .frame(maxWidth: .infinity)
