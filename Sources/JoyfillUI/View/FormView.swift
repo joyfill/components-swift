@@ -182,6 +182,7 @@ struct FileView: View {
     @Binding var fieldsData: [JoyDocField]
     var file: File?
     let mode: Mode
+    @State var viewType: ViewType = .mobileView
     let events: FormChangeEventInternal?
     @Binding var currentPageID: String
     
@@ -199,7 +200,7 @@ struct FileView: View {
 //            }
 //        }
         if let pages = file?.pages {
-            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self, viewType: viewType)
         }
     }
 }
@@ -243,12 +244,13 @@ struct PagesView: View {
     let pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
-    
+    @State var viewType: ViewType
+
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
-        PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
+        PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, viewType: .pdfView, events: events)
     }
     
     /// Returns the page with the given ID.
@@ -265,8 +267,9 @@ struct PageView: View {
     @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
+    @State var viewType: ViewType
     let events: FormChangeEventInternal?
-   @State var backGorundImage: UIImage?
+    @State var backGorundImage: UIImage?
     @State private var zoom: CGFloat = 1.0
 
     /// The body of the `PageView`.
@@ -275,32 +278,37 @@ struct PageView: View {
     var body: some View {
         if let fieldPositions = page.fieldPositions {
             let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
-            ScrollView([ .vertical, .horizontal]) {
-                ZStack {
-                    if let image = backGorundImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .frame(width: CGFloat(page.width ?? 0),height: CGFloat(page.height ?? 0))
-                    }
-                    
-                    FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
-                }
-                .gesture(
-                    MagnificationGesture()
-                        .onChanged { value in
-                            self.zoom = value.magnitude
+            if viewType == .mobileView {
+                FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: .mobileView, eventHandler: self)
+            } else {
+                ScrollView([ .vertical, .horizontal]) {
+                    ZStack {
+                        if let image = backGorundImage {
+                            Image(uiImage: image)
+                                .resizable()
+                                .frame(width: CGFloat(page.width ?? 0),height: CGFloat(page.height ?? 0))
+                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: .pdfView, eventHandler: self)
+                        } else {
+                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: .mobileView, eventHandler: self)
                         }
-                )
-                .scaleEffect(zoom)
-            }
-            .onAppear {
-                loadSingleURL(imageURL: page.backgroundImage ?? "") { downloadedImage in
-                    self.backGorundImage = downloadedImage
+                    }
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                self.zoom = value.magnitude
+                            }
+                    )
+                    .scaleEffect(zoom)
+                }
+                .onAppear {
+                    loadSingleURL(imageURL: page.backgroundImage ?? "") { downloadedImage in
+                        self.backGorundImage = downloadedImage
+                    }
                 }
             }
         }
     }
-    
+
     /// Maps the field positions from web view to mobile view.
     ///
     /// - Parameter fieldPositions: An array of `FieldPosition` objects representing the positions of fields in a web view.
@@ -385,10 +393,16 @@ struct FieldDependency {
     var fieldData: JoyDocField?
 }
 
+enum ViewType {
+    case pdfView
+    case mobileView
+}
+
 struct FormView: View {
     @State var fieldPositions: [FieldPosition]
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
+    @State var viewType: ViewType
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
     @State var lastFocusedFielsData: JoyDocField? = nil
@@ -492,43 +506,51 @@ struct FormView: View {
     }
 
     var body: some View {
-//        List(fieldPositions, id: \.field) { fieldPosition in
-//            fieldView(fieldPosition: fieldPosition)
-//                .listRowSeparator(.hidden)
-//                .buttonStyle(.borderless)
-//        }
-//        .listStyle(PlainListStyle())
-//        .gesture(DragGesture().onChanged({ _ in
-//            dismissKeyboardOnScroll()
-//        }))
-//        .onChange(of: currentFocusedFielsData) { newValue in
-//            guard newValue != nil else { return }
-//            guard lastFocusedFielsData != newValue else { return }
-//            if lastFocusedFielsData != nil {
-//                let fieldEvent = FieldEvent(field: lastFocusedFielsData)
-//                eventHandler?.onBlur(event: fieldEvent)
-//            }
-//            let fieldEvent = FieldEvent(field: newValue)
-//            eventHandler?.onFocus(event: fieldEvent)
-//        }
-        ForEach(fieldPositions, id: \.id) { fieldPosition in
-            pdfFieldView(fieldPosition: fieldPosition)
-                .frame(width: CGFloat(fieldPosition.width ?? 0), height: CGFloat(fieldPosition.height ?? 0))
-                .position(x: calculateXOrY(xOrY: fieldPosition.x, widthOrHeight: fieldPosition.width), y: calculateXOrY(xOrY: fieldPosition.y, widthOrHeight: fieldPosition.height))
-        }
-        .gesture(DragGesture().onChanged({ _ in
-            dismissKeyboardOnScroll()
-        }))
-        .onChange(of: currentFocusedFielsData) { newValue in
-            guard newValue != nil else { return }
-            guard lastFocusedFielsData != newValue else { return }
-            if lastFocusedFielsData != nil {
-                let fieldEvent = FieldEvent(field: lastFocusedFielsData)
-                eventHandler?.onBlur(event: fieldEvent)
+        if viewType == .mobileView {
+            List(fieldPositions, id: \.field) { fieldPosition in
+                fieldView(fieldPosition: fieldPosition)
+                    .listRowSeparator(.hidden)
+                    .buttonStyle(.borderless)
+                    .gesture(DragGesture().onChanged({ _ in
+                        dismissKeyboardOnScroll()
+                    }))
+                    .onChange(of: currentFocusedFielsData) { newValue in
+                        guard newValue != nil else { return }
+                        guard lastFocusedFielsData != newValue else { return }
+                        if lastFocusedFielsData != nil {
+                            let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+                            eventHandler?.onBlur(event: fieldEvent)
+                        }
+                        let fieldEvent = FieldEvent(field: newValue)
+                        eventHandler?.onFocus(event: fieldEvent)
+                    }
             }
-            let fieldEvent = FieldEvent(field: newValue)
-            eventHandler?.onFocus(event: fieldEvent)
+            .listStyle(PlainListStyle())
+            .gesture(DragGesture().onChanged({ _ in
+                dismissKeyboardOnScroll()
+            }))
+        } else {
+            ForEach(fieldPositions, id: \.field) { fieldPosition in
+                pdfFieldView(fieldPosition: fieldPosition)
+                    .frame(width: CGFloat(fieldPosition.width ?? 0), height: CGFloat(fieldPosition.height ?? 0))
+                    .position(x: calculateXOrY(xOrY: fieldPosition.x, widthOrHeight: fieldPosition.width), y: calculateXOrY(xOrY: fieldPosition.y, widthOrHeight: fieldPosition.height))
+                    .gesture(DragGesture().onChanged({ _ in
+                        dismissKeyboardOnScroll()
+                    }))
+                    .onChange(of: currentFocusedFielsData) { newValue in
+                        guard newValue != nil else { return }
+                        guard lastFocusedFielsData != newValue else { return }
+                        if lastFocusedFielsData != nil {
+                            let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+                            eventHandler?.onBlur(event: fieldEvent)
+                        }
+                        let fieldEvent = FieldEvent(field: newValue)
+                        eventHandler?.onFocus(event: fieldEvent)
+                    }
+
+            }
         }
+
     }
     private func dismissKeyboardOnScroll() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
