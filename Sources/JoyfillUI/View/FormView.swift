@@ -200,7 +200,7 @@ struct FileView: View {
 //            }
 //        }
         if let pages = file?.pages {
-            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self, viewType: viewType)
+            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self, viewType: $viewType)
         }
     }
 }
@@ -244,13 +244,18 @@ struct PagesView: View {
     let pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
-    @State var viewType: ViewType
+    @Binding var viewType: ViewType
 
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
-        PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, viewType: .pdfView, events: events)
+        Button(action: {
+            viewType = viewType == .pdfView ? .mobileView : .pdfView
+        }) {
+            Text(viewType == .pdfView ? "Switch to Mobile View" : "Switch to PDF View")
+        }
+        PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, viewType: $viewType, events: events)
     }
     
     /// Returns the page with the given ID.
@@ -267,7 +272,7 @@ struct PageView: View {
     @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
-    @State var viewType: ViewType
+    @Binding var viewType: ViewType
     let events: FormChangeEventInternal?
     @State var backGorundImage: UIImage?
     @State private var zoom: CGFloat = 1.0
@@ -279,7 +284,7 @@ struct PageView: View {
         if let fieldPositions = page.fieldPositions {
             let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
             if viewType == .mobileView {
-                FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: .mobileView, eventHandler: self)
+                FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: $viewType, eventHandler: self)
             } else {
                 ScrollView([ .vertical, .horizontal]) {
                     ZStack {
@@ -287,9 +292,9 @@ struct PageView: View {
                             Image(uiImage: image)
                                 .resizable()
                                 .frame(width: CGFloat(page.width ?? 0),height: CGFloat(page.height ?? 0))
-                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: .pdfView, eventHandler: self)
+                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: $viewType, eventHandler: self)
                         } else {
-                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: .mobileView, eventHandler: self)
+                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: $viewType, eventHandler: self)
                         }
                     }
                     .gesture(
@@ -402,7 +407,7 @@ struct FormView: View {
     @State var fieldPositions: [FieldPosition]
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
-    @State var viewType: ViewType
+    @Binding var viewType: ViewType
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
     @State var lastFocusedFielsData: JoyDocField? = nil
