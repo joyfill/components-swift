@@ -31,6 +31,7 @@ struct PDFDateTimeView: View {
                 DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
                     .accessibilityIdentifier("DateIdenitfier")
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .scaleEffect(0.7)
                     .labelsHidden()
                     .padding(.all, 8)
             } else {

@@ -541,6 +541,7 @@ struct FormView: View {
                 pdfFieldView(fieldPosition: fieldPosition)
                     .frame(width: CGFloat(fieldPosition.width ?? 0), height: CGFloat(fieldPosition.height ?? 0))
                     .position(x: calculateXOrY(xOrY: fieldPosition.x, widthOrHeight: fieldPosition.width), y: calculateXOrY(xOrY: fieldPosition.y, widthOrHeight: fieldPosition.height))
+                    .font(.system(size: fieldPosition.fontSize ?? 0))
                     .gesture(DragGesture().onChanged({ _ in
                         dismissKeyboardOnScroll()
                     }))
