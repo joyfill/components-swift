@@ -5,7 +5,7 @@ struct PDFDropdownView: View {
     @State var selectedDropdownValueID: String?
     @State private var isSheetPresented = false
     private let fieldDependency: FieldDependency
-    
+
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
         if let value = fieldDependency.fieldData?.value?.dropdownValue {
@@ -15,24 +15,33 @@ struct PDFDropdownView: View {
     
     var body: some View {
         HStack() {
-            
             if let options = fieldDependency.fieldData?.options {
-                let optionID = fieldDependency.fieldData?.options![0].id
-                if optionID == fieldDependency.fieldPosition.targetValue {
-                    ForEach(options) { option in
+                let option = fieldDependency.fieldData?.options?.first(where: { option in
+                    option.id == fieldDependency.fieldPosition.targetValue
+                })
+//                    ForEach(options) { option in
                         Button(action: {
                             let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                             fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                            if selectedDropdownValueID == option.id {
+                            if selectedDropdownValueID == option?.id {
                                 selectedDropdownValueID = nil
                             } else {
-                                selectedDropdownValueID = option.id
+                                selectedDropdownValueID = option?.id
                             }
                         }, label: {
-                            Image(systemName: "checkmark")
+                            ZStack {
+                                Rectangle()
+                                    .foregroundColor(.clear)
+                                    .border(.red)
+                                if selectedDropdownValueID == nil {
+//                                    Image(systemName: "checkmark")
+                                } else {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
                         })
-                    }
-                }
+//                    }
+//                }
             }
             
 //            Button(action: {

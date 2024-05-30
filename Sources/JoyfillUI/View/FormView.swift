@@ -192,7 +192,7 @@ struct FileView: View {
     var body: some View {
 //        if let views = file?.views, !views.isEmpty, let view = views.first {
 //            if let pages = view.pages {
-//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+//                PagedrsView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
 //            }
 //        } else {
 //            if let pages = file?.pages {
@@ -282,7 +282,7 @@ struct PageView: View {
     /// If the page has field positions, it creates a `FormView` with the field positions mapped from web view to mobile view.
     var body: some View {
         if let fieldPositions = page.fieldPositions {
-            let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
+            let resultFieldPositions = (viewType == .mobileView) ? mapWebViewToMobileView(fieldPositions: fieldPositions): fieldPositions
             if viewType == .mobileView {
                 FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: $viewType, eventHandler: self)
             } else {
@@ -472,15 +472,17 @@ struct FormView: View {
             PDFDisplayTextView(fieldDependency: fieldDependency)
                 .disabled(fieldEditMode == .readonly)
         case .multiSelect:
-            Rectangle()
-                .fill(.red)
-//            PDFMultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
+//            Rectangle()
+//                .fill(.red)
+            PDFDropdownView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+////            PDFMultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
 //                .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            Rectangle()
-                .fill(.yellow)
-//            PDFDropdownView(fieldDependency: fieldDependency)
-//                .disabled(fieldEditMode == .readonly)
+//            Rectangle()
+//                .fill(.yellow)
+            PDFDropdownView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
         case .textarea:
             PDFMultiLineTextView(fieldDependency: fieldDependency)
                 .disabled(fieldEditMode == .readonly)
@@ -535,7 +537,7 @@ struct FormView: View {
                 dismissKeyboardOnScroll()
             }))
         } else {
-            ForEach(fieldPositions, id: \.field) { fieldPosition in
+            ForEach(fieldPositions, id: \.id) { fieldPosition in
                 pdfFieldView(fieldPosition: fieldPosition)
                     .frame(width: CGFloat(fieldPosition.width ?? 0), height: CGFloat(fieldPosition.height ?? 0))
                     .position(x: calculateXOrY(xOrY: fieldPosition.x, widthOrHeight: fieldPosition.width), y: calculateXOrY(xOrY: fieldPosition.y, widthOrHeight: fieldPosition.height))
