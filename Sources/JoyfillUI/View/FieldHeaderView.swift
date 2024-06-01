@@ -44,7 +44,7 @@ struct FieldHeaderView: View {
                             title: Text(""),
                             message: Text("\(alertMessage.map { "\($0)\n" } ?? "")" +
                                           "\(alertDescription ?? "")"),
-                            dismissButton: .default(Text("OK"))
+                            dismissButton: .default(Text("Dismiss"))
                         )
                     }
                 }
