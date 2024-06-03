@@ -237,15 +237,36 @@ extension FileView: FormChangeEventInternal {
 struct PagesView: View {
     @Binding var fieldsData: [JoyDocField]
     @Binding var currentPageID: String
-    let pages: [Page]
+    @State var pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
+    @State private var isSheetPresented = false
     
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
-        PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
+        VStack {
+            Button(action: {
+                isSheetPresented = true
+            }, label: {
+                HStack {
+                    Image(systemName: "chevron.down")
+                    Text(page(currentPageID:currentPageID)?.name ?? "")
+                }
+            })
+            .buttonStyle(.bordered)
+            .sheet(isPresented: $isSheetPresented) {
+                if #available(iOS 16, *) {
+                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID)
+                        .presentationDetents([.medium])
+                } else {
+                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID)
+                }
+            }
+            
+            PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
+        }
     }
     
     /// Returns the page with the given ID.
@@ -270,7 +291,12 @@ struct PageView: View {
     var body: some View {
         if let fieldPositions = page.fieldPositions {
             let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
-            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+            let binding = Binding {
+                resultFieldPositions
+            } set: { _ in
+                
+            }
+            FormView(fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self)
         }
     }
     
@@ -348,7 +374,7 @@ struct FieldDependency {
 }
 
 struct FormView: View {
-    @State var fieldPositions: [FieldPosition]
+    @Binding var fieldPositions: [FieldPosition]
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
@@ -459,5 +485,38 @@ extension FormView: FieldChangeEvents {
 
     func onUpload(event: UploadEvent) {
         eventHandler?.onUpload(event: event)
+    }
+}
+
+struct PageDuplicateListView: View {
+    @Binding var pages: [Page]
+    @Binding var currentPageID: String
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        VStack {
+            Button(action: {
+                duplicatePage()
+            }, label: {
+                Text("Duplicate Page")
+            })
+            
+            ScrollView{
+                ForEach(pages, id: \.id) { page in
+                    Button(action: {
+                        currentPageID = page.id ?? ""
+                        presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Text(page.name ?? "")
+                    })
+                }
+            }
+        }
+    }
+    
+    func duplicatePage() {
+        guard var firstPage = pages.first else { return }
+        firstPage.id = UUID().uuidString
+        pages.append(firstPage)
     }
 }
