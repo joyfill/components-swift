@@ -41,9 +41,8 @@ struct FieldHeaderView: View {
                     })
                     .alert(isPresented: $showAlert) {
                         Alert(
-                            title: Text(""),
-                            message: Text("\(alertMessage.map { "\($0)\n" } ?? "")" +
-                                          "\(alertDescription ?? "")"),
+                            title: Text(alertMessage ?? ""),
+                            message: Text(alertDescription ?? ""),
                             dismissButton: .default(Text("Dismiss"))
                         )
                     }
