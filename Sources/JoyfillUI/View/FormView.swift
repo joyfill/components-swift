@@ -246,7 +246,7 @@ struct PagesView: View {
     ///
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Button(action: {
                 isSheetPresented = true
             }, label: {
@@ -256,6 +256,7 @@ struct PagesView: View {
                 }
             })
             .buttonStyle(.bordered)
+            .padding(.leading, 16)
             .sheet(isPresented: $isSheetPresented) {
                 if #available(iOS 16, *) {
                     PageDuplicateListView(pages: $pages, currentPageID: $currentPageID)
@@ -494,24 +495,75 @@ struct PageDuplicateListView: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        VStack {
-            Button(action: {
-                duplicatePage()
-            }, label: {
-                Text("Duplicate Page")
-            })
+        VStack(alignment: .leading) {
+            HStack {
+                Text("Actions")
+                    .foregroundStyle(.gray)
+                Spacer()
+                
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    Text("Close")
+                })
+            }
+            HStack {
+                Button(action: {
+                    duplicatePage()
+                }, label: {
+                    VStack {
+                        Image(systemName: "doc.on.doc")
+                        Text("Duplicate Page")
+                    }
+                    .foregroundColor(.black)
+                    .font(.subheadline)
+                    .padding(.vertical, 6)
+                })
+                .buttonStyle(.bordered)
+                
+                Button(action: {
+                    
+                }, label: {
+                    VStack {
+                        Image(systemName: "trash")
+                        Text("Delete Page")
+                    }
+                    .foregroundColor(.black)
+                    .font(.subheadline)
+                    .padding(.vertical, 6)
+                })
+                .buttonStyle(.bordered)
+            }
             
-            ScrollView{
+            Text("Pages")
+                .foregroundStyle(.gray)
+            
+            ScrollView {
                 ForEach(pages, id: \.id) { page in
-                    Button(action: {
-                        currentPageID = page.id ?? ""
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Text(page.name ?? "")
-                    })
+                    VStack(alignment: .leading) {
+                        Button(action: {
+                            currentPageID = page.id ?? ""
+                            presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            HStack {
+                                Image(systemName: currentPageID == page.id ? "checkmark.circle.fill" : "circle")
+                                Text(page.name ?? "")
+                                    .darkLightThemeColor()
+                            }
+                        })
+                        Divider()
+                    }
+                    .padding(.horizontal, 16)
                 }
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .padding(.vertical, -10)
+            )
+            .padding(.vertical, 10)
         }
+        .padding(.all, 16)
     }
     
     func duplicatePage() {
