@@ -92,9 +92,9 @@ extension JoyDoc {
         XCTAssertEqual(fields[4].description, "")
         XCTAssertEqual(fields[4].value?.text, "Hello sir")
         XCTAssertEqual(fields[4].required, false)
-        XCTAssertEqual(fields[4].tipTitle, "")
-        XCTAssertEqual(fields[4].tipDescription, "")
-        XCTAssertEqual(fields[4].tipVisible, false)
+        XCTAssertEqual(fields[4].tipTitle, "ToolTip Title")
+        XCTAssertEqual(fields[4].tipDescription, "ToolTip Description")
+        XCTAssertEqual(fields[4].tipVisible, true)
         XCTAssertEqual(fields[4].file, "6629fab3c0ba3fb775b4a55c")
     }
     

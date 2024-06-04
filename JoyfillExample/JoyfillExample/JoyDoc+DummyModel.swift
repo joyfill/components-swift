@@ -119,9 +119,9 @@ extension JoyDoc {
         field.description = ""
         field.value = .string("Hello sir")
         field.required = false
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
+        field.tipTitle = "ToolTip Title"
+        field.tipDescription = "ToolTip Description"
+        field.tipVisible = true
         field.file = "6629fab3c0ba3fb775b4a55c"
         var document = self
         document.fields.append(field)

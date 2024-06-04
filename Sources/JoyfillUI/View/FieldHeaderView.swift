@@ -39,6 +39,7 @@ struct FieldHeaderView: View {
                     }, label: {
                         Image(systemName: "i.circle")
                     })
+                    .accessibilityIdentifier("ToolTipIdentifier")
                     .alert(isPresented: $showAlert) {
                         Alert(
                             title: Text(alertMessage ?? ""),
