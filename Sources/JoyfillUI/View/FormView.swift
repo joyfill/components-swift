@@ -191,11 +191,11 @@ struct FileView: View {
     var body: some View {
         if let views = file?.views, !views.isEmpty, let view = views.first {
             if let pages = view.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self)
             }
         } else {
             if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages,pageOrder: file?.pageOrder, mode: mode, events: self)
             }
         }
     }
@@ -238,6 +238,7 @@ struct PagesView: View {
     @Binding var fieldsData: [JoyDocField]
     @Binding var currentPageID: String
     @State var pages: [Page]
+    @State var pageOrder: [String]?
     let mode: Mode
     let events: FormChangeEventInternal?
     @State private var isSheetPresented = false
@@ -259,10 +260,10 @@ struct PagesView: View {
             .padding(.leading, 16)
             .sheet(isPresented: $isSheetPresented) {
                 if #available(iOS 16, *) {
-                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID)
+                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
                         .presentationDetents([.medium])
                 } else {
-                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID)
+                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
                 }
             }
             
@@ -492,6 +493,7 @@ extension FormView: FieldChangeEvents {
 struct PageDuplicateListView: View {
     @Binding var pages: [Page]
     @Binding var currentPageID: String
+    @Binding var pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -539,15 +541,15 @@ struct PageDuplicateListView: View {
                 .foregroundStyle(.gray)
             
             ScrollView {
-                ForEach(pages, id: \.id) { page in
+                ForEach(pageOrder ?? [], id: \.self) { id in
                     VStack(alignment: .leading) {
                         Button(action: {
-                            currentPageID = page.id ?? ""
+                            currentPageID = id ?? ""
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack {
-                                Image(systemName: currentPageID == page.id ? "checkmark.circle.fill" : "circle")
-                                Text(page.name ?? "")
+                                Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
+                                Text(page(currentPageID: id)?.name ?? "")
                                     .darkLightThemeColor()
                             }
                         })
@@ -567,8 +569,15 @@ struct PageDuplicateListView: View {
     }
     
     func duplicatePage() {
-        guard var firstPage = pages.first else { return }
-        firstPage.id = UUID().uuidString
-        pages.append(firstPage)
-    }
+         // TODO: Append new page in pages
+         // TODO: Append new page ID in pageOrder
+         // TODO: Append new field Data in field data array
+ //        guard var firstPage = pages.first else { return }
+ //        firstPage.id = UUID().uuidString
+ //        pages.append(firstPage)
+     }
+     
+     func page(currentPageID: String) -> Page? {
+         return pages.first { $0.id == currentPageID } ?? pages.first
+     }
 }
