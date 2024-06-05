@@ -4,6 +4,7 @@ import JoyfillModel
 struct SignatureView: View {
     @State private var lines: [Line] = []
     @State var signatureImage: UIImage?
+    @State private var savedLines: [Line] = []
     @State var signatureURL: String = ""
     @State private var showCanvasSignatureView: Bool = false
 
@@ -49,7 +50,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -156,6 +157,7 @@ struct CanvasView: View {
 struct CanvasSignatureView: View {
     @State private var enterYourSignName: String = ""
     @Binding var lines: [Line]
+    @Binding var savedLines: [Line]
     @Binding var signatureImage: UIImage?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
@@ -192,6 +194,7 @@ struct CanvasSignatureView: View {
                 
                 Button(action: {
                     guard !lines.isEmpty else {
+                        savedLines = []
                         signatureImage = nil
                         presentationMode.wrappedValue.dismiss()
                         return
@@ -199,6 +202,7 @@ struct CanvasSignatureView: View {
                     signatureImage = CanvasView(lines: $lines)
                         .frame(width: screenWidth, height: 220)
                         .snapshot()
+                    savedLines = lines
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
                     Text("Save")
@@ -212,6 +216,11 @@ struct CanvasSignatureView: View {
             Spacer()
         }
         .padding(.horizontal, 16.0)
+        .onAppear {
+            if lines.isEmpty {
+                lines = savedLines
+            }
+        }
     }
 }
 extension View {
