@@ -182,6 +182,7 @@ struct FileView: View {
     @Binding var fieldsData: [JoyDocField]
     var file: File?
     let mode: Mode
+    @State var viewType: ViewType = .mobileView
     let events: FormChangeEventInternal?
     @Binding var currentPageID: String
     
@@ -189,14 +190,17 @@ struct FileView: View {
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
-        if let views = file?.views, !views.isEmpty, let view = views.first {
-            if let pages = view.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
-            }
-        } else {
-            if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
-            }
+//        if let views = file?.views, !views.isEmpty, let view = views.first {
+//            if let pages = view.pages {
+//                PagedrsView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+//            }
+//        } else {
+//            if let pages = file?.pages {
+//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self)
+//            }
+//        }
+        if let pages = file?.pages {
+            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, mode: mode, events: self, viewType: $viewType)
         }
     }
 }
@@ -240,12 +244,18 @@ struct PagesView: View {
     let pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
-    
+    @Binding var viewType: ViewType
+
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
-        PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
+        Button(action: {
+            viewType = viewType == .pdfView ? .mobileView : .pdfView
+        }) {
+            Text(viewType == .pdfView ? "Switch to Mobile View" : "Switch to PDF View")
+        }
+        PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, viewType: $viewType, events: events)
     }
     
     /// Returns the page with the given ID.
@@ -262,18 +272,48 @@ struct PageView: View {
     @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
+    @Binding var viewType: ViewType
     let events: FormChangeEventInternal?
+    @State var backGorundImage: UIImage?
+    @State private var zoom: CGFloat = 1.0
 
     /// The body of the `PageView`.
     ///
     /// If the page has field positions, it creates a `FormView` with the field positions mapped from web view to mobile view.
     var body: some View {
         if let fieldPositions = page.fieldPositions {
-            let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
-            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+            let resultFieldPositions = (viewType == .mobileView) ? mapWebViewToMobileView(fieldPositions: fieldPositions): fieldPositions
+            if viewType == .mobileView {
+                FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: $viewType, eventHandler: self)
+            } else {
+                ScrollView([ .vertical, .horizontal]) {
+                    ZStack {
+                        if let image = backGorundImage {
+                            Image(uiImage: image)
+                                .resizable()
+                                .frame(width: CGFloat(page.width ?? 0),height: CGFloat(page.height ?? 0))
+                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: $viewType, eventHandler: self)
+                        } else {
+                            FormView(fieldPositions: resultFieldPositions, fieldsData: $fieldsData, mode: mode, viewType: $viewType, eventHandler: self)
+                        }
+                    }
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                self.zoom = value.magnitude
+                            }
+                    )
+                    .scaleEffect(zoom)
+                }
+                .onAppear {
+                    loadSingleURL(imageURL: page.backgroundImage ?? "") { downloadedImage in
+                        self.backGorundImage = downloadedImage
+                    }
+                }
+            }
         }
     }
-    
+
     /// Maps the field positions from web view to mobile view.
     ///
     /// - Parameter fieldPositions: An array of `FieldPosition` objects representing the positions of fields in a web view.
@@ -295,6 +335,17 @@ struct PageView: View {
             }
         }
         return resultFieldPositions
+    }
+    
+    func loadSingleURL(imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        APIService.loadImage(from: imageURL) { imageData in
+            if let imageData = imageData, let image = UIImage(data: imageData) {
+                completion(image)
+            } else {
+                print("Failed to load image from URL: \(String(describing: imageURL))")
+                completion(nil)
+            }
+        }
     }
 }
 
@@ -347,13 +398,20 @@ struct FieldDependency {
     var fieldData: JoyDocField?
 }
 
+enum ViewType {
+    case pdfView
+    case mobileView
+}
+
 struct FormView: View {
     @State var fieldPositions: [FieldPosition]
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
+    @Binding var viewType: ViewType
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
     @State var lastFocusedFielsData: JoyDocField? = nil
+    @State private var zoom: CGFloat = 1.0
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
@@ -398,30 +456,116 @@ struct FormView: View {
             ImageView(fieldDependency: fieldDependency)
         }
     }
+    
+    @ViewBuilder
+    fileprivate func pdfFieldView(fieldPosition: FieldPosition) -> some View {
+        let fieldData = fieldsData.first(where: {
+            $0.id == fieldPosition.field
+        })
+        let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+        let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
+        switch fieldPosition.type {
+        case .text:
+            PDFTextView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .block:
+            PDFDisplayTextView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .multiSelect:
+//            Rectangle()
+//                .fill(.red)
+            PDFDropdownView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+////            PDFMultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
+//                .disabled(fieldEditMode == .readonly)
+        case .dropdown:
+//            Rectangle()
+//                .fill(.yellow)
+            PDFDropdownView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .textarea:
+            PDFMultiLineTextView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .date:
+            PDFDateTimeView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .signature:
+            PDFSignatureView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .number:
+            PDFNumberView(fieldDependency: fieldDependency)
+                .disabled(fieldEditMode == .readonly)
+        case .chart:
+            Rectangle()
+                .fill(.red)
+//            PDFChartView(fieldDependency: fieldDependency)
+//                .disabled(fieldEditMode == .readonly)
+        case .richText:
+            Rectangle()
+                .fill(.red)
+//            PDFRichTextView(fieldDependency: fieldDependency)
+//                .disabled(fieldEditMode == .readonly)
+        case .table:
+            PDFTableQuickView(fieldDependency: fieldDependency)
+        case .image:
+            PDFImageView(fieldDependency: fieldDependency)
+        }
+    }
 
     var body: some View {
-        List(fieldPositions, id: \.field) { fieldPosition in
-            fieldView(fieldPosition: fieldPosition)
-                .listRowSeparator(.hidden)
-                .buttonStyle(.borderless)
-        }
-        .listStyle(PlainListStyle())
-        .gesture(DragGesture().onChanged({ _ in
-            dismissKeyboardOnScroll()
-        }))
-        .onChange(of: currentFocusedFielsData) { newValue in
-            guard newValue != nil else { return }
-            guard lastFocusedFielsData != newValue else { return }
-            if lastFocusedFielsData != nil {
-                let fieldEvent = FieldEvent(field: lastFocusedFielsData)
-                eventHandler?.onBlur(event: fieldEvent)
+        if viewType == .mobileView {
+            List(fieldPositions, id: \.field) { fieldPosition in
+                fieldView(fieldPosition: fieldPosition)
+                    .listRowSeparator(.hidden)
+                    .buttonStyle(.borderless)
+                    .gesture(DragGesture().onChanged({ _ in
+                        dismissKeyboardOnScroll()
+                    }))
+                    .onChange(of: currentFocusedFielsData) { newValue in
+                        guard newValue != nil else { return }
+                        guard lastFocusedFielsData != newValue else { return }
+                        if lastFocusedFielsData != nil {
+                            let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+                            eventHandler?.onBlur(event: fieldEvent)
+                        }
+                        let fieldEvent = FieldEvent(field: newValue)
+                        eventHandler?.onFocus(event: fieldEvent)
+                    }
             }
-            let fieldEvent = FieldEvent(field: newValue)
-            eventHandler?.onFocus(event: fieldEvent)
+            .listStyle(PlainListStyle())
+            .gesture(DragGesture().onChanged({ _ in
+                dismissKeyboardOnScroll()
+            }))
+        } else {
+            ForEach(fieldPositions, id: \.id) { fieldPosition in
+                pdfFieldView(fieldPosition: fieldPosition)
+                    .frame(width: CGFloat(fieldPosition.width ?? 0), height: CGFloat(fieldPosition.height ?? 0))
+                    .position(x: calculateXOrY(xOrY: fieldPosition.x, widthOrHeight: fieldPosition.width), y: calculateXOrY(xOrY: fieldPosition.y, widthOrHeight: fieldPosition.height))
+                    .font(.system(size: fieldPosition.fontSize ?? 0))
+                    .gesture(DragGesture().onChanged({ _ in
+                        dismissKeyboardOnScroll()
+                    }))
+                    .onChange(of: currentFocusedFielsData) { newValue in
+                        guard newValue != nil else { return }
+                        guard lastFocusedFielsData != newValue else { return }
+                        if lastFocusedFielsData != nil {
+                            let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+                            eventHandler?.onBlur(event: fieldEvent)
+                        }
+                        let fieldEvent = FieldEvent(field: newValue)
+                        eventHandler?.onFocus(event: fieldEvent)
+                    }
+
+            }
         }
+
     }
     private func dismissKeyboardOnScroll() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    private func calculateXOrY(xOrY: Double? ,widthOrHeight: Double?) -> CGFloat {
+        return xOrY! + widthOrHeight! / 2
     }
 }
 
