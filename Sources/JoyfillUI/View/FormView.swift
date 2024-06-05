@@ -500,10 +500,10 @@ struct PageDuplicateListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("Actions")
+                Text("Pages")
                     .foregroundStyle(.gray)
                 Spacer()
-                
+
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
@@ -511,36 +511,36 @@ struct PageDuplicateListView: View {
                 })
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
-            HStack {
-                Button(action: {
-                    duplicatePage()
-                }, label: {
-                    VStack {
-                        Image(systemName: "doc.on.doc")
-                        Text("Duplicate Page")
-                    }
-                    .foregroundColor(.black)
-                    .font(.subheadline)
-                    .padding(.vertical, 6)
-                })
-                .buttonStyle(.bordered)
-                
-                Button(action: {
-                    
-                }, label: {
-                    VStack {
-                        Image(systemName: "trash")
-                        Text("Delete Page")
-                    }
-                    .foregroundColor(.black)
-                    .font(.subheadline)
-                    .padding(.vertical, 6)
-                })
-                .buttonStyle(.bordered)
-            }
+//            HStack {
+//                Button(action: {
+//                    duplicatePage()
+//                }, label: {
+//                    VStack {
+//                        Image(systemName: "doc.on.doc")
+//                        Text("Duplicate Page")
+//                    }
+//                    .foregroundColor(.black)
+//                    .font(.subheadline)
+//                    .padding(.vertical, 6)
+//                })
+//                .buttonStyle(.bordered)
+//                
+//                Button(action: {
+//                    
+//                }, label: {
+//                    VStack {
+//                        Image(systemName: "trash")
+//                        Text("Delete Page")
+//                    }
+//                    .foregroundColor(.black)
+//                    .font(.subheadline)
+//                    .padding(.vertical, 6)
+//                })
+//                .buttonStyle(.bordered)
+//            }
             
-            Text("Pages")
-                .foregroundStyle(.gray)
+//            Text("Pages")
+//                .foregroundStyle(.gray)
             
             ScrollView {
                 ForEach(pageOrder ?? [], id: \.self) { id in
