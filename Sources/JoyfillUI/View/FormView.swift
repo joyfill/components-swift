@@ -26,7 +26,7 @@ public struct Form: View {
     /// You can use this property to navigate to a specific page in the form.
     @Binding public var currentPageID: String
     
-    private var showPageNavigationView: Bool
+    private var navigation: Bool
 
     ///  Used to listen to form events.
     public var events: FormChangeEvent?
@@ -38,12 +38,12 @@ public struct Form: View {
     ///   - mode: The mode of the form. The default is `fill`.
     ///   - events: The events delegate for the form.
     ///   - pageID: The ID of the page to display in the form.
-    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil, showPageNavigationView: Bool = true) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil, navigation: Bool = true) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
-        self.showPageNavigationView = showPageNavigationView
+        self.navigation = navigation
     }
     
     /**
@@ -61,7 +61,7 @@ public struct Form: View {
      - Returns: A SwiftUI view representing the form view.
      */
     public var body: some View {
-        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
+        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
     }
 }
 
