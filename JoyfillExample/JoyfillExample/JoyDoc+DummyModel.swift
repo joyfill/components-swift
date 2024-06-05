@@ -23,7 +23,7 @@ extension JoyDoc {
         file.name = "All Fields Template"
         file.version = 1
         file.styles = Metadata(dictionary: [:])
-        file.pageOrder = ["6629fab320fca7c8107a6cf6"]
+        file.pageOrder = ["6629fab320fca7c8107a6cf6", "66600801dc1d8b4f72f54917"]
         file.views = []
         
         var document = self
@@ -378,7 +378,7 @@ extension JoyDoc {
     
     func setPageField() -> JoyDoc {
         var page = Page()
-        page.name = "New Page"
+        page.name = "Page 1"
         page.hidden = false
         page.width = 816
         page.height = 1056
