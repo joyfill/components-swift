@@ -256,6 +256,7 @@ struct PagesView: View {
                     Text(page(currentPageID:currentPageID)?.name ?? "")
                 }
             })
+            .accessibilityIdentifier("PageNavigationIdentifier")
             .buttonStyle(.bordered)
             .padding(.leading, 16)
             .sheet(isPresented: $isSheetPresented) {
