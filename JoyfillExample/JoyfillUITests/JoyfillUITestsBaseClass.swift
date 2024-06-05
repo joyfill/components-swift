@@ -38,6 +38,10 @@ extension JoyfillUITestsBaseClass {
     }
 
     func onChangeResult() -> Change {
+        return onChangeOptionalResult()!
+    }
+    
+    func onChangeOptionalResult() -> Change? {
         let resultField = app.staticTexts["resultfield"]
         let jsonString = resultField.label
         print("resultField.label: \(resultField.label)")
@@ -49,12 +53,10 @@ extension JoyfillUITestsBaseClass {
                 }
             } catch {
                 print("Failed to decode JSON string to model: \(error)")
-                fatalError()
             }
         } else {
             print("Failed to convert string to data")
-            fatalError()
         }
-        fatalError()
+        return nil
     }
 }
