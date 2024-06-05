@@ -509,6 +509,7 @@ struct PageDuplicateListView: View {
                 }, label: {
                     Text("Close")
                 })
+                .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
             HStack {
                 Button(action: {
@@ -554,6 +555,7 @@ struct PageDuplicateListView: View {
                                     .darkLightThemeColor()
                             }
                         })
+                        .accessibilityIdentifier("PageSelectionIdentifier")
                         Divider()
                     }
                     .padding(.horizontal, 16)
