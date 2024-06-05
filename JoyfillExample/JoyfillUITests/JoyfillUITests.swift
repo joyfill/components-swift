@@ -73,12 +73,5 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         }
         XCTAssertEqual("6628f2e16bf0362dd5498eb4", onChangeResultValue().multiSelector?.first!)
     }
-    
-    func testSignatureField() throws {
-        app.swipeUp()
-        app.swipeUp()
-        app.buttons["SignatureIdentifier"].tap()
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-    }
 }
 

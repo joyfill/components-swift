@@ -85,7 +85,7 @@ struct SignatureView: View {
             }
         }
     }
-
+    
     func loadImageFromURL() {
         APIService.loadImage(from: signatureURL ?? "") { imageData in
             if let imageData = imageData, let image = UIImage(data: imageData) {
@@ -128,6 +128,7 @@ struct CanvasView: View {
                     context.stroke(path, with: .color(line.color),style:StrokeStyle(lineWidth: line.lineWidth, lineCap: .round, lineJoin: .round))
                 }
             }
+            .accessibilityIdentifier("CanvasIdentifier")
             .gesture(DragGesture(minimumDistance: 0,coordinateSpace: .local)
                 .onChanged({value in
                     let newPoint = value.location
@@ -161,7 +162,7 @@ struct CanvasSignatureView: View {
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
@@ -189,7 +190,8 @@ struct CanvasSignatureView: View {
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                 })
-
+                .accessibilityIdentifier("ClearSignatureIdentifier")
+                
                 Button(action: {
                     guard !lines.isEmpty else {
                         savedLines = []
@@ -207,6 +209,7 @@ struct CanvasSignatureView: View {
                         .frame(minWidth: 100, maxWidth: .infinity)
                 })
                 .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("SaveSignatureIdentifier")
                 Spacer()
             }
             .padding(.top, 10)
