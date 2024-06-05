@@ -303,7 +303,7 @@ extension JoyDoc {
     }
     
     func assertPageField() {
-//        XCTAssertEqual(files[0].pages?.count, 2)
+        XCTAssertEqual(files[0].pages?.count, 2)
         XCTAssertEqual(files[0].pages?[0].name, "Page 1")
         XCTAssertEqual(files[0].pages?[0].hidden, false)
         XCTAssertEqual(files[0].pages?[0].width, 816)
