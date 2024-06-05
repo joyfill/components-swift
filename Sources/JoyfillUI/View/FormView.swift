@@ -26,6 +26,8 @@ public struct Form: View {
     /// You can use this property to navigate to a specific page in the form.
     @Binding public var currentPageID: String
     
+    private var showPageNavigationView: Bool
+
     ///  Used to listen to form events.
     public var events: FormChangeEvent?
 
@@ -36,11 +38,12 @@ public struct Form: View {
     ///   - mode: The mode of the form. The default is `fill`.
     ///   - events: The events delegate for the form.
     ///   - pageID: The ID of the page to display in the form.
-    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil, showPageNavigationView: Bool = true) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
+        self.showPageNavigationView = showPageNavigationView
     }
     
     /**
@@ -58,7 +61,7 @@ public struct Form: View {
      - Returns: A SwiftUI view representing the form view.
      */
     public var body: some View {
-        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID)
+        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
     }
 }
 
@@ -166,12 +169,14 @@ struct FilesView: View {
     
     /// The ID of the current page being displayed in the form.
     @Binding var currentPageID: String
-    
+
+    var showPageNavigationView: Bool
+
     /// The body of the `FilesView`. This is a SwiftUI view that represents a collection of files.
     ///
     /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
-        FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events, currentPageID: $currentPageID)
+        FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
     }
 }
 
@@ -184,18 +189,19 @@ struct FileView: View {
     let mode: Mode
     let events: FormChangeEventInternal?
     @Binding var currentPageID: String
-    
+    var showPageNavigationView: Bool
+
     /// The body of the `FileView`. This is a SwiftUI view that represents a single file.
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
         if let views = file?.views, !views.isEmpty, let view = views.first {
             if let pages = view.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self)
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView)
             }
         } else {
             if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages,pageOrder: file?.pageOrder, mode: mode, events: self)
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView)
             }
         }
     }
@@ -242,32 +248,34 @@ struct PagesView: View {
     let mode: Mode
     let events: FormChangeEventInternal?
     @State private var isSheetPresented = false
-    
+    var showPageNavigationView: Bool
+
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
         VStack(alignment: .leading) {
-            Button(action: {
-                isSheetPresented = true
-            }, label: {
-                HStack {
-                    Image(systemName: "chevron.down")
-                    Text(page(currentPageID:currentPageID)?.name ?? "")
-                }
-            })
-            .accessibilityIdentifier("PageNavigationIdentifier")
-            .buttonStyle(.bordered)
-            .padding(.leading, 16)
-            .sheet(isPresented: $isSheetPresented) {
-                if #available(iOS 16, *) {
-                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
-                        .presentationDetents([.medium])
-                } else {
-                    PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+            if showPageNavigationView {
+                Button(action: {
+                    isSheetPresented = true
+                }, label: {
+                    HStack {
+                        Image(systemName: "chevron.down")
+                        Text(page(currentPageID:currentPageID)?.name ?? "")
+                    }
+                })
+                .accessibilityIdentifier("PageNavigationIdentifier")
+                .buttonStyle(.bordered)
+                .padding(.leading, 16)
+                .sheet(isPresented: $isSheetPresented) {
+                    if #available(iOS 16, *) {
+                        PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                            .presentationDetents([.medium])
+                    } else {
+                        PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                    }
                 }
             }
-            
             PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
         }
     }
