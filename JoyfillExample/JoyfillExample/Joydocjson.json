@@ -284,9 +284,9 @@
       "description": "",
       "value": "Hello sir",
       "required": false,
-      "tipTitle": "",
-      "tipDescription": "",
-      "tipVisible": false,
+      "tipTitle": "ToolTip Title",
+      "tipDescription": "ToolTip Description",
+      "tipVisible": true,
       "metadata": {},
       "file": "6629fab3c0ba3fb775b4a55c"
     },
