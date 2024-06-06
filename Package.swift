@@ -14,7 +14,7 @@ let package = Package(
             targets: ["Joyfill"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/joyfill/JoyfillModel", exact: "1.0.2"),
+        .package(url: "https://github.com/joyfill/JoyfillModel", exact: "1.0.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
