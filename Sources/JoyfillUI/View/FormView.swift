@@ -197,11 +197,11 @@ struct FileView: View {
     var body: some View {
         if let views = file?.views, !views.isEmpty, let view = views.first {
             if let pages = view.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView)
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
             }
         } else {
             if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView)
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
             }
         }
     }
