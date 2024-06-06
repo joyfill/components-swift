@@ -28,24 +28,28 @@ struct FieldHeaderView: View {
                 }
                 
                 Spacer()
-                if fieldDependency.fieldData?.tipDescription != "" || fieldDependency.fieldData?.tipTitle != "" {
-                    Button(action: {
-                        if let tipTitle = fieldDependency.fieldData?.tipTitle,
-                           let tipDescription = fieldDependency.fieldData?.tipDescription {
-                            alertMessage = tipTitle
-                            alertDescription = tipDescription
-                            showAlert = true
+                let tipDescription = fieldDependency.fieldData?.tipDescription ?? ""
+                let tipTitle = fieldDependency.fieldData?.tipTitle ?? ""
+                if let tipVisible = fieldDependency.fieldData?.tipVisible {
+                    if tipVisible == true && !(tipDescription.isEmpty && tipTitle.isEmpty) {
+                        Button(action: {
+                            if let tipTitle = fieldDependency.fieldData?.tipTitle,
+                               let tipDescription = fieldDependency.fieldData?.tipDescription {
+                                alertMessage = tipTitle
+                                alertDescription = tipDescription
+                                showAlert = true
+                            }
+                        }, label: {
+                            Image(systemName: "i.circle")
+                        })
+                        .accessibilityIdentifier("ToolTipIdentifier")
+                        .alert(isPresented: $showAlert) {
+                            Alert(
+                                title: Text(alertMessage ?? ""),
+                                message: Text(alertDescription ?? ""),
+                                dismissButton: .default(Text("Dismiss"))
+                            )
                         }
-                    }, label: {
-                        Image(systemName: "i.circle")
-                    })
-                    .accessibilityIdentifier("ToolTipIdentifier")
-                    .alert(isPresented: $showAlert) {
-                        Alert(
-                            title: Text(alertMessage ?? ""),
-                            message: Text(alertDescription ?? ""),
-                            dismissButton: .default(Text("Dismiss"))
-                        )
                     }
                 }
             }
