@@ -9,6 +9,7 @@ public struct Form: View {
     ///  Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
     ///  This will ensure your changes are properly detected and reflected in the SDK.
     @Binding public var document: JoyDoc
+    let documentEngine = DocumentEngine()
     
     /// Enables and disables certain JoyDoc functionality and features.
     ///
@@ -44,6 +45,7 @@ public struct Form: View {
         _document = document
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
         self.navigation = navigation
+        documentEngine.conditionalLogic(document: document)
     }
     
     /**
@@ -61,7 +63,7 @@ public struct Form: View {
      - Returns: A SwiftUI view representing the form view.
      */
     public var body: some View {
-        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
+        FilesView(fieldsData: $document.fields, document: $document, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
     }
 }
 
@@ -157,6 +159,7 @@ extension Form: FormChangeEventInternal {
 struct FilesView: View {
     /// The `JoyDocField` objects that represent the data for each field in the form.
     @Binding var fieldsData: [JoyDocField]
+    @Binding public var document: JoyDoc
     
     /// The `File` objects that represent the files to be displayed.
     var files: [File]
@@ -176,7 +179,7 @@ struct FilesView: View {
     ///
     /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
-        FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
+        FileView(fieldsData: $fieldsData, document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
     }
 }
 
@@ -185,6 +188,7 @@ struct FilesView: View {
 /// It uses a `JoyDocField` object, a `File` object, a `Mode`, a `FormChangeEventInternal`, and a `currentPageID` to manage and display the file.
 struct FileView: View {
     @Binding var fieldsData: [JoyDocField]
+    @Binding public var document: JoyDoc
     var file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -195,15 +199,21 @@ struct FileView: View {
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
-        if let views = file?.views, !views.isEmpty, let view = views.first {
-            if let pages = view.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
-            }
-        } else {
-            if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
+//        if let views = file?.views, !views.isEmpty, let view = views.first {
+//            if let pages = view.pages {
+//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
+//            }
+//        } else {
+//            if let pages = file?.pages {
+//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
+//            }
+//        }
+        if let file = file {
+            if let pages = document.pages{
+                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
             }
         }
+        
     }
 }
 
@@ -438,9 +448,19 @@ struct FormView: View {
 
     var body: some View {
         List(fieldPositions, id: \.field) { fieldPosition in
-            fieldView(fieldPosition: fieldPosition)
-                .listRowSeparator(.hidden)
-                .buttonStyle(.borderless)
+//            let fieldData = fieldsData.first(where: {
+//                $0.id == fieldPosition.field
+//            })
+//            if !(fieldData?.isHidden ?? false){
+//                fieldView(fieldPosition: fieldPosition)
+//                    .listRowSeparator(.hidden)
+//                    .buttonStyle(.borderless)
+//            }
+            if !(fieldPosition.isHidden ?? false) {
+                fieldView(fieldPosition: fieldPosition)
+                    .listRowSeparator(.hidden)
+                    .buttonStyle(.borderless)
+            }
         }
         .listStyle(PlainListStyle())
         .gesture(DragGesture().onChanged({ _ in
