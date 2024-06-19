@@ -6,91 +6,21 @@
 import Foundation
 import JoyfillModel
 import SwiftUI
-struct ConditionalLogicData: Codable {
-    let logic: Logic
-}
-
-struct Logic: Codable {
-    let action: String
-    let eval: String
-    let conditions: [Condition]
-}
-
-struct Condition: Codable {
-    let field: String
-    let value: String
-    let condition: String
-}
 
 class DocumentEngine {
-    var json = """
-                 {
-                 "logic": {
-                   "action": "hide",
-                   "eval": "and",
-                   "conditions": [
-                                    {
-                                        "field": "6669447405cd60da9dd34c5a",
-                                        "value": "show",
-                                        "condition": "="
-                                    },
-                                    {
-                                        "field": "66694489b664fbc6e038f3ed",
-                                        "value": "Hello",
-                                        "condition": "="
-                                    }
-                   ]
-                 }
-                 }
-                 """
     
     func conditionalLogic(document: Binding<JoyDoc>) {
-        guard let logicData = parseConditionalLogicJSON(json) else {
-            return
-        }
-        
-        let condition = evaluateConditions(document: document.wrappedValue, logic: logicData)
-        
-        for i in 0..<(document.wrappedValue.pages?[0].fieldPositions?.count ?? 0) {
-            if let logicField = logicData.logic.conditions.first(where: { $0.field == document.wrappedValue.pages?[0].fieldPositions?[i].field }) {
-                if condition {
-                    if logicData.logic.action == "show" {
-                        
-                        if document.wrappedValue.pages?[0].fieldPositions?[i].isHidden == nil,document.wrappedValue.pages?[0].fieldPositions?[i].isHidden == false {
-                            return
-                        }else {
-//                            document.wrappedValue.fields[i].isHidden = false
-                            document.wrappedValue.pages?[0].fieldPositions?[i].isHidden = false
-                        }
-                    } else if logicData.logic.action == "hide" {
-                        if document.wrappedValue.pages?[0].fieldPositions?[i].isHidden == nil,document.wrappedValue.pages?[0].fieldPositions?[i].isHidden == true {
-                            return
-                        }else {
-//                            document.wrappedValue.fields[i].isHidden = true
-                            document.wrappedValue.pages?[0].fieldPositions?[i].isHidden = true
-                        }
-                        print("heloooo\(document.wrappedValue.pages?[0].fieldPositions?[i].isHidden)")
-                        
-                    }
+        for i in 0..<document.wrappedValue.fields.count {
+            if let logic = document.wrappedValue.fields[i].logic {
+                let condition = evaluateConditions(fields: document.wrappedValue.fields, logic: logic)
+                if logic.action == "hide" {
+                    document.wrappedValue.fields[i].hidden = condition
+                } else if logic.action == "show" {
+                    document.wrappedValue.fields[i].hidden = !condition
                 }
             }
         }
     }
-    
-    func parseConditionalLogicJSON(_ jsonString: String) -> ConditionalLogicData? {
-        guard let data = jsonString.data(using: .utf8) else {
-            return nil
-        }
-        
-        do {
-            let logicData = try JSONDecoder().decode(ConditionalLogicData.self, from: data)
-            return logicData
-        } catch {
-            print("Failed to decode JSON: \(error)")
-            return nil
-        }
-    }
-    
     func evaluateCondition(fieldValue: String, condition: Condition) -> Bool {
         switch condition.condition {
         case "=":
@@ -98,16 +28,21 @@ class DocumentEngine {
         case "!=":
             return fieldValue != condition.value
         case "?=":
-            return fieldValue.contains(condition.value)
+            return fieldValue.contains(condition.value ?? "")
         default:
             return false
         }
     }
-
-    func evaluateConditions(document: JoyDoc, logic: ConditionalLogicData) -> Bool {
-        let conditionsResults = logic.logic.conditions.map { condition -> Bool in
-            guard let field = document.fields.first(where: { $0.id == condition.field }) else {
-                return false
+    func evaluateConditions(fields: [JoyDocField], logic: Logic) -> Bool {
+        guard let conditions = logic.conditions else {
+            return false
+        }
+        var conditionsResults: [Bool] = []
+        
+        for condition in conditions {
+            guard let field = fields.first(where: { $0.id == condition.field }) else {
+                conditionsResults.append(false)
+                continue
             }
             
             let fieldValue: String
@@ -130,12 +65,13 @@ class DocumentEngine {
                 fieldValue = ""
             }
             
-            return evaluateCondition(fieldValue: fieldValue, condition: condition)
+            let conditionMet = evaluateCondition(fieldValue: fieldValue, condition: condition)
+            conditionsResults.append(conditionMet)
         }
         
-        if logic.logic.eval == "and" {
+        if logic.eval == "and" {
             return conditionsResults.allSatisfy { $0 }
-        } else if logic.logic.eval == "or" {
+        } else if logic.eval == "or" {
             return conditionsResults.contains { $0 }
         } else {
             return false
