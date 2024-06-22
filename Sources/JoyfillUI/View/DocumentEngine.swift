@@ -31,14 +31,39 @@ class DocumentEngine {
             }
         }
     }
-    func compareValue(fieldValue: String, condition: Condition) -> Bool {
+    func compareValue(fieldValue: ValueUnion, condition: Condition) -> Bool {
         switch condition.condition {
         case "=":
             return fieldValue == condition.value
         case "!=":
             return fieldValue != condition.value
         case "?=":
-            return fieldValue.contains(condition.value ?? "")
+            if let fieldValueText = fieldValue.text, let conditionValueText = condition.value?.text {
+                return fieldValueText.contains(conditionValueText)
+            } else {
+                return false
+            }
+        case ">":
+            if let fieldValueNumber = fieldValue.number, let conditionValueNumber = condition.value?.number {
+                return fieldValueNumber > conditionValueNumber
+            } else {
+                return false
+            }
+        case "<":
+            if let fieldValueNumber = fieldValue.number, let conditionValueNumber = condition.value?.number {
+                return fieldValueNumber < conditionValueNumber
+            } else {
+                return false
+            }
+        case "null=":
+            if let fieldValueText = fieldValue.text {
+                return fieldValueText.isEmpty
+            } else if fieldValue.number == nil{
+                return true
+            } else {
+                return false
+            }
+            
         default:
             return false
         }
@@ -67,31 +92,11 @@ class DocumentEngine {
         }
     }
     
-    private func getFieldValue(fields: [JoyDocField], fieldID: String) -> String? {
+    private func getFieldValue(fields: [JoyDocField], fieldID: String) -> ValueUnion? {
         guard let field = fields.first(where: { $0.id == fieldID }) else {
             return nil
         }
-        
-        let fieldValue: String?
-        switch field.value {
-        case .string(let value):
-            fieldValue = value
-        case .none:
-            fieldValue = nil
-        case .double(let value):
-            fieldValue = nil
-        case .array(_):
-            fieldValue = nil
-        case .valueElementArray(_):
-            fieldValue = nil
-        case .dictionary(_):
-            fieldValue = nil
-        case .bool(let bool):
-            fieldValue = nil
-        case .null:
-            fieldValue = nil
-        }
-        return fieldValue
+        return field.value
     }
 }
 
