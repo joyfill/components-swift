@@ -448,19 +448,19 @@ struct FormView: View {
 
     var body: some View {
         List(fieldPositions, id: \.field) { fieldPosition in
-//            let fieldData = fieldsData.first(where: {
-//                $0.id == fieldPosition.field
-//            })
-//            if !(fieldData?.isHidden ?? false){
-//                fieldView(fieldPosition: fieldPosition)
-//                    .listRowSeparator(.hidden)
-//                    .buttonStyle(.borderless)
-//            }
-            if !(fieldPosition.isHidden ?? false) {
+            let fieldData = fieldsData.first(where: {
+                $0.id == fieldPosition.field
+            })
+            if !(fieldData?.hidden ?? false){
                 fieldView(fieldPosition: fieldPosition)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
             }
+//            if !(fieldPosition.isHidden ?? false) {
+//                fieldView(fieldPosition: fieldPosition)
+//                    .listRowSeparator(.hidden)
+//                    .buttonStyle(.borderless)
+//            }
         }
         .listStyle(PlainListStyle())
         .gesture(DragGesture().onChanged({ _ in
