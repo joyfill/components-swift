@@ -41,8 +41,12 @@ struct NumberView: View {
                         let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
-                        let convertStringToInt = Double(number)
-                        let newValue = ValueUnion.double(convertStringToInt ?? 0.0)
+                        let newValue: ValueUnion
+                        if !number.isEmpty, let doubleValue = Double(number) {
+                            newValue = ValueUnion.double(doubleValue)
+                        } else {
+                            newValue = ValueUnion.string("")
+                        }
                         guard fieldDependency.fieldData?.value != newValue else { return }
                         guard var fieldData = fieldDependency.fieldData else {
                             fatalError("FieldData should never be null")
