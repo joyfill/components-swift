@@ -257,6 +257,9 @@ extension JoyDoc {
         field.options?[0].id = "6628f2e1d0c98c6987cc6021"
         field.options?[1].id = "6628f2e19c3cba4fdf9e5f19"
         field.options?[2].id = "6628f2e1679bcf815adfa0f6"
+        field.options?[0].deleted = false
+        field.options?[1].deleted = false
+        field.options?[2].deleted = true
         var document = self
         document.fields.append(field)
         return document

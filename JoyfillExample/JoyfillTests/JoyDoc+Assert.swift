@@ -187,6 +187,9 @@ extension JoyDoc {
         XCTAssertEqual(fields[11].options?[0].id, "6628f2e1d0c98c6987cc6021")
         XCTAssertEqual(fields[11].options?[1].id, "6628f2e19c3cba4fdf9e5f19")
         XCTAssertEqual(fields[11].options?[2].id, "6628f2e1679bcf815adfa0f6")
+        XCTAssertEqual(fields[11].options?[0].deleted, false)
+        XCTAssertEqual(fields[11].options?[1].deleted, false)
+        XCTAssertEqual(fields[11].options?[2].deleted, true)
     }
     
     func assertSingleChoiceField() {
