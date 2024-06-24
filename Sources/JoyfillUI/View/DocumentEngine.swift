@@ -63,6 +63,14 @@ class DocumentEngine {
             } else {
                 return false
             }
+        case "*=":
+            if let fieldValueText = fieldValue.text {
+                return !fieldValueText.isEmpty
+            } else if fieldValue.number == nil{
+                return false
+            } else {
+                return true
+            }
             
         default:
             return false
