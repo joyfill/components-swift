@@ -28,7 +28,7 @@ struct MultiSelectionView: View {
         VStack(alignment: .leading) {
             FieldHeaderView(fieldDependency)
             VStack {
-                if let options = fieldDependency.fieldData?.options {
+                if let options = fieldDependency.fieldData?.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
                         let optionValue = options[index].value ?? ""
                         let isSelected = fieldDependency.fieldData?.value?.multiSelector?.first(where: {
