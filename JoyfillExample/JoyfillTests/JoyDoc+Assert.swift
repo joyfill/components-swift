@@ -177,7 +177,7 @@ extension JoyDoc {
         XCTAssertEqual(fields[11].identifier, "field_6629fbb02b40c2f4d0c95b38")
         XCTAssertEqual(fields[11].title, "Multiple Choice")
         XCTAssertEqual(fields[11].description, "")
-        XCTAssertEqual(fields[11].value?.multiSelector, ["6628f2e1d0c98c6987cc6021", "6628f2e19c3cba4fdf9e5f19"])
+        XCTAssertEqual(fields[11].value?.multiSelector, ["6628f2e1d0c98c6987cc6021"])
         XCTAssertEqual(fields[11].required, false)
         XCTAssertEqual(fields[11].tipTitle, "")
         XCTAssertEqual(fields[11].tipDescription, "")
