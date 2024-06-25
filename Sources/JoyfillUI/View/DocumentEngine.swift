@@ -15,11 +15,11 @@ class DocumentEngine {
                 let result = shoulTakeActionOnThisField(fields: document.wrappedValue.fields, logic: logic,currentField: document.wrappedValue.fields[i])
                 switch result {
                 case .hide:
-                    if !document.wrappedValue.fields[i].hidden {
+                    if !(document.wrappedValue.fields[i].hidden ?? false){
                         document.wrappedValue.fields[i].hidden = true
                     }
                 case .show:
-                    if document.wrappedValue.fields[i].hidden {
+                    if document.wrappedValue.fields[i].hidden ?? false {
                         document.wrappedValue.fields[i].hidden = false
                     }
                 case .ignore:
@@ -118,10 +118,14 @@ class DocumentEngine {
                 if logic.action == "hide" {
                     return .show
                 } else if logic.action == "show" {
-                    if currentField.hidden {
+                    guard let hidden = currentField.hidden else {
+                        return .show
+                    }
+                    
+                    if hidden {
                         return .ignore
                     } else {
-                        return .hide
+                        return .ignore
                     }
                 } else {
                     return .ignore
@@ -140,10 +144,14 @@ class DocumentEngine {
                 if logic.action == "hide" {
                     return .show
                 } else if logic.action == "show" {
-                    if currentField.hidden {
+                    guard let hidden = currentField.hidden else {
+                        return .show
+                    }
+                    
+                    if hidden {
                         return .ignore
-                    } else{
-                        return .hide
+                    } else {
+                        return .ignore
                     }
                 } else {
                     return .ignore
