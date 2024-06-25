@@ -456,11 +456,6 @@ struct FormView: View {
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
             }
-//            if !(fieldPosition.isHidden ?? false) {
-//                fieldView(fieldPosition: fieldPosition)
-//                    .listRowSeparator(.hidden)
-//                    .buttonStyle(.borderless)
-//            }
         }
         .listStyle(PlainListStyle())
         .gesture(DragGesture().onChanged({ _ in
