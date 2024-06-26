@@ -15,7 +15,7 @@ class DocumentEngine {
                 let result = shoulTakeActionOnThisField(fields: document.wrappedValue.fields, logic: logic,currentField: document.wrappedValue.fields[i])
                 switch result {
                 case .hide:
-                    if !(document.wrappedValue.fields[i].hidden ?? false){
+                    if !(document.wrappedValue.fields[i].hidden ?? false) {
                         document.wrappedValue.fields[i].hidden = true
                     }
                 case .show:
@@ -121,11 +121,10 @@ class DocumentEngine {
                     guard let hidden = currentField.hidden else {
                         return .show
                     }
-                    
                     if hidden {
                         return .ignore
                     } else {
-                        return .ignore
+                        return .hide
                     }
                 } else {
                     return .ignore
@@ -147,11 +146,10 @@ class DocumentEngine {
                     guard let hidden = currentField.hidden else {
                         return .show
                     }
-                    
                     if hidden {
                         return .ignore
                     } else {
-                        return .ignore
+                        return .hide
                     }
                 } else {
                     return .ignore
