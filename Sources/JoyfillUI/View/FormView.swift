@@ -43,7 +43,7 @@ public struct Form: View {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
-        _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
+        _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?.first(where: { $0.hidden == false })?.id ?? "")}, set: {_ in})
         self.navigation = navigation
         documentEngine.conditionalLogic(document: document)
     }
@@ -567,21 +567,23 @@ struct PageDuplicateListView: View {
             
             ScrollView {
                 ForEach(pageOrder ?? [], id: \.self) { id in
-                    VStack(alignment: .leading) {
-                        Button(action: {
-                            currentPageID = id ?? ""
-                            presentationMode.wrappedValue.dismiss()
-                        }, label: {
-                            HStack {
-                                Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
-                                Text(page(currentPageID: id)?.name ?? "")
-                                    .darkLightThemeColor()
-                            }
-                        })
-                        .accessibilityIdentifier("PageSelectionIdentifier")
-                        Divider()
+                    if let hidden = page(currentPageID: id)?.hidden, !hidden {
+                        VStack(alignment: .leading) {
+                            Button(action: {
+                                currentPageID = id ?? ""
+                                presentationMode.wrappedValue.dismiss()
+                            }, label: {
+                                HStack {
+                                    Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
+                                    Text(page(currentPageID: id)?.name ?? "")
+                                        .darkLightThemeColor()
+                                }
+                            })
+                            .accessibilityIdentifier("PageSelectionIdentifier")
+                            Divider()
+                        }
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.horizontal, 16)
                 }
             }
             .overlay(
