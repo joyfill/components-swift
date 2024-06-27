@@ -8,8 +8,9 @@ import JoyfillModel
 import SwiftUI
 
 class DocumentEngine {
-    
+
     func conditionalLogic(document: Binding<JoyDoc>) {
+        // Conditions on items associated with deleted or non-existent fields will should be ignored.
         for i in 0..<document.wrappedValue.fields.count {
             if let logic = document.wrappedValue.fields[i].logic {
                 let result = shoulTakeActionOnThisField(fields: document.wrappedValue.fields, logic: logic,currentField: document.wrappedValue.fields[i])
@@ -29,7 +30,6 @@ class DocumentEngine {
         }
     }
     func compareValue(fieldValue: ValueUnion?, condition: Condition) -> Bool {
-        
         switch condition.condition {
         case "=":
             return fieldValue == condition.value
@@ -78,80 +78,88 @@ class DocumentEngine {
             } else {
                 return true
             }
-            
+
         default:
             return false
         }
     }
-    
+
     enum ReusltType {
         case hide
         case show
         case ignore
     }
-    
-    func shoulTakeActionOnThisField(fields: [JoyDocField], logic: Logic,currentField: JoyDocField) -> ReusltType {
-        guard let conditions = logic.conditions else {
-            return .ignore
+
+    func shoulHideThisField(fields: [JoyDocField], logic: Logic, currentField: JoyDocField) -> Bool {
+        guard logic.action == "hide" else {
+            return false
         }
-        
-        if logic.action == "hide" {
-            if let hidden = currentField.hidden, hidden {
-                return .ignore
-            }
-        }
-        
-        if logic.action == "show" {
-            if let hidden = currentField.hidden, !hidden {
-                return .ignore
-            }
-        }
-        
         var conditionsResults: [Bool] = []
-        
-        for condition in conditions {
+        for condition in logic.conditions! {
             guard let fieldID = condition.field else { continue }
             let field = getField(fields: fields, fieldID: fieldID)
-            
+
             let isValueMatching = compareValue(fieldValue: field?.value, condition: condition)
             conditionsResults.append(isValueMatching)
         }
-        
-        if logic.eval == "and" {
-            if conditionsResults.allSatisfy { $0 } {
-                if logic.action == "hide" {
-                    return .hide
-                } else if logic.action == "show" {
-                    return .show
-                } else {
-                    return .ignore
-                }
-            } else {
-                if logic.action == "hide" {
-                    return .show
-                } else {
-                    return .hide
-                }
-            }
-        } else if logic.eval == "or" {
-            if conditionsResults.contains { $0 } {
-                if logic.action == "hide" {
-                    return .hide
-                } else if logic.action == "show" {
-                    return .show
-                } else {
-                    return .ignore
-                }
-            } else {
-                if logic.action == "hide" {
-                    return .show
-                } else {
-                    return .hide
-                }
-            }
-        } else {
+
+        if logic.isValid(conditionsResults: conditionsResults) {
+            return true
+        }
+        return false
+    }
+
+
+    func shoulShowThisField(fields: [JoyDocField], logic: Logic, currentField: JoyDocField) -> Bool {
+        guard logic.action == "show" else {
+            return false
+        }
+        var conditionsResults: [Bool] = []
+        for condition in logic.conditions! {
+            guard let fieldID = condition.field else { continue }
+            let field = getField(fields: fields, fieldID: fieldID)
+
+            let isValueMatching = compareValue(fieldValue: field?.value, condition: condition)
+            conditionsResults.append(isValueMatching)
+        }
+
+        if logic.isValid(conditionsResults: conditionsResults) {
+            return true
+        }
+        return false
+    }
+
+
+    func shoulTakeActionOnThisField(fields: [JoyDocField], logic: Logic, currentField: JoyDocField) -> ReusltType {
+        guard fields.count > 1 else {
             return .ignore
         }
+
+        guard let conditions = logic.conditions else {
+            return .ignore
+        }
+
+        // should hide
+        guard let hidden = currentField.hidden else {
+            if shoulShowThisField(fields: fields, logic: logic, currentField: currentField) {
+                return .show
+            }
+            if shoulHideThisField(fields: fields, logic: logic, currentField: currentField) {
+                return .hide
+            }
+            return .ignore
+        }
+
+        if hidden {
+            if shoulShowThisField(fields: fields, logic: logic, currentField: currentField) {
+                return .show
+            }
+        } else {
+            if shoulHideThisField(fields: fields, logic: logic, currentField: currentField) {
+                return .hide
+            }
+        }
+        return .ignore
     }
     
     private func getField(fields: [JoyDocField], fieldID: String) -> JoyDocField? {
@@ -161,4 +169,3 @@ class DocumentEngine {
         return field
     }
 }
-
