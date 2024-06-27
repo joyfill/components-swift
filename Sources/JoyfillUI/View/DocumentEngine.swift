@@ -141,9 +141,6 @@ class DocumentEngine {
 
         // should hide
         guard let hidden = currentField.hidden else {
-            if shoulShowThisField(fields: fields, logic: logic, currentField: currentField) {
-                return .show
-            }
             if shoulHideThisField(fields: fields, logic: logic, currentField: currentField) {
                 return .hide
             }
