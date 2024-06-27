@@ -95,6 +95,18 @@ class DocumentEngine {
             return .ignore
         }
         
+        if logic.action == "hide" {
+            if let hidden = currentField.hidden, hidden {
+                return .ignore
+            }
+        }
+        
+        if logic.action == "show" {
+            if let hidden = currentField.hidden, !hidden {
+                return .ignore
+            }
+        }
+        
         var conditionsResults: [Bool] = []
         
         for condition in conditions {
@@ -117,17 +129,8 @@ class DocumentEngine {
             } else {
                 if logic.action == "hide" {
                     return .show
-                } else if logic.action == "show" {
-                    guard let hidden = currentField.hidden else {
-                        return .show
-                    }
-                    if hidden {
-                        return .ignore
-                    } else {
-                        return .hide
-                    }
                 } else {
-                    return .ignore
+                    return .hide
                 }
             }
         } else if logic.eval == "or" {
@@ -142,17 +145,8 @@ class DocumentEngine {
             } else {
                 if logic.action == "hide" {
                     return .show
-                } else if logic.action == "show" {
-                    guard let hidden = currentField.hidden else {
-                        return .show
-                    }
-                    if hidden {
-                        return .ignore
-                    } else {
-                        return .hide
-                    }
                 } else {
-                    return .ignore
+                    return .hide
                 }
             }
         } else {
