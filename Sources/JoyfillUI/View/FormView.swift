@@ -46,6 +46,7 @@ public struct Form: View {
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?.first(where: { $0.hidden == false })?.id ?? "")}, set: {_ in})
         self.navigation = navigation
         documentEngine.conditionalLogic(document: document)
+//        documentEngine.conditionalPageLogic(document: document)
     }
     
     /**
@@ -209,9 +210,9 @@ struct FileView: View {
 //            }
 //        }
         if let file = file {
-            if let pages = document.pages{
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
-            }
+//            if let pages = document.pages {
+            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && document.pages.count > 1))
+//            }
         }
         
     }
@@ -253,7 +254,7 @@ extension FileView: FormChangeEventInternal {
 struct PagesView: View {
     @Binding var fieldsData: [JoyDocField]
     @Binding var currentPageID: String
-    @State var pages: [Page]
+    @Binding var pages: [Page]
     @State var pageOrder: [String]?
     let mode: Mode
     let events: FormChangeEventInternal?
