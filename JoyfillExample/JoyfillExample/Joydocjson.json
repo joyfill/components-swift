@@ -220,18 +220,6 @@
               "type": "block"
             },
             {
-              "field": "66600801e3b3be31a75d647c",
-              "displayType": "original",
-              "width": 12,
-              "height": 2,
-              "x": 0,
-              "y": 5,
-              "borderColor": "transparent",
-              "backgroundColor": "transparent",
-              "_id": "6629fb0b7b10702947a43488",
-              "type": "block"
-            },
-            {
               "field": "66600801a77afabc7d1bcb7f",
               "displayType": "original",
               "width": 12,
@@ -249,7 +237,7 @@
               "x": 0,
               "y": 15,
               "_id": "66600861cf26f70d0ccca312",
-              "type": "textarea"
+              "type": "number"
             }
           ],
           "metadata": {},
@@ -690,19 +678,35 @@
         "identifier": "field_6629fb20c9e72451c769df47",
         "title": "Text",
         "description": "",
-        "value": "Page 2",
+        "value": "",
         "required": false,
         "tipTitle": "ToolTip Title",
         "tipDescription": "ToolTip Description",
         "tipVisible": true,
         "metadata": {},
+        "hidden": true,
+        "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+                {
+                    "file": "6629fab3c0ba3fb775b4a55c",
+                    "page": "66600801dc1d8b4f72f54917",
+                    "field": "6660085cde390793cbb1e22f",
+                    "condition": "=",
+                    "value": 100,
+                    "_id": "667e3338d7fd4eea3b5b5ab9"
+                }
+            ],
+            "_id": "667e3338d7fd4eea3b5b5ab8"
+        },
         "file": "6629fab3c0ba3fb775b4a55c"
     },
     {
-        "type": "textarea",
+        "type": "number",
         "_id": "6660085cde390793cbb1e22f",
         "identifier": "field_66600861790fcd8de267ba40",
-        "title": "Multiline Text",
+        "title": "Number is 100",
         "description": "",
         "value": "Page 2 Multiline Text",
         "required": false,
