@@ -207,38 +207,56 @@
         {
           "name": "Page 2",
           "fieldPositions": [
-            {
-              "field": "6660080108a2f459410bc8ed",
-              "displayType": "original",
-              "width": 12,
-              "height": 5,
-              "x": 0,
-              "y": 0,
-              "fontSize": 28,
-              "fontWeight": "bold",
-              "_id": "6629fadcacdb1bb9b9bbfdce",
-              "type": "block"
-            },
-            {
-              "field": "66600801a77afabc7d1bcb7f",
-              "displayType": "original",
-              "width": 12,
-              "height": 8,
-              "x": 0,
-              "y": 7,
-              "_id": "6629fb203149d1c34cc6d6f8",
-              "type": "text"
-            },
-            {
-              "field": "6660085cde390793cbb1e22f",
-              "displayType": "original",
-              "width": 12,
-              "height": 23,
-              "x": 0,
-              "y": 15,
-              "_id": "66600861cf26f70d0ccca312",
-              "type": "number"
-            }
+              {
+                  "field": "667e93d2cb34236a6a568054",
+                  "displayType": "original",
+                  "width": 4,
+                  "height": 8,
+                  "x": 0,
+                  "y": 0,
+                  "_id": "667e93d7732c510a827830d2",
+                  "type": "text"
+              },
+              {
+                  "field": "667e93d7469a1cbcf712c1d4",
+                  "displayType": "original",
+                  "width": 4,
+                  "height": 8,
+                  "x": 0,
+                  "y": 8,
+                  "_id": "667e93d90ea9ed0b4987d735",
+                  "type": "text"
+              },
+              {
+                  "field": "667e93d9392105360c4a6767",
+                  "displayType": "original",
+                  "width": 4,
+                  "height": 8,
+                  "x": 0,
+                  "y": 16,
+                  "_id": "667e93db4a4b155519548960",
+                  "type": "text"
+              },
+              {
+                  "field": "667e93db3efd987e04e90ccb",
+                  "displayType": "original",
+                  "width": 4,
+                  "height": 8,
+                  "x": 0,
+                  "y": 24,
+                  "_id": "667e93ddd7221caa82291896",
+                  "type": "text"
+              },
+              {
+                  "field": "667e93dd4aa6e8b2dda0247d",
+                  "displayType": "original",
+                  "width": 4,
+                  "height": 8,
+                  "x": 0,
+                  "y": 32,
+                  "_id": "667e943142b2996605028d9f",
+                  "type": "text"
+              }
           ],
           "metadata": {},
           "hidden": false,
@@ -659,30 +677,72 @@
       "file": "6629fab3c0ba3fb775b4a55c"
     },
     {
-        "type": "block",
-        "_id": "6660080108a2f459410bc8ed",
-        "identifier": "field_6629fadcfc73f30cbb7b785a",
-        "title": "Heading Text",
+        "type": "text",
+        "_id": "667e93d2cb34236a6a568054",
+        "identifier": "field_667e93d798e670c8be4e9cbe",
+        "title": "Always Show",
         "description": "",
-        "value": "Page 2",
         "required": false,
         "tipTitle": "",
         "tipDescription": "",
         "tipVisible": false,
         "metadata": {},
+        "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+                {
+                    "file": "6629fab3c0ba3fb775b4a55c",
+                    "page": "66600801dc1d8b4f72f54917",
+                    "field": "667e93dd4aa6e8b2dda0247d",
+                    "condition": "=",
+                    "value": "Hello",
+                    "_id": "667e95c9d7fd4eea3b5c70a7"
+                }
+            ],
+            "_id": "667e95c9d7fd4eea3b5c70a6"
+        },
         "file": "6629fab3c0ba3fb775b4a55c"
     },
     {
         "type": "text",
-        "_id": "66600801a77afabc7d1bcb7f",
-        "identifier": "field_6629fb20c9e72451c769df47",
-        "title": "Text",
+        "_id": "667e93d7469a1cbcf712c1d4",
+        "identifier": "field_667e93d96711ee40104dd46f",
+        "title": "Always Hide",
         "description": "",
-        "value": "",
         "required": false,
-        "tipTitle": "ToolTip Title",
-        "tipDescription": "ToolTip Description",
-        "tipVisible": true,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "hidden": true,
+        "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+                {
+                    "file": "6629fab3c0ba3fb775b4a55c",
+                    "page": "66600801dc1d8b4f72f54917",
+                    "field": "667e93dd4aa6e8b2dda0247d",
+                    "condition": "=",
+                    "value": "Hello",
+                    "_id": "667e95c9d7fd4eea3b5c70aa"
+                }
+            ],
+            "_id": "667e95c9d7fd4eea3b5c70a9"
+        },
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "text",
+        "_id": "667e93d9392105360c4a6767",
+        "identifier": "field_667e93dbffa115ec2c3bda2d",
+        "title": "Show Field",
+        "description": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
         "metadata": {},
         "hidden": true,
         "logic": {
@@ -692,23 +752,51 @@
                 {
                     "file": "6629fab3c0ba3fb775b4a55c",
                     "page": "66600801dc1d8b4f72f54917",
-                    "field": "6660085cde390793cbb1e22f",
+                    "field": "667e93dd4aa6e8b2dda0247d",
                     "condition": "=",
-                    "value": 100,
-                    "_id": "667e3338d7fd4eea3b5b5ab9"
+                    "value": "Hello",
+                    "_id": "667e95c9d7fd4eea3b5c70ad"
                 }
             ],
-            "_id": "667e3338d7fd4eea3b5b5ab8"
+            "_id": "667e95c9d7fd4eea3b5c70ac"
         },
         "file": "6629fab3c0ba3fb775b4a55c"
     },
     {
-        "type": "number",
-        "_id": "6660085cde390793cbb1e22f",
-        "identifier": "field_66600861790fcd8de267ba40",
-        "title": "Number is 100",
+        "type": "text",
+        "_id": "667e93db3efd987e04e90ccb",
+        "identifier": "field_667e93dd3f101ec8a0841024",
+        "title": "Hide Field",
         "description": "",
-        "value": "Page 2 Multiline Text",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+                {
+                    "file": "6629fab3c0ba3fb775b4a55c",
+                    "page": "66600801dc1d8b4f72f54917",
+                    "field": "667e93dd4aa6e8b2dda0247d",
+                    "condition": "=",
+                    "value": "Hello",
+                    "_id": "667e95c9d7fd4eea3b5c70b0"
+                }
+            ],
+            "_id": "667e95c9d7fd4eea3b5c70af"
+        },
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "text",
+        "_id": "667e93dd4aa6e8b2dda0247d",
+        "identifier": "field_667e9431af923590f7f343e3",
+        "title": "Condition Equal",
+        "description": "",
+        "value": "",
         "required": false,
         "tipTitle": "",
         "tipDescription": "",
