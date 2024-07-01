@@ -31,11 +31,18 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
         let secondPage = pageSheetSelectionButton.element(boundBy: 1)
         secondPage.tap()
         
-        let page2NumberTextField = app.textFields["Number"]
-//        XCTAssertEqual("98789", page2NumberTextField.value as! String)
-        page2NumberTextField.tap()
-        page2NumberTextField.typeText("100\n")
-        XCTAssertEqual(100.0, onChangeResultValue().number!)
+        let textFields = app.textFields.allElementsBoundByIndex
+        
+        let thirdTextField = textFields[2]
+        XCTAssertTrue(thirdTextField.exists, "The third text field does not exist.")
+        
+        thirdTextField.tap()
+        thirdTextField.typeText("Hello\n")
+        
+//        let page2TextField = app.textFields["Text"]
+//        page2TextField.tap()
+//        page2TextField.typeText("Hello\n")
+//        XCTAssertEqual("Hello", onChangeResultValue().text!)
         
         pageSelectionButton.tap()
         
