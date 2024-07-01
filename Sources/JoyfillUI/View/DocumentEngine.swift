@@ -16,15 +16,21 @@ class DocumentEngine {
                 let result = shoulTakeActionOnThisField(fields: document.wrappedValue.fields, logic: logic,currentField: document.wrappedValue.fields[i])
                 switch result {
                 case .hide:
-                    if !(document.wrappedValue.fields[i].hidden ?? false) {
-                        document.wrappedValue.fields[i].logic?.hidden = false
-                        document.wrappedValue.fields[i].hidden = true
+                    var fields = document.wrappedValue.fields
+                    if let hidden = fields[i].hidden, hidden {
+                        return
                     }
+                    fields[i].hidden = true
+                    fields[i].isHidden = false
+                    document.wrappedValue.fields = fields
                 case .show:
-                    if document.wrappedValue.fields[i].hidden ?? false {
-                        document.wrappedValue.fields[i].logic?.hidden = true
-                        document.wrappedValue.fields[i].hidden = false
+                    var fields = document.wrappedValue.fields
+                    if let hidden = fields[i].hidden, !hidden {
+                        return
                     }
+                    fields[i].hidden = false
+                    fields[i].isHidden = true
+                    document.wrappedValue.fields = fields
                 case .ignore:
                     return
                 }
@@ -158,20 +164,18 @@ class DocumentEngine {
                 }
             } else {
                 if logic.action == "hide" {
-                    let hidden = logic.hidden
-//                    guard let hidden = logic.hidden else {
-//                        return .ignore
-//                    }
-                    if hidden {
-                        return .show
-                    } else {
+                    guard let hidden =  currentField?.isHidden else {
                         return .ignore
                     }
+                    if hidden {
+                        return .ignore
+                    } else {
+                        return .show
+                    }
                 } else if logic.action == "show" {
-//                    guard let hidden = logic.hidden else {
-//                        return .ignore
-//                    }
-                    let hidden = logic.hidden
+                    guard let hidden = currentField?.isHidden else {
+                        return .ignore
+                    }
 
                     if hidden {
                         return .hide
@@ -193,10 +197,9 @@ class DocumentEngine {
                 }
             } else {
                 if logic.action == "hide" {
-//                    guard let hidden = logic.hidden else {
-//                        return .ignore
-//                    }
-                    let hidden = logic.hidden
+                    guard let hidden =  currentField?.isHidden else {
+                        return .ignore
+                    }
 
                     if hidden {
                         return .show
@@ -204,10 +207,9 @@ class DocumentEngine {
                         return .ignore
                     }
                 } else if logic.action == "show" {
-//                    guard let hidden = logic.hidden else {
-//                        return .ignore
-//                    }
-                    let hidden = logic.hidden
+                    guard let hidden =  currentField?.isHidden else {
+                        return .ignore
+                    }
 
                     if hidden {
                         return .hide
