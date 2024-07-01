@@ -20,7 +20,7 @@ class DocumentEngine {
                     if let hidden = fields[i].hidden, hidden {
                         return
                     }
-                    fields[i].hidden = true
+                    fields[i].hidden = fields[i].isHidden
                     fields[i].isHidden = false
                     document.wrappedValue.fields = fields
                 case .show:
@@ -28,7 +28,7 @@ class DocumentEngine {
                     if let hidden = fields[i].hidden, !hidden {
                         return
                     }
-                    fields[i].hidden = false
+                    fields[i].hidden = fields[i].isHidden
                     fields[i].isHidden = true
                     document.wrappedValue.fields = fields
                 case .ignore:
