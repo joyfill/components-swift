@@ -20,16 +20,16 @@ class DocumentEngine {
                     if let hidden = fields[i].hidden, hidden {
                         return
                     }
-                    fields[i].hidden = fields[i].isHidden
-                    fields[i].isHidden = false
+                    fields[i].isHidden = fields[i].hidden
+                    fields[i].hidden = true
                     document.wrappedValue.fields = fields
                 case .show:
                     var fields = document.wrappedValue.fields
                     if let hidden = fields[i].hidden, !hidden {
                         return
                     }
-                    fields[i].hidden = fields[i].isHidden
-                    fields[i].isHidden = true
+                    fields[i].isHidden = fields[i].hidden
+                    fields[i].hidden = false
                     document.wrappedValue.fields = fields
                 case .ignore:
                     return
