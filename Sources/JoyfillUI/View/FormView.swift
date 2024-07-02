@@ -45,7 +45,7 @@ public struct Form: View {
         _document = document
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?.first(where: { $0.hidden == false })?.id ?? "")}, set: {_ in})
         self.navigation = navigation
-        documentEngine.conditionalLogic(document: document)
+//        documentEngine.conditionalLogic(document: document)
 //        documentEngine.conditionalPageLogic(document: document)
     }
     
@@ -211,7 +211,7 @@ struct FileView: View {
 //        }
         if let file = file {
 //            if let pages = document.pages {
-            PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && document.pages.count > 1))
+            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && document.pages.count > 1))
 //            }
         }
         
@@ -252,6 +252,7 @@ extension FileView: FormChangeEventInternal {
 
 /// A view that represents a collection of pages.
 struct PagesView: View {
+    @Binding public var document: JoyDoc
     @Binding var fieldsData: [JoyDocField]
     @Binding var currentPageID: String
     @Binding var pages: [Page]
@@ -287,7 +288,7 @@ struct PagesView: View {
                     }
                 }
             }
-            PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
+            PageView(document: $document, fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
         }
     }
     
@@ -302,6 +303,7 @@ struct PagesView: View {
 
 /// A `View` that represents a page in a form.
 struct PageView: View {
+    @Binding public var document: JoyDoc
     @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
@@ -318,7 +320,7 @@ struct PageView: View {
             } set: { _ in
                 
             }
-            FormView(fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+            FormView(document: $document, fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self)
         }
     }
     
@@ -396,6 +398,7 @@ struct FieldDependency {
 }
 
 struct FormView: View {
+    @Binding public var document: JoyDoc
     @Binding var fieldPositions: [FieldPosition]
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
@@ -452,10 +455,71 @@ struct FormView: View {
             let fieldData = fieldsData.first(where: {
                 $0.id == fieldPosition.field
             })
-            if !(fieldData?.hidden ?? false){
-                fieldView(fieldPosition: fieldPosition)
-                    .listRowSeparator(.hidden)
-                    .buttonStyle(.borderless)
+
+            if var logic = fieldData?.logic {
+                if let hidden = fieldData?.hidden {
+                    if hidden {
+                        if logic.action == "show" {
+                            //Apply condition
+                            var isConditonTrue = DocumentEngine().shoulTakeActionOnThisField(fields: document.fields, logic: logic, currentField: fieldData)
+                            
+                            if isConditonTrue {
+                                fieldView(fieldPosition: fieldPosition)
+                                    .listRowSeparator(.hidden)
+                                    .buttonStyle(.borderless)
+                            } else {
+                                
+                            }
+                        } else {
+                            //Don't apply condtion always hide
+                        }
+                    } else {
+                        if logic.action == "show" {
+                            //Don't apply condition always show
+                            fieldView(fieldPosition: fieldPosition)
+                                .listRowSeparator(.hidden)
+                                .buttonStyle(.borderless)
+                        } else {
+                            //Apply condition
+                            var isConditonTrue = DocumentEngine().shoulTakeActionOnThisField(fields: document.fields, logic: logic, currentField: fieldData)
+                            
+                            if isConditonTrue {
+                                
+                            } else {
+                                fieldView(fieldPosition: fieldPosition)
+                                    .listRowSeparator(.hidden)
+                                    .buttonStyle(.borderless)
+                            }
+                        }
+                    }
+                } else {
+                    // if hidden is nil means show the field based on condition
+                    // Apply condition
+                    if logic.action == "show" {
+                        //Dont check condition Always show
+                        fieldView(fieldPosition: fieldPosition)
+                            .listRowSeparator(.hidden)
+                            .buttonStyle(.borderless)
+                    } else {
+                        // hide based on condition
+                        var isConditonTrue = DocumentEngine().shoulTakeActionOnThisField(fields: document.fields, logic: logic, currentField: fieldData)
+                        
+                        if isConditonTrue {
+                            
+                        } else {
+                            fieldView(fieldPosition: fieldPosition)
+                                .listRowSeparator(.hidden)
+                                .buttonStyle(.borderless)
+                        }
+                    }
+                }
+                
+            } else {
+                if !(fieldData?.hidden ?? false){
+                    fieldView(fieldPosition: fieldPosition)
+                        .listRowSeparator(.hidden)
+                        .buttonStyle(.borderless)
+                }
             }
         }
         .listStyle(PlainListStyle())
