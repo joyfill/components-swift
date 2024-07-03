@@ -281,10 +281,10 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
                     }
                 }
             }
@@ -456,70 +456,10 @@ struct FormView: View {
                 $0.id == fieldPosition.field
             })
 
-            if var logic = fieldData?.logic {
-                if let hidden = fieldData?.hidden {
-                    if hidden {
-                        if logic.action == "show" {
-                            //Apply condition
-                            var isConditonTrue = DocumentEngine().shoulTakeActionOnThisField(fields: document.fields, logic: logic, currentField: fieldData)
-                            
-                            if isConditonTrue {
-                                fieldView(fieldPosition: fieldPosition)
-                                    .listRowSeparator(.hidden)
-                                    .buttonStyle(.borderless)
-                            } else {
-                                
-                            }
-                        } else {
-                            //Don't apply condtion always hide
-                        }
-                    } else {
-                        if logic.action == "show" {
-                            //Don't apply condition always show
-                            fieldView(fieldPosition: fieldPosition)
-                                .listRowSeparator(.hidden)
-                                .buttonStyle(.borderless)
-                        } else {
-                            //Apply condition
-                            var isConditonTrue = DocumentEngine().shoulTakeActionOnThisField(fields: document.fields, logic: logic, currentField: fieldData)
-                            
-                            if isConditonTrue {
-                                
-                            } else {
-                                fieldView(fieldPosition: fieldPosition)
-                                    .listRowSeparator(.hidden)
-                                    .buttonStyle(.borderless)
-                            }
-                        }
-                    }
-                } else {
-                    // if hidden is nil means show the field based on condition
-                    // Apply condition
-                    if logic.action == "show" {
-                        //Dont check condition Always show
-                        fieldView(fieldPosition: fieldPosition)
-                            .listRowSeparator(.hidden)
-                            .buttonStyle(.borderless)
-                    } else {
-                        // hide based on condition
-                        var isConditonTrue = DocumentEngine().shoulTakeActionOnThisField(fields: document.fields, logic: logic, currentField: fieldData)
-                        
-                        if isConditonTrue {
-                            
-                        } else {
-                            fieldView(fieldPosition: fieldPosition)
-                                .listRowSeparator(.hidden)
-                                .buttonStyle(.borderless)
-                        }
-                    }
-                }
-                
-            } else {
-                if !(fieldData?.hidden ?? false){
-                    fieldView(fieldPosition: fieldPosition)
-                        .listRowSeparator(.hidden)
-                        .buttonStyle(.borderless)
-                }
+            if DocumentEngine().shouldShowField(fields: document.fields, logic: fieldData?.logic, currentField: fieldData) {
+                fieldView(fieldPosition: fieldPosition)
+                    .listRowSeparator(.hidden)
+                    .buttonStyle(.borderless)
             }
         }
         .listStyle(PlainListStyle())
@@ -580,6 +520,7 @@ extension FormView: FieldChangeEvents {
 }
 
 struct PageDuplicateListView: View {
+    @Binding public var document: JoyDoc
     @Binding var pages: [Page]
     @Binding var currentPageID: String
     @Binding var pageOrder: [String]?
@@ -632,7 +573,8 @@ struct PageDuplicateListView: View {
             
             ScrollView {
                 ForEach(pageOrder ?? [], id: \.self) { id in
-                    if let hidden = page(currentPageID: id)?.hidden, !hidden {
+                    if DocumentEngine().shouldShowPage(fields: document.fields, logic: page(currentPageID: id)?.logic, currentPage: page(currentPageID: id)) {
+                        
                         VStack(alignment: .leading) {
                             Button(action: {
                                 currentPageID = id ?? ""

@@ -9,34 +9,60 @@ import SwiftUI
 
 class DocumentEngine {
 
-//    func conditionalLogic(document: Binding<JoyDoc>) {
-//        // Conditions on items associated with deleted or non-existent fields will should be ignored.
-//        for i in 0..<document.wrappedValue.fields.count {
-//            if var logic = document.wrappedValue.fields[i].logic {
-//                let result = shoulTakeActionOnThisField(fields: document.wrappedValue.fields, logic: logic,currentField: document.wrappedValue.fields[i])
-//                switch result {
-//                case .hide:
-//                    var fields = document.wrappedValue.fields
-//                    if let hidden = fields[i].hidden, hidden {
-//                        return
-//                    }
-//                    fields[i].isHidden = fields[i].hidden
-//                    fields[i].hidden = true
-//                    document.wrappedValue.fields = fields
-//                case .show:
-//                    var fields = document.wrappedValue.fields
-//                    if let hidden = fields[i].hidden, !hidden {
-//                        return
-//                    }
-//                    fields[i].isHidden = fields[i].hidden
-//                    fields[i].hidden = false
-//                    document.wrappedValue.fields = fields
-//                case .ignore:
-//                    return
-//                }
-//            }
-//        }
-//    }
+    func shouldShowField(fields: [JoyDocField], logic: Logic?, currentField: JoyDocField?) -> Bool {
+        guard let logic = logic else { return !(currentField?.hidden ?? false) }
+        
+        if let hidden = currentField?.hidden {
+            //Hidden is not nil
+            if hidden && logic.action == "show" {
+                //Hidden is true and action is show
+                return self.shoulTakeActionOnThisField(fields: fields, logic: logic)
+            } else if !hidden && logic.action == "show" {
+                //Hidden is false and action is show
+                return true
+            } else if hidden && logic.action != "show" {
+                //Hidden is true and action is hide
+                return false
+            } else {
+                return !self.shoulTakeActionOnThisField(fields: fields, logic: logic)
+            }
+        } else {
+            //Hidden is nil
+            if logic.action == "show" {
+                return true
+            } else {
+                return !self.shoulTakeActionOnThisField(fields: fields, logic: logic)
+            }
+        }
+    }
+    
+    func shouldShowPage(fields: [JoyDocField], logic: Logic?, currentPage: Page?) -> Bool {
+        guard let logic = logic else { return !(currentPage?.hidden ?? false) }
+        
+        if let hidden = currentPage?.hidden {
+            //Hidden is not nil
+            if hidden && logic.action == "show" {
+                //Hidden is true and action is show
+                return self.shoulTakeActionOnThisField(fields: fields, logic: logic)
+            } else if !hidden && logic.action == "show" {
+                //Hidden is false and action is show
+                return true
+            } else if hidden && logic.action != "show" {
+                //Hidden is true and action is hide
+                return false
+            } else {
+                return !self.shoulTakeActionOnThisField(fields: fields, logic: logic)
+            }
+        } else {
+            //Hidden is nil
+            if logic.action == "show" {
+                return true
+            } else {
+                return !self.shoulTakeActionOnThisField(fields: fields, logic: logic)
+            }
+        }
+    }
+        
     func compareValue(fieldValue: ValueUnion?, condition: Condition) -> Bool {
         switch condition.condition {
         case "=":
@@ -99,7 +125,7 @@ class DocumentEngine {
     }
     
     
-    func shoulTakeActionOnThisField(fields: [JoyDocField], logic: Logic,currentField: JoyDocField?) -> Bool {
+    func shoulTakeActionOnThisField(fields: [JoyDocField], logic: Logic) -> Bool {
         guard let conditions = logic.conditions else {
             return false
         }
@@ -120,76 +146,6 @@ class DocumentEngine {
             return conditionsResults.contains { $0 }
         }
         
-//        if logic.eval == "and" {
-//            if conditionsResults.allSatisfy { $0 } {
-//                if logic.action == "hide" {
-//                    return .hide
-//                } else if logic.action == "show" {
-//                    return .show
-//                } else {
-//                    return .ignore
-//                }
-//            } else {
-//                if logic.action == "hide" {
-//                    guard let hidden =  currentField?.isHidden else {
-//                        return .ignore
-//                    }
-//                    if hidden {
-//                        return .ignore
-//                    } else {
-//                        return .show
-//                    }
-//                } else if logic.action == "show" {
-//                    guard let hidden = currentField?.isHidden else {
-//                        return .ignore
-//                    }
-//
-//                    if hidden {
-//                        return .hide
-//                    } else {
-//                        return .ignore
-//                    }
-//                } else {
-//                    return .ignore
-//                }
-//            }
-//        } else if logic.eval == "or" {
-//            if conditionsResults.contains { $0 } {
-//                if logic.action == "hide" {
-//                    return .hide
-//                } else if logic.action == "show" {
-//                    return .show
-//                } else {
-//                    return .ignore
-//                }
-//            } else {
-//                if logic.action == "hide" {
-//                    guard let hidden =  currentField?.isHidden else {
-//                        return .ignore
-//                    }
-//
-//                    if hidden {
-//                        return .show
-//                    } else {
-//                        return .ignore
-//                    }
-//                } else if logic.action == "show" {
-//                    guard let hidden =  currentField?.isHidden else {
-//                        return .ignore
-//                    }
-//
-//                    if hidden {
-//                        return .hide
-//                    } else {
-//                        return .ignore
-//                    }
-//                } else {
-//                    return .ignore
-//                }
-//            }
-//        } else {
-//            return .ignore
-//        }
     }
     
     private func getField(fields: [JoyDocField], fieldID: String) -> JoyDocField? {
