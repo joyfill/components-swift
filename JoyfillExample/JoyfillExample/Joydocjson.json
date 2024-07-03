@@ -191,6 +191,21 @@
             }
           ],
           "metadata": {},
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66852e1f3bde6be7d0e3966c",
+                "field": "66852e1fbdc1ad24d412408e",
+                "condition": "=",
+                "value": "Hello",
+                "_id": "66852fc4ee6869d6cc688b50"
+              }
+            ],
+            "_id": "66852fc4ee6869d6cc688b4f"
+          },
           "hidden": false,
           "width": 816,
           "height": 1056,
@@ -259,6 +274,21 @@
               }
           ],
           "metadata": {},
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66852e1f3bde6be7d0e3966c",
+                "field": "66852e1fbdc1ad24d412408e",
+                "condition": "=",
+                "value": "Hello",
+                "_id": "66852fc4ee6869d6cc688b55"
+              }
+            ],
+            "_id": "66852fc4ee6869d6cc688b54"
+          },
           "hidden": false,
           "width": 816,
           "height": 1056,
@@ -270,11 +300,145 @@
           "padding": 0,
           "borderWidth": 0,
           "_id": "66600801dc1d8b4f72f54917"
+        },
+        {
+            "name": "Page 3",
+            "fieldPositions": [
+                {
+                    "field": "66852e19935e841fe399af54",
+                    "displayType": "original",
+                    "width": 4,
+                    "height": 8,
+                    "x": 0,
+                    "y": 0,
+                    "_id": "66852dcdc88bb2d8c30d8bf0",
+                    "type": "text"
+                },
+                {
+                    "field": "66852e19e5f6c04b03f9c431",
+                    "displayType": "original",
+                    "width": 4,
+                    "height": 8,
+                    "x": 0,
+                    "y": 8,
+                    "_id": "66852dd25621357369f968ec",
+                    "type": "number"
+                }
+            ],
+            "metadata": {},
+            "logic": {
+                "action": "hide",
+                "eval": "and",
+                "conditions": [
+                    {
+                        "file": "6629fab3c0ba3fb775b4a55c",
+                        "page": "66852e1f3bde6be7d0e3966c",
+                        "field": "66852e1fbdc1ad24d412408e",
+                        "condition": "=",
+                        "value": "Hello",
+                        "_id": "66852fc4ee6869d6cc688b5a"
+                    }
+                ],
+                "_id": "66852fc4ee6869d6cc688b59"
+            },
+            "hidden": true,
+            "width": 816,
+            "height": 1056,
+            "cols": 8,
+            "rowHeight": 8,
+            "layout": "grid",
+            "presentation": "normal",
+            "margin": 0,
+            "padding": 24,
+            "borderWidth": 0,
+            "_id": "66852e19e780e2aef89ab2c4"
+        },
+        {
+            "name": "Page 4",
+            "fieldPositions": [
+                {
+                    "field": "66852e1b782d98ef20e0453f",
+                    "displayType": "original",
+                    "width": 4,
+                    "height": 8,
+                    "x": 0,
+                    "y": 0,
+                    "_id": "66852dcdc88bb2d8c30d8bf0",
+                    "type": "text"
+                },
+                {
+                    "field": "66852e1b8b60c5dfd5584894",
+                    "displayType": "original",
+                    "width": 4,
+                    "height": 8,
+                    "x": 0,
+                    "y": 8,
+                    "_id": "66852dd25621357369f968ec",
+                    "type": "number"
+                }
+            ],
+            "metadata": {},
+            "logic": {
+                "action": "show",
+                "eval": "and",
+                "conditions": [
+                    {
+                        "file": "6629fab3c0ba3fb775b4a55c",
+                        "page": "66852e1f3bde6be7d0e3966c",
+                        "field": "66852e1fbdc1ad24d412408e",
+                        "condition": "=",
+                        "value": "Hello",
+                        "_id": "66852fc4ee6869d6cc688b5f"
+                    }
+                ],
+                "_id": "66852fc4ee6869d6cc688b5e"
+            },
+            "hidden": true,
+            "width": 816,
+            "height": 1056,
+            "cols": 8,
+            "rowHeight": 8,
+            "layout": "grid",
+            "presentation": "normal",
+            "margin": 0,
+            "padding": 24,
+            "borderWidth": 0,
+            "_id": "66852e1b8d389f71128a2b86"
+        },
+        {
+            "name": "Page 5",
+            "fieldPositions": [
+                {
+                    "field": "66852e1fbdc1ad24d412408e",
+                    "displayType": "original",
+                    "width": 4,
+                    "height": 8,
+                    "x": 0,
+                    "y": 0,
+                    "_id": "66852dcdc88bb2d8c30d8bf0",
+                    "type": "text"
+                }
+            ],
+            "metadata": {},
+            "hidden": false,
+            "width": 816,
+            "height": 1056,
+            "cols": 8,
+            "rowHeight": 8,
+            "layout": "grid",
+            "presentation": "normal",
+            "margin": 0,
+            "padding": 24,
+            "borderWidth": 0,
+            "_id": "66852e1f3bde6be7d0e3966c"
         }
       ],
       "pageOrder": [
         "6629fab320fca7c8107a6cf6",
-        "66600801dc1d8b4f72f54917"
+        "66600801dc1d8b4f72f54917",
+        "66852e19e780e2aef89ab2c4",
+        "66852e1b8d389f71128a2b86",
+        "66852e1f3bde6be7d0e3966c"
       ],
       "views": []
     }
@@ -680,7 +844,7 @@
         "type": "text",
         "_id": "667e93d2cb34236a6a568054",
         "identifier": "field_667e93d798e670c8be4e9cbe",
-        "title": "Always Show Field",
+        "title": "Always Show Field - Page Logic - Hide when condition is true",
         "description": "",
         "required": false,
         "tipTitle": "",
@@ -797,6 +961,71 @@
         "title": "Type Hello",
         "description": "",
         "value": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "text",
+        "_id": "66852e19935e841fe399af54",
+        "identifier": "field_66852dcdacc70082d0fbccec",
+        "title": "Page 3 Text Field - Always Hide",
+        "description": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "number",
+        "_id": "66852e19e5f6c04b03f9c431",
+        "identifier": "field_66852dd26a7cc49e09a353ca",
+        "title": "Number",
+        "description": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "text",
+        "_id": "66852e1b782d98ef20e0453f",
+        "identifier": "field_66852dcdacc70082d0fbccec",
+        "title": "Page 4 Text Field - Show when condition is true",
+        "description": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "number",
+        "_id": "66852e1b8b60c5dfd5584894",
+        "identifier": "field_66852dd26a7cc49e09a353ca",
+        "title": "Number",
+        "description": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "text",
+        "_id": "66852e1fbdc1ad24d412408e",
+        "identifier": "field_66852dcdacc70082d0fbccec",
+        "title": "Page 5 Text Field - Type Hello",
+        "description": "",
         "required": false,
         "tipTitle": "",
         "tipDescription": "",
