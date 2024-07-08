@@ -9,7 +9,6 @@ public struct Form: View {
     ///  Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
     ///  This will ensure your changes are properly detected and reflected in the SDK.
     @Binding public var document: JoyDoc
-    let documentEngine = DocumentEngine()
     
     /// Enables and disables certain JoyDoc functionality and features.
     ///
@@ -45,8 +44,6 @@ public struct Form: View {
         _document = document
         _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?.first(where: { $0.hidden == false })?.id ?? "")}, set: {_ in})
         self.navigation = navigation
-//        documentEngine.conditionalLogic(document: document)
-//        documentEngine.conditionalPageLogic(document: document)
     }
     
     /**
@@ -200,21 +197,9 @@ struct FileView: View {
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
-//        if let views = file?.views, !views.isEmpty, let view = views.first {
-//            if let pages = view.pages {
-//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
-//            }
-//        } else {
-//            if let pages = file?.pages {
-//                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
-//            }
-//        }
         if let file = file {
-//            if let pages = document.pages {
             PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && document.pages.count > 1))
-//            }
         }
-        
     }
 }
 
@@ -456,7 +441,7 @@ struct FormView: View {
                 $0.id == fieldPosition.field
             })
 
-            if DocumentEngine().shouldShowField(fields: document.fields, logic: fieldData?.logic, currentField: fieldData) {
+            if DocumentEngine().shouldShowItem(fields: document.fields, logic: fieldData?.logic,isItemHidden: fieldData?.hidden) {
                 fieldView(fieldPosition: fieldPosition)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
@@ -573,7 +558,7 @@ struct PageDuplicateListView: View {
             
             ScrollView {
                 ForEach(pageOrder ?? [], id: \.self) { id in
-                    if DocumentEngine().shouldShowPage(fields: document.fields, logic: page(currentPageID: id)?.logic, currentPage: page(currentPageID: id)) {
+                    if DocumentEngine().shouldShowItem(fields: document.fields, logic: page(currentPageID: id)?.logic, isItemHidden: page(currentPageID: id)?.hidden) {
                         
                         VStack(alignment: .leading) {
                             Button(action: {

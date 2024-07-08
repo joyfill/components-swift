@@ -9,10 +9,10 @@ import SwiftUI
 
 class DocumentEngine {
 
-    func shouldShowField(fields: [JoyDocField], logic: Logic?, currentField: JoyDocField?) -> Bool {
-        guard let logic = logic else { return !(currentField?.hidden ?? false) }
+    func shouldShowItem(fields: [JoyDocField], logic: Logic?, isItemHidden: Bool?) -> Bool {
+        guard let logic = logic else { return !(isItemHidden ?? false) }
         
-        if let hidden = currentField?.hidden {
+        if let hidden = isItemHidden {
             //Hidden is not nil
             if hidden && logic.action == "show" {
                 //Hidden is true and action is show
@@ -35,34 +35,7 @@ class DocumentEngine {
             }
         }
     }
-    
-    func shouldShowPage(fields: [JoyDocField], logic: Logic?, currentPage: Page?) -> Bool {
-        guard let logic = logic else { return !(currentPage?.hidden ?? false) }
-        
-        if let hidden = currentPage?.hidden {
-            //Hidden is not nil
-            if hidden && logic.action == "show" {
-                //Hidden is true and action is show
-                return self.shoulTakeActionOnThisField(fields: fields, logic: logic)
-            } else if !hidden && logic.action == "show" {
-                //Hidden is false and action is show
-                return true
-            } else if hidden && logic.action != "show" {
-                //Hidden is true and action is hide
-                return false
-            } else {
-                return !self.shoulTakeActionOnThisField(fields: fields, logic: logic)
-            }
-        } else {
-            //Hidden is nil
-            if logic.action == "show" {
-                return true
-            } else {
-                return !self.shoulTakeActionOnThisField(fields: fields, logic: logic)
-            }
-        }
-    }
-        
+            
     func compareValue(fieldValue: ValueUnion?, condition: Condition) -> Bool {
         switch condition.condition {
         case "=":
