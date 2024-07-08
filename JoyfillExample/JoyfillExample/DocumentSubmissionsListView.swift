@@ -49,7 +49,7 @@ struct DocumentSubmissionsListView: View {
     }
     
     private var pageID: String {
-        document!.files[0].pages?.first(where: { $0.hidden == false })?.id ?? ""
+//        document!.files[0].pages?.first(where: { $0.hidden == false })?.id ?? ""
         return ""
     }
     

@@ -42,7 +42,7 @@ public struct Form: View {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
-        _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?.first(where: { $0.hidden == false })?.id ?? "")}, set: {_ in})
+        _currentPageID = pageID ?? Binding(get: { document.wrappedValue.firstPageId ?? "" }, set: {_ in})
         self.navigation = navigation
     }
     
@@ -258,7 +258,7 @@ struct PagesView: View {
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
-                        Text(page(currentPageID:currentPageID)?.name ?? "")
+                        Text(document.firstPageFor(currentPageID: currentPageID)?.name ?? "")
                     }
                 })
                 .accessibilityIdentifier("PageNavigationIdentifier")
@@ -273,17 +273,10 @@ struct PagesView: View {
                     }
                 }
             }
-            PageView(document: $document, fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
+            PageView(document: $document, fieldsData: $fieldsData, page: document.firstPageFor(currentPageID: currentPageID)!, mode: mode, events: events)
         }
     }
-    
-    /// Returns the page with the given ID.
-    ///
-    /// - Parameter currentPageID: The ID of the page to return.
-    /// - Returns: The page with the given ID, or the first page if the page with the given ID is not found.
-    func page(currentPageID: String) -> Page? {
-        return pages.first { $0.id == currentPageID } ?? pages.first
-    }
+
 }
 
 /// A `View` that represents a page in a form.
