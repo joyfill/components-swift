@@ -25,7 +25,7 @@ public struct Form: View {
     /// If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
     /// You can use this property to navigate to a specific page in the form.
     @Binding public var currentPageID: String
-    
+
     private var navigation: Bool
 
     ///  Used to listen to form events.
@@ -38,11 +38,11 @@ public struct Form: View {
     ///   - mode: The mode of the form. The default is `fill`.
     ///   - events: The events delegate for the form.
     ///   - pageID: The ID of the page to display in the form.
-    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil, navigation: Bool = true) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>, navigation: Bool = true) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
-        _currentPageID = pageID ?? Binding(get: { document.wrappedValue.firstPageId ?? "" }, set: {_ in})
+        _currentPageID = pageID
         self.navigation = navigation
     }
     
@@ -258,7 +258,7 @@ struct PagesView: View {
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
-                        Text(document.firstPageFor(currentPageID: currentPageID)?.name ?? "")
+                        Text(document.firstValidPageFor(currentPageID: currentPageID)?.name ?? "")
                     }
                 })
                 .accessibilityIdentifier("PageNavigationIdentifier")
@@ -273,7 +273,7 @@ struct PagesView: View {
                     }
                 }
             }
-            PageView(document: $document, fieldsData: $fieldsData, page: document.firstPageFor(currentPageID: currentPageID)!, mode: mode, events: events)
+            PageView(document: $document, fieldsData: $fieldsData, page: document.firstValidPageFor(currentPageID: currentPageID)!, mode: mode, events: events)
         }
     }
 
@@ -518,56 +518,27 @@ struct PageDuplicateListView: View {
                 })
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
-//            HStack {
-//                Button(action: {
-//                    duplicatePage()
-//                }, label: {
-//                    VStack {
-//                        Image(systemName: "doc.on.doc")
-//                        Text("Duplicate Page")
-//                    }
-//                    .foregroundColor(.black)
-//                    .font(.subheadline)
-//                    .padding(.vertical, 6)
-//                })
-//                .buttonStyle(.bordered)
-//                
-//                Button(action: {
-//                    
-//                }, label: {
-//                    VStack {
-//                        Image(systemName: "trash")
-//                        Text("Delete Page")
-//                    }
-//                    .foregroundColor(.black)
-//                    .font(.subheadline)
-//                    .padding(.vertical, 6)
-//                })
-//                .buttonStyle(.bordered)
-//            }
-            
-//            Text("Pages")
-//                .foregroundStyle(.gray)
-            
             ScrollView {
                 ForEach(pageOrder ?? [], id: \.self) { id in
-                    if DocumentEngine().shouldShowItem(fields: document.fields, logic: page(currentPageID: id)?.logic, isItemHidden: page(currentPageID: id)?.hidden) {
-                        
-                        VStack(alignment: .leading) {
-                            Button(action: {
-                                currentPageID = id ?? ""
-                                presentationMode.wrappedValue.dismiss()
-                            }, label: {
-                                HStack {
-                                    Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
-                                    Text(page(currentPageID: id)?.name ?? "")
-                                        .darkLightThemeColor()
-                                }
-                            })
-                            .accessibilityIdentifier("PageSelectionIdentifier")
-                            Divider()
+                    if let page = document.firstPageFor(currentPageID: id) {
+                        if DocumentEngine().shouldShowItem(fields: document.fields, logic: page.logic, isItemHidden: page.hidden) {
+
+                            VStack(alignment: .leading) {
+                                Button(action: {
+                                    currentPageID = id ?? ""
+                                    presentationMode.wrappedValue.dismiss()
+                                }, label: {
+                                    HStack {
+                                        Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
+                                        Text(page.name ?? "")
+                                            .darkLightThemeColor()
+                                    }
+                                })
+                                .accessibilityIdentifier("PageSelectionIdentifier")
+                                Divider()
+                            }
+                            .padding(.horizontal, 16)
                         }
-                        .padding(.horizontal, 16)
                     }
                 }
             }
@@ -588,9 +559,5 @@ struct PageDuplicateListView: View {
  //        guard var firstPage = pages.first else { return }
  //        firstPage.id = UUID().uuidString
  //        pages.append(firstPage)
-     }
-     
-     func page(currentPageID: String) -> Page? {
-         return pages.first { $0.id == currentPageID } ?? pages.first
      }
 }
