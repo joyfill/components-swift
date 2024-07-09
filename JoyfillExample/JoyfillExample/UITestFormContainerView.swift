@@ -21,7 +21,7 @@ struct UITestFormContainerView: View {
 
     var body: some View {
         VStack {
-            Form(document: $document, mode: .fill, events: self, pageID: $pageID)
+            Form(document: $document, mode: .fill, events: self, pageID: pageID)
             Text(changeResult)
                 .frame(height: 1)
                 .accessibilityIdentifier("resultfield")

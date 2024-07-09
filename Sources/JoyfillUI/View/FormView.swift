@@ -24,8 +24,8 @@ public struct Form: View {
     /// Utilize the `_id` property of a Page object. For instance, `page._id`.
     /// If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
     /// You can use this property to navigate to a specific page in the form.
-    @Binding public var currentPageID: String
-    
+    @State public var currentPageID: String
+
     private var navigation: Bool
 
     ///  Used to listen to form events.
@@ -38,11 +38,16 @@ public struct Form: View {
     ///   - mode: The mode of the form. The default is `fill`.
     ///   - events: The events delegate for the form.
     ///   - pageID: The ID of the page to display in the form.
-    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>? = nil, navigation: Bool = true) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
-        _currentPageID = pageID ?? Binding(get: {(document.files[0].wrappedValue.pages?[0].id ?? "")}, set: {_ in})
+        var pageId = pageID
+        if let pageID = pageID, pageID != "" {
+            _currentPageID = State(initialValue: pageID)
+        } else {
+            _currentPageID = State(initialValue: document.wrappedValue.firstPageId ?? "")
+        }
         self.navigation = navigation
     }
     
@@ -61,7 +66,7 @@ public struct Form: View {
      - Returns: A SwiftUI view representing the form view.
      */
     public var body: some View {
-        FilesView(fieldsData: $document.fields, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
+        FilesView(fieldsData: $document.fields, document: $document, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
     }
 }
 
@@ -157,6 +162,7 @@ extension Form: FormChangeEventInternal {
 struct FilesView: View {
     /// The `JoyDocField` objects that represent the data for each field in the form.
     @Binding var fieldsData: [JoyDocField]
+    @Binding public var document: JoyDoc
     
     /// The `File` objects that represent the files to be displayed.
     var files: [File]
@@ -176,7 +182,7 @@ struct FilesView: View {
     ///
     /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
-        FileView(fieldsData: $fieldsData, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
+        FileView(fieldsData: $fieldsData, document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
     }
 }
 
@@ -185,6 +191,7 @@ struct FilesView: View {
 /// It uses a `JoyDocField` object, a `File` object, a `Mode`, a `FormChangeEventInternal`, and a `currentPageID` to manage and display the file.
 struct FileView: View {
     @Binding var fieldsData: [JoyDocField]
+    @Binding public var document: JoyDoc
     var file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -195,14 +202,8 @@ struct FileView: View {
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
-        if let views = file?.views, !views.isEmpty, let view = views.first {
-            if let pages = view.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
-            }
-        } else {
-            if let pages = file?.pages {
-                PagesView(fieldsData: $fieldsData, currentPageID: $currentPageID, pages: pages, pageOrder: file?.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && pages.count > 1))
-            }
+        if let file = file {
+            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && document.pages.count > 1))
         }
     }
 }
@@ -241,9 +242,10 @@ extension FileView: FormChangeEventInternal {
 
 /// A view that represents a collection of pages.
 struct PagesView: View {
+    @Binding public var document: JoyDoc
     @Binding var fieldsData: [JoyDocField]
     @Binding var currentPageID: String
-    @State var pages: [Page]
+    @Binding var pages: [Page]
     @State var pageOrder: [String]?
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -261,7 +263,7 @@ struct PagesView: View {
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
-                        Text(page(currentPageID:currentPageID)?.name ?? "")
+                        Text(document.firstValidPageFor(currentPageID: currentPageID)?.name ?? "")
                     }
                 })
                 .accessibilityIdentifier("PageNavigationIdentifier")
@@ -269,28 +271,24 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
                     }
                 }
             }
-            PageView(fieldsData: $fieldsData, page: page(currentPageID: currentPageID)!, mode: mode, events: events)
+            if let page = document.firstValidPageFor(currentPageID: currentPageID) {
+                PageView(document: $document, fieldsData: $fieldsData, page: page, mode: mode, events: events)
+            }
         }
     }
-    
-    /// Returns the page with the given ID.
-    ///
-    /// - Parameter currentPageID: The ID of the page to return.
-    /// - Returns: The page with the given ID, or the first page if the page with the given ID is not found.
-    func page(currentPageID: String) -> Page? {
-        return pages.first { $0.id == currentPageID } ?? pages.first
-    }
+
 }
 
 /// A `View` that represents a page in a form.
 struct PageView: View {
+    @Binding public var document: JoyDoc
     @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
@@ -307,7 +305,7 @@ struct PageView: View {
             } set: { _ in
                 
             }
-            FormView(fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+            FormView(document: $document, fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self)
         }
     }
     
@@ -385,6 +383,7 @@ struct FieldDependency {
 }
 
 struct FormView: View {
+    @Binding public var document: JoyDoc
     @Binding var fieldPositions: [FieldPosition]
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
@@ -438,9 +437,15 @@ struct FormView: View {
 
     var body: some View {
         List(fieldPositions, id: \.field) { fieldPosition in
-            fieldView(fieldPosition: fieldPosition)
-                .listRowSeparator(.hidden)
-                .buttonStyle(.borderless)
+            let fieldData = fieldsData.first(where: {
+                $0.id == fieldPosition.field
+            })
+
+            if DocumentEngine.shouldShowItem(fields: document.fields, logic: fieldData?.logic,isItemHidden: fieldData?.hidden) {
+                fieldView(fieldPosition: fieldPosition)
+                    .listRowSeparator(.hidden)
+                    .buttonStyle(.borderless)
+            }
         }
         .listStyle(PlainListStyle())
         .gesture(DragGesture().onChanged({ _ in
@@ -500,6 +505,7 @@ extension FormView: FieldChangeEvents {
 }
 
 struct PageDuplicateListView: View {
+    @Binding public var document: JoyDoc
     @Binding var pages: [Page]
     @Binding var currentPageID: String
     @Binding var pageOrder: [String]?
@@ -519,54 +525,28 @@ struct PageDuplicateListView: View {
                 })
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
-//            HStack {
-//                Button(action: {
-//                    duplicatePage()
-//                }, label: {
-//                    VStack {
-//                        Image(systemName: "doc.on.doc")
-//                        Text("Duplicate Page")
-//                    }
-//                    .foregroundColor(.black)
-//                    .font(.subheadline)
-//                    .padding(.vertical, 6)
-//                })
-//                .buttonStyle(.bordered)
-//                
-//                Button(action: {
-//                    
-//                }, label: {
-//                    VStack {
-//                        Image(systemName: "trash")
-//                        Text("Delete Page")
-//                    }
-//                    .foregroundColor(.black)
-//                    .font(.subheadline)
-//                    .padding(.vertical, 6)
-//                })
-//                .buttonStyle(.bordered)
-//            }
-            
-//            Text("Pages")
-//                .foregroundStyle(.gray)
-            
             ScrollView {
                 ForEach(pageOrder ?? [], id: \.self) { id in
-                    VStack(alignment: .leading) {
-                        Button(action: {
-                            currentPageID = id ?? ""
-                            presentationMode.wrappedValue.dismiss()
-                        }, label: {
-                            HStack {
-                                Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
-                                Text(page(currentPageID: id)?.name ?? "")
-                                    .darkLightThemeColor()
+                    if let page = document.firstPageFor(currentPageID: id) {
+                        if DocumentEngine.shouldShowItem(fields: document.fields, logic: page.logic, isItemHidden: page.hidden) {
+
+                            VStack(alignment: .leading) {
+                                Button(action: {
+                                    currentPageID = id ?? ""
+                                    presentationMode.wrappedValue.dismiss()
+                                }, label: {
+                                    HStack {
+                                        Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
+                                        Text(page.name ?? "")
+                                            .darkLightThemeColor()
+                                    }
+                                })
+                                .accessibilityIdentifier("PageSelectionIdentifier")
+                                Divider()
                             }
-                        })
-                        .accessibilityIdentifier("PageSelectionIdentifier")
-                        Divider()
+                            .padding(.horizontal, 16)
+                        }
                     }
-                    .padding(.horizontal, 16)
                 }
             }
             .overlay(
@@ -586,9 +566,5 @@ struct PageDuplicateListView: View {
  //        guard var firstPage = pages.first else { return }
  //        firstPage.id = UUID().uuidString
  //        pages.append(firstPage)
-     }
-     
-     func page(currentPageID: String) -> Page? {
-         return pages.first { $0.id == currentPageID } ?? pages.first
      }
 }
