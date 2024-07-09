@@ -153,11 +153,11 @@
 				133EBABA2BF48804009B73AB /* SignatureFieldTests.swift */,
 				362A560E2BEE359400B54C14 /* ChartFieldTests.swift */,
 				1338AB952BEE38DD0001C203 /* TableFieldTests.swift */,
-				362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */,
-				1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */,
 				136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */,
 				13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */,
 				13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */,
+				362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */,
+				1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */,
 			);
 			path = JoyfillUITests;
 			sourceTree = "<group>";

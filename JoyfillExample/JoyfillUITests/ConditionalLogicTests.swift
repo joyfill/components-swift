@@ -7,8 +7,8 @@ final class ConditionalLogicTests: JoyfillUITestsBaseClass {
         pageSelectionButton.tap()
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let secondPage = pageSheetSelectionButton.element(boundBy: 1)
-        secondPage.tap()
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
         
         let textFields = app.textFields.allElementsBoundByIndex
         
@@ -44,10 +44,10 @@ final class ConditionalLogicTests: JoyfillUITestsBaseClass {
         
         pageSelectionButton.tap()
         
-        let firstPage = pageSheetSelectionButton.element(boundBy: 0)
-        firstPage.tap()
+        let tapOnFirstPage = pageSheetSelectionButton.element(boundBy: 0)
+        tapOnFirstPage.tap()
         pageSelectionButton.tap()
-        secondPage.tap()
+        tapOnSecondPage.tap()
         
         // Field is show when condition true
         let showFieldOnConditionTrueTextField = textFields[1]
