@@ -278,7 +278,9 @@ struct PagesView: View {
                     }
                 }
             }
-            PageView(document: $document, fieldsData: $fieldsData, page: document.firstValidPageFor(currentPageID: currentPageID)!, mode: mode, events: events)
+            if let page = document.firstValidPageFor(currentPageID: currentPageID) {
+                PageView(document: $document, fieldsData: $fieldsData, page: page, mode: mode, events: events)
+            }
         }
     }
 
@@ -439,7 +441,7 @@ struct FormView: View {
                 $0.id == fieldPosition.field
             })
 
-            if DocumentEngine().shouldShowItem(fields: document.fields, logic: fieldData?.logic,isItemHidden: fieldData?.hidden) {
+            if DocumentEngine.shouldShowItem(fields: document.fields, logic: fieldData?.logic,isItemHidden: fieldData?.hidden) {
                 fieldView(fieldPosition: fieldPosition)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
@@ -526,7 +528,7 @@ struct PageDuplicateListView: View {
             ScrollView {
                 ForEach(pageOrder ?? [], id: \.self) { id in
                     if let page = document.firstPageFor(currentPageID: id) {
-                        if DocumentEngine().shouldShowItem(fields: document.fields, logic: page.logic, isItemHidden: page.hidden) {
+                        if DocumentEngine.shouldShowItem(fields: document.fields, logic: page.logic, isItemHidden: page.hidden) {
 
                             VStack(alignment: .leading) {
                                 Button(action: {
