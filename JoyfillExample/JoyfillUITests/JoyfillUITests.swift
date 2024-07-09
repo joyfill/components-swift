@@ -77,7 +77,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         for button in multiButtons.allElementsBoundByIndex {
             button.tap()
         }
-        XCTAssertEqual("6628f2e1679bcf815adfa0f6", onChangeResultValue().multiSelector?.first!)
+        XCTAssertEqual("6628f2e19c3cba4fdf9e5f19", onChangeResultValue().multiSelector?.first!)
     }
     
     func testSingleSelection() throws {
