@@ -14,7 +14,7 @@ struct FormContainerView: View {
 
     var body: some View {
         VStack {
-            Form(document: $document, mode: .fill, events: changeManager, pageID: $pageID)
+            Form(document: $document, mode: .fill, events: changeManager, pageID: pageID)
             SaveButtonView(changeManager: changeManager, document: $document)
         }
     }

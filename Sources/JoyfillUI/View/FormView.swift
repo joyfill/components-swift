@@ -24,7 +24,7 @@ public struct Form: View {
     /// Utilize the `_id` property of a Page object. For instance, `page._id`.
     /// If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
     /// You can use this property to navigate to a specific page in the form.
-    @Binding public var currentPageID: String
+    @State public var currentPageID: String
 
     private var navigation: Bool
 
@@ -38,11 +38,16 @@ public struct Form: View {
     ///   - mode: The mode of the form. The default is `fill`.
     ///   - events: The events delegate for the form.
     ///   - pageID: The ID of the page to display in the form.
-    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: Binding<String>, navigation: Bool = true) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
         _mode = State(initialValue: mode)
         _document = document
-        _currentPageID = pageID
+        var pageId = pageID
+        if let pageID = pageID, pageID != "" {
+            _currentPageID = State(initialValue: pageID)
+        } else {
+            _currentPageID = State(initialValue: document.wrappedValue.firstPageId ?? "")
+        }
         self.navigation = navigation
     }
     
