@@ -271,6 +271,16 @@
                   "y": 32,
                   "_id": "667e943142b2996605028d9f",
                   "type": "text"
+              },
+              {
+                "field": "6629fbc0d449f4216e871e3g",
+                "displayType": "original",
+                "width": 24,
+                "height": 15,
+                "x": 0,
+                "y": 40,
+                "_id": "6629fbc736d179b9014abae0",
+                "type": "table"
               }
           ],
           "metadata": {},
@@ -838,6 +848,68 @@
       "xMax": 100,
       "xMin": 0,
       "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "table",
+        "_id": "6629fbc0d449f4216e871e3g",
+        "identifier": "field_6629fbc7915c00c8678c9430",
+        "title": "Table",
+        "description": "",
+        "value": [],
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "rowOrder": [],
+        "tableColumns": [
+            {
+                "_id": "6628f2e11a2b28119985cfbb",
+                "type": "text",
+                "title": "Text Column",
+                "width": 0,
+                "identifier": "field_column_6629fbc70c9e53f683a18007"
+            },
+            {
+                "_id": "6628f2e123ca77fa82a2c45e",
+                "type": "dropdown",
+                "title": "Dropdown Column",
+                "width": 0,
+                "identifier": "field_column_6629fbc7e2493a155a32c509",
+                "options": [
+                    {
+                        "_id": "6628f2e1846cc78241aa6b11",
+                        "value": "Yes",
+                        "deleted": false
+                    },
+                    {
+                        "_id": "6628f2e1c12db4664e9eb38f",
+                        "value": "No",
+                        "deleted": false
+                    },
+                    {
+                        "_id": "6628f2e114ac11a49657db50",
+                        "value": "N/A",
+                        "deleted": false
+                    }
+                ]
+            },
+            {
+                "_id": "663dcdcfcd08ad955955fd95",
+                "type": "image",
+                "title": "Image Column",
+                "width": 0,
+                "identifier": "",
+                "maxImageWidth": 0,
+                "maxImageHeight": 0
+            }
+        ],
+        "tableColumnOrder": [
+            "6628f2e11a2b28119985cfbb",
+            "6628f2e123ca77fa82a2c45e",
+            "663dcdcfcd08ad955955fd95"
+        ],
+        "file": "6629fab3c0ba3fb775b4a55c"
     },
     {
         "type": "text",
