@@ -3,6 +3,7 @@ import SwiftUI
 struct TableModalTopNavigationView: View {
     @Binding var isDeleteButtonVisible: Bool
     var onDeleteTap: (() -> Void)?
+    var onDuplicateTap: (() -> Void)?
     var onAddRowTap: (() -> Void)?
     
     var body: some View {
@@ -25,7 +26,21 @@ struct TableModalTopNavigationView: View {
                 }
                 .accessibilityIdentifier("TableDeleteRowIdentifier")
             }
-                      
+
+            if isDeleteButtonVisible {
+                Button(action: {
+                    onDuplicateTap?()
+                }) {
+                    Text("Duplicate")
+                        .foregroundStyle(.selection)
+                        .font(.system(size: 14))
+                        .frame(width: 80, height: 27)
+                        .overlay(RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.buttonBorderColor, lineWidth: 1))
+                }
+                .accessibilityIdentifier("TableDeleteRowIdentifier")
+            }
+
             Button(action: {
                 onAddRowTap?()
             }) {
@@ -35,7 +50,6 @@ struct TableModalTopNavigationView: View {
                     .frame(width: 94, height: 27)
                     .overlay(RoundedRectangle(cornerRadius: 6)
                         .stroke(Color.buttonBorderColor, lineWidth: 1))
-                    
             }
             .accessibilityIdentifier("TableAddRowIdentifier")
         }
