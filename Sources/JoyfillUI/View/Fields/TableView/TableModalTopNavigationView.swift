@@ -38,7 +38,7 @@ struct TableModalTopNavigationView: View {
                         .overlay(RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
-                .accessibilityIdentifier("TableDeleteRowIdentifier")
+                .accessibilityIdentifier("TableDuplicateRowIdentifier")
             }
 
             Button(action: {

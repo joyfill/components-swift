@@ -93,5 +93,23 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(lastRow.deleted!)
         XCTAssertEqual(3, valueElements.count)
     }
+    
+    func testTableDuplicateRow() throws {
+        goToTableDetailPage()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        app.buttons["TableDuplicateRowIdentifier"].tap()
+        
+        let duplicateTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("His", duplicateTextField.value as! String)
+        duplicateTextField.tap()
+        duplicateTextField.typeText("Duplicate ")
+        
+        goBack()
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(3, lastIndex)
+    }
 }
 
