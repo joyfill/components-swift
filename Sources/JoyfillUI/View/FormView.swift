@@ -71,7 +71,7 @@ public struct Form: View {
 }
 
 extension Form: FormChangeEventInternal {
-    public func addRow(event: JoyfillModel.FieldChangeEvent) {
+    public func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndex: Int) {
         var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.value.rowCreate",
@@ -82,7 +82,7 @@ extension Form: FormChangeEventInternal {
                             fieldId: event.field!.id!,
                             fieldIdentifier: event.field!.identifier!,
                             fieldPositionId: event.fieldPosition.id!,
-                            change: addRowChanges(fieldData: event.field!),
+                            change: addRowChanges(fieldData: event.field!, targetRowIndex: targetRowIndex),
                             createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
@@ -136,10 +136,10 @@ extension Form: FormChangeEventInternal {
     ///
     /// - Parameter fieldData: The field data containing the value elements.
     /// - Returns: A dictionary containing the row changes.
-    private func addRowChanges(fieldData: JoyDocField) -> [String: Any] {
+    private func addRowChanges(fieldData: JoyDocField, targetRowIndex: Int) -> [String: Any] {
         let lastValueElement = fieldData.value!.valueElements!.last
         var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
-        valueDict["targetRowIndex"] = fieldData.value!.valueElements!.lastIndex(of: lastValueElement!)!
+        valueDict["targetRowIndex"] = targetRowIndex
         return valueDict
     }
     
@@ -209,10 +209,10 @@ struct FileView: View {
 }
 
 extension FileView: FormChangeEventInternal {
-    func addRow(event: JoyfillModel.FieldChangeEvent) {
+    func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndex: Int) {
         var event = event
         event.file = file
-        events?.addRow(event: event)
+        events?.addRow(event: event, targetRowIndex: targetRowIndex)
     }
 
     func onChange(event: JoyfillModel.FieldChangeEvent) {
@@ -334,10 +334,10 @@ struct PageView: View {
 }
 
 extension PageView: FormChangeEventInternal {
-    func addRow(event: JoyfillModel.FieldChangeEvent) {
+    func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndex: Int) {
         var event = event
         event.page = page
-        events?.addRow(event: event)
+        events?.addRow(event: event, targetRowIndex: targetRowIndex)
     }
     
     func onChange(event: JoyfillModel.FieldChangeEvent) {
@@ -468,7 +468,7 @@ struct FormView: View {
 }
 
 extension FormView: FieldChangeEvents {
-    func addRow(event: JoyfillModel.FieldChangeEvent) {
+    func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndex: Int) {
         currentFocusedFielsData = event.field
         let temp = fieldsData.compactMap { data in
             if data.id == event.field?.id {
@@ -478,7 +478,7 @@ extension FormView: FieldChangeEvents {
         }
         fieldsData.removeAll()
         self.fieldsData = temp
-        eventHandler?.addRow(event: event)
+        eventHandler?.addRow(event: event, targetRowIndex: targetRowIndex)
     }
 
     func onChange(event: FieldChangeEvent) {
