@@ -103,13 +103,27 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("His", duplicateTextField.value as! String)
         duplicateTextField.tap()
         duplicateTextField.typeText("Duplicate ")
+    }
+
+    // Test when all row deleted, then add new row
+    func testTableAddRowOnPageSecond() throws {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
         
+        app.buttons["TableDetailViewIdentifier"].tap()
+        app.buttons["TableAddRowIdentifier"].tap()
+        app.buttons["TableAddRowIdentifier"].tap()
         goBack()
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
         let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(3, lastIndex)
+        XCTAssertEqual(1, lastIndex)
     }
 }
 
