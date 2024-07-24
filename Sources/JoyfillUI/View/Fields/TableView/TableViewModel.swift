@@ -108,15 +108,30 @@ class TableViewModel: ObservableObject {
         tableDataDidChange = to
     }
     
+    func duplicateRow() {
+        guard let selectedRow = selectedRow else {
+            return
+        }
+        setTableDataDidChange(to: true)
+
+
+        let id = generateObjectId()
+        fieldDependency.fieldData?.duplicateRow(id: rows[selectedRow])
+        resetLastSelection()
+        setup()
+        uuid = UUID()
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: selectedRow+1)
+    }
+
     func addRow() {
         let id = generateObjectId()
         fieldDependency.fieldData?.addRow(id: id)
         resetLastSelection()
         setup()
         uuid = UUID()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData))
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)
     }
-    
+
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
         setTableDataDidChange(to: true)
         fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)

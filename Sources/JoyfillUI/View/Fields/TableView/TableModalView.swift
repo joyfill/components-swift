@@ -21,6 +21,8 @@ struct TableModalView : View {
             TableModalTopNavigationView(isDeleteButtonVisible: $viewModel.shouldShowDeleteRowButton, onDeleteTap: {
                 viewModel.deleteSelectedRow()
                 heights = [:]
+            }, onDuplicateTap: {
+                viewModel.duplicateRow()
             }, onAddRowTap: {
                 viewModel.addRow()
             })
