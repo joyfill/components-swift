@@ -15,10 +15,11 @@ struct SaveButtonView: View {
     var body: some View {
         VStack {
             Button(action: {
-//                changeManager.saveJoyDoc(document: document)
+                changeManager.saveJoyDoc(document: document)
                 let result = Validator.validate(document: document)
-                for result2 in result.fieldValidations {
-                    print(result2.field.id!, ":", result2.status)
+                print("Document status:", result.status)
+                for fieldResult in result.fieldValidations {
+                    print("Field status:", fieldResult.field.id!, ":", fieldResult.status)
                 }
             }) {
                 Text("Save")

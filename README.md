@@ -72,13 +72,12 @@ import JoyfillModel
 
 struct FormContainerView: View {
     @Binding var document: JoyDoc
-    @State var pageID: String
+    let pageID: String
     private let changeManager = ChangeManager()
     
     var body: some View {
         VStack {
-            Form(document: $document, mode: .fill, events: changeManager, pageID: $pageID)
-            SaveButtonView(changeManager: changeManager, document: $document)
+            Form(document: $document, mode: .fill, events: changeManager, pageID: pageID)
         }
     }
 }
@@ -86,7 +85,21 @@ struct FormContainerView: View {
 
 See our example project for more details.
 
-### `JoyFillView` Params
+### `Validation`
+You can use our 'Validator' APIs from 'JoyFillModel' to check if the document and fields are valid.
+
+```swift
+import JoyfillModel
+
+let result = Validator.validate(document: document)
+print("Document status:", result.status)
+for fieldResult in result.fieldValidations {
+  print("Field status:", fieldResult.field.id!, ":", fieldResult.status)
+}
+
+```
+
+### `JoyFillView`
 
 * `mode: 'fill' | 'readonly'`
   * Enables and disables certain JoyDoc functionality and features. 
