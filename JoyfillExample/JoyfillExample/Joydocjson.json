@@ -441,14 +441,221 @@
             "padding": 24,
             "borderWidth": 0,
             "_id": "66852e1f3bde6be7d0e3966c"
-        }
+        },
+        {
+                  "name": "Page 6 - Dropdown X Code test case",
+                  "fieldPositions": [
+                    {
+                      "field": "66a0fdc69a3381f2c5359730",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 0,
+                      "_id": "66a0fe3423d78b0a94d075a3",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a0fe419a5145a34069b31a",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 8,
+                      "_id": "66a0fe47295ed93566bbd16a",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a0fe4fcfe7d097317f8443",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 16,
+                      "_id": "66a0fe5d1b6e2c718be5e561",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a0fe7eabe9dbee10e523f4",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 24,
+                      "_id": "66a0fe83f9809367f81d70fa",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a0fe943d9e39a1e4fe61be",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 32,
+                      "targetValue": "66a0fd2bf2db63720bb5760f",
+                      "_id": "66a0fe981cbb3b74c4c52c3c",
+                      "type": "dropdown"
+                    }
+                  ],
+                  "metadata": {},
+                  "hidden": false,
+                  "width": 816,
+                  "height": 1056,
+                  "cols": 8,
+                  "rowHeight": 8,
+                  "layout": "grid",
+                  "presentation": "normal",
+                  "margin": 0,
+                  "padding": 24,
+                  "borderWidth": 0,
+                  "_id": "66a0fdb24fc544e2f274060a"
+                },
+        {
+                  "name": "Page 7 - Single Choice X code test case",
+                  "fieldPositions": [
+                    {
+                      "field": "66a1eacc214ce143cd7df01f",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 0,
+                      "_id": "66a0fe3423d78b0a94d075a3",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1eacc0612bd4e83243ca2",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 8,
+                      "_id": "66a0fe47295ed93566bbd16a",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1eaccb4368e0b6ad5f343",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 16,
+                      "_id": "66a0fe5d1b6e2c718be5e561",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1eacc644c4eceafd22589",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 24,
+                      "_id": "66a0fe83f9809367f81d70fa",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1ead8a7d8bff7bb2f982a",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 15,
+                      "x": 0,
+                      "y": 32,
+                      "targetValue": "66a1e2e9e9e6674ea80d71f7",
+                      "_id": "66a1eae0a2f9bd9db6a114c6",
+                      "type": "multiSelect"
+                    }
+                  ],
+                  "metadata": {},
+                  "hidden": false,
+                  "width": 816,
+                  "height": 1056,
+                  "cols": 8,
+                  "rowHeight": 8,
+                  "layout": "grid",
+                  "presentation": "normal",
+                  "margin": 0,
+                  "padding": 24,
+                  "borderWidth": 0,
+                  "_id": "66a1eacc327a9bd5db3b5469"
+                },
+        {
+                  "name": "Page 8 - Multiselect X code test case",
+                  "fieldPositions": [
+                    {
+                      "field": "66a1ead1e554a61490fbd4e6",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 0,
+                      "_id": "66a0fe3423d78b0a94d075a3",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1ead1d8cb10ea303cfdae",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 8,
+                      "_id": "66a0fe47295ed93566bbd16a",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1ead19912c7d505604170",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 16,
+                      "_id": "66a0fe5d1b6e2c718be5e561",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1ead16aa96d4fca203821",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 8,
+                      "x": 0,
+                      "y": 24,
+                      "_id": "66a0fe83f9809367f81d70fa",
+                      "type": "text"
+                    },
+                    {
+                      "field": "66a1eb82c80b695f5d1cf843",
+                      "displayType": "original",
+                      "width": 4,
+                      "height": 15,
+                      "x": 0,
+                      "y": 32,
+                      "targetValue": "66a1e2e923b2fd31e18d4f5c",
+                      "_id": "66a1eb8419f424f214c4ad27",
+                      "type": "multiSelect"
+                    }
+                  ],
+                  "metadata": {},
+                  "hidden": false,
+                  "width": 816,
+                  "height": 1056,
+                  "cols": 8,
+                  "rowHeight": 8,
+                  "layout": "grid",
+                  "presentation": "normal",
+                  "margin": 0,
+                  "padding": 24,
+                  "borderWidth": 0,
+                  "_id": "66a1ead16fbc343e4b5bde0a"
+                }
       ],
       "pageOrder": [
         "6629fab320fca7c8107a6cf6",
         "66600801dc1d8b4f72f54917",
         "66852e19e780e2aef89ab2c4",
         "66852e1b8d389f71128a2b86",
-        "66852e1f3bde6be7d0e3966c"
+        "66852e1f3bde6be7d0e3966c",
+        "66a0fdb24fc544e2f274060a",
+        "66a1eacc327a9bd5db3b5469",
+        "66a1ead16fbc343e4b5bde0a"
       ],
       "views": []
     }
@@ -1103,7 +1310,443 @@
         "tipVisible": false,
         "metadata": {},
         "file": "6629fab3c0ba3fb775b4a55c"
-    }
+    },
+    {
+          "type": "text",
+          "_id": "66a0fdc69a3381f2c5359730",
+          "identifier": "field_66a0fe34625f3baef124d349",
+          "title": "Always Show Field",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a0fdb24fc544e2f274060a",
+                "field": "66a0fe943d9e39a1e4fe61be",
+                "condition": "=",
+                "value": "66a0fd2bf2db63720bb5760f",
+                "_id": "66a0ff31dbf290a502f2e0e2"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e1"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a0fe419a5145a34069b31a",
+          "identifier": "field_66a0fe47a4d8d336b29eabfa",
+          "title": "Always Hide Field",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "hidden": true,
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a0fdb24fc544e2f274060a",
+                "field": "66a0fe943d9e39a1e4fe61be",
+                "condition": "=",
+                "value": "66a0fd2bf2db63720bb5760f",
+                "_id": "66a0ff31dbf290a502f2e0e5"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e4"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a0fe4fcfe7d097317f8443",
+          "identifier": "field_66a0fe5d8c803bd084e3bf38",
+          "title": "Field Show when condition is True",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "hidden": true,
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a0fdb24fc544e2f274060a",
+                "field": "66a0fe943d9e39a1e4fe61be",
+                "condition": "=",
+                "value": "66a0fd2bf2db63720bb5760f",
+                "_id": "66a0ff31dbf290a502f2e0e8"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e7"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a0fe7eabe9dbee10e523f4",
+          "identifier": "field_66a0fe83c2f6cac3a5c4179e",
+          "title": "Field Hide when condition is True",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a0fdb24fc544e2f274060a",
+                "field": "66a0fe943d9e39a1e4fe61be",
+                "condition": "=",
+                "value": "66a0fd2bf2db63720bb5760f",
+                "_id": "66a0ff31dbf290a502f2e0eb"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0ea"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "dropdown",
+          "_id": "66a0fe943d9e39a1e4fe61be",
+          "identifier": "field_66a0fe986ae586b3f157cc32",
+          "title": "Condition Dropdown Field",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "options": [
+            {
+              "_id": "66a0fd2bf2db63720bb5760f",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "66a0fd2b8a5085b2eaa4bb29",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "66a0fd2b666d4708d98ea7b5",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1eacc214ce143cd7df01f",
+          "identifier": "field_66a0fe34625f3baef124d349",
+          "title": "Always Show Field",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1eacc327a9bd5db3b5469",
+                "field": "66a1ead8a7d8bff7bb2f982a",
+                "condition": "=",
+                "value": "66a1e2e9e9e6674ea80d71f7",
+                "_id": "66a0ff31dbf290a502f2e0e2"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e1"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1eacc0612bd4e83243ca2",
+          "identifier": "field_66a0fe47a4d8d336b29eabfa",
+          "title": "Always Hide Field",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "hidden": true,
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1eacc327a9bd5db3b5469",
+                "field": "66a1ead8a7d8bff7bb2f982a",
+                "condition": "=",
+                "value": "66a1e2e9e9e6674ea80d71f7",
+                "_id": "66a0ff31dbf290a502f2e0e5"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e4"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1eaccb4368e0b6ad5f343",
+          "identifier": "field_66a0fe5d8c803bd084e3bf38",
+          "title": "Field Show when condition is True",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "hidden": true,
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1eacc327a9bd5db3b5469",
+                "field": "66a1ead8a7d8bff7bb2f982a",
+                "condition": "=",
+                "value": "66a1e2e9e9e6674ea80d71f7",
+                "_id": "66a0ff31dbf290a502f2e0e8"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e7"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1eacc644c4eceafd22589",
+          "identifier": "field_66a0fe83c2f6cac3a5c4179e",
+          "title": "Field Hide when condition is True",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1eacc327a9bd5db3b5469",
+                "field": "66a1ead8a7d8bff7bb2f982a",
+                "condition": "=",
+                "value": "66a1e2e9e9e6674ea80d71f7",
+                "_id": "66a0ff31dbf290a502f2e0eb"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0ea"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1ead1e554a61490fbd4e6",
+          "identifier": "field_66a0fe34625f3baef124d349",
+          "title": "Always Show Field",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1ead16fbc343e4b5bde0a",
+                "field": "66a1eb82c80b695f5d1cf843",
+                "condition": "=",
+                "value": "66a1e2e923b2fd31e18d4f5c",
+                "_id": "66a0ff31dbf290a502f2e0e2"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e1"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1ead1d8cb10ea303cfdae",
+          "identifier": "field_66a0fe47a4d8d336b29eabfa",
+          "title": "Always Hide Field",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "hidden": true,
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1ead16fbc343e4b5bde0a",
+                "field": "66a1eb82c80b695f5d1cf843",
+                "condition": "=",
+                "value": "66a1e2e923b2fd31e18d4f5c",
+                "_id": "66a0ff31dbf290a502f2e0e5"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e4"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1ead19912c7d505604170",
+          "identifier": "field_66a0fe5d8c803bd084e3bf38",
+          "title": "Field Show when condition is True",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "hidden": true,
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1ead16fbc343e4b5bde0a",
+                "field": "66a1eb82c80b695f5d1cf843",
+                "condition": "=",
+                "value": "66a1e2e923b2fd31e18d4f5c",
+                "_id": "66a0ff31dbf290a502f2e0e8"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0e7"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "text",
+          "_id": "66a1ead16aa96d4fca203821",
+          "identifier": "field_66a0fe83c2f6cac3a5c4179e",
+          "title": "Field Hide when condition is True",
+          "description": "",
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6629fab3c0ba3fb775b4a55c",
+                "page": "66a1ead16fbc343e4b5bde0a",
+                "field": "66a1eb82c80b695f5d1cf843",
+                "condition": "=",
+                "value": "66a1e2e923b2fd31e18d4f5c",
+                "_id": "66a0ff31dbf290a502f2e0eb"
+              }
+            ],
+            "_id": "66a0ff31dbf290a502f2e0ea"
+          },
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "multiSelect",
+          "_id": "66a1ead8a7d8bff7bb2f982a",
+          "identifier": "field_66a1eae01a1e96bf57c89111",
+          "title": "Condition Single Choice Field",
+          "description": "",
+          "value": [],
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "options": [
+            {
+              "_id": "66a1e2e9e9e6674ea80d71f7",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "66a1e2e9ed6de57065b6cede",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "66a1e2e9a3948b3bdc7a5d62",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "multi": false,
+          "file": "6629fab3c0ba3fb775b4a55c"
+        },
+        {
+          "type": "multiSelect",
+          "_id": "66a1eb82c80b695f5d1cf843",
+          "identifier": "field_66a1eb84fbb7a4ba91a98e74",
+          "title": "Condition Multiple Choice Field",
+          "description": "",
+          "value": [],
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "options": [
+            {
+              "_id": "66a1e2e923b2fd31e18d4f5c",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "66a1e2e9688109457faf7d9b",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "66a1e2e990bdfc31e9771e06",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "multi": true,
+          "file": "6629fab3c0ba3fb775b4a55c"
+        }
   ],
   "deleted": false
 }
