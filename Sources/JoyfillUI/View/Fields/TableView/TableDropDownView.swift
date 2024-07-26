@@ -79,7 +79,7 @@ struct TableDropDownOptionList: View {
                 .padding(.horizontal, 16)
             }
             ScrollView {
-                if let options = data.options {
+                if let options = data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(options) { option in
                         Button(action: {
                             selectedDropdownValue = option.value
