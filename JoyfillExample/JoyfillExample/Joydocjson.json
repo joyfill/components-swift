@@ -498,6 +498,21 @@
                     }
                   ],
                   "metadata": {},
+                  "logic": {
+                      "action": "hide",
+                      "eval": "and",
+                      "conditions": [
+                          {
+                              "file": "6629fab3c0ba3fb775b4a55c",
+                              "page": "66a1ead16fbc343e4b5bde0a",
+                              "field": "66a1eb82c80b695f5d1cf843",
+                              "condition": "=",
+                              "value": "66a1e2e9688109457faf7d9b",
+                              "_id": "66a378b70ea38d218908f577"
+                          }
+                      ],
+                      "_id": "66a378b70ea38d218908f576"
+                  },
                   "hidden": false,
                   "width": 816,
                   "height": 1056,
@@ -566,6 +581,21 @@
                     }
                   ],
                   "metadata": {},
+                  "logic": {
+                      "action": "hide",
+                      "eval": "and",
+                      "conditions": [
+                          {
+                              "file": "6629fab3c0ba3fb775b4a55c",
+                              "page": "66a0fdb24fc544e2f274060a",
+                              "field": "66a0fe943d9e39a1e4fe61be",
+                              "condition": "=",
+                              "value": "66a0fd2b8a5085b2eaa4bb29",
+                              "_id": "66a349f30ea38d2189074ab2"
+                          }
+                      ],
+                      "_id": "66a349f30ea38d2189074ab1"
+                  },
                   "hidden": false,
                   "width": 816,
                   "height": 1056,
@@ -634,6 +664,21 @@
                     }
                   ],
                   "metadata": {},
+                  "logic": {
+                      "action": "hide",
+                      "eval": "and",
+                      "conditions": [
+                          {
+                              "file": "6629fab3c0ba3fb775b4a55c",
+                              "page": "66a1eacc327a9bd5db3b5469",
+                              "field": "66a1ead8a7d8bff7bb2f982a",
+                              "condition": "=",
+                              "value": "66a1e2e9ed6de57065b6cede",
+                              "_id": "66a3787a0ea38d218908edae"
+                          }
+                      ],
+                      "_id": "66a349f30ea38d2189074ab9"
+                  },
                   "hidden": false,
                   "width": 816,
                   "height": 1056,
