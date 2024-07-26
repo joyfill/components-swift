@@ -84,7 +84,7 @@ struct DropDownOptionList: View {
                 .padding(.horizontal, 16)
             }
             ScrollView {
-                if let options = fieldDependency.fieldData?.options {
+                if let options = fieldDependency.fieldData?.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(options) { option in
                         Button(action: {
                             if selectedDropdownValueID == option.id {
