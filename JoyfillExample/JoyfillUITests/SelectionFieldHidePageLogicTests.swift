@@ -1,7 +1,7 @@
 import XCTest
 import JoyfillModel
 
-final class SelectionFieldPageLogicTests: JoyfillUITestsBaseClass {
+final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
     
     // Hide Page 7 on "No" opiton selected
     func testHidePageOnDropdownFieldOption() throws {
