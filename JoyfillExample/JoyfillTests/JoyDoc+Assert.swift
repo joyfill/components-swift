@@ -20,7 +20,7 @@ extension JoyDoc {
         XCTAssertEqual(files[0].name, "All Fields Template")
         XCTAssertEqual(files[0].version, 1)
         XCTAssertTrue(files[0].styles!.dictionary.isEmpty)
-        XCTAssertEqual(files[0].pageOrder, ["6629fab320fca7c8107a6cf6", "66600801dc1d8b4f72f54917", "66852e19e780e2aef89ab2c4", "66852e1b8d389f71128a2b86", "66852e1f3bde6be7d0e3966c"])
+        XCTAssertEqual(files[0].pageOrder, ["6629fab320fca7c8107a6cf6", "66600801dc1d8b4f72f54917", "66852e19e780e2aef89ab2c4", "66852e1b8d389f71128a2b86", "66852e1f3bde6be7d0e3966c", "66a0fdb24fc544e2f274060a", "66a1eacc327a9bd5db3b5469", "66a1ead16fbc343e4b5bde0a"])
         XCTAssertTrue(files[0].views!.isEmpty)
     }
     
@@ -306,7 +306,7 @@ extension JoyDoc {
     }
     
     func assertPageField() {
-        XCTAssertEqual(files[0].pages?.count, 5)
+        XCTAssertEqual(files[0].pages?.count, 8)
         XCTAssertEqual(files[0].pages?[0].name, "Page 1")
         XCTAssertEqual(files[0].pages?[0].hidden, false)
         XCTAssertEqual(files[0].pages?[0].width, 816)

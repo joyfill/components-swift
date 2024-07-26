@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		049EAFDC2C536BB1006C63D5 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 049EAFDB2C536BB1006C63D5 /* JoyfillModel */; };
 		04AE82132C52C99000B512F4 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 04AE82122C52C99000B512F4 /* JoyfillModel */; };
 		04B840802C522DCE00C5B786 /* SelectionFieldLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B8407F2C522DCE00C5B786 /* SelectionFieldLogicTests.swift */; };
 		1307CF0D2BDB7E0700B19FBA /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
@@ -116,6 +117,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				049EAFDC2C536BB1006C63D5 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,6 +264,7 @@
 			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
+				049EAFDB2C536BB1006C63D5 /* JoyfillModel */,
 			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
@@ -796,6 +799,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		049EAFDB2C536BB1006C63D5 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04AE82112C52C99000B512F4 /* XCLocalSwiftPackageReference "../../JoyfillModel" */;
+			productName = JoyfillModel;
+		};
 		04AE82122C52C99000B512F4 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillModel;
