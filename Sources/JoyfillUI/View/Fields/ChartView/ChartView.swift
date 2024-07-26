@@ -5,7 +5,7 @@
 //
 
 import SwiftUI
-//import SwiftUICharts
+import SwiftUICharts
 import JoyfillModel
 
 struct ChartView: View {
@@ -14,17 +14,16 @@ struct ChartView: View {
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
     
-//    let data : MultiLineChartData
+    let data : MultiLineChartData
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
         _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
-//        data = ChartView.getData(fieldDependency: fieldDependency)
+        data = ChartView.getData(fieldDependency: fieldDependency)
     }
     
     var body: some View {
         VStack(alignment: .leading) {
            FieldHeaderView(fieldDependency)
-            
 //            RoundedRectangle(cornerRadius: 10)
 //                .stroke(Color.allFieldBorderColor, lineWidth: 1)
 //                .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
@@ -65,7 +64,7 @@ struct ChartView: View {
             .accessibilityIdentifier("ChartViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: ChartDetailView(fieldDependency: fieldDependency), isActive: $showDetailChartView) {
+            NavigationLink(destination: ChartDetailView(chartData: data, fieldDependency: fieldDependency), isActive: $showDetailChartView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -74,41 +73,41 @@ struct ChartView: View {
     }
     
     
-//    static func getData(fieldDependency: FieldDependency) -> MultiLineChartData {
-//        let data = MultiLineDataSet(dataSets: getLinesData(valueElements: fieldDependency.fieldData?.value?.images ?? []))
-//        
-//        return MultiLineChartData(dataSets: data,
-//                                  metadata: ChartMetadata(title: fieldDependency.fieldData?.title ?? "", subtitle: ""),
-//                                  xAxisLabels: [],
-//                                  chartStyle: LineChartStyle(infoBoxPlacement: .floating,
-//                                                             markerType: .full(attachment: .line(dot: .style(DotStyle()))),
-//                                                             xAxisGridStyle: GridStyle(numberOfLines: 5),
-//                                                             xAxisTitle: fieldDependency.fieldData?.xTitle,
-//                                                             yAxisGridStyle: GridStyle(numberOfLines: 5),
-//                                                             yAxisNumberOfLabels: 6,
-//                                                             yAxisTitle: fieldDependency.fieldData?.yTitle,
-//                                                             baseline: .minimumValue,
-//                                                             topLine: .maximumValue))
-//    }
+    static func getData(fieldDependency: FieldDependency) -> MultiLineChartData {
+        let data = MultiLineDataSet(dataSets: getLinesData(valueElements: fieldDependency.fieldData?.value?.valueElements ?? []))
+
+        return MultiLineChartData(dataSets: data,
+                                  metadata: ChartMetadata(title: fieldDependency.fieldData?.title ?? "", subtitle: ""),
+                                  xAxisLabels: [],
+                                  chartStyle: LineChartStyle(infoBoxPlacement: .floating,
+                                                             markerType: .full(attachment: .line(dot: .style(DotStyle()))),
+                                                             xAxisGridStyle: GridStyle(numberOfLines: 5),
+                                                             xAxisTitle: fieldDependency.fieldData?.xTitle,
+                                                             yAxisGridStyle: GridStyle(numberOfLines: 5),
+                                                             yAxisNumberOfLabels: 6,
+                                                             yAxisTitle: fieldDependency.fieldData?.yTitle,
+                                                             baseline: .minimumValue,
+                                                             topLine: .maximumValue))
+    }
     
-//    static func getLinesData(valueElements: [ValueElement]) -> [LineDataSet] {
-//        var lineDataSets: [LineDataSet] = []
-//        for valueElement in valueElements {
-//            let randomColor = Color(red: Double.random(in: 0...1),
-//                                    green: Double.random(in: 0...1),
-//                                    blue: Double.random(in: 0...1))
-//            lineDataSets.append(LineDataSet(dataPoints: getPointsData(valueElement: valueElement),
-//                                            legendTitle: valueElement.title ?? "",
-//                                            pointStyle: PointStyle(pointType: .filled, pointShape: .circle),
-//                                            style: LineStyle(lineColour: ColourStyle(colour: randomColor), lineType: .line)))
-//        }
-//        return lineDataSets
-//    }
-//    static func getPointsData(valueElement: ValueElement) -> [LineChartDataPoint] {
-//        var lineChartDataPoints: [LineChartDataPoint] = []
-//        for point in valueElement.points ?? [] {
-//            lineChartDataPoints.append(LineChartDataPoint(value: point.y ?? 0,  xAxisLabel: "\(point.x ?? 0)", description: "wekrhbf"))
-//        }
-//        return lineChartDataPoints
-//    }
+    static func getLinesData(valueElements: [ValueElement]) -> [LineDataSet] {
+        var lineDataSets: [LineDataSet] = []
+        for valueElement in valueElements {
+            let randomColor = Color(red: Double.random(in: 0...1),
+                                    green: Double.random(in: 0...1),
+                                    blue: Double.random(in: 0...1))
+            lineDataSets.append(LineDataSet(dataPoints: getPointsData(valueElement: valueElement),
+                                            legendTitle: valueElement.title ?? "",
+                                            pointStyle: PointStyle(pointType: .filled, pointShape: .circle),
+                                            style: LineStyle(lineColour: ColourStyle(colour: randomColor), lineType: .line)))
+        }
+        return lineDataSets
+    }
+    static func getPointsData(valueElement: ValueElement) -> [LineChartDataPoint] {
+        var lineChartDataPoints: [LineChartDataPoint] = []
+        for point in valueElement.points?.sorted(by: { $0.x! < $1.x!}) ?? [] {
+            lineChartDataPoints.append(LineChartDataPoint(value: point.y ?? 0,  xAxisLabel: "\(point.x ?? 0)", description: "wekrhbf"))
+        }
+        return lineChartDataPoints
+    }
 }

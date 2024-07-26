@@ -15,6 +15,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/joyfill/JoyfillModel", from: "1.0.5"),
+        .package(url: "https://github.com/willdale/SwiftUICharts.git", from: "2.10.2"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -23,6 +24,7 @@ let package = Package(
             name: "Joyfill",
             dependencies: [
                 "JoyfillModel",
+                "SwiftUICharts"
             ]
         ),
         .testTarget(
