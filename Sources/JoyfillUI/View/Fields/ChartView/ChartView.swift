@@ -5,7 +5,6 @@
 //
 
 import SwiftUI
-import SwiftUICharts
 import JoyfillModel
 
 struct ChartView: View {
@@ -14,7 +13,7 @@ struct ChartView: View {
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
     
-    let data : MultiLineChartData
+    let data : MultiLineChartData?
     public init(fieldDependency: FieldDependency) {
         self.fieldDependency = fieldDependency
         _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
@@ -24,24 +23,27 @@ struct ChartView: View {
     var body: some View {
         VStack(alignment: .leading) {
            FieldHeaderView(fieldDependency)
-//            RoundedRectangle(cornerRadius: 10)
-//                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-//                .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
-//                .overlay(
-//                    MultiLineChart(chartData: data)
-////                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
-//                        .pointMarkers(chartData: data)
-////                        .xAxisGrid(chartData: data)
-////                        .yAxisGrid(chartData: data)
-//                        .xAxisLabels(chartData: data)
-//                        .yAxisLabels(chartData: data, specifier: "%.01f")
-//                        .floatingInfoBox(chartData: data)
-////                        .headerBox(chartData: data)
-//                    //                        .legends(chartData: data, columns: [GridItem(.flexible()), GridItem(.flexible())])
-//                        .id(data.id)
-//                        .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
-//                        .padding(.horizontal)
-//                )
+            if let data = data {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
+                    .overlay(
+                        MultiLineChart(chartData: data)
+    //                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
+                            .pointMarkers(chartData: data)
+    //                        .xAxisGrid(chartData: data)
+    //                        .yAxisGrid(chartData: data)
+                            .xAxisLabels(chartData: data)
+                            .yAxisLabels(chartData: data, specifier: "%.01f")
+                            .floatingInfoBox(chartData: data)
+    //                        .headerBox(chartData: data)
+                        //                        .legends(chartData: data, columns: [GridItem(.flexible()), GridItem(.flexible())])
+                            .id(data.id)
+                            .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
+                            .padding(.horizontal)
+                    )
+            }
+
             
             Button(action: {
                 showDetailChartView = true
@@ -63,26 +65,29 @@ struct ChartView: View {
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             .padding(.top, 6)
-            
-            NavigationLink(destination: ChartDetailView(chartData: data, fieldDependency: fieldDependency), isActive: $showDetailChartView) {
-                EmptyView()
+            if let data = data {
+                NavigationLink(destination: ChartDetailView(chartData: data, fieldDependency: fieldDependency), isActive: $showDetailChartView) {
+                    EmptyView()
+                }
+                .frame(width: 0, height: 0)
+                .hidden()
             }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
     }
     
     
-    static func getData(fieldDependency: FieldDependency) -> MultiLineChartData {
-        let data = MultiLineDataSet(dataSets: getLinesData(valueElements: fieldDependency.fieldData?.value?.valueElements ?? []))
-
+    static func getData(fieldDependency: FieldDependency) -> MultiLineChartData? {
+        guard let fieldData = fieldDependency.fieldData else { return nil  }
+        guard let valueElements = fieldData.value?.valueElements else { return nil  }
+        let data = MultiLineDataSet(dataSets: getLinesData(valueElements: valueElements))
         return MultiLineChartData(dataSets: data,
                                   metadata: ChartMetadata(title: fieldDependency.fieldData?.title ?? "", subtitle: ""),
-                                  xAxisLabels: [],
+                                  xAxisLabels: xAxisLabel(fieldData: fieldData),
+                                  yAxisLabels: yAxisLabel(fieldData: fieldData),
                                   chartStyle: LineChartStyle(infoBoxPlacement: .floating,
                                                              markerType: .full(attachment: .line(dot: .style(DotStyle()))),
                                                              xAxisGridStyle: GridStyle(numberOfLines: 5),
-                                                             xAxisTitle: fieldDependency.fieldData?.xTitle,
+                                                             xAxisLabelsFrom: .chartData(rotation: .zero), xAxisTitle: fieldDependency.fieldData?.xTitle,
                                                              yAxisGridStyle: GridStyle(numberOfLines: 5),
                                                              yAxisNumberOfLabels: 6,
                                                              yAxisTitle: fieldDependency.fieldData?.yTitle,
@@ -109,5 +114,13 @@ struct ChartView: View {
             lineChartDataPoints.append(LineChartDataPoint(value: point.y ?? 0,  xAxisLabel: "\(point.x ?? 0)", description: "wekrhbf"))
         }
         return lineChartDataPoints
+    }
+
+    static func xAxisLabel(fieldData: JoyDocField) -> [String] {
+        ["10", "20", "30", "40", "50", "60",]
+    }
+
+    static func yAxisLabel(fieldData: JoyDocField) -> [String] {
+        ["10", "20", "30", "40", "50", "60",]
     }
 }

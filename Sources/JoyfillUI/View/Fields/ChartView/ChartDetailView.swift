@@ -6,7 +6,6 @@
 
 import SwiftUI
 import JoyfillModel
-import SwiftUICharts
 
 struct ChartDetailView: View {
     var chartData: MultiLineChartData
@@ -16,7 +15,6 @@ struct ChartDetailView: View {
     @State var chartCoordinatesData: ChartAxisConfiguration
     
     public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
-//    public init(fieldDependency: FieldDependency) {
         self.chartData = chartData
         self.fieldDependency = fieldDependency
         _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
@@ -220,7 +218,7 @@ struct LinesView: View {
                         HStack{
                             Text("Remove")
                                 .darkLightThemeColor()
-                            
+
                             Image(systemName: "minus.circle")
                                 .foregroundColor(.red)
                         }
@@ -267,9 +265,9 @@ struct LinesView: View {
     }
 
     func addNewLine() {
-        var points: [Point] = []
+        var points: [JoyfillModel.Point] = []
         for i in 0..<3 {
-            let point: Point = Point(id: generateObjectId())
+            let point = JoyfillModel.Point(id: generateObjectId())
             points.append(point)
         }
         var valueElement: ValueElement = ValueElement(id: generateObjectId(),points: points)
@@ -302,7 +300,7 @@ struct LineView: View {
         }
     }
 
-    func updatePoints(points: [Point]?) {
+    func updatePoints(points: [JoyfillModel.Point]?) {
         var valueElement = valueElement
         valueElement.points = points
         updateValueElement(valueElement)
@@ -357,9 +355,9 @@ struct LineView: View {
 }
 
 struct PointsView: View {
-    let points: [Point]?
+    let points: [JoyfillModel.Point]?
     var lineId: String
-    let updatePoints: ([Point]?) -> Void
+    let updatePoints: ([JoyfillModel.Point]?) -> Void
 
     var body: some View {
         VStack(alignment: .leading){
@@ -382,7 +380,7 @@ struct PointsView: View {
         }
     }
 
-    func updatePoint(point: Point) {
+    func updatePoint(point: JoyfillModel.Point) {
         let index = (points?.firstIndex(where: { $0.id == point.id }))!
         var points = points
         points?[index] = point
@@ -391,7 +389,7 @@ struct PointsView: View {
 
     func addNewPoint(id: String? = nil) {
         var points = points ?? []
-        points.append(Point(id: generateObjectId()))
+        points.append(JoyfillModel.Point(id: generateObjectId()))
         updatePoints(points)
     }
 
@@ -404,10 +402,10 @@ struct PointsView: View {
 }
 
 struct PointView: View {
-    let point: Point
+    let point: JoyfillModel.Point
     var deletePointAction: (String, String) -> Void
     var lineId: String
-    var updatePoint: (Point) -> Void
+    var updatePoint: (JoyfillModel.Point) -> Void
 
     var body: some View {
         HStack {
