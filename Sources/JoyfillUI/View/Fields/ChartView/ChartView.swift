@@ -44,7 +44,6 @@ struct ChartView: View {
                     )
             }
 
-            
             Button(action: {
                 showDetailChartView = true
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
@@ -66,7 +65,7 @@ struct ChartView: View {
             .accessibilityIdentifier("ChartViewIdentifier")
             .padding(.top, 6)
             if let data = data {
-                NavigationLink(destination: ChartDetailView(chartData: data, fieldDependency: fieldDependency), isActive: $showDetailChartView) {
+                NavigationLink(destination: ChartDetailView(chartData: data, fieldDependency: fieldDependency, chartCoordinatesData: ChartAxisConfiguration(yTitle: fieldDependency.fieldData?.yTitle, yMax: fieldDependency.fieldData?.yMax, yMin: fieldDependency.fieldData?.yMin, xTitle: fieldDependency.fieldData?.xTitle, xMax: fieldDependency.fieldData?.xMax, xMin: fieldDependency.fieldData?.xMin)), isActive: $showDetailChartView) {
                     EmptyView()
                 }
                 .frame(width: 0, height: 0)
@@ -80,10 +79,11 @@ struct ChartView: View {
         guard let fieldData = fieldDependency.fieldData else { return nil  }
         guard let valueElements = fieldData.value?.valueElements else { return nil  }
         let data = MultiLineDataSet(dataSets: getLinesData(valueElements: valueElements))
+        let chartCoordinatesData = ChartAxisConfiguration(yTitle: fieldDependency.fieldData?.yTitle, yMax: fieldDependency.fieldData?.yMax, yMin: fieldDependency.fieldData?.yMin, xTitle: fieldDependency.fieldData?.xTitle, xMax: fieldDependency.fieldData?.xMax, xMin: fieldDependency.fieldData?.xMin)
         return MultiLineChartData(dataSets: data,
                                   metadata: ChartMetadata(title: fieldDependency.fieldData?.title ?? "", subtitle: ""),
-                                  xAxisLabels: xAxisLabel(fieldData: fieldData),
-                                  yAxisLabels: yAxisLabel(fieldData: fieldData),
+                                  xAxisLabels: xAxisLabel(chartCoordinatesData: chartCoordinatesData),
+                                  yAxisLabels: yAxisLabel(chartCoordinatesData: chartCoordinatesData),
                                   chartStyle: LineChartStyle(infoBoxPlacement: .floating,
                                                              markerType: .full(attachment: .line(dot: .style(DotStyle()))),
                                                              xAxisGridStyle: GridStyle(numberOfLines: 5),
@@ -116,11 +116,30 @@ struct ChartView: View {
         return lineChartDataPoints
     }
 
-    static func xAxisLabel(fieldData: JoyDocField) -> [String] {
-        ["10", "20", "30", "40", "50", "60",]
+    static func xAxisLabel(chartCoordinatesData: ChartAxisConfiguration) -> [String] {
+        return generateEquallySpacedNumbers(min: chartCoordinatesData.xMin, max: chartCoordinatesData.xMax)
     }
 
-    static func yAxisLabel(fieldData: JoyDocField) -> [String] {
-        ["10", "20", "30", "40", "50", "60",]
+    static func yAxisLabel(chartCoordinatesData: ChartAxisConfiguration) -> [String] {
+        return generateEquallySpacedNumbers(min: chartCoordinatesData.yMin, max: chartCoordinatesData.yMax)
+    }
+
+    static func generateEquallySpacedNumbers(min: Double?, max: Double?) -> [String] {
+        guard let min = min, let max = max else { return [] }
+
+        guard min < max else {
+            print("Invalid range")
+            return []
+        }
+
+        let step = (max - min) / 4.0
+        var numbers = [String]()
+
+        for i in 0...4 {
+            let value = min + (step * Double(i))
+            numbers.append("\(value)")
+        }
+
+        return numbers
     }
 }

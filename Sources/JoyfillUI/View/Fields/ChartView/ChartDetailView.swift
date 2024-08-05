@@ -13,18 +13,18 @@ struct ChartDetailView: View {
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
     @State var chartCoordinatesData: ChartAxisConfiguration
-    
-    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
+   
+    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency, chartCoordinatesData: ChartAxisConfiguration) {
+
         self.chartData = chartData
         self.fieldDependency = fieldDependency
         _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
-        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: fieldDependency.fieldData?.yTitle, yMax: fieldDependency.fieldData?.yMax, yMin: fieldDependency.fieldData?.yMin, xTitle: fieldDependency.fieldData?.xTitle, xMax: fieldDependency.fieldData?.xMax, xMin: fieldDependency.fieldData?.xMin))
+        _chartCoordinatesData = State(initialValue: chartCoordinatesData)
     }
     
     var body: some View {
         VStack {
             ScrollView {
-                
                 MultiLineChart(chartData: chartData)
                 //                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
                     .pointMarkers(chartData: chartData)
@@ -150,28 +150,28 @@ struct xAndYCordinate: View {
                 Binding {
                     return "\(chartCoordinatesData.xMin ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.xMin = Int(newXMin)
+                    chartCoordinatesData.xMin = Double(newXMin)
                 }
             }
             var yMinBinding : Binding<String> {
                 Binding {
                     return "\(chartCoordinatesData.yMin ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.yMin = Int(newXMin)
+                    chartCoordinatesData.yMin = Double(newXMin)
                 }
             }
             var xMaxBinding : Binding<String> {
                 Binding {
                     return "\(chartCoordinatesData.xMax ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.xMax = Int(newXMin)
+                    chartCoordinatesData.xMax = Double(newXMin)
                 }
             }
             var yMaxBinding : Binding<String> {
                 Binding {
                     return "\(chartCoordinatesData.yMax ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.yMax = Int(newXMin)
+                    chartCoordinatesData.yMax = Double(newXMin)
                 }
             }
             HStack {
