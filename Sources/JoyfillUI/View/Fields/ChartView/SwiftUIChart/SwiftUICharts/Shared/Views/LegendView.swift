@@ -36,7 +36,6 @@ internal struct LegendView<T>: View where T: CTChartData {
             ForEach(chartData.legends, id: \.id) { legend in
                 legend.getLegend(width: width, font: font, textColor: textColor)
                     .if(scaleLegendBar(legend: legend)) { $0.scaleEffect(1.2, anchor: .leading) }
-                    .if(scaleLegendPie(legend: legend)) { $0.scaleEffect(1.2, anchor: .leading) }
                     .accessibilityLabel(LocalizedStringKey(legend.accessibilityLegendLabel()))
                     .accessibilityValue(LocalizedStringKey(legend.legend))
             }
@@ -59,18 +58,5 @@ internal struct LegendView<T>: View where T: CTChartData {
         }
         return false
     }
-    
-    /// Detects whether to run the scale effect on the legend.
-    private func scaleLegendPie(legend: LegendData) -> Bool {
-        
-        if chartData is PieChartData || chartData is DoughnutChartData {
-            if let datapointID = chartData.infoView.touchOverlayInfo.first?.id as? UUID {
-                return chartData.infoView.isTouchCurrent && legend.id == datapointID
-            } else {
-                return false
-            }
-        } else {
-            return false
-        }
-    }
+
 }

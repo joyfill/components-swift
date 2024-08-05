@@ -22,13 +22,6 @@ extension CTChartData where Self: CTBarChartDataProtocol,
     }
 }
 
-extension CTChartData where Self: CTPieDoughnutChartDataProtocol,
-                            SetType: CTSingleDataSetProtocol {
-    public func isGreaterThanTwo() -> Bool {
-        return dataSets.dataPoints.count >= 1
-    }
-}
-
 extension CTChartData where Self: CTLineChartDataProtocol,
                             SetType: CTMultiDataSetProtocol {
     public func isGreaterThanTwo() -> Bool {
@@ -345,16 +338,6 @@ extension CTStandardDataPointProtocol where Self: CTLineDataPointProtocol & Igno
             } else {
                 return String("")
             }
-        }
-    }
-}
-extension CTStandardDataPointProtocol where Self: CTPieDataPoint {
-    /// Data point's value as a string
-    public func valueAsString(specifier: String, formatter: NumberFormatter?) -> String {
-        if let formatter = formatter {
-            return formatter.string(from: NSNumber(floatLiteral: value)) ?? ""
-        } else {
-            return String(format: specifier, value)
         }
     }
 }
