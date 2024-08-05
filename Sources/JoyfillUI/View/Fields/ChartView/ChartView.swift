@@ -90,7 +90,7 @@ struct ChartView: View {
                                                              xAxisLabelsFrom: .chartData(rotation: .zero), xAxisTitle: fieldDependency.fieldData?.xTitle,
                                                              yAxisGridStyle: GridStyle(numberOfLines: 5),
                                                              yAxisNumberOfLabels: 6,
-                                                             yAxisTitle: fieldDependency.fieldData?.yTitle,
+                                                             yAxisLabelType: .custom, yAxisTitle: fieldDependency.fieldData?.yTitle,
                                                              baseline: .minimumValue,
                                                              topLine: .maximumValue))
     }
