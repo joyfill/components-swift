@@ -15,7 +15,6 @@ struct ChartDetailView: View {
     @State var chartCoordinatesData: ChartAxisConfiguration
    
     public init(chartData: MultiLineChartData,fieldDependency: FieldDependency, chartCoordinatesData: ChartAxisConfiguration) {
-
         self.chartData = chartData
         self.fieldDependency = fieldDependency
         _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
@@ -79,7 +78,7 @@ struct ChartCoordinateView: View {
             }
             if isCoordinateVisible {
                 Group {
-                    xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false, identifier: "VerticalTextFieldIdentifier")
+                xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false, identifier: "VerticalTextFieldIdentifier")
                         .disabled(fieldDependency.mode == .readonly)
                 xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: true, identifier: "HorizontalTextFieldIdentifier")
                         .disabled(fieldDependency.mode == .readonly)
@@ -148,28 +147,28 @@ struct xAndYCordinate: View {
             }
             var xMinBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.xMin ?? 0)"
+                    return formatNumber(chartCoordinatesData.xMin ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.xMin = Double(newXMin)
                 }
             }
             var yMinBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.yMin ?? 0)"
+                    return formatNumber(chartCoordinatesData.yMin ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.yMin = Double(newXMin)
                 }
             }
             var xMaxBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.xMax ?? 0)"
+                    return formatNumber(chartCoordinatesData.xMax ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.xMax = Double(newXMin)
                 }
             }
             var yMaxBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.yMax ?? 0)"
+                    return formatNumber(chartCoordinatesData.yMax ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.yMax = Double(newXMin)
                 }
@@ -508,3 +507,10 @@ struct xAndYAxisCoordinateView: View {
     }
 }
 
+func formatNumber(_ number: Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.minimumFractionDigits = 0
+    formatter.maximumFractionDigits = 3
+    formatter.numberStyle = .decimal
+    return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
+}
