@@ -508,9 +508,13 @@ struct xAndYAxisCoordinateView: View {
 }
 
 func formatNumber(_ number: Double) -> String {
+    if number == floor(number) {
+        return String(format: "%.0f", number)
+    }
     let formatter = NumberFormatter()
     formatter.minimumFractionDigits = 0
     formatter.maximumFractionDigits = 3
     formatter.numberStyle = .decimal
+    formatter.usesGroupingSeparator = false // This disables comma separators
     return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
 }

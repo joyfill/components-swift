@@ -104,7 +104,7 @@ struct ChartView: View {
             lineDataSets.append(LineDataSet(dataPoints: getPointsData(valueElement: valueElement),
                                             legendTitle: valueElement.title ?? "",
                                             pointStyle: PointStyle(pointType: .filled, pointShape: .circle),
-                                            style: LineStyle(lineColour: ColourStyle(colour: randomColor), lineType: .line)))
+                                            style: LineStyle(lineColour: ColourStyle(colour: randomColor), lineType: .curvedLine)))
         }
         return lineDataSets
     }
