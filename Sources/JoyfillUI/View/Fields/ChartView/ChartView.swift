@@ -112,7 +112,7 @@ struct ChartView: View {
         var lineChartDataPoints: [LineChartDataPoint] = []
         if let points = valueElement.points {
             for point in points {
-                lineChartDataPoints.append(LineChartDataPoint(value: point.y ?? 0,  xAxisLabel: "\(point.x ?? 0)", description: "wekrhbf"))
+                lineChartDataPoints.append(LineChartDataPoint(value: point.y ?? 0,  xAxisLabel: "\(point.x ?? 0)", description: valueElement.title))
             }
         }
         return lineChartDataPoints
