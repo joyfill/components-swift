@@ -110,8 +110,10 @@ struct ChartView: View {
     }
     static func getPointsData(valueElement: ValueElement) -> [LineChartDataPoint] {
         var lineChartDataPoints: [LineChartDataPoint] = []
-        for point in valueElement.points?.sorted(by: { $0.x! < $1.x!}) ?? [] {
-            lineChartDataPoints.append(LineChartDataPoint(value: point.y ?? 0,  xAxisLabel: "\(point.x ?? 0)", description: "wekrhbf"))
+        if let points = valueElement.points {
+            for point in points {
+                lineChartDataPoints.append(LineChartDataPoint(value: point.y ?? 0,  xAxisLabel: "\(point.x ?? 0)", description: "wekrhbf"))
+            }
         }
         return lineChartDataPoints
     }
