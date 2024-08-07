@@ -25,7 +25,7 @@ struct ChartDetailView: View {
         VStack {
             ScrollView {
                 MultiLineChart(chartData: chartData)
-                //                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
+                                        .touchOverlay(chartData: chartData, specifier: "%.01f", unit: .none)
                     .pointMarkers(chartData: chartData)
                 //                        .xAxisGrid(chartData: data)
                 //                        .yAxisGrid(chartData: data)
