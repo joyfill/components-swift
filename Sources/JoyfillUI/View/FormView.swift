@@ -432,6 +432,8 @@ struct FormView: View {
             TableQuickView(fieldDependency: fieldDependency)
         case .image:
             ImageView(fieldDependency: fieldDependency)
+        case .file:
+            EmptyView()
         }
     }
 
