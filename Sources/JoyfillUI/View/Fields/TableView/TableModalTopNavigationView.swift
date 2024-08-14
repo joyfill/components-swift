@@ -2,15 +2,17 @@ import SwiftUI
 
 struct TableModalTopNavigationView: View {
     @Binding var isDeleteButtonVisible: Bool
+    let fieldDependency: FieldDependency
     var onDeleteTap: (() -> Void)?
     var onDuplicateTap: (() -> Void)?
     var onAddRowTap: (() -> Void)?
     
     var body: some View {
-        HStack {
-            Text("Table Title")
-                .lineLimit(1)
-                .font(.headline.bold())
+        HStack(alignment: .top) {
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .font(.headline.bold())
+            }
             
             Spacer()
             if isDeleteButtonVisible {
@@ -54,8 +56,4 @@ struct TableModalTopNavigationView: View {
             .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
-}
-
-#Preview {
-    TableModalTopNavigationView(isDeleteButtonVisible: .constant(true))
 }
