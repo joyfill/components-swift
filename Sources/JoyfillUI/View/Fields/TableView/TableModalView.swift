@@ -18,7 +18,7 @@ struct TableModalView : View {
     
     var body: some View {
         VStack {
-            TableModalTopNavigationView(isDeleteButtonVisible: $viewModel.shouldShowDeleteRowButton, onDeleteTap: {
+            TableModalTopNavigationView(showMoreButton: $viewModel.shouldShowDeleteRowButton, onDeleteTap: {
                 viewModel.deleteSelectedRow()
                 heights = [:]
             }, onDuplicateTap: {

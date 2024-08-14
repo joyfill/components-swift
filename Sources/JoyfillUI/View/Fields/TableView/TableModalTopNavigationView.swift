@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TableModalTopNavigationView: View {
-    @Binding var isDeleteButtonVisible: Bool
+    @Binding var showMoreButton: Bool
     var onDeleteTap: (() -> Void)?
     var onDuplicateTap: (() -> Void)?
     var onAddRowTap: (() -> Void)?
@@ -13,7 +13,7 @@ struct TableModalTopNavigationView: View {
                 .font(.headline.bold())
             
             Spacer()
-            if isDeleteButtonVisible {
+            if showMoreButton {
                 Button(action: {
                     onDeleteTap?()
                 }) {
@@ -27,7 +27,7 @@ struct TableModalTopNavigationView: View {
                 .accessibilityIdentifier("TableDeleteRowIdentifier")
             }
 
-            if isDeleteButtonVisible {
+            if showMoreButton {
                 Button(action: {
                     onDuplicateTap?()
                 }) {
@@ -57,5 +57,5 @@ struct TableModalTopNavigationView: View {
 }
 
 #Preview {
-    TableModalTopNavigationView(isDeleteButtonVisible: .constant(true))
+    TableModalTopNavigationView(showMoreButton: .constant(true))
 }
