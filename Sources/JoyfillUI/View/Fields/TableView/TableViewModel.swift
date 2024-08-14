@@ -27,7 +27,7 @@ class TableViewModel: ObservableObject {
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
-    private var selectedRow: Int?
+    private var selectedRows = [Int]()
 
     private var tableDataDidChange = false
     @Published var uuid = UUID()
@@ -70,35 +70,37 @@ class TableViewModel: ObservableObject {
     }
     
     func toggleSelection(at index: Int? = nil) {
-        if let lastSelectedRow = selectedRow {
-            rowsSelection[lastSelectedRow].toggle()
-            selectedRow = nil
-        }
-        
         guard let index = index else {
             return
         }
         
+        if rowsSelection[index] {
+            selectedRows.removeAll { $0 == index }
+        } else {
+            selectedRows.append(index)
+        }
         rowsSelection[index].toggle()
-        selectedRow = rowsSelection[index] ? index : nil
     }
     
     func resetLastSelection() {
-        selectedRow = nil
+        selectedRows = []
     }
     
     func setDeleteButtonVisibility() {
-        shouldShowDeleteRowButton = (mode == .fill && selectedRow != nil)
+        shouldShowDeleteRowButton = (mode == .fill && !selectedRows.isEmpty)
     }
     
     func deleteSelectedRow() {
-        guard let selectedRow = selectedRow else {
+        guard !selectedRows.isEmpty else {
             return
         }
         setTableDataDidChange(to: true)
-        
-        fieldDependency.fieldData?.deleteRow(id: rows[selectedRow])
-        rowToCellMap.removeValue(forKey: rows[selectedRow])
+
+        for row in selectedRows {
+            fieldDependency.fieldData?.deleteRow(id: rows[row])
+            rowToCellMap.removeValue(forKey: rows[row])
+        }
+
         resetLastSelection()
         setup()
         uuid = UUID()
@@ -109,18 +111,20 @@ class TableViewModel: ObservableObject {
     }
     
     func duplicateRow() {
-        guard let selectedRow = selectedRow else {
+        guard !selectedRows.isEmpty else {
             return
         }
         setTableDataDidChange(to: true)
 
 
-        let id = generateObjectId()
-        fieldDependency.fieldData?.duplicateRow(id: rows[selectedRow])
+        for row in selectedRows {
+            let id = generateObjectId()
+            fieldDependency.fieldData?.duplicateRow(id: rows[row])
+            uuid = UUID()
+            fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: row+1)
+        }
         resetLastSelection()
         setup()
-        uuid = UUID()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: selectedRow+1)
     }
 
     func addRow() {
