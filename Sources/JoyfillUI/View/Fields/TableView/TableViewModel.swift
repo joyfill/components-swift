@@ -94,7 +94,6 @@ class TableViewModel: ObservableObject {
         guard !selectedRows.isEmpty else {
             return
         }
-        setTableDataDidChange(to: true)
 
         for row in selectedRows {
             fieldDependency.fieldData?.deleteRow(id: rows[row])
@@ -104,6 +103,7 @@ class TableViewModel: ObservableObject {
         resetLastSelection()
         setup()
         uuid = UUID()
+        setTableDataDidChange(to: true)
     }
     
     func setTableDataDidChange(to: Bool) {

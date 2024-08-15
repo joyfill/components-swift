@@ -1,14 +1,9 @@
 import SwiftUI
 
-
-
-
 //onDeleteTap?()
 //onDuplicateTap?()
-
 //    .accessibilityIdentifier("TableDeleteRowIdentifier")
 //    .accessibilityIdentifier("TableDuplicateRowIdentifier")
-
 
 struct TableModalTopNavigationView: View {
     @Binding var showMoreButton: Bool
