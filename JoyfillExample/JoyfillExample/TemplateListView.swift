@@ -25,7 +25,7 @@ public struct TemplateListView: View {
                     ForEach(templates) { template in
                         VStack(alignment: .trailing) {
                             NavigationLink {
-                                DocumentSubmissionsListView(documents: allDocuments(for: template.identifier),
+                                DocumentSubmissionsListView(documents: documents,
                                                             title: String(template.identifier.suffix(8)))
                             } label: {
                                 HStack {
