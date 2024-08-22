@@ -25,7 +25,7 @@ struct TableModalView : View {
                 viewModel.duplicateRow()
             }, onAddRowTap: {
                 viewModel.addRow()
-            })
+            }, fieldDependency: viewModel.fieldDependency)
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
