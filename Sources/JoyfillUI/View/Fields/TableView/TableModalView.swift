@@ -124,9 +124,9 @@ struct TableModalView : View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 0) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { i, row in
-                            HStack(alignment: .top, spacing: 0) {
+                            LazyHStack(alignment: .top, spacing: 0) {
                                 ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
                                     // Cell
                                     let cell = viewModel.getFieldTableColumn(row: row, col: index)
