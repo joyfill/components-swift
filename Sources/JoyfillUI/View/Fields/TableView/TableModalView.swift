@@ -8,6 +8,7 @@ struct TableModalView : View {
     @State private var heights: [Int: CGFloat] = [:]
     @State private var refreshID = UUID()
     @State private var rowsCount: Int = 0
+    @State private var searchText = ""
     @Environment(\.colorScheme) var colorScheme
     
     init(viewModel: TableViewModel) {
@@ -27,6 +28,9 @@ struct TableModalView : View {
                 viewModel.addRow()
             }, fieldDependency: viewModel.fieldDependency)
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+            
+            SearchBar(text: $searchText)
+            
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
@@ -219,5 +223,85 @@ struct ViewOffsetKey: PreferenceKey {
     static func reduce(value: inout Value, nextValue: () -> Value) {
         value.x += nextValue().x
         value.y += nextValue().y
+    }
+}
+
+struct SearchBar: View {
+    @Binding var text: String
+
+    var body: some View {
+        HStack {
+            TextFieldSearchBar(text: $text)
+//            DropdownFieldSearchBar()
+            
+            Button(action: {
+                
+            }, label: {
+                HStack {
+                    Text("Sort")
+                    Image(systemName: "arrow.up.arrow.down")
+                }
+                .font(.system(size: 14))
+                .foregroundColor(.black)
+            })
+            .frame(height: 25)
+            .padding(.horizontal, 12)
+            .background(.white)
+            .cornerRadius(4)
+            
+            Button(action: {
+                
+            }, label: {
+                Image(systemName: "xmark")
+                    .resizable()
+                    .frame(width: 10, height: 10)
+                    .darkLightThemeColor()
+                    .padding(.all, 8)
+                    .background(.white)
+                    .cornerRadius(4)
+                    .padding(.trailing, 8)
+                    
+            })
+        }
+        .frame(height: 40)
+        .background(Color(.systemGray6))
+        .cornerRadius(8)
+        .padding(.horizontal, 12)
+    }
+}
+
+struct TextFieldSearchBar: View {
+    @Binding var text: String
+    
+    var body: some View {
+        TextField("Search ", text: $text)
+            .font(.system(size: 12))
+            .padding(.all, 4)
+            .frame(height: 25)
+            .background(.white)
+            .cornerRadius(6)
+            .padding(.leading, 8)
+    }
+}
+
+struct DropdownFieldSearchBar: View {
+    var body: some View {
+        Button(action: {
+            
+        }, label: {
+            HStack {
+                Text("Select Option")
+                .lineLimit(1)
+                Spacer()
+                Image(systemName: "chevron.down")
+            }
+            .foregroundStyle(.gray)
+            .font(.system(size: 12))
+            .padding(.all, 6)
+            .frame(height: 25)
+            .background(.white)
+            .cornerRadius(6)
+            .padding(.leading, 8)
+        })
     }
 }
