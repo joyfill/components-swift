@@ -281,6 +281,20 @@ struct TextFieldSearchBar: View {
             .background(.white)
             .cornerRadius(6)
             .padding(.leading, 8)
+            .overlay(
+                HStack {
+                    Spacer()
+                    if !text.isEmpty {
+                        Button(action: {
+                            self.text = ""
+                        }) {
+                            Image(systemName: "multiply.circle.fill")
+                                .foregroundColor(.gray)
+                                .padding(.all, 4)
+                        }
+                    }
+                }
+            )
     }
 }
 
