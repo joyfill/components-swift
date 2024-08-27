@@ -11,6 +11,7 @@ struct TableModalView : View {
     @State private var searchText = ""
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
+    @State private var selectedCol: String? = nil
 
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
@@ -34,9 +35,10 @@ struct TableModalView : View {
                 EditMultipleRowsSheetView(viewModel: viewModel)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-            
-            SearchBar(text: $searchText)
-            
+            if selectedCol != nil {
+                SearchBar(text: $searchText)
+            }
+
             scrollArea
 
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
@@ -94,7 +96,6 @@ struct TableModalView : View {
                     colsHeader
                         .offset(x: offset.x)
                 }
-                .disabled(true)
                 .background(Color.tableCellBorderColor)
                 .cornerRadius(14, corners: [.topRight])
                 
@@ -108,12 +109,16 @@ struct TableModalView : View {
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(viewModel.columns, id: \.self) { col in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.getColumnTitle(columnId: col))
-                }
+                Button(action: {
+                    selectedCol = selectedCol == col ? nil : col
+                }, label: {
+                    ZStack {
+                        Rectangle()
+                            .stroke()
+                            .foregroundColor(Color.tableCellBorderColor)
+                        Text(viewModel.getColumnTitle(columnId: col))
+                    }
+                })
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .frame(width: 170, height: rowHeight)
             }
