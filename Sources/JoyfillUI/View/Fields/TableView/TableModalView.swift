@@ -49,6 +49,10 @@ struct TableModalView : View {
             let fieldEvent = FieldEvent(field: viewModel.fieldDependency.fieldData)
             viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
         })
+        .onChange(of: viewModel.shouldShowDeleteRowButton) { newValue in
+            viewModel.allRowSelected = newValue
+        }
+
     }
     
     var scrollArea: some View {
@@ -56,10 +60,20 @@ struct TableModalView : View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center) {
                     if viewModel.showRowSelector  {
-                        Spacer()
+                        Image(systemName: viewModel.allRowSelected ? "record.circle.fill" : "circle")
                             .frame(height: 40)
+                            .onTapGesture {
+                                viewModel.allRowSelected.toggle()
+                                if viewModel.allRowSelected {
+                                    viewModel.selectAllRows()
+                                } else {
+                                    viewModel.resetLastSelection()
+                                }
+                                viewModel.setDeleteButtonVisibility()
+                            }
+                            .accessibilityIdentifier("SelectAllButton")
                     }
-                    
+
                     Text("#")
                         .frame(width: 40)
                 }

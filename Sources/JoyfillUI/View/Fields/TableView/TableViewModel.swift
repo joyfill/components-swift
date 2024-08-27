@@ -17,6 +17,7 @@ class TableViewModel: ObservableObject {
     @Published var shouldShowAddRowButton: Bool = false
     @Published var shouldShowDeleteRowButton: Bool = false
     @Published var showRowSelector: Bool = false
+    @Published var allRowSelected: Bool = false
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
     @Published var quickRows: [String] = []
@@ -86,8 +87,18 @@ class TableViewModel: ObservableObject {
         }
         rowsSelection[index].toggle()
     }
-    
+
+    func selectAllRows() {
+        selectedRows = Array(0...rows.count-1)
+        for rowIndex in selectedRows {
+            rowsSelection[rowIndex] = true
+        }
+    }
+
     func resetLastSelection() {
+        for rowIndex in selectedRows {
+            rowsSelection[rowIndex] = false
+        }
         selectedRows = []
     }
     
