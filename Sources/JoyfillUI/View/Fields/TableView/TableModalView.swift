@@ -10,7 +10,8 @@ struct TableModalView : View {
     @State private var rowsCount: Int = 0
     @State private var searchText = ""
     @Environment(\.colorScheme) var colorScheme
-    
+    @State private var showEditMultipleRowsSheetView: Bool = false
+
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
@@ -26,13 +27,20 @@ struct TableModalView : View {
                 viewModel.duplicateRow()
             }, onAddRowTap: {
                 viewModel.addRow()
+            }, onEditTap: {
+                showEditMultipleRowsSheetView = true
             }, fieldDependency: viewModel.fieldDependency)
+            .sheet(isPresented: $showEditMultipleRowsSheetView) {
+                EditMultipleRowsSheetView(viewModel: viewModel)
+            }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             
             SearchBar(text: $searchText)
             
             scrollArea
+
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()

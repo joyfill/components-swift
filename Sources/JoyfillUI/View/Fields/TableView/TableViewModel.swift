@@ -27,7 +27,7 @@ class TableViewModel: ObservableObject {
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
-    private var selectedRows = [Int]()
+    var selectedRows = [Int]()
 
     private var tableDataDidChange = false
     @Published var uuid = UUID()
@@ -68,7 +68,12 @@ class TableViewModel: ObservableObject {
         guard index < columns.count else { return "" }
         return columnIdToColumnMap[columns[index]]?.title ?? ""
     }
-    
+
+    func getColumnIDAtIndex(index: Int) -> String? {
+        guard index < columns.count else { return nil }
+        return columnIdToColumnMap[columns[index]]?.id
+    }
+
     func toggleSelection(at index: Int? = nil) {
         guard let index = index else {
             return
@@ -142,7 +147,15 @@ class TableViewModel: ObservableObject {
         setup()
         uuid = UUID()
     }
-    
+
+    func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
+        fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCellId: editedCellId, value: value)
+        resetLastSelection()
+        setup()
+        uuid = UUID()
+        setTableDataDidChange(to: true)
+    }
+
     private func setupColumns() {
         guard let joyDocModel = fieldDependency.fieldData else { return }
         
