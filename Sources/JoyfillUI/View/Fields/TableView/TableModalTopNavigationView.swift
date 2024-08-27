@@ -200,7 +200,7 @@ struct EditMultipleRowsSheetView: View {
                             Text(viewModel.getColumnTitle(columnId: col))
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
-                            TableDropDownOptionListView(cellModel: cellModel)
+                            TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
                                 .disabled(cellModel.editMode == .readonly)
                         default:
                             Text("")

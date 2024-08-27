@@ -11,12 +11,14 @@ import JoyfillModel
 struct TableDropDownOptionListView: View {
     @State var selectedDropdownValue: String?
     @State private var isSheetPresented = false
+    private var isUsedForBulkEdit = false
     private var cellModel: TableCellModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State private var lastSelectedValue: String?
     
-    public init(cellModel: TableCellModel) {
+    public init(cellModel: TableCellModel, isUsedForBulkEdit: Bool = false) {
         self.cellModel = cellModel
+        self.isUsedForBulkEdit = isUsedForBulkEdit
         lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
     }
     
@@ -42,7 +44,9 @@ struct TableDropDownOptionListView: View {
         }
         .focused($isFocused) // Observe focus state
         .onAppear {
-            self.selectedDropdownValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
+            if !isUsedForBulkEdit {
+                self.selectedDropdownValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
+            }
         }
         .onChange(of: selectedDropdownValue) { value in
             var editedCell = cellModel.data
