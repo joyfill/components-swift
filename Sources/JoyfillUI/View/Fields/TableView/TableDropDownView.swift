@@ -28,9 +28,16 @@ struct TableDropDownOptionListView: View {
                 isSheetPresented = true
             }, label: {
                 HStack {
-                    Text(selectedDropdownValue ?? "Select Option")
-                        .darkLightThemeColor()
-                        .lineLimit(1)
+                    if let selectedDropdownValue = selectedDropdownValue, !selectedDropdownValue.isEmpty {
+                        Text(selectedDropdownValue)
+                            .darkLightThemeColor()
+                            .lineLimit(1)
+                    } else {
+                        Text("Select Option")
+                            .darkLightThemeColor()
+                            .lineLimit(1)
+                    }
+                
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
@@ -86,7 +93,11 @@ struct TableDropDownOptionList: View {
                 if let options = data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(options) { option in
                         Button(action: {
-                            selectedDropdownValue = option.value
+                            if selectedDropdownValue == option.value {
+                                selectedDropdownValue = nil
+                            } else {
+                                selectedDropdownValue = option.value
+                            }
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack {
