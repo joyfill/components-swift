@@ -42,7 +42,6 @@ struct TableModalView : View {
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if let selectedCol = selectedCol {
-                let type = viewModel.getColumnTypeAt(index: selectedCol)
                 SearchBar(text: $searchText, sortModel: $sortModel, selectedColumnIndex: selectedCol, viewModel: viewModel)
             }
             scrollArea
@@ -57,6 +56,12 @@ struct TableModalView : View {
         })
         .onChange(of: viewModel.selectedRows) { newValue in
             viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
+        }
+        .onChange(of: selectedCol) { newValue in
+            if selectedCol == nil {
+                searchText = ""
+                filteredcellModels = viewModel.cellModels
+            }
         }
         .onChange(of: sortModel.isAscendingOrder) { newValue in
             if sortModel.selected, let selectedCol = selectedCol {
