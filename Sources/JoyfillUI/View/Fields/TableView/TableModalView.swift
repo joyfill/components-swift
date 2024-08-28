@@ -51,8 +51,8 @@ struct TableModalView : View {
             let fieldEvent = FieldEvent(field: viewModel.fieldDependency.fieldData)
             viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
         })
-        .onChange(of: viewModel.shouldShowDeleteRowButton) { newValue in
-            viewModel.allRowSelected = newValue
+        .onChange(of: viewModel.selectedRows) { newValue in
+            viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
         }
 
     }
