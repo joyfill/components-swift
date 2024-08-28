@@ -10,13 +10,19 @@ struct TableModalView : View {
     @State private var rowsCount: Int = 0
     @State private var searchText = ""
     @Environment(\.colorScheme) var colorScheme
+
     @State private var showEditMultipleRowsSheetView: Bool = false
-    @State private var selectedCol: String? = nil
+    @State private var selectedCol: Int? = nil
+    @State var filteredcellModels = [[TableCellModel]]()
+    @State var sortModel: SortModel
 
     init(viewModel: TableViewModel) {
+        _filteredcellModels = State(initialValue: viewModel.cellModels)
+        _sortModel = State(initialValue: SortModel())
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
         self.rowsCount = self.viewModel.rows.count
+
     }
     
     var body: some View {
@@ -36,13 +42,10 @@ struct TableModalView : View {
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if selectedCol != nil {
-                SearchBar(text: $searchText)
+                SearchBar(text: $searchText, sortModel: $sortModel)
             }
-
             scrollArea
-
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
-
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
@@ -54,7 +57,19 @@ struct TableModalView : View {
         .onChange(of: viewModel.selectedRows) { newValue in
             viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
         }
-
+        .onChange(of: sortModel.isAscendingOrder) { newValue in
+            if sortModel.selected, let selectedCol = selectedCol {
+                filteredcellModels = viewModel.cellModels.sorted { rowArr1, rowArr2 in
+                    if sortModel.isAscendingOrder {
+                        (rowArr1[selectedCol].data.title ?? "") < (rowArr2[selectedCol].data.title ?? "")
+                    } else {
+                        (rowArr1[selectedCol].data.title ?? "") > (rowArr2[selectedCol].data.title ?? "")
+                    }
+                }
+            } else {
+                filteredcellModels = viewModel.cellModels
+            }
+        }
     }
     
     var scrollArea: some View {
@@ -107,9 +122,9 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(viewModel.columns, id: \.self) { col in
+            ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
                 Button(action: {
-                    selectedCol = selectedCol == col ? nil : col
+                    selectedCol = selectedCol == index ? nil : index
                 }, label: {
                     ZStack {
                         Rectangle()
@@ -155,7 +170,7 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(viewModel.cellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
+                        ForEach(Array(filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels, id: \.id) { cellModel in
                                     ZStack {
@@ -245,8 +260,14 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
+struct SortModel {
+    var selected: Bool = false
+    var isAscendingOrder =  true
+}
+
 struct SearchBar: View {
     @Binding var text: String
+    @Binding var sortModel: SortModel
 
     var body: some View {
         HStack {
@@ -254,7 +275,8 @@ struct SearchBar: View {
 //            DropdownFieldSearchBar()
 
             Button(action: {
-                
+                sortModel.isAscendingOrder.toggle()
+                sortModel.selected = true
             }, label: {
                 HStack {
                     Text("Sort")
