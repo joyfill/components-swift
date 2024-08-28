@@ -41,8 +41,9 @@ struct TableModalView : View {
                 EditMultipleRowsSheetView(viewModel: viewModel)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-            if selectedCol != nil {
-                SearchBar(text: $searchText, sortModel: $sortModel)
+            if let selectedCol = selectedCol {
+                let type = viewModel.getColumnTypeAt(index: selectedCol)
+                SearchBar(text: $searchText, sortModel: $sortModel, type: type)
             }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
@@ -286,11 +287,20 @@ struct SortModel {
 struct SearchBar: View {
     @Binding var text: String
     @Binding var sortModel: SortModel
+    let type: String
 
     var body: some View {
         HStack {
-            TextFieldSearchBar(text: $text)
-//            DropdownFieldSearchBar()
+            switch type {
+            case "text":
+                TextFieldSearchBar(text: $text)
+            case "dropdown":
+                DropdownFieldSearchBar()
+            case "image":
+                Text("")
+            default:
+                Text("")
+            }
 
             Button(action: {
                 sortModel.isAscendingOrder.toggle()
