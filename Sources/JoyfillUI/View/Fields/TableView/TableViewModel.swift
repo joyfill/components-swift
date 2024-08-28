@@ -30,6 +30,8 @@ class TableViewModel: ObservableObject {
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
     var selectedRows = [Int]()
 
+    var cellModels = [[TableCellModel]]()
+
     private var tableDataDidChange = false
     @Published var uuid = UUID()
     
@@ -50,8 +52,27 @@ class TableViewModel: ObservableObject {
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
+        setupCellModels()
     }
-    
+
+    func setupCellModels() {
+        var cellModels = [[TableCellModel]]()
+        rows.enumerated().forEach { rowIndex, rowID in
+            var rowCellModels = [TableCellModel]()
+            columns.enumerated().forEach { colIndex, colID in
+                let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
+                if let columnModel = columnModel {
+                    let cellModel = TableCellModel(data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                    }
+                    rowCellModels.append(cellModel)
+                }
+            }
+            cellModels.append(rowCellModels)
+        }
+        self.cellModels = cellModels
+    }
+
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
         return rowToCellMap[row]?[col]
     }

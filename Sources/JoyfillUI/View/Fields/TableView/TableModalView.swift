@@ -155,28 +155,21 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(viewModel.rows.enumerated()), id: \.offset) { i, row in
+                        ForEach(Array(viewModel.cellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
                             HStack(alignment: .top, spacing: 0) {
-                                ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
-                                    // Cell
-                                    let columnModel = viewModel.getFieldTableColumn(row: row, col: index)
-                                    if let columnModel = columnModel {
-                                        let cellModel = TableCellModel(data: columnModel, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode) { editedCell  in
-                                            viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
-                                        }
-                                        
-                                        ZStack {
-                                            Rectangle()
-                                                .stroke()
-                                                .foregroundColor(Color.tableCellBorderColor)
-                                            TableViewCellBuilder(cellModel: cellModel)
-                                        }
-                                        .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
-                                        .background(GeometryReader { proxy in
-                                            Color.clear.preference(key: HeightPreferenceKey.self, value: [i: proxy.size.height])
-                                        })
+                                ForEach(rowCellModels, id: \.id) { cellModel in
+                                    ZStack {
+                                        Rectangle()
+                                            .stroke()
+                                            .foregroundColor(Color.tableCellBorderColor)
+                                        TableViewCellBuilder(cellModel: cellModel)
                                     }
+                                    .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                                    .background(GeometryReader { proxy in
+                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [rowIndex: proxy.size.height])
+                                    })
                                 }
+
                             }
                         }
                         .id(refreshID)
@@ -208,7 +201,7 @@ struct TableModalView : View {
             }
         }
     }
-    
+
     private func dismissKeyboard() {
         viewModel.toggleSelection()
         viewModel.setDeleteButtonVisibility()

@@ -8,7 +8,8 @@
 import Foundation
 import JoyfillModel
 
-struct TableCellModel {
+struct TableCellModel: Identifiable {
+    let id = UUID()
     let data: FieldTableColumn
     let eventHandler: FieldChangeEvents
     let fieldData: JoyDocField?
