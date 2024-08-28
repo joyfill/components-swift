@@ -70,6 +70,15 @@ struct TableModalView : View {
                 filteredcellModels = viewModel.cellModels
             }
         }
+        .onChange(of: searchText) { newValue in
+            guard !newValue.isEmpty, let selectedCol = selectedCol else {
+                filteredcellModels = viewModel.cellModels
+                return
+            }
+            filteredcellModels = viewModel.cellModels.filter { rowArr in
+                (rowArr[selectedCol].data.title ?? "").contains(newValue)
+            }
+        }
     }
     
     var scrollArea: some View {
