@@ -84,10 +84,12 @@ struct TableModalView : View {
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center) {
+                HStack(alignment: .center, spacing: 0) {
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.allRowSelected ? "record.circle.fill" : "circle")
-                            .frame(height: 40)
+                            .frame(width: 40, height: 50)
+                            .border(Color.tableCellBorderColor)
+                            .foregroundColor(rowsCount == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
                                 viewModel.allRowSelected.toggle()
                                 if viewModel.allRowSelected {
@@ -97,10 +99,12 @@ struct TableModalView : View {
                                 }
                                 viewModel.setDeleteButtonVisibility()
                             }
+                            .disabled(rowsCount == 0)
                             .accessibilityIdentifier("SelectAllButton")
                     }
                     Text("#")
-                        .frame(width: 40)
+                        .frame(width: 40, height: 50)
+                        .border(Color.tableCellBorderColor)
                 }
                 .frame(width: viewModel.showRowSelector ? 80 : 40, height: rowHeight)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
@@ -115,7 +119,7 @@ struct TableModalView : View {
             }
             
             VStack(alignment: .leading, spacing: 0) {
-                ScrollView([.horizontal]) {
+                ScrollView([.horizontal], showsIndicators: false) {
                     colsHeader
                         .offset(x: offset.x)
                 }
@@ -138,8 +142,13 @@ struct TableModalView : View {
                     ZStack {
                         Rectangle()
                             .stroke()
-                            .foregroundColor(Color.tableCellBorderColor)
-                        Text(viewModel.getColumnTitle(columnId: col))
+                            .foregroundColor(selectedCol == nil ? Color.tableCellBorderColor : Color.blue)
+                        HStack {
+                            Text(viewModel.getColumnTitle(columnId: col))
+                                .darkLightThemeColor()
+                            Image(systemName: "slider.horizontal.below.rectangle")
+                                .foregroundColor(selectedCol == nil ? Color.gray : Color.blue)
+                        }
                     }
                 })
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
@@ -305,7 +314,7 @@ struct SearchBar: View {
                 Image(systemName: "xmark")
                     .resizable()
                     .frame(width: 10, height: 10)
-                    .darkLightThemeColor()
+                    .foregroundColor(.black)
                     .padding(.all, 8)
                     .background(.white)
                     .cornerRadius(4)
@@ -326,6 +335,7 @@ struct TextFieldSearchBar: View {
     var body: some View {
         TextField("Search ", text: $text)
             .font(.system(size: 12))
+            .foregroundColor(.black)
             .padding(.all, 4)
             .frame(height: 25)
             .background(.white)
