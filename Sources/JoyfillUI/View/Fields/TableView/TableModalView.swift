@@ -58,45 +58,65 @@ struct TableModalView : View {
             viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
         }
         .onChange(of: selectedCol) { newValue in
-            if selectedCol == nil {
-                searchText = ""
-                filteredcellModels = viewModel.cellModels
-            }
+            searchText = ""
+            filteredcellModels = viewModel.cellModels
         }
-        .onChange(of: sortModel.isAscendingOrder) { newValue in
-            if sortModel.selected, let selectedCol = selectedCol {
-                filteredcellModels = viewModel.cellModels.sorted { rowArr1, rowArr2 in
-                    if sortModel.isAscendingOrder {
-                        (rowArr1[selectedCol].data.title ?? "") < (rowArr2[selectedCol].data.title ?? "")
-                    } else {
-                        (rowArr1[selectedCol].data.title ?? "") > (rowArr2[selectedCol].data.title ?? "")
-                    }
-                }
-            } else {
-                filteredcellModels = viewModel.cellModels
-            }
+        .onChange(of: sortModel.isAscendingOrder) { _ in
+            filterRowsIfNeeded()
+            sortRowsIfNeeded()
         }
-        .onChange(of: searchText) { newValue in
-            guard !newValue.isEmpty, let selectedCol = selectedCol else {
-                filteredcellModels = viewModel.cellModels
-                return
-            }
-             let filtred = viewModel.cellModels.filter { rowArr in
-                let column = rowArr[selectedCol].data
+        .onChange(of: searchText) { _ in
+            filterRowsIfNeeded()
+            sortRowsIfNeeded()
+        }
+    }
+
+    func sortRowsIfNeeded() {
+        if sortModel.selected, let selectedCol = selectedCol {
+            filteredcellModels = filteredcellModels.sorted { rowArr1, rowArr2 in
+                let column = rowArr1[selectedCol].data
                 switch column.type {
                 case "text":
-                    return (column.title ?? "").contains(newValue)
+                    if sortModel.isAscendingOrder {
+                        return (rowArr1[selectedCol].data.title ?? "") < (rowArr2[selectedCol].data.title ?? "")
+                    } else {
+                        return (rowArr1[selectedCol].data.title ?? "") > (rowArr2[selectedCol].data.title ?? "")
+                    }
                 case "dropdown":
-                    return (column.defaultDropdownSelectedId ?? "") == newValue
+                    if sortModel.isAscendingOrder {
+                        return (rowArr1[selectedCol].data.selectedOptionText ?? "") < (rowArr2[selectedCol].data.selectedOptionText ?? "")
+                    } else {
+                        return (rowArr1[selectedCol].data.selectedOptionText ?? "") > (rowArr2[selectedCol].data.selectedOptionText ?? "")
+                    }
                 default:
                     break
                 }
                 return false
+
             }
-            filteredcellModels = filtred
         }
     }
-    
+
+    func filterRowsIfNeeded() {
+        guard !searchText.isEmpty, let selectedCol = selectedCol else {
+            filteredcellModels = viewModel.cellModels
+            return
+        }
+         let filtred = viewModel.cellModels.filter { rowArr in
+            let column = rowArr[selectedCol].data
+            switch column.type {
+            case "text":
+                return (column.title ?? "").contains(searchText)
+            case "dropdown":
+                return (column.selectedOptionText ?? "") == searchText
+            default:
+                break
+            }
+            return false
+        }
+        filteredcellModels = filtred
+    }
+
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
@@ -316,7 +336,7 @@ struct SearchBar: View {
                     case "text":
                         self.text = editedCell.title ?? ""
                     case "dropdown":
-                        self.text = editedCell.defaultDropdownSelectedId ?? ""
+                        self.text = editedCell.selectedOptionText ?? ""
                     default:
                         break
                     }
