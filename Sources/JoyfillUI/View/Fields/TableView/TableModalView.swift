@@ -75,7 +75,6 @@ struct TableModalView : View {
                             }
                             .accessibilityIdentifier("SelectAllButton")
                     }
-
                     Text("#")
                         .frame(width: 40)
                 }
@@ -160,9 +159,9 @@ struct TableModalView : View {
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
                                     // Cell
-                                    let cell = viewModel.getFieldTableColumn(row: row, col: index)
-                                    if let cell = cell {
-                                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode) { editedCell  in
+                                    let columnModel = viewModel.getFieldTableColumn(row: row, col: index)
+                                    if let columnModel = columnModel {
+                                        let cellModel = TableCellModel(data: columnModel, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode) { editedCell  in
                                             viewModel.cellDidChange(rowId: row, colIndex: index, editedCell: editedCell)
                                         }
                                         
@@ -260,7 +259,7 @@ struct SearchBar: View {
         HStack {
             TextFieldSearchBar(text: $text)
 //            DropdownFieldSearchBar()
-            
+
             Button(action: {
                 
             }, label: {
