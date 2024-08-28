@@ -43,7 +43,7 @@ struct TableModalView : View {
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if let selectedCol = selectedCol {
                 let type = viewModel.getColumnTypeAt(index: selectedCol)
-                SearchBar(text: $searchText, sortModel: $sortModel, type: type)
+                SearchBar(text: $searchText, sortModel: $sortModel, selectedColumnIndex: selectedCol, viewModel: viewModel)
             }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
@@ -76,9 +76,19 @@ struct TableModalView : View {
                 filteredcellModels = viewModel.cellModels
                 return
             }
-            filteredcellModels = viewModel.cellModels.filter { rowArr in
-                (rowArr[selectedCol].data.title ?? "").contains(newValue)
+             let filtred = viewModel.cellModels.filter { rowArr in
+                let column = rowArr[selectedCol].data
+                switch column.type {
+                case "text":
+                    return (column.title ?? "").contains(newValue)
+                case "dropdown":
+                    return (column.defaultDropdownSelectedId ?? "") == newValue
+                default:
+                    break
+                }
+                return false
             }
+            filteredcellModels = filtred
         }
     }
     
@@ -287,21 +297,35 @@ struct SortModel {
 struct SearchBar: View {
     @Binding var text: String
     @Binding var sortModel: SortModel
-    let type: String
+    var selectedColumnIndex: Int
+    let viewModel: TableViewModel
 
     var body: some View {
         HStack {
-            switch type {
-            case "text":
-                TextFieldSearchBar(text: $text)
-            case "dropdown":
-                DropdownFieldSearchBar()
-            case "image":
-                Text("")
-            default:
-                Text("")
+            let row = viewModel.rows[0]
+            let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
+            if let column = column {
+                let cellModel = TableCellModel(data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                { editedCell in
+                    switch column.type {
+                    case "text":
+                        self.text = editedCell.title ?? ""
+                    case "dropdown":
+                        self.text = editedCell.defaultDropdownSelectedId ?? ""
+                    default:
+                        break
+                    }
+                }
+                switch cellModel.data.type {
+                case "text":
+                    TextFieldSearchBar(text: $text)
+                case "dropdown":
+                    TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
+                        .disabled(cellModel.editMode == .readonly)
+                default:
+                    Text("")
+                }
             }
-
             Button(action: {
                 sortModel.isAscendingOrder.toggle()
                 sortModel.selected = true

@@ -95,7 +95,6 @@ struct TableModalTopNavigationView: View {
 
 struct EditMultipleRowsSheetView: View {
     let viewModel: TableViewModel
-    @State var enterText: String = ""
     @Environment(\.presentationMode)  var presentationMode
     @State var changes = [Int: String]()
 
