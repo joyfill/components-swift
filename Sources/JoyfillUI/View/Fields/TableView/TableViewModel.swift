@@ -42,6 +42,7 @@ class TableViewModel: ObservableObject {
         
         setupColumns()
         setup()
+        setupCellModels()
     }
     
     private func setup() {
@@ -49,7 +50,6 @@ class TableViewModel: ObservableObject {
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
-        setupCellModels()
     }
 
     func setupCellModels() {
@@ -127,6 +127,7 @@ class TableViewModel: ObservableObject {
         setup()
         uuid = UUID()
         setTableDataDidChange(to: true)
+        setupCellModels()
     }
     
     func setTableDataDidChange(to: Bool) {
@@ -148,6 +149,7 @@ class TableViewModel: ObservableObject {
         }
         resetLastSelection()
         setup()
+        setupCellModels()
     }
 
     func addRow() {
@@ -157,6 +159,7 @@ class TableViewModel: ObservableObject {
         setup()
         uuid = UUID()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)
+        setupCellModels()
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
@@ -172,6 +175,7 @@ class TableViewModel: ObservableObject {
         setup()
         uuid = UUID()
         setTableDataDidChange(to: true)
+        setupCellModels()
     }
 
     private func setupColumns() {
