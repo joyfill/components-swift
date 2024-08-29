@@ -21,7 +21,6 @@ class TableViewModel: ObservableObject {
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
     @Published var quickRows: [String] = []
-//    @Published var rowsSelection: [Bool] = []
     @Published var columns: [String] = []
     @Published var quickColumns: [String] = []
     @Published var quickViewRowCount: Int = 0
@@ -47,8 +46,6 @@ class TableViewModel: ObservableObject {
     
     private func setup() {
         setupRows()
-//        rowsSelection = Array.init(repeating: false, count: rows.count)
-        
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
@@ -102,26 +99,13 @@ class TableViewModel: ObservableObject {
         } else {
             selectedRows.append(rowID)
         }
-
-//        if rowsSelection[index] {
-//            selectedRows.removeAll { $0 == index }
-//        } else {
-//            selectedRows.append(index)
-//        }
-//        rowsSelection[index].toggle()
     }
 
     func selectAllRows() {
         selectedRows = rows
-//        for rowIndex in selectedRows {
-//            rowsSelection[rowIndex] = true
-//        }
     }
 
     func resetLastSelection() {
-//        for rowIndex in selectedRows {
-//            rowsSelection[rowIndex] = false
-//        }
         selectedRows = []
     }
     
