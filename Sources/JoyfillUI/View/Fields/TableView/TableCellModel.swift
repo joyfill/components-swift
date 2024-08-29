@@ -10,6 +10,7 @@ import JoyfillModel
 
 struct TableCellModel: Identifiable {
     let id = UUID()
+    let rowID: String
     let data: FieldTableColumn
     let eventHandler: FieldChangeEvents
     let fieldData: JoyDocField?

@@ -21,14 +21,14 @@ class TableViewModel: ObservableObject {
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
     @Published var quickRows: [String] = []
-    @Published var rowsSelection: [Bool] = []
+//    @Published var rowsSelection: [Bool] = []
     @Published var columns: [String] = []
     @Published var quickColumns: [String] = []
     @Published var quickViewRowCount: Int = 0
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
-    var selectedRows = [Int]()
+    var selectedRows = [String]()
 
     var cellModels = [[TableCellModel]]()
 
@@ -47,7 +47,7 @@ class TableViewModel: ObservableObject {
     
     private func setup() {
         setupRows()
-        rowsSelection = Array.init(repeating: false, count: rows.count)
+//        rowsSelection = Array.init(repeating: false, count: rows.count)
         
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         setDeleteButtonVisibility()
@@ -62,7 +62,7 @@ class TableViewModel: ObservableObject {
             columns.enumerated().forEach { colIndex, colID in
                 let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
                 if let columnModel = columnModel {
-                    let cellModel = TableCellModel(data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                    let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
                     }
                     rowCellModels.append(cellModel)
@@ -96,30 +96,32 @@ class TableViewModel: ObservableObject {
         return columnIdToColumnMap[columns[index]]?.id
     }
 
-    func toggleSelection(at index: Int? = nil) {
-        guard let index = index else {
-            return
-        }
-        
-        if rowsSelection[index] {
-            selectedRows.removeAll { $0 == index }
+    func toggleSelection(rowID: String) {
+        if selectedRows.contains(rowID) {
+            selectedRows = selectedRows.filter({ $0 != rowID})
         } else {
-            selectedRows.append(index)
+            selectedRows.append(rowID)
         }
-        rowsSelection[index].toggle()
+
+//        if rowsSelection[index] {
+//            selectedRows.removeAll { $0 == index }
+//        } else {
+//            selectedRows.append(index)
+//        }
+//        rowsSelection[index].toggle()
     }
 
     func selectAllRows() {
-        selectedRows = Array(0...rows.count-1)
-        for rowIndex in selectedRows {
-            rowsSelection[rowIndex] = true
-        }
+        selectedRows = rows
+//        for rowIndex in selectedRows {
+//            rowsSelection[rowIndex] = true
+//        }
     }
 
     func resetLastSelection() {
-        for rowIndex in selectedRows {
-            rowsSelection[rowIndex] = false
-        }
+//        for rowIndex in selectedRows {
+//            rowsSelection[rowIndex] = false
+//        }
         selectedRows = []
     }
     
@@ -133,8 +135,8 @@ class TableViewModel: ObservableObject {
         }
 
         for row in selectedRows {
-            fieldDependency.fieldData?.deleteRow(id: rows[row])
-            rowToCellMap.removeValue(forKey: rows[row])
+            fieldDependency.fieldData?.deleteRow(id: row)
+            rowToCellMap.removeValue(forKey: row)
         }
 
         resetLastSelection()
@@ -156,9 +158,9 @@ class TableViewModel: ObservableObject {
 
         for row in selectedRows {
             let id = generateObjectId()
-            fieldDependency.fieldData?.duplicateRow(id: rows[row])
+            fieldDependency.fieldData?.duplicateRow(id: row)
             uuid = UUID()
-            fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: row+1)
+            fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: (rows.firstIndex(of: row) ?? rows.count-1)+1)
         }
         resetLastSelection()
         setup()

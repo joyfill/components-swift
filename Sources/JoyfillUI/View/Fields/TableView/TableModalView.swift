@@ -195,14 +195,15 @@ struct TableModalView : View {
     
     var rowsHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(viewModel.rowsSelection.enumerated()), id: \.offset) { (index, row) in
+            ForEach(Array(filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
-                        Image(systemName: row ? "record.circle.fill" : "circle")
+                        let isRowSelected = viewModel.selectedRows.contains(rowArray.first?.rowID ?? "")
+                        Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: heights[index] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
-                                viewModel.toggleSelection(at: index)
+                                viewModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                                 viewModel.setDeleteButtonVisibility()
                             }
                             .accessibilityIdentifier("MyButton")
@@ -272,7 +273,7 @@ struct TableModalView : View {
     }
 
     private func dismissKeyboard() {
-        viewModel.toggleSelection()
+        viewModel.resetLastSelection()
         viewModel.setDeleteButtonVisibility()
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
@@ -330,7 +331,7 @@ struct SearchBar: View {
             let row = viewModel.rows[0]
             let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
             if let column = column {
-                let cellModel = TableCellModel(data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                let cellModel = TableCellModel(rowID: "", data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
                 { editedCell in
                     switch column.type {
                     case "text":

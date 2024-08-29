@@ -119,8 +119,7 @@ struct EditMultipleRowsSheetView: View {
                     Spacer()
 
                     Button(action: {
-                        for rowIndex in viewModel.selectedRows {
-                            let row = viewModel.rows[rowIndex]
+                        for row in viewModel.selectedRows {
                             for colIndex in changes.keys {
                                 if let editedCellId = viewModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
                                     viewModel.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change)
@@ -156,10 +155,10 @@ struct EditMultipleRowsSheetView: View {
                 }
 
                 ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { colIndex, col in
-                    let row = viewModel.rows[viewModel.selectedRows.first!]
+                    let row = viewModel.selectedRows.first!
                     let cell = viewModel.getFieldTableColumn(row: row, col: colIndex)
                     if let cell = cell {
-                        let cellModel = TableCellModel(data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                        let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
                         { editedCell in
                             switch cell.type {
                             case "text":
