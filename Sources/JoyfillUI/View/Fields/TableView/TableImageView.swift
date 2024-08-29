@@ -19,11 +19,11 @@ import JoyfillModel
         }, label: {
             HStack(spacing: 2) {
                 Image(systemName: "photo")
-                    .font(.title2)
                     .grayLightThemeColor()
                 Text(valueElements.count == 0 ? "" : "+\(valueElements.count)")
                     .darkLightThemeColor()
             }
+            .font(.system(size: 15))
         })
         .accessibilityIdentifier("TableImageIdentifier")
         .onAppear {

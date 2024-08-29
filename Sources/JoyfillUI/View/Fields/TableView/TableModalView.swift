@@ -159,12 +159,23 @@ struct TableModalView : View {
             }
             
             VStack(alignment: .leading, spacing: 0) {
-                ScrollView([.horizontal], showsIndicators: false) {
-                    colsHeader
-                        .offset(x: offset.x)
+                if #available(iOS 16, *) {
+                    ScrollView([.horizontal], showsIndicators: false) {
+                        colsHeader
+                            .offset(x: offset.x)
+                    }
+                    .background(Color.tableCellBorderColor)
+                    .cornerRadius(14, corners: [.topRight])
+                    .scrollDisabled(true)
+                } else {
+                    ScrollView([.horizontal], showsIndicators: false) {
+                        colsHeader
+                            .offset(x: offset.x)
+                    }
+                    .background(Color.tableCellBorderColor)
+                    .cornerRadius(14, corners: [.topRight])
                 }
-                .background(Color.tableCellBorderColor)
-                .cornerRadius(14, corners: [.topRight])
+                
                 
                 table
                     .coordinateSpace(name: "scroll")
@@ -186,9 +197,10 @@ struct TableModalView : View {
                         HStack {
                             Text(viewModel.getColumnTitle(columnId: col))
                                 .darkLightThemeColor()
-                            Image(systemName: "slider.horizontal.below.rectangle")
+                            Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(selectedCol == nil ? Color.gray : Color.blue)
                         }
+                        .font(.system(size: 15))
                     }
                 })
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)

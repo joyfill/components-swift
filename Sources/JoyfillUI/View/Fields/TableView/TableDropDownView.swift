@@ -41,6 +41,7 @@ struct TableDropDownOptionListView: View {
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
+                .font(.system(size: 15))
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
             })
