@@ -69,6 +69,10 @@ struct TableModalView : View {
             filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
+        .onChange(of: viewModel.cellModels) { _ in
+            filterRowsIfNeeded()
+            sortRowsIfNeeded()
+        }
     }
 
     func sortRowsIfNeeded() {

@@ -8,7 +8,11 @@
 import Foundation
 import JoyfillModel
 
-struct TableCellModel: Identifiable {
+struct TableCellModel: Identifiable, Equatable {
+    static func == (lhs: TableCellModel, rhs: TableCellModel) -> Bool {
+        lhs.id == rhs.id
+    }
+
     let id = UUID()
     let rowID: String
     let data: FieldTableColumn

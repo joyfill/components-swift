@@ -29,7 +29,7 @@ class TableViewModel: ObservableObject {
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
     var selectedRows = [String]()
 
-    var cellModels = [[TableCellModel]]()
+    @Published var cellModels = [[TableCellModel]]()
 
     private var tableDataDidChange = false
     @Published var uuid = UUID()
