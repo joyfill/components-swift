@@ -197,8 +197,11 @@ struct TableModalView : View {
                         HStack {
                             Text(viewModel.getColumnTitle(columnId: columnId))
                                 .darkLightThemeColor()
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(selectedCol != index ? Color.gray : Color.blue)
+                            if viewModel.getColumnType(columnId: columnId) != "image" {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                    .foregroundColor(selectedCol != index ? Color.gray : Color.blue)
+                            }
+
                         }
                         .font(.system(size: 15))
                     }
