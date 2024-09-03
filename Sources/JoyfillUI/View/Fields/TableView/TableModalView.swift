@@ -193,12 +193,12 @@ struct TableModalView : View {
                     ZStack {
                         Rectangle()
                             .stroke()
-                            .foregroundColor(selectedCol == nil ? Color.tableCellBorderColor : Color.blue)
+                            .foregroundColor(selectedCol != index ? Color.tableCellBorderColor : Color.blue)
                         HStack {
                             Text(viewModel.getColumnTitle(columnId: col))
                                 .darkLightThemeColor()
                             Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(selectedCol == nil ? Color.gray : Color.blue)
+                                .foregroundColor(selectedCol != index ? Color.gray : Color.blue)
                         }
                         .font(.system(size: 15))
                     }
