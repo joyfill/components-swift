@@ -186,7 +186,7 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, col in
+            ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, columnId in
                 Button(action: {
                     selectedCol = selectedCol == index ? nil : index
                 }, label: {
@@ -195,7 +195,7 @@ struct TableModalView : View {
                             .stroke()
                             .foregroundColor(selectedCol != index ? Color.tableCellBorderColor : Color.blue)
                         HStack {
-                            Text(viewModel.getColumnTitle(columnId: col))
+                            Text(viewModel.getColumnTitle(columnId: columnId))
                                 .darkLightThemeColor()
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(selectedCol != index ? Color.gray : Color.blue)
@@ -203,6 +203,7 @@ struct TableModalView : View {
                         .font(.system(size: 15))
                     }
                 })
+                .disabled(viewModel.getColumnType(columnId: columnId) == "image")
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .frame(width: 170, height: rowHeight)
             }

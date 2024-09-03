@@ -88,6 +88,10 @@ class TableViewModel: ObservableObject {
         return columnIdToColumnMap[columns[index]]?.title ?? ""
     }
 
+    func getColumnType(columnId: String) -> String? {
+        return columnIdToColumnMap[columnId]?.type
+    }
+
     func getColumnIDAtIndex(index: Int) -> String? {
         guard index < columns.count else { return nil }
         return columnIdToColumnMap[columns[index]]?.id
