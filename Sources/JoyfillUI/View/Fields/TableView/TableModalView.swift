@@ -42,7 +42,7 @@ struct TableModalView : View {
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if let selectedCol = selectedCol {
-                SearchBar(text: $searchText, sortModel: $sortModel, selectedColumnIndex: selectedCol, viewModel: viewModel)
+                SearchBar(text: $searchText, sortModel: $sortModel, selectedColumnIndex: selectedCol, viewModel: viewModel, selectedCol: $selectedCol)
             }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
@@ -342,6 +342,7 @@ struct SearchBar: View {
     @Binding var sortModel: SortModel
     var selectedColumnIndex: Int
     let viewModel: TableViewModel
+    @Binding var selectedCol: Int?
 
     var body: some View {
         HStack {
@@ -386,7 +387,7 @@ struct SearchBar: View {
             .cornerRadius(4)
             
             Button(action: {
-                
+                selectedCol = nil
             }, label: {
                 Image(systemName: "xmark")
                     .resizable()
