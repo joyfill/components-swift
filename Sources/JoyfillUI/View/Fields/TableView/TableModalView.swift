@@ -206,7 +206,7 @@ struct TableModalView : View {
                         .font(.system(size: 15))
                     }
                 })
-                .disabled(viewModel.getColumnType(columnId: columnId) == "image")
+                .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .frame(width: 170, height: rowHeight)
             }
