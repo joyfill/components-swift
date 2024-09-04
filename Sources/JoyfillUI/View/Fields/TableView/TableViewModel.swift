@@ -149,8 +149,8 @@ class TableViewModel: ObservableObject {
             let id = generateObjectId()
             fieldDependency.fieldData?.duplicateRow(id: row)
             uuid = UUID()
-            fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: (rows.firstIndex(of: row) ?? rows.count-1)+1)
         }
+        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData))
         resetLastSelection()
         setup()
         setupCellModels()
