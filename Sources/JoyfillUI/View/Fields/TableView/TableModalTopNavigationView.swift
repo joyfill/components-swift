@@ -185,6 +185,7 @@ struct EditMultipleRowsSheetView: View {
                                 }
                             )
                             TextField("", text: binding)
+                                .font(.system(size: 15))
                                 .accessibilityIdentifier("Text")
                                 .disabled(viewModel.fieldDependency.mode == .readonly)
                                 .padding(.horizontal, 10)
@@ -199,6 +200,10 @@ struct EditMultipleRowsSheetView: View {
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
                             TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
                                 .disabled(cellModel.editMode == .readonly)
                         default:
                             Text("")

@@ -43,9 +43,9 @@ struct TableDropDownOptionListView: View {
                     Image(systemName: "chevron.down")
                 }
                 .font(.system(size: 15))
-                .frame(maxWidth: .infinity)
-                .padding(.all, 10)
             })
+            .padding(.horizontal, 10)
+            .frame(height: 40)
             .accessibilityIdentifier("TableDropdownIdentifier")
             .sheet(isPresented: $isSheetPresented) {
                 TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
@@ -64,7 +64,6 @@ struct TableDropDownOptionListView: View {
                 cellModel.didChange?(editedCell)
             }
         }
-        .padding(4)
     }
 }
 
