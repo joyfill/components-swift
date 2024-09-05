@@ -16,10 +16,11 @@ struct TableDropDownOptionListView: View {
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State private var lastSelectedValue: String?
     
-    public init(cellModel: TableCellModel, isUsedForBulkEdit: Bool = false) {
+    public init(cellModel: TableCellModel, isUsedForBulkEdit: Bool = false, selectedDropdownValue: String? = nil) {
         self.cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
         lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
+        _selectedDropdownValue = State(initialValue: selectedDropdownValue)
     }
     
     var body: some View {

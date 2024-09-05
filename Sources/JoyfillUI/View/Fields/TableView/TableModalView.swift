@@ -8,17 +8,22 @@ struct TableModalView : View {
     @State private var heights: [Int: CGFloat] = [:]
     @State private var refreshID = UUID()
     @State private var rowsCount: Int = 0
-    @State private var searchText = ""
     @Environment(\.colorScheme) var colorScheme
 
     @State private var showEditMultipleRowsSheetView: Bool = false
-    @State private var selectedCol: Int? = nil
+
+    @State private var filterModels = [FilterModel]()
+    @State private var currentSelectedCol: Int? = nil
 
     @State var sortModel: SortModel
 
     init(viewModel: TableViewModel) {
         _sortModel = State(initialValue: SortModel())
         self.viewModel = viewModel
+        let filterModels = self.viewModel.columns.enumerated().map { colIndex, colID in
+            FilterModel(colIndex: colIndex, colID: colID)
+        }
+        _filterModels = State(initialValue: filterModels)
         UIScrollView.appearance().bounces = false
         self.rowsCount = self.viewModel.rows.count
     }
@@ -39,8 +44,9 @@ struct TableModalView : View {
                 EditMultipleRowsSheetView(viewModel: viewModel)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-            if let selectedCol = selectedCol {
-                SearchBar(text: $searchText, sortModel: $sortModel, selectedColumnIndex: selectedCol, viewModel: viewModel, selectedCol: $selectedCol)
+            if let selectedCol = currentSelectedCol {
+                SearchBar(model: $filterModels[selectedCol], sortModel: $sortModel, selectedColumnIndex: selectedCol, viewModel: viewModel)
+                EmptyView()
             }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
@@ -55,15 +61,15 @@ struct TableModalView : View {
         .onChange(of: viewModel.selectedRows) { newValue in
             viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
         }
-        .onChange(of: selectedCol) { newValue in
-            searchText = ""
-            viewModel.filteredcellModels = viewModel.cellModels
+        .onChange(of: currentSelectedCol) { newValue in
+//            searchText = ""
+//            viewModel.filteredcellModels = viewModel.cellModels
         }
-        .onChange(of: sortModel.isAscendingOrder) { _ in
+        .onChange(of: sortModel.order) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
-        .onChange(of: searchText) { _ in
+        .onChange(of: filterModels) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
             viewModel.resetLastSelection()
@@ -75,49 +81,67 @@ struct TableModalView : View {
     }
 
     func sortRowsIfNeeded() {
-        if sortModel.selected, let selectedCol = selectedCol {
-            viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
-                let column = rowArr1[selectedCol].data
-                switch column.type {
-                case "text":
-                    if sortModel.isAscendingOrder {
-                        return (rowArr1[selectedCol].data.title ?? "") < (rowArr2[selectedCol].data.title ?? "")
-                    } else {
-                        return (rowArr1[selectedCol].data.title ?? "") > (rowArr2[selectedCol].data.title ?? "")
+        if sortModel.selected {
+            for model in filterModels {
+                viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
+                    let column = rowArr1[model.colIndex].data
+                    switch column.type {
+                    case "text":
+                        switch sortModel.order {
+                        case .ascending:
+                            return (rowArr1[model.colIndex].data.title ?? "") < (rowArr2[model.colIndex].data.title ?? "")
+                        case .descending:
+                            return (rowArr1[model.colIndex].data.title ?? "") > (rowArr2[model.colIndex].data.title ?? "")
+                        case .none:
+                            return true
+                        }
+                    case "dropdown":
+                        switch sortModel.order {
+                        case .ascending:
+                            return (rowArr1[model.colIndex].data.selectedOptionText ?? "") < (rowArr2[model.colIndex].data.selectedOptionText ?? "")
+                        case .descending:
+                            return (rowArr1[model.colIndex].data.selectedOptionText ?? "") > (rowArr2[model.colIndex].data.selectedOptionText ?? "")
+                        case .none:
+                            return true
+                        }
+                    default:
+                        break
                     }
-                case "dropdown":
-                    if sortModel.isAscendingOrder {
-                        return (rowArr1[selectedCol].data.selectedOptionText ?? "") < (rowArr2[selectedCol].data.selectedOptionText ?? "")
-                    } else {
-                        return (rowArr1[selectedCol].data.selectedOptionText ?? "") > (rowArr2[selectedCol].data.selectedOptionText ?? "")
-                    }
-                default:
-                    break
-                }
-                return false
+                    return false
 
+                }
             }
         }
     }
 
     func filterRowsIfNeeded() {
-        guard !searchText.isEmpty, let selectedCol = selectedCol else {
+        guard !filterModels.allSatisfy({ model in model.filterText.isEmpty }) else {
             viewModel.filteredcellModels = viewModel.cellModels
             return
         }
-         let filtred = viewModel.cellModels.filter { rowArr in
-            let column = rowArr[selectedCol].data
-            switch column.type {
-            case "text":
-                return (column.title ?? "").contains(searchText)
-            case "dropdown":
-                return (column.selectedOptionText ?? "") == searchText
-            default:
-                break
+
+        for model in filterModels {
+            guard !model.filterText.isEmpty else {
+                return
             }
-            return false
+
+//            guard model.isApplied else {
+//                return
+//            }
+             let filtred = viewModel.filteredcellModels.filter { rowArr in
+                 let column = rowArr[model.colIndex].data
+                switch column.type {
+                case "text":
+                    return (column.title ?? "").contains(model.filterText)
+                case "dropdown":
+                    return (column.selectedOptionText ?? "") == model.filterText
+                default:
+                    break
+                }
+                return false
+            }
+            viewModel.filteredcellModels = filtred
         }
-        viewModel.filteredcellModels = filtred
     }
 
     var scrollArea: some View {
@@ -187,18 +211,18 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, columnId in
                 Button(action: {
-                    selectedCol = selectedCol == index ? nil : index
+                    currentSelectedCol = currentSelectedCol == index ? nil : index
                 }, label: {
                     ZStack {
                         Rectangle()
                             .stroke()
-                            .foregroundColor(selectedCol != index ? Color.tableCellBorderColor : Color.blue)
+                            .foregroundColor(filterModels[index].filterText.isEmpty ? Color.tableCellBorderColor : Color.blue)
                         HStack {
                             Text(viewModel.getColumnTitle(columnId: columnId))
                                 .darkLightThemeColor()
                             if viewModel.getColumnType(columnId: columnId) != "image" {
                                 Image(systemName: "line.3.horizontal.decrease.circle")
-                                    .foregroundColor(selectedCol != index ? Color.gray : Color.blue)
+                                    .foregroundColor(filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                             }
 
                         }
@@ -334,17 +358,38 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
+enum SortOder {
+    case ascending
+    case descending
+    case none
+
+    mutating func next() {
+        switch self {
+        case .ascending:
+            self = .descending
+        case .descending:
+            self = .none
+        case .none:
+            self = .ascending
+        }
+    }
+}
 struct SortModel {
     var selected: Bool = false
-    var isAscendingOrder =  true
+    var order: SortOder = .none
+}
+
+struct FilterModel:Equatable {
+    var filterText: String = ""
+    var colIndex: Int
+    var colID: String
 }
 
 struct SearchBar: View {
-    @Binding var text: String
+    @Binding var model: FilterModel
     @Binding var sortModel: SortModel
     var selectedColumnIndex: Int
     let viewModel: TableViewModel
-    @Binding var selectedCol: Int?
 
     var body: some View {
         HStack {
@@ -355,26 +400,25 @@ struct SearchBar: View {
                 { editedCell in
                     switch column.type {
                     case "text":
-                        self.text = editedCell.title ?? ""
+                        self.model.filterText = editedCell.title ?? ""
                     case "dropdown":
-                        self.text = editedCell.selectedOptionText ?? ""
+                        self.model.filterText = editedCell.selectedOptionText ?? ""
                     default:
                         break
                     }
                 }
                 switch cellModel.data.type {
                 case "text":
-                    TextFieldSearchBar(text: $text)
+                    TextFieldSearchBar(text: $model.filterText)
                 case "dropdown":
-                    TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
+                    TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                         .disabled(cellModel.editMode == .readonly)
                 default:
                     Text("")
                 }
             }
             Button(action: {
-                sortModel.isAscendingOrder.toggle()
-                sortModel.selected = true
+                sortModel.order.next()
             }, label: {
                 HStack {
                     Text("Sort")
@@ -389,7 +433,7 @@ struct SearchBar: View {
             .cornerRadius(4)
             
             Button(action: {
-                selectedCol = nil
+                model.filterText = ""
             }, label: {
                 Image(systemName: "xmark")
                     .resizable()
@@ -411,7 +455,7 @@ struct SearchBar: View {
 
 struct TextFieldSearchBar: View {
     @Binding var text: String
-    
+
     var body: some View {
         TextField("Search ", text: $text)
             .font(.system(size: 12))
