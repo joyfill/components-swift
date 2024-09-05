@@ -30,6 +30,7 @@ class TableViewModel: ObservableObject {
     var selectedRows = [String]()
 
     @Published var cellModels = [[TableCellModel]]()
+    @Published var filteredcellModels = [[TableCellModel]]()
 
     private var tableDataDidChange = false
     @Published var uuid = UUID()
@@ -68,6 +69,7 @@ class TableViewModel: ObservableObject {
             cellModels.append(rowCellModels)
         }
         self.cellModels = cellModels
+        self.filteredcellModels = cellModels
     }
 
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
@@ -114,7 +116,7 @@ class TableViewModel: ObservableObject {
     }
     
     func setDeleteButtonVisibility() {
-        shouldShowDeleteRowButton = (mode == .fill && !selectedRows.isEmpty)
+        shouldShowDeleteRowButton = (mode == .fill && !selectedRows.isEmpty && !filteredcellModels.isEmpty)
     }
     
     func deleteSelectedRow() {

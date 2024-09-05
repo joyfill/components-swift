@@ -13,16 +13,14 @@ struct TableModalView : View {
 
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var selectedCol: Int? = nil
-    @State var filteredcellModels = [[TableCellModel]]()
+
     @State var sortModel: SortModel
 
     init(viewModel: TableViewModel) {
-        _filteredcellModels = State(initialValue: viewModel.cellModels)
         _sortModel = State(initialValue: SortModel())
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
         self.rowsCount = self.viewModel.rows.count
-
     }
     
     var body: some View {
@@ -59,7 +57,7 @@ struct TableModalView : View {
         }
         .onChange(of: selectedCol) { newValue in
             searchText = ""
-            filteredcellModels = viewModel.cellModels
+            viewModel.filteredcellModels = viewModel.cellModels
         }
         .onChange(of: sortModel.isAscendingOrder) { _ in
             filterRowsIfNeeded()
@@ -78,7 +76,7 @@ struct TableModalView : View {
 
     func sortRowsIfNeeded() {
         if sortModel.selected, let selectedCol = selectedCol {
-            filteredcellModels = filteredcellModels.sorted { rowArr1, rowArr2 in
+            viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
                 let column = rowArr1[selectedCol].data
                 switch column.type {
                 case "text":
@@ -104,7 +102,7 @@ struct TableModalView : View {
 
     func filterRowsIfNeeded() {
         guard !searchText.isEmpty, let selectedCol = selectedCol else {
-            filteredcellModels = viewModel.cellModels
+            viewModel.filteredcellModels = viewModel.cellModels
             return
         }
          let filtred = viewModel.cellModels.filter { rowArr in
@@ -119,7 +117,7 @@ struct TableModalView : View {
             }
             return false
         }
-        filteredcellModels = filtred
+        viewModel.filteredcellModels = filtred
     }
 
     var scrollArea: some View {
@@ -216,7 +214,7 @@ struct TableModalView : View {
     
     var rowsHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
+            ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
                         let isRowSelected = viewModel.selectedRows.contains(rowArray.first?.rowID ?? "")
@@ -246,7 +244,7 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
+                        ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels, id: \.id) { cellModel in
                                     ZStack {
