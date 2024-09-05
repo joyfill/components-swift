@@ -68,6 +68,7 @@ struct TableModalView : View {
         .onChange(of: searchText) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
+            viewModel.resetLastSelection()
         }
         .onChange(of: viewModel.cellModels) { _ in
             filterRowsIfNeeded()
