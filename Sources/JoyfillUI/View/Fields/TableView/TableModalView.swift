@@ -81,35 +81,33 @@ struct TableModalView : View {
     }
 
     func sortRowsIfNeeded() {
-        if sortModel.selected {
-            for model in filterModels {
-                viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
-                    let column = rowArr1[model.colIndex].data
-                    switch column.type {
-                    case "text":
-                        switch sortModel.order {
-                        case .ascending:
-                            return (rowArr1[model.colIndex].data.title ?? "") < (rowArr2[model.colIndex].data.title ?? "")
-                        case .descending:
-                            return (rowArr1[model.colIndex].data.title ?? "") > (rowArr2[model.colIndex].data.title ?? "")
-                        case .none:
-                            return true
-                        }
-                    case "dropdown":
-                        switch sortModel.order {
-                        case .ascending:
-                            return (rowArr1[model.colIndex].data.selectedOptionText ?? "") < (rowArr2[model.colIndex].data.selectedOptionText ?? "")
-                        case .descending:
-                            return (rowArr1[model.colIndex].data.selectedOptionText ?? "") > (rowArr2[model.colIndex].data.selectedOptionText ?? "")
-                        case .none:
-                            return true
-                        }
-                    default:
-                        break
+        if let colIndex = currentSelectedCol {
+            viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
+                let column = rowArr1[colIndex].data
+                switch column.type {
+                case "text":
+                    switch sortModel.order {
+                    case .ascending:
+                        return (rowArr1[colIndex].data.title ?? "") < (rowArr2[colIndex].data.title ?? "")
+                    case .descending:
+                        return (rowArr1[colIndex].data.title ?? "") > (rowArr2[colIndex].data.title ?? "")
+                    case .none:
+                        return true
                     }
-                    return false
-
+                case "dropdown":
+                    switch sortModel.order {
+                    case .ascending:
+                        return (rowArr1[colIndex].data.selectedOptionText ?? "") < (rowArr2[colIndex].data.selectedOptionText ?? "")
+                    case .descending:
+                        return (rowArr1[colIndex].data.selectedOptionText ?? "") > (rowArr2[colIndex].data.selectedOptionText ?? "")
+                    case .none:
+                        return true
+                    }
+                default:
+                    break
                 }
+                return false
+                
             }
         }
     }
@@ -124,7 +122,7 @@ struct TableModalView : View {
             if model.filterText.isEmpty {
                 continue
             }
-            
+
              let filtred = viewModel.filteredcellModels.filter { rowArr in
                  let column = rowArr[model.colIndex].data
                 switch column.type {
@@ -372,7 +370,7 @@ enum SortOder {
     }
 }
 struct SortModel {
-    var selected: Bool = false
+//    var selected: Bool = false
     var order: SortOder = .none
 }
 
