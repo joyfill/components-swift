@@ -60,6 +60,9 @@ struct TableModalView : View {
         })
         .onChange(of: viewModel.selectedRows) { newValue in
             viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
+            if viewModel.selectedRows.isEmpty {
+                viewModel.setDeleteButtonVisibility()
+            }
         }
         .onChange(of: sortModel.order) { _ in
             filterRowsIfNeeded()
