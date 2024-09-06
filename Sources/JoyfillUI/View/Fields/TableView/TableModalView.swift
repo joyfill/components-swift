@@ -131,7 +131,7 @@ struct TableModalView : View {
                  let column = rowArr[model.colIndex].data
                 switch column.type {
                 case "text":
-                    return (column.title ?? "").contains(model.filterText)
+                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
                 case "dropdown":
                     return (column.selectedOptionText ?? "") == model.filterText
                 default:
