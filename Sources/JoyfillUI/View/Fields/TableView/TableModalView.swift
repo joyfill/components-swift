@@ -61,10 +61,6 @@ struct TableModalView : View {
         .onChange(of: viewModel.selectedRows) { newValue in
             viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
         }
-        .onChange(of: currentSelectedCol) { newValue in
-//            searchText = ""
-//            viewModel.filteredcellModels = viewModel.cellModels
-        }
         .onChange(of: sortModel.order) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
@@ -107,7 +103,7 @@ struct TableModalView : View {
                     break
                 }
                 return false
-                
+
             }
         }
     }
@@ -211,7 +207,7 @@ struct TableModalView : View {
                     ZStack {
                         Rectangle()
                             .stroke()
-                            .foregroundColor(filterModels[index].filterText.isEmpty ? Color.tableCellBorderColor : Color.blue)
+                            .foregroundColor(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue)
                         HStack {
                             Text(viewModel.getColumnTitle(columnId: columnId))
                                 .darkLightThemeColor()
