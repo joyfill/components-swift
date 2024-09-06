@@ -74,6 +74,13 @@ struct TableModalView : View {
             filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
+        .onChange(of: viewModel.rows) { _ in
+            if viewModel.rows.isEmpty {
+                currentSelectedCol = nil
+                viewModel.resetLastSelection()
+                viewModel.allRowSelected = false
+            }
+        }
     }
 
     func sortRowsIfNeeded() {
@@ -307,7 +314,7 @@ struct TableModalView : View {
     }
 
     private func dismissKeyboard() {
-        viewModel.resetLastSelection()
+//        viewModel.resetLastSelection()
         viewModel.setDeleteButtonVisibility()
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
@@ -381,61 +388,63 @@ struct SearchBar: View {
     @Binding var sortModel: SortModel
     var selectedColumnIndex: Int
     let viewModel: TableViewModel
-
+    
     var body: some View {
         HStack {
-            let row = viewModel.rows[0]
-            let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
-            if let column = column {
-                let cellModel = TableCellModel(rowID: "", data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
-                { editedCell in
-                    switch column.type {
+            if !viewModel.rows.isEmpty {
+                let row = viewModel.rows[0]
+                let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
+                if let column = column {
+                    let cellModel = TableCellModel(rowID: "", data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                    { editedCell in
+                        switch column.type {
+                        case "text":
+                            self.model.filterText = editedCell.title ?? ""
+                        case "dropdown":
+                            self.model.filterText = editedCell.selectedOptionText ?? ""
+                        default:
+                            break
+                        }
+                    }
+                    switch cellModel.data.type {
                     case "text":
-                        self.model.filterText = editedCell.title ?? ""
+                        TextFieldSearchBar(text: $model.filterText)
                     case "dropdown":
-                        self.model.filterText = editedCell.selectedOptionText ?? ""
+                        TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
+                            .disabled(cellModel.editMode == .readonly)
                     default:
-                        break
+                        Text("")
                     }
                 }
-                switch cellModel.data.type {
-                case "text":
-                    TextFieldSearchBar(text: $model.filterText)
-                case "dropdown":
-                    TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
-                        .disabled(cellModel.editMode == .readonly)
-                default:
-                    Text("")
-                }
-            }
-            Button(action: {
-                sortModel.order.next()
-            }, label: {
-                HStack {
-                    Text("Sort")
-                    Image(systemName: "arrow.up.arrow.down")
-                }
-                .font(.system(size: 14))
-                .foregroundColor(.black)
-            })
-            .frame(height: 25)
-            .padding(.horizontal, 12)
-            .background(.white)
-            .cornerRadius(4)
-            
-            Button(action: {
-                model.filterText = ""
-            }, label: {
-                Image(systemName: "xmark")
-                    .resizable()
-                    .frame(width: 10, height: 10)
+                Button(action: {
+                    sortModel.order.next()
+                }, label: {
+                    HStack {
+                        Text("Sort")
+                        Image(systemName: "arrow.up.arrow.down")
+                    }
+                    .font(.system(size: 14))
                     .foregroundColor(.black)
-                    .padding(.all, 8)
-                    .background(.white)
-                    .cornerRadius(4)
-                    .padding(.trailing, 8)
+                })
+                .frame(height: 25)
+                .padding(.horizontal, 12)
+                .background(.white)
+                .cornerRadius(4)
+                
+                Button(action: {
+                    model.filterText = ""
+                }, label: {
+                    Image(systemName: "xmark")
+                        .resizable()
+                        .frame(width: 10, height: 10)
+                        .foregroundColor(.black)
+                        .padding(.all, 8)
+                        .background(.white)
+                        .cornerRadius(4)
+                        .padding(.trailing, 8)
                     
-            })
+                })
+            }
         }
         .frame(height: 40)
         .background(Color(.systemGray6))
