@@ -13,7 +13,7 @@ struct TableModalView : View {
     @State private var showEditMultipleRowsSheetView: Bool = false
 
     @State private var filterModels = [FilterModel]()
-    @State private var currentSelectedCol: Int? = nil
+    @State private var currentSelectedCol: Int = Int.min
 
     @State var sortModel: SortModel
 
@@ -44,8 +44,8 @@ struct TableModalView : View {
                 EditMultipleRowsSheetView(viewModel: viewModel)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-            if let selectedCol = currentSelectedCol {
-                SearchBar(model: $filterModels[selectedCol], sortModel: $sortModel, selectedColumnIndex: selectedCol, viewModel: viewModel)
+            if currentSelectedCol != Int.min {
+                SearchBar(model: $filterModels[currentSelectedCol], sortModel: $sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
             }
             scrollArea
@@ -76,7 +76,7 @@ struct TableModalView : View {
         }
         .onChange(of: viewModel.rows) { _ in
             if viewModel.rows.isEmpty {
-                currentSelectedCol = nil
+                currentSelectedCol = Int.min
                 viewModel.resetLastSelection()
                 viewModel.allRowSelected = false
             }
@@ -84,25 +84,26 @@ struct TableModalView : View {
     }
 
     func sortRowsIfNeeded() {
-        if let colIndex = currentSelectedCol {
+        if currentSelectedCol != Int.min {
+            guard sortModel.order != .none else { return }
             viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
-                let column = rowArr1[colIndex].data
+                let column = rowArr1[currentSelectedCol].data
                 switch column.type {
                 case "text":
                     switch sortModel.order {
                     case .ascending:
-                        return (rowArr1[colIndex].data.title ?? "") < (rowArr2[colIndex].data.title ?? "")
+                        return (rowArr1[currentSelectedCol].data.title ?? "") < (rowArr2[currentSelectedCol].data.title ?? "")
                     case .descending:
-                        return (rowArr1[colIndex].data.title ?? "") > (rowArr2[colIndex].data.title ?? "")
+                        return (rowArr1[currentSelectedCol].data.title ?? "") > (rowArr2[currentSelectedCol].data.title ?? "")
                     case .none:
                         return true
                     }
                 case "dropdown":
                     switch sortModel.order {
                     case .ascending:
-                        return (rowArr1[colIndex].data.selectedOptionText ?? "") < (rowArr2[colIndex].data.selectedOptionText ?? "")
+                        return (rowArr1[currentSelectedCol].data.selectedOptionText ?? "") < (rowArr2[currentSelectedCol].data.selectedOptionText ?? "")
                     case .descending:
-                        return (rowArr1[colIndex].data.selectedOptionText ?? "") > (rowArr2[colIndex].data.selectedOptionText ?? "")
+                        return (rowArr1[currentSelectedCol].data.selectedOptionText ?? "") > (rowArr2[currentSelectedCol].data.selectedOptionText ?? "")
                     case .none:
                         return true
                     }
@@ -209,7 +210,7 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, columnId in
                 Button(action: {
-                    currentSelectedCol = currentSelectedCol == index ? nil : index
+                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     ZStack {
                         Rectangle()
@@ -386,12 +387,13 @@ struct FilterModel:Equatable {
 struct SearchBar: View {
     @Binding var model: FilterModel
     @Binding var sortModel: SortModel
-    var selectedColumnIndex: Int
+    @Binding var selectedColumnIndex: Int
+
     let viewModel: TableViewModel
     
     var body: some View {
         HStack {
-            if !viewModel.rows.isEmpty {
+            if !viewModel.rows.isEmpty, selectedColumnIndex != Int.min {
                 let row = viewModel.rows[0]
                 let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
                 if let column = column {
@@ -433,6 +435,7 @@ struct SearchBar: View {
                 
                 Button(action: {
                     model.filterText = ""
+                    selectedColumnIndex = Int.min
                 }, label: {
                     Image(systemName: "xmark")
                         .resizable()
