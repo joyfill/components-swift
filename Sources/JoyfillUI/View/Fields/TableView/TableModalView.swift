@@ -115,19 +115,16 @@ struct TableModalView : View {
     }
 
     func filterRowsIfNeeded() {
+        viewModel.filteredcellModels = viewModel.cellModels
         guard !filterModels.allSatisfy({ model in model.filterText.isEmpty }) else {
-            viewModel.filteredcellModels = viewModel.cellModels
             return
         }
 
         for model in filterModels {
-            guard !model.filterText.isEmpty else {
-                return
+            if model.filterText.isEmpty {
+                continue
             }
-
-//            guard model.isApplied else {
-//                return
-//            }
+            
              let filtred = viewModel.filteredcellModels.filter { rowArr in
                  let column = rowArr[model.colIndex].data
                 switch column.type {
