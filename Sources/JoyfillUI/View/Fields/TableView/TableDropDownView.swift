@@ -9,7 +9,7 @@ import SwiftUI
 import JoyfillModel
 
 struct TableDropDownOptionListView: View {
-    @State var selectedDropdownValue: String?
+    @State var selectedDropdownValue: String? = ""
     @State private var isSheetPresented = false
     private var isUsedForBulkEdit = false
     private var cellModel: TableCellModel
@@ -20,7 +20,9 @@ struct TableDropDownOptionListView: View {
         self.cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
         lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
-        _selectedDropdownValue = State(initialValue: selectedDropdownValue)
+        if let selectedDropdownValue = selectedDropdownValue {
+            _selectedDropdownValue = State(initialValue: selectedDropdownValue)
+        }
     }
     
     var body: some View {
