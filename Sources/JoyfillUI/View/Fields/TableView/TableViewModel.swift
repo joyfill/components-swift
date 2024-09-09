@@ -72,6 +72,16 @@ class TableViewModel: ObservableObject {
         self.filteredcellModels = cellModels
     }
 
+    func updateCellModel(rowIndex: Int, rowID: String, colIndex: Int, colID: String) {
+        let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
+        if let columnModel = columnModel {
+            let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+            }
+            cellModels[rowIndex][colIndex] = cellModel
+        }
+    }
+
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
         return rowToCellMap[row]?[col]
     }
@@ -173,7 +183,8 @@ class TableViewModel: ObservableObject {
         fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
         setup()
         uuid = UUID()
-        setupCellModels()
+//        setupCellModels()
+        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, rowID: rowId, colIndex: colIndex, colID: columns[colIndex])
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
