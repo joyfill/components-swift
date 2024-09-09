@@ -426,13 +426,13 @@ struct SearchBar: View {
                 }, label: {
                     HStack {
                         Text("Sort")
-                        Image(systemName: "arrow.up.arrow.down")
+                        Image(systemName: getSortIcon())
+                            .foregroundColor(getIconColor())
                     }
                     .font(.system(size: 14))
                     .foregroundColor(.black)
                 })
-                .frame(height: 25)
-                .padding(.horizontal, 12)
+                .frame(width: 75, height: 25)
                 .background(.white)
                 .cornerRadius(4)
                 
@@ -456,6 +456,24 @@ struct SearchBar: View {
         .background(Color(.systemGray6))
         .cornerRadius(8)
         .padding(.horizontal, 12)
+    }
+    func getSortIcon() -> String {
+        switch sortModel.order {
+        case .ascending:
+            return "arrow.up"
+        case .descending:
+            return "arrow.down"
+        case .none:
+            return "arrow.up.arrow.down"
+        }
+    }
+    func getIconColor() -> Color {
+        switch sortModel.order {
+        case .none:
+            return .black
+        case .ascending, .descending:
+            return .blue
+        }
     }
 }
 
