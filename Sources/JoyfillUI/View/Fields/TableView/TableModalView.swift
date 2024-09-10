@@ -2,13 +2,26 @@ import SwiftUI
 import JoyfillModel
 
 struct TableModalView : View {
+    @Environment(\.colorScheme) var colorScheme
     @State private var offset = CGPoint.zero
-    @ObservedObject var viewModel: TableViewModel
-    private let rowHeight: CGFloat = 50
     @State private var heights: [Int: CGFloat] = [:]
     @State private var refreshID = UUID()
     @State private var rowsCount: Int = 0
-    @Environment(\.colorScheme) var colorScheme
+
+    @State var isTableModalViewPresented = false
+    @State var shouldShowAddRowButton: Bool = false
+    @State var shouldShowDeleteRowButton: Bool = false
+    @State var showRowSelector: Bool = false
+    @State var allRowSelected: Bool = false
+    @State var viewMoreText: String = ""
+    @State var rows: [String] = []
+    @State var quickRows: [String] = []
+    @State var columns: [String] = []
+    @State var quickColumns: [String] = []
+    @State var quickViewRowCount: Int = 0
+    @State var cellModels = [[TableCellModel]]()
+    @State var filteredcellModels = [[TableCellModel]]()
+    @State var uuid = UUID()
 
     @State private var showEditMultipleRowsSheetView: Bool = false
 
@@ -17,51 +30,58 @@ struct TableModalView : View {
 
     @State var sortModel: SortModel
 
-    init(viewModel: TableViewModel) {
-        _sortModel = State(initialValue: SortModel())
-        self.viewModel = viewModel
-        let filterModels = self.viewModel.columns.enumerated().map { colIndex, colID in
-            FilterModel(colIndex: colIndex, colID: colID)
-        }
-        _filterModels = State(initialValue: filterModels)
-        UIScrollView.appearance().bounces = false
-        self.rowsCount = self.viewModel.rows.count
+    @State var fieldDependency: FieldDependency
+
+    @State private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
+    @State private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
+    @State private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
+    @State var selectedRows = [String]()
+
+    @State private var tableDataDidChange = false
+
+    private let rowHeight: CGFloat = 50
+    private let mode: Mode
+
+    init(fieldDependency: FieldDependency) {
+        self.fieldDependency = fieldDependency
+        self.mode = fieldDependency.mode
+        self.sortModel = SortModel()
     }
     
     var body: some View {
         VStack {
-            TableModalTopNavigationView(showMoreButton: $viewModel.shouldShowDeleteRowButton, onDeleteTap: {
-                viewModel.deleteSelectedRow()
+            TableModalTopNavigationView(showMoreButton: $shouldShowDeleteRowButton, onDeleteTap: {
+                deleteSelectedRow()
                 heights = [:]
             }, onDuplicateTap: {
-                viewModel.duplicateRow()
+                duplicateRow()
             }, onAddRowTap: {
-                viewModel.addRow()
+                addRow()
             }, onEditTap: {
                 showEditMultipleRowsSheetView = true
-            }, fieldDependency: viewModel.fieldDependency)
+            }, fieldDependency: fieldDependency)
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                EditMultipleRowsSheetView(viewModel: viewModel)
+//                EditMultipleRowsSheetView(viewModel: viewModel)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {
-                SearchBar(model: $filterModels[currentSelectedCol], sortModel: $sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
+//                SearchBar(model: $filterModels[currentSelectedCol], sortModel: $sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
             }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
         .onDisappear(perform: {
-            viewModel.sendEventsIfNeeded()
+            sendEventsIfNeeded()
         })
         .onAppear(perform: {
-            let fieldEvent = FieldEvent(field: viewModel.fieldDependency.fieldData)
-            viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
+            let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+            fieldDependency.eventHandler.onFocus(event: fieldEvent)
         })
-        .onChange(of: viewModel.selectedRows) { newValue in
-            viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
-            if viewModel.selectedRows.isEmpty {
-                viewModel.setDeleteButtonVisibility()
+        .onChange(of: selectedRows) { newValue in
+            allRowSelected = (newValue.count == rows.count)
+            if selectedRows.isEmpty {
+                setDeleteButtonVisibility()
             }
         }
         .onChange(of: sortModel.order) { _ in
@@ -71,17 +91,33 @@ struct TableModalView : View {
         .onChange(of: filterModels) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
-            viewModel.resetLastSelection()
+            resetLastSelection()
         }
-        .onChange(of: viewModel.cellModels) { _ in
+        .onChange(of: cellModels) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
-        .onChange(of: viewModel.rows) { _ in
-            if viewModel.rows.isEmpty {
+        .onChange(of: rows) { _ in
+            if rows.isEmpty {
                 currentSelectedCol = Int.min
-                viewModel.resetLastSelection()
-                viewModel.allRowSelected = false
+                resetLastSelection()
+                allRowSelected = false
+            }
+        }
+        .onAppear {
+            setupColumns()
+            setup()
+            setupCellModels()
+            self.filterModels = columns.enumerated().map { colIndex, colID in
+                FilterModel(colIndex: colIndex, colID: colID)
+            }
+            UIScrollView.appearance().bounces = false
+            self.rowsCount = self.rows.count
+            self.showRowSelector = mode == .fill
+            self.shouldShowAddRowButton = mode == .fill
+
+            let filterModels = self.columns.enumerated().map { colIndex, colID in
+                FilterModel(colIndex: colIndex, colID: colID)
             }
         }
     }
@@ -89,7 +125,7 @@ struct TableModalView : View {
     func sortRowsIfNeeded() {
         if currentSelectedCol != Int.min {
             guard sortModel.order != .none else { return }
-            viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
+            filteredcellModels = filteredcellModels.sorted { rowArr1, rowArr2 in
                 let column = rowArr1[currentSelectedCol].data
                 switch column.type {
                 case "text":
@@ -120,7 +156,7 @@ struct TableModalView : View {
     }
 
     func filterRowsIfNeeded() {
-        viewModel.filteredcellModels = viewModel.cellModels
+        filteredcellModels = cellModels
         guard !filterModels.allSatisfy({ model in model.filterText.isEmpty }) else {
             return
         }
@@ -130,7 +166,7 @@ struct TableModalView : View {
                 continue
             }
 
-             let filtred = viewModel.filteredcellModels.filter { rowArr in
+             let filtred = filteredcellModels.filter { rowArr in
                  let column = rowArr[model.colIndex].data
                 switch column.type {
                 case "text":
@@ -142,7 +178,7 @@ struct TableModalView : View {
                 }
                 return false
             }
-            viewModel.filteredcellModels = filtred
+            filteredcellModels = filtred
         }
     }
 
@@ -150,19 +186,19 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
-                    if viewModel.showRowSelector  {
-                        Image(systemName: viewModel.allRowSelected ? "record.circle.fill" : "circle")
+                    if showRowSelector  {
+                        Image(systemName: allRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: 50)
                             .border(Color.tableCellBorderColor)
                             .foregroundColor(rowsCount == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
-                                viewModel.allRowSelected.toggle()
-                                if viewModel.allRowSelected {
-                                    viewModel.selectAllRows()
+                                allRowSelected.toggle()
+                                if allRowSelected {
+                                    selectAllRows()
                                 } else {
-                                    viewModel.resetLastSelection()
+                                    resetLastSelection()
                                 }
-                                viewModel.setDeleteButtonVisibility()
+                                setDeleteButtonVisibility()
                             }
                             .disabled(rowsCount == 0)
                             .accessibilityIdentifier("SelectAllButton")
@@ -171,7 +207,7 @@ struct TableModalView : View {
                         .frame(width: 40, height: 50)
                         .border(Color.tableCellBorderColor)
                 }
-                .frame(width: viewModel.showRowSelector ? 80 : 40, height: rowHeight)
+                .frame(width: showRowSelector ? 80 : 40, height: rowHeight)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
@@ -211,7 +247,7 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, columnId in
+            ForEach(Array(columns.enumerated()), id: \.offset) { index, columnId in
                 Button(action: {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
@@ -220,9 +256,9 @@ struct TableModalView : View {
                             .stroke()
                             .foregroundColor(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue)
                         HStack {
-                            Text(viewModel.getColumnTitle(columnId: columnId))
+                            Text(getColumnTitle(columnId: columnId))
                                 .darkLightThemeColor()
-                            if viewModel.getColumnType(columnId: columnId) != "image" {
+                            if getColumnType(columnId: columnId) != "image" {
                                 Image(systemName: "line.3.horizontal.decrease.circle")
                                     .foregroundColor(filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                             }
@@ -231,7 +267,7 @@ struct TableModalView : View {
                         .font(.system(size: 15))
                     }
                 })
-                .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
+                .disabled(getColumnType(columnId: columnId) == "image" || rowsCount == 0)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .frame(width: 170, height: rowHeight)
             }
@@ -240,16 +276,16 @@ struct TableModalView : View {
     
     var rowsHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
+            ForEach(Array(filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
                 HStack(spacing: 0) {
-                    if viewModel.showRowSelector {
-                        let isRowSelected = viewModel.selectedRows.contains(rowArray.first?.rowID ?? "")
+                    if showRowSelector {
+                        let isRowSelected = selectedRows.contains(rowArray.first?.rowID ?? "")
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: heights[index] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
-                                viewModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
-                                viewModel.setDeleteButtonVisibility()
+                                toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                                setDeleteButtonVisibility()
                             }
                             .accessibilityIdentifier("MyButton")
                         
@@ -270,7 +306,7 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
+                        ForEach(Array(filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels, id: \.id) { cellModel in
                                     ZStack {
@@ -288,9 +324,12 @@ struct TableModalView : View {
                             }
                         }
                         .id(refreshID)
-                        .onReceive(viewModel.$rows) { _ in
+                        .onChange(of: rows) { value in
                             refreshUUIDIfNeeded()
                         }
+//                        .(rows) { _ in
+//                            refreshUUIDIfNeeded()
+//                        }
                         .onPreferenceChange(HeightPreferenceKey.self) { value in
                             updateNewHeight(newValue: value)
                         }
@@ -318,15 +357,15 @@ struct TableModalView : View {
     }
 
     private func dismissKeyboard() {
-//        viewModel.resetLastSelection()
-        viewModel.setDeleteButtonVisibility()
+//        resetLastSelection()
+        setDeleteButtonVisibility()
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
     // Note: This is an optimisation to stop force re-render entire table
     private func refreshUUIDIfNeeded() {
-        if rowsCount != viewModel.rows.count {
-            self.rowsCount = viewModel.rows.count
+        if rowsCount != rows.count {
+            self.rowsCount = rows.count
             self.refreshID = UUID()
         }
     }
@@ -387,95 +426,95 @@ struct FilterModel:Equatable {
     var colID: String
 }
 
-struct SearchBar: View {
-    @Binding var model: FilterModel
-    @Binding var sortModel: SortModel
-    @Binding var selectedColumnIndex: Int
-
-    let viewModel: TableViewModel
-    
-    var body: some View {
-        HStack {
-            if !viewModel.rows.isEmpty, selectedColumnIndex != Int.min {
-                let row = viewModel.rows[0]
-                let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
-                if let column = column {
-                    let cellModel = TableCellModel(rowID: "", data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
-                    { editedCell in
-                        switch column.type {
-                        case "text":
-                            self.model.filterText = editedCell.title ?? ""
-                        case "dropdown":
-                            self.model.filterText = editedCell.selectedOptionText ?? ""
-                        default:
-                            break
-                        }
-                    }
-                    switch cellModel.data.type {
-                    case "text":
-                        TextFieldSearchBar(text: $model.filterText)
-                    case "dropdown":
-                        TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
-                            .disabled(cellModel.editMode == .readonly)
-                    default:
-                        Text("")
-                    }
-                }
-                Button(action: {
-                    sortModel.order.next()
-                }, label: {
-                    HStack {
-                        Text("Sort")
-                        Image(systemName: getSortIcon())
-                            .foregroundColor(getIconColor())
-                    }
-                    .font(.system(size: 14))
-                    .foregroundColor(.black)
-                })
-                .frame(width: 75, height: 25)
-                .background(.white)
-                .cornerRadius(4)
-                
-                Button(action: {
-                    model.filterText = ""
-                    selectedColumnIndex = Int.min
-                }, label: {
-                    Image(systemName: "xmark")
-                        .resizable()
-                        .frame(width: 10, height: 10)
-                        .foregroundColor(.black)
-                        .padding(.all, 8)
-                        .background(.white)
-                        .cornerRadius(4)
-                        .padding(.trailing, 8)
-                    
-                })
-            }
-        }
-        .frame(height: 40)
-        .background(Color(.systemGray6))
-        .cornerRadius(8)
-        .padding(.horizontal, 12)
-    }
-    func getSortIcon() -> String {
-        switch sortModel.order {
-        case .ascending:
-            return "arrow.up"
-        case .descending:
-            return "arrow.down"
-        case .none:
-            return "arrow.up.arrow.down"
-        }
-    }
-    func getIconColor() -> Color {
-        switch sortModel.order {
-        case .none:
-            return .black
-        case .ascending, .descending:
-            return .blue
-        }
-    }
-}
+//struct SearchBar: View {
+//    @Binding var model: FilterModel
+//    @Binding var sortModel: SortModel
+//    @Binding var selectedColumnIndex: Int
+//
+//    let viewModel: TableViewModel
+//    
+//    var body: some View {
+//        HStack {
+//            if !rows.isEmpty, selectedColumnIndex != Int.min {
+//                let row = rows[0]
+//                let column = getFieldTableColumn(row: row, col: selectedColumnIndex)
+//                if let column = column {
+//                    let cellModel = TableCellModel(rowID: "", data: column, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode)
+//                    { editedCell in
+//                        switch column.type {
+//                        case "text":
+//                            self.model.filterText = editedCell.title ?? ""
+//                        case "dropdown":
+//                            self.model.filterText = editedCell.selectedOptionText ?? ""
+//                        default:
+//                            break
+//                        }
+//                    }
+//                    switch cellModel.data.type {
+//                    case "text":
+//                        TextFieldSearchBar(text: $model.filterText)
+//                    case "dropdown":
+//                        TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
+//                            .disabled(cellModel.editMode == .readonly)
+//                    default:
+//                        Text("")
+//                    }
+//                }
+//                Button(action: {
+//                    sortModel.order.next()
+//                }, label: {
+//                    HStack {
+//                        Text("Sort")
+//                        Image(systemName: getSortIcon())
+//                            .foregroundColor(getIconColor())
+//                    }
+//                    .font(.system(size: 14))
+//                    .foregroundColor(.black)
+//                })
+//                .frame(width: 75, height: 25)
+//                .background(.white)
+//                .cornerRadius(4)
+//                
+//                Button(action: {
+//                    model.filterText = ""
+//                    selectedColumnIndex = Int.min
+//                }, label: {
+//                    Image(systemName: "xmark")
+//                        .resizable()
+//                        .frame(width: 10, height: 10)
+//                        .foregroundColor(.black)
+//                        .padding(.all, 8)
+//                        .background(.white)
+//                        .cornerRadius(4)
+//                        .padding(.trailing, 8)
+//                    
+//                })
+//            }
+//        }
+//        .frame(height: 40)
+//        .background(Color(.systemGray6))
+//        .cornerRadius(8)
+//        .padding(.horizontal, 12)
+//    }
+//    func getSortIcon() -> String {
+//        switch sortModel.order {
+//        case .ascending:
+//            return "arrow.up"
+//        case .descending:
+//            return "arrow.down"
+//        case .none:
+//            return "arrow.up.arrow.down"
+//        }
+//    }
+//    func getIconColor() -> Color {
+//        switch sortModel.order {
+//        case .none:
+//            return .black
+//        case .ascending, .descending:
+//            return .blue
+//        }
+//    }
+//}
 
 struct TextFieldSearchBar: View {
     @Binding var text: String
@@ -525,5 +564,249 @@ struct DropdownFieldSearchBar: View {
             .cornerRadius(6)
             .padding(.leading, 8)
         })
+    }
+}
+
+
+extension TableModalView {
+
+    private func setup() {
+        setupRows()
+        quickViewRowCount = rows.count >= 3 ? 3 : rows.count
+        setDeleteButtonVisibility()
+        viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
+    }
+
+    func setupCellModels() {
+        var cellModels = [[TableCellModel]]()
+        rows.enumerated().forEach { rowIndex, rowID in
+            var rowCellModels = [TableCellModel]()
+            columns.enumerated().forEach { colIndex, colID in
+                let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
+                if let columnModel = columnModel {
+                    let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                    }
+                    rowCellModels.append(cellModel)
+                }
+            }
+            cellModels.append(rowCellModels)
+        }
+        self.cellModels = cellModels
+        self.filteredcellModels = cellModels
+    }
+
+    func updateCellModel(rowIndex: Int, rowID: String, colIndex: Int, colID: String) {
+        let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
+        if let columnModel = columnModel {
+            let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+            }
+            cellModels[rowIndex][colIndex] = cellModel
+        }
+    }
+
+    func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
+        return rowToCellMap[row]?[col]
+    }
+
+    func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
+        return quickRowToCellMap[row]?[col]
+    }
+
+
+    func getColumnTitle(columnId: String) -> String {
+        return columnIdToColumnMap[columnId]?.title ?? ""
+    }
+
+    func getColumnTitleAtIndex(index: Int) -> String {
+        guard index < columns.count else { return "" }
+        return columnIdToColumnMap[columns[index]]?.title ?? ""
+    }
+
+    func getColumnType(columnId: String) -> String? {
+        return columnIdToColumnMap[columnId]?.type
+    }
+
+    func getColumnIDAtIndex(index: Int) -> String? {
+        guard index < columns.count else { return nil }
+        return columnIdToColumnMap[columns[index]]?.id
+    }
+
+    func toggleSelection(rowID: String) {
+        if selectedRows.contains(rowID) {
+            selectedRows = selectedRows.filter({ $0 != rowID})
+        } else {
+            selectedRows.append(rowID)
+        }
+    }
+
+    func selectAllRows() {
+        selectedRows = rows
+    }
+
+    func resetLastSelection() {
+        selectedRows = []
+    }
+
+    func setDeleteButtonVisibility() {
+        shouldShowDeleteRowButton = (mode == .fill && !selectedRows.isEmpty && !filteredcellModels.isEmpty)
+    }
+
+    func deleteSelectedRow() {
+        guard !selectedRows.isEmpty else {
+            return
+        }
+
+        for row in selectedRows {
+            fieldDependency.fieldData?.deleteRow(id: row)
+            rowToCellMap.removeValue(forKey: row)
+        }
+
+        resetLastSelection()
+        setup()
+        uuid = UUID()
+        setTableDataDidChange(to: true)
+        setupCellModels()
+    }
+
+    func setTableDataDidChange(to: Bool) {
+        tableDataDidChange = to
+    }
+
+    func duplicateRow() {
+        guard !selectedRows.isEmpty else {
+            return
+        }
+        setTableDataDidChange(to: true)
+
+
+        for row in selectedRows {
+            let id = generateObjectId()
+            fieldDependency.fieldData?.duplicateRow(id: row)
+            uuid = UUID()
+        }
+        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData))
+        resetLastSelection()
+        setup()
+        setupCellModels()
+    }
+
+    func addRow() {
+        let id = generateObjectId()
+        fieldDependency.fieldData?.addRow(id: id)
+        resetLastSelection()
+        setup()
+        uuid = UUID()
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)
+        setupCellModels()
+    }
+
+    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
+        setTableDataDidChange(to: true)
+        fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+        setup()
+        uuid = UUID()
+//        setupCellModels()
+        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, rowID: rowId, colIndex: colIndex, colID: columns[colIndex])
+    }
+
+    func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
+        fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCellId: editedCellId, value: value)
+        resetLastSelection()
+        setup()
+        uuid = UUID()
+        setTableDataDidChange(to: true)
+        setupCellModels()
+    }
+
+    private func setupColumns() {
+        guard let joyDocModel = fieldDependency.fieldData else { return }
+
+        for column in joyDocModel.tableColumnOrder ?? [] {
+            columnIdToColumnMap[column] = joyDocModel.tableColumns?.first { $0.id == column }
+        }
+
+        self.columns = joyDocModel.tableColumnOrder ?? []
+        self.quickColumns = columns
+        while quickColumns.count > 3 {
+            quickColumns.removeLast()
+        }
+    }
+
+    private func setupRows() {
+        guard let joyDocModel = fieldDependency.fieldData else { return }
+        guard let valueElements = joyDocModel.valueToValueElements, !valueElements.isEmpty else {
+            setupQuickTableViewRows()
+            return
+        }
+
+        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
+        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: joyDocModel.rowOrder)
+        var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
+
+        for row in sortedRows {
+            var cells: [FieldTableColumn?] = []
+            for column in joyDocModel.tableColumnOrder ?? [] {
+                let columnData = joyDocModel.tableColumns?.first { $0.id == column }
+                let cell = buildCell(data: columnData, row: row, column: column)
+                cells.append(cell)
+            }
+            rowToCellMap[row.id] = cells
+        }
+
+        rows = sortedRows.map { $0.id ?? "" }
+        self.quickRows = self.rows
+        self.rowToCellMap = rowToCellMap
+        self.quickRowToCellMap = rowToCellMap
+        setupQuickTableViewRows()
+    }
+
+    private func buildCell(data: FieldTableColumn?, row: ValueElement, column: String) -> FieldTableColumn? {
+        var cell = data
+        let valueUnion = row.cells?.first(where: { $0.key == column })?.value
+        switch data?.type {
+        case "text":
+            cell?.title = valueUnion?.text ?? ""
+        case "dropdown":
+            cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
+        case "image":
+            cell?.images = valueUnion?.valueElements
+        default:
+            return nil
+        }
+        return cell
+    }
+
+    func setupQuickTableViewRows() {
+        if quickRows.isEmpty {
+            quickRowToCellMap = [:]
+            let id = generateObjectId()
+            quickRows = [id]
+            quickRowToCellMap = [id : fieldDependency.fieldData?.tableColumns ?? []]
+        }
+        else {
+            while quickRows.count > 3 {
+                quickRows.removeLast()
+            }
+        }
+    }
+
+    func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
+        guard let rowOrder = rowOrder else { return elements }
+        let sortedRows = elements.sorted { (a, b) -> Bool in
+            if let first = rowOrder.firstIndex(of: a.id ?? ""), let second = rowOrder.firstIndex(of: b.id ?? "") {
+                return first < second
+            }
+            return false
+        }
+        return sortedRows
+    }
+
+    func sendEventsIfNeeded() {
+        if tableDataDidChange {
+            setTableDataDidChange(to: false)
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData))
+        }
     }
 }

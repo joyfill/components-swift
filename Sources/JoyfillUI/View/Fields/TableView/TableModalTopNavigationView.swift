@@ -93,126 +93,126 @@ struct TableModalTopNavigationView: View {
     }
 }
 
-struct EditMultipleRowsSheetView: View {
-    let viewModel: TableViewModel
-    @Environment(\.presentationMode)  var presentationMode
-    @State var changes = [Int: String]()
-
-    init(viewModel: TableViewModel) {
-        self.viewModel =  viewModel
-    }
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .top) {
-                    if let title = viewModel.fieldDependency.fieldData?.title {
-                        VStack(alignment: .leading) {
-                            Text("\(title)")
-                                .font(.headline.bold())
-                            Text("\(viewModel.selectedRows.count) rows selected")
-                                .font(.caption).bold()
-                                .foregroundStyle(.blue)
-                        }
-                    }
-
-                    Spacer()
-
-                    Button(action: {
-                        for row in viewModel.selectedRows {
-                            for colIndex in changes.keys {
-                                if let editedCellId = viewModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
-                                    viewModel.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change)
-                                }
-                            }
-                        }
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Text("Apply All")
-                            .darkLightThemeColor()
-                            .font(.system(size: 14))
-                            .frame(width: 88, height: 27)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                    })
-
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                .frame(width: 27, height: 27)
-
-                            Image(systemName: "xmark")
-                                .resizable()
-                                .frame(width: 10, height: 10)
-                                .darkLightThemeColor()
-                        }
-                    })
-                }
-
-                ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { colIndex, col in
-                    let row = viewModel.selectedRows.first!
-                    let cell = viewModel.getFieldTableColumn(row: row, col: colIndex)
-                    if let cell = cell {
-                        let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
-                        { editedCell in
-                            switch cell.type {
-                            case "text":
-                                self.changes[colIndex] = editedCell.title
-                            case "dropdown":
-                                self.changes[colIndex] = editedCell.defaultDropdownSelectedId
-                            default:
-                                break
-                            }
-                        }
-                        switch cellModel.data.type {
-                        case "text":
-                            var str = ""
-                            Text(viewModel.getColumnTitle(columnId: col))
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
-                            let binding = Binding<String>(
-                                get: {
-                                    str
-                                },
-                                set: { newValue in
-                                    str = newValue
-                                    self.changes[colIndex] = newValue
-                                }
-                            )
-                            TextField("", text: binding)
-                                .font(.system(size: 15))
-                                .accessibilityIdentifier("Text")
-                                .disabled(viewModel.fieldDependency.mode == .readonly)
-                                .padding(.horizontal, 10)
-                                .frame(height: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
-                        case "dropdown":
-                            Text(viewModel.getColumnTitle(columnId: col))
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
-                            TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .disabled(cellModel.editMode == .readonly)
-                        default:
-                            Text("")
-                        }
-                    }
-                }
-                Spacer()
-            }
-            .padding(.all, 16)
-        }
-    }
-}
+//struct EditMultipleRowsSheetView: View {
+//    let viewModel: TableViewModel
+//    @Environment(\.presentationMode)  var presentationMode
+//    @State var changes = [Int: String]()
+//
+//    init(viewModel: TableViewModel) {
+//        self.viewModel =  viewModel
+//    }
+//
+//    var body: some View {
+//        ScrollView {
+//            VStack(alignment: .leading, spacing: 16) {
+//                HStack(alignment: .top) {
+//                    if let title = viewModel.fieldDependency.fieldData?.title {
+//                        VStack(alignment: .leading) {
+//                            Text("\(title)")
+//                                .font(.headline.bold())
+//                            Text("\(viewModel.selectedRows.count) rows selected")
+//                                .font(.caption).bold()
+//                                .foregroundStyle(.blue)
+//                        }
+//                    }
+//
+//                    Spacer()
+//
+//                    Button(action: {
+//                        for row in viewModel.selectedRows {
+//                            for colIndex in changes.keys {
+//                                if let editedCellId = viewModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
+//                                    viewModel.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change)
+//                                }
+//                            }
+//                        }
+//                        presentationMode.wrappedValue.dismiss()
+//                    }, label: {
+//                        Text("Apply All")
+//                            .darkLightThemeColor()
+//                            .font(.system(size: 14))
+//                            .frame(width: 88, height: 27)
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: 6)
+//                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+//                            )
+//                    })
+//
+//                    Button(action: {
+//                        presentationMode.wrappedValue.dismiss()
+//                    }, label: {
+//                        ZStack {
+//                            RoundedRectangle(cornerRadius: 6)
+//                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+//                                .frame(width: 27, height: 27)
+//
+//                            Image(systemName: "xmark")
+//                                .resizable()
+//                                .frame(width: 10, height: 10)
+//                                .darkLightThemeColor()
+//                        }
+//                    })
+//                }
+//
+//                ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { colIndex, col in
+//                    let row = viewModel.selectedRows.first!
+//                    let cell = viewModel.getFieldTableColumn(row: row, col: colIndex)
+//                    if let cell = cell {
+//                        let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+//                        { editedCell in
+//                            switch cell.type {
+//                            case "text":
+//                                self.changes[colIndex] = editedCell.title
+//                            case "dropdown":
+//                                self.changes[colIndex] = editedCell.defaultDropdownSelectedId
+//                            default:
+//                                break
+//                            }
+//                        }
+//                        switch cellModel.data.type {
+//                        case "text":
+//                            var str = ""
+//                            Text(viewModel.getColumnTitle(columnId: col))
+//                                .font(.headline.bold())
+//                                .padding(.bottom, -8)
+//                            let binding = Binding<String>(
+//                                get: {
+//                                    str
+//                                },
+//                                set: { newValue in
+//                                    str = newValue
+//                                    self.changes[colIndex] = newValue
+//                                }
+//                            )
+//                            TextField("", text: binding)
+//                                .font(.system(size: 15))
+//                                .accessibilityIdentifier("Text")
+//                                .disabled(viewModel.fieldDependency.mode == .readonly)
+//                                .padding(.horizontal, 10)
+//                                .frame(height: 40)
+//                                .overlay(
+//                                    RoundedRectangle(cornerRadius: 10)
+//                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+//                                )
+//                                .cornerRadius(10)
+//                        case "dropdown":
+//                            Text(viewModel.getColumnTitle(columnId: col))
+//                                .font(.headline.bold())
+//                                .padding(.bottom, -8)
+//                            TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
+//                                .overlay(
+//                                    RoundedRectangle(cornerRadius: 10)
+//                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+//                                )
+//                                .disabled(cellModel.editMode == .readonly)
+//                        default:
+//                            Text("")
+//                        }
+//                    }
+//                }
+//                Spacer()
+//            }
+//            .padding(.all, 16)
+//        }
+//    }
+//}
