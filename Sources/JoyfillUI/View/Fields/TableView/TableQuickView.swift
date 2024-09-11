@@ -69,7 +69,7 @@ struct TableQuickView : View {
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(fieldDependency: viewModel.fieldDependency), isActive: $viewModel.isTableModalViewPresented) {
+            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
