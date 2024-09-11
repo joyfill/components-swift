@@ -242,7 +242,6 @@ struct TableModalView : View {
                         Color.clear
                             .onAppear {
                                 self.textHeight = geometry.size.height
-                                print("\(textHeight)")
                             }
                     }
                 )
@@ -251,9 +250,9 @@ struct TableModalView : View {
     }
     
     var rowsHeader: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
-                HStack(spacing: 0) {
+                LazyHStack(spacing: 0) {
                     if viewModel.showRowSelector {
                         let isRowSelected = viewModel.selectedRows.contains(rowArray.first?.rowID ?? "")
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
@@ -275,15 +274,16 @@ struct TableModalView : View {
                 }
             }
         }
+        .frame(width: 80)
     }
     
     var table: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 0) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
-                            HStack(alignment: .top, spacing: 0) {
+                            LazyHStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels, id: \.id) { cellModel in
                                     ZStack {
                                         Rectangle()
