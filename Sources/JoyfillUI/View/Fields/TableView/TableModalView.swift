@@ -4,17 +4,14 @@ import JoyfillModel
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
-    private let rowHeight: CGFloat = 50
     @State private var heights: [Int: CGFloat] = [:]
     @State private var refreshID = UUID()
     @State private var rowsCount: Int = 0
     @Environment(\.colorScheme) var colorScheme
-
     @State private var showEditMultipleRowsSheetView: Bool = false
-
+    @State private var textHeight: CGFloat = 0
     @State private var filterModels = [FilterModel]()
     @State private var currentSelectedCol: Int = Int.min
-
     @State var sortModel: SortModel
 
     init(viewModel: TableViewModel) {
@@ -152,8 +149,7 @@ struct TableModalView : View {
                 HStack(alignment: .center, spacing: 0) {
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.allRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: 50)
-                            .border(Color.tableCellBorderColor)
+                            .frame(width: 40, height: textHeight > 50 ? textHeight : 50)
                             .foregroundColor(rowsCount == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
                                 viewModel.allRowSelected.toggle()
@@ -168,10 +164,12 @@ struct TableModalView : View {
                             .accessibilityIdentifier("SelectAllButton")
                     }
                     Text("#")
-                        .frame(width: 40, height: 50)
+                        .frame(width: 40, height: textHeight > 50 ? textHeight : 50)
                         .border(Color.tableCellBorderColor)
                 }
-                .frame(width: viewModel.showRowSelector ? 80 : 40, height: rowHeight)
+                .frame(minHeight: 50)
+                .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight > 50 ? textHeight : 50)
+                .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
@@ -215,25 +213,39 @@ struct TableModalView : View {
                 Button(action: {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
-                    ZStack {
-                        Rectangle()
-                            .stroke()
-                            .foregroundColor(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue)
-                        HStack {
-                            Text(viewModel.getColumnTitle(columnId: columnId))
-                                .darkLightThemeColor()
-                            if viewModel.getColumnType(columnId: columnId) != "image" {
-                                Image(systemName: "line.3.horizontal.decrease.circle")
-                                    .foregroundColor(filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
-                            }
-
+                    HStack {
+                        Text(viewModel.getColumnTitle(columnId: columnId))
+                            .multilineTextAlignment(.leading)
+                            .darkLightThemeColor()
+                        if viewModel.getColumnType(columnId: columnId) != "image" {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                                .foregroundColor(filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
-                        .font(.system(size: 15))
+                        
                     }
+                    .padding(.all, 4)
+                    .font(.system(size: 15))
+                    .frame(width: 170)
+                    .frame(minHeight: textHeight > 50 ? textHeight : 50)
+                    .overlay(
+                        Rectangle()
+                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
+                    )
+                    .background(
+                        colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
+                    )
                 })
                 .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
-                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .frame(width: 170, height: rowHeight)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(
+                    GeometryReader { geometry in
+                        Color.clear
+                            .onAppear {
+                                self.textHeight = geometry.size.height
+                                print("\(textHeight)")
+                            }
+                    }
+                )
             }
         }
     }
