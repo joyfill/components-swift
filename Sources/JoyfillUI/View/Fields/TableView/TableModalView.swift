@@ -250,9 +250,9 @@ struct TableModalView : View {
     }
     
     var rowsHeader: some View {
-        LazyVStack(alignment: .leading, spacing: 0) {
+       VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
-                LazyHStack(spacing: 0) {
+                HStack(spacing: 0) {
                     if viewModel.showRowSelector {
                         let isRowSelected = viewModel.selectedRows.contains(rowArray.first?.rowID ?? "")
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
@@ -274,7 +274,6 @@ struct TableModalView : View {
                 }
             }
         }
-        .frame(width: 80)
     }
     
     var table: some View {
@@ -283,7 +282,7 @@ struct TableModalView : View {
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
-                            LazyHStack(alignment: .top, spacing: 0) {
+                            HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels, id: \.id) { cellModel in
                                     ZStack {
                                         Rectangle()
@@ -299,7 +298,6 @@ struct TableModalView : View {
 
                             }
                         }
-                        .id(refreshID)
                         .onReceive(viewModel.$rows) { _ in
                             refreshUUIDIfNeeded()
                         }
@@ -307,6 +305,7 @@ struct TableModalView : View {
                             updateNewHeight(newValue: value)
                         }
                     }
+                    .id(refreshID)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
