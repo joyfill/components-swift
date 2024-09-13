@@ -31,7 +31,8 @@ struct DropdownView: View {
                     Image(systemName: "chevron.down")
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.all, 10)
+                .padding(.horizontal, 10)
+                .frame(height: 40)
             })
             .accessibilityIdentifier("Dropdown")
             .overlay(
