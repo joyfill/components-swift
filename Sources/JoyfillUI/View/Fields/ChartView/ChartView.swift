@@ -63,7 +63,6 @@ struct ChartView: View {
                 )
             })
             .accessibilityIdentifier("ChartViewIdentifier")
-            .padding(.top, 6)
             
             NavigationLink(destination: ChartDetailView(fieldDependency: fieldDependency), isActive: $showDetailChartView) {
                 EmptyView()
