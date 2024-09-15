@@ -162,6 +162,7 @@ class TableViewModel: ObservableObject {
             fieldDependency.fieldData?.duplicateRow(id: row)
             uuid = UUID()
         }
+        setupRows()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { rows.firstIndex(of: $0)! + 1})
         resetLastSelection()
         setup()
@@ -184,7 +185,7 @@ class TableViewModel: ObservableObject {
         setup()
         uuid = UUID()
 //        setupCellModels()
-        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, rowID: rowId, colIndex: colIndex, colID: columns[colIndex])
+//        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, rowID: rowId, colIndex: colIndex, colID: columns[colIndex])
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
