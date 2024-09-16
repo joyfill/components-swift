@@ -30,6 +30,7 @@ struct TableModalTopNavigationView: View {
                         .overlay(RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
+                .accessibilityIdentifier("TableMoreButtonIdentifier")
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
@@ -137,6 +138,7 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                     })
+                    .accessibilityIdentifier("ApplyAllButtonIdentifier")
 
                     Button(action: {
                         presentationMode.wrappedValue.dismiss()
@@ -186,7 +188,7 @@ struct EditMultipleRowsSheetView: View {
                             )
                             TextField("", text: binding)
                                 .font(.system(size: 15))
-                                .accessibilityIdentifier("Text")
+                                .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                                 .disabled(viewModel.fieldDependency.mode == .readonly)
                                 .padding(.horizontal, 10)
                                 .frame(height: 40)
@@ -205,6 +207,7 @@ struct EditMultipleRowsSheetView: View {
                                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                 )
                                 .disabled(cellModel.editMode == .readonly)
+                                .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                         default:
                             Text("")
                         }

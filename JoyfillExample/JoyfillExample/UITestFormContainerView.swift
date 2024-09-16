@@ -12,26 +12,24 @@ func sampleJSONDocument() -> JoyDoc {
 struct UITestFormContainerView: View {
     @State var document: JoyDoc
     @State var pageID: String
-    @State var changeResult: String = ""
+    @Binding var changeResult: String
     
-    init() {
+    init(changeResult: Binding<String>) {
         self.pageID = ""
         self.document = sampleJSONDocument()
+        _changeResult = changeResult
     }
 
     var body: some View {
         VStack {
             Form(document: $document, mode: .fill, events: self, pageID: pageID)
-            Text(changeResult)
-                .frame(height: 1)
-                .accessibilityIdentifier("resultfield")
         }
     }
 }
 
 extension UITestFormContainerView: FormChangeEvent {
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        let dictionary = changes.first!.dictionary
+        let dictionary = changes.map { $0.dictionary }
         if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted),
            let jsonString = String(data: jsonData, encoding: .utf8) {
             print(jsonString)

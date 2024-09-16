@@ -279,8 +279,18 @@
                 "height": 15,
                 "x": 0,
                 "y": 40,
-                "_id": "6629fbc736d179b9014abae0",
+                "_id": "6629fbc736d179b9014abae1",
                 "type": "table"
+              },
+              {
+                  "field": "66e412dd5588188c6f94b0cd",
+                  "displayType": "original",
+                  "width": 8,
+                  "height": 15,
+                  "x": 0,
+                  "y": 56,
+                  "_id": "66e412e442d17331b9e5e34a",
+                  "type": "table"
               }
           ],
           "metadata": {},
@@ -1518,6 +1528,119 @@
             "663dcdcfcd08ad955955fd95"
         ],
         "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "table",
+        "_id": "66e412dd5588188c6f94b0cd",
+        "identifier": "field_66e412e48ec29554da6ea07f",
+        "title": "Test Case Table",
+        "description": "",
+        "value": [
+            {
+                "_id": "66e3eca988d3a4715c67d3c5",
+                "deleted": false,
+                "cells": {
+                    "66e3eca9c0c6bf8bef669d21": "App 1",
+                    "66e3eca984ddabde6a6f469d": "66e3eca98947c2cc0ff8d39c",
+                    "66e412fd0358bd304a3a49c2": [
+                    ]
+                }
+            },
+            {
+                "_id": "66e3eca9efdcfdc85b5938b5",
+                "deleted": false,
+                "cells": {
+                    "66e3eca9c0c6bf8bef669d21": "Apple 2",
+                    "66e3eca984ddabde6a6f469d": "66e3eca97b4810b99b605b83"
+                }
+            },
+            {
+                "_id": "66e3eca93796d7435b63ce9d",
+                "deleted": false,
+                "cells": {
+                    "66e3eca9c0c6bf8bef669d21": "Boy 3",
+                    "66e3eca984ddabde6a6f469d": "66e3eca9e128bcf2e560a76e"
+                }
+            },
+            {
+                "_id": "66e41305a16de891772af2de",
+                "deleted": false,
+                "cells": {
+                    "66e3eca9c0c6bf8bef669d21": "Cat 4",
+                    "66e3eca984ddabde6a6f469d": "66e3eca98947c2cc0ff8d39c",
+                    "66e412fd0358bd304a3a49c2": ""
+                }
+            },
+            {
+                "_id": "66e413066474e9f9bc2c318f",
+                "deleted": false,
+                "cells": {
+                    "66e3eca9c0c6bf8bef669d21": "Dog 5",
+                    "66e3eca984ddabde6a6f469d": "",
+                    "66e412fd0358bd304a3a49c2": ""
+                }
+            }
+        ],
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "rowOrder": [
+            "66e3eca988d3a4715c67d3c5",
+            "66e3eca9efdcfdc85b5938b5",
+            "66e3eca93796d7435b63ce9d",
+            "66e41305a16de891772af2de",
+            "66e413066474e9f9bc2c318f"
+        ],
+        "tableColumns": [
+            {
+                "_id": "66e3eca9c0c6bf8bef669d21",
+                "type": "text",
+                "title": "Text Column",
+                "width": 0,
+                "identifier": "field_column_66e412e4a2656dea1563df87"
+            },
+            {
+                "_id": "66e3eca984ddabde6a6f469d",
+                "type": "dropdown",
+                "title": "Dropdown Column",
+                "width": 0,
+                "identifier": "field_column_66e412e439302fbc88b70051",
+                "options": [
+                    {
+                        "_id": "66e3eca98947c2cc0ff8d39c",
+                        "value": "Yes",
+                        "deleted": false
+                    },
+                    {
+                        "_id": "66e3eca97b4810b99b605b83",
+                        "value": "No",
+                        "deleted": false
+                    },
+                    {
+                        "_id": "66e3eca9e128bcf2e560a76e",
+                        "value": "N/A",
+                        "deleted": false
+                    }
+                ]
+            },
+            {
+                "_id": "66e412fd0358bd304a3a49c2",
+                "type": "image",
+                "title": "Image Column",
+                "width": 0,
+                "identifier": "",
+                "maxImageWidth": 0,
+                "maxImageHeight": 0
+            }
+        ],
+        "tableColumnOrder": [
+            "66e3eca9c0c6bf8bef669d21",
+            "66e3eca984ddabde6a6f469d",
+            "66e412fd0358bd304a3a49c2"
+        ],
+        "file": "66e412d404d48d3ea2ebc57e"
     },
     {
         "type": "text",

@@ -161,7 +161,7 @@ struct TableModalView : View {
                                 viewModel.setDeleteButtonVisibility()
                             }
                             .disabled(rowsCount == 0)
-                            .accessibilityIdentifier("SelectAllButton")
+                            .accessibilityIdentifier("SelectAllRowSelectorButton")
                     }
                     Text("#")
                         .frame(width: 40, height: textHeight > 50 ? textHeight : 50)
@@ -235,6 +235,7 @@ struct TableModalView : View {
                         colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
                     )
                 })
+                .accessibilityIdentifier("ColumnButtonIdentifier")
                 .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
@@ -428,6 +429,7 @@ struct SearchBar: View {
                     case "dropdown":
                         TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
+                            .accessibilityIdentifier("Hello")
                     default:
                         Text("")
                     }
@@ -443,6 +445,7 @@ struct SearchBar: View {
                     .font(.system(size: 14))
                     .foregroundColor(.black)
                 })
+                .accessibilityIdentifier("SortButtonIdentifier")
                 .frame(width: 75, height: 25)
                 .background(.white)
                 .cornerRadius(4)
@@ -493,6 +496,7 @@ struct TextFieldSearchBar: View {
 
     var body: some View {
         TextField("Search ", text: $text)
+            .accessibilityIdentifier("TextFieldSearchBarIdentifier")
             .font(.system(size: 12))
             .foregroundColor(.black)
             .padding(.all, 4)
