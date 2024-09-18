@@ -86,7 +86,8 @@ struct TableModalTopNavigationView: View {
                 Text(addButtonTitle)
                     .foregroundStyle(.selection)
                     .font(.system(size: 14))
-                    .frame(width: 94, height: 27)
+                    .frame(height: 27)
+                    .padding(.horizontal, 16)
                     .overlay(RoundedRectangle(cornerRadius: 6)
                         .stroke(Color.buttonBorderColor, lineWidth: 1))
             }
