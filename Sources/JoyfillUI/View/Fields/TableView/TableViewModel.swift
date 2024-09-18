@@ -92,14 +92,16 @@ class TableViewModel: ObservableObject {
         cellModels.append(rowCellModels)
     }
 
-    func updateCellModel(rowIndex: Int, rowID: String, colIndex: Int, colID: String) {
-        let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
-        if let columnModel = columnModel {
-            let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
-                self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
-            }
-            cellModels[rowIndex][colIndex] = cellModel
-        }
+    func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumn) {
+        var cellModel = cellModels[rowIndex][colIndex]
+        cellModel.data  = editedCell
+        cellModels[rowIndex][colIndex] = cellModel
+    }
+
+    func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
+        var cellModel = cellModels[rowIndex][colIndex]
+        cellModel.data.title  = value
+        cellModels[rowIndex][colIndex] = cellModel
     }
 
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
@@ -208,8 +210,7 @@ class TableViewModel: ObservableObject {
         fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
         setup()
         uuid = UUID()
-//        setupCellModels()
-        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, rowID: rowId, colIndex: colIndex, colID: columns[colIndex])
+        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
@@ -218,7 +219,7 @@ class TableViewModel: ObservableObject {
         setup()
         uuid = UUID()
         setTableDataDidChange(to: true)
-        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, rowID: rowId, colIndex: colIndex, colID: columns[colIndex])
+        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, value: value)
     }
 
     private func setupColumns() {
