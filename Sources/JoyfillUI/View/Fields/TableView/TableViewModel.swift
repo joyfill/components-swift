@@ -77,6 +77,21 @@ class TableViewModel: ObservableObject {
         self.filteredcellModels = cellModels
     }
 
+    func addCellModel(rowID: String) {
+        let rowIndex: Int = rows.isEmpty ? 0 : rows.count - 1
+            var rowCellModels = [TableCellModel]()
+        columns.enumerated().forEach { colIndex, colID in
+            let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
+            if let columnModel = columnModel {
+                let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                    self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                }
+                rowCellModels.append(cellModel)
+            }
+        }
+        cellModels.append(rowCellModels)
+    }
+
     func updateCellModel(rowIndex: Int, rowID: String, colIndex: Int, colID: String) {
         let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
         if let columnModel = columnModel {
@@ -167,27 +182,25 @@ class TableViewModel: ObservableObject {
             fieldDependency.fieldData?.duplicateRow(id: row)
             uuid = UUID()
         }
-        setupRows()
+        setup()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { rows.firstIndex(of: $0)! + 1})
         resetLastSelection()
-        setup()
         setupCellModels()
     }
 
     func addRow() {
         let id = generateObjectId()
 
-        if filterModels.isEmpty {
-            fieldDependency.fieldData?.addRow(id: id)
-        } else {
+        if filterModels.isAnyFilterApplied {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
+        } else {
+            fieldDependency.fieldData?.addRow(id: id)
         }
         resetLastSelection()
         setup()
         uuid = UUID()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [(fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1])
-        setupCellModels()
-
+        addCellModel(rowID: id)
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
