@@ -206,6 +206,7 @@ struct EditMultipleRowsSheetView: View {
                                     RoundedRectangle(cornerRadius: 10)
                                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                 )
+                                .cornerRadius(10)
                                 .disabled(cellModel.editMode == .readonly)
                                 .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                         default:
