@@ -195,8 +195,7 @@ class TableViewModel: ObservableObject {
         fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
         setup()
         uuid = UUID()
-//        setupCellModels()
-//        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, rowID: rowId, colIndex: colIndex, colID: columns[colIndex])
+        setupCellModels()
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
