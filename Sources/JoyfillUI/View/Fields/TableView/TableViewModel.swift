@@ -32,6 +32,9 @@ class TableViewModel: ObservableObject {
     @Published var cellModels = [[TableCellModel]]()
     @Published var filteredcellModels = [[TableCellModel]]()
 
+    @Published var filterModels = [FilterModel]()
+    @Published var sortModel = SortModel()
+
     private var tableDataDidChange = false
     @Published var uuid = UUID()
     
@@ -40,10 +43,12 @@ class TableViewModel: ObservableObject {
         self.mode = fieldDependency.mode
         self.showRowSelector = mode == .fill
         self.shouldShowAddRowButton = mode == .fill
-        
         setupColumns()
         setup()
         setupCellModels()
+        self.filterModels = columns.enumerated().map { colIndex, colID in
+            FilterModel(colIndex: colIndex, colID: colID)
+        }
     }
     
     private func setup() {
@@ -171,12 +176,18 @@ class TableViewModel: ObservableObject {
 
     func addRow() {
         let id = generateObjectId()
-        fieldDependency.fieldData?.addRow(id: id)
+
+        if filterModels.isEmpty {
+            fieldDependency.fieldData?.addRow(id: id)
+        } else {
+            fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
+        }
         resetLastSelection()
         setup()
         uuid = UUID()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [(fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1])
         setupCellModels()
+
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {

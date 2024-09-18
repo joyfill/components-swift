@@ -2,6 +2,7 @@ import SwiftUI
 import JoyfillModel
 
 struct TableModalTopNavigationView: View {
+    let addButtonTitle: String
     @Binding var showMoreButton: Bool
     var onDeleteTap: (() -> Void)?
     var onDuplicateTap: (() -> Void)?
@@ -82,7 +83,7 @@ struct TableModalTopNavigationView: View {
             Button(action: {
                 onAddRowTap?()
             }) {
-                Text("Add Row +")
+                Text(addButtonTitle)
                     .foregroundStyle(.selection)
                     .font(.system(size: 14))
                     .frame(width: 94, height: 27)

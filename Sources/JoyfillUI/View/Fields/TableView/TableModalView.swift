@@ -10,39 +10,35 @@ struct TableModalView : View {
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var textHeight: CGFloat = 0
-    @State private var filterModels = [FilterModel]()
     @State private var currentSelectedCol: Int = Int.min
-    @State var sortModel: SortModel
 
     init(viewModel: TableViewModel) {
-        _sortModel = State(initialValue: SortModel())
         self.viewModel = viewModel
-        let filterModels = self.viewModel.columns.enumerated().map { colIndex, colID in
-            FilterModel(colIndex: colIndex, colID: colID)
-        }
-        _filterModels = State(initialValue: filterModels)
         UIScrollView.appearance().bounces = false
         self.rowsCount = self.viewModel.rows.count
     }
     
     var body: some View {
         VStack {
-            TableModalTopNavigationView(showMoreButton: $viewModel.shouldShowDeleteRowButton, onDeleteTap: {
-                viewModel.deleteSelectedRow()
-                heights = [:]
-            }, onDuplicateTap: {
-                viewModel.duplicateRow()
-            }, onAddRowTap: {
-                viewModel.addRow()
-            }, onEditTap: {
-                showEditMultipleRowsSheetView = true
-            }, fieldDependency: viewModel.fieldDependency)
+            TableModalTopNavigationView(
+                addButtonTitle: (viewModel.filteredcellModels.isEmpty ? "Add Row +": "Add Row With Filters +"),
+                showMoreButton: $viewModel.shouldShowDeleteRowButton,
+                onDeleteTap: {
+                    viewModel.deleteSelectedRow()
+                    heights = [:] },
+                onDuplicateTap: {
+                    viewModel.duplicateRow()
+                }, onAddRowTap: {
+                    viewModel.addRow()
+                }, onEditTap: {
+                    showEditMultipleRowsSheetView = true
+                }, fieldDependency: viewModel.fieldDependency)
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {
-                SearchBar(model: $filterModels[currentSelectedCol], sortModel: $sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
+                SearchBar(model: $viewModel.filterModels[currentSelectedCol], sortModel: $viewModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
             }
             scrollArea
@@ -61,11 +57,11 @@ struct TableModalView : View {
                 viewModel.setDeleteButtonVisibility()
             }
         }
-        .onChange(of: sortModel.order) { _ in
+        .onChange(of: viewModel.sortModel.order) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
-        .onChange(of: filterModels) { _ in
+        .onChange(of: viewModel.filterModels) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
             viewModel.resetLastSelection()
@@ -85,12 +81,12 @@ struct TableModalView : View {
 
     func sortRowsIfNeeded() {
         if currentSelectedCol != Int.min {
-            guard sortModel.order != .none else { return }
+            guard viewModel.sortModel.order != .none else { return }
             viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
                 let column = rowArr1[currentSelectedCol].data
                 switch column.type {
                 case "text":
-                    switch sortModel.order {
+                    switch viewModel.sortModel.order {
                     case .ascending:
                         return (rowArr1[currentSelectedCol].data.title ?? "") < (rowArr2[currentSelectedCol].data.title ?? "")
                     case .descending:
@@ -99,7 +95,7 @@ struct TableModalView : View {
                         return true
                     }
                 case "dropdown":
-                    switch sortModel.order {
+                    switch viewModel.sortModel.order {
                     case .ascending:
                         return (rowArr1[currentSelectedCol].data.selectedOptionText ?? "") < (rowArr2[currentSelectedCol].data.selectedOptionText ?? "")
                     case .descending:
@@ -118,11 +114,11 @@ struct TableModalView : View {
 
     func filterRowsIfNeeded() {
         viewModel.filteredcellModels = viewModel.cellModels
-        guard !filterModels.allSatisfy({ model in model.filterText.isEmpty }) else {
+        guard !viewModel.filterModels.allSatisfy({ model in model.filterText.isEmpty }) else {
             return
         }
 
-        for model in filterModels {
+        for model in viewModel.filterModels {
             if model.filterText.isEmpty {
                 continue
             }
@@ -133,7 +129,7 @@ struct TableModalView : View {
                 case "text":
                     return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
                 case "dropdown":
-                    return (column.selectedOptionText ?? "") == model.filterText
+                    return (column.defaultDropdownSelectedId ?? "") == model.filterText
                 default:
                     break
                 }
@@ -219,7 +215,7 @@ struct TableModalView : View {
                             .darkLightThemeColor()
                         if viewModel.getColumnType(columnId: columnId) != "image" {
                             Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
+                                .foregroundColor(viewModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
                         
                     }
@@ -372,33 +368,6 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
-enum SortOder {
-    case ascending
-    case descending
-    case none
-
-    mutating func next() {
-        switch self {
-        case .ascending:
-            self = .descending
-        case .descending:
-            self = .none
-        case .none:
-            self = .ascending
-        }
-    }
-}
-struct SortModel {
-//    var selected: Bool = false
-    var order: SortOder = .none
-}
-
-struct FilterModel:Equatable {
-    var filterText: String = ""
-    var colIndex: Int
-    var colID: String
-}
-
 struct SearchBar: View {
     @Binding var model: FilterModel
     @Binding var sortModel: SortModel
@@ -418,7 +387,7 @@ struct SearchBar: View {
                         case "text":
                             self.model.filterText = editedCell.title ?? ""
                         case "dropdown":
-                            self.model.filterText = editedCell.selectedOptionText ?? ""
+                            self.model.filterText = editedCell.defaultDropdownSelectedId ?? ""
                         default:
                             break
                         }
@@ -471,8 +440,9 @@ struct SearchBar: View {
         .cornerRadius(8)
         .padding(.horizontal, 12)
     }
+
     func getSortIcon() -> String {
-        switch sortModel.order {
+        switch viewModel.sortModel.order {
         case .ascending:
             return "arrow.up"
         case .descending:
@@ -481,8 +451,9 @@ struct SearchBar: View {
             return "arrow.up.arrow.down"
         }
     }
+
     func getIconColor() -> Color {
-        switch sortModel.order {
+        switch viewModel.sortModel.order {
         case .none:
             return .black
         case .ascending, .descending:
