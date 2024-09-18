@@ -90,6 +90,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         goBack()
     }
     
+    // test case for - when image field is empty
     func testTableUploadImageOnSecondField() throws {
         goToTableDetailPage()
         let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
@@ -529,6 +530,20 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         // now more button hide
         XCTAssertFalse(button.exists, "The button should not exist on the screen")
+    }
+    
+    // test case for - when no option is selected
+    func testDropdownFieldOnEmptyValue() throws {
+        navigateToTableViewOnSecondPage()
+        let dropdownButton = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)
+        dropdownButton.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        
+        let checkSelectedValue = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("No", checkSelectedValue.element(boundBy: 4).label)
     }
 }
 
