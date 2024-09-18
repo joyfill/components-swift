@@ -398,7 +398,7 @@ struct SearchBar: View {
                     case "dropdown":
                         TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
-                            .accessibilityIdentifier("Hello")
+                            .accessibilityIdentifier("SearchBarDropdownIdentifier")
                     default:
                         Text("")
                     }

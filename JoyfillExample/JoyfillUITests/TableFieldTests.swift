@@ -360,7 +360,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         tapOnDropdownFieldColumn()
         
-        let dropdownButton = app.buttons["Hello"]
+        let dropdownButton = app.buttons["SearchBarDropdownIdentifier"]
         XCTAssertEqual("Select Option", dropdownButton.label)
         dropdownButton.tap()
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
