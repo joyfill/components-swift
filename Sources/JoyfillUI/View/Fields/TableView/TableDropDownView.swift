@@ -10,7 +10,9 @@ import JoyfillModel
 
 struct TableDropDownOptionListView: View {
     @State var selectedDropdownValue: String? = ""
-    @State private var isSheetPresented = false
+    @State private var isSheetPresented: Int = 0
+    @State private var isSheetPresented2 = false
+
     private var isUsedForBulkEdit = false
     private var cellModel: TableCellModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
@@ -28,7 +30,7 @@ struct TableDropDownOptionListView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Button(action: {
-                isSheetPresented = true
+                isSheetPresented = Int.random(in: 0...100)
             }, label: {
                 HStack {
                     if let selectedDropdownValue = selectedDropdownValue, !selectedDropdownValue.isEmpty {
@@ -49,7 +51,10 @@ struct TableDropDownOptionListView: View {
             .padding(.horizontal, 10)
             .frame(height: 40)
             .accessibilityIdentifier("TableDropdownIdentifier")
-            .sheet(isPresented: $isSheetPresented) {
+            .onChange(of: isSheetPresented) { newValue in
+                isSheetPresented2 = true
+            }
+            .sheet(isPresented: $isSheetPresented2) {
                 TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
             }
         }

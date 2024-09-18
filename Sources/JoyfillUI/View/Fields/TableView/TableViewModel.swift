@@ -79,7 +79,7 @@ class TableViewModel: ObservableObject {
 
     func addCellModel(rowID: String) {
         let rowIndex: Int = rows.isEmpty ? 0 : rows.count - 1
-            var rowCellModels = [TableCellModel]()
+        var rowCellModels = [TableCellModel]()
         columns.enumerated().forEach { colIndex, colID in
             let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
             if let columnModel = columnModel {
@@ -89,7 +89,7 @@ class TableViewModel: ObservableObject {
                 rowCellModels.append(cellModel)
             }
         }
-        cellModels.append(rowCellModels)
+        self.cellModels.append(rowCellModels)
     }
 
     func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumn) {
@@ -202,7 +202,8 @@ class TableViewModel: ObservableObject {
         setup()
         uuid = UUID()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [(fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1])
-        addCellModel(rowID: id)
+//        addCellModel(rowID: id)
+        setupCellModels()
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
