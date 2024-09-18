@@ -191,10 +191,10 @@ class TableViewModel: ObservableObject {
     func addRow() {
         let id = generateObjectId()
 
-        if filterModels.isAnyFilterApplied {
-            fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
-        } else {
+        if filterModels.noFilterApplied {
             fieldDependency.fieldData?.addRow(id: id)
+        } else {
+            fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
         }
         resetLastSelection()
         setup()

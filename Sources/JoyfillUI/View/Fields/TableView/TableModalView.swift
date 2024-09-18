@@ -21,7 +21,7 @@ struct TableModalView : View {
     var body: some View {
         VStack {
             TableModalTopNavigationView(
-                addButtonTitle: (viewModel.filterModels.isAnyFilterApplied ? "Add Row +": "Add Row With Filters +"),
+                addButtonTitle: (viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +"),
                 showMoreButton: $viewModel.shouldShowDeleteRowButton,
                 onDeleteTap: {
                     viewModel.deleteSelectedRow()
