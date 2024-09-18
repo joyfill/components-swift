@@ -21,7 +21,7 @@ struct TableDropDownOptionListView: View {
         self.isUsedForBulkEdit = isUsedForBulkEdit
         lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
         if let selectedDropdownValue = selectedDropdownValue {
-            _selectedDropdownValue = State(initialValue: selectedDropdownValue)
+            _selectedDropdownValue = State(initialValue: cellModel.data.options?.filter { $0.id == selectedDropdownValue }.first?.value ?? "" )
         }
     }
     
