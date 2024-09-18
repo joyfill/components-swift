@@ -122,13 +122,7 @@ struct EditMultipleRowsSheetView: View {
                     Spacer()
 
                     Button(action: {
-                        for row in viewModel.selectedRows {
-                            for colIndex in changes.keys {
-                                if let editedCellId = viewModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
-                                    viewModel.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change)
-                                }
-                            }
-                        }
+                        viewModel.bulkEdit(changes: changes)
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Apply All")

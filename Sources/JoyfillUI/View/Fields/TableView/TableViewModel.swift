@@ -101,7 +101,7 @@ class TableViewModel: ObservableObject {
     func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
         var cellModel = cellModels[rowIndex][colIndex]
         cellModel.data.title  = value
-        cellModels[rowIndex][colIndex] = cellModel
+        self.cellModels[rowIndex][colIndex] = cellModel
     }
 
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
@@ -214,13 +214,20 @@ class TableViewModel: ObservableObject {
         updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
-        fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCellId: editedCellId, value: value)
+    func bulkEdit(changes: [Int: String]) {
+        for row in selectedRows {
+            for colIndex in changes.keys {
+                if let editedCellId = getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
+                    fieldDependency.fieldData?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change)
+                }
+            }
+        }
+
         resetLastSelection()
         setup()
         uuid = UUID()
         setTableDataDidChange(to: true)
-        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, value: value)
+        setupCellModels()
     }
 
     private func setupColumns() {
