@@ -229,11 +229,7 @@ struct TableModalView : View {
                     .frame(minHeight: textHeight > 50 ? textHeight : 50)
                     .overlay(
                         Rectangle()
-                            .stroke(
-                                currentSelectedCol != index ? Color.tableCellBorderColor :
-                                (!filterModels[index].filterText.isEmpty ? Color.tableCellBorderColor : Color.blue),
-                                lineWidth: 1
-                            )
+                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
                     )
                     .background(
                         colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
