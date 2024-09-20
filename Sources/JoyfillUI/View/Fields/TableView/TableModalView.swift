@@ -152,7 +152,6 @@ struct TableModalView : View {
                                 } else {
                                     viewModel.emptySelection()
                                 }
-                                viewModel.setDeleteButtonVisibility()
                             }
                             .disabled(rowsCount == 0)
                             .accessibilityIdentifier("SelectAllRowSelectorButton")
@@ -255,7 +254,6 @@ struct TableModalView : View {
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
                                 viewModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
-                                viewModel.setDeleteButtonVisibility()
                             }
                             .accessibilityIdentifier("MyButton")
                         
@@ -324,8 +322,7 @@ struct TableModalView : View {
     }
 
     private func dismissKeyboard() {
-//        viewModel.resetLastSelection()
-        viewModel.setDeleteButtonVisibility()
+        viewModel.emptySelection()
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
