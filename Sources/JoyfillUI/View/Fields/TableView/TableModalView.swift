@@ -27,12 +27,12 @@ struct TableModalView : View {
                     viewModel.deleteSelectedRow()
                     heights = [:] },
                 onDuplicateTap: {
-                    viewModel.duplicateRow()
-                }, onAddRowTap: {
-                    viewModel.addRow()
-                }, onEditTap: {
-                    showEditMultipleRowsSheetView = true
-                }, fieldDependency: viewModel.fieldDependency)
+                    viewModel.duplicateRow() },
+                onAddRowTap: {
+                    viewModel.addRow() },
+                onEditTap: {
+                    showEditMultipleRowsSheetView = true},
+                fieldDependency: viewModel.fieldDependency)
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
             }

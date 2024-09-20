@@ -175,17 +175,8 @@ class TableViewModel: ObservableObject {
     }
     
     func duplicateRow() {
-        guard !selectedRows.isEmpty else {
-            return
-        }
-
-        var targetRows = [TargerRowModel]()
-        for row in selectedRows {
-            let newRowID = generateObjectId()
-            let newIndex = fieldDependency.fieldData?.duplicateRow(id: row, newRowID: newRowID)
-            targetRows.append(TargerRowModel(id: newRowID, index: newIndex!))
-            uuid = UUID()
-        }
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.duplicateRow(selectedRows: selectedRows) else { return }
         setTableDataDidChange(to: true)
         setup()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
