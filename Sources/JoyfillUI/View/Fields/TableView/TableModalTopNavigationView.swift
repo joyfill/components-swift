@@ -4,6 +4,7 @@ import JoyfillModel
 struct TableModalTopNavigationView: View {
     let addButtonTitle: String
     @Binding var showMoreButton: Bool
+    @Binding var selectedRows: [String]
     var onDeleteTap: (() -> Void)?
     var onDuplicateTap: (() -> Void)?
     var onAddRowTap: (() -> Void)?
@@ -39,7 +40,7 @@ struct TableModalTopNavigationView: View {
                                 showingPopover = false
                                 onEditTap?()
                             }) {
-                                Text("Edit rows")
+                                Text("Edit \(rowTitle)")
                                     .foregroundStyle(.selection)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
@@ -51,7 +52,7 @@ struct TableModalTopNavigationView: View {
                             Button(action: {
                                 onDeleteTap?()
                             }) {
-                                Text("Delete")
+                                Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
@@ -62,7 +63,7 @@ struct TableModalTopNavigationView: View {
                             Button(action: {
                                 onDuplicateTap?()
                             }) {
-                                Text("Duplicate")
+                                Text("Duplicate \(rowTitle)")
                                     .foregroundStyle(.selection)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
@@ -94,6 +95,10 @@ struct TableModalTopNavigationView: View {
             .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
+
+    var rowTitle: String {
+        "\(selectedRows.count) " + (selectedRows.count > 1 ? "rows": "row")
+    }
 }
 
 struct EditMultipleRowsSheetView: View {
@@ -113,7 +118,7 @@ struct EditMultipleRowsSheetView: View {
                         VStack(alignment: .leading) {
                             Text("\(title)")
                                 .font(.headline.bold())
-                            Text("\(viewModel.selectedRows.count) rows selected")
+                            Text("\(viewModel.rowTitle) selected")
                                 .font(.caption).bold()
                                 .foregroundStyle(.blue)
                         }

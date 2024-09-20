@@ -17,7 +17,6 @@ class TableViewModel: ObservableObject {
     @Published var shouldShowAddRowButton: Bool = false
     @Published var shouldShowDeleteRowButton: Bool = false
     @Published var showRowSelector: Bool = false
-    @Published var allRowSelected: Bool = false
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
     @Published var quickRows: [String] = []
@@ -146,7 +145,15 @@ class TableViewModel: ObservableObject {
     func emptySelection() {
         selectedRows = []
     }
-    
+
+    var allRowSelected: Bool {
+        !selectedRows.isEmpty && selectedRows.count == filteredcellModels.count
+    }
+
+    var rowTitle: String {
+        "\(selectedRows.count) " + (selectedRows.count > 1 ? "rows": "row")
+    }
+
     func setDeleteButtonVisibility() {
         shouldShowDeleteRowButton = (mode == .fill && !selectedRows.isEmpty && !filteredcellModels.isEmpty)
     }

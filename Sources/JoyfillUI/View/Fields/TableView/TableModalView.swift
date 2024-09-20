@@ -23,6 +23,7 @@ struct TableModalView : View {
             TableModalTopNavigationView(
                 addButtonTitle: (viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +"),
                 showMoreButton: $viewModel.shouldShowDeleteRowButton,
+                selectedRows: $viewModel.selectedRows,
                 onDeleteTap: {
                     viewModel.deleteSelectedRow()
                     heights = [:] },
@@ -52,7 +53,6 @@ struct TableModalView : View {
             viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
         })
         .onChange(of: viewModel.selectedRows) { newValue in
-            viewModel.allRowSelected = (newValue.count == viewModel.filteredcellModels.count)
             if viewModel.selectedRows.isEmpty {
                 viewModel.setDeleteButtonVisibility()
             }
