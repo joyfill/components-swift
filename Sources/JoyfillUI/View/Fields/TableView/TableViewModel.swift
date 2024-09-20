@@ -176,16 +176,17 @@ class TableViewModel: ObservableObject {
         guard !selectedRows.isEmpty else {
             return
         }
-        setTableDataDidChange(to: true)
 
-        
+        var targetRows = [TargerRowModel]()
         for row in selectedRows {
-            let id = generateObjectId()
-            fieldDependency.fieldData?.duplicateRow(id: row)
+            let newRowID = generateObjectId()
+            let newIndex = fieldDependency.fieldData?.duplicateRow(id: row, newRowID: newRowID)
+            targetRows.append(TargerRowModel(id: newRowID, index: newIndex!))
             uuid = UUID()
         }
+        setTableDataDidChange(to: true)
         setup()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { rows.firstIndex(of: $0)! + 1})
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
         resetLastSelection()
         setupCellModels()
     }
@@ -201,7 +202,7 @@ class TableViewModel: ObservableObject {
         resetLastSelection()
         setup()
         uuid = UUID()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [(fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1])
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargerRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
 //        addCellModel(rowID: id)
         setupCellModels()
     }
