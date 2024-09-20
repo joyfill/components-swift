@@ -3,7 +3,6 @@ import JoyfillModel
 
 struct TableModalTopNavigationView: View {
     let addButtonTitle: String
-    @Binding var showMoreButton: Bool
     @Binding var selectedRows: [String]
     var onDeleteTap: (() -> Void)?
     var onDuplicateTap: (() -> Void)?
@@ -21,7 +20,7 @@ struct TableModalTopNavigationView: View {
 
             Spacer()
 
-            if showMoreButton {
+            if !selectedRows.isEmpty {
                 Button(action: {
                     showingPopover = true
                 }) {

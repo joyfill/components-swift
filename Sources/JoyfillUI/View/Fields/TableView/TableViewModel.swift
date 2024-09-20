@@ -15,7 +15,6 @@ class TableViewModel: ObservableObject {
     
     @Published var isTableModalViewPresented = false
     @Published var shouldShowAddRowButton: Bool = false
-    @Published var shouldShowDeleteRowButton: Bool = false
     @Published var showRowSelector: Bool = false
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
@@ -26,7 +25,7 @@ class TableViewModel: ObservableObject {
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
-    var selectedRows = [String]()
+    @Published var selectedRows = [String]()
 
     @Published var cellModels = [[TableCellModel]]()
     @Published var filteredcellModels = [[TableCellModel]]()
@@ -53,7 +52,6 @@ class TableViewModel: ObservableObject {
     private func setup() {
         setupRows()
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
-        setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
     }
 
@@ -152,10 +150,6 @@ class TableViewModel: ObservableObject {
 
     var rowTitle: String {
         "\(selectedRows.count) " + (selectedRows.count > 1 ? "rows": "row")
-    }
-
-    func setDeleteButtonVisibility() {
-        shouldShowDeleteRowButton = (mode == .fill && !selectedRows.isEmpty && !filteredcellModels.isEmpty)
     }
     
     func deleteSelectedRow() {

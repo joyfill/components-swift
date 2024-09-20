@@ -22,7 +22,6 @@ struct TableModalView : View {
         VStack {
             TableModalTopNavigationView(
                 addButtonTitle: (viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +"),
-                showMoreButton: $viewModel.shouldShowDeleteRowButton,
                 selectedRows: $viewModel.selectedRows,
                 onDeleteTap: {
                     viewModel.deleteSelectedRow()
@@ -52,11 +51,6 @@ struct TableModalView : View {
             let fieldEvent = FieldEvent(field: viewModel.fieldDependency.fieldData)
             viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
         })
-        .onChange(of: viewModel.selectedRows) { newValue in
-            if viewModel.selectedRows.isEmpty {
-                viewModel.setDeleteButtonVisibility()
-            }
-        }
         .onChange(of: viewModel.sortModel.order) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
