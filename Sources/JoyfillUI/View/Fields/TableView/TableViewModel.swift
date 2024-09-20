@@ -140,10 +140,10 @@ class TableViewModel: ObservableObject {
     }
 
     func selectAllRows() {
-        selectedRows = rows
+        selectedRows = filteredcellModels.compactMap { $0.first?.rowID }
     }
 
-    func resetLastSelection() {
+    func emptySelection() {
         selectedRows = []
     }
     
@@ -162,7 +162,7 @@ class TableViewModel: ObservableObject {
         }
         fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargerRowModel.init(id: $0, index: 0)})
 
-        resetLastSelection()
+        emptySelection()
         setup()
         uuid = UUID()
         setTableDataDidChange(to: true)
@@ -188,7 +188,7 @@ class TableViewModel: ObservableObject {
         setTableDataDidChange(to: true)
         setup()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
-        resetLastSelection()
+        emptySelection()
         setupCellModels()
     }
 
@@ -200,7 +200,7 @@ class TableViewModel: ObservableObject {
         } else {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
         }
-        resetLastSelection()
+        emptySelection()
         setup()
         uuid = UUID()
         fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargerRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
@@ -225,7 +225,7 @@ class TableViewModel: ObservableObject {
             }
         }
 
-        resetLastSelection()
+        emptySelection()
         setup()
         uuid = UUID()
         setTableDataDidChange(to: true)

@@ -52,7 +52,7 @@ struct TableModalView : View {
             viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
         })
         .onChange(of: viewModel.selectedRows) { newValue in
-            viewModel.allRowSelected = (newValue.count == viewModel.rows.count)
+            viewModel.allRowSelected = (newValue.count == viewModel.filteredcellModels.count)
             if viewModel.selectedRows.isEmpty {
                 viewModel.setDeleteButtonVisibility()
             }
@@ -64,7 +64,7 @@ struct TableModalView : View {
         .onChange(of: viewModel.filterModels) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
-            viewModel.resetLastSelection()
+            viewModel.emptySelection()
         }
         .onChange(of: viewModel.cellModels) { _ in
             filterRowsIfNeeded()
@@ -73,8 +73,7 @@ struct TableModalView : View {
         .onChange(of: viewModel.rows) { _ in
             if viewModel.rows.isEmpty {
                 currentSelectedCol = Int.min
-                viewModel.resetLastSelection()
-                viewModel.allRowSelected = false
+                viewModel.emptySelection()
             }
         }
     }
@@ -148,11 +147,10 @@ struct TableModalView : View {
                             .frame(width: 40, height: textHeight > 50 ? textHeight : 50)
                             .foregroundColor(rowsCount == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
-                                viewModel.allRowSelected.toggle()
-                                if viewModel.allRowSelected {
+                                if !viewModel.allRowSelected {
                                     viewModel.selectAllRows()
                                 } else {
-                                    viewModel.resetLastSelection()
+                                    viewModel.emptySelection()
                                 }
                                 viewModel.setDeleteButtonVisibility()
                             }
