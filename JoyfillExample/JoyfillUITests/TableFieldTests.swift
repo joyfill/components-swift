@@ -216,12 +216,14 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         duplicateFifthTextField.tap()
         duplicateFifthTextField.typeText("Duplicate ")
                 
+        var targetIndex = 1
         for change in onChangeResultChanges() {
             let value = try XCTUnwrap(change.dictionary as? [String: Any])
             let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
             let newRow = try XCTUnwrap(value["row"] as? [String: Any])
             XCTAssertNotNil(newRow["_id"])
-//            XCTAssertEqual(9, lastIndex)
+            XCTAssertEqual(targetIndex, lastIndex)
+            targetIndex = targetIndex + 2
         }
     }
     
