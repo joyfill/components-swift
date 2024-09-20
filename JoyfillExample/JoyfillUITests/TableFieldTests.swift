@@ -333,14 +333,13 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 0).label)
     }
     
-    func testSearchFilterForTextField() throws {
-        navigateToTableViewOnSecondPage()
-        tapOnTextFieldColumn()
-        
+    func tapOnSearchBarTextFiled() {
         let searchBarTextField = app.textFields["TextFieldSearchBarIdentifier"]
         searchBarTextField.tap()
         searchBarTextField.typeText("app\n")
-        
+    }
+    
+    func checkSearchTextFieldFilterData() {
         // Check field text data after search
         let checkSearchDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("App 1", checkSearchDataOnFirstTextField.value as! String)
@@ -356,17 +355,14 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("No", checkSearchDataOnSecondDropdownField.element(boundBy: 1).label)
     }
     
-    func testSearchFilterForDropdownField() throws {
+    func testSearchFilterForTextField() throws {
         navigateToTableViewOnSecondPage()
-        tapOnDropdownFieldColumn()
-        
-        let dropdownButton = app.buttons["SearchBarDropdownIdentifier"]
-        XCTAssertEqual("Select Option", dropdownButton.label)
-        dropdownButton.tap()
-        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-        let firstOption = dropdownOptions.element(boundBy: 0)
-        firstOption.tap()
-        
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextFiled()
+        checkSearchTextFieldFilterData()
+    }
+    
+    func checkDropdownFieldFilterData() {
         // Check field text data after search
         let checkSearchDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("App 1", checkSearchDataOnFirstTextField.value as! String)
@@ -382,11 +378,29 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Yes", checkSearchDataOnSecondDropdownField.element(boundBy: 1).label)
     }
     
+    func tapOnDropdownFieldFilter() {
+        let dropdownButton = app.buttons["SearchBarDropdownIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+    }
+    
+    func testSearchFilterForDropdownField() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
+        checkDropdownFieldFilterData()
+    }
+    
     func checkDescendingOrderSortingDataOfTextfield() {
         app.buttons["SortButtonIdentifier"].tap()
         
         let checkSortDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Dog 5", checkSortDataOnFirstTextField.value as! String)
+        checkSortDataOnFirstTextField.tap()
+        checkSortDataOnFirstTextField.typeText("55")
         
         let checkSortDataOnSecondTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("Cat 4", checkSortDataOnSecondTextField.value as! String)
@@ -399,6 +413,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         let checkSortDataOnFifthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("App 1", checkSortDataOnFifthTextField.value as! String)
+        checkSortDataOnFifthTextField.tap()
+        checkSortDataOnFifthTextField.typeText("11")
     }
     
     func checkAscendingOrderSortingDataOfTextfield() {
@@ -420,6 +436,25 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Dog 5", checkSortDataOnFifthTextField.value as! String)
     }
     
+    func checkNoSortingFilterDataOfTextfield()  {
+        app.buttons["SortButtonIdentifier"].tap()
+        
+        let checkSortDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("11App 1", checkSortDataOnFirstTextField.value as! String)
+        
+        let checkSortDataOnSecondTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Apple 2", checkSortDataOnSecondTextField.value as! String)
+        
+        let checkSortDataOnThirdTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("Boy 3", checkSortDataOnThirdTextField.value as! String)
+        
+        let checkSortDataOnFourthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("Cat 4", checkSortDataOnFourthTextField.value as! String)
+        
+        let checkSortDataOnFifthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("55Dog 5", checkSortDataOnFifthTextField.value as! String)
+    }
+    
     func testSortingOnTextField() throws {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
@@ -429,7 +464,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         // Second Time tap
         checkDescendingOrderSortingDataOfTextfield()
         // Third Time tap
-        checkAscendingOrderSortingDataOfTextfield()
+        checkNoSortingFilterDataOfTextfield()
     }
     
     func checkAscendingOrderSortingDataOfDropdownfield() {
@@ -457,8 +492,13 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let checkSortingDataOnFirstDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Yes", checkSortingDataOnFirstDropdownField.element(boundBy: 0).label)
         
-        let checkSortingDataOnSecondDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("Yes", checkSortingDataOnSecondDropdownField.element(boundBy: 1).label)
+        let checkSortingDataOnSecondDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Yes", checkSortingDataOnSecondDropdownField.label)
+        checkSortingDataOnSecondDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
         
         let checkSortingDataOnThirdDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("No", checkSortingDataOnThirdDropdownField.element(boundBy: 2).label)
@@ -483,7 +523,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("N/A", checkSortingDataOnThirdDropdownField.element(boundBy: 2).label)
         
         let checkSortingDataOnFourthDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("Yes", checkSortingDataOnFourthDropdownField.element(boundBy: 3).label)
+        XCTAssertEqual("No", checkSortingDataOnFourthDropdownField.element(boundBy: 3).label)
         
         let checkSortingDataOnFifthDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Select Option", checkSortingDataOnFifthDropdownField.element(boundBy: 4).label)
@@ -544,6 +584,85 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         let checkSelectedValue = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("No", checkSelectedValue.element(boundBy: 4).label)
+    }
+    
+    // test case for add row using filter
+    func testAddRowWithFiltersTextField() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextFiled()
+        checkSearchTextFieldFilterData()
+        app.buttons["TableAddRowIdentifier"].tap()
+        checkSearchTextFieldFilterData()
+        
+        let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("app", checkDataOnAddRowWithFiltersTextField.value as! String)
+        
+        let checkDataOnAddRowWithFiltersDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Select Option", checkDataOnAddRowWithFiltersDropdownField.element(boundBy: 2).label)
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        // its count all row in table
+        XCTAssertEqual(5, lastIndex)
+    }
+    
+    func testAddRowWithFiltersDropownField() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
+        checkDropdownFieldFilterData()
+        app.buttons["TableAddRowIdentifier"].tap()
+        checkDropdownFieldFilterData()
+        
+        let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("", checkDataOnAddRowWithFiltersTextField.value as! String)
+        
+        let checkDataOnAddRowWithFiltersDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkDataOnAddRowWithFiltersDropdownField.element(boundBy: 2).label)
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        // its count all row in table
+        XCTAssertEqual(5, lastIndex)
+    }
+    
+    func checkFilterDataOfBothFields() {
+        let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("App 1", checkDataOnAddRowWithFiltersTextField.value as! String)
+        
+        let checkDataOnAddRowWithFiltersDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkDataOnAddRowWithFiltersDropdownField.element(boundBy: 0).label)
+    }
+    
+    func testAddRowWithFiltersWithBothFields() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextFiled()
+        checkSearchTextFieldFilterData()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
+        checkFilterDataOfBothFields()
+        
+        app.buttons["TableAddRowIdentifier"].tap()
+        
+        // check data after add row using filter
+        let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("app", checkDataOnAddRowWithFiltersTextField.value as! String)
+        
+        let checkDataOnAddRowWithFiltersDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkDataOnAddRowWithFiltersDropdownField.element(boundBy: 1).label)
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        // its count all row in table
+        XCTAssertEqual(5, lastIndex)
     }
 }
 
