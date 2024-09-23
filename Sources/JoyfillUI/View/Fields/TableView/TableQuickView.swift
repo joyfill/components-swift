@@ -103,7 +103,7 @@ struct TableQuickView : View {
                                 // Cell
                                 let cell = viewModel.getQuickFieldTableColumn(row: row, col: index)
                                 if let cell = cell {
-                                    let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .quickView, editMode: viewModel.fieldDependency.mode, didChange: nil)
+                                    let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .quickView, editMode: viewModel.fieldDependency.mode, didChange: nil, refreshTable: nil)
                                     ZStack {
                                         Rectangle()
                                             .stroke()

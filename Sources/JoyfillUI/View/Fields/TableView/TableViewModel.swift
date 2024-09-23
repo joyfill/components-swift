@@ -62,9 +62,11 @@ class TableViewModel: ObservableObject {
             columns.enumerated().forEach { colIndex, colID in
                 let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
                 if let columnModel = columnModel {
-                    let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                    let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode, didChange: { editedCell  in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
-                    }
+                    }, refreshTable: {
+                        self.setupCellModels()
+                    })
                     rowCellModels.append(cellModel)
                 }
             }
@@ -80,9 +82,11 @@ class TableViewModel: ObservableObject {
         columns.enumerated().forEach { colIndex, colID in
             let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
             if let columnModel = columnModel {
-                let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode, didChange: { editedCell  in
                     self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
-                }
+                }, refreshTable: {
+                    self.setupCellModels()
+                })
                 rowCellModels.append(cellModel)
             }
         }
@@ -90,9 +94,9 @@ class TableViewModel: ObservableObject {
     }
 
     func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumn) {
-        var cellModel = cellModels[rowIndex][colIndex]
-        cellModel.data  = editedCell
-        cellModels[rowIndex][colIndex] = cellModel
+        var row = cellModels[rowIndex]
+        row[colIndex].data = editedCell
+        self.cellModels[rowIndex] = row
     }
 
     func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
