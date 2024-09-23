@@ -107,7 +107,6 @@ struct TableModalView : View {
     }
 
     func filterRowsIfNeeded() {
-        viewModel.setupCellModels()
         viewModel.filteredcellModels = viewModel.cellModels
         guard !viewModel.filterModels.noFilterApplied else {
             return
