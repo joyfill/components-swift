@@ -160,7 +160,8 @@ struct EditMultipleRowsSheetView: View {
                     let row = viewModel.selectedRows.first!
                     let cell = viewModel.getFieldTableColumn(row: row, col: colIndex)
                     if let cell = cell {
-                        let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode, didChange: { editedCell in
+                        let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                        { editedCell in
                             switch cell.type {
                             case "text":
                                 self.changes[colIndex] = editedCell.title
@@ -169,9 +170,7 @@ struct EditMultipleRowsSheetView: View {
                             default:
                                 break
                             }
-                        }, refreshTable: {
-                            viewModel.setupCellModels()
-                        })
+                        }
                         switch cellModel.data.type {
                         case "text":
                             var str = ""

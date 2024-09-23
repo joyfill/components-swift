@@ -107,6 +107,7 @@ struct TableModalView : View {
     }
 
     func filterRowsIfNeeded() {
+        viewModel.setupCellModels()
         viewModel.filteredcellModels = viewModel.cellModels
         guard !viewModel.filterModels.noFilterApplied else {
             return
@@ -323,6 +324,7 @@ struct TableModalView : View {
     }
 
     private func dismissKeyboard() {
+        viewModel.emptySelection()
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
@@ -376,7 +378,8 @@ struct SearchBar: View {
                 let row = viewModel.rows[0]
                 let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
                 if let column = column {
-                    let cellModel = TableCellModel(rowID: "", data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode, didChange: { editedCell in
+                    let cellModel = TableCellModel(rowID: "", data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                    { editedCell in
                         switch column.type {
                         case "text":
                             self.model.filterText = editedCell.title ?? ""
@@ -385,9 +388,7 @@ struct SearchBar: View {
                         default:
                             break
                         }
-                    }, refreshTable: {
-                        viewModel.setupCellModels()
-                    })
+                    }
                     switch cellModel.data.type {
                     case "text":
                         TextFieldSearchBar(text: $model.filterText)

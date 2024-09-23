@@ -10,7 +10,6 @@ import SwiftUI
 struct TableTextView: View {
     var cellModel: TableCellModel
     @State var text = ""
-    @FocusState private var isFocused: Bool
 
     public init(cellModel: TableCellModel) {
         self.cellModel = cellModel
@@ -25,20 +24,12 @@ struct TableTextView: View {
         } else {
             TextEditor(text: $text)
                 .font(.system(size: 15))
-                .focused($isFocused) // Track focus state
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
                 .onChange(of: text) { newText in
                     if cellModel.data.title != text {
                         var editedCell = cellModel.data
                         editedCell.title = text
                         cellModel.didChange?(editedCell)
-                    }
-                }
-                .onChange(of: isFocused) { focused in
-                    if !focused {
-                        var editedCell = cellModel.data
-                        editedCell.title = text
-                        cellModel.refreshTable?()
                     }
                 }
         }

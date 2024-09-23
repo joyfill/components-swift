@@ -21,5 +21,4 @@ struct TableCellModel: Identifiable, Equatable {
     let viewMode: TableViewMode
     let editMode: Mode
     let didChange: ((_ cell: FieldTableColumn) -> Void)?
-    let refreshTable: (() -> Void)?
 }
