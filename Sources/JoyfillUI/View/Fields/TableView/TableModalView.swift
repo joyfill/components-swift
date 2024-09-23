@@ -429,6 +429,7 @@ struct SearchBar: View {
                         .padding(.trailing, 8)
                     
                 })
+                .accessibilityIdentifier("HideFilterSearchBar")
             }
         }
         .frame(height: 40)

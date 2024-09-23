@@ -666,5 +666,312 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         // its count all row in table
         XCTAssertEqual(5, lastIndex)
     }
+    
+    // Check field data after delete filter row in both fields
+    func checkFieldLabelsAfterDeleteFilterRow() {
+        let textFieldValues = [
+            "Apple 2",
+            "Boy 3",
+            "Cat 4",
+            "Dog 5"
+        ]
+        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        for (index, textFieldValue) in textFieldValues.enumerated() {
+            let textField = textFields.element(boundBy: index)
+            XCTAssertTrue(textField.exists, "Text field \(index + 1) does not exist")
+            XCTAssertEqual(textField.value as! String, textFieldValue, "The text in field \(index + 1) is incorrect")
+        }
+        
+        let dropdownValueLabels = [
+            "No",
+            "N/A",
+            "Yes",
+            "Select Option"
+        ]
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        for (index, dropdownValueLabel) in dropdownValueLabels.enumerated() {
+            let button = dropdownButtons.element(boundBy: index)
+            XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
+            XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
+        }
+
+    }
+    
+    // Delete filter rows on TextField
+    func testDeleteTextFieldFilterRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextFiled()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        checkFieldLabelsAfterDeleteFilterRow()
+    }
+    
+    func testEditTextFieldFilterRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextFiled()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        sleep(1)
+        textField.tap()
+        sleep(1)
+        textField.typeText("Edit")
+        
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        sleep(1)
+        firstOption.tap()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        let textFieldValues = [
+            "Edit",
+            "Apple 2",
+            "Boy 3",
+            "Cat 4",
+            "Dog 5"
+        ]
+        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        for (index, textFieldValue) in textFieldValues.enumerated() {
+            let textField = textFields.element(boundBy: index)
+            XCTAssertTrue(textField.exists, "Text field \(index + 1) does not exist")
+            XCTAssertEqual(textField.value as! String, textFieldValue, "The text in field \(index + 1) is incorrect")
+        }
+        
+        let dropdownValueLabels = [
+            "No",
+            "No",
+            "N/A",
+            "Yes",
+            "Select Option"
+        ]
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        for (index, dropdownValueLabel) in dropdownValueLabels.enumerated() {
+            let button = dropdownButtons.element(boundBy: index)
+            XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
+            XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
+        }
+    }
+    
+    func testDuplicateTextFieldFilterRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextFiled()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDuplicateRowIdentifier"].tap()
+        
+        
+        // Check row adding or not after duplicating
+        let textFieldValues = [
+            "App 1",
+            "App 1",
+            "Apple 2",
+        ]
+        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        for (index, textFieldValue) in textFieldValues.enumerated() {
+            let textField = textFields.element(boundBy: index)
+            XCTAssertTrue(textField.exists, "Text field \(index + 1) does not exist")
+            XCTAssertEqual(textField.value as! String, textFieldValue, "The text in field \(index + 1) is incorrect")
+        }
+        
+        let dropdownValueLabels = [
+            "Yes",
+            "Yes",
+            "No",
+        ]
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        for (index, dropdownValueLabel) in dropdownValueLabels.enumerated() {
+            let button = dropdownButtons.element(boundBy: index)
+            XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
+            XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
+        }
+        
+        app.buttons["HideFilterSearchBar"].tap()
+        // Now check all row after remove filter
+        checkFieldLablesAfterDuplicateFitlerRowInBothFields()
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(1, lastIndex)
+    }
+    
+    
+    // Test case for dropdown field - delete filter row
+    func testDeleteDropdownFieldFilterRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
+        
+        checkDropdownFieldFilterData()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        checkFieldLabelsAfterDeleteFilterRow()
+        
+    }
+    
+    func testEditDropdownFieldFilterRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
+        
+        checkDropdownFieldFilterData()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        sleep(1)
+        firstOption.tap()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let checkSearchDataOnSecondTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Cat 4", checkSearchDataOnSecondTextField.value as! String)
+        
+        // Check dropdown data after search
+        let checkSearchDataOnFirstDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnFirstDropdownField.element(boundBy: 0).label)
+        
+        
+        app.buttons["HideFilterSearchBar"].tap()
+                
+        let textFieldValues = [
+            "App 1",
+            "Apple 2",
+            "Boy 3",
+            "Cat 4",
+            "Dog 5"
+        ]
+        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        for (index, textFieldValue) in textFieldValues.enumerated() {
+            let textField = textFields.element(boundBy: index)
+            XCTAssertTrue(textField.exists, "Text field \(index + 1) does not exist")
+            XCTAssertEqual(textField.value as! String, textFieldValue, "The text in field \(index + 1) is incorrect")
+        }
+        
+        let dropdownValueLabels = [
+            "No",
+            "No",
+            "N/A",
+            "Yes",
+            "Select Option"
+        ]
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        for (index, dropdownValueLabel) in dropdownValueLabels.enumerated() {
+            let button = dropdownButtons.element(boundBy: index)
+            XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
+            XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
+        }
+    }
+    
+    func checkFieldLablesAfterDuplicateFitlerRowInBothFields() {
+        let checkAllRowTextFieldValues = [
+            "App 1",
+            "App 1",
+            "Apple 2",
+            "Boy 3",
+            "Cat 4",
+            "Dog 5"
+        ]
+        let checkTextFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        for (index, textFieldValue) in checkAllRowTextFieldValues.enumerated() {
+            let textField = checkTextFields.element(boundBy: index)
+            XCTAssertTrue(textField.exists, "Text field \(index + 1) does not exist")
+            XCTAssertEqual(textField.value as! String, textFieldValue, "The text in field \(index + 1) is incorrect")
+        }
+        
+        let checkAllRowDropdownValueLabels = [
+            "Yes",
+            "Yes",
+            "No",
+            "N/A",
+            "Yes",
+            "Select Option"
+        ]
+        let checkDropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        for (index, dropdownValueLabel) in checkAllRowDropdownValueLabels.enumerated() {
+            let button = checkDropdownButtons.element(boundBy: index)
+            XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
+            XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
+        }
+    }
+    
+    func testDuplicateDropDownFieldFilterRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
+        
+        checkDropdownFieldFilterData()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDuplicateRowIdentifier"].tap()
+        
+        // check fields label after duplicate row
+                
+        let textFieldValues = [
+            "App 1",
+            "App 1",
+            "Cat 4",
+        ]
+        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        for (index, textFieldValue) in textFieldValues.enumerated() {
+            let textField = textFields.element(boundBy: index)
+            XCTAssertTrue(textField.exists, "Text field \(index + 1) does not exist")
+            XCTAssertEqual(textField.value as! String, textFieldValue, "The text in field \(index + 1) is incorrect")
+        }
+        
+        let dropdownValueLabels = [
+            "Yes",
+            "Yes",
+            "Yes",
+        ]
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        for (index, dropdownValueLabel) in dropdownValueLabels.enumerated() {
+            let button = dropdownButtons.element(boundBy: index)
+            XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
+            XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
+        }
+        
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        // Now check all row after remove filter
+        checkFieldLablesAfterDuplicateFitlerRowInBothFields()
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(1, lastIndex)
+    }
 }
 
