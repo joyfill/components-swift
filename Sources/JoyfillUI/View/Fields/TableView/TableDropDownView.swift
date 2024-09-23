@@ -24,6 +24,8 @@ struct TableDropDownOptionListView: View {
         lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
         if let selectedDropdownValue = selectedDropdownValue {
             _selectedDropdownValue = State(initialValue: cellModel.data.options?.filter { $0.id == selectedDropdownValue }.first?.value ?? "" )
+        } else if !isUsedForBulkEdit {
+            _selectedDropdownValue = State(initialValue: cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? "" )
         }
     }
     
@@ -59,11 +61,6 @@ struct TableDropDownOptionListView: View {
             }
         }
         .focused($isFocused) // Observe focus state
-        .onAppear {
-            if !isUsedForBulkEdit {
-                self.selectedDropdownValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
-            }
-        }
         .onChange(of: selectedDropdownValue) { value in
             var editedCell = cellModel.data
             editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
