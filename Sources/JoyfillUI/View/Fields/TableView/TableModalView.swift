@@ -323,7 +323,6 @@ struct TableModalView : View {
     }
 
     private func dismissKeyboard() {
-        viewModel.emptySelection()
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
