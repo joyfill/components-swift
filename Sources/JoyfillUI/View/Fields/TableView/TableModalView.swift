@@ -9,7 +9,8 @@ struct TableModalView : View {
     @State private var rowsCount: Int = 0
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
-    @State private var textHeight: CGFloat = 0
+    @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
+    @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
 
     init(viewModel: TableViewModel) {
@@ -138,7 +139,7 @@ struct TableModalView : View {
                 HStack(alignment: .center, spacing: 0) {
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.allRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: textHeight > 50 ? textHeight : 50)
+                            .frame(width: 40, height: textHeight)
                             .foregroundColor(rowsCount == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
                                 if !viewModel.allRowSelected {
@@ -151,11 +152,11 @@ struct TableModalView : View {
                             .accessibilityIdentifier("SelectAllRowSelectorButton")
                     }
                     Text("#")
-                        .frame(width: 40, height: textHeight > 50 ? textHeight : 50)
+                        .frame(width: 40, height: textHeight)
                         .border(Color.tableCellBorderColor)
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight > 50 ? textHeight : 50)
+                .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
@@ -213,7 +214,7 @@ struct TableModalView : View {
                     .padding(.all, 4)
                     .font(.system(size: 15))
                     .frame(width: 170)
-                    .frame(minHeight: textHeight > 50 ? textHeight : 50)
+                    .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
                             .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
@@ -229,7 +230,13 @@ struct TableModalView : View {
                     GeometryReader { geometry in
                         Color.clear
                             .onAppear {
-                                self.textHeight = geometry.size.height
+                                let height = geometry.size.height
+                                columnHeights[index] = height // Store height for this column
+                                
+                                // Calculate the maximum height after adding this column's height
+                                if let maxColumnHeight = columnHeights.values.max() {
+                                    self.textHeight = maxColumnHeight // Update textHeight with max height
+                                }
                             }
                     }
                 )
