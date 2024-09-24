@@ -75,7 +75,44 @@ struct TableModalTopNavigationView: View {
                         .presentationCompactAdaptation(.popover)
 
                     } else {
-                        // Fallback on earlier versions
+                        VStack(spacing: 8) {
+                            Button(action: {
+                                showingPopover = false
+                                onEditTap?()
+                            }) {
+                                Text("Edit \(rowTitle)")
+                                    .foregroundStyle(.selection)
+                                    .font(.system(size: 14))
+                                    .frame(height: 27)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
+                            .accessibilityIdentifier("TableEditRowsIdentifier")
+
+                            Button(action: {
+                                onDeleteTap?()
+                            }) {
+                                Text("Delete \(rowTitle)")
+                                    .foregroundStyle(.red)
+                                    .font(.system(size: 14))
+                                    .frame(height: 27)
+                            }
+                            .padding(.horizontal, 16)
+                            .accessibilityIdentifier("TableDeleteRowIdentifier")
+
+                            Button(action: {
+                                onDuplicateTap?()
+                            }) {
+                                Text("Duplicate \(rowTitle)")
+                                    .foregroundStyle(.selection)
+                                    .font(.system(size: 14))
+                                    .frame(height: 27)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
+                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
+                            Spacer()
+                        }
                     }
                 }
             }
