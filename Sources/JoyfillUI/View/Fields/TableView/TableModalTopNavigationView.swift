@@ -14,9 +14,10 @@ struct TableModalTopNavigationView: View {
 
     var body: some View {
         HStack {
-            Text("Table Title")
-                .lineLimit(1)
-                .font(.headline.bold())
+            if let title = fieldDependency.fieldData?.title {
+                Text("\(title)")
+                    .font(.headline.bold())
+            }
 
             Spacer()
 
