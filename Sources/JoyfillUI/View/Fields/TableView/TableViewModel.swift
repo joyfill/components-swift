@@ -15,19 +15,23 @@ class TableViewModel: ObservableObject {
     
     @Published var isTableModalViewPresented = false
     @Published var shouldShowAddRowButton: Bool = false
-    @Published var shouldShowDeleteRowButton: Bool = false
     @Published var showRowSelector: Bool = false
     @Published var viewMoreText: String = ""
     @Published var rows: [String] = []
     @Published var quickRows: [String] = []
-    @Published var rowsSelection: [Bool] = []
     @Published var columns: [String] = []
     @Published var quickColumns: [String] = []
     @Published var quickViewRowCount: Int = 0
     private var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
     private var columnIdToColumnMap: [String: FieldTableColumn] = [:]
-    private var selectedRow: Int?
+    @Published var selectedRows = [String]()
+
+    @Published var cellModels = [[TableCellModel]]()
+    @Published var filteredcellModels = [[TableCellModel]]()
+
+    @Published var filterModels = [FilterModel]()
+    @Published var sortModel = SortModel()
 
     private var tableDataDidChange = false
     @Published var uuid = UUID()
@@ -37,20 +41,66 @@ class TableViewModel: ObservableObject {
         self.mode = fieldDependency.mode
         self.showRowSelector = mode == .fill
         self.shouldShowAddRowButton = mode == .fill
-        
         setupColumns()
         setup()
+        setupCellModels()
+        self.filterModels = columns.enumerated().map { colIndex, colID in
+            FilterModel(colIndex: colIndex, colID: colID)
+        }
     }
     
     private func setup() {
         setupRows()
-        rowsSelection = Array.init(repeating: false, count: rows.count)
-        
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
-        setDeleteButtonVisibility()
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
     }
-    
+
+    func setupCellModels() {
+        var cellModels = [[TableCellModel]]()
+        rows.enumerated().forEach { rowIndex, rowID in
+            var rowCellModels = [TableCellModel]()
+            columns.enumerated().forEach { colIndex, colID in
+                let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
+                if let columnModel = columnModel {
+                    let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                    }
+                    rowCellModels.append(cellModel)
+                }
+            }
+            cellModels.append(rowCellModels)
+        }
+        self.cellModels = cellModels
+        self.filteredcellModels = cellModels
+    }
+
+    func addCellModel(rowID: String) {
+        let rowIndex: Int = rows.isEmpty ? 0 : rows.count - 1
+        var rowCellModels = [TableCellModel]()
+        columns.enumerated().forEach { colIndex, colID in
+            let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
+            if let columnModel = columnModel {
+                let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                    self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                }
+                rowCellModels.append(cellModel)
+            }
+        }
+        self.cellModels.append(rowCellModels)
+    }
+
+    func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumn) {
+        var cellModel = cellModels[rowIndex][colIndex]
+        cellModel.data  = editedCell
+        cellModels[rowIndex][colIndex] = cellModel
+    }
+
+    func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
+        var cellModel = cellModels[rowIndex][colIndex]
+        cellModel.data.title  = value
+        self.cellModels[rowIndex][colIndex] = cellModel
+    }
+
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
         return rowToCellMap[row]?[col]
     }
@@ -68,40 +118,56 @@ class TableViewModel: ObservableObject {
         guard index < columns.count else { return "" }
         return columnIdToColumnMap[columns[index]]?.title ?? ""
     }
-    
-    func toggleSelection(at index: Int? = nil) {
-        if let lastSelectedRow = selectedRow {
-            rowsSelection[lastSelectedRow].toggle()
-            selectedRow = nil
-        }
-        
-        guard let index = index else {
-            return
-        }
-        
-        rowsSelection[index].toggle()
-        selectedRow = rowsSelection[index] ? index : nil
+
+    func getColumnType(columnId: String) -> String? {
+        return columnIdToColumnMap[columnId]?.type
     }
-    
-    func resetLastSelection() {
-        selectedRow = nil
+
+    func getColumnIDAtIndex(index: Int) -> String? {
+        guard index < columns.count else { return nil }
+        return columnIdToColumnMap[columns[index]]?.id
     }
-    
-    func setDeleteButtonVisibility() {
-        shouldShowDeleteRowButton = (mode == .fill && selectedRow != nil)
+
+    func toggleSelection(rowID: String) {
+        if selectedRows.contains(rowID) {
+            selectedRows = selectedRows.filter({ $0 != rowID})
+        } else {
+            selectedRows.append(rowID)
+        }
+    }
+
+    func selectAllRows() {
+        selectedRows = filteredcellModels.compactMap { $0.first?.rowID }
+    }
+
+    func emptySelection() {
+        selectedRows = []
+    }
+
+    var allRowSelected: Bool {
+        !selectedRows.isEmpty && selectedRows.count == filteredcellModels.count
+    }
+
+    var rowTitle: String {
+        "\(selectedRows.count) " + (selectedRows.count > 1 ? "rows": "row")
     }
     
     func deleteSelectedRow() {
-        guard let selectedRow = selectedRow else {
+        guard !selectedRows.isEmpty else {
             return
         }
-        setTableDataDidChange(to: true)
-        
-        fieldDependency.fieldData?.deleteRow(id: rows[selectedRow])
-        rowToCellMap.removeValue(forKey: rows[selectedRow])
-        resetLastSelection()
+
+        for row in selectedRows {
+            fieldDependency.fieldData?.deleteRow(id: row)
+            rowToCellMap.removeValue(forKey: row)
+        }
+        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargerRowModel.init(id: $0, index: 0)})
+
+        emptySelection()
         setup()
         uuid = UUID()
+        setTableDataDidChange(to: true)
+        setupCellModels()
     }
     
     func setTableDataDidChange(to: Bool) {
@@ -109,27 +175,29 @@ class TableViewModel: ObservableObject {
     }
     
     func duplicateRow() {
-        guard let selectedRow = selectedRow else {
-            return
-        }
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.duplicateRow(selectedRows: selectedRows) else { return }
         setTableDataDidChange(to: true)
-
-
-        let id = generateObjectId()
-        fieldDependency.fieldData?.duplicateRow(id: rows[selectedRow])
-        resetLastSelection()
         setup()
-        uuid = UUID()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: selectedRow+1)
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        emptySelection()
+        setupCellModels()
     }
 
     func addRow() {
         let id = generateObjectId()
-        fieldDependency.fieldData?.addRow(id: id)
-        resetLastSelection()
+
+        if filterModels.noFilterApplied {
+            fieldDependency.fieldData?.addRow(id: id)
+        } else {
+            fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
+        }
+        emptySelection()
         setup()
         uuid = UUID()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndex: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargerRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
+//        addCellModel(rowID: id)
+        setupCellModels()
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
@@ -137,8 +205,25 @@ class TableViewModel: ObservableObject {
         fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
         setup()
         uuid = UUID()
+        updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
     }
-    
+
+    func bulkEdit(changes: [Int: String]) {
+        for row in selectedRows {
+            for colIndex in changes.keys {
+                if let editedCellId = getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
+                    fieldDependency.fieldData?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change)
+                }
+            }
+        }
+
+        emptySelection()
+        setup()
+        uuid = UUID()
+        setTableDataDidChange(to: true)
+        setupCellModels()
+    }
+
     private func setupColumns() {
         guard let joyDocModel = fieldDependency.fieldData else { return }
         

@@ -19,9 +19,11 @@ struct TableTextView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             Text(text)
+                .font(.system(size: 15))
                 .lineLimit(1)
         } else {
             TextEditor(text: $text)
+                .font(.system(size: 15))
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
                 .onChange(of: text) { newText in
                     if cellModel.data.title != text {

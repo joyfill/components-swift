@@ -11,6 +11,7 @@ import JoyfillModel
 
 @main
 struct JoyfillExampleApp: App {
+    @State var changeResult: String = ""
     init() {
         JoyfillAPIService.initialize(
             userAccessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY2MjhmMTIzNDg5MjYxOGZjMTE4NTc3MyJ9.JofMjGzwWc_nOUcxAyOpuoX_IWIERX7fWJILPda_7ys",
@@ -21,8 +22,11 @@ struct JoyfillExampleApp: App {
         WindowGroup {
             if joyfillUITestsMode {
                 NavigationView {
-                    UITestFormContainerView()
+                    UITestFormContainerView(changeResult: $changeResult)
                 }
+                Text(changeResult)
+                    .accessibilityIdentifier("resultfield")
+                    .frame(height: 10)
             } else {
                 TemplateListView()
             }
