@@ -50,6 +50,7 @@ struct TableModalTopNavigationView: View {
                             .accessibilityIdentifier("TableEditRowsIdentifier")
 
                             Button(action: {
+                                showingPopover = false
                                 onDeleteTap?()
                             }) {
                                 Text("Delete \(rowTitle)")
@@ -61,6 +62,7 @@ struct TableModalTopNavigationView: View {
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
 
                             Button(action: {
+                                showingPopover = false
                                 onDuplicateTap?()
                             }) {
                                 Text("Duplicate \(rowTitle)")
@@ -92,6 +94,7 @@ struct TableModalTopNavigationView: View {
 
                             Button(action: {
                                 onDeleteTap?()
+                                showingPopover = false
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -103,6 +106,7 @@ struct TableModalTopNavigationView: View {
 
                             Button(action: {
                                 onDuplicateTap?()
+                                showingPopover = false
                             }) {
                                 Text("Duplicate \(rowTitle)")
                                     .foregroundStyle(.selection)
