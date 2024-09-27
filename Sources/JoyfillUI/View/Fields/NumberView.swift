@@ -26,8 +26,7 @@ struct NumberView: View {
             TextField("", text: $number)
                 .accessibilityIdentifier("Number")
                 .disabled(fieldDependency.mode == .readonly)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 5)
+                .padding(.horizontal, 10)
                 .keyboardType(.decimalPad)
                 .frame(minHeight: 40)
                 .overlay(

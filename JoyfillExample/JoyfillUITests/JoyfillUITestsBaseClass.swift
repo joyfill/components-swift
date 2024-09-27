@@ -36,6 +36,13 @@ extension JoyfillUITestsBaseClass {
         let valueUnion = ValueUnion(value: change)!
         return valueUnion
     }
+    
+    func onChangeResultChanges() -> [ValueUnion] {
+        let results = onChangeOptionalResults().map { $0.change }
+        return results.compactMap {
+            ValueUnion(value: $0)!
+        }
+    }
 
     func onChangeResult() -> Change {
         return onChangeOptionalResult()!
@@ -47,8 +54,8 @@ extension JoyfillUITestsBaseClass {
         print("resultField.label: \(resultField.label)")
         if let jsonData = jsonString.data(using: .utf8) {
             do {
-                if let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] {
-                    let change = Change(dictionary: dictionary)
+                if let dicts = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [[String: Any]] {
+                    let change = Change(dictionary: dicts.first!)
                     return change
                 }
             } catch {
@@ -58,5 +65,23 @@ extension JoyfillUITestsBaseClass {
             print("Failed to convert string to data")
         }
         return nil
+    }
+    
+    func onChangeOptionalResults() -> [Change] {
+        let resultField = app.staticTexts["resultfield"]
+        let jsonString = resultField.label
+        print("resultField.label: \(resultField.label)")
+        if let jsonData = jsonString.data(using: .utf8) {
+            do {
+                if let dicts = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [[String: Any]] {
+                    return dicts.map(Change.init)
+                }
+            } catch {
+                print("Failed to decode JSON string to model: \(error)")
+            }
+        } else {
+            print("Failed to convert string to data")
+        }
+        return []
     }
 }

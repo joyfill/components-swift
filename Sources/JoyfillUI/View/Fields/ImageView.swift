@@ -165,7 +165,7 @@ struct MoreImageView: View {
     @Environment(\.presentationMode) private var presentationMode
     
     @State var images: [UIImage] = []
-    @State var selectedImages: Set<UIImage> = Set()
+    @State var selectedImagesIndex: Set<Int> = Set()
     @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
     @State var showProgressView: Bool = false
@@ -182,12 +182,12 @@ struct MoreImageView: View {
                 .fontWeight(.bold)
 
             if !isUploadHidden {
-                UploadDeleteView(imagesArray: $images, selectedImages: $selectedImages,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
+                UploadDeleteView(imagesArray: $images, selectedImagesIndex: $selectedImagesIndex,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
             }
             if showProgressView {
                 ProgressView()
             }else {
-                ImageGridView(primaryDisplayOnly: isUploadHidden, images: $images, selectedImages: $selectedImages)
+                ImageGridView(primaryDisplayOnly: isUploadHidden, images: $images, selectedImagesIndex: $selectedImagesIndex)
             }
             Spacer()
         }
@@ -248,20 +248,18 @@ struct MoreImageView: View {
             self.images.append(image)
         })
     }
-    func deleteSelectedImages() {
-        // Logic to delete selected Images from imageUrls
-        for image in selectedImages {
-            let urlToDelete = imageDictionary.first { $0.value == image }?.key
-            valueElements.removeAll { $0 == urlToDelete }
-        }
-        images = images.filter { !selectedImages.contains($0) }
-        selectedImages.removeAll()
-    }
 
+    func deleteSelectedImages() {
+        for index in selectedImagesIndex {
+            valueElements.remove(at: index)
+            images.remove(at: index)
+        }
+        selectedImagesIndex.removeAll()
+    }
 }
 struct UploadDeleteView: View {
     @Binding var imagesArray: [UIImage]
-    @Binding var selectedImages: Set<UIImage>
+    @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
     @Binding var isMultiEnabled: Bool
     @Binding var valueElements: [ValueElement]
@@ -272,7 +270,7 @@ struct UploadDeleteView: View {
         HStack {
             uploadButton
             
-            if selectedImages.count > 0 {
+            if selectedImagesIndex.count > 0 {
                 deleteButton
             }
             Spacer()
@@ -335,14 +333,14 @@ struct UploadDeleteView: View {
 struct ImageGridView:View {
     var primaryDisplayOnly: Bool
     @Binding var images: [UIImage]
-    @Binding var selectedImages: Set<UIImage>
+    @Binding var selectedImagesIndex: Set<Int>
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
     
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                ForEach(images, id: \.self) { image in
+                ForEach(Array(images.enumerated()), id: \.offset) { (index, image) in
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
@@ -352,8 +350,8 @@ struct ImageGridView:View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                     .background(
-                                        Image(systemName: selectedImages.contains(image) ? "checkmark.circle.fill" : "circle")
-                                            .foregroundColor(selectedImages.contains(image) ? .blue : .white)
+                                        Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .white)
                                             .offset(
                                                 x: 60,
                                                 y: -60
@@ -375,11 +373,11 @@ struct ImageGridView:View {
     
     private func handleImageSelection(_ image: UIImage) {
         guard !primaryDisplayOnly else { return }
-        
-        if selectedImages.contains(image) {
-            selectedImages.remove(image)
+        let index = images.firstIndex(of: image)!
+        if selectedImagesIndex.contains(index) {
+            selectedImagesIndex.remove(index)
         } else {
-            selectedImages.insert(image)
+            selectedImagesIndex.insert(index)
         }
     }
 }

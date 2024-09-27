@@ -19,7 +19,7 @@ struct MultiLineTextView: View {
             TextEditor(text: $multilineText)
                 .accessibilityIdentifier("MultilineTextFieldIdentifier")
                 .disabled(fieldDependency.mode == .readonly)
-                .padding(.all, 10)
+                .padding(.horizontal, 10)
                 .autocorrectionDisabled()
                 .frame(minHeight: 200, maxHeight: 200)
                 .overlay(

@@ -9,49 +9,65 @@ import SwiftUI
 import JoyfillModel
 
 struct TableDropDownOptionListView: View {
-    @State var selectedDropdownValue: String?
-    @State private var isSheetPresented = false
+    @State var selectedDropdownValue: String? = ""
+    @State private var isSheetPresented: Int = 0
+    @State private var isSheetPresented2 = false
+
+    private var isUsedForBulkEdit = false
     private var cellModel: TableCellModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State private var lastSelectedValue: String?
     
-    public init(cellModel: TableCellModel) {
+    public init(cellModel: TableCellModel, isUsedForBulkEdit: Bool = false, selectedDropdownValue: String? = nil) {
         self.cellModel = cellModel
+        self.isUsedForBulkEdit = isUsedForBulkEdit
         lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
+        if let selectedDropdownValue = selectedDropdownValue {
+            _selectedDropdownValue = State(initialValue: cellModel.data.options?.filter { $0.id == selectedDropdownValue }.first?.value ?? "" )
+        } else if !isUsedForBulkEdit {
+            _selectedDropdownValue = State(initialValue: cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? "" )
+        }
     }
     
     var body: some View {
         VStack(alignment: .leading) {
             Button(action: {
-                isSheetPresented = true
+                isSheetPresented = Int.random(in: 0...100)
             }, label: {
                 HStack {
-                    Text(selectedDropdownValue ?? "Select Option")
-                        .darkLightThemeColor()
-                        .lineLimit(1)
+                    if let selectedDropdownValue = selectedDropdownValue, !selectedDropdownValue.isEmpty {
+                        Text(selectedDropdownValue)
+                            .darkLightThemeColor()
+                            .lineLimit(1)
+                    } else {
+                        Text("Select Option")
+                            .darkLightThemeColor()
+                            .lineLimit(1)
+                    }
+                
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.all, 10)
+                .font(.system(size: 15))
             })
+            .padding(.horizontal, 10)
+            .frame(height: 40)
             .accessibilityIdentifier("TableDropdownIdentifier")
-            .sheet(isPresented: $isSheetPresented) {
+            .onChange(of: isSheetPresented) { newValue in
+                isSheetPresented2 = true
+            }
+            .sheet(isPresented: $isSheetPresented2) {
                 TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
             }
         }
         .focused($isFocused) // Observe focus state
-        .onAppear {
-            self.selectedDropdownValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
-        }
         .onChange(of: selectedDropdownValue) { value in
             var editedCell = cellModel.data
             editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
-            if editedCell.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId {
+            if (editedCell.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
                 cellModel.didChange?(editedCell)
             }
         }
-        .padding(4)
     }
 }
 
@@ -82,7 +98,11 @@ struct TableDropDownOptionList: View {
                 if let options = data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(options) { option in
                         Button(action: {
-                            selectedDropdownValue = option.value
+                            if selectedDropdownValue == option.value {
+                                selectedDropdownValue = nil
+                            } else {
+                                selectedDropdownValue = option.value
+                            }
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack {

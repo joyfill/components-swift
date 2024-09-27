@@ -39,7 +39,7 @@ class FormContainerViewController: UIViewController {
 
     @ViewBuilder
     var joyFillView: some View {
-        JoyFillView(document: documentBinding , mode: .fill, events: changeHandler, currentPageID: currentPageBinding)
+        Form(document: documentBinding , mode: .fill, events: changeHandler, pageID: currentPage)
     }
 
     var documentBinding: Binding<JoyDoc> {
@@ -53,7 +53,7 @@ class FormContainerViewController: UIViewController {
 
 class ChangeHandler: FormChangeEvent {
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", change.first!.identifier)
+        print(">>>>>>>>onChange", changes.first!.identifier)
     }
 
     func onFocus(event: FieldEvent) {

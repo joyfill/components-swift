@@ -11,3 +11,4 @@ JoyfillUIKitExample/JoyfillUIKitExample.xcodeproj/xcuserdata/vikash.xcuserdatad/
 /.build
 *.json
 /.build
+*.xcbkptlist
