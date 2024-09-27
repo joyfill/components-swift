@@ -232,7 +232,7 @@ struct FileView: View {
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
         if let file = file {
-            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pages, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: (showPageNavigationView && document.pages.count > 1))
+            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pagesForCurrentView, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView)
         }
     }
 }
@@ -292,7 +292,7 @@ struct PagesView: View {
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
         VStack(alignment: .leading) {
-            if showPageNavigationView {
+            if showPageNavigationView && pages.count > 1 {
                 Button(action: {
                     isSheetPresented = true
                 }, label: {
