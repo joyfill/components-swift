@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04227AB52CA7F61500715C50 /* ValidationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04227AB42CA7F61500715C50 /* ValidationTestCase.swift */; };
 		049EAFDE2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049EAFDD2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift */; };
 		049EAFE02C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049EAFDF2C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift */; };
 		04AE82132C52C99000B512F4 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 04AE82122C52C99000B512F4 /* JoyfillModel */; };
@@ -81,6 +82,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04227AB42CA7F61500715C50 /* ValidationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTestCase.swift; sourceTree = "<group>"; };
 		049EAFDD2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldHidePageLogicTests.swift; sourceTree = "<group>"; };
 		049EAFDF2C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldShowPageLogicTests.swift; sourceTree = "<group>"; };
 		04B8407F2C522DCE00C5B786 /* SelectionFieldLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldLogicTests.swift; sourceTree = "<group>"; };
@@ -191,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
+				04227AB42CA7F61500715C50 /* ValidationTestCase.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 			);
 			path = JoyfillTests;
@@ -445,6 +448,7 @@
 			files = (
 				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
 				1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */,
+				04227AB52CA7F61500715C50 /* ValidationTestCase.swift in Sources */,
 				134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
