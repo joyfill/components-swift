@@ -6,17 +6,15 @@
 
 import SwiftUI
 import JoyfillModel
+import Charts
 
 struct ChartDetailView: View {
-//    var chartData: MultiLineChartData
     var fieldDependency: FieldDependency
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
     @State var chartCoordinatesData: ChartAxisConfiguration
     
-//    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
     public init(fieldDependency: FieldDependency) {
-//        self.chartData = chartData
         self.fieldDependency = fieldDependency
         _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
         _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: fieldDependency.fieldData?.yTitle, yMax: fieldDependency.fieldData?.yMax, yMin: fieldDependency.fieldData?.yMin, xTitle: fieldDependency.fieldData?.xTitle, xMax: fieldDependency.fieldData?.xMax, xMin: fieldDependency.fieldData?.xMin))
@@ -24,22 +22,12 @@ struct ChartDetailView: View {
     
     var body: some View {
         VStack {
+            if #available(iOS 16.0, *) {
+                Chart {
+                    LineMark(x: .value("x", 1), y: .value("y", 2))
+                }
+            }
             ScrollView {
-                
-//                MultiLineChart(chartData: chartData)
-//                //                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
-//                    .pointMarkers(chartData: chartData)
-//                //                        .xAxisGrid(chartData: data)
-//                //                        .yAxisGrid(chartData: data)
-//                    .xAxisLabels(chartData: chartData)
-//                    .yAxisLabels(chartData: chartData, specifier: "%.01f")
-//                    .floatingInfoBox(chartData: chartData)
-//                    .headerBox(chartData: chartData)
-//                    .legends(chartData: chartData, columns: [GridItem(.flexible()), GridItem(.flexible())])
-//                    .id(chartData.id)
-//                    .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
-//                    .padding(.horizontal)
-                
                 ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency)
                 LinesView(valueElements: $valueElements, updateValueElements: updateValueElements)
                     .disabled(fieldDependency.mode == .readonly)
