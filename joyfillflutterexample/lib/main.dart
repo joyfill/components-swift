@@ -16,7 +16,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: UiKitView(
+                viewType: 'JoyFill-FormView', // Identifier for the native view.
+                creationParams: null, 
+                creationParamsCodec: null, 
+                onPlatformViewCreated: (id) {
+                  // Callback when the native view is created.
+                  // You can communicate with the Swift code here if needed.
+                },
+              ),
     );
   }
 }
+
