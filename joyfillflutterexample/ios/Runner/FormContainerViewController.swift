@@ -5,23 +5,25 @@
 //  Created by Vishnu Dutt on 02/04/24.
 //
 
-
 import SwiftUI
 import UIKit
 import Joyfill
 import JoyfillModel
 
 class FormContainerViewController: UIViewController {
-    var document: JoyDoc!
+    var document: JoyDoc?
     var currentPage: String? = nil
     var changeHandler = ChangeHandler()
 
     init(document: JoyDoc? = nil, currentPage: String? = nil, changeHandler: ChangeHandler = ChangeHandler()) {
-        self.document = document
         self.currentPage = currentPage
         self.changeHandler = changeHandler
         super.init(nibName: nil, bundle: nil)
         self.document = document ?? sampleJSONDocument()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     func sampleJSONDocument() -> JoyDoc {
@@ -29,10 +31,6 @@ class FormContainerViewController: UIViewController {
         let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
         let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
         return JoyDoc(dictionary: dict)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {
