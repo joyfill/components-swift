@@ -10,19 +10,25 @@ import SwiftUI
 import UIKit
 import Joyfill
 import JoyfillModel
-import JoyfillAPIService
 
 class FormContainerViewController: UIViewController {
     var document: JoyDoc!
     var currentPage: String? = nil
-    private let apiService: APIService = APIService()
     var changeHandler = ChangeHandler()
 
-    init(document: JoyDoc!, currentPage: String? = nil, changeHandler: ChangeHandler = ChangeHandler()) {
+    init(document: JoyDoc? = nil, currentPage: String? = nil, changeHandler: ChangeHandler = ChangeHandler()) {
         self.document = document
         self.currentPage = currentPage
         self.changeHandler = changeHandler
         super.init(nibName: nil, bundle: nil)
+        self.document = document ?? sampleJSONDocument()
+    }
+
+    func sampleJSONDocument() -> JoyDoc {
+        let path = Bundle.main.path(forResource: "sample-form", ofType: "json")!
+        let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+        let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
+        return JoyDoc(dictionary: dict)
     }
 
     required init?(coder: NSCoder) {
@@ -39,11 +45,13 @@ class FormContainerViewController: UIViewController {
 
     @ViewBuilder
     var joyFillView: some View {
-        Form(document: documentBinding , mode: .fill, events: changeHandler, pageID: currentPage)
+        NavigationView {
+            Form(document: documentBinding , mode: .fill, events: changeHandler, pageID: currentPage)
+        }
     }
 
     var documentBinding: Binding<JoyDoc> {
-        return Binding(get: { self.document }, set: { self.document = $0 })
+        return Binding(get: { self.document ?? self.sampleJSONDocument() }, set: { self.document = $0 })
     }
 
     var currentPageBinding: Binding<String>? {
