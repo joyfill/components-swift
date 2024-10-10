@@ -11,10 +11,10 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '15.0'
 
   # Main framework source files
-  s.source_files = 'Sources/Joyfill/**/*.{swift}'
+  s.source_files = 'Sources/JoyfillUI/**/*.{swift}'
 
   # Subspec for JoyfillModel
   s.subspec 'JoyfillModel' do |ss|
-    ss.source_files = 'Sources/JoyfillModel/*.swift'
+    ss.source_files = 'Sources/JoyfillModelDir/*.swift'
   end
 end
