@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary           = 'Joyfill is a form solution SDK.'
   s.description       = 'Joyfill provides form solutions for mobile apps with easy integration.'
   s.homepage          = 'https://github.com/joyfill/components-swift'
-  s.license           = { :type => 'MIT', :file => 'LICENSE.txt' }
+  s.license           = { :type => 'MIT', :file => 'LICENSE' }
   s.author            = { 'Your Name' => 'your.email@example.com' }
   s.source            = { :git => 'https://github.com/joyfill/components-swift.git', :tag => s.version.to_s }
 
@@ -15,9 +15,6 @@ Pod::Spec.new do |s|
 
   # Subspec for JoyfillModel
   s.subspec 'JoyfillModel' do |ss|
-    ss.source_files = 'Sources/JoyfillModel/**/*.{swift}'
+    ss.source_files = 'Sources/JoyfillModel/*.swift'
   end
-
-  # Dependencies if any (you can add them here if needed)
-  # s.dependency 'SomeDependency', '~> 1.0'
 end
