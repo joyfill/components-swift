@@ -12,7 +12,7 @@ s.ios.deployment_target = '15.0'
 s.module_name      = 'Joyfill'
 # Main framework source files
 s.source_files = 'Sources/JoyfillUI/**/*.{swift}'
-s.dependency  'JoyfillModel', "#{s.version}"
+#s.dependency  'JoyfillModel', "#{s.version}"
 
  s.subspec 'JoyfillModel' do |ss|
     ss.source_files = 'Sources/JoyfillModelDir/**/*.{swift}'
