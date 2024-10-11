@@ -12,5 +12,6 @@ s.ios.deployment_target = '15.0'
 s.module_name      = 'Joyfill'
 # Main framework source files
 s.source_files = 'Sources/JoyfillUI/**/*.{swift}'
-s.dependency 'JoyfillModel', '~> 1.1.1
+s.dependency  'JoyfillModel', "#{s.version}"
+
 end
