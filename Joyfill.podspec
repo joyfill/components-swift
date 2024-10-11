@@ -14,4 +14,8 @@ s.module_name      = 'Joyfill'
 s.source_files = 'Sources/JoyfillUI/**/*.{swift}'
 s.dependency  'JoyfillModel', "#{s.version}"
 
+ s.subspec 'JoyfillModel' do |ss|
+    ss.source_files = 'Sources/JoyfillModelDir/**/*.{swift}'
+  end
+
 end
