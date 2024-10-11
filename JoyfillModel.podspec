@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
-s.name              = 'Joyfill'
-s.version           = '1.1.0'
+s.name              = 'JoyfillModel'
+s.version           = '1.0.6'
 s.summary           = 'Joyfill is a form solution SDK.'
 s.description       = 'Joyfill provides form solutions for mobile apps with easy integration.'
 s.homepage          = 'https://github.com/joyfill/components-swift'
@@ -9,8 +9,7 @@ s.author            = { 'Your Name' => 'your.email@example.com' }
 s.source            = { :git => 'https://github.com/joyfill/components-swift.git', :tag => 	  s.version.to_s }
 
 s.ios.deployment_target = '15.0'
-s.module_name      = 'Joyfill'
+s.module_name      = 'JoyfillModel'
 # Main framework source files
-s.source_files = 'Sources/JoyfillUI/**/*.{swift}'
-s.dependency 'JoyfillModel', '~> 1.0.6
+s.source_files = 'Sources/JoyfillModelDir/**/*.{swift}'
 end
