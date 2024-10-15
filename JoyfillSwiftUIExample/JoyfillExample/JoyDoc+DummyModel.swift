@@ -31,6 +31,15 @@ extension JoyDoc {
         return document
     }
     
+    func setMobileView() -> JoyDoc {
+        var view = ModelView()
+        view.id = "6629fab320fca7c8107a6cf6"
+        view.type = "mobile"
+        var document = self
+        document.files[0].views = [view]
+        return document
+    }
+    
     func setImagefields() -> JoyDoc {
         var field = JoyDocField()
         field.type = "image"
@@ -921,6 +930,21 @@ extension JoyDoc {
         return document
     }
     
+    func setRequiredNumberHiddenFieldWithoutValuePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "66aa29c05db08120464a2875"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 4
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 8
+        fieldPosition.id = "66aa29136c6f17d56a2d9f67"
+        fieldPosition.type = .number
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     // Status - valid
     func setRequiredNumberHiddenFieldWithValue() -> JoyDoc {
         var field = JoyDocField()
@@ -943,6 +967,32 @@ extension JoyDoc {
         return document
     }
     
+    
+    // Set Field Postions
+    func setPageFieldInMobileView() -> JoyDoc {
+        var page = Page()
+        page.name = "Page 1"
+        page.hidden = false
+        page.width = 816
+        page.height = 1056
+        page.cols = 24
+        page.rowHeight = 8
+        page.layout = "grid"
+        page.presentation = "normal"
+        page.margin = 0
+        page.padding = 0
+        page.borderWidth = 0
+        page.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
+        page.id = "6629fab320fca7c8107a6cf6"
+        var document = self
+        if var pages = document.files[0].views?[0].pages {
+            pages.append(page)
+            document.files[0].views?[0].pages = pages
+        } else {
+            document.files[0].views?[0].pages = [page]
+        }
+        return document
+    }
     
     // Set Field Postions
     func setPageField() -> JoyDoc {
@@ -985,6 +1035,20 @@ extension JoyDoc {
         return document
     }
     
+    func setImageFieldPositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fab36e8925135f0cdd4f"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 9
+        fieldPosition.height = 23
+        fieldPosition.x = 0
+        fieldPosition.y = 12
+        fieldPosition.id = "6629fab82ddb5cdd73a2f27f"
+        fieldPosition.type = .image
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
     
     func setHeadingTextPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
@@ -1052,6 +1116,21 @@ extension JoyDoc {
         return document
     }
     
+    func setTextPositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb1d92a76d06750ca4a1"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 35
+        fieldPosition.id = "6629fb203149d1c34cc6d6f8"
+        fieldPosition.type = .text
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     func setMultiLineTextPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb2b9a487ce1c1f35f6c"
@@ -1067,6 +1146,21 @@ extension JoyDoc {
         return document
     }
     
+    func setMultilinePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb2b9a487ce1c1f35f6c"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 20
+        fieldPosition.x = 0
+        fieldPosition.y = 43
+        fieldPosition.id = "6629fb2fca14b3e2ef978349"
+        fieldPosition.type = .textarea
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     func setNumberPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb3df03de10b26270ab3"
@@ -1079,6 +1173,21 @@ extension JoyDoc {
         fieldPosition.type = .number
         var document = self
         document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
+    func setNumberPositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb3df03de10b26270ab3"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 63
+        fieldPosition.id = "6629fb3f2eff74a9ca322bb5"
+        fieldPosition.type = .number
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1098,6 +1207,22 @@ extension JoyDoc {
         return document
     }
     
+    func setDatePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb44c79bb16ce072d233"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 71
+        fieldPosition.format = "MM/DD/YYYY"
+        fieldPosition.id = "6629fb4451f3bf2eb2f46567"
+        fieldPosition.type = .date
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     func setTimePosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb638e230f348d0a8682"
@@ -1111,6 +1236,22 @@ extension JoyDoc {
         fieldPosition.type = .date
         var document = self
         document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
+    func setTimePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb638e230f348d0a8682"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 79
+        fieldPosition.format = "hh:mma"
+        fieldPosition.id = "6629fb66420b995d026e480b"
+        fieldPosition.type = .date
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1130,6 +1271,22 @@ extension JoyDoc {
         return document
     }
     
+    func setDateTimePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb6ec5d88d3aadf548ca"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 87
+        fieldPosition.format = "MM/DD/YYYY hh:mma"
+        fieldPosition.id = "6629fb749d0c1af5e94dbac7"
+        fieldPosition.type = .date
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     func setDropdownPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb77593e3791638628bb"
@@ -1143,6 +1300,22 @@ extension JoyDoc {
         fieldPosition.type = .dropdown
         var document = self
         document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
+    func setDropdownPositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb77593e3791638628bb"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 95
+        fieldPosition.targetValue = "6628f2e183591f3efa7f76f9"
+        fieldPosition.id = "6629fb8ea500024170241af3"
+        fieldPosition.type = .dropdown
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1162,6 +1335,22 @@ extension JoyDoc {
         return document
     }
     
+    func setMultiselectPositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb9f4d912053577652b1"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 15
+        fieldPosition.x = 0
+        fieldPosition.y = 103
+        fieldPosition.targetValue = "6628f2e1d0c98c6987cc6021"
+        fieldPosition.id = "6629fbb06e14e0bcaeabf05b"
+        fieldPosition.type = .multiSelect
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     func setSingleSelectPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fbb2bf4f965b9d04f153"
@@ -1178,6 +1367,22 @@ extension JoyDoc {
         return document
     }
     
+    func setSingleSelectPositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fbb2bf4f965b9d04f153"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 15
+        fieldPosition.x = 0
+        fieldPosition.y = 118
+        fieldPosition.targetValue = "6628f2e1fae456e6b850e85e"
+        fieldPosition.id = "6629fbb5daa40d68bf26525f"
+        fieldPosition.type = .multiSelect
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     func setSignaturePosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fbb8cd16c0c4d308a252"
@@ -1190,6 +1395,21 @@ extension JoyDoc {
         fieldPosition.type = .signature
         var document = self
         document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
+    func setSignaturePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fbb8cd16c0c4d308a252"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 23
+        fieldPosition.x = 0
+        fieldPosition.y = 133
+        fieldPosition.id = "6629fbbc88ec687f865a53da"
+        fieldPosition.type = .signature
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1224,6 +1444,22 @@ extension JoyDoc {
         return document
     }
     
+    func setChartPositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fbd957d928a973b1b42b"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 27
+        fieldPosition.x = 0
+        fieldPosition.y = 171
+        fieldPosition.primaryDisplayOnly = true
+        fieldPosition.id = "6629fbddabbd2a54f548bb95"
+        fieldPosition.type = .chart
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     // Condition Field
     func setRequiredTextField() -> JoyDoc {
         var field = JoyDocField()
@@ -1240,6 +1476,22 @@ extension JoyDoc {
         field.file = "66a0fdb2acd89d30121053b9"
         var document = self
         document.fields.append(field)
+        return document
+    }
+    
+    func setRequiredTextFieldInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "66aa2865da10ac1c7b7acb1d"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 4
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 0
+        fieldPosition.primaryDisplayOnly = true
+        fieldPosition.id = "66aa2520173f61daed286798"
+        fieldPosition.type = .text
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1280,6 +1532,21 @@ extension JoyDoc {
         }
         var document = self
         document.fields.append(field)
+        return document
+    }
+    
+    func setRequiredShowNumberFieldByLogicWithoutValuePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "66aa28f805a4900ae643db9c"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 4
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 8
+        fieldPosition.id = "66aa29136c6f17d56a2d9f67"
+        fieldPosition.type = .number
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1367,6 +1634,21 @@ extension JoyDoc {
         
         var document = self
         document.fields.append(field)
+        return document
+    }
+    
+    func setRequiredHideNumberFieldByLogicWithoutValuePositionInMobile() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "66aa28f805a4900ae643db9c"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 4
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 8
+        fieldPosition.id = "66aa29136c6f17d56a2d9f67"
+        fieldPosition.type = .number
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
