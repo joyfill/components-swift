@@ -15,5 +15,5 @@ Pod::Spec.new do |s|
   s.source_files       = 'Sources/JoyfillUI/**/*.{swift}'
   
   # Dependencies
-  s.dependency 'JoyfillModel', '~> 1.0.7'
+  s.dependency 'JoyfillModel', '~> 1.0.8'
 end
