@@ -7,11 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		04227AB52CA7F61500715C50 /* ValidationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04227AB42CA7F61500715C50 /* ValidationTestCase.swift */; };
-		049EAFDE2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049EAFDD2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift */; };
-		049EAFE02C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049EAFDF2C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift */; };
-		04AE82132C52C99000B512F4 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 04AE82122C52C99000B512F4 /* JoyfillModel */; };
-		04B840802C522DCE00C5B786 /* SelectionFieldLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B8407F2C522DCE00C5B786 /* SelectionFieldLogicTests.swift */; };
+		048149FA2CDA8F8E0061FBDC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048149F92CDA8F8E0061FBDC /* JoyfillModel */; };
+		048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048149FC2CDA8F9A0061FBDC /* JoyfillAPIService */; };
+		048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */; };
+		04814A012CDA90D40061FBDC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 04814A002CDA90D40061FBDC /* JoyfillModel */; };
+		04814A052CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04814A022CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift */; };
+		04814A062CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */; };
+		04814A072CDA912F0061FBDC /* SelectionFieldLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */; };
+		04814A092CDA913F0061FBDC /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04814A082CDA913F0061FBDC /* JoyDoc+DummyModel.swift */; };
+		04814A0D2CDA91520061FBDC /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 04814A0C2CDA91520061FBDC /* testrow.json */; };
 		1307CF0D2BDB7E0700B19FBA /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
@@ -42,10 +46,6 @@
 		364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EC2C510BEC00BA870F /* JoyfillAPIService */; };
 		364300F02C510C4200BA870F /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EF2C510C4200BA870F /* JoyfillModel */; };
 		3661908A2BF239BD006ED7CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 366190892BF239BD006ED7CF /* JoyfillModel */; };
-		36650F3D2CD9F6F40094DA2E /* UserAccessTokenTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36650F3C2CD9F6F40094DA2E /* UserAccessTokenTextFieldView.swift */; };
-		36D487532CA6C86F00548882 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36D487522CA6C86F00548882 /* JoyfillModel */; };
-		36D487562CA6C88000548882 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36D487552CA6C88000548882 /* JoyfillAPIService */; };
-		36D487582CA6C89500548882 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36D487572CA6C89500548882 /* JoyfillModel */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
 		FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAED2BA4C1F300ABD018 /* Joyfill */; };
@@ -83,10 +83,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		04227AB42CA7F61500715C50 /* ValidationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTestCase.swift; sourceTree = "<group>"; };
-		049EAFDD2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldHidePageLogicTests.swift; sourceTree = "<group>"; };
-		049EAFDF2C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldShowPageLogicTests.swift; sourceTree = "<group>"; };
-		04B8407F2C522DCE00C5B786 /* SelectionFieldLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldLogicTests.swift; sourceTree = "<group>"; };
+		048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccessTokenTextFieldView.swift; sourceTree = "<group>"; };
+		04814A022CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldHidePageLogicTests.swift; sourceTree = "<group>"; };
+		04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldLogicTests.swift; sourceTree = "<group>"; };
+		04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldShowPageLogicTests.swift; sourceTree = "<group>"; };
+		04814A082CDA913F0061FBDC /* JoyDoc+DummyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+DummyModel.swift"; sourceTree = "<group>"; };
+		04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JoyfillExample.entitlements; sourceTree = "<group>"; };
+		04814A0C2CDA91520061FBDC /* testrow.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testrow.json; sourceTree = "<group>"; };
 		1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Joydocjson.json; sourceTree = "<group>"; };
 		1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+DummyModel.swift"; sourceTree = "<group>"; };
 		1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+Assert.swift"; sourceTree = "<group>"; };
@@ -108,7 +111,6 @@
 		362A560E2BEE359400B54C14 /* ChartFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartFieldTests.swift; sourceTree = "<group>"; };
 		362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldTests.swift; sourceTree = "<group>"; };
 		366190942BF23EAB006ED7CF /* JoyfillTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillTests.xctestplan; sourceTree = "<group>"; };
-		36650F3C2CD9F6F40094DA2E /* UserAccessTokenTextFieldView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserAccessTokenTextFieldView.swift; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
 		FA28C9682BB4356000A2D65C /* SaveButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonView.swift; sourceTree = "<group>"; };
 		FA28C96A2BB4359600A2D65C /* ChangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeManager.swift; sourceTree = "<group>"; };
@@ -126,7 +128,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36D487582CA6C89500548882 /* JoyfillModel in Frameworks */,
+				04814A012CDA90D40061FBDC /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,9 +143,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				36D487562CA6C88000548882 /* JoyfillAPIService in Frameworks */,
+				048149FA2CDA8F8E0061FBDC /* JoyfillModel in Frameworks */,
 				36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */,
 				1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */,
+				048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */,
 				362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */,
 				364300F02C510C4200BA870F /* JoyfillModel in Frameworks */,
 				FA1FEAF12BA4C34800ABD018 /* Joyfill in Frameworks */,
@@ -159,8 +162,6 @@
 				FA28C9712BB4456D00A2D65C /* JoyfillModel in Frameworks */,
 				360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */,
 				1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */,
-				04AE82132C52C99000B512F4 /* JoyfillModel in Frameworks */,
-				36D487532CA6C86F00548882 /* JoyfillModel in Frameworks */,
 				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
 				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
 				36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */,
@@ -181,11 +182,11 @@
 				1338AB952BEE38DD0001C203 /* TableFieldTests.swift */,
 				136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */,
 				13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */,
-				04B8407F2C522DCE00C5B786 /* SelectionFieldLogicTests.swift */,
-				049EAFDD2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift */,
-				049EAFDF2C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift */,
 				13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */,
 				362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */,
+				04814A022CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift */,
+				04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */,
+				04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */,
 				1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */,
 			);
 			path = JoyfillUITests;
@@ -195,7 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
-				04227AB42CA7F61500715C50 /* ValidationTestCase.swift */,
+				04814A082CDA913F0061FBDC /* JoyDoc+DummyModel.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 			);
 			path = JoyfillTests;
@@ -238,11 +239,13 @@
 				FA529C4D2BA1D251000200F5 /* JoyfillExampleApp.swift */,
 				FA529C792BA1D28B000200F5 /* TemplateListView.swift */,
 				FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */,
-				36650F3C2CD9F6F40094DA2E /* UserAccessTokenTextFieldView.swift */,
 				FA28C9662BB4345C00A2D65C /* FormContainerView.swift */,
 				FA28C96A2BB4359600A2D65C /* ChangeManager.swift */,
+				04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */,
+				04814A0C2CDA91520061FBDC /* testrow.json */,
 				FA28C9682BB4356000A2D65C /* SaveButtonView.swift */,
 				1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */,
+				048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */,
 				13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */,
 				1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */,
 				FA529C512BA1D253000200F5 /* Assets.xcassets */,
@@ -278,7 +281,7 @@
 			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
-				36D487572CA6C89500548882 /* JoyfillModel */,
+				04814A002CDA90D40061FBDC /* JoyfillModel */,
 			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
@@ -338,9 +341,8 @@
 				364300EC2C510BEC00BA870F /* JoyfillAPIService */,
 				364300EF2C510C4200BA870F /* JoyfillModel */,
 				363AEF6F2C510DF00082359B /* JoyfillAPIService */,
-				04AE82122C52C99000B512F4 /* JoyfillModel */,
-				36D487522CA6C86F00548882 /* JoyfillModel */,
-				36D487552CA6C88000548882 /* JoyfillAPIService */,
+				048149F92CDA8F8E0061FBDC /* JoyfillModel */,
+				048149FC2CDA8F9A0061FBDC /* JoyfillAPIService */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -380,8 +382,8 @@
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
 				132493782BA570F9002C6ADC /* XCLocalSwiftPackageReference ".." */,
-				36D487512CA6C86F00548882 /* XCLocalSwiftPackageReference "../../JoyfillModel" */,
-				36D487542CA6C88000548882 /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */,
+				048149F82CDA8F8E0061FBDC /* XCLocalSwiftPackageReference "../../JoyfillModel" */,
+				048149FB2CDA8F9A0061FBDC /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -415,6 +417,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04814A0D2CDA91520061FBDC /* testrow.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
@@ -429,18 +432,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
+				04814A052CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift in Sources */,
+				04814A062CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift in Sources */,
+				04814A072CDA912F0061FBDC /* SelectionFieldLogicTests.swift in Sources */,
 				13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */,
 				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
 				362A560B2BEE2EE600B54C14 /* ImageFieldTests.swift in Sources */,
 				1338AB962BEE38DD0001C203 /* TableFieldTests.swift in Sources */,
-				04B840802C522DCE00C5B786 /* SelectionFieldLogicTests.swift in Sources */,
 				1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */,
 				133EBABB2BF48804009B73AB /* SignatureFieldTests.swift in Sources */,
-				049EAFDE2C538705006C63D5 /* SelectionFieldHidePageLogicTests.swift in Sources */,
 				13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */,
 				362A56112BEE36CE00B54C14 /* DateTimeFieldTests.swift in Sources */,
 				362A560F2BEE359400B54C14 /* ChartFieldTests.swift in Sources */,
-				049EAFE02C53C145006C63D5 /* SelectionFieldShowPageLogicTests.swift in Sources */,
 				362A560D2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -451,7 +454,7 @@
 			files = (
 				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
 				1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */,
-				04227AB52CA7F61500715C50 /* ValidationTestCase.swift in Sources */,
+				04814A092CDA913F0061FBDC /* JoyDoc+DummyModel.swift in Sources */,
 				134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -462,10 +465,10 @@
 			files = (
 				13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */,
 				13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */,
+				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,
 				FA28C9672BB4345C00A2D65C /* FormContainerView.swift in Sources */,
 				FA28C96B2BB4359600A2D65C /* ChangeManager.swift in Sources */,
 				FA529C7D2BA1D28B000200F5 /* TemplateListView.swift in Sources */,
-				36650F3D2CD9F6F40094DA2E /* UserAccessTokenTextFieldView.swift in Sources */,
 				FA529C7F2BA1D28B000200F5 /* DocumentSubmissionsListView.swift in Sources */,
 				FA28C9692BB4356000A2D65C /* SaveButtonView.swift in Sources */,
 				FA529C4E2BA1D251000200F5 /* JoyfillExampleApp.swift in Sources */,
@@ -493,11 +496,10 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.joyfill.app;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -512,11 +514,10 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -533,11 +534,10 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.joyfill.app;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -553,11 +553,10 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -690,12 +689,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -712,10 +709,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 3.3;
-				PRODUCT_BUNDLE_IDENTIFIER = io.joyfill.app;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -730,12 +726,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -752,10 +746,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 3.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -806,23 +799,32 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		048149F82CDA8F8E0061FBDC /* XCLocalSwiftPackageReference "../../JoyfillModel" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../JoyfillModel;
+		};
+		048149FB2CDA8F9A0061FBDC /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../JoyfillAPIService;
+		};
 		132493782BA570F9002C6ADC /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
 		};
-		36D487512CA6C86F00548882 /* XCLocalSwiftPackageReference "../../JoyfillModel" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../JoyfillModel;
-		};
-		36D487542CA6C88000548882 /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../JoyfillAPIService;
-		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		04AE82122C52C99000B512F4 /* JoyfillModel */ = {
+		048149F92CDA8F8E0061FBDC /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
+		048149FC2CDA8F9A0061FBDC /* JoyfillAPIService */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillAPIService;
+		};
+		04814A002CDA90D40061FBDC /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 048149F82CDA8F8E0061FBDC /* XCLocalSwiftPackageReference "../../JoyfillModel" */;
 			productName = JoyfillModel;
 		};
 		132493792BA570F9002C6ADC /* Joyfill */ = {
@@ -867,19 +869,6 @@
 		};
 		366190892BF239BD006ED7CF /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = JoyfillModel;
-		};
-		36D487522CA6C86F00548882 /* JoyfillModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = JoyfillModel;
-		};
-		36D487552CA6C88000548882 /* JoyfillAPIService */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = JoyfillAPIService;
-		};
-		36D487572CA6C89500548882 /* JoyfillModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 36D487512CA6C86F00548882 /* XCLocalSwiftPackageReference "../../JoyfillModel" */;
 			productName = JoyfillModel;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
