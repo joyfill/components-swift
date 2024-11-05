@@ -16,7 +16,13 @@ struct DocumentSubmissionsListView: View {
     @State private var isloading = false
 
     let title: String
-    private let apiService: APIService = APIService()
+    private let apiService: APIService
+
+    init(apiService: APIService, documents: [Document], title: String) {
+        self.apiService = apiService
+        self.documents = documents
+        self.title = title
+    }
 
     var body: some View {
         if isloading {
@@ -54,7 +60,7 @@ struct DocumentSubmissionsListView: View {
     }
     
     private var changeManager: ChangeManager {
-        ChangeManager(showImagePicker: showImagePicker)
+        ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
     }
     
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
