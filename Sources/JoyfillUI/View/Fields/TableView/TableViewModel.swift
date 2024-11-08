@@ -161,7 +161,7 @@ class TableViewModel: ObservableObject {
             fieldDependency.fieldData?.deleteRow(id: row)
             rowToCellMap.removeValue(forKey: row)
         }
-        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargerRowModel.init(id: $0, index: 0)})
+        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
 
         emptySelection()
         setup()
@@ -218,14 +218,14 @@ class TableViewModel: ObservableObject {
         let id = generateObjectId()
 
         if filterModels.noFilterApplied {
-            fieldDependency.fieldData?.insetLastRow(id: id)
+            fieldDependency.fieldData?.insertLastRow(id: id)
         } else {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
         }
         emptySelection()
         setup()
         uuid = UUID()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargerRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargetRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
 //        addCellModel(rowID: id)
         setupCellModels()
     }
