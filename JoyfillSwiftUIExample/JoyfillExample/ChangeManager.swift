@@ -7,11 +7,12 @@ import JoyfillModel
 import JoyfillAPIService
 
 class ChangeManager {
-    private let apiService: APIService = APIService()
+    private let apiService: APIService
     private let showImagePicker: (([String]) -> Void) -> Void
 
-    init(showImagePicker: @escaping (([String]) -> Void) -> Void) {
+    init(apiService: APIService, showImagePicker: @escaping (([String]) -> Void) -> Void) {
         self.showImagePicker = showImagePicker
+        self.apiService = apiService
     }
 
     func saveJoyDoc(document: JoyDoc) {

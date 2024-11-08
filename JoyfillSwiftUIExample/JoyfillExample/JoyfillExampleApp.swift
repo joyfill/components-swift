@@ -12,12 +12,8 @@ import JoyfillModel
 @main
 struct JoyfillExampleApp: App {
     @State var changeResult: String = ""
-    init() {
-        JoyfillAPIService.initialize(
-            userAccessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY2MjhmMTIzNDg5MjYxOGZjMTE4NTc3MyJ9.JofMjGzwWc_nOUcxAyOpuoX_IWIERX7fWJILPda_7ys",
-            baseURL: "https://api-joy.joyfill.io/v1")
-    }
-    
+    @State var showTemplate: Bool = false
+
     var body: some Scene {
         WindowGroup {
             if joyfillUITestsMode {
@@ -28,7 +24,10 @@ struct JoyfillExampleApp: App {
                     .accessibilityIdentifier("resultfield")
                     .frame(height: 10)
             } else {
-                TemplateListView()
+                NavigationView {
+//                    UserAccessTokenTextFieldView()
+                    TemplateListView(userAccessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk")
+                }
             }
         }
     }

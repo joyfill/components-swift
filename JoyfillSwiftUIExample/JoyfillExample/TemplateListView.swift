@@ -11,10 +11,14 @@ public struct TemplateListView: View {
     @State var documents: [Document] = []
     @State var templates: [Document] = []
     @State var isLoading = true
-    private let apiService: APIService = APIService()
+    private var apiService: APIService
+
+    init(userAccessToken: String) {
+        self.apiService = APIService(accessToken: userAccessToken,
+                                     baseURL: "https://api-joy.joyfill.io/v1")
+    }
 
     public var body: some View {
-        NavigationView {
             if isLoading {
                 ProgressView()
                     .onAppear(perform: fetchData)
@@ -25,7 +29,7 @@ public struct TemplateListView: View {
                     ForEach(templates) { template in
                         VStack(alignment: .trailing) {
                             NavigationLink {
-                                DocumentSubmissionsListView(documents: allDocuments(for: template.identifier),
+                                DocumentSubmissionsListView(apiService: apiService, documents: allDocuments(for: template.identifier),
                                                             title: String(template.identifier.suffix(8)))
                             } label: {
                                 HStack {
@@ -51,7 +55,6 @@ public struct TemplateListView: View {
                 }
             }
         }
-    }
 }
 
 extension TemplateListView {
