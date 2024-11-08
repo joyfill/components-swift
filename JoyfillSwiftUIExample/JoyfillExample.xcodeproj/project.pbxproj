@@ -15,7 +15,6 @@
 		04814A062CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */; };
 		04814A072CDA912F0061FBDC /* SelectionFieldLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */; };
 		04814A092CDA913F0061FBDC /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04814A082CDA913F0061FBDC /* JoyDoc+DummyModel.swift */; };
-		04814A0D2CDA91520061FBDC /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 04814A0C2CDA91520061FBDC /* testrow.json */; };
 		1307CF0D2BDB7E0700B19FBA /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
@@ -89,7 +88,6 @@
 		04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldShowPageLogicTests.swift; sourceTree = "<group>"; };
 		04814A082CDA913F0061FBDC /* JoyDoc+DummyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+DummyModel.swift"; sourceTree = "<group>"; };
 		04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JoyfillExample.entitlements; sourceTree = "<group>"; };
-		04814A0C2CDA91520061FBDC /* testrow.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testrow.json; sourceTree = "<group>"; };
 		1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Joydocjson.json; sourceTree = "<group>"; };
 		1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+DummyModel.swift"; sourceTree = "<group>"; };
 		1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+Assert.swift"; sourceTree = "<group>"; };
@@ -242,7 +240,6 @@
 				FA28C9662BB4345C00A2D65C /* FormContainerView.swift */,
 				FA28C96A2BB4359600A2D65C /* ChangeManager.swift */,
 				04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */,
-				04814A0C2CDA91520061FBDC /* testrow.json */,
 				FA28C9682BB4356000A2D65C /* SaveButtonView.swift */,
 				1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */,
 				048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */,
@@ -417,7 +414,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				04814A0D2CDA91520061FBDC /* testrow.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
@@ -716,7 +712,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -755,7 +751,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
