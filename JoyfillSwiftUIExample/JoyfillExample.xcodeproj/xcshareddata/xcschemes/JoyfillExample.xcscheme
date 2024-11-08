@@ -100,7 +100,6 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
-      customArchiveName = "Joyfill"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
