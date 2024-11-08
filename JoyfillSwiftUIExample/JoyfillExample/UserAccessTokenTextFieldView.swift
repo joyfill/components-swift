@@ -1,15 +1,8 @@
-//
-//  ContentView.swift
-//  TextFieldUser
-//
-//  Created by Babblu Bhaiya on 05/11/24.
-//
-
 import SwiftUI
 import JoyfillAPIService
 
 struct UserAccessTokenTextFieldView: View {
-    @State private var userAccessToken: String = ""
+    @State private var userAccessToken: String = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk"
     @State var showTemplat: Bool = false
 
     var body: some View {
