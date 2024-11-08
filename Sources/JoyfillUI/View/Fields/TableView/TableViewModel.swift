@@ -184,11 +184,41 @@ class TableViewModel: ObservableObject {
         setupCellModels()
     }
 
+    func insertBelow() {
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.addRow(selectedRows: selectedRows) else { return }
+        setTableDataDidChange(to: true)
+        setup()
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        emptySelection()
+        setupCellModels()
+    }
+
+    func moveUP() {
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.moveUP(rowID: selectedRows.first!) else { return }
+        setTableDataDidChange(to: true)
+        setup()
+//        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        emptySelection()
+        setupCellModels()
+    }
+
+    func moveDown() {
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.moveDown(rowID: selectedRows.first!) else { return }
+        setTableDataDidChange(to: true)
+        setup()
+//        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        emptySelection()
+        setupCellModels()
+    }
+
     func addRow() {
         let id = generateObjectId()
 
         if filterModels.noFilterApplied {
-            fieldDependency.fieldData?.addRow(id: id)
+            fieldDependency.fieldData?.insetLastRow(id: id)
         } else {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
         }
@@ -199,6 +229,7 @@ class TableViewModel: ObservableObject {
 //        addCellModel(rowID: id)
         setupCellModels()
     }
+    
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
         setTableDataDidChange(to: true)
