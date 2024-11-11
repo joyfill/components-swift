@@ -144,7 +144,7 @@ struct TableModalTopNavigationView: View {
 
                                 Button(action: {
                                     showingPopover = false
-                                    onEditTap?()
+                                    viewModel.moveDown()
                                 }) {
                                     Text("Move Down")
                                         .foregroundStyle(.selection)

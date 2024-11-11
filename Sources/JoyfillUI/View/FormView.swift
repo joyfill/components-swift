@@ -114,6 +114,30 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: changes, document: document)
     }
 
+    public func moveRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        var changes = [Change]()
+        for targetRow in targetRowIndexes {
+            var change = Change(v: 1,
+                                sdk: "swift",
+                                target: "field.value.rowMove",
+                                _id: document.id!,
+                                identifier: document.identifier,
+                                fileId: event.file!.id!,
+                                pageId: event.page!.id!,
+                                fieldId: event.field!.id!,
+                                fieldIdentifier: event.field!.identifier!,
+                                fieldPositionId: event.fieldPosition.id!,
+                                change: [
+                                    "rowId": targetRow.id,
+                                    "targetRowIndex": targetRow.index,
+                                ],
+                                createdOn: Date().timeIntervalSince1970)
+            changes.append(change)
+        }
+
+        events?.onChange(changes: changes, document: document)
+    }
+
     public func onChange(event: JoyfillModel.FieldChangeEvent) {
         var change = Change(v: 1,
                             sdk: "swift",
@@ -242,6 +266,12 @@ extension FileView: FormChangeEventInternal {
         var event = event
         event.file = file
         events?.addRow(event: event, targetRowIndexes: targetRowIndexes)
+    }
+
+    func moveRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        var event = event
+        event.file = file
+        events?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func deleteRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
@@ -373,6 +403,12 @@ extension PageView: FormChangeEventInternal {
         var event = event
         event.page = page
         events?.addRow(event: event, targetRowIndexes: targetRowIndexes)
+    }
+
+    func moveRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        var event = event
+        event.page = page
+        events?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func deleteRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
@@ -523,6 +559,19 @@ extension FormView: FieldChangeEvents {
         fieldsData.removeAll()
         self.fieldsData = temp
         eventHandler?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
+    }
+
+    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        currentFocusedFielsData = event.field
+        let temp = fieldsData.compactMap { data in
+            if data.id == event.field?.id {
+                return event.field
+            }
+            return data
+        }
+        fieldsData.removeAll()
+        self.fieldsData = temp
+        eventHandler?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
