@@ -55,6 +55,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
+                                .disabled(viewModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableEditRowsIdentifier")
                                 
@@ -67,6 +68,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
+                                .disabled(viewModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableEditRowsIdentifier")
                                 
@@ -138,6 +140,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
+                                .disabled(viewModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableEditRowsIdentifier")
@@ -151,6 +154,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
+                                .disabled(viewModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableEditRowsIdentifier")
