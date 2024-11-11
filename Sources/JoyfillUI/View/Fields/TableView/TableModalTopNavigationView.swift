@@ -44,7 +44,7 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
-                                .accessibilityIdentifier("TableEditRowsIdentifier")
+                                .accessibilityIdentifier("TableInsertRowIdentifier")
                                 
                                 Button(action: {
                                     showingPopover = false
@@ -57,7 +57,7 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .disabled(viewModel.firstRowSelected)
                                 .padding(.horizontal, 16)
-                                .accessibilityIdentifier("TableEditRowsIdentifier")
+                                .accessibilityIdentifier("TableMoveUpRowIdentifier")
                                 
                                 Button(action: {
                                     showingPopover = false
@@ -70,7 +70,7 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .disabled(viewModel.lastRowSelected)
                                 .padding(.horizontal, 16)
-                                .accessibilityIdentifier("TableEditRowsIdentifier")
+                                .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
                             }
                             
@@ -129,7 +129,7 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
-                                .accessibilityIdentifier("TableEditRowsIdentifier")
+                                .accessibilityIdentifier("TableInsertRowIdentifier")
 
                                 Button(action: {
                                     showingPopover = false
@@ -143,7 +143,7 @@ struct TableModalTopNavigationView: View {
                                 .disabled(viewModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
-                                .accessibilityIdentifier("TableEditRowsIdentifier")
+                                .accessibilityIdentifier("TableMoveUpRowIdentifier")
 
                                 Button(action: {
                                     showingPopover = false
@@ -157,7 +157,7 @@ struct TableModalTopNavigationView: View {
                                 .disabled(viewModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
-                                .accessibilityIdentifier("TableEditRowsIdentifier")
+                                .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
                             }
                             Button(action: {
