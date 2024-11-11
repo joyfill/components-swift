@@ -199,7 +199,7 @@ class TableViewModel: ObservableObject {
         guard let targetRows = fieldDependency.fieldData?.moveUP(rowID: selectedRows.first!) else { return }
         setTableDataDidChange(to: true)
         setup()
-//        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        fieldDependency.eventHandler.moveRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
         emptySelection()
         setupCellModels()
     }
