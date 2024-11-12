@@ -2,14 +2,10 @@ import SwiftUI
 import JoyfillModel
 
 struct TableModalTopNavigationView: View {
-    let addButtonTitle: String
-    @Binding var selectedRows: [String]
-    var onDeleteTap: (() -> Void)?
-    var onDuplicateTap: (() -> Void)?
-    var onAddRowTap: (() -> Void)?
+    @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
-
     var fieldDependency: FieldDependency
+    
     @State private var showingPopover = false
 
     var body: some View {
@@ -21,7 +17,7 @@ struct TableModalTopNavigationView: View {
 
             Spacer()
 
-            if !selectedRows.isEmpty {
+            if !viewModel.selectedRows.isEmpty {
                 Button(action: {
                     showingPopover = true
                 }) {
@@ -36,6 +32,48 @@ struct TableModalTopNavigationView: View {
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
+                            if viewModel.selectedRows.count == 1 {
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.insertBelow()
+                                }) {
+                                    Text("Insert Below")
+                                        .foregroundStyle(.selection)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                                .accessibilityIdentifier("TableInsertRowIdentifier")
+                                
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.moveUP()
+                                }) {
+                                    Text("Move Up")
+                                        .foregroundStyle(.selection)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .disabled(viewModel.firstRowSelected)
+                                .padding(.horizontal, 16)
+                                .accessibilityIdentifier("TableMoveUpRowIdentifier")
+                                
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.moveDown()
+                                }) {
+                                    Text("Move Down")
+                                        .foregroundStyle(.selection)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .disabled(viewModel.lastRowSelected)
+                                .padding(.horizontal, 16)
+                                .accessibilityIdentifier("TableMoveDownRowIdentifier")
+                                
+                            }
+                            
                             Button(action: {
                                 showingPopover = false
                                 onEditTap?()
@@ -46,12 +84,12 @@ struct TableModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.top, 16)
+                            .padding(.top, viewModel.selectedRows.count > 1 ? 16 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
-
+                            
                             Button(action: {
                                 showingPopover = false
-                                onDeleteTap?()
+                                viewModel.deleteSelectedRow()
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -60,10 +98,10 @@ struct TableModalTopNavigationView: View {
                             }
                             .padding(.horizontal, 16)
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
-
+                            
                             Button(action: {
                                 showingPopover = false
-                                onDuplicateTap?()
+                                viewModel.duplicateRow()
                             }) {
                                 Text("Duplicate \(rowTitle)")
                                     .foregroundStyle(.selection)
@@ -79,6 +117,49 @@ struct TableModalTopNavigationView: View {
 
                     } else {
                         VStack(spacing: 8) {
+                            if viewModel.selectedRows.count == 1 {
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.insertBelow()
+                                }) {
+                                    Text("Insert Below")
+                                        .foregroundStyle(.selection)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                                .accessibilityIdentifier("TableInsertRowIdentifier")
+
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.moveUP()
+                                }) {
+                                    Text("Move Up")
+                                        .foregroundStyle(.selection)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .disabled(viewModel.firstRowSelected)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                                .accessibilityIdentifier("TableMoveUpRowIdentifier")
+
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.moveDown()
+                                }) {
+                                    Text("Move Down")
+                                        .foregroundStyle(.selection)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .disabled(viewModel.lastRowSelected)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                                .accessibilityIdentifier("TableMoveDownRowIdentifier")
+
+                            }
                             Button(action: {
                                 showingPopover = false
                                 onEditTap?()
@@ -93,7 +174,7 @@ struct TableModalTopNavigationView: View {
                             .accessibilityIdentifier("TableEditRowsIdentifier")
 
                             Button(action: {
-                                onDeleteTap?()
+                                viewModel.deleteSelectedRow()
                                 showingPopover = false
                             }) {
                                 Text("Delete \(rowTitle)")
@@ -105,7 +186,7 @@ struct TableModalTopNavigationView: View {
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
 
                             Button(action: {
-                                onDuplicateTap?()
+                                viewModel.duplicateRow()
                                 showingPopover = false
                             }) {
                                 Text("Duplicate \(rowTitle)")
@@ -123,9 +204,9 @@ struct TableModalTopNavigationView: View {
             }
 
             Button(action: {
-                onAddRowTap?()
+                viewModel.addRow()
             }) {
-                Text(addButtonTitle)
+                Text(viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
                     .foregroundStyle(.selection)
                     .font(.system(size: 14))
                     .frame(height: 27)
@@ -138,7 +219,7 @@ struct TableModalTopNavigationView: View {
     }
 
     var rowTitle: String {
-        "\(selectedRows.count) " + (selectedRows.count > 1 ? "rows": "row")
+        "\(viewModel.selectedRows.count) " + (viewModel.selectedRows.count > 1 ? "rows": "row")
     }
 }
 

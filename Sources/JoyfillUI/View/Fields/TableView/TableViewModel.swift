@@ -95,6 +95,14 @@ class TableViewModel: ObservableObject {
         cellModels[rowIndex][colIndex] = cellModel
     }
 
+    var lastRowSelected: Bool {
+        return !selectedRows.isEmpty && selectedRows.last! == rows.last!
+    }
+
+    var firstRowSelected: Bool {
+        return !selectedRows.isEmpty && selectedRows.first! == rows.first!
+    }
+
     func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
         var cellModel = cellModels[rowIndex][colIndex]
         cellModel.data.title  = value
@@ -161,7 +169,7 @@ class TableViewModel: ObservableObject {
             fieldDependency.fieldData?.deleteRow(id: row)
             rowToCellMap.removeValue(forKey: row)
         }
-        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargerRowModel.init(id: $0, index: 0)})
+        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
 
         emptySelection()
         setup()
@@ -184,20 +192,49 @@ class TableViewModel: ObservableObject {
         setupCellModels()
     }
 
+    func insertBelow() {
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.addRow(selectedRows: selectedRows) else { return }
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        updateUI()
+    }
+
+    func moveUP() {
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.moveUP(rowID: selectedRows.first!) else { return }
+        handleMove(targetRows: targetRows)
+    }
+
+    func moveDown() {
+        guard !selectedRows.isEmpty else { return }
+        guard let targetRows = fieldDependency.fieldData?.moveDown(rowID: selectedRows.first!) else { return }
+        handleMove(targetRows: targetRows)
+    }
+
+    private func handleMove(targetRows: [TargetRowModel]) {
+        guard !targetRows.isEmpty else { return }
+        fieldDependency.eventHandler.moveRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        updateUI()
+    }
+
+    private func updateUI() {
+        setTableDataDidChange(to: true)
+        setup()
+        emptySelection()
+        setupCellModels()
+    }
+
     func addRow() {
         let id = generateObjectId()
 
         if filterModels.noFilterApplied {
-            fieldDependency.fieldData?.addRow(id: id)
+            fieldDependency.fieldData?.insertLastRow(id: id)
         } else {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
         }
-        emptySelection()
-        setup()
-        uuid = UUID()
-        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargerRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
+        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargetRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
 //        addCellModel(rowID: id)
-        setupCellModels()
+        updateUI()
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {

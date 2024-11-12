@@ -22,17 +22,8 @@ struct TableModalView : View {
     var body: some View {
         VStack {
             TableModalTopNavigationView(
-                addButtonTitle: (viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +"),
-                selectedRows: $viewModel.selectedRows,
-                onDeleteTap: {
-                    viewModel.deleteSelectedRow()
-                    heights = [:] },
-                onDuplicateTap: {
-                    viewModel.duplicateRow() },
-                onAddRowTap: {
-                    viewModel.addRow() },
-                onEditTap: {
-                    showEditMultipleRowsSheetView = true},
+                viewModel: viewModel,
+                onEditTap: { showEditMultipleRowsSheetView = true },
                 fieldDependency: viewModel.fieldDependency)
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)

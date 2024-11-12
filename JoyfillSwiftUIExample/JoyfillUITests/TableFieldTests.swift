@@ -44,6 +44,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         dropdownFieldColumnTitleButton.tap()
     }
     
+    // First Page Table Test Cases
+    
     func testTableTextFields() throws {
         goToTableDetailPage()
         
@@ -335,7 +337,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 0).label)
     }
     
-    func tapOnSearchBarTextFiled() {
+    func tapOnSearchBarTextField() {
         let searchBarTextField = app.textFields["TextFieldSearchBarIdentifier"]
         searchBarTextField.tap()
         searchBarTextField.typeText("app\n")
@@ -360,7 +362,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testSearchFilterForTextField() throws {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
-        tapOnSearchBarTextFiled()
+        tapOnSearchBarTextField()
         checkSearchTextFieldFilterData()
     }
     
@@ -592,7 +594,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testAddRowWithFiltersTextField() throws {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
-        tapOnSearchBarTextFiled()
+        tapOnSearchBarTextField()
         checkSearchTextFieldFilterData()
         app.buttons["TableAddRowIdentifier"].tap()
         checkSearchTextFieldFilterData()
@@ -644,7 +646,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testAddRowWithFiltersWithBothFields() throws {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
-        tapOnSearchBarTextFiled()
+        tapOnSearchBarTextField()
         checkSearchTextFieldFilterData()
         tapOnDropdownFieldColumn()
         tapOnDropdownFieldFilter()
@@ -701,7 +703,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testDeleteTextFieldFilterRow() throws {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
-        tapOnSearchBarTextFiled()
+        tapOnSearchBarTextField()
         
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
         
@@ -715,7 +717,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testEditTextFieldFilterRow() throws {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
-        tapOnSearchBarTextFiled()
+        tapOnSearchBarTextField()
         
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
         
@@ -770,7 +772,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testDuplicateTextFieldFilterRow() throws {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
-        tapOnSearchBarTextFiled()
+        tapOnSearchBarTextField()
         
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
         
@@ -972,6 +974,648 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(1, lastIndex)
+    }
+    
+    // Test case for Insert Row
+    
+    // Insert row below first row
+    func tapOnInsertRowButton() {
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableInsertRowIdentifier"].tap()
+    }
+    
+    // Enter data in inserd row - at first Index
+    func enterDataInInsertedRow() {
+        let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", enterDateInInsertedField.value as! String)
+        enterDateInInsertedField.tap()
+        enterDateInInsertedField.typeText("Inserted Row")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Select Option", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+    }
+    
+    // Simple insert 1 row
+    func testTableInsertRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnInsertRowButton()
+        
+        enterDataInInsertedRow()
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(1, lastIndex)
+    }
+    
+    // Insert Row on search filter data
+    func testTableInsertRowOnSearchFilter() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextField()
+        tapOnInsertRowButton()
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        // Enter Data in textfield
+        let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", enterDateInInsertedField.value as! String)
+        enterDateInInsertedField.tap()
+        enterDateInInsertedField.typeText("Inserted Row")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Select Option", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(1, lastIndex)
+    }
+    
+    // Edit data in insert row by - Edit
+    func testTableEditInsertRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnInsertRowButton()
+        enterDataInInsertedRow()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        // Enter data for edit the field
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        sleep(1)
+        textField.tap()
+        sleep(1)
+        textField.typeText("Edit Inserted Row")
+        
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        sleep(1)
+        
+        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Edit Inserted Row", checkEditDataOnTextField.value as! String)
+        
+        sleep(1)
+        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkEditDataOnDropdownField.element(boundBy: 1).label)
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(1, lastIndex)
+    }
+    
+    // Duplicate inserted row
+    func testTableDuplicateInsertedRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnInsertRowButton()
+        enterDataInInsertedRow()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDuplicateRowIdentifier"].tap()
+        
+        // check data in Duplicate field
+        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("Inserted Row", checkEditDataOnTextField.value as! String)
+        
+        sleep(1)
+        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 2).label)
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(2, lastIndex)
+    }
+    
+    // Delete inserted row
+    func testTableDeleteInsertedRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnInsertRowButton()
+        enterDataInInsertedRow()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        // check data in deleted below field ( check row delete or not )
+        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Apple 2", checkEditDataOnTextField.value as! String)
+        
+        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 1).label)
+        
+        goBack()
+        sleep(2)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        let lastRow = try XCTUnwrap(valueElements.last)
+        XCTAssertTrue(lastRow.deleted!)
+        XCTAssertEqual(6, valueElements.count)
+    }
+    
+    // Check inserted row data on Search filter
+    func testTableCheckInsertedRowDataSearchFilter() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnInsertRowButton()
+        enterDataInInsertedRow()
+        tapOnTextFieldColumn()
+        
+        // Enter data in searchbar textfield
+        let searchBarTextField = app.textFields["TextFieldSearchBarIdentifier"]
+        searchBarTextField.tap()
+        searchBarTextField.typeText("inserted\n")
+        
+        // Enter Data in searched filter inserted row
+        let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Inserted Row", enterDateInInsertedField.value as! String)
+        enterDateInInsertedField.tap()
+        enterDateInInsertedField.typeText("Done ")
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
+        XCTAssertEqual("No", selectDropdownField.label)
+        selectDropdownField.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(1, lastIndex)
+        
+        goBack()
+        // tap on table detail view button to navigate - to check inserted row data is saved or not
+        let goToTableDetailView = app.buttons.matching(identifier: "TableDetailViewIdentifier")
+        let tapOnSecondTableView = goToTableDetailView.element(boundBy: 1)
+        tapOnSecondTableView.tap()
+        
+        
+        // check enter data in fields
+        let checkSearchDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Done Inserted Row", checkSearchDataOnTextField.value as! String)
+
+        // Check dropdown data after search
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 1).label)
+    }
+    
+    // Insert row at the end
+    func testTableInsertRowAtEnd() throws {
+        navigateToTableViewOnSecondPage()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 4).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableInsertRowIdentifier"].tap()
+        
+        // Enter data in Inserted row
+        let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
+        XCTAssertEqual("", enterDateInInsertedField.value as! String)
+        enterDateInInsertedField.tap()
+        enterDateInInsertedField.typeText("Inserted Row")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 5)
+        XCTAssertEqual("Select Option", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        
+        // Check entered data
+        XCTAssertEqual("Inserted Row", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("No", selectDropdownField.label)
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(5, lastIndex)
+    }
+    
+    // Move Up & Down Row Test Cases
+    
+    // Moved second row on top
+    func tapOnMoveUpRowButton() {
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveUpRowIdentifier"].tap()
+    }
+    
+    // Move down last second row to last
+    func tapOnMoveDownRowButton() {
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveDownRowIdentifier"].tap()
+    }
+    
+    // Check moved row data on top
+    func checkMovedRowDataOfSecondRow() {
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Apple 2", checkMovedRowTextField.value as! String)
+
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("No", checkSearchDataOnDropdownField.element(boundBy: 0).label)
+    }
+    
+    // Check moved row data at the end
+    func checkMovedRowDataOfLastSecondRow() {
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("Cat 4", checkMovedRowTextField.value as! String)
+
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 4).label)
+    }
+    
+    // Move First row
+    func testTableMoveUpRow() throws {
+        navigateToTableViewOnSecondPage()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveUpRowIdentifier"].tap()
+        
+        // check move row data - remains same or not - in this case it remain same
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+
+        // Check dropdown data after search
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 0).label)
+    }
+    
+    // Move Last row
+    func testTableMoveDownRow() throws {
+        navigateToTableViewOnSecondPage()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 4).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveDownRowIdentifier"].tap()
+        
+        // check move row data - remains same or not - in this case it remain same
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("Dog 5", checkMovedRowTextField.value as! String)
+
+        // Check dropdown data after search
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Select Option", checkSearchDataOnDropdownField.element(boundBy: 4).label)
+    }
+    
+    // Move Second row at the top
+    func testTableMovedSecondRowAtTheTop() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnMoveUpRowButton()
+        
+        // Enter data in Moved row
+        let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Apple 2", enterDateInInsertedField.value as! String)
+        enterDateInInsertedField.tap()
+        enterDateInInsertedField.typeText("Moved ")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
+        XCTAssertEqual("No", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        // Check entered data
+        XCTAssertEqual("Moved Apple 2", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("Yes", selectDropdownField.label)
+    }
+    
+    // Move last second row to last
+    func testTableMovedLastSecondRowToLast() throws {
+        navigateToTableViewOnSecondPage()
+        
+        tapOnMoveDownRowButton()
+        
+        // Enter data in Moved row
+        let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("Cat 4", enterDateInInsertedField.value as! String)
+        enterDateInInsertedField.tap()
+        enterDateInInsertedField.typeText("Moved ")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)
+        XCTAssertEqual("Yes", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        
+        // Check entered data
+        XCTAssertEqual("Moved Cat 4", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("No", selectDropdownField.label)
+    }
+    
+    // Delete moved up row
+    func testTableDeleteMovedUpRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnMoveUpRowButton()
+        checkMovedRowDataOfSecondRow()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        goBack()
+
+        sleep(2)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        let firstRow = try XCTUnwrap(valueElements[1])
+        XCTAssertTrue(firstRow.deleted!)
+        XCTAssertEqual(5, valueElements.count)
+    }
+    
+    // Delete Moved down row
+    func testTableDeleteMovedDownRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnMoveDownRowButton()
+        checkMovedRowDataOfLastSecondRow()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 4).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        goBack()
+
+        sleep(2)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        let lastRow = try XCTUnwrap(valueElements[3])
+        XCTAssertTrue(lastRow.deleted!)
+        XCTAssertEqual(5, valueElements.count)
+    }
+    
+    // Duplicate Moved up Row
+    func testTableDuplicateMovedUpRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnMoveUpRowButton()
+        checkMovedRowDataOfSecondRow()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDuplicateRowIdentifier"].tap()
+        
+        // Enter data in Duplicate Moved row
+        let enterDataInDuplicateRowField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Apple 2", enterDataInDuplicateRowField.value as! String)
+        enterDataInDuplicateRowField.tap()
+        enterDataInDuplicateRowField.typeText("Duplicate ")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        XCTAssertEqual("No", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        // Check entered data
+        XCTAssertEqual("Duplicate Apple 2", enterDataInDuplicateRowField.value as! String)
+        XCTAssertEqual("Yes", selectDropdownField.label)
+        
+        goBack()
+        
+        sleep(2)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        XCTAssertEqual(6, valueElements.count)
+    }
+    
+    // Duplicate move down row
+    func testTableDuplicateMovedDownRow() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnMoveDownRowButton()
+        checkMovedRowDataOfLastSecondRow()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 4).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDuplicateRowIdentifier"].tap()
+        
+        // Enter data in Duplicate Moved row
+        let enterDataInDuplicateRowField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
+        XCTAssertEqual("Cat 4", enterDataInDuplicateRowField.value as! String)
+        enterDataInDuplicateRowField.tap()
+        enterDataInDuplicateRowField.typeText("Duplicate ")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 5)
+        XCTAssertEqual("Yes", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        
+        // Check entered data
+        XCTAssertEqual("Duplicate Cat 4", enterDataInDuplicateRowField.value as! String)
+        XCTAssertEqual("No", selectDropdownField.label)
+        
+        goBack()
+        
+        sleep(2)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        XCTAssertEqual(6, valueElements.count)
+    }
+    
+    // Apply Search filter and then move row up in filter rows
+    func testTableSearchFilterMoveRow() {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextField()
+        
+        tapOnMoveUpRowButton()
+        checkMovedRowDataOfSecondRow()
+        
+        app.buttons["HideFilterSearchBar"].tap()
+         
+        // Enter data in Moved row
+        let enterDataInField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Apple 2", enterDataInField.value as! String)
+        enterDataInField.tap()
+        enterDataInField.typeText("Done ")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
+        XCTAssertEqual("No", selectDropdownField.label)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        // Check entered data
+        XCTAssertEqual("Done Apple 2", enterDataInField.value as! String)
+        XCTAssertEqual("Yes", selectDropdownField.label)
+    }
+    
+    // Apply Search filter and then move row down in filter rows
+    func testTableSearchFilterMoveRowDown() {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextField()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveDownRowIdentifier"].tap()
+        
+        // check move row down data
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+
+        // Check dropdown data after search
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 1).label)
+        
+        app.buttons["HideFilterSearchBar"].tap()
+         
+        // Enter data in Moved row
+        let enterDataInField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        enterDataInField.tap()
+        enterDataInField.typeText("Done ")
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        selectDropdownField.tap()
+        
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        
+        // Check entered data
+        XCTAssertEqual("Done App 1", enterDataInField.value as! String)
+        XCTAssertEqual("No", selectDropdownField.label)
+    }
+   
+    // Delete two rows - then moved last row up
+    func testTableDeleteTwoRowsAndMoveLastRowUp() throws {
+        navigateToTableViewOnSecondPage()
+        
+        // Delete Two rows
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        // Moved last row - second place
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveUpRowIdentifier"].tap()
+        
+        // Now moved row on top
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveUpRowIdentifier"].tap()
+        
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Dog 5", checkMovedRowTextField.value as! String)
+
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Select Option", checkSearchDataOnDropdownField.element(boundBy: 0).label)
+        
+        goBack()
+        
+        sleep(2)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        let thirdRow = try XCTUnwrap(valueElements[2])
+        let fourthRow = try XCTUnwrap(valueElements[3])
+        XCTAssertTrue(thirdRow.deleted!)
+        XCTAssertTrue(fourthRow.deleted!)
+        XCTAssertEqual(5, valueElements.count)
+    }
+    
+    // Delete two rows - then moved row down
+    func testTableDeleteTwoRowsAndMoveRowDown() throws {
+        navigateToTableViewOnSecondPage()
+        
+        // Delete Two rows
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        // Moved first row - second place
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveDownRowIdentifier"].tap()
+        
+        // Now moved row on last
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveDownRowIdentifier"].tap()
+        
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 2).label)
+        
+        goBack()
+        
+        sleep(2)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        let thirdRow = try XCTUnwrap(valueElements[2])
+        let fourthRow = try XCTUnwrap(valueElements[3])
+        XCTAssertTrue(thirdRow.deleted!)
+        XCTAssertTrue(fourthRow.deleted!)
+        XCTAssertEqual(5, valueElements.count)
+    }
+    
+    // Insert row under moved row up
+    func testTableInsertRowUnderMovedRowUp() {
+        navigateToTableViewOnSecondPage()
+        tapOnMoveUpRowButton()
+        checkMovedRowDataOfSecondRow()
+        tapOnInsertRowButton()
+        enterDataInInsertedRow()
+        
+        // check data in Duplicate field
+        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Inserted Row", checkEditDataOnTextField.value as! String)
+        
+        sleep(1)
+        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 1).label)
     }
 }
 
