@@ -117,6 +117,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testTableAddRow() throws {
         goToTableDetailPage()
         app.buttons["TableAddRowIdentifier"].tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowCreate", fieldTarget)
+        
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
         let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
@@ -142,6 +146,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableDuplicateRowIdentifier"].tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowCreate", fieldTarget)
         
         let duplicateTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
         XCTAssertEqual("His", duplicateTextField.value as! String)
@@ -174,6 +181,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         
         app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowDelete", fieldTarget)
         
         goBack()
         sleep(2)
@@ -1008,6 +1018,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         tapOnInsertRowButton()
         
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowCreate", fieldTarget)
+        
         enterDataInInsertedRow()
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
@@ -1136,6 +1149,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let lastRow = try XCTUnwrap(valueElements.last)
         XCTAssertTrue(lastRow.deleted!)
         XCTAssertEqual(6, valueElements.count)
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.update", fieldTarget)
     }
     
     // Check inserted row data on Search filter
@@ -1295,6 +1311,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testTableMovedSecondRowAtTheTop() throws {
         navigateToTableViewOnSecondPage()
         tapOnMoveUpRowButton()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
         
         // Enter data in Moved row
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
