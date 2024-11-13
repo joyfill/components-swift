@@ -10,7 +10,8 @@ import JoyfillModel
 public struct TemplateListView: View {
     @State var documents: [Document] = []
     @State var templates: [Document] = []
-    @State var isLoading = true
+    @State var fetchSubmissions = true
+    @State var createSubmission = false
     private var apiService: APIService
 
     init(userAccessToken: String) {
@@ -19,9 +20,13 @@ public struct TemplateListView: View {
     }
 
     public var body: some View {
-            if isLoading {
+            if fetchSubmissions || createSubmission {
                 ProgressView()
-                    .onAppear(perform: fetchData)
+                    .onAppear {
+                        if fetchSubmissions {
+                            fetchData()
+                        }
+                    }
             } else {
                 List {
                     Text("Templates List")
@@ -51,7 +56,7 @@ public struct TemplateListView: View {
                     .cornerRadius(2)
                 }
                 .refreshable {
-                    fetchData()
+                    fetchSubmissions = true
                 }
             }
         }
@@ -60,7 +65,7 @@ public struct TemplateListView: View {
 extension TemplateListView {
 
     func fetchData() {
-        fetchTemplates() {
+        fetchTemplates() { 
             fetchDocuments()
         }
     }
@@ -77,10 +82,9 @@ extension TemplateListView {
     }
     
     private func fetchDocuments() {
-        self.isLoading = true
         apiService.fetchDocuments() { result in
             DispatchQueue.main.async {
-                self.isLoading = false
+                self.fetchSubmissions = false
                 switch result {
                 case .success(let documents):
                     self.documents = documents
@@ -92,34 +96,34 @@ extension TemplateListView {
     }
     
     private func fetchTemplates(completion:  @escaping () -> Void) {
-        self.isLoading = true
         apiService.fetchTemplates { result in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let templates):
-                    self.templates = templates
-                case .failure(let error):
-                    print("Error fetching templates: \(error.localizedDescription)")
-                }
-                completion()
+            switch result {
+            case .success(let templates):
+                self.templates = templates
+            case .failure(let error):
+                print("Error fetching templates: \(error.localizedDescription)")
             }
+            completion()
         }
     }
     
     private func createDocumentSubmission(identifier: String, completion: @escaping ((Any) -> Void)) {
-        self.isLoading = true
+        self.createSubmission = true
         apiService.createDocumentSubmission(identifier: identifier) { result in
-            self.isLoading = false
             DispatchQueue.main.async {
-                switch result {
-                case .success(let jsonRes):
-                    let id = (jsonRes as! [String: Any])["_id"] as! String
-                    print("Created document submission: \(id)")
-                    break
-                case .failure(let error):
-                    print("Error creating submission: \(error.localizedDescription)")
+                self.createSubmission = false
+                DispatchQueue.main.async {
+                    self.fetchSubmissions = true
                 }
+            }
+
+            switch result {
+            case .success(let jsonRes):
+                let id = (jsonRes as! [String: Any])["_id"] as! String
+                print("Created document submission: \(id)")
+                break
+            case .failure(let error):
+                print("Error creating submission: \(error.localizedDescription)")
             }
         }
     }

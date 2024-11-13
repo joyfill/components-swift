@@ -10,6 +10,7 @@ import SwiftUI
 import JoyfillModel
 
 class TableViewModel: ObservableObject {
+    let supportedColumnTypes = ["text", "image", "dropdown"]
     private let mode: Mode
     var fieldDependency: FieldDependency
     
@@ -263,12 +264,17 @@ class TableViewModel: ObservableObject {
 
     private func setupColumns() {
         guard let joyDocModel = fieldDependency.fieldData else { return }
+        self.columns = (joyDocModel.tableColumnOrder ?? []).filter { columnID in
+            if let columnType = joyDocModel.tableColumns?.first { $0.id == columnID }?.type {
+                return supportedColumnTypes.contains(columnType)
+            }
+            return false
+        }
         
-        for column in joyDocModel.tableColumnOrder ?? [] {
+        for column in self.columns {
             columnIdToColumnMap[column] = joyDocModel.tableColumns?.first { $0.id == column }
         }
         
-        self.columns = joyDocModel.tableColumnOrder ?? []
         self.quickColumns = columns
         while quickColumns.count > 3 {
             quickColumns.removeLast()
@@ -288,7 +294,7 @@ class TableViewModel: ObservableObject {
         
         for row in sortedRows {
             var cells: [FieldTableColumn?] = []
-            for column in joyDocModel.tableColumnOrder ?? [] {
+            for column in self.columns {
                 let columnData = joyDocModel.tableColumns?.first { $0.id == column }
                 let cell = buildCell(data: columnData, row: row, column: column)
                 cells.append(cell)
