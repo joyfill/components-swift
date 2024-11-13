@@ -40,29 +40,6 @@ When finished, Xcode will automatically begin resolving and downloading your dep
 
 ## Getting Started
 
-### Initilize the JoyfillAPIService
-
-```swift
-import JoyfillAPIService
-
-@main
-struct JoyfillExampleApp: App {
-    init() {
-        JoyfillAPIService.initialize(
-        // Replace with your userAccessToken
-            userAccessToken: "",
-        // Replace with your baseURL
-            baseURL: "https://api-joy.joyfill.io/v1")
-    }
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
-}
-```
-
 ### Show a Joyfill Document with SwiftUI `JoyFillView` view
 
 ```swift
@@ -73,12 +50,10 @@ import JoyfillModel
 struct FormContainerView: View {
     @Binding var document: JoyDoc
     let pageID: String
-    private let changeManager = ChangeManager()
+    private let changeManager: FormChangeEvent = ChangeManager()
     
     var body: some View {
-        VStack {
-            Form(document: $document, mode: .fill, events: changeManager, pageID: pageID)
-        }
+      Form(document: $document, mode: .fill, events: changeManager, pageID: pageID)
     }
 }
 ```
