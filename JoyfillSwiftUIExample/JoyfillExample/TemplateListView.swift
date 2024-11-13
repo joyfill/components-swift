@@ -12,11 +12,21 @@ public struct TemplateListView: View {
     @State var templates: [Document] = []
     @State var fetchSubmissions = true
     @State var createSubmission = false
+    @State var showNewSubmission = false
     private var apiService: APIService
+    @State var document: JoyDoc?
 
     init(userAccessToken: String) {
         self.apiService = APIService(accessToken: userAccessToken,
                                      baseURL: "https://api-joy.joyfill.io/v1")
+    }
+
+    private var changeManager: ChangeManager {
+        ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
+    }
+
+    private var documentBinding: Binding<JoyDoc> {
+        Binding(get: { document! }, set: { document = $0 })
     }
 
     public var body: some View {
@@ -43,6 +53,10 @@ public struct TemplateListView: View {
                                     Text(template.name)
                                 }
                             }
+
+                            if showNewSubmission {
+                                NavigationLink("", destination: FormContainerView(document: documentBinding, pageID: "pageID", changeManager: changeManager), isActive: $showNewSubmission)
+                            }
                             Button(action: {
                                 createDocumentSubmission(identifier: template.identifier, completion: { _ in })
                             }, label: {
@@ -60,6 +74,10 @@ public struct TemplateListView: View {
                 }
             }
         }
+
+    private func showImagePicker(uploadHandler: ([String]) -> Void) {
+        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    }
 }
 
 extension TemplateListView {
@@ -112,19 +130,19 @@ extension TemplateListView {
         apiService.createDocumentSubmission(identifier: identifier) { result in
             DispatchQueue.main.async {
                 self.createSubmission = false
-                DispatchQueue.main.async {
-                    self.fetchSubmissions = true
+                switch result {
+                case .success(let jsonRes):
+                    let dictionary = (jsonRes as! [String: Any])
+                    self.document = JoyDoc(dictionary: dictionary)
+                    showNewSubmission = true
+                    fetchDocuments()
+                    break
+                case .failure(let error):
+                    print("Error creating submission: \(error.localizedDescription)")
                 }
             }
 
-            switch result {
-            case .success(let jsonRes):
-                let id = (jsonRes as! [String: Any])["_id"] as! String
-                print("Created document submission: \(id)")
-                break
-            case .failure(let error):
-                print("Error creating submission: \(error.localizedDescription)")
-            }
+
         }
     }
 }
