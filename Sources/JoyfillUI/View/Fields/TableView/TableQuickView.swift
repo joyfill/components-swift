@@ -29,7 +29,7 @@ struct TableQuickView : View {
                             .offset(x: offset.x)
                     }
                     .disabled(true)
-                    .background(Color.tableCellBorderColor)
+                    .background(Color.clear)
                     .cornerRadius(14, corners: [.topRight, .topLeft])
                     
                     table
@@ -94,31 +94,27 @@ struct TableQuickView : View {
     }
     
     var table: some View {
-        ScrollViewReader { cellProxy in
-            ScrollView([.vertical, .horizontal], showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(viewModel.quickRows, id: \.self) { row in
-                        HStack(alignment: .top, spacing: 0) {
-                            ForEach(Array(viewModel.quickColumns.enumerated()), id: \.offset) { index, col in
-                                // Cell
-                                let cell = viewModel.getQuickFieldTableColumn(row: row, col: index)
-                                if let cell = cell {
-                                    let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .quickView, editMode: viewModel.fieldDependency.mode, didChange: nil)
-                                    ZStack {
-                                        Rectangle()
-                                            .stroke()
-                                            .foregroundColor(Color.tableCellBorderColor)
-                                        TableViewCellBuilder(cellModel: cellModel)
-                                    }
-                                    .frame(width: (screenWidth / 3) - 8, height: rowHeight)
-                                }
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(viewModel.quickRows, id: \.self) { row in
+                HStack(alignment: .top, spacing: 0) {
+                    ForEach(Array(viewModel.quickColumns.enumerated()), id: \.offset) { index, col in
+                        // Cell
+                        let cell = viewModel.getQuickFieldTableColumn(row: row, col: index)
+                        if let cell = cell {
+                            let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .quickView, editMode: viewModel.fieldDependency.mode, didChange: nil)
+                            ZStack {
+                                Rectangle()
+                                    .stroke()
+                                    .foregroundColor(Color.tableCellBorderColor)
+                                TableViewCellBuilder(cellModel: cellModel)
                             }
+                            .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                         }
                     }
                 }
             }
-            .id(viewModel.uuid)
-            .disabled(true)
         }
+        .id(viewModel.uuid)
+        .disabled(true)
     }
 }
