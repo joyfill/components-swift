@@ -309,6 +309,8 @@ class TableViewModel: ObservableObject {
         switch data?.type {
         case "text":
             cell?.title = valueUnion?.text ?? ""
+        case "number":
+            cell?.number = valueUnion?.number ?? 0
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
