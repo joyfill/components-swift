@@ -228,7 +228,7 @@ class TableViewModel: ObservableObject {
     func addRow() {
         let id = generateObjectId()
 
-        if filterModels.noFilterApplied {
+        if filterModels.noFilterAppliedForText && filterModels.noFilterAppliedForNumber {
             fieldDependency.fieldData?.insertLastRow(id: id)
         } else {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)

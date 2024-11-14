@@ -99,12 +99,12 @@ struct TableModalView : View {
 
     func filterRowsIfNeeded() {
         viewModel.filteredcellModels = viewModel.cellModels
-        guard !viewModel.filterModels.noFilterApplied else {
+        guard !viewModel.filterModels.noFilterAppliedForText || !viewModel.filterModels.noFilterAppliedForNumber else {
             return
         }
-
+        
         for model in viewModel.filterModels {
-            if model.filterText.isEmpty {
+            if model.filterText.isEmpty && model.filterNumber == 0.0 {
                 continue
             }
 
@@ -115,6 +115,10 @@ struct TableModalView : View {
                     return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
                 case "dropdown":
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
+                case "number":
+                    if model.filterNumber != 0.0 {
+                        return (column.number ?? 0.0) == model.filterNumber
+                    }
                 default:
                     break
                 }
@@ -372,6 +376,8 @@ struct SearchBar: View {
                         switch column.type {
                         case "text":
                             self.model.filterText = editedCell.title ?? ""
+                        case "number":
+                            self.model.filterNumber = editedCell.number ?? 0
                         case "dropdown":
                             self.model.filterText = editedCell.defaultDropdownSelectedId ?? ""
                         default:
@@ -381,6 +387,8 @@ struct SearchBar: View {
                     switch cellModel.data.type {
                     case "text":
                         TextFieldSearchBar(text: $model.filterText)
+                    case "number":
+                        NumberTextFieldSearchBar(value: $model.filterNumber)
                     case "dropdown":
                         TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
@@ -407,6 +415,7 @@ struct SearchBar: View {
                 
                 Button(action: {
                     model.filterText = ""
+                    model.filterNumber = 0
                     selectedColumnIndex = Int.min
                 }, label: {
                     Image(systemName: "xmark")
@@ -478,6 +487,46 @@ struct TextFieldSearchBar: View {
             )
     }
 }
+
+struct NumberTextFieldSearchBar: View {
+    @Binding var value: Double
+    @State private var text: String = ""
+
+    var body: some View {
+        TextField("Enter number", text: $text)
+            .keyboardType(.decimalPad)
+            .onChange(of: text) { newValue in
+                if let number = Double(newValue) {
+                    value = number
+                }
+            }
+            .font(.system(size: 12))
+            .foregroundColor(.black)
+            .padding(.all, 4)
+            .frame(height: 25)
+            .background(.white)
+            .cornerRadius(6)
+            .padding(.leading, 8)
+            .overlay(
+                HStack {
+                    Spacer()
+                    if !text.isEmpty {
+                        Button(action: {
+                            self.text = ""
+                            self.value = 0
+                        }) {
+                            Image(systemName: "multiply.circle.fill")
+                                .foregroundColor(.gray)
+                                .padding(.all, 4)
+                        }
+                    }
+                }
+            )
+    }
+}
+
+
+
 
 struct DropdownFieldSearchBar: View {
     var body: some View {
