@@ -116,9 +116,9 @@ struct TableModalView : View {
                 case "dropdown":
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
                 case "number":
-                    if model.filterNumber != 0.0 {
-                        return (column.number ?? 0.0) == model.filterNumber
-                    }
+                    let filterInt = Int(model.filterNumber)
+                    let columnInt = Int(column.number ?? 0.0)
+                    return filterInt == columnInt
                 default:
                     break
                 }
