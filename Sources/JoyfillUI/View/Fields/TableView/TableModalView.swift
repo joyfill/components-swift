@@ -79,6 +79,15 @@ struct TableModalView : View {
                     case .none:
                         return true
                     }
+                case "number":
+                    switch viewModel.sortModel.order {
+                    case .ascending:
+                        return (rowArr1[currentSelectedCol].data.number ?? 0) < (rowArr2[currentSelectedCol].data.number ?? 0)
+                    case .descending:
+                        return (rowArr1[currentSelectedCol].data.number ?? 0) > (rowArr2[currentSelectedCol].data.number ?? 0)
+                    case .none:
+                        return true
+                    }
                 case "dropdown":
                     switch viewModel.sortModel.order {
                     case .ascending:
@@ -116,9 +125,12 @@ struct TableModalView : View {
                 case "dropdown":
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
                 case "number":
-                    let filterInt = Int(model.filterNumber)
-                    let columnInt = Int(column.number ?? 0.0)
-                    return filterInt == columnInt
+                    let columnInt = String(column.number ?? 0.0)
+                    return columnInt.localizedCaseInsensitiveContains(model.filterText)
+                    
+//                    let filterInt = Int(model.filterNumber)
+//                    let columnInt = Int(column.number ?? 0.0)
+//                    return filterInt == columnInt
                 default:
                     break
                 }
@@ -377,7 +389,8 @@ struct SearchBar: View {
                         case "text":
                             self.model.filterText = editedCell.title ?? ""
                         case "number":
-                            self.model.filterNumber = editedCell.number ?? 0
+                            let number = String(editedCell.number ?? 0)
+                            self.model.filterText = number
                         case "dropdown":
                             self.model.filterText = editedCell.defaultDropdownSelectedId ?? ""
                         default:
@@ -388,7 +401,7 @@ struct SearchBar: View {
                     case "text":
                         TextFieldSearchBar(text: $model.filterText)
                     case "number":
-                        NumberTextFieldSearchBar(value: $model.filterNumber)
+                        TextFieldSearchBar(text: $model.filterText, numericalKeyboard: true)
                     case "dropdown":
                         TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
@@ -460,10 +473,12 @@ struct SearchBar: View {
 
 struct TextFieldSearchBar: View {
     @Binding var text: String
+    var numericalKeyboard: Bool = false
 
     var body: some View {
         TextField("Search ", text: $text)
             .accessibilityIdentifier("TextFieldSearchBarIdentifier")
+            .keyboardType(numericalKeyboard ? .decimalPad : .default)
             .font(.system(size: 12))
             .foregroundColor(.black)
             .padding(.all, 4)
