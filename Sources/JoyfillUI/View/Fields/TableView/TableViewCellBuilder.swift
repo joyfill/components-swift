@@ -28,6 +28,9 @@ struct TableViewCellBuilder: View {
         case "number":
             TableNumberView(cellModel: cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case "date":
+           TableDateView(cellModel: cellModel)
+                .disabled(cellModel.editMode == .readonly)
         case "dropdown":
             TableDropDownOptionListView(cellModel: cellModel)
                 .disabled(cellModel.editMode == .readonly)
