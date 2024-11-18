@@ -10,7 +10,7 @@ import SwiftUI
 import JoyfillModel
 
 class TableViewModel: ObservableObject {
-    let supportedColumnTypes = ["text", "image", "dropdown", "number", "date"]
+    let supportedColumnTypes = ["text", "image", "dropdown", "number", "date", "block"]
     private let mode: Mode
     var fieldDependency: FieldDependency
     
@@ -320,6 +320,8 @@ class TableViewModel: ObservableObject {
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
         case "text":
+            cell?.title = valueUnion?.text ?? ""
+        case "block":
             cell?.title = valueUnion?.text ?? ""
         case "number":
             cell?.number = valueUnion?.number
