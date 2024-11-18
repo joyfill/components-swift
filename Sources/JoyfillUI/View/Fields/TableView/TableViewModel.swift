@@ -10,7 +10,7 @@ import SwiftUI
 import JoyfillModel
 
 class TableViewModel: ObservableObject {
-    let supportedColumnTypes = ["text", "image", "dropdown"]
+    let supportedColumnTypes = ["text", "image", "dropdown", "number", "date"]
     private let mode: Mode
     var fieldDependency: FieldDependency
     
@@ -228,7 +228,7 @@ class TableViewModel: ObservableObject {
     func addRow() {
         let id = generateObjectId()
 
-        if filterModels.noFilterApplied {
+        if filterModels.noFilterAppliedForText && filterModels.noFilterAppliedForNumber {
             fieldDependency.fieldData?.insertLastRow(id: id)
         } else {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
@@ -309,12 +309,22 @@ class TableViewModel: ObservableObject {
         setupQuickTableViewRows()
     }
     
+    func stringToDate(_ dateString: String, format: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = DateFormatType(rawValue: format)?.dateFormat ?? ""
+        return dateFormatter.date(from: dateString)
+    }
+    
     private func buildCell(data: FieldTableColumn?, row: ValueElement, column: String) -> FieldTableColumn? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
         case "text":
             cell?.title = valueUnion?.text ?? ""
+        case "number":
+            cell?.number = valueUnion?.number
+        case "date":
+            cell?.date = valueUnion
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":

@@ -206,7 +206,7 @@ struct TableModalTopNavigationView: View {
             Button(action: {
                 viewModel.addRow()
             }) {
-                Text(viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
+                Text(viewModel.filterModels.noFilterAppliedForText && viewModel.filterModels.noFilterAppliedForNumber ? "Add Row +": "Add Row With Filters +")
                     .foregroundStyle(.selection)
                     .font(.system(size: 14))
                     .frame(height: 27)
