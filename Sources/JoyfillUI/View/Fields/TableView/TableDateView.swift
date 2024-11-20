@@ -42,7 +42,7 @@ struct TableDateView: View {
                         .labelsHidden()
                         .padding(.all, 8)
                     }
-
+                    
                     Button(action: {
                         isDatePickerPresented = false
                         selectedDate = nil
@@ -68,7 +68,14 @@ struct TableDateView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
-            
+            if let date = selectedDate {
+                let convertDateToInt = dateToTimestampMilliseconds(date: date)
+                let newDateValue = ValueUnion.double(convertDateToInt)
+                
+                var editedCell = cellModel.data
+                editedCell.date = newDateValue
+                cellModel.didChange?(editedCell)
+            }
         }
     }
     
