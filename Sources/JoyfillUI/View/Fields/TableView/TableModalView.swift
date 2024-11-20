@@ -223,7 +223,7 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: 170)
+                    .frame(width: viewModel.getColumnType(columnId: columnId) == "date" ? 250 : 170)
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
@@ -294,12 +294,11 @@ struct TableModalView : View {
                                             .foregroundColor(Color.tableCellBorderColor)
                                         TableViewCellBuilder(cellModel: cellModel)
                                     }
-                                    .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                                    .frame(minWidth: cellModel.data.type == "date" ? 250 : 170, maxWidth: cellModel.data.type == "date" ? 270 : 170, minHeight: 50, maxHeight: .infinity)
                                     .background(GeometryReader { proxy in
                                         Color.clear.preference(key: HeightPreferenceKey.self, value: [rowIndex: proxy.size.height])
                                     })
                                 }
-
                             }
                         }
                         .onReceive(viewModel.$rows) { _ in

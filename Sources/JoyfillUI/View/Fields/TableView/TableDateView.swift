@@ -3,15 +3,16 @@ import JoyfillModel
 
 struct TableDateView: View {
     @State private var isDatePickerPresented = false
-    @State private var selectedDate = Date()
+    @State private var selectedDate: Date?
     var cellModel: TableCellModel
         
     public init(cellModel: TableCellModel) {
         self.cellModel = cellModel
         if let value = cellModel.data.date {
-            let dateString = value.dateTime(format: "MM/DD/YYYY") ?? ""
+            let dateString = value.dateTime(format: cellModel.fieldData?.tableColumns?[3].format ?? "") ?? ""
             if let date = stringToDate(dateString, format: "MM/DD/YYYY") {
                 _selectedDate = State(initialValue: date)
+                _isDatePickerPresented = State(initialValue: true)
             }
         }
     }
@@ -25,13 +26,39 @@ struct TableDateView: View {
     var body: some View {
         Group {
             if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: ""))
-                    .accessibilityIdentifier("DateIdenitfier")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .labelsHidden()
-                    .padding(.all, 8)
+                HStack {
+                    if let unwrappedSelectedDate = selectedDate {
+                        DatePicker(
+                            "",
+                            selection: Binding(
+                                get: { unwrappedSelectedDate },
+                                set: { selectedDate = $0 }
+                            ),
+                            displayedComponents: getDateType(format: "")
+                        )
+                        .dynamicTypeSize(.xSmall)
+                        .accessibilityIdentifier("DateIdentifier")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .labelsHidden()
+                        .padding(.all, 8)
+                    }
+
+                    Button(action: {
+                        isDatePickerPresented = false
+                        selectedDate = nil
+                    }, label: {
+                        Image(systemName: "xmark.circle.fill")
+                    })
+                    .padding(.trailing, 10)
+                    .darkLightThemeColor()
+                }
             } else {
+                HStack {
+                    Text("Select a Date -")
+                        .font(.system(size: 15))
+                    Spacer()
                     Image(systemName: "calendar")
+                }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
                 .onTapGesture {
@@ -41,7 +68,7 @@ struct TableDateView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
-            
+            print(newValue)
         }
     }
     
