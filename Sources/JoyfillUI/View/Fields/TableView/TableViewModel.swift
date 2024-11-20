@@ -131,6 +131,10 @@ class TableViewModel: ObservableObject {
     func getColumnType(columnId: String) -> String? {
         return columnIdToColumnMap[columnId]?.type
     }
+    
+    func getColumnDateFormat(columnId: String) -> String? {
+        return columnIdToColumnMap[columnId]?.format
+    }
 
     func getColumnIDAtIndex(index: Int) -> String? {
         guard index < columns.count else { return nil }

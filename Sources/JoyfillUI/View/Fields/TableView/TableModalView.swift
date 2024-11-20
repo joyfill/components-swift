@@ -223,7 +223,7 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: viewModel.getColumnType(columnId: columnId) == "date" ? 250 : 170)
+                    .frame(width: getWidth(type: viewModel.getColumnType(columnId: columnId) ?? "", format: viewModel.getColumnDateFormat(columnId: columnId) ?? ""))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
@@ -294,7 +294,10 @@ struct TableModalView : View {
                                             .foregroundColor(Color.tableCellBorderColor)
                                         TableViewCellBuilder(cellModel: cellModel)
                                     }
-                                    .frame(minWidth: cellModel.data.type == "date" ? 250 : 170, maxWidth: cellModel.data.type == "date" ? 270 : 170, minHeight: 50, maxHeight: .infinity)
+                                    .frame(minWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""),
+                                           maxWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""),
+                                           minHeight: 50,
+                                           maxHeight: .infinity)
                                     .background(GeometryReader { proxy in
                                         Color.clear.preference(key: HeightPreferenceKey.self, value: [rowIndex: proxy.size.height])
                                     })
@@ -329,6 +332,12 @@ struct TableModalView : View {
                 }))
             }
         }
+    }
+    
+    func getWidth(type: String, format: String) -> CGFloat {
+        guard type == "date" else { return 170 }
+        
+        return DateFormatType(rawValue: format) == .dateTime ? 250 : 170
     }
 
     private func dismissKeyboard() {

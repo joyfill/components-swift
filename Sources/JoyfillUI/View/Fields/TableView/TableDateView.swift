@@ -9,8 +9,8 @@ struct TableDateView: View {
     public init(cellModel: TableCellModel) {
         self.cellModel = cellModel
         if let value = cellModel.data.date {
-            let dateString = value.dateTime(format: getDateFormat(id: cellModel.data.id ?? "")) ?? ""
-            if let date = stringToDate(dateString, format: getDateFormat(id: cellModel.data.id ?? "")) {
+            let dateString = value.dateTime(format: cellModel.data.format ?? "") ?? ""
+            if let date = stringToDate(dateString, format: cellModel.data.format ?? "") {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }
@@ -34,7 +34,7 @@ struct TableDateView: View {
                                 get: { unwrappedSelectedDate },
                                 set: { selectedDate = $0 }
                             ),
-                            displayedComponents: getDateType(format: getDateFormat(id: cellModel.data.id ?? ""))
+                            displayedComponents: getDateType(format: cellModel.data.format ?? "")
                         )
                         .dynamicTypeSize(.xSmall)
                         .accessibilityIdentifier("DateIdentifier")
@@ -68,7 +68,7 @@ struct TableDateView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
-            print(newValue)
+            
         }
     }
     
@@ -91,9 +91,5 @@ struct TableDateView: View {
         case .some(.empty):
             return [.date, .hourAndMinute]
         }
-    }
-    
-    func getDateFormat(id: String) -> String {
-        return cellModel.fieldData?.tableColumns?.first(where: { $0.id == id })?.format ?? ""
     }
 }
