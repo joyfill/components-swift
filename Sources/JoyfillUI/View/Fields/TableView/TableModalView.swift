@@ -231,7 +231,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
+                .disabled(["image", "date", "block"].contains(viewModel.getColumnType(columnId: columnId)) || rowsCount == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
