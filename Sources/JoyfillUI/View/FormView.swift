@@ -483,8 +483,9 @@ struct FormView: View {
         switch fieldPosition.type {
         case .text:
             TextView(textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
-                                          mode: fieldDependency.mode,
-                                          fieldHeaderModel: fieldHeaderModel))
+                                                  mode: fieldDependency.mode,
+                                                  eventHandler: fieldDependency.eventHandler,
+                                                  fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .block:
             DisplayTextView(displayTextDataModel: DisplayTextDataModel(displayText: fieldDependency.fieldData?.value?.text,

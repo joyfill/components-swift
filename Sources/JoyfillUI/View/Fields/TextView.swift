@@ -49,5 +49,6 @@ struct TextView: View {
 struct TextDataModel {
     var text: String?
     var mode: Mode
+    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel
 }
