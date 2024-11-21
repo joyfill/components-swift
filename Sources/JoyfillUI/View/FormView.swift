@@ -477,7 +477,14 @@ struct FormView: View {
         let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
         switch fieldPosition.type {
         case .text:
-            TextView(fieldDependency: fieldDependency)
+            TextView(fieldDependency: fieldDependency,
+                     textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
+                                          mode: fieldDependency.mode,
+                                          fieldHeaderModel: FieldHeaderModel(title: fieldData?.title,
+                                                                             required: fieldData?.required,
+                                                                             tipDescription: fieldData?.tipDescription,
+                                                                             tipTitle: fieldData?.tipTitle,
+                                                                             tipVisible: fieldData?.tipVisible)))
                 .disabled(fieldEditMode == .readonly)
         case .block:
             DisplayTextView(fieldDependency: fieldDependency)

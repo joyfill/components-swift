@@ -26,7 +26,7 @@ struct DateTimeView: View {
     }()
     
     var body: some View {
-        FieldHeaderView(fieldDependency)
+        FieldHeaderView(fieldDependency, nil)
         Group {
             if isDatePickerPresented {
                 DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))

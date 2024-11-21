@@ -5,20 +5,22 @@ struct TextView: View {
     @State var enterText: String = ""
     private var fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool
+    var textDataModel: TextDataModel
     
-    public init(fieldDependency: FieldDependency) {
+    public init(fieldDependency: FieldDependency, textDataModel: TextDataModel) {
         self.fieldDependency = fieldDependency
-        if let text = fieldDependency.fieldData?.value?.text {
+        self.textDataModel = textDataModel
+        if let text = textDataModel.text {
             _enterText = State(initialValue: text)
         }
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(fieldDependency, textDataModel.fieldHeaderModel)
             TextField("", text: $enterText)
                 .accessibilityIdentifier("Text")
-                .disabled(fieldDependency.mode == .readonly)
+                .disabled(textDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
                 .overlay(
@@ -28,20 +30,26 @@ struct TextView: View {
                 .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
-                    if focused {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    } else {
-                        let newText = ValueUnion.string(enterText)
-                        guard fieldDependency.fieldData?.value != newText else { return }
-                        guard !((fieldDependency.fieldData?.value == nil) && enterText.isEmpty) else { return }
-                        guard var fieldData = fieldDependency.fieldData else {
-                            fatalError("FieldData should never be null")
-                        }
-                        fieldData.value = newText
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
-                    }
+//                    if focused {
+//                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+//                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+//                    } else {
+//                        let newText = ValueUnion.string(enterText)
+//                        guard fieldDependency.fieldData?.value != newText else { return }
+//                        guard !((fieldDependency.fieldData?.value == nil) && enterText.isEmpty) else { return }
+//                        guard var fieldData = fieldDependency.fieldData else {
+//                            fatalError("FieldData should never be null")
+//                        }
+//                        fieldData.value = newText
+//                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//                    }
                 }
         }
     }
+}
+
+struct TextDataModel {
+    var text: String?
+    var mode: Mode
+    var fieldHeaderModel: FieldHeaderModel
 }

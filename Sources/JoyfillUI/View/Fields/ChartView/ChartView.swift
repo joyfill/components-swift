@@ -23,7 +23,7 @@ struct ChartView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-           FieldHeaderView(fieldDependency)
+           FieldHeaderView(fieldDependency, nil)
             
 //            RoundedRectangle(cornerRadius: 10)
 //                .stroke(Color.allFieldBorderColor, lineWidth: 1)

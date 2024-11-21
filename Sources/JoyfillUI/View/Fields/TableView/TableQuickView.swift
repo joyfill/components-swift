@@ -22,7 +22,7 @@ struct TableQuickView : View {
         
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(viewModel.fieldDependency)
+            FieldHeaderView(viewModel.fieldDependency, nil)
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     ScrollView([.horizontal]) {

@@ -14,7 +14,7 @@ struct RichTextView: View {
     }
     
     var body: some View {
-        FieldHeaderView(fieldDependency)
+        FieldHeaderView(fieldDependency, nil)
         HStack {
             Text(text)
             Spacer()

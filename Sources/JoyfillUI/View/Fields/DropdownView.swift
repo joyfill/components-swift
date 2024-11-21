@@ -15,7 +15,7 @@ struct DropdownView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(fieldDependency, nil)
             Button(action: {
                 isSheetPresented = true
                 let fieldEvent = FieldEvent(field: fieldDependency.fieldData)

@@ -15,7 +15,7 @@ struct MultiLineTextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(fieldDependency, nil)
             TextEditor(text: $multilineText)
                 .accessibilityIdentifier("MultilineTextFieldIdentifier")
                 .disabled(fieldDependency.mode == .readonly)
