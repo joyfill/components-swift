@@ -52,7 +52,7 @@ struct ChartDetailView: View {
                 fieldData.xMin = newValue.xMin
                 fieldData.yMax = newValue.yMax
                 fieldData.yMin = newValue.yMin
-                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//                fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
             })
         }
     }
@@ -62,7 +62,7 @@ struct ChartDetailView: View {
         self.valueElements = valueElements
         guard var fieldData = fieldDependency.fieldData else { return }
         fieldData.value = .valueElementArray(valueElements)
-        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
     }
 }
 
