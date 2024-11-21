@@ -17,64 +17,70 @@ struct TableDateView: View {
         }
     }
     
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy h:mm a"
-        return formatter
-    }()
-    
     var body: some View {
-        Group {
-            if isDatePickerPresented {
-                HStack {
-                    if let unwrappedSelectedDate = selectedDate {
-                        DatePicker(
-                            "",
-                            selection: Binding(
-                                get: { unwrappedSelectedDate },
-                                set: { selectedDate = $0 }
-                            ),
-                            displayedComponents: getDateType(format: cellModel.data.format ?? "")
-                        )
-                        .dynamicTypeSize(.xSmall)
-                        .accessibilityIdentifier("DateIdentifier")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .labelsHidden()
-                        .padding(.all, 8)
-                    }
-                    
-                    Button(action: {
-                        isDatePickerPresented = false
-                        selectedDate = nil
-                    }, label: {
-                        Image(systemName: "xmark.circle.fill")
-                    })
-                    .padding(.trailing, 10)
-                    .darkLightThemeColor()
-                }
+        if cellModel.viewMode == .quickView {
+            if let date = selectedDate {
+                let dateString = makeDateFormatter(with: "MMM d, yyyy h:mm a").string(from: date)
+                Text(dateString)
+                    .font(.system(size: 15))
+                    .lineLimit(1)
+                    .padding(.horizontal, 4)
             } else {
-                HStack {
-                    Text("Select a Date -")
-                        .font(.system(size: 15))
-                    Spacer()
-                    Image(systemName: "calendar")
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.all, 10)
-                .onTapGesture {
-                    isDatePickerPresented = true
-                    selectedDate = Date()
+                Image(systemName: "calendar")
+            }
+        } else {
+            Group {
+                if isDatePickerPresented {
+                    HStack {
+                        if let unwrappedSelectedDate = selectedDate {
+                            DatePicker(
+                                "",
+                                selection: Binding(
+                                    get: { unwrappedSelectedDate },
+                                    set: { selectedDate = $0 }
+                                ),
+                                displayedComponents: getDateType(format: cellModel.data.format ?? "")
+                            )
+                            .dynamicTypeSize(.xSmall)
+                            .accessibilityIdentifier("DateIdentifier")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .labelsHidden()
+                            .padding(.all, 8)
+                        }
+                        
+                        Button(action: {
+                            isDatePickerPresented = false
+                            selectedDate = nil
+                        }, label: {
+                            Image(systemName: "xmark.circle.fill")
+                        })
+                        .padding(.trailing, 10)
+                        .darkLightThemeColor()
+                    }
+                } else {
+                    HStack {
+                        Text("Select a Date -")
+                            .font(.system(size: 15))
+                        Spacer()
+                        Image(systemName: "calendar")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.all, 10)
+                    .onTapGesture {
+                        isDatePickerPresented = true
+                        selectedDate = Date()
+                    }
                 }
             }
-        }
-        .onChange(of: selectedDate) { newValue in
-            if let date = selectedDate {
-                let convertDateToInt = dateToTimestampMilliseconds(date: date)
-                let newDateValue = ValueUnion.double(convertDateToInt)
-                
-                var editedCell = cellModel.data
-                editedCell.date = newDateValue
-                cellModel.didChange?(editedCell)
+            .onChange(of: selectedDate) { newValue in
+                if let date = selectedDate {
+                    let convertDateToInt = dateToTimestampMilliseconds(date: date)
+                    let newDateValue = ValueUnion.double(convertDateToInt)
+                    
+                    var editedCell = cellModel.data
+                    editedCell.date = newDateValue
+                    cellModel.didChange?(editedCell)
+                }
             }
         }
     }
@@ -98,5 +104,11 @@ struct TableDateView: View {
         case .some(.empty):
             return [.date, .hourAndMinute]
         }
+    }
+    
+    private func makeDateFormatter(with format: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        return formatter
     }
 }
