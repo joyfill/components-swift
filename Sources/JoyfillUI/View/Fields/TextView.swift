@@ -3,12 +3,10 @@ import JoyfillModel
 
 struct TextView: View {
     @State var enterText: String = ""
-    private var fieldDependency: FieldDependency
     @FocusState private var isFocused: Bool
-    var textDataModel: TextDataModel
+    private var textDataModel: TextDataModel
     
-    public init(fieldDependency: FieldDependency, textDataModel: TextDataModel) {
-        self.fieldDependency = fieldDependency
+    public init(textDataModel: TextDataModel) {
         self.textDataModel = textDataModel
         if let text = textDataModel.text {
             _enterText = State(initialValue: text)

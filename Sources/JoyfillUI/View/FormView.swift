@@ -475,19 +475,21 @@ struct FormView: View {
         })
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
+        let fieldHeaderModel = FieldHeaderModel(title: fieldData?.title,
+                                                required: fieldData?.required,
+                                                tipDescription: fieldData?.tipDescription,
+                                                tipTitle: fieldData?.tipTitle,
+                                                tipVisible: fieldData?.tipVisible)
         switch fieldPosition.type {
         case .text:
-            TextView(fieldDependency: fieldDependency,
-                     textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
+            TextView(textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
                                           mode: fieldDependency.mode,
-                                          fieldHeaderModel: FieldHeaderModel(title: fieldData?.title,
-                                                                             required: fieldData?.required,
-                                                                             tipDescription: fieldData?.tipDescription,
-                                                                             tipTitle: fieldData?.tipTitle,
-                                                                             tipVisible: fieldData?.tipVisible)))
+                                          fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .block:
-            DisplayTextView(fieldDependency: fieldDependency)
+            DisplayTextView(displayTextDataModel: DisplayTextDataModel(displayText: fieldDependency.fieldData?.value?.text,
+                                                                       fontWeight: fieldDependency.fieldPosition.fontWeight,
+                                                                       fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .multiSelect:
             MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)

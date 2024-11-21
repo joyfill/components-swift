@@ -3,22 +3,27 @@ import JoyfillModel
 
 struct DisplayTextView: View {
     @State var displayText: String = ""
-    private var fieldDependency: FieldDependency
+    private var displayTextDataModel: DisplayTextDataModel
     
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let data = fieldDependency.fieldData?.value?.displayText {
-        _displayText = State(initialValue: data)
+    public init(displayTextDataModel: DisplayTextDataModel) {
+        self.displayTextDataModel = displayTextDataModel
+        if let data = displayTextDataModel.displayText {
+            _displayText = State(initialValue: data)
         }
     }
     
     var body: some View {
         HStack {
             Text("\(displayText)")
-                .font((fieldDependency.fieldPosition.fontWeight == "bold") ? .title : .title3)
-                .fontWeight((fieldDependency.fieldPosition.fontWeight == "bold") ? .bold : .regular)
+                .font((displayTextDataModel.fontWeight == "bold") ? .title : .title3)
+                .fontWeight((displayTextDataModel.fontWeight == "bold") ? .bold : .regular)
             Spacer()
         }
     }
 }
 
+struct DisplayTextDataModel {
+    var displayText: String?
+    var fontWeight: String?
+    var fieldHeaderModel: FieldHeaderModel
+}
