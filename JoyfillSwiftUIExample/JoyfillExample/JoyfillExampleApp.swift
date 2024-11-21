@@ -20,6 +20,7 @@ struct JoyfillExampleApp: App {
                 NavigationView {
                     UITestFormContainerView(changeResult: $changeResult)
                 }
+                .navigationViewStyle(StackNavigationViewStyle())
                 Text(changeResult)
                     .accessibilityIdentifier("resultfield")
                     .frame(height: 10)
