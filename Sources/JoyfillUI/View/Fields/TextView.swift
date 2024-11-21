@@ -17,7 +17,7 @@ struct TextView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency, textDataModel.fieldHeaderModel)
+            FieldHeaderView(textDataModel.fieldHeaderModel)
             TextField("", text: $enterText)
                 .accessibilityIdentifier("Text")
                 .disabled(textDataModel.mode == .readonly)

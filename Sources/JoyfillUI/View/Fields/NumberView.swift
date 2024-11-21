@@ -22,7 +22,7 @@ struct NumberView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency, nil)
+            FieldHeaderView(nil)
             TextField("", text: $number)
                 .accessibilityIdentifier("Number")
                 .disabled(fieldDependency.mode == .readonly)

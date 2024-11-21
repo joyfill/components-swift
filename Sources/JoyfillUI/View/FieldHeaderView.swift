@@ -6,14 +6,12 @@ import Foundation
 import SwiftUI
 
 struct FieldHeaderView: View {
-    let fieldDependency: FieldDependency
     @State private var alertMessage: String? = nil
     @State private var alertDescription: String? = nil
     @State private var showAlert: Bool = false
     let fieldHeaderModel: FieldHeaderModel?
     
-    public init(_ fieldDependency: FieldDependency,_ fieldHeaderModel: FieldHeaderModel?) {
-        self.fieldDependency = fieldDependency
+    public init(_ fieldHeaderModel: FieldHeaderModel?) {
         self.fieldHeaderModel = fieldHeaderModel
     }
     

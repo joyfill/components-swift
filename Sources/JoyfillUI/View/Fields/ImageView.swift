@@ -29,7 +29,7 @@ struct ImageView: View {
         
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency, nil)
+            FieldHeaderView(nil)
             if let uiImage = uiImagesArray.first {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
