@@ -9,7 +9,10 @@ public struct Form: View {
     ///  Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
     ///  This will ensure your changes are properly detected and reflected in the SDK.
     @Binding public var document: JoyDoc
-    
+
+    let documentEditor: DocumentEditor
+
+
     /// Enables and disables certain JoyDoc functionality and features.
     ///
     /// The mode of the form default is `fill`.
@@ -43,12 +46,14 @@ public struct Form: View {
         _mode = State(initialValue: mode)
         _document = document
         var pageId = pageID
+        let documentEditor = DocumentEditor(document: document.wrappedValue)
         if let pageID = pageID, pageID != "" {
             _currentPageID = State(initialValue: pageID)
         } else {
-            _currentPageID = State(initialValue: document.wrappedValue.firstPageId ?? "")
+            _currentPageID = State(initialValue: documentEditor.firstPageId ?? "")
         }
         self.navigation = navigation
+        self.documentEditor = documentEditor
     }
     
     /**
@@ -66,7 +71,7 @@ public struct Form: View {
      - Returns: A SwiftUI view representing the form view.
      */
     public var body: some View {
-        FilesView(fieldsData: $document.fields, document: $document, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
+        FilesView(fieldsData: $document.fields, document: $document, documentEditor: documentEditor, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
     }
 }
 
@@ -216,7 +221,8 @@ struct FilesView: View {
     /// The `JoyDocField` objects that represent the data for each field in the form.
     @Binding var fieldsData: [JoyDocField]
     @Binding public var document: JoyDoc
-    
+    let documentEditor: DocumentEditor
+
     /// The `File` objects that represent the files to be displayed.
     var files: [File]
     
@@ -235,7 +241,7 @@ struct FilesView: View {
     ///
     /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
-        FileView(fieldsData: $fieldsData, document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
+        FileView(fieldsData: $fieldsData, document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
     }
 }
 
@@ -250,13 +256,13 @@ struct FileView: View {
     let events: FormChangeEventInternal?
     @Binding var currentPageID: String
     var showPageNavigationView: Bool
-
+    let documentEditor: DocumentEditor
     /// The body of the `FileView`. This is a SwiftUI view that represents a single file.
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
         if let file = file {
-            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pagesForCurrentView, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView)
+            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pagesForCurrentView, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
         }
     }
 }
@@ -316,6 +322,7 @@ struct PagesView: View {
     let events: FormChangeEventInternal?
     @State private var isSheetPresented = false
     var showPageNavigationView: Bool
+    let documentEditor: DocumentEditor
 
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
@@ -328,7 +335,7 @@ struct PagesView: View {
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
-                        Text(document.firstValidPageFor(currentPageID: currentPageID)?.name ?? "")
+                        Text(documentEditor.firstValidPageFor(currentPageID: currentPageID)?.name ?? "")
                     }
                 })
                 .accessibilityIdentifier("PageNavigationIdentifier")
@@ -336,15 +343,15 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
                     }
                 }
             }
-            if let page = document.firstValidPageFor(currentPageID: currentPageID) {
-                PageView(document: $document, fieldsData: $fieldsData, page: page, mode: mode, events: events)
+            if let page = documentEditor.firstValidPageFor(currentPageID: currentPageID) {
+                PageView(document: $document, fieldsData: $fieldsData, page: page, mode: mode, events: events, documentEditor: documentEditor)
             }
         }
     }
@@ -358,6 +365,7 @@ struct PageView: View {
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
+    let documentEditor: DocumentEditor
 
     /// The body of the `PageView`.
     ///
@@ -370,7 +378,7 @@ struct PageView: View {
             } set: { _ in
                 
             }
-            FormView(document: $document, fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+            FormView(document: $document, fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self, documentEditor: documentEditor)
         }
     }
     
@@ -467,6 +475,7 @@ struct FormView: View {
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsData: JoyDocField? = nil
     @State var lastFocusedFielsData: JoyDocField? = nil
+    let documentEditor: DocumentEditor
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
@@ -525,11 +534,7 @@ struct FormView: View {
 
     var body: some View {
         List(fieldPositions, id: \.field) { fieldPosition in
-            let fieldData = fieldsData.first(where: {
-                $0.id == fieldPosition.field
-            })
-
-            if DocumentEngine.shouldShowItem(fields: document.fields, logic: fieldData?.logic,isItemHidden: fieldData?.hidden) {
+            if documentEditor.shouldShow(fieldID: fieldPosition.field) {
                 fieldView(fieldPosition: fieldPosition)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
@@ -625,7 +630,8 @@ struct PageDuplicateListView: View {
     @Binding var currentPageID: String
     @Binding var pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
-    
+    let documentEditor: DocumentEditor
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -641,17 +647,16 @@ struct PageDuplicateListView: View {
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
             ScrollView {
-                ForEach(pageOrder ?? [], id: \.self) { id in
-                    if let page = document.firstPageFor(currentPageID: id) {
-                        if DocumentEngine.shouldShowItem(fields: document.fields, logic: page.logic, isItemHidden: page.hidden) {
-
+                ForEach(pageOrder ?? [], id: \.self) { pageID in
+                    if documentEditor.shouldShow(pageID: pageID) {
+                        if let page = documentEditor.firstPageFor(currentPageID: pageID) {
                             VStack(alignment: .leading) {
                                 Button(action: {
-                                    currentPageID = id ?? ""
+                                    currentPageID = pageID ?? ""
                                     presentationMode.wrappedValue.dismiss()
                                 }, label: {
                                     HStack {
-                                        Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
+                                        Image(systemName: currentPageID == pageID ? "checkmark.circle.fill" : "circle")
                                         Text(page.name ?? "")
                                             .darkLightThemeColor()
                                     }
