@@ -11,16 +11,16 @@ struct SignatureView: View {
     @State var hasAppeared: Bool = false
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
 
-    private let fieldDependency: FieldDependency
+    private var signatureDataModel: SignatureDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
+    public init(signatureDataModel: SignatureDataModel) {
+        self.signatureDataModel = signatureDataModel
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(nil)
+            FieldHeaderView(signatureDataModel.fieldHeaderModel)
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
@@ -34,8 +34,8 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                let fieldEvent = FieldEvent()
+                signatureDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .darkLightThemeColor()
@@ -58,31 +58,31 @@ struct SignatureView: View {
         }
         .onAppear{
             if !hasAppeared {
-                self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
+                self.signatureURL = signatureDataModel.signatureURL ?? ""
                 hasAppeared = true
                 loadImageFromURL()
             }
         }
         .onChange(of: signatureImage) { newValue in
-            guard !ignoreOnChangeOnDefaultImageLoad else {
-                ignoreOnChangeOnDefaultImageLoad = false
-                return
-            }
-            DispatchQueue.global().async {
-                var url = ""
-                if let signatureImage = signatureImage {
-                    url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
-                }
-                let newSignatureImageValue = ValueUnion.string(url ?? "")
-                guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
-                guard var fieldData = fieldDependency.fieldData else {
-                    fatalError("FieldData should never be null")
-                }
-                fieldData.value = newSignatureImageValue
-                DispatchQueue.main.async {
-                    fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
-                }
-            }
+//            guard !ignoreOnChangeOnDefaultImageLoad else {
+//                ignoreOnChangeOnDefaultImageLoad = false
+//                return
+//            }
+//            DispatchQueue.global().async {
+//                var url = ""
+//                if let signatureImage = signatureImage {
+//                    url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
+//                }
+//                let newSignatureImageValue = ValueUnion.string(url ?? "")
+//                guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
+//                guard var fieldData = fieldDependency.fieldData else {
+//                    fatalError("FieldData should never be null")
+//                }
+//                fieldData.value = newSignatureImageValue
+//                DispatchQueue.main.async {
+//                    fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//                }
+//            }
         }
     }
     
@@ -238,4 +238,10 @@ extension View {
             view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }
     }
+}
+
+struct SignatureDataModel {
+    var signatureURL: String?
+    var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel
 }
