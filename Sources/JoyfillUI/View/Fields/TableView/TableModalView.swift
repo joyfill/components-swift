@@ -517,6 +517,7 @@ struct NumberTextFieldSearchBar: View {
 
     var body: some View {
         TextField("Enter number", text: $text)
+            .accessibilityIdentifier("TableNumberTextFieldSearchBarIdentifier")
             .keyboardType(.decimalPad)
             .onChange(of: text) { newValue in
                 if let number = Double(newValue) {
