@@ -480,6 +480,7 @@ struct FormView: View {
                                                 tipDescription: fieldData?.tipDescription,
                                                 tipTitle: fieldData?.tipTitle,
                                                 tipVisible: fieldData?.tipVisible)
+        let eventHandler = fieldDependency.eventHandler
         switch fieldPosition.type {
         case .text:
             TextView(textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
@@ -496,7 +497,7 @@ struct FormView: View {
             MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
                 .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            DropdownView(fieldDependency: fieldDependency)
+            DropdownView(dropdownDataModel: DropdownDataModel(dropdownValue: fieldData?.value?.dropdownValue, options: fieldData?.options, eventHandler: eventHandler, fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
             MultiLineTextView(fieldDependency: fieldDependency)
