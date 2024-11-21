@@ -508,10 +508,7 @@ struct FormView: View {
             SignatureView(fieldDependency: fieldDependency)
                 .disabled(fieldEditMode == .readonly)
         case .number:
-            NumberView(numberDataModel: NumberDataModel(number: fieldData?.value?.number,
-                                                        mode: fieldDependency.mode,
-                                                        eventHandler: fieldDependency.eventHandler,
-                                                        fieldHeaderModel: fieldHeaderModel))
+            NumberView(fieldDependency: fieldDependency)
                 .disabled(fieldEditMode == .readonly)
         case .chart:
             ChartView(fieldDependency: fieldDependency)
