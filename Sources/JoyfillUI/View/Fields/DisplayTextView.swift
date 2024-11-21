@@ -2,14 +2,12 @@ import SwiftUI
 import JoyfillModel
 
 struct DisplayTextView: View {
-    @State var displayText: String = ""
+    private var displayText: String = ""
     private var displayTextDataModel: DisplayTextDataModel
     
     public init(displayTextDataModel: DisplayTextDataModel) {
         self.displayTextDataModel = displayTextDataModel
-        if let data = displayTextDataModel.displayText {
-            _displayText = State(initialValue: data)
-        }
+        self.displayText = displayTextDataModel.displayText ?? ""
     }
     
     var body: some View {
