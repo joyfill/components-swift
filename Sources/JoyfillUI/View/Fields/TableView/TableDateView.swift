@@ -75,14 +75,16 @@ struct TableDateView: View {
                 }
             }
             .onChange(of: selectedDate) { newValue in
+                var editedCell = cellModel.data
+
                 if let date = selectedDate {
                     let convertDateToInt = dateToTimestampMilliseconds(date: date)
-                    let newDateValue = ValueUnion.double(convertDateToInt)
-                    
-                    var editedCell = cellModel.data
-                    editedCell.date = newDateValue
-                    cellModel.didChange?(editedCell)
+                    editedCell.date = ValueUnion.double(convertDateToInt)
+                } else {
+                    editedCell.date = nil
                 }
+
+                cellModel.didChange?(editedCell)
             }
         }
     }
