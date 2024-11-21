@@ -14,7 +14,8 @@ struct TableQuickView : View {
     @ObservedObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
-    
+    @State var isTableModalViewPresented = false
+
     public init(fieldDependency: FieldDependency) {
         self.viewModel = TableViewModel(fieldDependency: fieldDependency)
     }
@@ -42,7 +43,7 @@ struct TableQuickView : View {
             )
             
             Button(action: {
-                viewModel.isTableModalViewPresented.toggle()
+                isTableModalViewPresented.toggle()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Table View")
@@ -69,7 +70,7 @@ struct TableQuickView : View {
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $viewModel.isTableModalViewPresented) {
+            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)

@@ -14,7 +14,6 @@ class TableViewModel: ObservableObject {
     private let mode: Mode
     var fieldDependency: FieldDependency
     
-    @Published var isTableModalViewPresented = false
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
     @Published var viewMoreText: String = ""
