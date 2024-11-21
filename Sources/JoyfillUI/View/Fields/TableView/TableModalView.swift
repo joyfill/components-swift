@@ -337,7 +337,7 @@ struct TableModalView : View {
     func getWidth(type: String, format: String) -> CGFloat {
         guard type == "date" else { return 170 }
         
-        return DateFormatType(rawValue: format) == .dateTime ? 250 : 170
+        return [.dateTime, .empty].contains(DateFormatType(rawValue: format)) ? 250 : 170
     }
 
     private func dismissKeyboard() {

@@ -20,11 +20,13 @@ struct TableDateView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             if let date = selectedDate {
-                let dateString = makeDateFormatter(with: "MMM d, yyyy h:mm a").string(from: date)
-                Text(dateString)
-                    .font(.system(size: 15))
-                    .lineLimit(1)
-                    .padding(.horizontal, 4)
+                if let value = cellModel.data.date {
+                    let dateString = value.dateTime(format: cellModel.data.format ?? "") ?? ""
+                    Text(dateString)
+                        .font(.system(size: 15))
+                        .lineLimit(1)
+                        .padding(.horizontal, 4)
+                }
             } else {
                 Image(systemName: "calendar")
             }
@@ -104,11 +106,5 @@ struct TableDateView: View {
         case .some(.empty):
             return [.date, .hourAndMinute]
         }
-    }
-    
-    private func makeDateFormatter(with format: String) -> DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = format
-        return formatter
     }
 }
