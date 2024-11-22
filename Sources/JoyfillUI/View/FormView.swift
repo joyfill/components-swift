@@ -209,15 +209,17 @@ extension Form: FormChangeEventInternal {
         return valueDict
     }
 
-    public func onFocus(event: JoyfillModel.FieldEvent) {
-        events?.onFocus(event: event)
+    func onFocus(event: FieldEventInternal) {
+        // TODO:
+//        events?.onFocus(event: event)
     }
     
-    public func onBlur(event: JoyfillModel.FieldEvent) {
-        events?.onBlur(event: event)
+    func onBlur(event: FieldEventInternal) {
+        // TODO:
+//        events?.onBlur(event: event)
     }
     
-    public func onUpload(event: JoyfillModel.UploadEvent) {
+    func onUpload(event: JoyfillModel.UploadEvent) {
         events?.onUpload(event: event)
     }
 }
@@ -300,15 +302,15 @@ extension FileView: FormChangeEventInternal {
         events?.onChange(event: event)
     }
 
-    func onFocus(event: JoyfillModel.FieldEvent) {
+    func onFocus(event: FieldEventInternal) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.onFocus(event: event)
     }
 
-    func onBlur(event: JoyfillModel.FieldEvent) {
+    func onBlur(event: FieldEventInternal) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.onBlur(event: event)
     }
 
@@ -439,15 +441,15 @@ extension PageView: FormChangeEventInternal {
         events?.onChange(event: event)
     }
     
-    func onFocus(event: JoyfillModel.FieldEvent) {
+    func onFocus(event: FieldEventInternal) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.onFocus(event: event)
     }
     
-    func onBlur(event: JoyfillModel.FieldEvent) {
+    func onBlur(event: FieldEventInternal) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.onBlur(event: event)
     }
     
@@ -481,8 +483,8 @@ struct FormView: View {
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
-    @State var currentFocusedFielsData: JoyDocField? = nil
-    @State var lastFocusedFielsData: JoyDocField? = nil
+    @State var currentFocusedFielsID: String = ""
+    @State var lastFocusedFielsID: String? = nil
     let documentEditor: DocumentEditor
 
     @ViewBuilder
@@ -510,7 +512,7 @@ struct FormView: View {
                                                                        fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .multiSelect:
-            MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
+            MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsID: currentFocusedFielsID)
                 .disabled(fieldEditMode == .readonly)
         case .dropdown:
             DropdownView(fieldDependency: fieldDependency)
@@ -558,14 +560,14 @@ struct FormView: View {
         .gesture(DragGesture().onChanged({ _ in
             dismissKeyboardOnScroll()
         }))
-        .onChange(of: currentFocusedFielsData) { newValue in
+        .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
-            guard lastFocusedFielsData != newValue else { return }
-            if lastFocusedFielsData != nil {
-                let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+            guard lastFocusedFielsID != newValue else { return }
+            if lastFocusedFielsID != nil {
+                let fieldEvent = FieldEventInternal(fieldID: lastFocusedFielsID!)
                 eventHandler?.onBlur(event: fieldEvent)
             }
-            let fieldEvent = FieldEvent(field: newValue)
+            let fieldEvent = FieldEventInternal(fieldID: newValue)
             eventHandler?.onFocus(event: fieldEvent)
         }
     }
@@ -577,64 +579,46 @@ struct FormView: View {
 extension FormView: FieldChangeEvents {
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        currentFocusedFielsData = event.field
-        let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
-            }
-            return data
-        }
-        fieldsData.removeAll()
-        self.fieldsData = temp
+        updateValue(event: event)
         eventHandler?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        currentFocusedFielsData = event.field
-        let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
-            }
-            return data
-        }
-        fieldsData.removeAll()
-        self.fieldsData = temp
+        updateValue(event: event)
         eventHandler?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        currentFocusedFielsData = event.field
-        let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
-            }
-            return data
-        }
-        fieldsData.removeAll()
-        self.fieldsData = temp
+        updateValue(event: event)
         eventHandler?.addRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func onChange(event: FieldChangeEvent) {
-        currentFocusedFielsData = event.field
+        updateValue(event: event)
+        eventHandler?.onChange(event: event)
+    }
+
+    func onFocus(event: FieldEventInternal) {
+        lastFocusedFielsID = currentFocusedFielsID
+        currentFocusedFielsID = event.fieldID
+    }
+
+    func onUpload(event: UploadEvent) {
+        eventHandler?.onUpload(event: event)
+    }
+
+    private func updateValue(event: FieldChangeEvent) {
+        currentFocusedFielsID = event.fieldID
         let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
+            if data.id == event.fieldID {
+                var data = data
+                data.value = event.updateValue
+                return data
             }
             return data
         }
         fieldsData.removeAll()
         self.fieldsData = temp
-        eventHandler?.onChange(event: event)
-    }
-
-    func onFocus(event: FieldEvent) {
-        lastFocusedFielsData = currentFocusedFielsData
-        currentFocusedFielsData = event.field
-    }
-
-    func onUpload(event: UploadEvent) {
-        eventHandler?.onUpload(event: event)
     }
 }
 

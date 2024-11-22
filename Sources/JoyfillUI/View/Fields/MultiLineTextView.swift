@@ -30,7 +30,7 @@ struct MultiLineTextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                        let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
                         fieldDependency.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let newValue = ValueUnion.string(multilineText)
@@ -39,7 +39,8 @@ struct MultiLineTextView: View {
                             fatalError("FieldData should never be null")
                         }
                         fieldData.value = newValue
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+                        let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: newValue)
+                        fieldDependency.eventHandler.onChange(event: fieldEvent)
                     }
                 }
         }

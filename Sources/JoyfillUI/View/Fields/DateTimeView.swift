@@ -64,7 +64,7 @@ struct DateTimeView: View {
                 fatalError("FieldData should never be null")
             }
             fieldData.value = newDateValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldID: fieldData.id!, updateValue: newDateValue))
         }
     }
     

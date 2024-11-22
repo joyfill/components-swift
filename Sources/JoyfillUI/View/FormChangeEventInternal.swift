@@ -16,6 +16,7 @@ struct FieldChangeEvent {
     let fieldID: String
     var pageID: String?
     var fileID: String?
+    var updateValue: ValueUnion
 }
 
 /// `FormChangeEventInternal` is a protocol that defines the methods to handle form change events.
@@ -39,12 +40,12 @@ protocol FormChangeEventInternal {
     /// Notifies the form view that it has received focus.
     ///
     /// - Parameter event: The field event associated with the focus.
-    func onFocus(event: FieldEvent)
+    func onFocus(event: FieldEventInternal)
 
     /// Calls the `onBlur` event handler with the specified `event`.
     ///
     /// - Parameter event: The `FieldEvent` to pass to the `onBlur` event handler.
-    func onBlur(event: FieldEvent)
+    func onBlur(event: FieldEventInternal)
 
     /// Calls the `onUpload` method of the `events` object, passing the provided `event`.
     ///
@@ -73,7 +74,7 @@ protocol FieldChangeEvents {
     /// Notifies the conforming object when a field gains focus.
     ///
     /// - Parameter event: The `FieldEvent` object that represents the field event.
-    func onFocus(event: FieldChangeEvent)
+    func onFocus(event: FieldEventInternal)
 
     /// Notifies the conforming object when an upload event occurs.
     ///
@@ -81,3 +82,9 @@ protocol FieldChangeEvents {
     func onUpload(event: UploadEvent)
 }
     
+
+struct FieldEventInternal {
+    let fieldID: String
+    var pageID: String?
+    var fileID: String?
+}

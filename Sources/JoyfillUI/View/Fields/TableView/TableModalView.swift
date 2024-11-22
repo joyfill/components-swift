@@ -40,7 +40,7 @@ struct TableModalView : View {
             viewModel.sendEventsIfNeeded()
         })
         .onAppear(perform: {
-            let fieldEvent = FieldEvent(field: viewModel.fieldDependency.fieldData)
+            let fieldEvent = FieldEventInternal(fieldID: viewModel.fieldDependency.fieldData!.id!)
             viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
         })
         .onChange(of: viewModel.sortModel.order) { _ in
