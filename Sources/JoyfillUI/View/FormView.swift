@@ -420,9 +420,6 @@ struct FieldDependency {
     /// The event handler that handles field change events.
     let eventHandler: FieldChangeEvents
     
-    /// The position of the field in the form.
-    let fieldPosition: FieldPosition
-    
     /// The data of the field. This is optional and can be `nil`.
     var fieldData: JoyDocField?
 }
@@ -518,7 +515,7 @@ struct FormView: View {
                                                               fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .table:
-            let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
+            let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldData: fieldData)
             TableQuickView(fieldDependency: fieldDependency)
         case .image:
             ImageView(imageDataModel: ImageDataModel(fieldId: fieldData?.id,
