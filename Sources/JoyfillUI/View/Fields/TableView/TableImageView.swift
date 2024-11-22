@@ -6,9 +6,9 @@ import JoyfillModel
  struct TableImageView: View {
      @State var showMoreImages: Int = 5
      @State var showMoreImages2: Bool = false
-     private var cellModel: TableCellModel
      @State private var valueElements: [ValueElement] = []
      @State var showToast: Bool = false
+     private var cellModel: TableCellModel
 
      public init(cellModel: TableCellModel) {
          self.cellModel = cellModel
