@@ -45,16 +45,9 @@ struct ChartDetailView: View {
                     .disabled(fieldDependency.mode == .readonly)
             }
             .onChange(of: chartCoordinatesData, perform:  { newValue in
-                guard var fieldData = fieldDependency.fieldData else { return }
-                fieldData.xTitle = newValue.xTitle
-                fieldData.yTitle = newValue.yTitle
-                fieldData.xMax = newValue.xMax
-                fieldData.xMin = newValue.xMin
-                fieldData.yMax = newValue.yMax
-                fieldData.yMin = newValue.yMin
-                // TODO: 
-//                let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: newValue)
-//                fieldDependency.eventHandler.onChange(event: fieldEvent)
+                let chartData = ChartData(xTitle: newValue.xTitle, yTitle: newValue.yTitle, xMax: newValue.xMax, xMin: newValue.xMin, yMax: newValue.yMax, yMin: newValue.yMin)
+                let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData!.value!, chartData: chartData)
+                fieldDependency.eventHandler.onChange(event: fieldEvent)
             })
         }
     }
@@ -154,28 +147,28 @@ struct xAndYCordinate: View {
                 Binding {
                     return "\(chartCoordinatesData.xMin ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.xMin = Int(newXMin)
+                    chartCoordinatesData.xMin = Double(newXMin)
                 }
             }
             var yMinBinding : Binding<String> {
                 Binding {
                     return "\(chartCoordinatesData.yMin ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.yMin = Int(newXMin)
+                    chartCoordinatesData.yMin = Double(newXMin)
                 }
             }
             var xMaxBinding : Binding<String> {
                 Binding {
                     return "\(chartCoordinatesData.xMax ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.xMax = Int(newXMin)
+                    chartCoordinatesData.xMax = Double(newXMin)
                 }
             }
             var yMaxBinding : Binding<String> {
                 Binding {
                     return "\(chartCoordinatesData.yMax ?? 0)"
                 } set: { newXMin in
-                    chartCoordinatesData.yMax = Int(newXMin)
+                    chartCoordinatesData.yMax = Double(newXMin)
                 }
             }
             HStack {

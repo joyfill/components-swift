@@ -17,6 +17,16 @@ struct FieldChangeEvent {
     var pageID: String?
     var fileID: String?
     var updateValue: ValueUnion
+    var chartData: ChartData?
+}
+
+struct ChartData {
+    var xTitle: String?
+    var yTitle: String?
+    var xMax: Double?
+    var xMin: Double?
+    var yMax: Double?
+    var yMin: Double?
 }
 
 /// `FormChangeEventInternal` is a protocol that defines the methods to handle form change events.

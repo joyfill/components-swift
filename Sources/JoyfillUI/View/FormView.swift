@@ -613,6 +613,14 @@ extension FormView: FieldChangeEvents {
             if data.id == event.fieldID {
                 var data = data
                 data.value = event.updateValue
+                if let chartData = event.chartData {
+                    data.xMin = chartData.xMin
+                    data.yMin = chartData.yMin
+                    data.xMax = chartData.xMax
+                    data.yMax = chartData.yMax
+                    data.xTitle = chartData.xTitle
+                    data.yTitle = chartData.yTitle
+                }
                 return data
             }
             return data
