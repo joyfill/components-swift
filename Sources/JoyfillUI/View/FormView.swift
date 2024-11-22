@@ -3,8 +3,8 @@ import JoyfillModel
 
 public struct Form: View {
     @Binding public var document: JoyDoc
-    @State public var mode: Mode
     @State public var currentPageID: String
+    public let mode: Mode
 
     let documentEditor: DocumentEditor
     private var navigation: Bool
@@ -12,7 +12,7 @@ public struct Form: View {
 
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
-        _mode = State(initialValue: mode)
+        self.mode = mode
         _document = document
         var pageId = pageID
         let documentEditor = DocumentEditor(document: document.wrappedValue)
@@ -25,8 +25,23 @@ public struct Form: View {
         self.documentEditor = documentEditor
     }
 
+    public init(documentEditor: DocumentEditor, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
+        self.events = events
+        self.mode = mode
+
+        _document = Binding(get: { documentEditor.document }, set: { _ in })
+        var pageId = pageID
+        if let pageID = pageID, pageID != "" {
+            _currentPageID = State(initialValue: pageID)
+        } else {
+            _currentPageID = State(initialValue: documentEditor.firstPageId ?? "")
+        }
+        self.navigation = navigation
+        self.documentEditor = documentEditor
+    }
+
     public var body: some View {
-        FilesView(currentPageID: $currentPageID, documentEditor: documentEditor, files: document.files, mode: mode, events: self, showPageNavigationView: navigation)
+        FilesView(currentPageID: $currentPageID, documentEditor: documentEditor, files: documentEditor.files, mode: mode, events: self, showPageNavigationView: navigation)
     }
 
     private func updateValue(event: FieldChangeEvent) {
@@ -56,8 +71,8 @@ extension Form: FormChangeEventInternal {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowCreate",
-                                _id: document.id!,
-                                identifier: document.identifier,
+                                _id: documentEditor.documentID!,
+                                identifier: documentEditor.documentIdentifier,
                                 fileId: event.fileID!,
                                 pageId: event.pageID!,
                                 fieldId: event.fieldID,
@@ -68,7 +83,7 @@ extension Form: FormChangeEventInternal {
             changes.append(change)
         }
 
-        events?.onChange(changes: changes, document: document)
+        events?.onChange(changes: changes, document: documentEditor.document)
     }
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
@@ -80,8 +95,8 @@ extension Form: FormChangeEventInternal {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
-                                _id: document.id!,
-                                identifier: document.identifier,
+                                _id: documentEditor.documentID!,
+                                identifier: documentEditor.documentIdentifier,
                                 fileId: event.fileID!,
                                 pageId: event.pageID!,
                                 fieldId: event.fieldID,
@@ -92,7 +107,7 @@ extension Form: FormChangeEventInternal {
             changes.append(change)
         }
 
-        events?.onChange(changes: changes, document: document)
+        events?.onChange(changes: changes, document: documentEditor.document)
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
@@ -104,8 +119,8 @@ extension Form: FormChangeEventInternal {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowMove",
-                                _id: document.id!,
-                                identifier: document.identifier,
+                                _id: documentEditor.documentID!,
+                                identifier: documentEditor.documentIdentifier,
                                 fileId: event.fileID!,
                                 pageId: event.pageID!,
                                 fieldId: event.fieldID,
@@ -118,7 +133,7 @@ extension Form: FormChangeEventInternal {
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
-        events?.onChange(changes: changes, document: document)
+        events?.onChange(changes: changes, document: documentEditor.document)
     }
 
     func onChange(event: FieldChangeEvent) {
@@ -128,8 +143,8 @@ extension Form: FormChangeEventInternal {
         var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
-                            _id: document.id!,
-                            identifier: document.identifier,
+                            _id: documentEditor.documentID!,
+                            identifier: documentEditor.documentIdentifier,
                             fileId: event.fileID!,
                             pageId: event.pageID!,
                             fieldId: event.fieldID,
@@ -137,7 +152,7 @@ extension Form: FormChangeEventInternal {
                             fieldPositionId: fieldPosition.id!,
                             change: changes(fieldData: field),
                             createdOn: Date().timeIntervalSince1970)
-        events?.onChange(changes: [change], document: document)
+        events?.onChange(changes: [change], document: documentEditor.document)
     }
 
     private func changes(fieldData: JoyDocField) -> [String: Any] {
