@@ -337,12 +337,12 @@ extension FileView: FormChangeEventInternal {
 
 /// A view that represents a collection of pages.
 struct PagesView: View {
+    @State private var isSheetPresented = false
     @Binding var currentPageID: String
-    @State var pageOrder: [String]?
+    let pageOrder: [String]?
     let pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
-    @State private var isSheetPresented = false
     var showPageNavigationView: Bool
     let documentEditor: DocumentEditor
 
@@ -365,10 +365,10 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(pages: pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
+                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pages: pages)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(pages: pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
+                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pages: pages)
                     }
                 }
             }
@@ -616,11 +616,11 @@ extension FormView: FieldChangeEvents {
 }
 
 struct PageDuplicateListView: View {
-    let pages: [Page]
     @Binding var currentPageID: String
-    @Binding var pageOrder: [String]?
+    let pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
     let documentEditor: DocumentEditor
+    let pages: [Page]
 
     var body: some View {
         VStack(alignment: .leading) {
