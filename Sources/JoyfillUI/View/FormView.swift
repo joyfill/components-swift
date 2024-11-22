@@ -505,7 +505,9 @@ struct FormView: View {
             DateTimeView(fieldDependency: fieldDependency)
                 .disabled(fieldEditMode == .readonly)
         case .signature:
-            SignatureView(fieldDependency: fieldDependency)
+            SignatureView(signatureDataModel: SignatureDataModel(signatureURL: fieldData?.value?.signatureURL ?? "",
+                                                                 eventHandler: fieldDependency.eventHandler,
+                                                                 fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .number:
             NumberView(fieldDependency: fieldDependency)
