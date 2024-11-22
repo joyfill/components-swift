@@ -528,7 +528,8 @@ struct FormView: View {
                                                                      fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .date:
-            DateTimeView(dateTimeDataModel: DateTimeDataModel(value: fieldData?.value,
+            DateTimeView(dateTimeDataModel: DateTimeDataModel(fieldId: fieldData?.id,
+                                                              value: fieldData?.value,
                                                               format: fieldDependency.fieldPosition.format,
                                                               eventHandler: fieldDependency.eventHandler,
                                                               fieldHeaderModel: fieldHeaderModel))
