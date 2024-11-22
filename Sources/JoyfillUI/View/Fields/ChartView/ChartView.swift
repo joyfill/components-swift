@@ -9,21 +9,21 @@ import SwiftUI
 import JoyfillModel
 
 struct ChartView: View {
-    private let fieldDependency: FieldDependency
+    private let chartDataModel: ChartDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
     
 //    let data : MultiLineChartData
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
+    public init(chartDataModel: ChartDataModel) {
+        self.chartDataModel = chartDataModel
+        _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
 //        data = ChartView.getData(fieldDependency: fieldDependency)
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-           FieldHeaderView(nil)
+            FieldHeaderView(chartDataModel.fieldHeaderModel)
             
 //            RoundedRectangle(cornerRadius: 10)
 //                .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -46,8 +46,8 @@ struct ChartView: View {
             
             Button(action: {
                 showDetailChartView = true
-                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                let fieldEvent = FieldEventInternal(fieldID: chartDataModel.fieldId!)
+                chartDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {
                     Image(systemName: "chart.xyaxis.line")
@@ -64,7 +64,7 @@ struct ChartView: View {
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             
-            NavigationLink(destination: ChartDetailView(fieldDependency: fieldDependency), isActive: $showDetailChartView) {
+            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -110,4 +110,18 @@ struct ChartView: View {
 //        }
 //        return lineChartDataPoints
 //    }
+}
+
+struct ChartDataModel {
+    var fieldId: String?
+    var valueElements: [ValueElement]?
+    var yTitle: String?
+    var yMax: Double?
+    var yMin: Double?
+    var xTitle: String?
+    var xMax: Double?
+    var xMin: Double?
+    var mode: Mode
+    var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel?
 }

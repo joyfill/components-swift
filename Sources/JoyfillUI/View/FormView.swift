@@ -497,7 +497,23 @@ struct FormView: View {
                                                         fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .chart:
-            ChartView(fieldDependency: fieldDependency)
+            var yTitle: String?
+            var yMax: Double?
+            var yMin: Double?
+            var xTitle: String?
+            var xMax: Double?
+            var xMin: Double?
+            ChartView(chartDataModel: ChartDataModel(fieldId: fieldData?.id,
+                                                     valueElements: fieldDependency.fieldData?.value?.valueElements,
+                                                     yTitle: fieldDependency.fieldData?.yTitle,
+                                                     yMax: fieldDependency.fieldData?.yMax,
+                                                     yMin: fieldDependency.fieldData?.yMin,
+                                                     xTitle: fieldDependency.fieldData?.xTitle,
+                                                     xMax: fieldDependency.fieldData?.xMax,
+                                                     xMin: fieldDependency.fieldData?.xMin,
+                                                     mode: fieldDependency.mode,
+                                                     eventHandler: fieldDependency.eventHandler,
+                                                     fieldHeaderModel: fieldHeaderModel))
         case .richText:
             RichTextView(richTextDataModel: RichTextDataModel(text: fieldData?.value?.text,
                                                               eventHandler: fieldDependency.eventHandler,
