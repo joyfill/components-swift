@@ -541,7 +541,8 @@ struct FormView: View {
                                                                  fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .number:
-            NumberView(numberDataModel: NumberDataModel(number: fieldData?.value?.number,
+            NumberView(numberDataModel: NumberDataModel(fieldId: fieldData?.id,
+                                                        number: fieldData?.value?.number,
                                                         mode: fieldDependency.mode,
                                                         eventHandler: fieldDependency.eventHandler,
                                                         fieldHeaderModel: fieldHeaderModel))
