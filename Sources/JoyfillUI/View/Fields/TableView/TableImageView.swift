@@ -46,7 +46,6 @@ import JoyfillModel
     }
      
      func uploadAction() {
-         //TODO: USE LOCAL UPLOAD EVENT HERE AND USE LOCAL MODEL(INSTEAD OF FIELD DEPENDENCY)
          let uploadEvent = UploadEventInternal(fieldID: cellModel.fieldData!.id!) { urls in
              for imageURL in urls {
                  let valueElement = valueElements.first { valueElement in
