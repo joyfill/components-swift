@@ -79,7 +79,7 @@ extension Form: FormChangeEventInternal {
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
         let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -103,7 +103,7 @@ extension Form: FormChangeEventInternal {
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
         let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -126,7 +126,7 @@ extension Form: FormChangeEventInternal {
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
         let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -151,7 +151,7 @@ extension Form: FormChangeEventInternal {
 
     func onChange(event: FieldChangeEvent) {
         let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
         var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
@@ -499,7 +499,8 @@ struct FormView: View {
 
         switch fieldPosition.type {
         case .text:
-            TextView(textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
+            TextView(textDataModel: TextDataModel(fieldId: fieldData?.id,
+                                                  text: fieldDependency.fieldData?.value?.text ?? "",
                                                   mode: fieldDependency.mode,
                                                   eventHandler: fieldDependency.eventHandler,
                                                   fieldHeaderModel: fieldHeaderModel))

@@ -28,26 +28,21 @@ struct TextView: View {
                 .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
-                    //TODO: Use TextDataModel(instead of fieldDependency) for event handler
-//                    if focused {
-//                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-//                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
-//                    } else {
-//                        let newText = ValueUnion.string(enterText)
-//                        guard fieldDependency.fieldData?.value != newText else { return }
-//                        guard !((fieldDependency.fieldData?.value == nil) && enterText.isEmpty) else { return }
-//                        guard var fieldData = fieldDependency.fieldData else {
-//                            fatalError("FieldData should never be null")
-//                        }
-//                        fieldData.value = newText
-//                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
-//                    }
+                    if focused {
+                        let fieldEvent = FieldEventInternal(fieldID: textDataModel.fieldId!)
+                        textDataModel.eventHandler.onFocus(event: fieldEvent)
+                    } else {
+                        let newText = ValueUnion.string(enterText)
+                        let fieldEvent = FieldChangeEvent(fieldID: textDataModel.fieldId!, updateValue: newText)
+                        textDataModel.eventHandler.onChange(event: fieldEvent)
+                    }
                 }
         }
     }
 }
 
 struct TextDataModel {
+    var fieldId: String?
     var text: String?
     var mode: Mode
     var eventHandler: FieldChangeEvents
