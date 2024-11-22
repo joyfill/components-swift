@@ -26,7 +26,7 @@ struct MultiSelectionView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(nil)
+            FieldHeaderView(multiSelectionDataModel.fieldHeaderModel)
             VStack {
                 if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in

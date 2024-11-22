@@ -491,7 +491,13 @@ struct FormView: View {
         case .table:
             TableQuickView(fieldDependency: fieldDependency)
         case .image:
-            ImageView(fieldDependency: fieldDependency)
+            ImageView(imageDataModel: ImageDataModel(fieldId: fieldData?.id,
+                                                     multi: fieldData?.multi,
+                                                     primaryDisplayOnly: fieldDependency.fieldPosition.primaryDisplayOnly,
+                                                     valueElements: fieldData?.value?.valueElements,
+                                                     mode: fieldDependency.mode,
+                                                     eventHandler: fieldDependency.eventHandler,
+                                                     fieldHeaderModel: fieldHeaderModel))
         case .none:
             EmptyView()
         case .unknown:
@@ -554,7 +560,8 @@ extension FormView: FieldChangeEvents {
         currentFocusedFielsID = event.fieldID
     }
 
-    func onUpload(event: UploadEvent) {
+    func onUpload(event: UploadEventInternal) {
+        let event = UploadEvent(field: documentEditor.field(fieldID: event.fieldID)!, uploadHandler: event.uploadHandler)
         eventHandler?.onUpload(event: event)
     }
 
