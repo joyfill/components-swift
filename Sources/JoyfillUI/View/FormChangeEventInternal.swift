@@ -12,7 +12,6 @@ import JoyfillModel
 ///
 /// It contains information about the position of the field, the field itself, the page containing the field, and the file associated with the field.
 struct FieldChangeEvent {
-//    public let fieldPosition: FieldPosition
     let fieldID: String
     var pageID: String?
     var fileID: String?

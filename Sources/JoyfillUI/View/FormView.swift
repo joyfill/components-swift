@@ -137,8 +137,12 @@ extension Form: FormChangeEventInternal {
     }
 
     func onChange(event: FieldChangeEvent) {
+        var field = documentEditor.field(fieldID: event.fieldID)!
+        guard field.value != event.updateValue else { return }
+        guard !((field.value == nil || field.value!.nullOrEmpty) && event.updateValue.nullOrEmpty) else { return }
         updateValue(event: event)
-        let field = documentEditor.field(fieldID: event.fieldID)!
+        field = documentEditor.field(fieldID: event.fieldID)!
+
         let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         var change = Change(v: 1,
                             sdk: "swift",
