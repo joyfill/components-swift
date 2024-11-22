@@ -16,7 +16,7 @@ struct FieldChangeEvent {
     let fieldID: String
     var pageID: String?
     var fileID: String?
-    var updateValue: ValueUnion
+    var updateValue: ValueUnion?
     var chartData: ChartData?
 }
 

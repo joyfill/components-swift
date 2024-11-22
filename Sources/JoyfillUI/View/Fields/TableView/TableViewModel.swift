@@ -169,7 +169,8 @@ class TableViewModel: ObservableObject {
             fieldDependency.fieldData?.deleteRow(id: row)
             rowToCellMap.removeValue(forKey: row)
         }
-        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
+        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
+        fieldDependency.eventHandler.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
 
         emptySelection()
         setup()
@@ -187,7 +188,8 @@ class TableViewModel: ObservableObject {
         guard let targetRows = fieldDependency.fieldData?.duplicateRow(selectedRows: selectedRows) else { return }
         setTableDataDidChange(to: true)
         setup()
-//        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
+        fieldDependency.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
         emptySelection()
         setupCellModels()
     }
@@ -195,7 +197,9 @@ class TableViewModel: ObservableObject {
     func insertBelow() {
         guard !selectedRows.isEmpty else { return }
         guard let targetRows = fieldDependency.fieldData?.addRow(selectedRows: selectedRows) else { return }
-//        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        
+        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
+        fieldDependency.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
         updateUI()
     }
 
@@ -213,7 +217,10 @@ class TableViewModel: ObservableObject {
 
     private func handleMove(targetRows: [TargetRowModel]) {
         guard !targetRows.isEmpty else { return }
-//        fieldDependency.eventHandler.moveRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: targetRows)
+        
+        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
+        fieldDependency.eventHandler.moveRow(event: changeEvent, targetRowIndexes: targetRows)
+        
         updateUI()
     }
 
@@ -232,8 +239,10 @@ class TableViewModel: ObservableObject {
         } else {
             fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
         }
-//        fieldDependency.eventHandler.addRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: [TargetRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
-//        addCellModel(rowID: id)
+        
+        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
+        fieldDependency.eventHandler.addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
+        
         updateUI()
     }
 
@@ -352,7 +361,8 @@ class TableViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         if tableDataDidChange {
             setTableDataDidChange(to: false)
-//            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData))
+            let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
+            fieldDependency.eventHandler.onChange(event: changeEvent)
         }
     }
 }
