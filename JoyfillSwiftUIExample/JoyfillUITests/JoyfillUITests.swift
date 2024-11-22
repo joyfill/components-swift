@@ -70,7 +70,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
 
     func testMultiSelectionView() throws {
         app.swipeUp()
-        app.swipeUp()
+//        app.swipeUp()
         let multiButtons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
         XCTAssertEqual("Yes", multiButtons.element(boundBy: 0).label)
         XCTAssertEqual("No", multiButtons.element(boundBy: 1).label)
