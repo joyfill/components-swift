@@ -11,16 +11,16 @@ struct SignatureView: View {
     @State var hasAppeared: Bool = false
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
 
-    private let fieldDependency: FieldDependency
+    private var signatureDataModel: SignatureDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
+    public init(signatureDataModel: SignatureDataModel) {
+        self.signatureDataModel = signatureDataModel
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(nil)
+            FieldHeaderView(signatureDataModel.fieldHeaderModel)
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
@@ -34,8 +34,8 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
-                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                let fieldEvent = FieldEventInternal(fieldID: signatureDataModel.fieldId!)
+                signatureDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .darkLightThemeColor()
@@ -58,7 +58,7 @@ struct SignatureView: View {
         }
         .onAppear{
             if !hasAppeared {
-                self.signatureURL = fieldDependency.fieldData?.value?.signatureURL ?? ""
+                self.signatureURL = signatureDataModel.signatureURL ?? ""
                 hasAppeared = true
                 loadImageFromURL()
             }
@@ -74,14 +74,9 @@ struct SignatureView: View {
                     url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
                 }
                 let newSignatureImageValue = ValueUnion.string(url ?? "")
-                guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
-                guard var fieldData = fieldDependency.fieldData else {
-                    fatalError("FieldData should never be null")
-                }
-                fieldData.value = newSignatureImageValue
                 DispatchQueue.main.async {
-                    let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
-                    fieldDependency.eventHandler.onChange(event: fieldEvent)
+                    let fieldEvent = FieldChangeEvent(fieldID: signatureDataModel.fieldId!, updateValue: newSignatureImageValue)
+                    signatureDataModel.eventHandler.onChange(event: fieldEvent)
                 }
             }
         }
@@ -239,4 +234,11 @@ extension View {
             view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }
     }
+}
+
+struct SignatureDataModel {
+    var fieldId: String?
+    var signatureURL: String?
+    var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel?
 }

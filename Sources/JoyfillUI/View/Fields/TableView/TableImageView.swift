@@ -46,20 +46,21 @@ import JoyfillModel
     }
      
      func uploadAction() {
-         let uploadEvent = UploadEvent(field: cellModel.fieldData!) { urls in
-             for imageURL in urls {
-                 let valueElement = valueElements.first { valueElement in
-                     if valueElement.url == imageURL {
-                         return true
-                     }
-                     return false
-                 } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-                 valueElements.append(valueElement)
-             }
-             var editedCell = cellModel.data
-             editedCell.images = valueElements
-             cellModel.didChange?(editedCell)
-         }
-         cellModel.eventHandler.onUpload(event: uploadEvent)
+         //TODO: USE LOCAL UPLOAD EVENT HERE AND USE LOCAL MODEL(INSTEAD OF FIELD DEPENDENCY)
+//         let uploadEvent = UploadEvent(field: cellModel.fieldData!) { urls in
+//             for imageURL in urls {
+//                 let valueElement = valueElements.first { valueElement in
+//                     if valueElement.url == imageURL {
+//                         return true
+//                     }
+//                     return false
+//                 } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+//                 valueElements.append(valueElement)
+//             }
+//             var editedCell = cellModel.data
+//             editedCell.images = valueElements
+//             cellModel.didChange?(editedCell)
+//         }
+//         cellModel.eventHandler.onUpload(event: uploadEvent)
      }
 }

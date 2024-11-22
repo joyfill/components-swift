@@ -1,20 +1,21 @@
 import SwiftUI
+import JoyfillModel
 import UIKit
 
 struct RichTextView: View {
     @State private var text: AttributedString
-    private let fieldDependency: FieldDependency
+    private let richTextDataModel: RichTextDataModel
     
-    init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        let text = fieldDependency.fieldData?.value?.text ?? ""
+    init(richTextDataModel: RichTextDataModel) {
+        self.richTextDataModel = richTextDataModel
+        let text = richTextDataModel.text ?? ""
         let data =  text.data(using: .utf8)!
         let attributedString = parseRT(data: data)
         _text = State(initialValue: attributedString!)
     }
     
     var body: some View {
-        FieldHeaderView(nil)
+        FieldHeaderView(richTextDataModel.fieldHeaderModel)
         HStack {
             Text(text)
             Spacer()
@@ -173,4 +174,10 @@ extension UIColor {
         }
         return nil
     }
+}
+
+struct RichTextDataModel {
+    var text: String?
+    var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel?
 }

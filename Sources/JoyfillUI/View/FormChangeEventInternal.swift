@@ -60,7 +60,7 @@ protocol FormChangeEventInternal {
     /// Calls the `onUpload` method of the `events` object, passing the provided `event`.
     ///
     /// - Parameter event: The `UploadEvent` to be passed to the `onUpload` method.
-    func onUpload(event:UploadEvent)
+    func onUpload(event: UploadEvent)
 }
 
 
@@ -89,7 +89,8 @@ protocol FieldChangeEvents {
     /// Notifies the conforming object when an upload event occurs.
     ///
     /// - Parameter event: The `UploadEvent` object that represents the upload event.
-    func onUpload(event: UploadEvent)
+    func onUpload(event: UploadEventInternal)
+    
 }
     
 
@@ -97,4 +98,21 @@ struct FieldEventInternal {
     let fieldID: String
     var pageID: String?
     var fileID: String?
+}
+
+/// `UploadEvent` is a structure that encapsulates an upload event in the JoyDoc system.
+struct UploadEventInternal {
+    let fieldID: String
+    var pageID: String?
+    var fileID: String?
+    
+    ///  A closure of type `([String]) -> Void` that handles the upload process.
+    public var uploadHandler: ([String]) -> Void
+    
+    public init(fieldID: String, pageID: String? = nil, fileID: String? = nil, uploadHandler: @escaping ([String]) -> Void) {
+        self.fieldID = fieldID
+        self.pageID = pageID
+        self.fileID = fileID
+        self.uploadHandler = uploadHandler
+    }
 }

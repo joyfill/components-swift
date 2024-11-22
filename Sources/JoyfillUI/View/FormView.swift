@@ -437,11 +437,13 @@ struct FormView: View {
 
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
+
         var fieldHeaderModel = (fieldDependency.fieldPosition.titleDisplay == nil || fieldDependency.fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
-        
-   switch fieldPosition.type {
+
+        switch fieldPosition.type {
         case .text:
-            TextView(textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
+            TextView(textDataModel: TextDataModel(fieldId: fieldData?.id,
+                                                  text: fieldDependency.fieldData?.value?.text ?? "",
                                                   mode: fieldDependency.mode,
                                                   eventHandler: fieldDependency.eventHandler,
                                                   fieldHeaderModel: fieldHeaderModel))
@@ -452,22 +454,44 @@ struct FormView: View {
                                                                        fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .multiSelect:
-            MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsID: currentFocusedFielsID)
+            MultiSelectionView(multiSelectionDataModel: MultiSelectionDataModel(fieldId: fieldData?.id,
+                                                                                currentFocusedFieldsDataId: currentFocusedFielsID,
+                                                                                multi: fieldData?.multi,
+                                                                                options: fieldData?.options,
+                                                                                multiSelector: fieldData?.value?.multiSelector,
+                                                                                eventHandler: fieldDependency.eventHandler,
+                                                                                fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            DropdownView(fieldDependency: fieldDependency)
+            DropdownView(dropdownDataModel: DropdownDataModel(fieldId: fieldData?.id,
+                                                              dropdownValue: fieldData?.value?.dropdownValue,
+                                                              options: fieldData?.options,
+                                                              eventHandler: fieldDependency.eventHandler,
+                                                              fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
-            MultiLineTextView(fieldDependency: fieldDependency)
+            MultiLineTextView(multiLineDataModel: MultiLineDataModel(fieldId: fieldData?.id,
+                                                                     multilineText: fieldData?.value?.multilineText,
+                                                                     mode: fieldDependency.mode,
+                                                                     eventHandler: fieldDependency.eventHandler,
+                                                                     fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .date:
-            DateTimeView(fieldDependency: fieldDependency)
+            DateTimeView(dateTimeDataModel: DateTimeDataModel(fieldId: fieldData?.id,
+                                                              value: fieldData?.value,
+                                                              format: fieldDependency.fieldPosition.format,
+                                                              eventHandler: fieldDependency.eventHandler,
+                                                              fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .signature:
-            SignatureView(fieldDependency: fieldDependency)
+            SignatureView(signatureDataModel: SignatureDataModel(fieldId: fieldData?.id,
+                                                                 signatureURL: fieldData?.value?.signatureURL ?? "",
+                                                                 eventHandler: fieldDependency.eventHandler,
+                                                                 fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .number:
-            NumberView(numberDataModel: NumberDataModel(number: fieldData?.value?.number,
+            NumberView(numberDataModel: NumberDataModel(fieldId: fieldData?.id,
+                                                        number: fieldData?.value?.number,
                                                         mode: fieldDependency.mode,
                                                         eventHandler: fieldDependency.eventHandler,
                                                         fieldHeaderModel: fieldHeaderModel))
@@ -475,12 +499,20 @@ struct FormView: View {
         case .chart:
             ChartView(fieldDependency: fieldDependency)
         case .richText:
-            RichTextView(fieldDependency: fieldDependency)
+            RichTextView(richTextDataModel: RichTextDataModel(text: fieldData?.value?.text,
+                                                              eventHandler: fieldDependency.eventHandler,
+                                                              fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .table:
             TableQuickView(fieldDependency: fieldDependency)
         case .image:
-            ImageView(fieldDependency: fieldDependency)
+            ImageView(imageDataModel: ImageDataModel(fieldId: fieldData?.id,
+                                                     multi: fieldData?.multi,
+                                                     primaryDisplayOnly: fieldDependency.fieldPosition.primaryDisplayOnly,
+                                                     valueElements: fieldData?.value?.valueElements,
+                                                     mode: fieldDependency.mode,
+                                                     eventHandler: fieldDependency.eventHandler,
+                                                     fieldHeaderModel: fieldHeaderModel))
         case .none:
             EmptyView()
         case .unknown:
@@ -543,7 +575,8 @@ extension FormView: FieldChangeEvents {
         currentFocusedFielsID = event.fieldID
     }
 
-    func onUpload(event: UploadEvent) {
+    func onUpload(event: UploadEventInternal) {
+        let event = UploadEvent(field: documentEditor.field(fieldID: event.fieldID)!, uploadHandler: event.uploadHandler)
         eventHandler?.onUpload(event: event)
     }
 

@@ -3,22 +3,22 @@ import JoyfillModel
 
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
-    private let fieldDependency: FieldDependency
+    private var multiLineDataModel: MultiLineDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let multilineText = fieldDependency.fieldData?.value?.multilineText {
+    public init(multiLineDataModel: MultiLineDataModel) {
+        self.multiLineDataModel = multiLineDataModel
+        if let multilineText = multiLineDataModel.multilineText {
             _multilineText = State(initialValue: multilineText)
         }
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(nil)
+            FieldHeaderView(multiLineDataModel.fieldHeaderModel)
             TextEditor(text: $multilineText)
                 .accessibilityIdentifier("MultilineTextFieldIdentifier")
-                .disabled(fieldDependency.mode == .readonly)
+                .disabled(multiLineDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .autocorrectionDisabled()
                 .frame(minHeight: 200, maxHeight: 200)
@@ -30,20 +30,22 @@ struct MultiLineTextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                        let fieldEvent = FieldEventInternal(fieldID: multiLineDataModel.fieldId!)
+                        multiLineDataModel.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let newValue = ValueUnion.string(multilineText)
-                        guard fieldDependency.fieldData?.value != newValue else { return }
-                        guard var fieldData = fieldDependency.fieldData else {
-                            fatalError("FieldData should never be null")
-                        }
-                        fieldData.value = newValue
-                        let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: newValue)
-                        fieldDependency.eventHandler.onChange(event: fieldEvent)
+                        let fieldEvent = FieldChangeEvent(fieldID: multiLineDataModel.fieldId!, updateValue: newValue)
+                        multiLineDataModel.eventHandler.onChange(event: fieldEvent)
                     }
                 }
         }
     }
 }
 
+struct MultiLineDataModel {
+    var fieldId: String?
+    var multilineText: String?
+    var mode: Mode
+    var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel?
+}

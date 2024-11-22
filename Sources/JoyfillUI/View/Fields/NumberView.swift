@@ -36,29 +36,26 @@ struct NumberView: View {
                 .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
-//                    if focused {
-//                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-//                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
-//                    } else {
-//                        let newValue: ValueUnion
-//                        if !number.isEmpty, let doubleValue = Double(number) {
-//                            newValue = ValueUnion.double(doubleValue)
-//                        } else {
-//                            newValue = ValueUnion.string("")
-//                        }
-//                        guard fieldDependency.fieldData?.value != newValue else { return }
-//                        guard var fieldData = fieldDependency.fieldData else {
-//                            fatalError("FieldData should never be null")
-//                        }
-//                        fieldData.value = newValue
-//                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
-//                    }
+                    if focused {
+                        let fieldEvent = FieldEventInternal(fieldID: numberDataModel.fieldId!)
+                        numberDataModel.eventHandler.onFocus(event: fieldEvent)
+                    } else {
+                        let newValue: ValueUnion
+                        if !number.isEmpty, let doubleValue = Double(number) {
+                            newValue = ValueUnion.double(doubleValue)
+                        } else {
+                            newValue = ValueUnion.string("")
+                        }
+                        let event = FieldChangeEvent(fieldID: numberDataModel.fieldId!, updateValue: newValue)
+                        numberDataModel.eventHandler.onChange(event: event)
+                    }
                 }
         }
     }
 }
 
 struct NumberDataModel {
+    var fieldId: String?
     var number: Double?
     var mode: Mode
     var eventHandler: FieldChangeEvents
