@@ -521,7 +521,8 @@ struct FormView: View {
                                                               fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
-            MultiLineTextView(multiLineDataModel: MultiLineDataModel(multilineText: fieldData?.value?.multilineText,
+            MultiLineTextView(multiLineDataModel: MultiLineDataModel(fieldId: fieldData?.id,
+                                                                     multilineText: fieldData?.value?.multilineText,
                                                                      mode: fieldDependency.mode,
                                                                      eventHandler: fieldDependency.eventHandler,
                                                                      fieldHeaderModel: fieldHeaderModel))
