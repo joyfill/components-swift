@@ -76,20 +76,22 @@ public struct Form: View {
 }
 
 extension Form: FormChangeEventInternal {
-    public func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowCreate",
                                 _id: document.id!,
                                 identifier: document.identifier,
-                                fileId: event.file!.id!,
-                                pageId: event.page!.id!,
-                                fieldId: event.field!.id!,
-                                fieldIdentifier: event.field!.identifier!,
-                                fieldPositionId: event.fieldPosition.id!,
-                                change: addRowChanges(fieldData: event.field!, targetRow: targetRow),
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
+                                change: addRowChanges(fieldData: field, targetRow: targetRow),
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
@@ -98,19 +100,21 @@ extension Form: FormChangeEventInternal {
     }
 
 
-    public func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
                                 _id: document.id!,
                                 identifier: document.identifier,
-                                fileId: event.file!.id!,
-                                pageId: event.page!.id!,
-                                fieldId: event.field!.id!,
-                                fieldIdentifier: event.field!.identifier!,
-                                fieldPositionId: event.fieldPosition.id!,
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
                                 change: ["rowId": targetRow.id],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
@@ -119,19 +123,21 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: changes, document: document)
     }
 
-    public func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowMove",
                                 _id: document.id!,
                                 identifier: document.identifier,
-                                fileId: event.file!.id!,
-                                pageId: event.page!.id!,
-                                fieldId: event.field!.id!,
-                                fieldIdentifier: event.field!.identifier!,
-                                fieldPositionId: event.fieldPosition.id!,
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
                                 change: [
                                     "rowId": targetRow.id,
                                     "targetRowIndex": targetRow.index,
@@ -143,18 +149,20 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: changes, document: document)
     }
 
-    public func onChange(event: FieldChangeEvent) {
+    func onChange(event: FieldChangeEvent) {
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
                             _id: document.id!,
                             identifier: document.identifier,
-                            fileId: event.file!.id!,
-                            pageId: event.page!.id!,
-                            fieldId: event.field!.id!,
-                            fieldIdentifier: event.field!.identifier!,
-                            fieldPositionId: event.fieldPosition.id!,
-                            change: changes(fieldData: event.field!),
+                            fileId: event.fileID!,
+                            pageId: event.pageID!,
+                            fieldId: event.fieldID,
+                            fieldIdentifier: field.identifier!,
+                            fieldPositionId: fieldPosition.id!,
+                            change: changes(fieldData: field),
                             createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
@@ -270,25 +278,25 @@ struct FileView: View {
 extension FileView: FormChangeEventInternal {
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.addRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func onChange(event: FieldChangeEvent) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.onChange(event: event)
     }
 
@@ -409,25 +417,25 @@ struct PageView: View {
 extension PageView: FormChangeEventInternal {
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.addRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func onChange(event: FieldChangeEvent) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.onChange(event: event)
     }
     

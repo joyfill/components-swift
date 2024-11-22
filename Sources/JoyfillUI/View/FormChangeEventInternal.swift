@@ -78,6 +78,6 @@ protocol FieldChangeEvents {
     /// Notifies the conforming object when an upload event occurs.
     ///
     /// - Parameter event: The `UploadEvent` object that represents the upload event.
-    func onUpload(event: FieldChangeEvent)
+    func onUpload(event: UploadEvent)
 }
     
