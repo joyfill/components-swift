@@ -535,7 +535,8 @@ struct FormView: View {
                                                               fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .signature:
-            SignatureView(signatureDataModel: SignatureDataModel(signatureURL: fieldData?.value?.signatureURL ?? "",
+            SignatureView(signatureDataModel: SignatureDataModel(fieldId: fieldData?.id,
+                                                                 signatureURL: fieldData?.value?.signatureURL ?? "",
                                                                  eventHandler: fieldDependency.eventHandler,
                                                                  fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)

@@ -34,9 +34,8 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
-                //TODO: Use SignatureDataModel(instead of fieldDependency) for event handler
-//                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
-//                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                let fieldEvent = FieldEventInternal(fieldID: signatureDataModel.fieldId!)
+                signatureDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .darkLightThemeColor()
@@ -65,27 +64,21 @@ struct SignatureView: View {
             }
         }
         .onChange(of: signatureImage) { newValue in
-//            TODO: Use SignatureDataModel(instead of fieldDependency) for event handler
-//            guard !ignoreOnChangeOnDefaultImageLoad else {
-//                ignoreOnChangeOnDefaultImageLoad = false
-//                return
-//            }
-//            DispatchQueue.global().async {
-//                var url = ""
-//                if let signatureImage = signatureImage {
-//                    url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
-//                }
-//                let newSignatureImageValue = ValueUnion.string(url ?? "")
-//                guard fieldDependency.fieldData?.value != newSignatureImageValue else { return }
-//                guard var fieldData = fieldDependency.fieldData else {
-//                    fatalError("FieldData should never be null")
-//                }
-//                fieldData.value = newSignatureImageValue
-//                DispatchQueue.main.async {
-//                    let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
-//                    fieldDependency.eventHandler.onChange(event: fieldEvent)
-//                }
-//            }
+            guard !ignoreOnChangeOnDefaultImageLoad else {
+                ignoreOnChangeOnDefaultImageLoad = false
+                return
+            }
+            DispatchQueue.global().async {
+                var url = ""
+                if let signatureImage = signatureImage {
+                    url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
+                }
+                let newSignatureImageValue = ValueUnion.string(url ?? "")
+                DispatchQueue.main.async {
+                    let fieldEvent = FieldChangeEvent(fieldID: signatureDataModel.fieldId!, updateValue: newSignatureImageValue)
+                    signatureDataModel.eventHandler.onChange(event: fieldEvent)
+                }
+            }
         }
     }
     
@@ -244,6 +237,7 @@ extension View {
 }
 
 struct SignatureDataModel {
+    var fieldId: String?
     var signatureURL: String?
     var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
