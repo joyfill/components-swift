@@ -23,5 +23,5 @@ struct DisplayTextView: View {
 struct DisplayTextDataModel {
     var displayText: String?
     var fontWeight: String?
-    var fieldHeaderModel: FieldHeaderModel
+    var fieldHeaderModel: FieldHeaderModel?
 }

@@ -62,5 +62,5 @@ struct NumberDataModel {
     var number: Double?
     var mode: Mode
     var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel
+    var fieldHeaderModel: FieldHeaderModel?
 }
