@@ -497,12 +497,6 @@ struct FormView: View {
                                                         fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .chart:
-            var yTitle: String?
-            var yMax: Double?
-            var yMin: Double?
-            var xTitle: String?
-            var xMax: Double?
-            var xMin: Double?
             ChartView(chartDataModel: ChartDataModel(fieldId: fieldData?.id,
                                                      valueElements: fieldDependency.fieldData?.value?.valueElements,
                                                      yTitle: fieldDependency.fieldData?.yTitle,
