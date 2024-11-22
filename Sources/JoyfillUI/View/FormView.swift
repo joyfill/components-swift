@@ -522,7 +522,9 @@ struct FormView: View {
         case .chart:
             ChartView(fieldDependency: fieldDependency)
         case .richText:
-            RichTextView(fieldDependency: fieldDependency)
+            RichTextView(richTextDataModel: RichTextDataModel(text: fieldData?.value?.text,
+                                                              eventHandler: fieldDependency.eventHandler,
+                                                              fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .table:
             TableQuickView(fieldDependency: fieldDependency)
