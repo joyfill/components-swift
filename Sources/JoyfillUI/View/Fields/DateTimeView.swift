@@ -4,15 +4,14 @@ import JoyfillModel
 struct DateTimeView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
-    
-    var fieldDependency: FieldDependency
+    private var dateTimeDataModel: DateTimeDataModel
     @FocusState private var isFocused: Bool
     
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let value = fieldDependency.fieldData?.value {
-            let dateString = value.dateTime(format: fieldDependency.fieldPosition.format ?? "") ?? ""
-            if let date = stringToDate(dateString, format: fieldDependency.fieldPosition.format ?? "") {
+    public init(dateTimeDataModel: DateTimeDataModel) {
+        self.dateTimeDataModel = dateTimeDataModel
+        if let value = dateTimeDataModel.value {
+            let dateString = value.dateTime(format: dateTimeDataModel.format ?? "") ?? ""
+            if let date = stringToDate(dateString, format: dateTimeDataModel.format ?? "") {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }
@@ -26,10 +25,10 @@ struct DateTimeView: View {
     }()
     
     var body: some View {
-        FieldHeaderView(nil)
+        FieldHeaderView(dateTimeDataModel.fieldHeaderModel)
         Group {
             if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: fieldDependency.fieldPosition.format ?? ""))
+                DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: dateTimeDataModel.format ?? ""))
                     .accessibilityIdentifier("DateIdenitfier")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
@@ -57,14 +56,14 @@ struct DateTimeView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
-            let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
-            let newDateValue = ValueUnion.double(convertDateToInt)
-            guard fieldDependency.fieldData?.value != newDateValue else { return }
-            guard var fieldData = fieldDependency.fieldData else {
-                fatalError("FieldData should never be null")
-            }
-            fieldData.value = newDateValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//            let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
+//            let newDateValue = ValueUnion.double(convertDateToInt)
+//            guard fieldDependency.fieldData?.value != newDateValue else { return }
+//            guard var fieldData = fieldDependency.fieldData else {
+//                fatalError("FieldData should never be null")
+//            }
+//            fieldData.value = newDateValue
+//            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
         }
     }
     
@@ -88,4 +87,11 @@ struct DateTimeView: View {
             return [.date, .hourAndMinute]
         }
     }
+}
+
+struct DateTimeDataModel {
+    var value: ValueUnion?
+    var format: String?
+    var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel
 }
