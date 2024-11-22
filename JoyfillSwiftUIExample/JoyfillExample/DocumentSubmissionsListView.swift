@@ -37,9 +37,8 @@ struct DocumentSubmissionsListView: View {
                     .font(.title.bold())
                 List(documents) { submission in
                     Button(action: {
-                        fetchDocument(submission)
-//                        self.document = sampleJSONDocument(fileName: "3000-fields")
-//                        showDocumentDetails = true
+//                        fetchDocument(submission)
+                        fetchLocalDocument()
                     }) {
                         HStack {
                             Image(systemName: "doc")
@@ -67,6 +66,17 @@ struct DocumentSubmissionsListView: View {
 
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
         uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    }
+
+    private func fetchLocalDocument() {
+        isloading = true
+        DispatchQueue.global().async {
+            self.document = sampleJSONDocument(fileName: "3000-fields")
+            DispatchQueue.main.async {
+                showDocumentDetails = true
+                isloading = false
+            }
+        }
     }
 
     private func fetchDocument(_ submission: Document) {
