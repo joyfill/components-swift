@@ -514,7 +514,11 @@ struct FormView: View {
             MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsID: currentFocusedFielsID)
                 .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            DropdownView(dropdownDataModel: DropdownDataModel(dropdownValue: fieldData?.value?.dropdownValue, options: fieldData?.options, eventHandler: fieldDependency.eventHandler, fieldHeaderModel: fieldHeaderModel))
+            DropdownView(dropdownDataModel: DropdownDataModel(fieldId: fieldData?.id,
+                                                              dropdownValue: fieldData?.value?.dropdownValue,
+                                                              options: fieldData?.options,
+                                                              eventHandler: fieldDependency.eventHandler,
+                                                              fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
             MultiLineTextView(multiLineDataModel: MultiLineDataModel(multilineText: fieldData?.value?.multilineText,
