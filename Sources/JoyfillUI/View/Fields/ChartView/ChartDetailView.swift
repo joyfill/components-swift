@@ -145,28 +145,28 @@ struct xAndYCordinate: View {
             }
             var xMinBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.xMin ?? 0)"
+                    return formatNumber(chartCoordinatesData.xMin ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.xMin = Double(newXMin)
                 }
             }
             var yMinBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.yMin ?? 0)"
+                    return formatNumber(chartCoordinatesData.yMin ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.yMin = Double(newXMin)
                 }
             }
             var xMaxBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.xMax ?? 0)"
+                    return formatNumber(chartCoordinatesData.xMax ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.xMax = Double(newXMin)
                 }
             }
             var yMaxBinding : Binding<String> {
                 Binding {
-                    return "\(chartCoordinatesData.yMax ?? 0)"
+                    return formatNumber(chartCoordinatesData.yMax ?? 0)
                 } set: { newXMin in
                     chartCoordinatesData.yMax = Double(newXMin)
                 }
@@ -183,6 +183,13 @@ struct xAndYCordinate: View {
                 }
             }
         }
+    }
+    
+    func formatNumber(_ number: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 20
+        return formatter.string(from: NSNumber(value: number)) ?? ""
     }
 }
 

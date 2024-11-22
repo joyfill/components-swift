@@ -1,46 +1,15 @@
 import SwiftUI
 import JoyfillModel
 
-
 public struct Form: View {
-    ///  The JoyDoc JSON object to load into the SDK. Must be in the JoyDoc JSON data structure.
-    ///
-    ///  The SDK uses object reference equality checks to determine if the `doc` or any of its internal `pages` or `fields` have changed in the JSON.
-    ///  Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
-    ///  This will ensure your changes are properly detected and reflected in the SDK.
     @Binding public var document: JoyDoc
-
-    let documentEditor: DocumentEditor
-
-
-    /// Enables and disables certain JoyDoc functionality and features.
-    ///
-    /// The mode of the form default is `fill`.
-    ///
-    /// Options:
-    /// - `fill` :  The mode where you simply input the field data into the form.
-    /// - `readonly` :  The mode where everything in the form is set to read-only.
     @State public var mode: Mode
-    
-    /// Specify the page to display in the form.
-    ///
-    /// Utilize the `_id` property of a Page object. For instance, `page._id`.
-    /// If the page is not found within the `doc`, it will fallback to displaying the first page in the `pages` array.
-    /// You can use this property to navigate to a specific page in the form.
     @State public var currentPageID: String
 
+    let documentEditor: DocumentEditor
     private var navigation: Bool
-
-    ///  Used to listen to form events.
     public var events: FormChangeEvent?
 
-    /// Creates a new `Form` view with the given document, mode, events, and page ID.
-    ///
-    /// - Parameters:
-    ///   - document: The `JoyDoc` object to load into the SDK.
-    ///   - mode: The mode of the form. The default is `fill`.
-    ///   - events: The events delegate for the form.
-    ///   - pageID: The ID of the page to display in the form.
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
         _mode = State(initialValue: mode)
@@ -55,31 +24,34 @@ public struct Form: View {
         self.navigation = navigation
         self.documentEditor = documentEditor
     }
-    
-    /**
-     A SwiftUI view representing a form view.
-     
-     Use this view to display a form with files.
-     
-     - Parameters:
-     - fieldsData: The data for the form fields.
-     - files: The files associated with the form.
-     - mode: The mode of the form view.
-     - events: The events delegate for the form view.
-     - currentPageID: The ID of the current page.
-     
-     - Returns: A SwiftUI view representing the form view.
-     */
+
     public var body: some View {
-        FilesView(fieldsData: $document.fields, document: $document, documentEditor: documentEditor, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
+        FilesView(currentPageID: $currentPageID, documentEditor: documentEditor, files: document.files, mode: mode, events: self, showPageNavigationView: navigation)
+    }
+
+    private func updateValue(event: FieldChangeEvent) {
+        if var field = documentEditor.field(fieldID: event.fieldID) {
+            field.value = event.updateValue
+            if let chartData = event.chartData {
+                field.xMin = chartData.xMin
+                field.yMin = chartData.yMin
+                field.xMax = chartData.xMax
+                field.yMax = chartData.yMax
+                field.xTitle = chartData.xTitle
+                field.yTitle = chartData.yTitle
+            }
+            documentEditor.updatefield(field: field)
+            document.fields = documentEditor.allFields
+        }
     }
 }
 
 extension Form: FormChangeEventInternal {
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        updateValue(event: event)
         var changes = [Change]()
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -99,11 +71,11 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: changes, document: document)
     }
 
-
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        updateValue(event: event)
         var changes = [Change]()
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -124,9 +96,10 @@ extension Form: FormChangeEventInternal {
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        updateValue(event: event)
         var changes = [Change]()
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -145,13 +118,13 @@ extension Form: FormChangeEventInternal {
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
-
         events?.onChange(changes: changes, document: document)
     }
 
     func onChange(event: FieldChangeEvent) {
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
+        updateValue(event: event)
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
@@ -167,9 +140,6 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: [change], document: document)
     }
 
-    /// Returns the changes for the given field data.
-    /// - Parameter fieldData: The field data containing information about the field.
-    /// - Returns: A dictionary containing the changes for the field.
     private func changes(fieldData: JoyDocField) -> [String: Any] {
         switch fieldData.type {
         case "chart":
@@ -179,12 +149,6 @@ extension Form: FormChangeEventInternal {
         }
     }
 
-    /// Returns a dictionary containing the changes for a chart based on the given field data.
-    ///
-    /// - Parameters:
-    ///   - fieldData: The field data used to generate the chart changes.
-    ///
-    /// - Returns: A dictionary containing the chart changes.
     private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
         var valueDict = ["value": fieldData.value!.dictionary]
         valueDict["yTitle"] = fieldData.yTitle
@@ -196,10 +160,6 @@ extension Form: FormChangeEventInternal {
         return valueDict
     }
 
-    /// Adds row changes to the form view.
-    ///
-    /// - Parameter fieldData: The field data containing the value elements.
-    /// - Returns: A dictionary containing the row changes.
     private func addRowChanges(fieldData: JoyDocField, targetRow: TargetRowModel) -> [String: Any] {
         let lastValueElement = fieldData.value!.valueElements?.first(where: { valueElement in
             valueElement.id == targetRow.id
@@ -224,55 +184,30 @@ extension Form: FormChangeEventInternal {
     }
 }
 
-/// A view that displays a list of files.
-///
-/// Use `FilesView` to display a list of files along with other form fields.
 struct FilesView: View {
-    /// The `JoyDocField` objects that represent the data for each field in the form.
-    @Binding var fieldsData: [JoyDocField]
-    @Binding public var document: JoyDoc
-    let documentEditor: DocumentEditor
-
-    /// The `File` objects that represent the files to be displayed.
-    var files: [File]
-    
-    /// The mode of the form.
-    let mode: Mode
-    
-    /// The events delegate for the form. This is used to listen to form events.
-    let events: FormChangeEventInternal?
-    
-    /// The ID of the current page being displayed in the form.
     @Binding var currentPageID: String
-
+    let documentEditor: DocumentEditor
+    let files: [File]
+    let mode: Mode
+    let events: FormChangeEventInternal?
     var showPageNavigationView: Bool
 
-    /// The body of the `FilesView`. This is a SwiftUI view that represents a collection of files.
-    ///
-    /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
-        FileView(fieldsData: $fieldsData, document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+        FileView(currentPageID: $currentPageID, file: files.first, mode: mode, events: events, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
     }
 }
 
-/// A view that represents a single `file`.
-///
-/// It uses a `JoyDocField` object, a `File` object, a `Mode`, a `FormChangeEventInternal`, and a `currentPageID` to manage and display the file.
 struct FileView: View {
-    @Binding var fieldsData: [JoyDocField]
-    @Binding public var document: JoyDoc
-    var file: File?
+    @Binding var currentPageID: String
+    let file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
-    @Binding var currentPageID: String
     var showPageNavigationView: Bool
     let documentEditor: DocumentEditor
-    /// The body of the `FileView`. This is a SwiftUI view that represents a single file.
-    ///
-    /// - Returns: A SwiftUI view representing the file view.
+
     var body: some View {
         if let file = file {
-            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pagesForCurrentView, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+            PagesView(currentPageID: $currentPageID, pageOrder: file.pageOrder, pages: documentEditor.pagesForCurrentView, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
         }
     }
 }
@@ -323,14 +258,12 @@ extension FileView: FormChangeEventInternal {
 
 /// A view that represents a collection of pages.
 struct PagesView: View {
-    @Binding public var document: JoyDoc
-    @Binding var fieldsData: [JoyDocField]
+    @State private var isSheetPresented = false
     @Binding var currentPageID: String
-    @Binding var pages: [Page]
-    @State var pageOrder: [String]?
+    let pageOrder: [String]?
+    let pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
-    @State private var isSheetPresented = false
     var showPageNavigationView: Bool
     let documentEditor: DocumentEditor
 
@@ -353,15 +286,15 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
+                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pages: pages)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
+                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pages: pages)
                     }
                 }
             }
             if let page = documentEditor.firstValidPageFor(currentPageID: currentPageID) {
-                PageView(document: $document, fieldsData: $fieldsData, page: page, mode: mode, events: events, documentEditor: documentEditor)
+                PageView(page: page, mode: mode, events: events, documentEditor: documentEditor)
             }
         }
     }
@@ -370,8 +303,6 @@ struct PagesView: View {
 
 /// A `View` that represents a page in a form.
 struct PageView: View {
-    @Binding public var document: JoyDoc
-    @Binding var fieldsData: [JoyDocField]
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -388,7 +319,7 @@ struct PageView: View {
             } set: { _ in
                 
             }
-            FormView(document: $document, fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self, documentEditor: documentEditor)
+            FormView(fieldPositions: binding, mode: mode, eventHandler: self, documentEditor: documentEditor)
         }
     }
     
@@ -478,9 +409,7 @@ struct FieldDependency {
 }
 
 struct FormView: View {
-    @Binding public var document: JoyDoc
     @Binding var fieldPositions: [FieldPosition]
-    @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsID: String = ""
@@ -489,9 +418,8 @@ struct FormView: View {
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
-        let fieldData = fieldsData.first(where: {
-            $0.id == fieldPosition.field
-        })
+        let fieldData = documentEditor.field(fieldID: fieldPosition.field)
+
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
 
@@ -602,22 +530,22 @@ struct FormView: View {
 extension FormView: FieldChangeEvents {
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateValue(event: event)
+        updateFocusedField(event: event)
         eventHandler?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateValue(event: event)
+        updateFocusedField(event: event)
         eventHandler?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateValue(event: event)
+        updateFocusedField(event: event)
         eventHandler?.addRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func onChange(event: FieldChangeEvent) {
-        updateValue(event: event)
+        updateFocusedField(event: event)
         eventHandler?.onChange(event: event)
     }
 
@@ -630,36 +558,17 @@ extension FormView: FieldChangeEvents {
         eventHandler?.onUpload(event: event)
     }
 
-    private func updateValue(event: FieldChangeEvent) {
+    private func updateFocusedField(event: FieldChangeEvent) {
         currentFocusedFielsID = event.fieldID
-        let temp = fieldsData.compactMap { data in
-            if data.id == event.fieldID {
-                var data = data
-                data.value = event.updateValue
-                if let chartData = event.chartData {
-                    data.xMin = chartData.xMin
-                    data.yMin = chartData.yMin
-                    data.xMax = chartData.xMax
-                    data.yMax = chartData.yMax
-                    data.xTitle = chartData.xTitle
-                    data.yTitle = chartData.yTitle
-                }
-                return data
-            }
-            return data
-        }
-        fieldsData.removeAll()
-        self.fieldsData = temp
     }
 }
 
 struct PageDuplicateListView: View {
-    @Binding public var document: JoyDoc
-    @Binding var pages: [Page]
     @Binding var currentPageID: String
-    @Binding var pageOrder: [String]?
+    let pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
     let documentEditor: DocumentEditor
+    let pages: [Page]
 
     var body: some View {
         VStack(alignment: .leading) {
