@@ -169,7 +169,7 @@ class TableViewModel: ObservableObject {
             fieldDependency.fieldData?.deleteRow(id: row)
             rowToCellMap.removeValue(forKey: row)
         }
-//        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
+        fieldDependency.eventHandler.deleteRow(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldDependency.fieldData), targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
 
         emptySelection()
         setup()

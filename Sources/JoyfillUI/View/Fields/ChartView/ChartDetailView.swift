@@ -60,8 +60,6 @@ struct ChartDetailView: View {
     func updateValueElements(valueElements: [ValueElement]) {
         self.valueElements.removeAll()
         self.valueElements = valueElements
-//        guard var fieldData = fieldDependency.fieldData else { return }
-//        fieldData.value = .valueElementArray(valueElements)
         let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, updateValue: .valueElementArray(valueElements))
         chartDataModel.eventHandler.onChange(event: fieldEvent)
     }
