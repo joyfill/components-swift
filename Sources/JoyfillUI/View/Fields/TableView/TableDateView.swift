@@ -3,45 +3,89 @@ import JoyfillModel
 
 struct TableDateView: View {
     @State private var isDatePickerPresented = false
-    @State private var selectedDate = Date()
+    @State private var selectedDate: Date?
     var cellModel: TableCellModel
         
     public init(cellModel: TableCellModel) {
         self.cellModel = cellModel
         if let value = cellModel.data.date {
-            let dateString = value.dateTime(format: "MM/DD/YYYY") ?? ""
-            if let date = stringToDate(dateString, format: "MM/DD/YYYY") {
+            let dateString = value.dateTime(format: cellModel.data.format ?? "") ?? ""
+            if let date = stringToDate(dateString, format: cellModel.data.format ?? "") {
                 _selectedDate = State(initialValue: date)
+                _isDatePickerPresented = State(initialValue: true)
             }
         }
     }
     
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy h:mm a"
-        return formatter
-    }()
-    
     var body: some View {
-        Group {
-            if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: ""))
-                    .accessibilityIdentifier("DateIdenitfier")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .labelsHidden()
-                    .padding(.all, 8)
+        if cellModel.viewMode == .quickView {
+            if let date = selectedDate {
+                if let value = cellModel.data.date {
+                    let dateString = value.dateTime(format: cellModel.data.format ?? "") ?? ""
+                    Text(dateString)
+                        .font(.system(size: 15))
+                        .lineLimit(1)
+                        .padding(.horizontal, 4)
+                }
             } else {
-                    Image(systemName: "calendar")
-                .frame(maxWidth: .infinity)
-                .padding(.all, 10)
-                .onTapGesture {
-                    isDatePickerPresented = true
-                    selectedDate = Date()
+                Image(systemName: "calendar")
+            }
+        } else {
+            Group {
+                if isDatePickerPresented {
+                    HStack {
+                        if let unwrappedSelectedDate = selectedDate {
+                            DatePicker(
+                                "",
+                                selection: Binding(
+                                    get: { unwrappedSelectedDate },
+                                    set: { selectedDate = $0 }
+                                ),
+                                displayedComponents: getDateType(format: cellModel.data.format ?? "")
+                            )
+                            .dynamicTypeSize(.xSmall)
+                            .accessibilityIdentifier("DateIdentifier")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .labelsHidden()
+                            .padding(.all, 8)
+                        }
+                        
+                        Button(action: {
+                            isDatePickerPresented = false
+                            selectedDate = nil
+                        }, label: {
+                            Image(systemName: "xmark.circle.fill")
+                        })
+                        .padding(.trailing, 10)
+                        .darkLightThemeColor()
+                    }
+                } else {
+                    HStack {
+                        Text("Select a Date -")
+                            .font(.system(size: 15))
+                        Spacer()
+                        Image(systemName: "calendar")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.all, 10)
+                    .onTapGesture {
+                        isDatePickerPresented = true
+                        selectedDate = Date()
+                    }
                 }
             }
-        }
-        .onChange(of: selectedDate) { newValue in
-            
+            .onChange(of: selectedDate) { newValue in
+                var editedCell = cellModel.data
+
+                if let date = selectedDate {
+                    let convertDateToInt = dateToTimestampMilliseconds(date: date)
+                    editedCell.date = ValueUnion.double(convertDateToInt)
+                } else {
+                    editedCell.date = nil
+                }
+
+                cellModel.didChange?(editedCell)
+            }
         }
     }
     

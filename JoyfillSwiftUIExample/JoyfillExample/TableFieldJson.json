@@ -1,0 +1,133 @@
+{
+  "_id": "673d8cf1069bd8476661c1e5",
+  "type": "document",
+  "stage": "published",
+  "source": "template_673d8b0d231757c22e516144",
+  "metadata": {},
+  "identifier": "doc_673d8cf1069bd8476661c1e5",
+  "name": "Table Column Type",
+  "createdOn": 1732087025573,
+  "files": [
+    {
+      "_id": "673d8b0d0e2aaf98c918d805",
+      "metadata": {},
+      "name": "Table Column Type",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "field": "673d8bfe12e5db47f46aa581",
+              "displayType": "original",
+              "width": 8,
+              "height": 15,
+              "x": 0,
+              "y": 0,
+              "_id": "673d8c08b2fc680dc31deb66",
+              "type": "table"
+            }
+          ],
+          "metadata": {},
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "673d8b0d3c993a0df952df38"
+        }
+      ],
+      "pageOrder": [
+        "673d8b0d3c993a0df952df38"
+      ],
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "type": "table",
+      "_id": "673d8bfe12e5db47f46aa581",
+      "identifier": "field_673d8c0846710e9cb73e2a9e",
+      "title": "Table",
+      "description": "",
+      "value": [
+        {
+          "_id": "673d8b05917c8ab41171d852",
+          "deleted": false,
+          "cells": {
+            "673d8c171ec5c53c2ff9feb1": 1234567890,
+            "673d8c18982278c0954fd0d3": 1712255400000,
+            "673d8c49fd2094ff015309b4": "Block"
+          }
+        },
+        {
+          "_id": "673d8b059e7120dbf975421a",
+          "deleted": false,
+          "cells": {
+            "673d8c171ec5c53c2ff9feb1": 34.789,
+            "673d8c18982278c0954fd0d3": 1713984174769,
+            "673d8c49fd2094ff015309b4": "Column"
+          }
+        },
+        {
+          "_id": "673d8b05228775967ac63b22",
+          "deleted": false,
+          "cells": {
+            "673d8c171ec5c53c2ff9feb1": 56345.0,
+            "673d8c18982278c0954fd0d3": 1712385780000,
+            "673d8c49fd2094ff015309b4": "Done"
+          }
+        }
+      ],
+      "required": false,
+      "tipTitle": "",
+      "tipDescription": "",
+      "tipVisible": false,
+      "metadata": {},
+      "rowOrder": [
+        "673d8b05917c8ab41171d852",
+        "673d8b059e7120dbf975421a",
+        "673d8b05228775967ac63b22"
+      ],
+      "tableColumns": [
+        {
+          "_id": "673d8c171ec5c53c2ff9feb1",
+          "type": "number",
+          "title": "Number Column",
+          "width": 0,
+          "identifier": ""
+        },
+        {
+          "_id": "673d8c18982278c0954fd0d3",
+          "type": "date",
+          "title": "Date Column",
+          "width": 0,
+          "identifier": "",
+          "format": "MM/DD/YYYY"
+        },
+        {
+          "_id": "673d8c49fd2094ff015309b4",
+          "type": "block",
+          "title": "Block Column",
+          "width": 0,
+          "identifier": ""
+        }
+      ],
+      "tableColumnOrder": [
+        "673d8c171ec5c53c2ff9feb1",
+        "673d8c18982278c0954fd0d3",
+        "673d8c49fd2094ff015309b4"
+      ],
+      "file": "673d8b0d0e2aaf98c918d805"
+    }
+  ],
+  "deleted": false
+}

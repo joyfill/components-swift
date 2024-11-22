@@ -34,7 +34,7 @@ struct TableNumberView: View {
             TextEditor(text: $numberValue)
                 .keyboardType(.decimalPad)
                 .font(.system(size: 15))
-                .accessibilityIdentifier("TabelTextFieldIdentifier")
+                .accessibilityIdentifier("TableNumberFieldIdentifier")
                 .onChange(of: numberValue) { newText in
                     // Convert `numberValue` to Double and compare with `cellModel.data.number`
                     if let doubleValue = Double(numberValue), cellModel.data.number != doubleValue {

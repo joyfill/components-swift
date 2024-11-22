@@ -125,12 +125,12 @@ struct TableModalView : View {
                 case "dropdown":
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
                 case "number":
-                    let columnInt = String(column.number ?? 0.0)
-                    return columnInt.localizedCaseInsensitiveContains(model.filterText)
+                    let filterInt = Int(model.filterNumber)
+                    let columnInt = Int(column.number ?? 0.0)
                     
-//                    let filterInt = Int(model.filterNumber)
-//                    let columnInt = Int(column.number ?? 0.0)
-//                    return filterInt == columnInt
+                    let filterString = String(filterInt)
+                    let columnString = String(columnInt)
+                    return columnString.localizedCaseInsensitiveContains(filterString)
                 default:
                     break
                 }
@@ -212,15 +212,18 @@ struct TableModalView : View {
                         Text(viewModel.getColumnTitle(columnId: columnId))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if viewModel.getColumnType(columnId: columnId) != "image" {
+                        if !["image", "date", "block"].contains(viewModel.getColumnType(columnId: columnId)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(viewModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
+                                .foregroundColor(
+                                    viewModel.filterModels[index].filterText.isEmpty && viewModel.filterModels[index].filterNumber == 0.0
+                                    ? Color.gray : Color.blue
+                                )
                         }
                         
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: 170)
+                    .frame(width: getWidth(type: viewModel.getColumnType(columnId: columnId) ?? "", format: viewModel.getColumnDateFormat(columnId: columnId) ?? ""))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
@@ -231,7 +234,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
+                .disabled(["image", "date", "block"].contains(viewModel.getColumnType(columnId: columnId)) || rowsCount == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -291,12 +294,14 @@ struct TableModalView : View {
                                             .foregroundColor(Color.tableCellBorderColor)
                                         TableViewCellBuilder(cellModel: cellModel)
                                     }
-                                    .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                                    .frame(minWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""),
+                                           maxWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""),
+                                           minHeight: 50,
+                                           maxHeight: .infinity)
                                     .background(GeometryReader { proxy in
                                         Color.clear.preference(key: HeightPreferenceKey.self, value: [rowIndex: proxy.size.height])
                                     })
                                 }
-
                             }
                         }
                         .onReceive(viewModel.$rows) { _ in
@@ -327,6 +332,12 @@ struct TableModalView : View {
                 }))
             }
         }
+    }
+    
+    func getWidth(type: String, format: String) -> CGFloat {
+        guard type == "date" else { return 170 }
+        
+        return [.dateTime, .empty].contains(DateFormatType(rawValue: format)) ? 250 : 170
     }
 
     private func dismissKeyboard() {
@@ -389,8 +400,7 @@ struct SearchBar: View {
                         case "text":
                             self.model.filterText = editedCell.title ?? ""
                         case "number":
-                            let number = String(editedCell.number ?? 0)
-                            self.model.filterText = number
+                            self.model.filterNumber = editedCell.number ?? 0
                         case "dropdown":
                             self.model.filterText = editedCell.defaultDropdownSelectedId ?? ""
                         default:
@@ -401,7 +411,7 @@ struct SearchBar: View {
                     case "text":
                         TextFieldSearchBar(text: $model.filterText)
                     case "number":
-                        TextFieldSearchBar(text: $model.filterText, numericalKeyboard: true)
+                        NumberTextFieldSearchBar(value: $model.filterNumber)
                     case "dropdown":
                         TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
@@ -473,12 +483,10 @@ struct SearchBar: View {
 
 struct TextFieldSearchBar: View {
     @Binding var text: String
-    var numericalKeyboard: Bool = false
 
     var body: some View {
         TextField("Search ", text: $text)
             .accessibilityIdentifier("TextFieldSearchBarIdentifier")
-            .keyboardType(numericalKeyboard ? .decimalPad : .default)
             .font(.system(size: 12))
             .foregroundColor(.black)
             .padding(.all, 4)
@@ -509,6 +517,7 @@ struct NumberTextFieldSearchBar: View {
 
     var body: some View {
         TextField("Enter number", text: $text)
+            .accessibilityIdentifier("TableNumberTextFieldSearchBarIdentifier")
             .keyboardType(.decimalPad)
             .onChange(of: text) { newValue in
                 if let number = Double(newValue) {
@@ -539,9 +548,6 @@ struct NumberTextFieldSearchBar: View {
             )
     }
 }
-
-
-
 
 struct DropdownFieldSearchBar: View {
     var body: some View {
