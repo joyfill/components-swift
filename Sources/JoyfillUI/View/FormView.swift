@@ -78,8 +78,8 @@ public struct Form: View {
 extension Form: FormChangeEventInternal {
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -102,8 +102,8 @@ extension Form: FormChangeEventInternal {
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -125,8 +125,8 @@ extension Form: FormChangeEventInternal {
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.field == event.fieldID })!
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
@@ -150,9 +150,8 @@ extension Form: FormChangeEventInternal {
     }
 
     func onChange(event: FieldChangeEvent) {
-        let field = document.fields.first(where: { $0.id == event.fieldID })!
-        let fieldPositions = document.fieldPositionsForCurrentView
-        let fieldPosition = fieldPositions.first(where: { $0.field == event.fieldID })!
+        let field = documentEditor.field(fieldID: event.fieldID)!
+        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
         var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
@@ -490,9 +489,8 @@ struct FormView: View {
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
-        let fieldData = fieldsData.first(where: {
-            $0.id == fieldPosition.field
-        })
+        let fieldData = documentEditor.field(fieldID: fieldPosition.field)
+
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
         var fieldHeaderModel = (fieldDependency.fieldPosition.titleDisplay == nil || fieldDependency.fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
