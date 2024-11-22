@@ -9,17 +9,22 @@ import JoyfillModel
 
 struct ChartDetailView: View {
 //    var chartData: MultiLineChartData
-    var fieldDependency: FieldDependency
+    var chartDataModel: ChartDataModel
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
     @State var chartCoordinatesData: ChartAxisConfiguration
     
 //    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
-    public init(fieldDependency: FieldDependency) {
+    public init(chartDataModel: ChartDataModel) {
 //        self.chartData = chartData
-        self.fieldDependency = fieldDependency
-        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
-        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: fieldDependency.fieldData?.yTitle, yMax: fieldDependency.fieldData?.yMax, yMin: fieldDependency.fieldData?.yMin, xTitle: fieldDependency.fieldData?.xTitle, xMax: fieldDependency.fieldData?.xMax, xMin: fieldDependency.fieldData?.xMin))
+        self.chartDataModel = chartDataModel
+        _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
+        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: chartDataModel.yTitle,
+                                                                           yMax: chartDataModel.yMax,
+                                                                           yMin: chartDataModel.yMin,
+                                                                           xTitle: chartDataModel.xTitle,
+                                                                           xMax: chartDataModel.xMax,
+                                                                           xMin: chartDataModel.xMin))
     }
     
     var body: some View {
@@ -40,14 +45,14 @@ struct ChartDetailView: View {
 //                    .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
 //                    .padding(.horizontal)
                 
-                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency)
+                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, chartDataModel: chartDataModel)
                 LinesView(valueElements: $valueElements, updateValueElements: updateValueElements)
-                    .disabled(fieldDependency.mode == .readonly)
+                    .disabled(chartDataModel.mode == .readonly)
             }
             .onChange(of: chartCoordinatesData, perform:  { newValue in
                 let chartData = ChartData(xTitle: newValue.xTitle, yTitle: newValue.yTitle, xMax: newValue.xMax, xMin: newValue.xMin, yMax: newValue.yMax, yMin: newValue.yMin)
-                let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData!.value!, chartData: chartData)
-                fieldDependency.eventHandler.onChange(event: fieldEvent)
+                let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, updateValue: .valueElementArray(valueElements), chartData: chartData)
+                chartDataModel.eventHandler.onChange(event: fieldEvent)
             })
         }
     }
@@ -55,17 +60,15 @@ struct ChartDetailView: View {
     func updateValueElements(valueElements: [ValueElement]) {
         self.valueElements.removeAll()
         self.valueElements = valueElements
-        guard var fieldData = fieldDependency.fieldData else { return }
-        fieldData.value = .valueElementArray(valueElements)
-        let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
-        fieldDependency.eventHandler.onChange(event: fieldEvent)
+        let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, updateValue: .valueElementArray(valueElements))
+        chartDataModel.eventHandler.onChange(event: fieldEvent)
     }
 }
 
 struct ChartCoordinateView: View {
     @Binding var isCoordinateVisible: Bool
     @Binding var chartCoordinatesData: ChartAxisConfiguration
-    var fieldDependency: FieldDependency
+    var chartDataModel: ChartDataModel
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -76,10 +79,10 @@ struct ChartCoordinateView: View {
             }
             if isCoordinateVisible {
                 Group {
-                    xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: false, identifier: "VerticalTextFieldIdentifier")
-                        .disabled(fieldDependency.mode == .readonly)
-                xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, fieldDependency: fieldDependency, isXAxis: true, identifier: "HorizontalTextFieldIdentifier")
-                        .disabled(fieldDependency.mode == .readonly)
+                    xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, chartDataModel: chartDataModel, isXAxis: false, identifier: "VerticalTextFieldIdentifier")
+                        .disabled(chartDataModel.mode == .readonly)
+                xAndYCordinate(chartCoordinatesData: $chartCoordinatesData, chartDataModel: chartDataModel, isXAxis: true, identifier: "HorizontalTextFieldIdentifier")
+                        .disabled(chartDataModel.mode == .readonly)
                 }
                 .padding(.all,10)
                 .overlay(
@@ -109,7 +112,7 @@ struct ChartCoordinateView: View {
 }
 struct xAndYCordinate: View {
     @Binding var chartCoordinatesData: ChartAxisConfiguration
-    var fieldDependency: FieldDependency
+    var chartDataModel: ChartDataModel
     var isXAxis: Bool
     var identifier: String
 

@@ -24,7 +24,6 @@ struct ImageView: View {
     
     public init(imageDataModel: ImageDataModel) {
         self.imageDataModel = imageDataModel
-//        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
     }
         
     var body: some View {
