@@ -499,7 +499,10 @@ struct FormView: View {
             DropdownView(fieldDependency: fieldDependency)
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
-            MultiLineTextView(fieldDependency: fieldDependency)
+            MultiLineTextView(multiLineDataModel: MultiLineDataModel(multilineText: fieldData?.value?.multilineText,
+                                                                     mode: fieldDependency.mode,
+                                                                     eventHandler: fieldDependency.eventHandler,
+                                                                     fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .date:
             DateTimeView(fieldDependency: fieldDependency)
