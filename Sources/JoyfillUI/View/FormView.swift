@@ -9,7 +9,10 @@ public struct Form: View {
     ///  Ensure you’re creating new object instances when updating the document, pages, or fields before passing the updated `doc` JSON back to the SDK.
     ///  This will ensure your changes are properly detected and reflected in the SDK.
     @Binding public var document: JoyDoc
-    
+
+    let documentEditor: DocumentEditor
+
+
     /// Enables and disables certain JoyDoc functionality and features.
     ///
     /// The mode of the form default is `fill`.
@@ -43,12 +46,14 @@ public struct Form: View {
         _mode = State(initialValue: mode)
         _document = document
         var pageId = pageID
+        let documentEditor = DocumentEditor(document: document.wrappedValue)
         if let pageID = pageID, pageID != "" {
             _currentPageID = State(initialValue: pageID)
         } else {
-            _currentPageID = State(initialValue: document.wrappedValue.firstPageId ?? "")
+            _currentPageID = State(initialValue: documentEditor.firstPageId ?? "")
         }
         self.navigation = navigation
+        self.documentEditor = documentEditor
     }
     
     /**
@@ -66,25 +71,27 @@ public struct Form: View {
      - Returns: A SwiftUI view representing the form view.
      */
     public var body: some View {
-        FilesView(fieldsData: $document.fields, document: $document, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
+        FilesView(fieldsData: $document.fields, document: $document, documentEditor: documentEditor, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
     }
 }
 
 extension Form: FormChangeEventInternal {
-    public func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowCreate",
                                 _id: document.id!,
                                 identifier: document.identifier,
-                                fileId: event.file!.id!,
-                                pageId: event.page!.id!,
-                                fieldId: event.field!.id!,
-                                fieldIdentifier: event.field!.identifier!,
-                                fieldPositionId: event.fieldPosition.id!,
-                                change: addRowChanges(fieldData: event.field!, targetRow: targetRow),
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
+                                change: addRowChanges(fieldData: field, targetRow: targetRow),
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
@@ -93,19 +100,21 @@ extension Form: FormChangeEventInternal {
     }
 
 
-    public func deleteRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
                                 _id: document.id!,
                                 identifier: document.identifier,
-                                fileId: event.file!.id!,
-                                pageId: event.page!.id!,
-                                fieldId: event.field!.id!,
-                                fieldIdentifier: event.field!.identifier!,
-                                fieldPositionId: event.fieldPosition.id!,
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
                                 change: ["rowId": targetRow.id],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
@@ -114,19 +123,21 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: changes, document: document)
     }
 
-    public func moveRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowMove",
                                 _id: document.id!,
                                 identifier: document.identifier,
-                                fileId: event.file!.id!,
-                                pageId: event.page!.id!,
-                                fieldId: event.field!.id!,
-                                fieldIdentifier: event.field!.identifier!,
-                                fieldPositionId: event.fieldPosition.id!,
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
                                 change: [
                                     "rowId": targetRow.id,
                                     "targetRowIndex": targetRow.index,
@@ -138,18 +149,20 @@ extension Form: FormChangeEventInternal {
         events?.onChange(changes: changes, document: document)
     }
 
-    public func onChange(event: JoyfillModel.FieldChangeEvent) {
+    func onChange(event: FieldChangeEvent) {
+        let field = document.fields.first(where: { $0.id == event.fieldID })!
+        let fieldPosition = document.fieldPositionsForCurrentView.first(where: { $0.id == event.fieldID })!
         var change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
                             _id: document.id!,
                             identifier: document.identifier,
-                            fileId: event.file!.id!,
-                            pageId: event.page!.id!,
-                            fieldId: event.field!.id!,
-                            fieldIdentifier: event.field!.identifier!,
-                            fieldPositionId: event.fieldPosition.id!,
-                            change: changes(fieldData: event.field!),
+                            fileId: event.fileID!,
+                            pageId: event.pageID!,
+                            fieldId: event.fieldID,
+                            fieldIdentifier: field.identifier!,
+                            fieldPositionId: fieldPosition.id!,
+                            change: changes(fieldData: field),
                             createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
@@ -196,15 +209,17 @@ extension Form: FormChangeEventInternal {
         return valueDict
     }
 
-    public func onFocus(event: JoyfillModel.FieldEvent) {
-        events?.onFocus(event: event)
+    func onFocus(event: FieldEventInternal) {
+        // TODO:
+//        events?.onFocus(event: event)
     }
     
-    public func onBlur(event: JoyfillModel.FieldEvent) {
-        events?.onBlur(event: event)
+    func onBlur(event: FieldEventInternal) {
+        // TODO:
+//        events?.onBlur(event: event)
     }
     
-    public func onUpload(event: JoyfillModel.UploadEvent) {
+    func onUpload(event: JoyfillModel.UploadEvent) {
         events?.onUpload(event: event)
     }
 }
@@ -216,7 +231,8 @@ struct FilesView: View {
     /// The `JoyDocField` objects that represent the data for each field in the form.
     @Binding var fieldsData: [JoyDocField]
     @Binding public var document: JoyDoc
-    
+    let documentEditor: DocumentEditor
+
     /// The `File` objects that represent the files to be displayed.
     var files: [File]
     
@@ -235,7 +251,7 @@ struct FilesView: View {
     ///
     /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
-        FileView(fieldsData: $fieldsData, document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView)
+        FileView(fieldsData: $fieldsData, document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
     }
 }
 
@@ -250,51 +266,51 @@ struct FileView: View {
     let events: FormChangeEventInternal?
     @Binding var currentPageID: String
     var showPageNavigationView: Bool
-
+    let documentEditor: DocumentEditor
     /// The body of the `FileView`. This is a SwiftUI view that represents a single file.
     ///
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
         if let file = file {
-            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pagesForCurrentView, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView)
+            PagesView(document: $document, fieldsData: $fieldsData, currentPageID: $currentPageID, pages: $document.pagesForCurrentView, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
         }
     }
 }
 
 extension FileView: FormChangeEventInternal {
-    func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.addRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
-    func moveRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
-    func deleteRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
-    func onChange(event: JoyfillModel.FieldChangeEvent) {
+    func onChange(event: FieldChangeEvent) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.onChange(event: event)
     }
 
-    func onFocus(event: JoyfillModel.FieldEvent) {
+    func onFocus(event: FieldEventInternal) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.onFocus(event: event)
     }
 
-    func onBlur(event: JoyfillModel.FieldEvent) {
+    func onBlur(event: FieldEventInternal) {
         var event = event
-        event.file = file
+        event.fileID = file?.id
         events?.onBlur(event: event)
     }
 
@@ -316,6 +332,7 @@ struct PagesView: View {
     let events: FormChangeEventInternal?
     @State private var isSheetPresented = false
     var showPageNavigationView: Bool
+    let documentEditor: DocumentEditor
 
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
@@ -328,7 +345,7 @@ struct PagesView: View {
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
-                        Text(document.firstValidPageFor(currentPageID: currentPageID)?.name ?? "")
+                        Text(documentEditor.firstValidPageFor(currentPageID: currentPageID)?.name ?? "")
                     }
                 })
                 .accessibilityIdentifier("PageNavigationIdentifier")
@@ -336,15 +353,15 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder)
+                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
                     }
                 }
             }
-            if let page = document.firstValidPageFor(currentPageID: currentPageID) {
-                PageView(document: $document, fieldsData: $fieldsData, page: page, mode: mode, events: events)
+            if let page = documentEditor.firstValidPageFor(currentPageID: currentPageID) {
+                PageView(document: $document, fieldsData: $fieldsData, page: page, mode: mode, events: events, documentEditor: documentEditor)
             }
         }
     }
@@ -358,6 +375,7 @@ struct PageView: View {
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
+    let documentEditor: DocumentEditor
 
     /// The body of the `PageView`.
     ///
@@ -370,7 +388,7 @@ struct PageView: View {
             } set: { _ in
                 
             }
-            FormView(document: $document, fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self)
+            FormView(document: $document, fieldPositions: binding, fieldsData: $fieldsData, mode: mode, eventHandler: self, documentEditor: documentEditor)
         }
     }
     
@@ -399,39 +417,39 @@ struct PageView: View {
 }
 
 extension PageView: FormChangeEventInternal {
-    func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.addRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
-    func moveRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
-    func deleteRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
-    func onChange(event: JoyfillModel.FieldChangeEvent) {
+    func onChange(event: FieldChangeEvent) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.onChange(event: event)
     }
     
-    func onFocus(event: JoyfillModel.FieldEvent) {
+    func onFocus(event: FieldEventInternal) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.onFocus(event: event)
     }
     
-    func onBlur(event: JoyfillModel.FieldEvent) {
+    func onBlur(event: FieldEventInternal) {
         var event = event
-        event.page = page
+        event.pageID = page.id
         events?.onBlur(event: event)
     }
     
@@ -465,8 +483,9 @@ struct FormView: View {
     @Binding var fieldsData: [JoyDocField]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
-    @State var currentFocusedFielsData: JoyDocField? = nil
-    @State var lastFocusedFielsData: JoyDocField? = nil
+    @State var currentFocusedFielsID: String = ""
+    @State var lastFocusedFielsID: String? = nil
+    let documentEditor: DocumentEditor
 
     @ViewBuilder
     fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
@@ -475,12 +494,9 @@ struct FormView: View {
         })
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
-        let fieldHeaderModel = FieldHeaderModel(title: fieldData?.title,
-                                                required: fieldData?.required,
-                                                tipDescription: fieldData?.tipDescription,
-                                                tipTitle: fieldData?.tipTitle,
-                                                tipVisible: fieldData?.tipVisible)
-        let eventHandler = fieldDependency.eventHandler
+
+        var fieldHeaderModel = (fieldDependency.fieldPosition.titleDisplay == nil || fieldDependency.fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+
         switch fieldPosition.type {
         case .text:
             TextView(textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
@@ -494,10 +510,10 @@ struct FormView: View {
                                                                        fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .multiSelect:
-            MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsData: currentFocusedFielsData)
+            MultiSelectionView(fieldDependency: fieldDependency, currentFocusedFielsID: currentFocusedFielsID)
                 .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            DropdownView(dropdownDataModel: DropdownDataModel(dropdownValue: fieldData?.value?.dropdownValue, options: fieldData?.options, eventHandler: eventHandler, fieldHeaderModel: fieldHeaderModel))
+            DropdownView(dropdownDataModel: DropdownDataModel(dropdownValue: fieldData?.value?.dropdownValue, options: fieldData?.options, eventHandler: fieldDependency.eventHandler, fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
             MultiLineTextView(multiLineDataModel: MultiLineDataModel(multilineText: fieldData?.value?.multilineText,
@@ -517,7 +533,10 @@ struct FormView: View {
                                                                  fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .number:
-            NumberView(fieldDependency: fieldDependency)
+            NumberView(numberDataModel: NumberDataModel(number: fieldData?.value?.number,
+                                                        mode: fieldDependency.mode,
+                                                        eventHandler: fieldDependency.eventHandler,
+                                                        fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .chart:
             ChartView(fieldDependency: fieldDependency)
@@ -532,16 +551,14 @@ struct FormView: View {
             ImageView(fieldDependency: fieldDependency)
         case .none:
             EmptyView()
+        case .unknown:
+            EmptyView()
         }
     }
 
     var body: some View {
         List(fieldPositions, id: \.field) { fieldPosition in
-            let fieldData = fieldsData.first(where: {
-                $0.id == fieldPosition.field
-            })
-
-            if DocumentEngine.shouldShowItem(fields: document.fields, logic: fieldData?.logic,isItemHidden: fieldData?.hidden) {
+            if documentEditor.shouldShow(fieldID: fieldPosition.field) {
                 fieldView(fieldPosition: fieldPosition)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
@@ -551,14 +568,14 @@ struct FormView: View {
         .gesture(DragGesture().onChanged({ _ in
             dismissKeyboardOnScroll()
         }))
-        .onChange(of: currentFocusedFielsData) { newValue in
+        .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
-            guard lastFocusedFielsData != newValue else { return }
-            if lastFocusedFielsData != nil {
-                let fieldEvent = FieldEvent(field: lastFocusedFielsData)
+            guard lastFocusedFielsID != newValue else { return }
+            if lastFocusedFielsID != nil {
+                let fieldEvent = FieldEventInternal(fieldID: lastFocusedFielsID!)
                 eventHandler?.onBlur(event: fieldEvent)
             }
-            let fieldEvent = FieldEvent(field: newValue)
+            let fieldEvent = FieldEventInternal(fieldID: newValue)
             eventHandler?.onFocus(event: fieldEvent)
         }
     }
@@ -570,64 +587,54 @@ struct FormView: View {
 extension FormView: FieldChangeEvents {
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        currentFocusedFielsData = event.field
-        let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
-            }
-            return data
-        }
-        fieldsData.removeAll()
-        self.fieldsData = temp
+        updateValue(event: event)
         eventHandler?.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        currentFocusedFielsData = event.field
-        let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
-            }
-            return data
-        }
-        fieldsData.removeAll()
-        self.fieldsData = temp
+        updateValue(event: event)
         eventHandler?.moveRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
-    func addRow(event: JoyfillModel.FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        currentFocusedFielsData = event.field
-        let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
-            }
-            return data
-        }
-        fieldsData.removeAll()
-        self.fieldsData = temp
+    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        updateValue(event: event)
         eventHandler?.addRow(event: event, targetRowIndexes: targetRowIndexes)
     }
 
     func onChange(event: FieldChangeEvent) {
-        currentFocusedFielsData = event.field
+        updateValue(event: event)
+        eventHandler?.onChange(event: event)
+    }
+
+    func onFocus(event: FieldEventInternal) {
+        lastFocusedFielsID = currentFocusedFielsID
+        currentFocusedFielsID = event.fieldID
+    }
+
+    func onUpload(event: UploadEvent) {
+        eventHandler?.onUpload(event: event)
+    }
+
+    private func updateValue(event: FieldChangeEvent) {
+        currentFocusedFielsID = event.fieldID
         let temp = fieldsData.compactMap { data in
-            if data.id == event.field?.id {
-                return event.field
+            if data.id == event.fieldID {
+                var data = data
+                data.value = event.updateValue
+                if let chartData = event.chartData {
+                    data.xMin = chartData.xMin
+                    data.yMin = chartData.yMin
+                    data.xMax = chartData.xMax
+                    data.yMax = chartData.yMax
+                    data.xTitle = chartData.xTitle
+                    data.yTitle = chartData.yTitle
+                }
+                return data
             }
             return data
         }
         fieldsData.removeAll()
         self.fieldsData = temp
-        eventHandler?.onChange(event: event)
-    }
-
-    func onFocus(event: FieldEvent) {
-        lastFocusedFielsData = currentFocusedFielsData
-        currentFocusedFielsData = event.field
-    }
-
-    func onUpload(event: UploadEvent) {
-        eventHandler?.onUpload(event: event)
     }
 }
 
@@ -637,7 +644,8 @@ struct PageDuplicateListView: View {
     @Binding var currentPageID: String
     @Binding var pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
-    
+    let documentEditor: DocumentEditor
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -653,17 +661,16 @@ struct PageDuplicateListView: View {
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
             ScrollView {
-                ForEach(pageOrder ?? [], id: \.self) { id in
-                    if let page = document.firstPageFor(currentPageID: id) {
-                        if DocumentEngine.shouldShowItem(fields: document.fields, logic: page.logic, isItemHidden: page.hidden) {
-
+                ForEach(pageOrder ?? [], id: \.self) { pageID in
+                    if documentEditor.shouldShow(pageID: pageID) {
+                        if let page = documentEditor.firstPageFor(currentPageID: pageID) {
                             VStack(alignment: .leading) {
                                 Button(action: {
-                                    currentPageID = id ?? ""
+                                    currentPageID = pageID ?? ""
                                     presentationMode.wrappedValue.dismiss()
                                 }, label: {
                                     HStack {
-                                        Image(systemName: currentPageID == id ? "checkmark.circle.fill" : "circle")
+                                        Image(systemName: currentPageID == pageID ? "checkmark.circle.fill" : "circle")
                                         Text(page.name ?? "")
                                             .darkLightThemeColor()
                                     }

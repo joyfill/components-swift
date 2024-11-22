@@ -34,8 +34,9 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
-                let fieldEvent = FieldEvent()
-                signatureDataModel.eventHandler.onFocus(event: fieldEvent)
+                //TODO: Use SignatureDataModel(instead of fieldDependency) for event handler
+//                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
+//                fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .darkLightThemeColor()
@@ -64,6 +65,7 @@ struct SignatureView: View {
             }
         }
         .onChange(of: signatureImage) { newValue in
+//            TODO: Use SignatureDataModel(instead of fieldDependency) for event handler
 //            guard !ignoreOnChangeOnDefaultImageLoad else {
 //                ignoreOnChangeOnDefaultImageLoad = false
 //                return
@@ -80,7 +82,8 @@ struct SignatureView: View {
 //                }
 //                fieldData.value = newSignatureImageValue
 //                DispatchQueue.main.async {
-//                    fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//                    let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
+//                    fieldDependency.eventHandler.onChange(event: fieldEvent)
 //                }
 //            }
         }
@@ -243,5 +246,5 @@ extension View {
 struct SignatureDataModel {
     var signatureURL: String?
     var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel
+    var fieldHeaderModel: FieldHeaderModel?
 }

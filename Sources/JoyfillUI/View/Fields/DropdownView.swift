@@ -18,8 +18,9 @@ struct DropdownView: View {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel)
             Button(action: {
                 isSheetPresented = true
-                let fieldEvent = FieldEvent()
-                dropdownDataModel.eventHandler.onFocus(event: fieldEvent)
+                //TODO: Use DropdownDataModel for event handler
+//                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
+//                fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {
                     Text(dropdownDataModel.options?.filter {
@@ -49,13 +50,15 @@ struct DropdownView: View {
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
+            //TODO: Use DropdownDataModel(instead of fieldDependency) for event handler
 //            let newDrodDownValue = ValueUnion.string(newValue ?? "")
 //            guard fieldDependency.fieldData?.value != newDrodDownValue else { return }
 //            guard var fieldData = fieldDependency.fieldData else {
 //                fatalError("FieldData should never be null")
 //            }
 //            fieldData.value = newDrodDownValue
-//            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//            let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
+//            fieldDependency.eventHandler.onChange(event: fieldEvent)
         }
     }
 }
@@ -121,5 +124,5 @@ struct DropdownDataModel {
     var dropdownValue: String?
     var options: [Option]?
     var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel
+    var fieldHeaderModel: FieldHeaderModel?
 }

@@ -29,9 +29,10 @@ struct MultiLineTextView: View {
                 .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
+                    //TODO: Use MultiLineDataModel(instead of fieldDependency) for event handler
 //                    if focused {
-//                        let fieldEvent = FieldEvent()
-//                        multiLineDataModel.eventHandler.onFocus(event: fieldEvent)
+//                        let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
+//                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
 //                    } else {
 //                        let newValue = ValueUnion.string(multilineText)
 //                        guard fieldDependency.fieldData?.value != newValue else { return }
@@ -39,7 +40,8 @@ struct MultiLineTextView: View {
 //                            fatalError("FieldData should never be null")
 //                        }
 //                        fieldData.value = newValue
-//                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//                        let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: newValue)
+//                        fieldDependency.eventHandler.onChange(event: fieldEvent)
 //                    }
                 }
         }
@@ -50,5 +52,5 @@ struct MultiLineDataModel {
     var multilineText: String?
     var mode: Mode
     var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel
+    var fieldHeaderModel: FieldHeaderModel?
 }

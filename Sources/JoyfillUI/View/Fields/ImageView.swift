@@ -49,7 +49,7 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
                                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
@@ -71,7 +71,7 @@ struct ImageView: View {
             } else {
                 Button(action: {
                     uploadAction()
-                    let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                    let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
                     fieldDependency.eventHandler.onFocus(event: fieldEvent)
                 }, label: {
                     ZStack {
@@ -121,7 +121,8 @@ struct ImageView: View {
                 fatalError("FieldData should never be null")
             }
             fieldData.value = newImageValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
+            fieldDependency.eventHandler.onChange(event: fieldEvent)
         }
     }
     

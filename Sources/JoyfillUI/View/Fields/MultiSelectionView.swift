@@ -7,12 +7,12 @@ struct MultiSelectionView: View {
     @State var multiSelectedOptionArray: [String] = []
     
     private let fieldDependency: FieldDependency
-    private let currentFocusedFielsData: JoyDocField?
+    private let currentFocusedFielsID: String?
     @FocusState private var isFocused: Bool
     
-    public init(fieldDependency: FieldDependency,currentFocusedFielsData: JoyDocField?) {
+    public init(fieldDependency: FieldDependency, currentFocusedFielsID: String?) {
         self.fieldDependency = fieldDependency
-        self.currentFocusedFielsData = currentFocusedFielsData
+        self.currentFocusedFielsID = currentFocusedFielsID
         if fieldDependency.fieldData?.multi ?? true {
             if let values = fieldDependency.fieldData?.value?.multiSelector {
                 _multiSelectedOptionArray = State(initialValue: values)
@@ -35,12 +35,12 @@ struct MultiSelectionView: View {
                             $0 == options[index].id
                         }) != nil
                         if fieldDependency.fieldData?.multi ?? true {
-                            MultiSelection(option: optionValue, isSelected: isSelected, multiSelectedOptionArray: $multiSelectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
+                            MultiSelection(option: optionValue, isSelected: isSelected, multiSelectedOptionArray: $multiSelectedOptionArray,isAlreadyFocused: currentFocusedFielsID == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
                                 Divider()
                             }
                         } else {
-                            RadioView(option: optionValue, singleSelectedOptionArray: $singleSelectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
+                            RadioView(option: optionValue, singleSelectedOptionArray: $singleSelectedOptionArray,isAlreadyFocused: currentFocusedFielsID == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -62,7 +62,8 @@ struct MultiSelectionView: View {
                 fatalError("FieldData should never be null")
             }
             fieldData.value = newSingleSelectedValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
+            fieldDependency.eventHandler.onChange(event: fieldEvent)
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
             let newMultiSelectedValue = ValueUnion.array(newValue)
@@ -71,7 +72,8 @@ struct MultiSelectionView: View {
                 fatalError("FieldData should never be null")
             }
             fieldData.value = newMultiSelectedValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
+            fieldDependency.eventHandler.onChange(event: fieldEvent)
         }
     }
 }
@@ -88,7 +90,7 @@ struct MultiSelection: View {
         Button(action: {
             isSelected.toggle()
             if isAlreadyFocused == false {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }
             if let index = multiSelectedOptionArray.firstIndex(of: selectedItemId) {
@@ -129,7 +131,7 @@ struct RadioView: View {
                 singleSelectedOptionArray = [selectedItemId]
             }
             if isAlreadyFocused == false {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }
         }, label: {

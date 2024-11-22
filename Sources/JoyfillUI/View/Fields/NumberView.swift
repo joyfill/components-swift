@@ -3,12 +3,12 @@ import JoyfillModel
 
 struct NumberView: View {
     @State var number: String = ""
-    private let fieldDependency: FieldDependency
+    private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
     
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let number = fieldDependency.fieldData?.value?.number {
+    public init(numberDataModel: NumberDataModel) {
+        self.numberDataModel = numberDataModel
+        if let number = numberDataModel.number {
             let formatter = NumberFormatter()
             formatter.minimumFractionDigits = 0
             formatter.maximumFractionDigits = 10
@@ -25,7 +25,7 @@ struct NumberView: View {
             FieldHeaderView(nil)
             TextField("", text: $number)
                 .accessibilityIdentifier("Number")
-                .disabled(fieldDependency.mode == .readonly)
+                .disabled(numberDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .keyboardType(.decimalPad)
                 .frame(minHeight: 40)
@@ -36,24 +36,32 @@ struct NumberView: View {
                 .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
-                    if focused {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
-                    } else {
-                        let newValue: ValueUnion
-                        if !number.isEmpty, let doubleValue = Double(number) {
-                            newValue = ValueUnion.double(doubleValue)
-                        } else {
-                            newValue = ValueUnion.string("")
-                        }
-                        guard fieldDependency.fieldData?.value != newValue else { return }
-                        guard var fieldData = fieldDependency.fieldData else {
-                            fatalError("FieldData should never be null")
-                        }
-                        fieldData.value = newValue
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
-                    }
+                    //TODO: Use NumberDataModel(instead of fieldDependency) for event handler
+//                    if focused {
+//                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+//                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+//                    } else {
+//                        let newValue: ValueUnion
+//                        if !number.isEmpty, let doubleValue = Double(number) {
+//                            newValue = ValueUnion.double(doubleValue)
+//                        } else {
+//                            newValue = ValueUnion.string("")
+//                        }
+//                        guard fieldDependency.fieldData?.value != newValue else { return }
+//                        guard var fieldData = fieldDependency.fieldData else {
+//                            fatalError("FieldData should never be null")
+//                        }
+//                        fieldData.value = newValue
+//                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//                    }
                 }
         }
     }
+}
+
+struct NumberDataModel {
+    var number: Double?
+    var mode: Mode
+    var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel?
 }

@@ -56,6 +56,7 @@ struct DateTimeView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
+            //TODO: Use DateTimeDataModel(instead of fieldDependency) for event handler
 //            let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
 //            let newDateValue = ValueUnion.double(convertDateToInt)
 //            guard fieldDependency.fieldData?.value != newDateValue else { return }
@@ -63,7 +64,7 @@ struct DateTimeView: View {
 //                fatalError("FieldData should never be null")
 //            }
 //            fieldData.value = newDateValue
-//            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+//            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldID: fieldData.id!, updateValue: newDateValue))
         }
     }
     
@@ -93,5 +94,5 @@ struct DateTimeDataModel {
     var value: ValueUnion?
     var format: String?
     var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel
+    var fieldHeaderModel: FieldHeaderModel?
 }
