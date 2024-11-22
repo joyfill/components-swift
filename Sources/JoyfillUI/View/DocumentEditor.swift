@@ -1,21 +1,15 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Vishnu Dutt on 21/11/24.
 //
 
 import Foundation
-import JoyfillModel
 
-@available(iOS 13.0, *)
 public class DocumentEditor {
-    public var document: JoyDoc
-    private var fieldMap = [String: JoyDocField]() {
-        didSet {
-            document.fields = allFields
-        }
-    }
+    private var document: JoyDoc
+    private var fieldMap = [String: JoyDocField]()
     private var fieldPositionMap = [String: FieldPosition]()
 
     public init(document: JoyDoc) {
@@ -29,18 +23,6 @@ public class DocumentEditor {
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
         }
-    }
-
-    public var documentID: String? {
-        document.id
-    }
-
-    public var documentIdentifier: String? {
-        document.identifier
-    }
-
-    public var files: [File] {
-        document.files
     }
 
     public var pagesForCurrentView: [Page] {
@@ -132,7 +114,7 @@ public class DocumentEditor {
 
     public func firstValidPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
-            currentPage.id == currentPageID && shouldShow(page: currentPage) 
+            currentPage.id == currentPageID && shouldShow(page: currentPage)
         } ?? firstPage
     }
 
@@ -150,7 +132,9 @@ public class DocumentEditor {
         let conditionModels = conditions.compactMap { condition ->  ConditionModel? in
             guard let fieldID = condition.field else { return nil }
             guard let field = fieldMap[condition.field!] else { return nil }
-            return ConditionModel(fieldValue: field.value, fieldType: FieldTypes(field.type), condition: condition.condition, value: condition.value)
+            guard let conditionFieldID = condition.field else { return nil }
+            let conditionField = fieldMap[conditionFieldID]!
+            return ConditionModel(fieldValue: conditionField.value, fieldType: FieldTypes(conditionField.type), condition: condition.condition, value: condition.value)
         }
         let logicModel = LogicModel(id: logic.id, action: logic.action, conditions: conditionModels)
         let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: page.hidden, itemCount: document.pagesForCurrentView.count)
@@ -162,9 +146,13 @@ public class DocumentEditor {
         guard let logic = field.logic else { return nil }
         guard let conditions = logic.conditions else { return nil }
 
-        let conditionModels = conditions.flatMap { condition in
-            ConditionModel(fieldValue: field.value, fieldType: FieldTypes(field.type), condition: condition.condition, value: condition.value)
+        let conditionModels = conditions.compactMap { condition -> ConditionModel?  in
+            guard let fieldID = condition.field else { return nil }
+            let conditionField = fieldMap[fieldID]!
+
+            return ConditionModel(fieldValue: conditionField.value, fieldType: FieldTypes(conditionField.type), condition: condition.condition, value: condition.value)
         }
+        
         let logicModel = LogicModel(id: field.logic?.id, action: logic.action, conditions: conditionModels)
         let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: field.hidden, itemCount: fieldMap.count)
         return conditionModel
