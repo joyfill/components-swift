@@ -18,7 +18,7 @@ struct DropdownView: View {
             FieldHeaderView(nil)
             Button(action: {
                 isSheetPresented = true
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
+                let fieldEvent = FieldEventInternal(fieldID: fieldDependency.fieldData!.id!)
                 fieldDependency.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {
@@ -56,7 +56,8 @@ struct DropdownView: View {
                 fatalError("FieldData should never be null")
             }
             fieldData.value = newDrodDownValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldData.value!)
+            fieldDependency.eventHandler.onChange(event: fieldEvent)
         }
     }
 }
