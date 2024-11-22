@@ -179,5 +179,5 @@ extension UIColor {
 struct RichTextDataModel {
     var text: String?
     var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel
+    var fieldHeaderModel: FieldHeaderModel?
 }

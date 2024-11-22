@@ -28,6 +28,7 @@ struct TextView: View {
                 .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
+                    //TODO: Use TextDataModel(instead of fieldDependency) for event handler
 //                    if focused {
 //                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
 //                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
