@@ -494,11 +494,7 @@ struct FormView: View {
         })
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldPosition: fieldPosition, fieldData: fieldData)
-        let fieldHeaderModel = FieldHeaderModel(title: fieldData?.title,
-                                                required: fieldData?.required,
-                                                tipDescription: fieldData?.tipDescription,
-                                                tipTitle: fieldData?.tipTitle,
-                                                tipVisible: fieldData?.tipVisible)
+        var fieldHeaderModel = (fieldDependency.fieldPosition.titleDisplay == nil || fieldDependency.fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
         switch fieldPosition.type {
         case .text:
             TextView(textDataModel: TextDataModel(text: fieldDependency.fieldData?.value?.text ?? "",
