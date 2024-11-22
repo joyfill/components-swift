@@ -6,10 +6,16 @@
 //
 
 import Foundation
+import JoyfillModel
 
+@available(iOS 13.0, *)
 public class DocumentEditor {
-    private var document: JoyDoc
-    private var fieldMap = [String: JoyDocField]()
+    public var document: JoyDoc
+    private var fieldMap = [String: JoyDocField]() {
+        didSet {
+            document.fields = allFields
+        }
+    }
     private var fieldPositionMap = [String: FieldPosition]()
 
     public init(document: JoyDoc) {
@@ -23,6 +29,18 @@ public class DocumentEditor {
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
         }
+    }
+
+    public var documentID: String? {
+        document.id
+    }
+
+    public var documentIdentifier: String? {
+        document.identifier
+    }
+
+    public var files: [File] {
+        document.files
     }
 
     public var pagesForCurrentView: [Page] {
