@@ -70,7 +70,7 @@ public struct Form: View {
      - Returns: A SwiftUI view representing the form view.
      */
     public var body: some View {
-        FilesView(document: $document, documentEditor: documentEditor, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
+        FilesView(documentEditor: documentEditor, files: document.files, mode: mode, events: self, currentPageID: $currentPageID, showPageNavigationView: navigation)
     }
 
     private func updateValue(event: FieldChangeEvent) {
@@ -247,7 +247,6 @@ extension Form: FormChangeEventInternal {
 ///
 /// Use `FilesView` to display a list of files along with other form fields.
 struct FilesView: View {
-    @Binding public var document: JoyDoc
     let documentEditor: DocumentEditor
 
     /// The `File` objects that represent the files to be displayed.
@@ -268,7 +267,7 @@ struct FilesView: View {
     ///
     /// - Returns: A SwiftUI view representing the files view.
     var body: some View {
-        FileView(document: $document, file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+        FileView(file: files.first, mode: mode, events: events, currentPageID: $currentPageID, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
     }
 }
 
@@ -276,7 +275,6 @@ struct FilesView: View {
 ///
 /// It uses a `JoyDocField` object, a `File` object, a `Mode`, a `FormChangeEventInternal`, and a `currentPageID` to manage and display the file.
 struct FileView: View {
-    @Binding public var document: JoyDoc
     var file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -288,7 +286,7 @@ struct FileView: View {
     /// - Returns: A SwiftUI view representing the file view.
     var body: some View {
         if let file = file {
-            PagesView(document: $document, currentPageID: $currentPageID, pages: $document.pagesForCurrentView, pageOrder: file.pageOrder, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+            PagesView(currentPageID: $currentPageID, pageOrder: file.pageOrder, pages: documentEditor.pagesForCurrentView, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
         }
     }
 }
@@ -339,10 +337,9 @@ extension FileView: FormChangeEventInternal {
 
 /// A view that represents a collection of pages.
 struct PagesView: View {
-    @Binding public var document: JoyDoc
     @Binding var currentPageID: String
-    @Binding var pages: [Page]
     @State var pageOrder: [String]?
+    let pages: [Page]
     let mode: Mode
     let events: FormChangeEventInternal?
     @State private var isSheetPresented = false
@@ -368,15 +365,15 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
+                        PageDuplicateListView(pages: pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(document: $document, pages: $pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
+                        PageDuplicateListView(pages: pages, currentPageID: $currentPageID, pageOrder: $pageOrder, documentEditor: documentEditor)
                     }
                 }
             }
             if let page = documentEditor.firstValidPageFor(currentPageID: currentPageID) {
-                PageView(document: $document, page: page, mode: mode, events: events, documentEditor: documentEditor)
+                PageView(page: page, mode: mode, events: events, documentEditor: documentEditor)
             }
         }
     }
@@ -385,7 +382,6 @@ struct PagesView: View {
 
 /// A `View` that represents a page in a form.
 struct PageView: View {
-    @Binding public var document: JoyDoc
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -402,7 +398,7 @@ struct PageView: View {
             } set: { _ in
                 
             }
-            FormView(document: $document, fieldPositions: binding, mode: mode, eventHandler: self, documentEditor: documentEditor)
+            FormView(fieldPositions: binding, mode: mode, eventHandler: self, documentEditor: documentEditor)
         }
     }
     
@@ -492,7 +488,6 @@ struct FieldDependency {
 }
 
 struct FormView: View {
-    @Binding public var document: JoyDoc
     @Binding var fieldPositions: [FieldPosition]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
@@ -621,8 +616,7 @@ extension FormView: FieldChangeEvents {
 }
 
 struct PageDuplicateListView: View {
-    @Binding public var document: JoyDoc
-    @Binding var pages: [Page]
+    let pages: [Page]
     @Binding var currentPageID: String
     @Binding var pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
