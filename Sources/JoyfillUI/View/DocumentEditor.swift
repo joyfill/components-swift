@@ -313,4 +313,186 @@ public class DocumentEditor {
             return conditionsResults.contains { $0 }
         }
     }
+    
+    func fieldIndex(fieldID: String) -> Int? {
+        return document.fields.firstIndex(where: { $0.id == fieldID })
+    }
+    
+    /// Deletes a row with the specified ID from the table field.
+    func deleteRow(id: String, fieldId: String) {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+        
+        var element = elements[index]
+        element.setDeleted()
+        elements[index] = element
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
+        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        lastRowOrder.removeAll(where: { $0 == id })
+        document.fields[fieldIndex!].rowOrder = lastRowOrder
+    }
+
+    /// Deletes a row with the specified ID from the table field.
+    func duplicateRow(selectedRows: [String], fieldId: String) -> [TargetRowModel] {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            return []
+        }
+        var targetRows = [TargetRowModel]()
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+
+        selectedRows.forEach { rowID in
+            var element = elements.first(where: { $0.id == rowID })!
+            let newRowID = generateObjectId()
+            element.id = newRowID
+            elements.append(element)
+            let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
+            lastRowOrder.insert(newRowID, at: lastRowIndex+1)
+            targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+        }
+
+        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
+        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        return targetRows
+    }
+
+
+    func moveUP(rowID: String, fieldId: String)  -> [TargetRowModel] {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            return []
+        }
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
+
+        guard lastRowIndex != 0 else {
+            return []
+        }
+        lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
+        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        return [TargetRowModel(id: rowID, index: lastRowIndex-1)]
+    }
+
+    func moveDown(rowID: String, fieldId: String)  -> [TargetRowModel] {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            return []
+        }
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
+
+        guard (lastRowOrder.count - 1) != lastRowIndex else {
+            return []
+        }
+        lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
+        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        return [TargetRowModel(id: rowID, index: lastRowIndex+1)]
+    }
+
+    /// Adds a new row with the specified ID to the table field.
+    func insertLastRow(id: String, fieldId: String) {
+        var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
+        
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        elements.append(ValueElement(id: id))
+        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
+        document.fields[fieldIndex!].rowOrder?.append(id)
+    }
+
+    /// Adds a new row with the specified ID to the table field.
+    func addRow(selectedRows: [String], fieldId: String)  -> [TargetRowModel] {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            return []
+        }
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        var targetRows = [TargetRowModel]()
+        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+
+        selectedRows.forEach { rowID in
+            let newRowID = generateObjectId()
+            var element = ValueElement(id: newRowID)
+            elements.append(element)
+            let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
+            lastRowOrder.insert(newRowID, at: lastRowIndex+1)
+            targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+        }
+
+        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
+        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        return targetRows
+    }
+
+    /// Adds a new row with the specified ID to the table field.
+    func addRowWithFilter(id: String, filterModels: [FilterModel], fieldId: String) {
+        var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
+
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        var newRow = ValueElement(id: id)
+        elements.append(newRow)
+        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
+        document.fields[fieldIndex!].rowOrder?.append(id)
+        for filterModel in filterModels {
+            cellDidChange(rowId: id, colIndex: filterModel.colIndex, editedCellId: filterModel.colID, value: filterModel.filterText, fieldId: fieldId)
+        }
+    }
+
+    /// A function that updates the cell value when a change is detected.
+    ///
+    /// This function is called when a cell's value is edited. It updates the corresponding cell in the `elements` array based on the `rowId` and `colIndex` provided. The type of the `editedCell` determines how the cell is updated.
+    ///
+    /// - Parameters:
+    ///   - rowId: The ID of the row containing the cell to be updated.
+    ///   - colIndex: The index of the column containing the cell to be updated.
+    ///   - editedCell: The cell that has been edited.
+    ///
+    /// - Note: The `editedCell` parameter is of type `FieldTableColumn`, which includes properties such as `type`, `id`, `title`, `defaultDropdownSelectedId`, and `images`.
+     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn, fieldId: String) {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
+            return
+        }
+        
+        switch editedCell.type {
+        case "text":
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.title ?? ""), fieldId: fieldId)
+        case "dropdown":
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
+        case "image":
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(editedCell.images ?? []), fieldId: fieldId)
+        default:
+            return
+        }
+    }
+
+    func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String, fieldId: String) {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
+            return
+        }
+
+        changeCell(elements: elements, index: index, editedCellId: editedCellId, newCell: ValueUnion.string(value), fieldId: fieldId)
+    }
+
+    /// A private function that updates the cell value in the elements array.
+    ///
+    /// This function is called when a cell's value is edited. It updates the corresponding cell in the `elements` array based on the `index` and `editedCellId` provided. The new cell value is determined by the `newCell` parameter.
+    ///
+    /// - Parameters:
+    ///   - elements: The array of `ValueElement` objects containing the cells to be updated.
+    ///   - index: The index of the element in the array to be updated.
+    ///   - editedCellId: The ID of the cell to be updated.
+    ///   - newCell: The new value for the cell.
+    ///
+    /// - Note: After updating the cell, the function updates the `value` property of the instance with the new `elements` array.
+    func changeCell(elements: [ValueElement], index: Int, editedCellId: String?, newCell: ValueUnion, fieldId: String) {
+        var elements = elements
+        if var cells = elements[index].cells {
+            cells[editedCellId ?? ""] = newCell
+            elements[index].cells = cells
+        } else {
+            elements[index].cells = [editedCellId ?? "" : newCell]
+        }
+        let fieldIndex = fieldIndex(fieldID: fieldId)
+        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
+    }
 }
