@@ -12,7 +12,7 @@ import JoyfillModel
 class TableViewModel: ObservableObject {
     let supportedColumnTypes = ["text", "image", "dropdown"]
     private let mode: Mode
-    var fieldDependency: FieldDependency
+    var tableDataModel: TableDataModel
     
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
@@ -36,9 +36,9 @@ class TableViewModel: ObservableObject {
     private var tableDataDidChange = false
     @Published var uuid = UUID()
     
-    init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        self.mode = fieldDependency.mode
+    init(tableDataModel: TableDataModel) {
+        self.tableDataModel = tableDataModel
+        self.mode = tableDataModel.mode
         self.showRowSelector = mode == .fill
         self.shouldShowAddRowButton = mode == .fill
         setupColumns()
@@ -62,7 +62,12 @@ class TableViewModel: ObservableObject {
             columns.enumerated().forEach { colIndex, colID in
                 let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
                 if let columnModel = columnModel {
-                    let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                    let cellModel = TableCellModel(rowID: rowID,
+                                                   data: columnModel,
+                                                   eventHandler: tableDataModel.eventHandler,
+                                                   fieldId: tableDataModel.fieldId!,
+                                                   viewMode: .modalView,
+                                                   editMode: tableDataModel.mode) { editedCell  in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
                     }
                     rowCellModels.append(cellModel)
@@ -80,7 +85,12 @@ class TableViewModel: ObservableObject {
         columns.enumerated().forEach { colIndex, colID in
             let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
             if let columnModel = columnModel {
-                let cellModel = TableCellModel(rowID: rowID, data: columnModel, eventHandler: fieldDependency.eventHandler, fieldData: fieldDependency.fieldData, viewMode: .modalView, editMode: fieldDependency.mode) { editedCell  in
+                let cellModel = TableCellModel(rowID: rowID,
+                                               data: columnModel,
+                                               eventHandler: tableDataModel.eventHandler,
+                                               fieldId: tableDataModel.fieldId!,
+                                               viewMode: .modalView,
+                                               editMode: tableDataModel.mode) { editedCell  in
                     self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
                 }
                 rowCellModels.append(cellModel)
@@ -166,11 +176,11 @@ class TableViewModel: ObservableObject {
         }
 
         for row in selectedRows {
-            fieldDependency.fieldData?.deleteRow(id: row)
+            tableDataModel.documentEditor?.deleteRow(id: row, fieldId: tableDataModel.fieldId!)
             rowToCellMap.removeValue(forKey: row)
         }
-        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
-        fieldDependency.eventHandler.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
+        tableDataModel.eventHandler.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
 
         emptySelection()
         setup()
@@ -185,41 +195,41 @@ class TableViewModel: ObservableObject {
     
     func duplicateRow() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = fieldDependency.fieldData?.duplicateRow(selectedRows: selectedRows) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.duplicateRow(selectedRows: selectedRows, fieldId: tableDataModel.fieldId!) else { return }
         setTableDataDidChange(to: true)
         setup()
-        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
-        fieldDependency.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
+        tableDataModel.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
         emptySelection()
         setupCellModels()
     }
 
     func insertBelow() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = fieldDependency.fieldData?.addRow(selectedRows: selectedRows) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.addRow(selectedRows: selectedRows, fieldId: tableDataModel.fieldId!) else { return }
         
-        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
-        fieldDependency.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
+        tableDataModel.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
         updateUI()
     }
 
     func moveUP() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = fieldDependency.fieldData?.moveUP(rowID: selectedRows.first!) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.moveUP(rowID: selectedRows.first!, fieldId: tableDataModel.fieldId!) else { return }
         handleMove(targetRows: targetRows)
     }
 
     func moveDown() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = fieldDependency.fieldData?.moveDown(rowID: selectedRows.first!) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.moveDown(rowID: selectedRows.first!, fieldId: tableDataModel.fieldId!) else { return }
         handleMove(targetRows: targetRows)
     }
 
     private func handleMove(targetRows: [TargetRowModel]) {
         guard !targetRows.isEmpty else { return }
         
-        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
-        fieldDependency.eventHandler.moveRow(event: changeEvent, targetRowIndexes: targetRows)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
+        tableDataModel.eventHandler.moveRow(event: changeEvent, targetRowIndexes: targetRows)
         
         updateUI()
     }
@@ -235,20 +245,20 @@ class TableViewModel: ObservableObject {
         let id = generateObjectId()
 
         if filterModels.noFilterApplied {
-            fieldDependency.fieldData?.insertLastRow(id: id)
+            tableDataModel.documentEditor?.insertLastRow(id: id, fieldId: tableDataModel.fieldId!)
         } else {
-            fieldDependency.fieldData?.addRowWithFilter(id: id, filterModels: filterModels)
+            tableDataModel.documentEditor?.addRowWithFilter(id: id, filterModels: filterModels, fieldId: tableDataModel.fieldId!)
         }
         
-        let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
-        fieldDependency.eventHandler.addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (fieldDependency.fieldData?.value?.valueElements?.count ?? 1) - 1)])
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
+        tableDataModel.eventHandler.addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (tableDataModel.value?.valueElements?.count ?? 1) - 1)])
         
         updateUI()
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
         setTableDataDidChange(to: true)
-        fieldDependency.fieldData?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldId!)
         setup()
         uuid = UUID()
         updateCellModel(rowIndex: rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
@@ -258,7 +268,7 @@ class TableViewModel: ObservableObject {
         for row in selectedRows {
             for colIndex in changes.keys {
                 if let editedCellId = getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
-                    fieldDependency.fieldData?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change)
+                    tableDataModel.documentEditor?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldId!)
                 }
             }
         }
@@ -271,16 +281,16 @@ class TableViewModel: ObservableObject {
     }
 
     private func setupColumns() {
-        guard let joyDocModel = fieldDependency.fieldData else { return }
-        self.columns = (joyDocModel.tableColumnOrder ?? []).filter { columnID in
-            if let columnType = joyDocModel.tableColumns?.first { $0.id == columnID }?.type {
+//        guard let joyDocModel = fieldDependency.fieldData else { return }
+        self.columns = (tableDataModel.tableColumnOrder ?? []).filter { columnID in
+            if let columnType = tableDataModel.tableColumns?.first { $0.id == columnID }?.type {
                 return supportedColumnTypes.contains(columnType)
             }
             return false
         }
         
         for column in self.columns {
-            columnIdToColumnMap[column] = joyDocModel.tableColumns?.first { $0.id == column }
+            columnIdToColumnMap[column] = tableDataModel.tableColumns?.first { $0.id == column }
         }
         
         self.quickColumns = columns
@@ -290,20 +300,20 @@ class TableViewModel: ObservableObject {
     }
     
     private func setupRows() {
-        guard let joyDocModel = fieldDependency.fieldData else { return }
-        guard let valueElements = joyDocModel.valueToValueElements, !valueElements.isEmpty else {
+//        guard let joyDocModel = fieldDependency.fieldData else { return }
+        guard let valueElements = tableDataModel.valueToValueElements, !valueElements.isEmpty else {
             setupQuickTableViewRows()
             return
         }
         
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: joyDocModel.rowOrder)
+        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
         var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
         
         for row in sortedRows {
             var cells: [FieldTableColumn?] = []
             for column in self.columns {
-                let columnData = joyDocModel.tableColumns?.first { $0.id == column }
+                let columnData = tableDataModel.tableColumns?.first { $0.id == column }
                 let cell = buildCell(data: columnData, row: row, column: column)
                 cells.append(cell)
             }
@@ -338,7 +348,7 @@ class TableViewModel: ObservableObject {
             quickRowToCellMap = [:]
             let id = generateObjectId()
             quickRows = [id]
-            quickRowToCellMap = [id : fieldDependency.fieldData?.tableColumns ?? []]
+            quickRowToCellMap = [id : tableDataModel.tableColumns ?? []]
         }
         else {
             while quickRows.count > 3 {
@@ -361,8 +371,8 @@ class TableViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         if tableDataDidChange {
             setTableDataDidChange(to: false)
-            let changeEvent = FieldChangeEvent(fieldID: fieldDependency.fieldData!.id!, updateValue: fieldDependency.fieldData?.value)
-            fieldDependency.eventHandler.onChange(event: changeEvent)
+            let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
+            tableDataModel.eventHandler.onChange(event: changeEvent)
         }
     }
 }

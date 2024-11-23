@@ -16,8 +16,8 @@ struct TableQuickView : View {
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
 
-    public init(fieldDependency: FieldDependency) {
-        self.viewModel = TableViewModel(fieldDependency: fieldDependency)
+    public init(tableDataModel: TableDataModel) {
+        self.viewModel = TableViewModel(tableDataModel: tableDataModel)
     }
         
     var body: some View {
@@ -102,7 +102,13 @@ struct TableQuickView : View {
                         // Cell
                         let cell = viewModel.getQuickFieldTableColumn(row: row, col: index)
                         if let cell = cell {
-                            let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .quickView, editMode: viewModel.fieldDependency.mode, didChange: nil)
+                            let cellModel = TableCellModel(rowID: row,
+                                                           data: cell,
+                                                           eventHandler: viewModel.tableDataModel.eventHandler,
+                                                           fieldId: viewModel.tableDataModel.fieldId!,
+                                                           viewMode: .quickView,
+                                                           editMode: viewModel.tableDataModel.mode,
+                                                           didChange: nil)
                             ZStack {
                                 Rectangle()
                                     .stroke()
@@ -118,4 +124,17 @@ struct TableQuickView : View {
         .id(viewModel.uuid)
         .disabled(true)
     }
+}
+
+struct TableDataModel {
+    var fieldId: String?
+    var value: ValueUnion?
+    var tableColumnOrder: [String]?
+    var tableColumns: [FieldTableColumn]?
+    var valueToValueElements: [ValueElement]?
+    var rowOrder: [String]?
+    var title: String?
+    var documentEditor: DocumentEditor?
+    var mode: Mode
+    var eventHandler: FieldChangeEvents
 }

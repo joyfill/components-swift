@@ -515,8 +515,18 @@ struct FormView: View {
                                                               fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .table:
-            let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldData: fieldData)
-            TableQuickView(fieldDependency: fieldDependency)
+//            let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldData: fieldData)
+            let model = TableDataModel(fieldId: fieldData?.id,
+                                       value: fieldData?.value,
+                                       tableColumnOrder: fieldData?.tableColumnOrder,
+                                       tableColumns: fieldData?.tableColumns,
+                                       valueToValueElements: fieldData?.valueToValueElements,
+                                       rowOrder: fieldData?.rowOrder,
+                                       title: fieldData?.title,
+                                       documentEditor: documentEditor,
+                                       mode: fieldEditMode,
+                                       eventHandler: self)
+            TableQuickView(tableDataModel: model)
         case .image:
             ImageView(imageDataModel: ImageDataModel(fieldId: fieldData?.id,
                                                      multi: fieldData?.multi,

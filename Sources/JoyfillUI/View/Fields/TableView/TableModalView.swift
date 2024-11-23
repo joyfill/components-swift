@@ -23,8 +23,7 @@ struct TableModalView : View {
         VStack {
             TableModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true },
-                fieldDependency: viewModel.fieldDependency)
+                onEditTap: { showEditMultipleRowsSheetView = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
             }
@@ -40,8 +39,8 @@ struct TableModalView : View {
             viewModel.sendEventsIfNeeded()
         })
         .onAppear(perform: {
-            let fieldEvent = FieldEventInternal(fieldID: viewModel.fieldDependency.fieldData!.id!)
-            viewModel.fieldDependency.eventHandler.onFocus(event: fieldEvent)
+            let fieldEvent = FieldEventInternal(fieldID: viewModel.tableDataModel.fieldId!)
+            viewModel.tableDataModel.eventHandler.onFocus(event: fieldEvent)
         })
         .onChange(of: viewModel.sortModel.order) { _ in
             filterRowsIfNeeded()
@@ -367,7 +366,12 @@ struct SearchBar: View {
                 let row = viewModel.rows[0]
                 let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
                 if let column = column {
-                    let cellModel = TableCellModel(rowID: "", data: column, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                    let cellModel = TableCellModel(rowID: "",
+                                                   data: column,
+                                                   eventHandler: viewModel.tableDataModel.eventHandler,
+                                                   fieldId: viewModel.tableDataModel.fieldId!,
+                                                   viewMode: .modalView,
+                                                   editMode: viewModel.tableDataModel.mode)
                     { editedCell in
                         switch column.type {
                         case "text":

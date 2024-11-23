@@ -318,6 +318,10 @@ public class DocumentEditor {
         return document.fields.firstIndex(where: { $0.id == fieldID })
     }
     
+    func valueElements(fieldID: String) -> [ValueElement]? {
+        return field(fieldID: fieldID)?.valueToValueElements
+    }
+    
     /// Deletes a row with the specified ID from the table field.
     func deleteRow(id: String, fieldId: String) {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == id }) else {

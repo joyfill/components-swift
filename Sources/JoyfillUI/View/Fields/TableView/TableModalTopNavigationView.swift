@@ -4,13 +4,13 @@ import JoyfillModel
 struct TableModalTopNavigationView: View {
     @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
-    var fieldDependency: FieldDependency
+//    var fieldDependency: FieldDependency
     
     @State private var showingPopover = false
 
     var body: some View {
         HStack {
-            if let title = fieldDependency.fieldData?.title {
+            if let title = viewModel.tableDataModel.title {
                 Text("\(title)")
                     .font(.headline.bold())
             }
@@ -236,7 +236,7 @@ struct EditMultipleRowsSheetView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top) {
-                    if let title = viewModel.fieldDependency.fieldData?.title {
+                    if let title = viewModel.tableDataModel.title {
                         VStack(alignment: .leading) {
                             Text("\(title)")
                                 .font(.headline.bold())
@@ -283,7 +283,12 @@ struct EditMultipleRowsSheetView: View {
                     let row = viewModel.selectedRows.first!
                     let cell = viewModel.getFieldTableColumn(row: row, col: colIndex)
                     if let cell = cell {
-                        let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
+                        let cellModel = TableCellModel(rowID: row,
+                                                       data: cell,
+                                                       eventHandler: viewModel.tableDataModel.eventHandler,
+                                                       fieldId: viewModel.tableDataModel.fieldId!,
+                                                       viewMode: .modalView,
+                                                       editMode: viewModel.tableDataModel.mode)
                         { editedCell in
                             switch cell.type {
                             case "text":
@@ -312,7 +317,7 @@ struct EditMultipleRowsSheetView: View {
                             TextField("", text: binding)
                                 .font(.system(size: 15))
                                 .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                                .disabled(viewModel.fieldDependency.mode == .readonly)
+                                .disabled(viewModel.tableDataModel.mode == .readonly)
                                 .padding(.horizontal, 10)
                                 .frame(height: 40)
                                 .overlay(
