@@ -15,14 +15,16 @@ struct TableQuickView : View {
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
+    var tableDataModel: TableDataModel
 
     public init(tableDataModel: TableDataModel) {
         self.viewModel = TableViewModel(tableDataModel: tableDataModel)
+        self.tableDataModel = tableDataModel
     }
         
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(nil)
+            FieldHeaderView(tableDataModel.fieldHeaderModel)
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     ScrollView([.horizontal]) {
@@ -137,4 +139,5 @@ struct TableDataModel {
     var documentEditor: DocumentEditor?
     var mode: Mode
     var eventHandler: FieldChangeEvents
+    var fieldHeaderModel: FieldHeaderModel?
 }

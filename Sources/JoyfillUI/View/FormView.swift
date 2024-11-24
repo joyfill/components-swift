@@ -525,7 +525,8 @@ struct FormView: View {
                                        title: fieldData?.title,
                                        documentEditor: documentEditor,
                                        mode: fieldEditMode,
-                                       eventHandler: self)
+                                       eventHandler: self,
+                                       fieldHeaderModel: fieldHeaderModel)
             TableQuickView(tableDataModel: model)
         case .image:
             ImageView(imageDataModel: ImageDataModel(fieldId: fieldData?.id,
