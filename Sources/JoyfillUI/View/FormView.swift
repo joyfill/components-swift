@@ -2,9 +2,9 @@ import SwiftUI
 import JoyfillModel
 
 public struct Form: View {
-    @Binding public var document: JoyDoc
-    @State public var currentPageID: String
-    public let mode: Mode
+    @Binding var document: JoyDoc
+    let currentPageID: String
+    let mode: Mode
 
     let documentEditor: DocumentEditor
     private var navigation: Bool
@@ -14,13 +14,8 @@ public struct Form: View {
         self.events = events
         self.mode = mode
         _document = document
-        var pageId = pageID
         let documentEditor = DocumentEditor(document: document.wrappedValue)
-        if let pageID = pageID, pageID != "" {
-            _currentPageID = State(initialValue: pageID)
-        } else {
-            _currentPageID = State(initialValue: documentEditor.firstPageId ?? "")
-        }
+        currentPageID = ((pageID == nil || pageID!.isEmpty) ? documentEditor.firstPageId : "") ?? ""
         self.navigation = navigation
         self.documentEditor = documentEditor
     }
@@ -28,20 +23,14 @@ public struct Form: View {
     public init(documentEditor: DocumentEditor, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
         self.mode = mode
-
         _document = Binding(get: { documentEditor.document }, set: { _ in })
-        var pageId = pageID
-        if let pageID = pageID, pageID != "" {
-            _currentPageID = State(initialValue: pageID)
-        } else {
-            _currentPageID = State(initialValue: documentEditor.firstPageId ?? "")
-        }
+        currentPageID = ((pageID == nil || pageID!.isEmpty) ? documentEditor.firstPageId : "") ?? ""
         self.navigation = navigation
         self.documentEditor = documentEditor
     }
 
     public var body: some View {
-        FilesView(currentPageID: $currentPageID, documentEditor: documentEditor, files: documentEditor.files, mode: mode, events: self, showPageNavigationView: navigation)
+        FilesView(currentPageID: currentPageID, documentEditor: documentEditor, files: documentEditor.files, mode: mode, events: self, showPageNavigationView: navigation)
     }
 
     private func updateValue(event: FieldChangeEvent) {
@@ -205,7 +194,7 @@ extension Form: FormChangeEventInternal {
 }
 
 struct FilesView: View {
-    @Binding var currentPageID: String
+    let currentPageID: String
     let documentEditor: DocumentEditor
     let files: [File]
     let mode: Mode
@@ -213,12 +202,12 @@ struct FilesView: View {
     var showPageNavigationView: Bool
 
     var body: some View {
-        FileView(currentPageID: $currentPageID, file: files.first, mode: mode, events: events, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+        FileView(currentPageID: currentPageID, file: files.first, mode: mode, events: events, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
     }
 }
 
 struct FileView: View {
-    @Binding var currentPageID: String
+    let currentPageID: String
     let file: File?
     let mode: Mode
     let events: FormChangeEventInternal?
@@ -227,7 +216,7 @@ struct FileView: View {
 
     var body: some View {
         if let file = file {
-            PagesView(currentPageID: $currentPageID, pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+            PagesView(currentPageID: currentPageID, pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
         }
     }
 }
@@ -276,10 +265,9 @@ extension FileView: FormChangeEventInternal {
     }
 }
 
-/// A view that represents a collection of pages.
 struct PagesView: View {
     @State private var isSheetPresented = false
-    @Binding var currentPageID: String
+    @State var currentPageID: String
     let pageOrder: [String]?
     @Binding var pageFieldModels: [String: PageModel]
     let mode: Mode
@@ -287,10 +275,24 @@ struct PagesView: View {
     var showPageNavigationView: Bool
     @ObservedObject var documentEditor: DocumentEditor
 
+    init(isSheetPresented: Bool = false,
+         currentPageID: String,
+         pageOrder: [String]?,
+         pageFieldModels: Binding<[String : PageModel]>,
+         mode: Mode,
+         events: FormChangeEventInternal?,
+         showPageNavigationView: Bool,
+         documentEditor: DocumentEditor) {
+        self.isSheetPresented = isSheetPresented
+        self.currentPageID = currentPageID
+        self.pageOrder = pageOrder
+        _pageFieldModels = pageFieldModels
+        self.mode = mode
+        self.events = events
+        self.showPageNavigationView = showPageNavigationView
+        self.documentEditor = documentEditor
+    }
 
-    /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
-    ///
-    /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
         VStack(alignment: .leading) {
             if showPageNavigationView && pageFieldModels.count > 1 {
