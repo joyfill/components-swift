@@ -543,7 +543,7 @@ struct FormView: View {
 
     var body: some View {
         List(listModels, id: \.fieldID) { listModel in
-            if documentEditor.shouldShowLocal(fieldID: listModel.fieldID) {
+            if documentEditor.shouldShow(fieldID: listModel.fieldID) {
                 fieldView(listModel: listModel)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
