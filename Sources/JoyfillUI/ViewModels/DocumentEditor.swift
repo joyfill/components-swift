@@ -556,7 +556,7 @@ public class DocumentEditor: ObservableObject {
     
     func sendEventsIfNeeded(fieldID: String, eventHandler: FieldChangeEvents) {
         let changeEvent = FieldChangeEvent(fieldID: fieldID, updateValue: fieldMap[fieldID]?.value)
-        eventHandler.onChange(event: changeEvent)
+        onChange(event: changeEvent)
     }
     
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {

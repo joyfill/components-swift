@@ -199,8 +199,8 @@ class TableViewModel: ObservableObject {
         guard let targetRows = tableDataModel.documentEditor?.duplicateRow(selectedRows: selectedRows, fieldId: tableDataModel.fieldId!) else { return }
         setTableDataDidChange(to: true)
         setup()
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
-        tableDataModel.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
+        tableDataModel.documentEditor?.addRow(event: changeEvent, targetRowIndexes: targetRows)
         emptySelection()
         setupCellModels()
     }
@@ -209,8 +209,8 @@ class TableViewModel: ObservableObject {
         guard !selectedRows.isEmpty else { return }
         guard let targetRows = tableDataModel.documentEditor?.addRow(selectedRows: selectedRows, fieldId: tableDataModel.fieldId!) else { return }
         
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
-        tableDataModel.eventHandler.addRow(event: changeEvent, targetRowIndexes: targetRows)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
+        tableDataModel.documentEditor?.addRow(event: changeEvent, targetRowIndexes: targetRows)
         updateUI()
     }
 
@@ -229,7 +229,7 @@ class TableViewModel: ObservableObject {
     private func handleMove(targetRows: [TargetRowModel]) {
         guard !targetRows.isEmpty else { return }
         
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.fileId , fileID: tableDataModel.pageId, updateValue: tableDataModel.value)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
         tableDataModel.documentEditor?.moveRow(event: changeEvent, targetRowIndexes: targetRows)
         
         updateUI()
