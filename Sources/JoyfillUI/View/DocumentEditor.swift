@@ -8,6 +8,12 @@
 import Foundation
 import JoyfillModel
 
+
+struct PageModel {
+    let id: String
+    var fields: [FieldListModel]
+}
+
 @available(iOS 13.0, *)
 public class DocumentEditor: ObservableObject {
     public var document: JoyDoc
@@ -17,9 +23,10 @@ public class DocumentEditor: ObservableObject {
         }
     }
 
-    @Published var fieldModels = [FieldListModel]()
-
+    @Published var pageFieldModels = [String: PageModel]()
     private var fieldPositionMap = [String: FieldPosition]()
+    private var fieldConditionalDependencyMap = [String: [String]]()
+    var hiddenFieldMap = [String: Bool]()
 
     public init(document: JoyDoc) {
         self.document = document
@@ -31,7 +38,17 @@ public class DocumentEditor: ObservableObject {
         document.fieldPositionsForCurrentView.forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
-            fieldModels.append(FieldListModel(fieldID: fieldID, refreshID: UUID()))
+            hiddenFieldMap[fieldID] = self.shouldShow(pageID: fieldPosition.field)
+        }
+
+        for page in document.pagesForCurrentView {
+            guard let pageID = page.id else { return }
+            var fieldListModels = [FieldListModel]()
+
+            for fieldPostion in page.fieldPositions ?? [] {
+                fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, refreshID: UUID()))
+            }
+            pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
         }
     }
 
@@ -66,8 +83,17 @@ public class DocumentEditor: ObservableObject {
     }
 
     public func applyConditionalLogicAndRefreshUI(field: JoyDocField) {
-        let fieldID = fieldModels[0].fieldID
-        fieldModels[0] = FieldListModel(fieldID: fieldID, refreshID: UUID())
+        guard let dependentFields = fieldConditionalDependencyMap[field.id!] else { return }
+        for dependentField in dependentFields {
+            let shouldShow = shouldShow(fieldID: dependentField)
+            if hiddenFieldMap[dependentField] != shouldShow {
+//                fieldModels[dependentField].refreshID = UUID()
+            }
+        }
+
+
+//        let fieldID = fieldModels[0].fieldID
+//        fieldModels[0] = FieldListModel(fieldID: fieldID, refreshID: UUID())
     }
 
     public func fieldPosition(fieldID: String?) -> FieldPosition? {
@@ -175,9 +201,12 @@ public class DocumentEditor: ObservableObject {
 
         let conditionModels = conditions.compactMap { condition -> ConditionModel?  in
             guard let fieldID = condition.field else { return nil }
-            let conditionField = fieldMap[fieldID]!
-
-            return ConditionModel(fieldValue: conditionField.value, fieldType: FieldTypes(conditionField.type), condition: condition.condition, value: condition.value)
+            let dependentField = fieldMap[fieldID]!
+            var allDependentFields = fieldConditionalDependencyMap[field.id!] ?? []
+            if !allDependentFields.contains(dependentField.id!) {
+                fieldConditionalDependencyMap[field.id!] = allDependentFields + [dependentField.id!]
+            }
+            return ConditionModel(fieldValue: dependentField.value, fieldType: FieldTypes(dependentField.type), condition: condition.condition, value: condition.value)
         }
         
         let logicModel = LogicModel(id: field.logic?.id, action: logic.action, conditions: conditionModels)
