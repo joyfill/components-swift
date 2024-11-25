@@ -37,8 +37,8 @@ struct DocumentSubmissionsListView: View {
                     .font(.title.bold())
                 List(documents) { submission in
                     Button(action: {
-                        fetchDocument(submission)
-//                        fetchLocalDocument()
+//                        fetchDocument(submission)
+                        fetchLocalDocument()
                     }) {
                         HStack {
                             Image(systemName: "doc")

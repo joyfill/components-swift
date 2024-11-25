@@ -61,20 +61,18 @@ public class DocumentEditor: ObservableObject {
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
     }
-    
-    private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
-        let sortedFieldPositions =
-        fieldPositions
-            .sorted { fp1, fp2 in
-                if let y2 = fp2.y, let y1 = fp1.y {
-                    return Int(y1) < Int(y2)
-                }
-                return true
-            }
 
-        var resultFieldPositions =  [FieldPosition]()
+    private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+        let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
+            guard let y1 = fp1.y, let y2 = fp2.y else { return false }
+            return Int(y1) < Int(y2)
+        }
+        var uniqueFields = Set<String>()
+        var resultFieldPositions = [FieldPosition]()
+        resultFieldPositions.reserveCapacity(sortedFieldPositions.count)
+
         for fp in sortedFieldPositions {
-            if !resultFieldPositions.contains(where: { $0.field == fp.field }) {
+            if let field = fp.field, uniqueFields.insert(field).inserted {
                 resultFieldPositions.append(fp)
             }
         }
@@ -143,6 +141,7 @@ public class DocumentEditor: ObservableObject {
     }
 
     public func shouldShow(fieldID: String) -> Bool {
+        true
         return showFieldMap[fieldID] ?? true
     }
 
@@ -169,7 +168,7 @@ public class DocumentEditor: ObservableObject {
         var isValid = true
         let fieldPositionIDs = document.fieldPositionsForCurrentView.map {  $0.field }
         for field in document.fields.filter { fieldPositionIDs.contains($0.id) } {
-            if shouldShow(pageID: field.id) {
+            if shouldShowLocal(fieldID: field.id) {
                 fieldValidations.append(FieldValidation(field: field, status: .valid))
                 continue
                 fieldValidations.append(FieldValidation(field: field, status: .valid))
