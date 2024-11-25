@@ -139,7 +139,7 @@ extension Form: FormChangeEventInternal {
 
     func onChange(event: FieldChangeEvent) {
         var field = documentEditor.field(fieldID: event.fieldID)!
-        guard field.value != event.updateValue else { return }
+        guard field.value != event.updateValue, event.chartData != nil else { return }
         guard !((field.value == nil || field.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
         updateValue(event: event)
         field = documentEditor.field(fieldID: event.fieldID)!
