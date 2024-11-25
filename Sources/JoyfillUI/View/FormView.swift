@@ -57,6 +57,7 @@ public struct Form: View {
             }
             documentEditor.updatefield(field: field)
             document.fields = documentEditor.allFields
+            documentEditor.applyConditionalLogicAndRefreshUI(field: field)
         }
     }
 }
@@ -138,7 +139,7 @@ extension Form: FormChangeEventInternal {
 
     func onChange(event: FieldChangeEvent) {
         var field = documentEditor.field(fieldID: event.fieldID)!
-        guard field.value != event.updateValue else { return }
+        guard field.value != event.updateValue, event.chartData != nil else { return }
         guard !((field.value == nil || field.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
         updateValue(event: event)
         field = documentEditor.field(fieldID: event.fieldID)!
@@ -320,32 +321,24 @@ struct PagesView: View {
 
 }
 
-/// A `View` that represents a page in a form.
 struct PageView: View {
     let page: Page
     let mode: Mode
     let events: FormChangeEventInternal?
-    let documentEditor: DocumentEditor
+    @ObservedObject var documentEditor: DocumentEditor
 
-    /// The body of the `PageView`.
-    ///
-    /// If the page has field positions, it creates a `FormView` with the field positions mapped from web view to mobile view.
     var body: some View {
         if let fieldPositions = page.fieldPositions {
-            let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
+//            let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
             let binding = Binding {
-                resultFieldPositions
+                fieldPositions
             } set: { _ in
                 
             }
-            FormView(fieldPositions: binding, mode: mode, eventHandler: self, documentEditor: documentEditor)
+            FormView(fieldPositions: binding, listModels: $documentEditor.fieldModels, mode: mode, eventHandler: self, documentEditor: documentEditor)
         }
     }
-    
-    /// Maps the field positions from web view to mobile view.
-    ///
-    /// - Parameter fieldPositions: An array of `FieldPosition` objects representing the positions of fields in a web view.
-    /// - Returns: An array of `FieldPosition` objects representing the positions of fields in a mobile view.
+
     func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
         let sortedFieldPositions =
         fieldPositions
@@ -424,8 +417,14 @@ struct FieldDependency {
     var fieldData: JoyDocField?
 }
 
+struct FieldListModel {
+    let fieldID: String
+    var refreshID: UUID
+}
+
 struct FormView: View {
     @Binding var fieldPositions: [FieldPosition]
+    @Binding var listModels: [FieldListModel]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
     @State var currentFocusedFielsID: String = ""
@@ -433,8 +432,10 @@ struct FormView: View {
     let documentEditor: DocumentEditor
 
     @ViewBuilder
-    fileprivate func fieldView(fieldPosition: FieldPosition) -> some View {
-        let fieldData = documentEditor.field(fieldID: fieldPosition.field)
+    fileprivate func fieldView(listModel: FieldListModel) -> some View {
+        let fieldPosition: FieldPosition = documentEditor.fieldPosition(fieldID: listModel.fieldID)!
+
+        let fieldData = documentEditor.field(fieldID: listModel.fieldID)
 
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
 
@@ -544,9 +545,9 @@ struct FormView: View {
     }
 
     var body: some View {
-        List(fieldPositions, id: \.field) { fieldPosition in
-            if documentEditor.shouldShow(fieldID: fieldPosition.field) {
-                fieldView(fieldPosition: fieldPosition)
+        List(listModels, id: \.fieldID) { listModel in
+            if documentEditor.shouldShow(fieldID: listModel.fieldID) {
+                fieldView(listModel: listModel)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
             }

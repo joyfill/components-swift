@@ -9,13 +9,16 @@ import Foundation
 import JoyfillModel
 
 @available(iOS 13.0, *)
-public class DocumentEditor {
+public class DocumentEditor: ObservableObject {
     public var document: JoyDoc
     private var fieldMap = [String: JoyDocField]() {
         didSet {
             document.fields = allFields
         }
     }
+
+    @Published var fieldModels = [FieldListModel]()
+
     private var fieldPositionMap = [String: FieldPosition]()
 
     public init(document: JoyDoc) {
@@ -28,6 +31,7 @@ public class DocumentEditor {
         document.fieldPositionsForCurrentView.forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
+            fieldModels.append(FieldListModel(fieldID: fieldID, refreshID: UUID()))
         }
     }
 
@@ -59,6 +63,11 @@ public class DocumentEditor {
 
     public var allFields: [JoyDocField] {
         return fieldMap.map { $1 }
+    }
+
+    public func applyConditionalLogicAndRefreshUI(field: JoyDocField) {
+        let fieldID = fieldModels[0].fieldID
+        fieldModels[0] = FieldListModel(fieldID: fieldID, refreshID: UUID())
     }
 
     public func fieldPosition(fieldID: String?) -> FieldPosition? {
