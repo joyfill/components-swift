@@ -196,21 +196,19 @@ class TableViewModel: ObservableObject {
     
     func duplicateRow() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.duplicateRow(selectedRows: selectedRows, fieldId: tableDataModel.fieldId!) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.duplicateRow(selectedRows: selectedRows, tableDataModel: tableDataModel) else { return }
         setTableDataDidChange(to: true)
         setup()
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
-        tableDataModel.documentEditor?.addRow(event: changeEvent, targetRowIndexes: targetRows)
+
         emptySelection()
         setupCellModels()
     }
 
     func insertBelow() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.addRow(selectedRows: selectedRows, fieldId: tableDataModel.fieldId!) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.addRow(selectedRows: selectedRows, tableDataModel: tableDataModel) else { return }
         
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
-        tableDataModel.documentEditor?.addRow(event: changeEvent, targetRowIndexes: targetRows)
+        
         updateUI()
     }
 

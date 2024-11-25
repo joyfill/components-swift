@@ -386,9 +386,10 @@ public class DocumentEditor: ObservableObject {
     }
 
     /// Deletes a row with the specified ID from the table field.
-    func duplicateRow(selectedRows: [String], fieldId: String) -> [TargetRowModel] {
+    func duplicateRow(selectedRows: [String], tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return []
+            return
         }
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
@@ -405,7 +406,9 @@ public class DocumentEditor: ObservableObject {
 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        return targetRows
+        
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        addRow(event: changeEvent, targetRowIndexes: targetRows)
     }
 
 
@@ -453,9 +456,10 @@ public class DocumentEditor: ObservableObject {
     }
 
     /// Adds a new row with the specified ID to the table field.
-    func addRow(selectedRows: [String], fieldId: String)  -> [TargetRowModel] {
+    func addRow(selectedRows: [String], tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return []
+            return
         }
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
@@ -471,7 +475,9 @@ public class DocumentEditor: ObservableObject {
 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        return targetRows
+        
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        addRow(event: changeEvent, targetRowIndexes: targetRows)
     }
 
     /// Adds a new row with the specified ID to the table field.
