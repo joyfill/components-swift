@@ -114,6 +114,8 @@ struct ChartView: View {
 
 struct ChartDataModel {
     var fieldId: String?
+    var pageId: String?
+    var fileId: String?
     var valueElements: [ValueElement]?
     var yTitle: String?
     var yMax: Double?
@@ -122,6 +124,7 @@ struct ChartDataModel {
     var xMax: Double?
     var xMin: Double?
     var mode: Mode
+    var documentEditor: DocumentEditor?
     var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }

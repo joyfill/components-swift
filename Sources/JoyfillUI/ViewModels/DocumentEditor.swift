@@ -609,49 +609,49 @@ public class DocumentEditor: ObservableObject {
         events?.onChange(changes: changes, document: document)
     }
 
-//    func onChange(event: FieldChangeEvent) {
-//        var field = documentEditor.field(fieldID: event.fieldID)!
-//        guard field.value != event.updateValue, event.chartData != nil else { return }
-//        guard !((field.value == nil || field.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
-//        updateValue(event: event)
-//        field = documentEditor.field(fieldID: event.fieldID)!
-//
-//        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
-//        var change = Change(v: 1,
-//                            sdk: "swift",
-//                            target: "field.update",
-//                            _id: documentEditor.documentID!,
-//                            identifier: documentEditor.documentIdentifier,
-//                            fileId: event.fileID!,
-//                            pageId: event.pageID!,
-//                            fieldId: event.fieldID,
-//                            fieldIdentifier: field.identifier!,
-//                            fieldPositionId: fieldPosition.id!,
-//                            change: changes(fieldData: field),
-//                            createdOn: Date().timeIntervalSince1970)
-//        events?.onChange(changes: [change], document: documentEditor.document)
-//    }
-//
-//    private func changes(fieldData: JoyDocField) -> [String: Any] {
-//        switch fieldData.type {
-//        case "chart":
-//            return chartChanges(fieldData: fieldData)
-//        default:
-//            return ["value": fieldData.value!.dictionary]
-//        }
-//    }
-//
-//    private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
-//        var valueDict = ["value": fieldData.value!.dictionary]
-//        valueDict["yTitle"] = fieldData.yTitle
-//        valueDict["yMin"] = fieldData.yMin
-//        valueDict["yMax"] = fieldData.yMax
-//        valueDict["xTitle"] = fieldData.xTitle
-//        valueDict["xMin"] = fieldData.xMin
-//        valueDict["xMax"] = fieldData.xMax
-//        return valueDict
-//    }
-//
+    func onChange(event: FieldChangeEvent) {
+        var currentField = field(fieldID: event.fieldID)!
+        guard currentField.value != event.updateValue, event.chartData != nil else { return }
+        guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
+        updateValue(event: event)
+        currentField = field(fieldID: event.fieldID)!
+
+        let fieldPosition = fieldPosition(fieldID: event.fieldID)!
+        var change = Change(v: 1,
+                            sdk: "swift",
+                            target: "field.update",
+                            _id: documentID!,
+                            identifier: documentIdentifier,
+                            fileId: event.fileID!,
+                            pageId: event.pageID!,
+                            fieldId: event.fieldID,
+                            fieldIdentifier: currentField.identifier!,
+                            fieldPositionId: fieldPosition.id!,
+                            change: changes(fieldData: currentField),
+                            createdOn: Date().timeIntervalSince1970)
+        events?.onChange(changes: [change], document: document)
+    }
+
+    private func changes(fieldData: JoyDocField) -> [String: Any] {
+        switch fieldData.type {
+        case "chart":
+            return chartChanges(fieldData: fieldData)
+        default:
+            return ["value": fieldData.value!.dictionary]
+        }
+    }
+
+    private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
+        var valueDict = ["value": fieldData.value!.dictionary]
+        valueDict["yTitle"] = fieldData.yTitle
+        valueDict["yMin"] = fieldData.yMin
+        valueDict["yMax"] = fieldData.yMax
+        valueDict["xTitle"] = fieldData.xTitle
+        valueDict["xMin"] = fieldData.xMin
+        valueDict["xMax"] = fieldData.xMax
+        return valueDict
+    }
+
     private func addRowChanges(fieldData: JoyDocField, targetRow: TargetRowModel) -> [String: Any] {
         let lastValueElement = fieldData.value!.valueElements?.first(where: { valueElement in
             valueElement.id == targetRow.id

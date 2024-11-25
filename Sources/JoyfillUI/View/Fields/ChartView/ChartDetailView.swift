@@ -51,8 +51,8 @@ struct ChartDetailView: View {
             }
             .onChange(of: chartCoordinatesData, perform:  { newValue in
                 let chartData = ChartData(xTitle: newValue.xTitle, yTitle: newValue.yTitle, xMax: newValue.xMax, xMin: newValue.xMin, yMax: newValue.yMax, yMin: newValue.yMin)
-                let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, updateValue: .valueElementArray(valueElements), chartData: chartData)
-                chartDataModel.eventHandler.onChange(event: fieldEvent)
+                let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId, updateValue: .valueElementArray(valueElements), chartData: chartData)
+                chartDataModel.documentEditor?.onChange(event: fieldEvent)
             })
         }
     }
@@ -60,8 +60,8 @@ struct ChartDetailView: View {
     func updateValueElements(valueElements: [ValueElement]) {
         self.valueElements.removeAll()
         self.valueElements = valueElements
-        let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, updateValue: .valueElementArray(valueElements))
-        chartDataModel.eventHandler.onChange(event: fieldEvent)
+        let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId, updateValue: .valueElementArray(valueElements))
+        chartDataModel.documentEditor?.onChange(event: fieldEvent)
     }
 }
 

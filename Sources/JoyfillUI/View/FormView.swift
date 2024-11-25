@@ -491,24 +491,27 @@ struct FormView: View {
                                                         fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .chart:
-            ChartView(chartDataModel: ChartDataModel(fieldId: fieldData?.id,
-                                                     valueElements: fieldData?.value?.valueElements,
-                                                     yTitle: fieldData?.yTitle,
-                                                     yMax: fieldData?.yMax,
-                                                     yMin: fieldData?.yMin,
-                                                     xTitle: fieldData?.xTitle,
-                                                     xMax: fieldData?.xMax,
-                                                     xMin: fieldData?.xMin,
-                                                     mode: fieldEditMode,
-                                                     eventHandler: self,
-                                                     fieldHeaderModel: fieldHeaderModel))
+            let model = ChartDataModel(fieldId: fieldData?.id,
+                                       pageId: listModel.pageID,
+                                       fileId: listModel.fileID,
+                                       valueElements: fieldData?.value?.valueElements,
+                                       yTitle: fieldData?.yTitle,
+                                       yMax: fieldData?.yMax,
+                                       yMin: fieldData?.yMin,
+                                       xTitle: fieldData?.xTitle,
+                                       xMax: fieldData?.xMax,
+                                       xMin: fieldData?.xMin,
+                                       mode: fieldEditMode,
+                                       documentEditor: documentEditor,
+                                       eventHandler: self,
+                                       fieldHeaderModel: fieldHeaderModel)
+            ChartView(chartDataModel: model)
         case .richText:
             RichTextView(richTextDataModel: RichTextDataModel(text: fieldData?.value?.text,
                                                               eventHandler: self,
                                                               fieldHeaderModel: fieldHeaderModel))
                 .disabled(fieldEditMode == .readonly)
         case .table:
-//            let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldData: fieldData)
             let model = TableDataModel(fieldId: fieldData?.id,
                                        pageId: listModel.pageID,
                                        fileId: listModel.fileID,
