@@ -229,8 +229,8 @@ class TableViewModel: ObservableObject {
     private func handleMove(targetRows: [TargetRowModel]) {
         guard !targetRows.isEmpty else { return }
         
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
-        tableDataModel.eventHandler.moveRow(event: changeEvent, targetRowIndexes: targetRows)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.fileId , fileID: tableDataModel.pageId, updateValue: tableDataModel.value)
+        tableDataModel.documentEditor?.moveRow(event: changeEvent, targetRowIndexes: targetRows)
         
         updateUI()
     }
