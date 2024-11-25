@@ -13,7 +13,7 @@ struct FormContainerView: View {
     let changeManager: ChangeManager
 
     init(document: JoyDoc, pageID: String, changeManager: ChangeManager) {
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, events: changeManager)
         self.pageID = pageID
         self.changeManager = changeManager
     }

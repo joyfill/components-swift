@@ -15,7 +15,7 @@ public struct Form: View {
         self.mode = mode
         _document = document
         var pageId = pageID
-        let documentEditor = DocumentEditor(document: document.wrappedValue)
+        let documentEditor = DocumentEditor(document: document.wrappedValue, events: events)
         if let pageID = pageID, pageID != "" {
             _currentPageID = State(initialValue: pageID)
         } else {
@@ -510,6 +510,8 @@ struct FormView: View {
         case .table:
 //            let fieldDependency = FieldDependency(mode: fieldEditMode, eventHandler: self, fieldData: fieldData)
             let model = TableDataModel(fieldId: fieldData?.id,
+                                       pageId: listModel.pageID,
+                                       fileId: listModel.fileID,
                                        value: fieldData?.value,
                                        tableColumnOrder: fieldData?.tableColumnOrder,
                                        tableColumns: fieldData?.tableColumns,

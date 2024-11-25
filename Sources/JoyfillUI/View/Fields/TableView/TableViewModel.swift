@@ -245,13 +245,10 @@ class TableViewModel: ObservableObject {
         let id = generateObjectId()
 
         if filterModels.noFilterApplied {
-            tableDataModel.documentEditor?.insertLastRow(id: id, fieldId: tableDataModel.fieldId!)
+            tableDataModel.documentEditor?.insertLastRow(id: id, tableDataModel: tableDataModel)
         } else {
-            tableDataModel.documentEditor?.addRowWithFilter(id: id, filterModels: filterModels, fieldId: tableDataModel.fieldId!)
+            tableDataModel.documentEditor?.addRowWithFilter(id: id, filterModels: filterModels, tableDataModel: tableDataModel)
         }
-        
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
-        tableDataModel.eventHandler.addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (tableDataModel.value?.valueElements?.count ?? 1) - 1)])
         
         updateUI()
     }
@@ -371,8 +368,7 @@ class TableViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         if tableDataDidChange {
             setTableDataDidChange(to: false)
-            let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
-            tableDataModel.eventHandler.onChange(event: changeEvent)
+            tableDataModel.documentEditor?.sendEventsIfNeeded(fieldID: tableDataModel.fieldId!, eventHandler: tableDataModel.eventHandler)
         }
     }
 }

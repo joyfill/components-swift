@@ -130,6 +130,8 @@ struct TableQuickView : View {
 
 struct TableDataModel {
     var fieldId: String?
+    var pageId: String?
+    var fileId: String?
     var value: ValueUnion?
     var tableColumnOrder: [String]?
     var tableColumns: [FieldTableColumn]?

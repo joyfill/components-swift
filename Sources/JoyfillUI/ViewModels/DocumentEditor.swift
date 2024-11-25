@@ -21,9 +21,11 @@ public class DocumentEditor: ObservableObject {
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldConditionalDependencyMap = [String: [String]]()
     var hiddenFieldMap = [String: Bool]()
+    var events: FormChangeEvent?
 
-    public init(document: JoyDoc) {
+    public init(document: JoyDoc, events: FormChangeEvent?) {
         self.document = document
+        self.events = events
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
             self.fieldMap[fieldID] =  field
@@ -40,7 +42,7 @@ public class DocumentEditor: ObservableObject {
             var fieldListModels = [FieldListModel]()
 
             for fieldPostion in page.fieldPositions ?? [] {
-                fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, refreshID: UUID()))
+                fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, pageID: pageID, fileID: files[0].id!, refreshID: UUID()))
             }
             pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
         }
@@ -345,10 +347,6 @@ public class DocumentEditor: ObservableObject {
         }
     }
     
-    func fieldIndex(fieldID: String) -> Int? {
-        return document.fields.firstIndex(where: { $0.id == fieldID })
-    }
-    
     func valueElements(fieldID: String) -> [ValueElement]? {
         return field(fieldID: fieldID)?.valueToValueElements
     }
@@ -362,11 +360,10 @@ public class DocumentEditor: ObservableObject {
         var element = elements[index]
         element.setDeleted()
         elements[index] = element
-        let fieldIndex = fieldIndex(fieldID: fieldId)
-        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
-        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         lastRowOrder.removeAll(where: { $0 == id })
-        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        fieldMap[fieldId]?.rowOrder = lastRowOrder
     }
 
     /// Deletes a row with the specified ID from the table field.
@@ -375,8 +372,7 @@ public class DocumentEditor: ObservableObject {
             return []
         }
         var targetRows = [TargetRowModel]()
-        let fieldIndex = fieldIndex(fieldID: fieldId)
-        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
 
         selectedRows.forEach { rowID in
             var element = elements.first(where: { $0.id == rowID })!
@@ -388,8 +384,8 @@ public class DocumentEditor: ObservableObject {
             targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
         }
 
-        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
-        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldId]?.rowOrder = lastRowOrder
         return targetRows
     }
 
@@ -398,15 +394,14 @@ public class DocumentEditor: ObservableObject {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
         }
-        let fieldIndex = fieldIndex(fieldID: fieldId)
-        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
 
         guard lastRowIndex != 0 else {
             return []
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
-        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        fieldMap[fieldId]?.rowOrder = lastRowOrder
         return [TargetRowModel(id: rowID, index: lastRowIndex-1)]
     }
 
@@ -414,26 +409,28 @@ public class DocumentEditor: ObservableObject {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
         }
-        let fieldIndex = fieldIndex(fieldID: fieldId)
-        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
 
         guard (lastRowOrder.count - 1) != lastRowIndex else {
             return []
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
-        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        fieldMap[fieldId]?.rowOrder = lastRowOrder
         return [TargetRowModel(id: rowID, index: lastRowIndex+1)]
     }
 
     /// Adds a new row with the specified ID to the table field.
-    func insertLastRow(id: String, fieldId: String) {
+    func insertLastRow(id: String, tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
         
-        let fieldIndex = fieldIndex(fieldID: fieldId)
         elements.append(ValueElement(id: id))
-        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
-        document.fields[fieldIndex!].rowOrder?.append(id)
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldId]?.rowOrder?.append(id)
+        
+        let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
     }
 
     /// Adds a new row with the specified ID to the table field.
@@ -441,9 +438,8 @@ public class DocumentEditor: ObservableObject {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
         }
-        let fieldIndex = fieldIndex(fieldID: fieldId)
         var targetRows = [TargetRowModel]()
-        var lastRowOrder = document.fields[fieldIndex!].rowOrder ?? []
+        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
 
         selectedRows.forEach { rowID in
             let newRowID = generateObjectId()
@@ -454,23 +450,26 @@ public class DocumentEditor: ObservableObject {
             targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
         }
 
-        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
-        document.fields[fieldIndex!].rowOrder = lastRowOrder
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldId]?.rowOrder = lastRowOrder
         return targetRows
     }
 
     /// Adds a new row with the specified ID to the table field.
-    func addRowWithFilter(id: String, filterModels: [FilterModel], fieldId: String) {
+    func addRowWithFilter(id: String, filterModels: [FilterModel], tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
 
-        let fieldIndex = fieldIndex(fieldID: fieldId)
         var newRow = ValueElement(id: id)
         elements.append(newRow)
-        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
-        document.fields[fieldIndex!].rowOrder?.append(id)
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldId]?.rowOrder?.append(id)
         for filterModel in filterModels {
             cellDidChange(rowId: id, colIndex: filterModel.colIndex, editedCellId: filterModel.colID, value: filterModel.filterText, fieldId: fieldId)
         }
+        
+        let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
     }
 
     /// A function that updates the cell value when a change is detected.
@@ -527,7 +526,168 @@ public class DocumentEditor: ObservableObject {
         } else {
             elements[index].cells = [editedCellId ?? "" : newCell]
         }
-        let fieldIndex = fieldIndex(fieldID: fieldId)
-        document.fields[fieldIndex!].value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+    }
+    
+    func sendEventsIfNeeded(fieldID: String, eventHandler: FieldChangeEvents) {
+        let changeEvent = FieldChangeEvent(fieldID: fieldID, updateValue: fieldMap[fieldID]?.value)
+        eventHandler.onChange(event: changeEvent)
+    }
+    
+    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        updateValue(event: event)
+        var changes = [Change]()
+        let field = field(fieldID: event.fieldID)!
+        let fieldPosition = fieldPosition(fieldID: event.fieldID)!
+        for targetRow in targetRowIndexes {
+            var change = Change(v: 1,
+                                sdk: "swift",
+                                target: "field.value.rowCreate",
+                                _id: documentID!,
+                                identifier: documentIdentifier,
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
+                                change: addRowChanges(fieldData: field, targetRow: targetRow),
+                                createdOn: Date().timeIntervalSince1970)
+            changes.append(change)
+        }
+
+        events?.onChange(changes: changes, document: document)
+    }
+
+//    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+//        updateValue(event: event)
+//        var changes = [Change]()
+//        let field = documentEditor.field(fieldID: event.fieldID)!
+//        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
+//        for targetRow in targetRowIndexes {
+//            var change = Change(v: 1,
+//                                sdk: "swift",
+//                                target: "field.value.rowDelete",
+//                                _id: documentEditor.documentID!,
+//                                identifier: documentEditor.documentIdentifier,
+//                                fileId: event.fileID!,
+//                                pageId: event.pageID!,
+//                                fieldId: event.fieldID,
+//                                fieldIdentifier: field.identifier!,
+//                                fieldPositionId: fieldPosition.id!,
+//                                change: ["rowId": targetRow.id],
+//                                createdOn: Date().timeIntervalSince1970)
+//            changes.append(change)
+//        }
+//
+//        events?.onChange(changes: changes, document: documentEditor.document)
+//    }
+//
+//    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+//        updateValue(event: event)
+//        var changes = [Change]()
+//        let field = documentEditor.field(fieldID: event.fieldID)!
+//        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
+//        for targetRow in targetRowIndexes {
+//            var change = Change(v: 1,
+//                                sdk: "swift",
+//                                target: "field.value.rowMove",
+//                                _id: documentEditor.documentID!,
+//                                identifier: documentEditor.documentIdentifier,
+//                                fileId: event.fileID!,
+//                                pageId: event.pageID!,
+//                                fieldId: event.fieldID,
+//                                fieldIdentifier: field.identifier!,
+//                                fieldPositionId: fieldPosition.id!,
+//                                change: [
+//                                    "rowId": targetRow.id,
+//                                    "targetRowIndex": targetRow.index,
+//                                ],
+//                                createdOn: Date().timeIntervalSince1970)
+//            changes.append(change)
+//        }
+//        events?.onChange(changes: changes, document: documentEditor.document)
+//    }
+//
+//    func onChange(event: FieldChangeEvent) {
+//        var field = documentEditor.field(fieldID: event.fieldID)!
+//        guard field.value != event.updateValue, event.chartData != nil else { return }
+//        guard !((field.value == nil || field.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
+//        updateValue(event: event)
+//        field = documentEditor.field(fieldID: event.fieldID)!
+//
+//        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
+//        var change = Change(v: 1,
+//                            sdk: "swift",
+//                            target: "field.update",
+//                            _id: documentEditor.documentID!,
+//                            identifier: documentEditor.documentIdentifier,
+//                            fileId: event.fileID!,
+//                            pageId: event.pageID!,
+//                            fieldId: event.fieldID,
+//                            fieldIdentifier: field.identifier!,
+//                            fieldPositionId: fieldPosition.id!,
+//                            change: changes(fieldData: field),
+//                            createdOn: Date().timeIntervalSince1970)
+//        events?.onChange(changes: [change], document: documentEditor.document)
+//    }
+//
+//    private func changes(fieldData: JoyDocField) -> [String: Any] {
+//        switch fieldData.type {
+//        case "chart":
+//            return chartChanges(fieldData: fieldData)
+//        default:
+//            return ["value": fieldData.value!.dictionary]
+//        }
+//    }
+//
+//    private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
+//        var valueDict = ["value": fieldData.value!.dictionary]
+//        valueDict["yTitle"] = fieldData.yTitle
+//        valueDict["yMin"] = fieldData.yMin
+//        valueDict["yMax"] = fieldData.yMax
+//        valueDict["xTitle"] = fieldData.xTitle
+//        valueDict["xMin"] = fieldData.xMin
+//        valueDict["xMax"] = fieldData.xMax
+//        return valueDict
+//    }
+//
+    private func addRowChanges(fieldData: JoyDocField, targetRow: TargetRowModel) -> [String: Any] {
+        let lastValueElement = fieldData.value!.valueElements?.first(where: { valueElement in
+            valueElement.id == targetRow.id
+        })
+        var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
+        valueDict["targetRowIndex"] = targetRow.index
+        return valueDict
+    }
+
+    func onFocus(event: FieldEventInternal) {
+        // TODO:
+//        events?.onFocus(event: event)
+    }
+    
+    func onBlur(event: FieldEventInternal) {
+        // TODO:
+//        events?.onBlur(event: event)
+    }
+    
+    func onUpload(event: JoyfillModel.UploadEvent) {
+        events?.onUpload(event: event)
+    }
+    
+    private func updateValue(event: FieldChangeEvent) {
+        if var field = field(fieldID: event.fieldID) {
+            field.value = event.updateValue
+            if let chartData = event.chartData {
+                field.xMin = chartData.xMin
+                field.yMin = chartData.yMin
+                field.xMax = chartData.xMax
+                field.yMax = chartData.yMax
+                field.xTitle = chartData.xTitle
+                field.yTitle = chartData.yTitle
+            }
+            updatefield(field: field)
+            document.fields = allFields
+            applyConditionalLogicAndRefreshUI(field: field)
+        }
     }
 }

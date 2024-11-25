@@ -14,5 +14,7 @@ struct PageModel {
 
 struct FieldListModel {
     let fieldID: String
+    let pageID: String
+    let fileID: String
     var refreshID: UUID
 }
