@@ -8,12 +8,6 @@
 import Foundation
 import JoyfillModel
 
-
-struct PageModel {
-    let id: String
-    var fields: [FieldListModel]
-}
-
 @available(iOS 13.0, *)
 public class DocumentEditor: ObservableObject {
     public var document: JoyDoc
@@ -90,7 +84,6 @@ public class DocumentEditor: ObservableObject {
 //                fieldModels[dependentField].refreshID = UUID()
             }
         }
-
 
 //        let fieldID = fieldModels[0].fieldID
 //        fieldModels[0] = FieldListModel(fieldID: fieldID, refreshID: UUID())

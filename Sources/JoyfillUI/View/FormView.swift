@@ -415,11 +415,6 @@ struct FieldDependency {
     var fieldData: JoyDocField?
 }
 
-struct FieldListModel {
-    let fieldID: String
-    var refreshID: UUID
-}
-
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
     @State var mode: Mode = .fill
