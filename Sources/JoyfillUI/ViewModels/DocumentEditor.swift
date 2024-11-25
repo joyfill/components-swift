@@ -36,12 +36,19 @@ public class DocumentEditor: ObservableObject {
             showFieldMap[fieldID] = self.shouldShowLocal(fieldID: fieldPosition.field!)
         }
 
-        for page in document.pagesForCurrentView {
+        var pages: [Page]
+        var mobileView = false
+        if let views = document.files[0].views, let view = views.first {
+            pages = view.pages ?? []
+            mobileView = true
+        } else {
+            pages = document.files[0].pages ?? []
+        }
+
+        for page in pages {
             guard let pageID = page.id else { return }
             var fieldListModels = [FieldListModel]()
-
-            let fieldPositions = mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
-            
+            let fieldPositions = mobileView ? page.fieldPositions ?? []: mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
             for fieldPostion in fieldPositions {
                 fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, refreshID: UUID()))
                 let index = fieldListModels.count - 1
