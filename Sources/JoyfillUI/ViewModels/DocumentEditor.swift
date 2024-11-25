@@ -33,7 +33,7 @@ public class DocumentEditor: ObservableObject {
         document.fieldPositionsForCurrentView.forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
-            showFieldMap[fieldID] = self.shouldShow(fieldID: fieldPosition.field!)
+            showFieldMap[fieldID] = self.shouldShowLocal(fieldID: fieldPosition.field!)
         }
 
         for page in document.pagesForCurrentView {
@@ -99,7 +99,7 @@ public class DocumentEditor: ObservableObject {
         guard let dependentFields = fieldConditionalDependencyMap[event.fieldID] else { return }
         // Refresh dependent fields if required
         for dependentField in dependentFields {
-            let shouldShow = shouldShow(fieldID: dependentField)
+            let shouldShow = shouldShowLocal(fieldID: dependentField)
             if showFieldMap[dependentField] != shouldShow {
                 showFieldMap[dependentField] = shouldShow
                 let pageIDIndexValue = fieldIndexMap[dependentField]!
@@ -114,7 +114,7 @@ public class DocumentEditor: ObservableObject {
         return fieldPositionMap[fieldID]
     }
 
-    public func shouldShowLocal(fieldID: String) -> Bool {
+    public func shouldShow(fieldID: String) -> Bool {
         return showFieldMap[fieldID] ?? true
     }
 
@@ -130,15 +130,9 @@ public class DocumentEditor: ObservableObject {
         return shouldShowItem(model: model)
     }
 
-    public func shouldShow(fieldID: String?) -> Bool {
+    fileprivate func shouldShowLocal(fieldID: String?) -> Bool {
         guard let fieldID = fieldID else { return true }
         let model = conditionalLogicModel(field: fieldMap[fieldID])
-        return shouldShowItem(model: model)
-    }
-
-    public func shouldShow(field: JoyDocField?) -> Bool {
-        guard let field = field else { return true }
-        let model = conditionalLogicModel(field: field)
         return shouldShowItem(model: model)
     }
 
