@@ -40,7 +40,9 @@ public class DocumentEditor: ObservableObject {
             guard let pageID = page.id else { return }
             var fieldListModels = [FieldListModel]()
 
-            for fieldPostion in page.fieldPositions ?? [] {
+            let fieldPositions = mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
+            
+            for fieldPostion in fieldPositions {
                 fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, refreshID: UUID()))
                 let index = fieldListModels.count - 1
                 fieldIndexMap[fieldPostion.field!] = fieldIndexMapValue(pageID: pageID, index: index)
@@ -51,6 +53,25 @@ public class DocumentEditor: ObservableObject {
 
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
+    }
+    
+    private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+        let sortedFieldPositions =
+        fieldPositions
+            .sorted { fp1, fp2 in
+                if let y2 = fp2.y, let y1 = fp1.y {
+                    return Int(y1) < Int(y2)
+                }
+                return true
+            }
+
+        var resultFieldPositions =  [FieldPosition]()
+        for fp in sortedFieldPositions {
+            if !resultFieldPositions.contains(where: { $0.field == fp.field }) {
+                resultFieldPositions.append(fp)
+            }
+        }
+        return resultFieldPositions
     }
 
     private func pageIDAndIndex(key: String) -> (String, Int) {
