@@ -176,12 +176,13 @@ class TableViewModel: ObservableObject {
         }
 
         for row in selectedRows {
-            tableDataModel.documentEditor?.deleteRow(id: row, fieldId: tableDataModel.fieldId!)
+            tableDataModel.documentEditor?.deleteRow(id: row, tableDataModel: tableDataModel)
             rowToCellMap.removeValue(forKey: row)
         }
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, updateValue: tableDataModel.value)
-        tableDataModel.eventHandler.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
-
+        
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
+        tableDataModel.documentEditor?.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
+        
         emptySelection()
         setup()
         uuid = UUID()

@@ -352,7 +352,8 @@ public class DocumentEditor: ObservableObject {
     }
     
     /// Deletes a row with the specified ID from the table field.
-    func deleteRow(id: String, fieldId: String) {
+    func deleteRow(id: String, tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
         guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == id }) else {
             return
         }
@@ -558,29 +559,29 @@ public class DocumentEditor: ObservableObject {
         events?.onChange(changes: changes, document: document)
     }
 
-//    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-//        updateValue(event: event)
-//        var changes = [Change]()
-//        let field = documentEditor.field(fieldID: event.fieldID)!
-//        let fieldPosition = documentEditor.fieldPosition(fieldID: event.fieldID)!
-//        for targetRow in targetRowIndexes {
-//            var change = Change(v: 1,
-//                                sdk: "swift",
-//                                target: "field.value.rowDelete",
-//                                _id: documentEditor.documentID!,
-//                                identifier: documentEditor.documentIdentifier,
-//                                fileId: event.fileID!,
-//                                pageId: event.pageID!,
-//                                fieldId: event.fieldID,
-//                                fieldIdentifier: field.identifier!,
-//                                fieldPositionId: fieldPosition.id!,
-//                                change: ["rowId": targetRow.id],
-//                                createdOn: Date().timeIntervalSince1970)
-//            changes.append(change)
-//        }
-//
-//        events?.onChange(changes: changes, document: documentEditor.document)
-//    }
+    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+        updateValue(event: event)
+        var changes = [Change]()
+        let field = field(fieldID: event.fieldID)!
+        let fieldPosition = fieldPosition(fieldID: event.fieldID)!
+        for targetRow in targetRowIndexes {
+            var change = Change(v: 1,
+                                sdk: "swift",
+                                target: "field.value.rowDelete",
+                                _id: documentID!,
+                                identifier: documentIdentifier,
+                                fileId: event.fileID!,
+                                pageId: event.pageID!,
+                                fieldId: event.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
+                                change: ["rowId": targetRow.id],
+                                createdOn: Date().timeIntervalSince1970)
+            changes.append(change)
+        }
+
+        events?.onChange(changes: changes, document: document)
+    }
 //
 //    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
 //        updateValue(event: event)
