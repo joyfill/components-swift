@@ -384,6 +384,11 @@ public class DocumentEditor: ObservableObject {
         lastRowOrder.removeAll(where: { $0 == id })
         fieldMap[fieldId]?.rowOrder = lastRowOrder
     }
+    
+    func onChangeForDelete(tableDataModel: TableDataModel, selectedRows: [String]) {
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[tableDataModel.fieldId!]?.value)
+        tableDataModel.documentEditor?.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
+    }
 
     /// Deletes a row with the specified ID from the table field.
     func duplicateRow(selectedRows: [String], tableDataModel: TableDataModel) {

@@ -180,9 +180,8 @@ class TableViewModel: ObservableObject {
             rowToCellMap.removeValue(forKey: row)
         }
         
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
-        tableDataModel.documentEditor?.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
-        
+        tableDataModel.documentEditor?.onChangeForDelete(tableDataModel: tableDataModel, selectedRows: selectedRows)
+                
         emptySelection()
         setup()
         uuid = UUID()
