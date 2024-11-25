@@ -57,7 +57,7 @@ public struct Form: View {
             }
             documentEditor.updatefield(field: field)
             document.fields = documentEditor.allFields
-            documentEditor.applyConditionalLogicAndRefreshUI(field: field)
+            documentEditor.applyConditionalLogicAndRefreshUI(event: event)
         }
     }
 }
@@ -139,7 +139,7 @@ extension Form: FormChangeEventInternal {
 
     func onChange(event: FieldChangeEvent) {
         var field = documentEditor.field(fieldID: event.fieldID)!
-        guard field.value != event.updateValue, event.chartData != nil else { return }
+        guard field.value != event.updateValue || event.chartData != nil else { return }
         guard !((field.value == nil || field.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
         updateValue(event: event)
         field = documentEditor.field(fieldID: event.fieldID)!
@@ -527,7 +527,7 @@ struct FormView: View {
 
     var body: some View {
         List(listModels, id: \.fieldID) { listModel in
-            if documentEditor.shouldShow(fieldID: listModel.fieldID) {
+            if documentEditor.shouldShowLocal(fieldID: listModel.fieldID) {
                 fieldView(listModel: listModel)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)

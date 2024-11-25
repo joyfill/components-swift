@@ -19,8 +19,9 @@ public class DocumentEditor: ObservableObject {
 
     @Published var pageFieldModels = [String: PageModel]()
     private var fieldPositionMap = [String: FieldPosition]()
+    private var fieldIndexMap = [String: String]()
     private var fieldConditionalDependencyMap = [String: [String]]()
-    var hiddenFieldMap = [String: Bool]()
+    var showFieldMap = [String: Bool]()
 
     public init(document: JoyDoc) {
         self.document = document
@@ -32,7 +33,7 @@ public class DocumentEditor: ObservableObject {
         document.fieldPositionsForCurrentView.forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
-            hiddenFieldMap[fieldID] = self.shouldShow(pageID: fieldPosition.field)
+            showFieldMap[fieldID] = self.shouldShow(fieldID: fieldPosition.field!)
         }
 
         for page in document.pagesForCurrentView {
@@ -41,9 +42,22 @@ public class DocumentEditor: ObservableObject {
 
             for fieldPostion in page.fieldPositions ?? [] {
                 fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, refreshID: UUID()))
+                let index = fieldListModels.count - 1
+                fieldIndexMap[fieldPostion.field!] = fieldIndexMapValue(pageID: pageID, index: index)
             }
             pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
         }
+    }
+
+    private func fieldIndexMapValue(pageID: String, index: Int) -> String {
+        return "\(pageID)|\(index)"
+    }
+
+    private func pageIDAndIndex(key: String) -> (String, Int) {
+        let components = key.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
+        let pageID = components.first.map(String.init) ?? ""
+        let index = components.last.map { Int(String($0))! }!
+        return (pageID, index)
     }
 
     public var documentID: String? {
@@ -76,22 +90,32 @@ public class DocumentEditor: ObservableObject {
         return fieldMap.map { $1 }
     }
 
-    public func applyConditionalLogicAndRefreshUI(field: JoyDocField) {
-        guard let dependentFields = fieldConditionalDependencyMap[field.id!] else { return }
+    func applyConditionalLogicAndRefreshUI(event: FieldChangeEvent) {
+        // refresh current field
+        let pageIDIndexValue = fieldIndexMap[event.fieldID]!
+        let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
+        pageFieldModels[pageID]!.fields[index].refreshID = UUID()
+
+        guard let dependentFields = fieldConditionalDependencyMap[event.fieldID] else { return }
+        // Refresh dependent fields if required
         for dependentField in dependentFields {
             let shouldShow = shouldShow(fieldID: dependentField)
-            if hiddenFieldMap[dependentField] != shouldShow {
-//                fieldModels[dependentField].refreshID = UUID()
+            if showFieldMap[dependentField] != shouldShow {
+                showFieldMap[dependentField] = shouldShow
+                let pageIDIndexValue = fieldIndexMap[dependentField]!
+                let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
+                pageFieldModels[pageID]!.fields[index].refreshID = UUID()
             }
         }
-
-//        let fieldID = fieldModels[0].fieldID
-//        fieldModels[0] = FieldListModel(fieldID: fieldID, refreshID: UUID())
     }
 
     public func fieldPosition(fieldID: String?) -> FieldPosition? {
         guard let fieldID = fieldID else { return nil }
         return fieldPositionMap[fieldID]
+    }
+
+    public func shouldShowLocal(fieldID: String) -> Bool {
+        return showFieldMap[fieldID] ?? true
     }
 
     public func shouldShow(pageID: String?) -> Bool {
@@ -197,7 +221,7 @@ public class DocumentEditor: ObservableObject {
             let dependentField = fieldMap[fieldID]!
             var allDependentFields = fieldConditionalDependencyMap[field.id!] ?? []
             if !allDependentFields.contains(dependentField.id!) {
-                fieldConditionalDependencyMap[field.id!] = allDependentFields + [dependentField.id!]
+                fieldConditionalDependencyMap[dependentField.id!] = allDependentFields + [field.id!]
             }
             return ConditionModel(fieldValue: dependentField.value, fieldType: FieldTypes(dependentField.type), condition: condition.condition, value: condition.value)
         }
