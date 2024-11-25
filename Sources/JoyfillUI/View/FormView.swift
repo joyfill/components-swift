@@ -223,11 +223,11 @@ struct FileView: View {
     let mode: Mode
     let events: FormChangeEventInternal?
     var showPageNavigationView: Bool
-    let documentEditor: DocumentEditor
+    @ObservedObject var documentEditor: DocumentEditor
 
     var body: some View {
         if let file = file {
-            PagesView(currentPageID: $currentPageID, pageOrder: file.pageOrder, pages: documentEditor.pagesForCurrentView, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+            PagesView(currentPageID: $currentPageID, pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, mode: mode, events: self, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
         }
     }
 }
@@ -281,18 +281,19 @@ struct PagesView: View {
     @State private var isSheetPresented = false
     @Binding var currentPageID: String
     let pageOrder: [String]?
-    let pages: [Page]
+    @Binding var pageFieldModels: [String: PageModel]
     let mode: Mode
     let events: FormChangeEventInternal?
     var showPageNavigationView: Bool
-    let documentEditor: DocumentEditor
+    @ObservedObject var documentEditor: DocumentEditor
+
 
     /// The body of the `PagesView`. This is a SwiftUI view that represents a collection of pages.
     ///
     /// - Returns: A SwiftUI view representing the pages view.
     var body: some View {
         VStack(alignment: .leading) {
-            if showPageNavigationView && pages.count > 1 {
+            if showPageNavigationView && pageFieldModels.count > 1 {
                 Button(action: {
                     isSheetPresented = true
                 }, label: {
@@ -306,37 +307,33 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pages: pages)
+                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pages: pages)
+                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
                     }
                 }
             }
-            if let page = documentEditor.firstValidPageFor(currentPageID: currentPageID) {
-                PageView(page: page, mode: mode, events: events, documentEditor: documentEditor)
-            }
+
+            let pageBinding = Binding(
+                get: {
+                    pageFieldModels[currentPageID] ?? pageFieldModels.first!.value
+                }, set: {
+                    pageFieldModels[currentPageID] = $0
+                })
+            PageView(page: pageBinding, mode: mode, events: events, documentEditor: documentEditor)
         }
     }
-
 }
 
 struct PageView: View {
-    let page: Page
+    @Binding var page: PageModel
     let mode: Mode
     let events: FormChangeEventInternal?
-    @ObservedObject var documentEditor: DocumentEditor
+    var documentEditor: DocumentEditor
 
     var body: some View {
-        if let fieldPositions = page.fieldPositions {
-//            let resultFieldPositions = mapWebViewToMobileView(fieldPositions: fieldPositions)
-            let binding = Binding {
-                fieldPositions
-            } set: { _ in
-                
-            }
-            FormView(fieldPositions: binding, listModels: $documentEditor.fieldModels, mode: mode, eventHandler: self, documentEditor: documentEditor)
-        }
+        FormView(listModels: $page.fields, mode: mode, eventHandler: self, documentEditor: documentEditor)
     }
 
     func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
@@ -398,7 +395,8 @@ extension PageView: FormChangeEventInternal {
     
     func onUpload(event: JoyfillModel.UploadEvent) {
         var event = event
-        event.page = page
+        // TODO:
+//        event.page = page
         events?.onUpload(event: event)
     }
 }
@@ -417,13 +415,7 @@ struct FieldDependency {
     var fieldData: JoyDocField?
 }
 
-struct FieldListModel {
-    let fieldID: String
-    var refreshID: UUID
-}
-
 struct FormView: View {
-    @Binding var fieldPositions: [FieldPosition]
     @Binding var listModels: [FieldListModel]
     @State var mode: Mode = .fill
     let eventHandler: FormChangeEventInternal?
@@ -614,7 +606,7 @@ struct PageDuplicateListView: View {
     let pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
     let documentEditor: DocumentEditor
-    let pages: [Page]
+    @Binding var pageFieldModels: [String: PageModel]
 
     var body: some View {
         VStack(alignment: .leading) {
