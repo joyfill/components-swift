@@ -53,11 +53,3 @@ struct NumberView: View {
         }
     }
 }
-
-struct NumberDataModel {
-    var fieldId: String?
-    var number: Double?
-    var mode: Mode
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

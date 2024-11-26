@@ -41,10 +41,3 @@ struct TextView: View {
     }
 }
 
-struct TextDataModel {
-    var fieldId: String?
-    var text: String?
-    var mode: Mode
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

@@ -42,10 +42,3 @@ struct MultiLineTextView: View {
     }
 }
 
-struct MultiLineDataModel {
-    var fieldId: String?
-    var multilineText: String?
-    var mode: Mode
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

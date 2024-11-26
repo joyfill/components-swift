@@ -84,10 +84,3 @@ struct DateTimeView: View {
     }
 }
 
-struct DateTimeDataModel {
-    var fieldId: String?
-    var value: ValueUnion?
-    var format: String?
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

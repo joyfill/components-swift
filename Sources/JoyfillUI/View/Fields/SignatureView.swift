@@ -236,9 +236,3 @@ extension View {
     }
 }
 
-struct SignatureDataModel {
-    var fieldId: String?
-    var signatureURL: String?
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

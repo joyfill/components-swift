@@ -128,18 +128,3 @@ struct TableQuickView : View {
     }
 }
 
-struct TableDataModel {
-    var fieldId: String?
-    var pageId: String?
-    var fileId: String?
-    var value: ValueUnion?
-    var tableColumnOrder: [String]?
-    var tableColumns: [FieldTableColumn]?
-    var valueToValueElements: [ValueElement]?
-    var rowOrder: [String]?
-    var title: String?
-    var documentEditor: DocumentEditor?
-    var mode: Mode
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

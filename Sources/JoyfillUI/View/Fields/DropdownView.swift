@@ -113,10 +113,3 @@ struct DropDownOptionList: View {
     }
 }
 
-struct DropdownDataModel {
-    var fieldId: String?
-    var dropdownValue: String?
-    var options: [Option]?
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

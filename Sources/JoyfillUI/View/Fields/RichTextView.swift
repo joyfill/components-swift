@@ -175,9 +175,3 @@ extension UIColor {
         return nil
     }
 }
-
-struct RichTextDataModel {
-    var text: String?
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

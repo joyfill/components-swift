@@ -150,12 +150,3 @@ struct RadioView: View {
     }
 }
 
-struct MultiSelectionDataModel {
-    var fieldId: String?
-    var currentFocusedFieldsDataId: String?
-    var multi: Bool?
-    var options: [Option]?
-    var multiSelector: [String]?
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}

@@ -440,13 +440,3 @@ struct ToastMessageView: View {
         }
     }
 }
-
-struct ImageDataModel {
-    var fieldId: String?
-    var multi: Bool?
-    var primaryDisplayOnly: Bool?
-    var valueElements: [ValueElement]?
-    var mode: Mode
-    var eventHandler: FieldChangeEvents
-    var fieldHeaderModel: FieldHeaderModel?
-}
