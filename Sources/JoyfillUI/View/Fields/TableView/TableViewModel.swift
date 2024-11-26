@@ -267,7 +267,8 @@ class TableViewModel: ObservableObject {
                 }
             }
         }
-
+        //Update local model with new bulk edit changes
+        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldId!)?.valueToValueElements
         emptySelection()
         setup()
         uuid = UUID()

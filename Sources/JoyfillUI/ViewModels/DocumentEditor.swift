@@ -578,11 +578,18 @@ public class DocumentEditor: ObservableObject {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }
     
+    func refreshField(fieldId: String) {
+        let pageIDIndexValue = fieldIndexMap[fieldId]!
+        let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
+        pageFieldModels[pageID]!.fields[index].refreshID = UUID()
+    }
+    
     func sendEventsIfNeeded(tableDataModel: TableDataModel) {
         let fieldId = tableDataModel.fieldId!
         let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
         handleFieldChange(event: changeEvent, currentField: currentField)
+        refreshField(fieldId: tableDataModel.fieldId!)
     }
     
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
