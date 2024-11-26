@@ -42,7 +42,8 @@ public class DocumentEditor: ObservableObject {
             guard let pageID = page.id else { return }
             var fieldListModels = [FieldListModel]()
 
-            for fieldPostion in page.fieldPositions ?? [] {
+            let fieldPositions = mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
+            for fieldPostion in fieldPositions {
                 fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, pageID: pageID, fileID: files[0].id!, refreshID: UUID()))
                 let index = fieldListModels.count - 1
                 fieldIndexMap[fieldPostion.field!] = fieldIndexMapValue(pageID: pageID, index: index)
@@ -53,6 +54,23 @@ public class DocumentEditor: ObservableObject {
 
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
+    }
+
+    private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+        let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
+            guard let y1 = fp1.y, let y2 = fp2.y else { return false }
+            return Int(y1) < Int(y2)
+        }
+        var uniqueFields = Set<String>()
+        var resultFieldPositions = [FieldPosition]()
+        resultFieldPositions.reserveCapacity(sortedFieldPositions.count)
+
+        for fp in sortedFieldPositions {
+            if let field = fp.field, uniqueFields.insert(field).inserted {
+                resultFieldPositions.append(fp)
+            }
+        }
+        return resultFieldPositions
     }
 
     private func pageIDAndIndex(key: String) -> (String, Int) {
@@ -117,6 +135,7 @@ public class DocumentEditor: ObservableObject {
     }
 
     public func shouldShow(fieldID: String) -> Bool {
+        true
         return showFieldMap[fieldID] ?? true
     }
 
@@ -143,7 +162,7 @@ public class DocumentEditor: ObservableObject {
         var isValid = true
         let fieldPositionIDs = document.fieldPositionsForCurrentView.map {  $0.field }
         for field in document.fields.filter { fieldPositionIDs.contains($0.id) } {
-            if shouldShow(pageID: field.id) {
+            if shouldShowLocal(fieldID: field.id) {
                 fieldValidations.append(FieldValidation(field: field, status: .valid))
                 continue
                 fieldValidations.append(FieldValidation(field: field, status: .valid))

@@ -51,7 +51,7 @@ public struct TemplateListView: View {
                             }
 
                             if showNewSubmission {
-                                NavigationLink("", destination: FormContainerView(document: document!, pageID: "pageID", changeManager: changeManager), isActive: $showNewSubmission)
+                                NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
                             }
                             Button(action: {
                                 createDocumentSubmission(identifier: template.identifier, completion: { _ in })

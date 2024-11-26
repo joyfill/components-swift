@@ -51,12 +51,7 @@ struct DocumentSubmissionsListView: View {
         }
     }
 
-    //    private var documentBinding: Binding<JoyDoc> {
-    ////        Binding(get: { document! }, set: { document = $0 })
-    //    }
-
     private var pageID: String {
-        //        document!.files[0].pages?.first(where: { $0.hidden == false })?.id ?? ""
         return ""
     }
 
