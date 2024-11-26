@@ -366,7 +366,7 @@ class TableViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         if tableDataDidChange {
             setTableDataDidChange(to: false)
-            tableDataModel.documentEditor?.sendEventsIfNeeded(fieldID: tableDataModel.fieldId!, eventHandler: tableDataModel.eventHandler)
+            tableDataModel.documentEditor?.sendEventsIfNeeded(tableDataModel: tableDataModel)
         }
     }
 }

@@ -559,9 +559,11 @@ public class DocumentEditor: ObservableObject {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }
     
-    func sendEventsIfNeeded(fieldID: String, eventHandler: FieldChangeEvents) {
-        let changeEvent = FieldChangeEvent(fieldID: fieldID, updateValue: fieldMap[fieldID]?.value)
-        onChange(event: changeEvent)
+    func sendEventsIfNeeded(tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
+        let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
+        let currentField = field(fieldID: fieldId)!
+        handleFieldChange(event: changeEvent, currentField: currentField)
     }
     
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
@@ -644,7 +646,10 @@ public class DocumentEditor: ObservableObject {
         guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
         updateValue(event: event)
         currentField = field(fieldID: event.fieldID)!
-
+        handleFieldChange(event: event, currentField: currentField)
+    }
+    
+    func handleFieldChange(event: FieldChangeEvent, currentField: JoyDocField) {
         let fieldPosition = fieldPosition(fieldID: event.fieldID)!
         var change = Change(v: 1,
                             sdk: "swift",
