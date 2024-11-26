@@ -438,11 +438,12 @@ struct FormView: View {
 
         switch fieldPosition.type {
         case .text:
-            TextView(textDataModel: TextDataModel(fieldId: fieldData?.id,
-                                                  text: fieldData?.value?.text ?? "",
-                                                  mode: fieldEditMode,
-                                                  eventHandler: self,
-                                                  fieldHeaderModel: fieldHeaderModel))
+            let model = TextDataModel(fieldId: fieldData?.id,
+                                      text: fieldData?.value?.text ?? "",
+                                      mode: fieldEditMode,
+                                      eventHandler: self,
+                                      fieldHeaderModel: fieldHeaderModel)
+            TextView(textDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .block:
             let model = DisplayTextDataModel(displayText: fieldData?.value?.text,
@@ -451,47 +452,53 @@ struct FormView: View {
             DisplayTextView(displayTextDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .multiSelect:
-            MultiSelectionView(multiSelectionDataModel: MultiSelectionDataModel(fieldId: fieldData?.id,
-                                                                                currentFocusedFieldsDataId: currentFocusedFielsID,
-                                                                                multi: fieldData?.multi,
-                                                                                options: fieldData?.options,
-                                                                                multiSelector: fieldData?.value?.multiSelector,
-                                                                                eventHandler: self,
-                                                                                fieldHeaderModel: fieldHeaderModel))
+            let model = MultiSelectionDataModel(fieldId: fieldData?.id,
+                                                currentFocusedFieldsDataId: currentFocusedFielsID,
+                                                multi: fieldData?.multi,
+                                                options: fieldData?.options,
+                                                multiSelector: fieldData?.value?.multiSelector,
+                                                eventHandler: self,
+                                                fieldHeaderModel: fieldHeaderModel)
+            MultiSelectionView(multiSelectionDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            DropdownView(dropdownDataModel: DropdownDataModel(fieldId: fieldData?.id,
-                                                              dropdownValue: fieldData?.value?.dropdownValue,
-                                                              options: fieldData?.options,
-                                                              eventHandler: self,
-                                                              fieldHeaderModel: fieldHeaderModel))
+            let model = DropdownDataModel(fieldId: fieldData?.id,
+                                          dropdownValue: fieldData?.value?.dropdownValue,
+                                          options: fieldData?.options,
+                                          eventHandler: self,
+                                          fieldHeaderModel: fieldHeaderModel)
+            DropdownView(dropdownDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
-            MultiLineTextView(multiLineDataModel: MultiLineDataModel(fieldId: fieldData?.id,
-                                                                     multilineText: fieldData?.value?.multilineText,
-                                                                     mode: fieldEditMode,
-                                                                     eventHandler: self,
-                                                                     fieldHeaderModel: fieldHeaderModel))
+            let model = MultiLineDataModel(fieldId: fieldData?.id,
+                                           multilineText: fieldData?.value?.multilineText,
+                                           mode: fieldEditMode,
+                                           eventHandler: self,
+                                           fieldHeaderModel: fieldHeaderModel)
+            MultiLineTextView(multiLineDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .date:
-            DateTimeView(dateTimeDataModel: DateTimeDataModel(fieldId: fieldData?.id,
-                                                              value: fieldData?.value,
-                                                              format: fieldPosition.format,
-                                                              eventHandler: self,
-                                                              fieldHeaderModel: fieldHeaderModel))
+            let model = DateTimeDataModel(fieldId: fieldData?.id,
+                                          value: fieldData?.value,
+                                          format: fieldPosition.format,
+                                          eventHandler: self,
+                                          fieldHeaderModel: fieldHeaderModel)
+            DateTimeView(dateTimeDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .signature:
-            SignatureView(signatureDataModel: SignatureDataModel(fieldId: fieldData?.id,
-                                                                 signatureURL: fieldData?.value?.signatureURL ?? "",
-                                                                 eventHandler: self,
-                                                                 fieldHeaderModel: fieldHeaderModel))
+            let model = SignatureDataModel(fieldId: fieldData?.id,
+                                           signatureURL: fieldData?.value?.signatureURL ?? "",
+                                           eventHandler: self,
+                                           fieldHeaderModel: fieldHeaderModel)
+            SignatureView(signatureDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .number:
-            NumberView(numberDataModel: NumberDataModel(fieldId: fieldData?.id,
-                                                        number: fieldData?.value?.number,
-                                                        mode: fieldEditMode,
-                                                        eventHandler: self,
-                                                        fieldHeaderModel: fieldHeaderModel))
+            let model = NumberDataModel(fieldId: fieldData?.id,
+                                        number: fieldData?.value?.number,
+                                        mode: fieldEditMode,
+                                        eventHandler: self,
+                                        fieldHeaderModel: fieldHeaderModel)
+            NumberView(numberDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .chart:
             let model = ChartDataModel(fieldId: fieldData?.id,
@@ -510,9 +517,10 @@ struct FormView: View {
                                        fieldHeaderModel: fieldHeaderModel)
             ChartView(chartDataModel: model)
         case .richText:
-            RichTextView(richTextDataModel: RichTextDataModel(text: fieldData?.value?.text,
-                                                              eventHandler: self,
-                                                              fieldHeaderModel: fieldHeaderModel))
+            let model = RichTextDataModel(text: fieldData?.value?.text,
+                                          eventHandler: self,
+                                          fieldHeaderModel: fieldHeaderModel)
+            RichTextView(richTextDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .table:
             let model = TableDataModel(fieldId: fieldData?.id,
@@ -530,13 +538,14 @@ struct FormView: View {
                                        fieldHeaderModel: fieldHeaderModel)
             TableQuickView(tableDataModel: model)
         case .image:
-            ImageView(imageDataModel: ImageDataModel(fieldId: fieldData?.id,
-                                                     multi: fieldData?.multi,
-                                                     primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
-                                                     valueElements: fieldData?.value?.valueElements,
-                                                     mode: fieldEditMode,
-                                                     eventHandler: self,
-                                                     fieldHeaderModel: fieldHeaderModel))
+            let model = ImageDataModel(fieldId: fieldData?.id,
+                                       multi: fieldData?.multi,
+                                       primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
+                                       valueElements: fieldData?.value?.valueElements,
+                                       mode: fieldEditMode,
+                                       eventHandler: self,
+                                       fieldHeaderModel: fieldHeaderModel)
+            ImageView(imageDataModel: model)
         case .none:
             EmptyView()
         case .unknown:
