@@ -213,14 +213,14 @@ class TableViewModel: ObservableObject {
 
     func moveUP() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.moveUP(rowID: selectedRows.first!, fieldId: tableDataModel.fieldId!) else { return }
-        handleMove(targetRows: targetRows)
+        tableDataModel.documentEditor?.moveUP(rowID: selectedRows.first!, tableDataModel: tableDataModel)
+        updateUI()
     }
 
     func moveDown() {
         guard !selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.moveDown(rowID: selectedRows.first!, fieldId: tableDataModel.fieldId!) else { return }
-        handleMove(targetRows: targetRows)
+       tableDataModel.documentEditor?.moveDown(rowID: selectedRows.first!, tableDataModel: tableDataModel)
+        updateUI()
     }
 
     private func handleMove(targetRows: [TargetRowModel]) {
@@ -229,7 +229,6 @@ class TableViewModel: ObservableObject {
         let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
         tableDataModel.documentEditor?.moveRow(event: changeEvent, targetRowIndexes: targetRows)
         
-        updateUI()
     }
 
     private func updateUI() {

@@ -526,7 +526,6 @@ struct FormView: View {
             let model = TableDataModel(fieldId: fieldData?.id,
                                        pageId: listModel.pageID,
                                        fileId: listModel.fileID,
-                                       value: fieldData?.value,
                                        tableColumnOrder: fieldData?.tableColumnOrder,
                                        tableColumns: fieldData?.tableColumns,
                                        valueToValueElements: fieldData?.valueToValueElements,

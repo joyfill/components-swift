@@ -10,30 +10,33 @@ func sampleJSONDocument(fileName: String = "Joydocjson") -> JoyDoc {
 }
 
 struct UITestFormContainerView: View {
-    @State var document: JoyDoc
-    @State var pageID: String
-    @Binding var changeResult: String
+    let documentEditor: DocumentEditor
+    @State var pageID: String = ""
     
-    init(changeResult: Binding<String>) {
-        self.pageID = ""
-        self.document = sampleJSONDocument()
-        _changeResult = changeResult
+    init(documentEditor: DocumentEditor) {
+        self.documentEditor = documentEditor
     }
 
     var body: some View {
         VStack {
-            Form(document: $document, mode: .fill, events: self, pageID: pageID)
+            Form(documentEditor: documentEditor, pageID: pageID)
         }
     }
 }
 
-extension UITestFormContainerView: FormChangeEvent {
+class UITestFormContainerViewHandler: FormChangeEvent {
+    var setResult: (String) -> Void
+    
+    init(setResult: @escaping (String) -> Void) {
+        self.setResult = setResult
+    }
+    
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
         let dictionary = changes.map { $0.dictionary }
         if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted),
            let jsonString = String(data: jsonData, encoding: .utf8) {
             print(jsonString)
-            changeResult = jsonString
+            setResult(jsonString)
         } else {
             print("Failed to convert dictionary to JSON string")
         }

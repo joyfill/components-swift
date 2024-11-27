@@ -112,9 +112,7 @@ public class DocumentEditor: ObservableObject {
 
     func applyConditionalLogicAndRefreshUI(event: FieldChangeEvent) {
         // refresh current field
-        let pageIDIndexValue = fieldIndexMap[event.fieldID]!
-        let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
-        pageFieldModels[pageID]!.fields[index].refreshID = UUID()
+        refreshField(fieldId: event.fieldID)
 
         guard let dependentFields = fieldConditionalDependencyMap[event.fieldID] else { return }
         // Refresh dependent fields if required
@@ -122,9 +120,7 @@ public class DocumentEditor: ObservableObject {
             let shouldShow = shouldShowLocal(fieldID: dependentField)
             if showFieldMap[dependentField] != shouldShow {
                 showFieldMap[dependentField] = shouldShow
-                let pageIDIndexValue = fieldIndexMap[dependentField]!
-                let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
-                pageFieldModels[pageID]!.fields[index].refreshID = UUID()
+                refreshField(fieldId: dependentField)
             }
         }
     }
@@ -406,7 +402,8 @@ public class DocumentEditor: ObservableObject {
     
     func onChangeForDelete(tableDataModel: TableDataModel, selectedRows: [String]) {
         let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[tableDataModel.fieldId!]?.value)
-        tableDataModel.documentEditor?.deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
+        deleteRow(event: changeEvent, targetRowIndexes: selectedRows.map { TargetRowModel.init(id: $0, index: 0)})
+        refreshField(fieldId: tableDataModel.fieldId!)
     }
 
     /// Deletes a row with the specified ID from the table field.
@@ -433,37 +430,44 @@ public class DocumentEditor: ObservableObject {
         
         let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRow(event: changeEvent, targetRowIndexes: targetRows)
+        refreshField(fieldId: fieldId)
     }
 
 
-    func moveUP(rowID: String, fieldId: String)  -> [TargetRowModel] {
+    func moveUP(rowID: String, tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return []
+            return
         }
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
 
         guard lastRowIndex != 0 else {
-            return []
+            return
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        return [TargetRowModel(id: rowID, index: lastRowIndex-1)]
+        let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
+        moveRow(event: changeEvent, targetRowIndexes: targetRows)
     }
 
-    func moveDown(rowID: String, fieldId: String)  -> [TargetRowModel] {
+    func moveDown(rowID: String, tableDataModel: TableDataModel) {
+        let fieldId = tableDataModel.fieldId!
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return []
+            return
         }
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
 
         guard (lastRowOrder.count - 1) != lastRowIndex else {
-            return []
+            return
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        return [TargetRowModel(id: rowID, index: lastRowIndex+1)]
+        let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
+        moveRow(event: changeEvent, targetRowIndexes: targetRows)
     }
 
     /// Adds a new row with the specified ID to the table field.
@@ -477,6 +481,7 @@ public class DocumentEditor: ObservableObject {
         
         let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
+        refreshField(fieldId: fieldId)
     }
 
     /// Adds a new row with the specified ID to the table field.
@@ -502,6 +507,7 @@ public class DocumentEditor: ObservableObject {
         
         let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRow(event: changeEvent, targetRowIndexes: targetRows)
+        refreshField(fieldId: fieldId)
     }
 
     /// Adds a new row with the specified ID to the table field.
@@ -519,6 +525,7 @@ public class DocumentEditor: ObservableObject {
         
         let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRow(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
+        refreshField(fieldId: fieldId)
     }
 
     /// A function that updates the cell value when a change is detected.
@@ -593,7 +600,6 @@ public class DocumentEditor: ObservableObject {
     }
     
     func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateValue(event: event)
         var changes = [Change]()
         let field = field(fieldID: event.fieldID)!
         let fieldPosition = fieldPosition(fieldID: event.fieldID)!
@@ -617,7 +623,6 @@ public class DocumentEditor: ObservableObject {
     }
 
     func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateValue(event: event)
         var changes = [Change]()
         let field = field(fieldID: event.fieldID)!
         let fieldPosition = fieldPosition(fieldID: event.fieldID)!
@@ -641,7 +646,6 @@ public class DocumentEditor: ObservableObject {
     }
 
     func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateValue(event: event)
         var changes = [Change]()
         let field = field(fieldID: event.fieldID)!
         let fieldPosition = fieldPosition(fieldID: event.fieldID)!

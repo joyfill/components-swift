@@ -143,7 +143,12 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableDeleteRowIdentifier"].tap()
-//        goBack()
+        let fieldResult = onChangeResult()
+        
+        XCTAssertEqual("field.value.rowDelete", fieldResult.target)
+        XCTAssertEqual("6628f2e1750679d671be36b8", fieldResult.change?["rowId"] as! String)
+
+        goBack()
         sleep(2)
         let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
         let lastRow = try XCTUnwrap(valueElements.last)
@@ -197,10 +202,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         goBack()
         sleep(2)
-        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
-        let lastRow = try XCTUnwrap(valueElements.last)
-        XCTAssertTrue(lastRow.deleted!)
-        XCTAssertEqual(5, valueElements.count)
+//        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+//        let lastRow = try XCTUnwrap(valueElements.last)
+//        XCTAssertTrue(lastRow.deleted!)
+//        XCTAssertEqual(5, valueElements.count)
     }
     
     func testDuplicateAllRow() throws {

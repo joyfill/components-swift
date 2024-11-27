@@ -24,7 +24,6 @@ struct TableDataModel {
     var fieldId: String?
     var pageId: String?
     var fileId: String?
-    var value: ValueUnion?
     var tableColumnOrder: [String]?
     var tableColumns: [FieldTableColumn]?
     var valueToValueElements: [ValueElement]?
@@ -34,6 +33,10 @@ struct TableDataModel {
     var mode: Mode
     var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
+    
+    var value: ValueUnion? {
+        .valueElementArray(valueToValueElements ?? [])
+    }
 }
 
 struct ChartDataModel {
