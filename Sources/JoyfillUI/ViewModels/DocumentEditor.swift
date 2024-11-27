@@ -450,6 +450,7 @@ public class DocumentEditor: ObservableObject {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
         let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        refreshField(fieldId: fieldId)
     }
 
     func moveDown(rowID: String, tableDataModel: TableDataModel) {
@@ -468,6 +469,7 @@ public class DocumentEditor: ObservableObject {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
         let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        refreshField(fieldId: fieldId)
     }
 
     /// Adds a new row with the specified ID to the table field.
