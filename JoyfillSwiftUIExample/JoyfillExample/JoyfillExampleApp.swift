@@ -24,7 +24,7 @@ struct JoyfillExampleApp: App {
         let appState = AppState()
         let eventHandler =  UITestFormContainerViewHandler() { change in
             DispatchQueue.main.async {
-                appState.changeResult = change 
+                appState.changeResult = change
             }
         }
         _appState = StateObject(wrappedValue: appState)
