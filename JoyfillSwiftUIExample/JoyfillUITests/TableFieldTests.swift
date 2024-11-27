@@ -65,6 +65,13 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         thirdTableTextField.typeText("Third")
         
         goBack()
+        sleep(2)
+        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6628f2e11a2b28119985cfbb"]?.text)
+        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6628f2e11a2b28119985cfbb"]?.text)
+        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6628f2e11a2b28119985cfbb"]?.text)
+        XCTAssertEqual("FirstHello", firstCellTextValue)
+        XCTAssertEqual("SecondHis", secondCellTextValue)
+        XCTAssertEqual("ThirdHis", thirdCellTextValue)
     }
     
     func testTableDropdownOption() throws {
@@ -80,6 +87,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         goBack()
+        sleep(2)
+        let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6628f2e123ca77fa82a2c45e"]?.text)
+        XCTAssertEqual("6628f2e1c12db4664e9eb38f", firstCellDropdownValue)
     }
     
     func testTableUploadImage() throws {
@@ -133,7 +143,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableDeleteRowIdentifier"].tap()
-        goBack()
+//        goBack()
         sleep(2)
         let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
         let lastRow = try XCTUnwrap(valueElements.last)
