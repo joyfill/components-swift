@@ -60,6 +60,7 @@ import JoyfillModel
              editedCell.images = valueElements
              cellModel.didChange?(editedCell)
          }
-         cellModel.eventHandler.onUpload(event: uploadEvent)
+         // TODO:
+//         cellModel.eventHandler.onUpload(event: uploadEvent)
      }
 }

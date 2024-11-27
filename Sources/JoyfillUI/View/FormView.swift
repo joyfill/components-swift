@@ -254,18 +254,10 @@ struct FormView: View {
             RichTextView(richTextDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .table:
-            let model = TableDataModel(fieldId: fieldData?.id,
-                                       pageId: listModel.pageID,
-                                       fileId: listModel.fileID,
-                                       tableColumnOrder: fieldData?.tableColumnOrder,
-                                       tableColumns: fieldData?.tableColumns,
-                                       valueToValueElements: fieldData?.valueToValueElements,
-                                       rowOrder: fieldData?.rowOrder,
-                                       title: fieldData?.title,
-                                       documentEditor: documentEditor,
+            let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
                                        mode: fieldEditMode,
-                                       eventHandler: self,
-                                       fieldHeaderModel: fieldHeaderModel)
+                                       documentEditor: documentEditor,
+                                       listModel: listModel)
             TableQuickView(tableDataModel: model)
         case .image:
             let model = ImageDataModel(fieldId: fieldData?.id,
