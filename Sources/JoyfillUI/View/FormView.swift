@@ -313,21 +313,6 @@ struct FormView: View {
 
 extension FormView: FieldChangeEvents {
 
-    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateFocusedField(event: event)
-        documentEditor.deleteRow(event: event, targetRowIndexes: targetRowIndexes)
-    }
-
-    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateFocusedField(event: event)
-        documentEditor.moveRow(event: event, targetRowIndexes: targetRowIndexes)
-    }
-
-    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
-        updateFocusedField(event: event)
-        documentEditor.addRow(event: event, targetRowIndexes: targetRowIndexes)
-    }
-
     func onChange(event: FieldChangeEvent) {
         updateFocusedField(event: event)
         documentEditor.onChange(event: event)

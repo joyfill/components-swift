@@ -171,17 +171,11 @@ class TableViewModel: ObservableObject {
     }
     
     func deleteSelectedRow() {
-        guard !selectedRows.isEmpty else {
-            return
-        }
-
         for row in selectedRows {
-            tableDataModel.documentEditor?.deleteRow(id: row, tableDataModel: tableDataModel)
             rowToCellMap.removeValue(forKey: row)
         }
-        
-        tableDataModel.documentEditor?.onChangeForDelete(tableDataModel: tableDataModel, selectedRows: selectedRows)
-                
+        tableDataModel.documentEditor?.deleteRows(rowIDs: selectedRows, tableDataModel: tableDataModel)
+
         emptySelection()
         setup()
         uuid = UUID()
@@ -206,8 +200,6 @@ class TableViewModel: ObservableObject {
     func insertBelow() {
         guard !selectedRows.isEmpty else { return }
         guard let targetRows = tableDataModel.documentEditor?.addRow(selectedRows: selectedRows, tableDataModel: tableDataModel) else { return }
-        
-        
         updateUI()
     }
 

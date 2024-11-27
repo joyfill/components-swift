@@ -65,31 +65,9 @@ protocol FormChangeEventInternal {
 
 /// A protocol that defines the field change events for a document.
 protocol FieldChangeEvents {
-
-    /// Notifies the conforming object when a field change event occurs.
-    ///
-    /// - Parameter event: The `FieldChangeEvent` object that represents the field change event.
     func onChange(event: FieldChangeEvent)
-
-    /// Adds a new row to the document when a field change event occurs.
-    ///
-    /// - Parameter event: The `FieldChangeEvent` object that represents the field change event.
-    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel])
-
-    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel])
-
-    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel])
-
-    /// Notifies the conforming object when a field gains focus.
-    ///
-    /// - Parameter event: The `FieldEvent` object that represents the field event.
     func onFocus(event: FieldEventInternal)
-
-    /// Notifies the conforming object when an upload event occurs.
-    ///
-    /// - Parameter event: The `UploadEvent` object that represents the upload event.
     func onUpload(event: UploadEventInternal)
-    
 }
     
 
