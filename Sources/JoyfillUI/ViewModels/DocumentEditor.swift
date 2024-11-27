@@ -8,7 +8,6 @@
 import Foundation
 import JoyfillModel
 
-@available(iOS 13.0, *)
 public class DocumentEditor: ObservableObject {
     public var document: JoyDoc
     private var fieldMap = [String: JoyDocField]() {
