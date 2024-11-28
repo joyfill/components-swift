@@ -37,7 +37,7 @@ struct TableQuickView : View {
                     
                     table
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
-                }.frame(maxHeight: CGFloat(viewModel.quickRows.count) * rowHeight + rowHeight)
+                }.frame(maxHeight: CGFloat(viewModel.tableDataModel.quickRows.count) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -57,7 +57,7 @@ struct TableQuickView : View {
                         .font(.system(size: 8, weight: .heavy))
                         .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
                     
-                    Text(viewModel.viewMoreText)
+                    Text(viewModel.tableDataModel.viewMoreText)
                         .font(.system(size: 16))
                 }
                 .foregroundStyle(.black)
@@ -82,12 +82,12 @@ struct TableQuickView : View {
     
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(viewModel.quickColumns, id: \.self) { col in
+            ForEach(viewModel.tableDataModel.quickColumns, id: \.self) { col in
                 ZStack {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.getColumnTitle(columnId: col))
+                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
                         .padding(.horizontal, 4)
                 }
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
@@ -98,15 +98,14 @@ struct TableQuickView : View {
     
     var table: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(viewModel.quickRows, id: \.self) { row in
+            ForEach(viewModel.tableDataModel.quickRows, id: \.self) { row in
                 HStack(alignment: .top, spacing: 0) {
-                    ForEach(Array(viewModel.quickColumns.enumerated()), id: \.offset) { index, col in
+                    ForEach(Array(viewModel.tableDataModel.quickColumns.enumerated()), id: \.offset) { index, col in
                         // Cell
-                        let cell = viewModel.getQuickFieldTableColumn(row: row, col: index)
+                        let cell = viewModel.tableDataModel.getQuickFieldTableColumn(row: row, col: index)
                         if let cell = cell {
                             let cellModel = TableCellModel(rowID: row,
                                                            data: cell,
-                                                           eventHandler: viewModel.tableDataModel.eventHandler,
                                                            fieldId: viewModel.tableDataModel.fieldId!,
                                                            viewMode: .quickView,
                                                            editMode: viewModel.tableDataModel.mode,

@@ -17,7 +17,7 @@ struct TableModalTopNavigationView: View {
 
             Spacer()
 
-            if !viewModel.selectedRows.isEmpty {
+            if !viewModel.tableDataModel.selectedRows.isEmpty {
                 Button(action: {
                     showingPopover = true
                 }) {
@@ -32,7 +32,7 @@ struct TableModalTopNavigationView: View {
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
-                            if viewModel.selectedRows.count == 1 {
+                            if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -55,7 +55,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.firstRowSelected)
+                                .disabled(viewModel.tableDataModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
                                 
@@ -68,7 +68,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.lastRowSelected)
+                                .disabled(viewModel.tableDataModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
@@ -84,7 +84,7 @@ struct TableModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.top, viewModel.selectedRows.count > 1 ? 16 : 0)
+                            .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
                             
                             Button(action: {
@@ -117,7 +117,7 @@ struct TableModalTopNavigationView: View {
 
                     } else {
                         VStack(spacing: 8) {
-                            if viewModel.selectedRows.count == 1 {
+                            if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -140,7 +140,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.firstRowSelected)
+                                .disabled(viewModel.tableDataModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
@@ -154,7 +154,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.lastRowSelected)
+                                .disabled(viewModel.tableDataModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
@@ -206,7 +206,7 @@ struct TableModalTopNavigationView: View {
             Button(action: {
                 viewModel.addRow()
             }) {
-                Text(viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
+                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
                     .foregroundStyle(.selection)
                     .font(.system(size: 14))
                     .frame(height: 27)
@@ -219,7 +219,7 @@ struct TableModalTopNavigationView: View {
     }
 
     var rowTitle: String {
-        "\(viewModel.selectedRows.count) " + (viewModel.selectedRows.count > 1 ? "rows": "row")
+        "\(viewModel.tableDataModel.selectedRows.count) " + (viewModel.tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
 }
 
@@ -279,13 +279,12 @@ struct EditMultipleRowsSheetView: View {
                     })
                 }
 
-                ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { colIndex, col in
-                    let row = viewModel.selectedRows.first!
-                    let cell = viewModel.getFieldTableColumn(row: row, col: colIndex)
+                ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
+                    let row = viewModel.tableDataModel.selectedRows.first!
+                    let cell = viewModel.tableDataModel.getFieldTableColumn(row: row, col: colIndex)
                     if let cell = cell {
                         let cellModel = TableCellModel(rowID: row,
                                                        data: cell,
-                                                       eventHandler: viewModel.tableDataModel.eventHandler,
                                                        fieldId: viewModel.tableDataModel.fieldId!,
                                                        viewMode: .modalView,
                                                        editMode: viewModel.tableDataModel.mode)
@@ -302,7 +301,7 @@ struct EditMultipleRowsSheetView: View {
                         switch cellModel.data.type {
                         case "text":
                             var str = ""
-                            Text(viewModel.getColumnTitle(columnId: col))
+                            Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
                             let binding = Binding<String>(
@@ -326,7 +325,7 @@ struct EditMultipleRowsSheetView: View {
                                 )
                                 .cornerRadius(10)
                         case "dropdown":
-                            Text(viewModel.getColumnTitle(columnId: col))
+                            Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
                             TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)

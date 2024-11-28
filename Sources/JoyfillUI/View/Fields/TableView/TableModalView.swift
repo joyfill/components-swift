@@ -16,7 +16,7 @@ struct TableModalView : View {
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
-        self.rowsCount = self.viewModel.rows.count
+        _rowsCount = State(initialValue: viewModel.tableDataModel.rows.count)
     }
     
     var body: some View {
@@ -29,7 +29,7 @@ struct TableModalView : View {
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {
-                SearchBar(model: $viewModel.filterModels[currentSelectedCol], sortModel: $viewModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
+                SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
             }
             scrollArea
@@ -40,37 +40,37 @@ struct TableModalView : View {
         })
         .onAppear(perform: {
             let fieldEvent = FieldEventInternal(fieldID: viewModel.tableDataModel.fieldId!)
-            viewModel.tableDataModel.eventHandler.onFocus(event: fieldEvent)
+            viewModel.tableDataModel.documentEditor?.onFocus(event: fieldEvent)
         })
-        .onChange(of: viewModel.sortModel.order) { _ in
+        .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
-        .onChange(of: viewModel.filterModels) { _ in
+        .onChange(of: viewModel.tableDataModel.filterModels ) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
-            viewModel.emptySelection()
+            viewModel.tableDataModel.emptySelection()
         }
-        .onChange(of: viewModel.cellModels) { _ in
+        .onChange(of: viewModel.tableDataModel.cellModels) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
-        .onChange(of: viewModel.rows) { _ in
-            if viewModel.rows.isEmpty {
+        .onChange(of: viewModel.tableDataModel.rows) { _ in
+            if viewModel.tableDataModel.rows.isEmpty {
                 currentSelectedCol = Int.min
-                viewModel.emptySelection()
+                viewModel.tableDataModel.emptySelection()
             }
         }
     }
 
     func sortRowsIfNeeded() {
         if currentSelectedCol != Int.min {
-            guard viewModel.sortModel.order != .none else { return }
-            viewModel.filteredcellModels = viewModel.filteredcellModels.sorted { rowArr1, rowArr2 in
+            guard viewModel.tableDataModel.sortModel.order != .none else { return }
+            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowArr1, rowArr2 in
                 let column = rowArr1[currentSelectedCol].data
                 switch column.type {
                 case "text":
-                    switch viewModel.sortModel.order {
+                    switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return (rowArr1[currentSelectedCol].data.title ?? "") < (rowArr2[currentSelectedCol].data.title ?? "")
                     case .descending:
@@ -79,7 +79,7 @@ struct TableModalView : View {
                         return true
                     }
                 case "dropdown":
-                    switch viewModel.sortModel.order {
+                    switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return (rowArr1[currentSelectedCol].data.selectedOptionText ?? "") < (rowArr2[currentSelectedCol].data.selectedOptionText ?? "")
                     case .descending:
@@ -97,17 +97,17 @@ struct TableModalView : View {
     }
 
     func filterRowsIfNeeded() {
-        viewModel.filteredcellModels = viewModel.cellModels
-        guard !viewModel.filterModels.noFilterApplied else {
+        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        guard !viewModel.tableDataModel.filterModels .noFilterApplied else {
             return
         }
 
-        for model in viewModel.filterModels {
+        for model in viewModel.tableDataModel.filterModels  {
             if model.filterText.isEmpty {
                 continue
             }
 
-             let filtred = viewModel.filteredcellModels.filter { rowArr in
+             let filtred = viewModel.tableDataModel.filteredcellModels.filter { rowArr in
                  let column = rowArr[model.colIndex].data
                 switch column.type {
                 case "text":
@@ -119,7 +119,7 @@ struct TableModalView : View {
                 }
                 return false
             }
-            viewModel.filteredcellModels = filtred
+            viewModel.tableDataModel.filteredcellModels = filtred
         }
     }
 
@@ -128,14 +128,14 @@ struct TableModalView : View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
                     if viewModel.showRowSelector  {
-                        Image(systemName: viewModel.allRowSelected ? "record.circle.fill" : "circle")
+                        Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: textHeight)
                             .foregroundColor(rowsCount == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
-                                if !viewModel.allRowSelected {
-                                    viewModel.selectAllRows()
+                                if !viewModel.tableDataModel.allRowSelected {
+                                    viewModel.tableDataModel.selectAllRows()
                                 } else {
-                                    viewModel.emptySelection()
+                                    viewModel.tableDataModel.emptySelection()
                                 }
                             }
                             .disabled(rowsCount == 0)
@@ -187,17 +187,17 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { index, columnId in
+            ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { index, columnId in
                 Button(action: {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     HStack {
-                        Text(viewModel.getColumnTitle(columnId: columnId))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: columnId))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if viewModel.getColumnType(columnId: columnId) != "image" {
+                        if viewModel.tableDataModel.getColumnType(columnId: columnId) != "image" {
                             Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(viewModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
+                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
                         
                     }
@@ -214,7 +214,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
+                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -236,15 +236,15 @@ struct TableModalView : View {
     
     var rowsHeader: some View {
        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
+            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
-                        let isRowSelected = viewModel.selectedRows.contains(rowArray.first?.rowID ?? "")
+                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowArray.first?.rowID ?? "")
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: heights[index] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
-                                viewModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                                viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                             }
                             .accessibilityIdentifier("MyButton")
                         
@@ -265,7 +265,7 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(viewModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
+                        ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels, id: \.id) { cellModel in
                                     ZStack {
@@ -282,9 +282,9 @@ struct TableModalView : View {
 
                             }
                         }
-                        .onReceive(viewModel.$rows) { _ in
-                            refreshUUIDIfNeeded()
-                        }
+//                        .onReceive(viewModel.tableDataModel.$rows) { _ in
+//                            refreshUUIDIfNeeded()
+//                        }
                         .onPreferenceChange(HeightPreferenceKey.self) { value in
                             updateNewHeight(newValue: value)
                         }
@@ -318,8 +318,8 @@ struct TableModalView : View {
     
     // Note: This is an optimisation to stop force re-render entire table
     private func refreshUUIDIfNeeded() {
-        if rowsCount != viewModel.rows.count {
-            self.rowsCount = viewModel.rows.count
+        if rowsCount != viewModel.tableDataModel.rows.count {
+            self.rowsCount = viewModel.tableDataModel.rows.count
             self.refreshID = UUID()
         }
     }
@@ -362,13 +362,13 @@ struct SearchBar: View {
     
     var body: some View {
         HStack {
-            if !viewModel.rows.isEmpty, selectedColumnIndex != Int.min {
-                let row = viewModel.rows[0]
-                let column = viewModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
+            if !viewModel.tableDataModel.rows.isEmpty, selectedColumnIndex != Int.min {
+                let row = viewModel.tableDataModel.rows[0]
+                let column = viewModel.tableDataModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
                                                    data: column,
-                                                   eventHandler: viewModel.tableDataModel.eventHandler,
+//                                                   eventHandler: viewModel.tableDataModel.eventHandler,
                                                    fieldId: viewModel.tableDataModel.fieldId!,
                                                    viewMode: .modalView,
                                                    editMode: viewModel.tableDataModel.mode)
@@ -433,7 +433,7 @@ struct SearchBar: View {
     }
 
     func getSortIcon() -> String {
-        switch viewModel.sortModel.order {
+        switch viewModel.tableDataModel.sortModel.order {
         case .ascending:
             return "arrow.up"
         case .descending:
@@ -444,7 +444,7 @@ struct SearchBar: View {
     }
 
     func getIconColor() -> Color {
-        switch viewModel.sortModel.order {
+        switch viewModel.tableDataModel.sortModel.order {
         case .none:
             return .black
         case .ascending, .descending:

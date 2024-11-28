@@ -473,7 +473,7 @@ public class DocumentEditor: ObservableObject {
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         refreshField(fieldId: fieldId)
     }
@@ -492,7 +492,7 @@ public class DocumentEditor: ObservableObject {
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: tableDataModel.value)
+        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         refreshField(fieldId: fieldId)
     }
