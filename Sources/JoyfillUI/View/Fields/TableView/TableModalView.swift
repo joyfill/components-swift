@@ -39,8 +39,8 @@ struct TableModalView : View {
             viewModel.sendEventsIfNeeded()
         })
         .onAppear(perform: {
-            let fieldEvent = FieldEventInternal(fieldID: viewModel.tableDataModel.fieldId!)
-            viewModel.tableDataModel.eventHandler.onFocus(event: fieldEvent)
+//            let fieldEvent = FieldEventInternal(fieldID: viewModel.tableDataModel.fieldId!)
+//            viewModel.tableDataModel.eventHandler.onFocus(event: fieldEvent)
         })
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
             filterRowsIfNeeded()
@@ -58,7 +58,7 @@ struct TableModalView : View {
         .onChange(of: viewModel.tableDataModel.rows) { _ in
             if viewModel.tableDataModel.rows.isEmpty {
                 currentSelectedCol = Int.min
-                viewModel.emptySelection()
+                viewModel.tableDataModel.emptySelection()
             }
         }
     }
@@ -214,7 +214,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
+                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in

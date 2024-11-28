@@ -42,6 +42,29 @@ class TableViewModel: ObservableObject {
         }
         self.tableDataModel.cellModels.append(rowCellModels)
     }
+    
+    func setupCellModels() {
+        var cellModels = [[TableCellModel]]()
+        tableDataModel.rows.enumerated().forEach { rowIndex, rowID in
+            var rowCellModels = [TableCellModel]()
+            tableDataModel.columns.enumerated().forEach { colIndex, colID in
+                let columnModel = tableDataModel.getFieldTableColumn(row: rowID, col: colIndex)
+                if let columnModel = columnModel {
+                    let cellModel = TableCellModel(rowID: rowID,
+                                                   data: columnModel,
+                                                   fieldId: tableDataModel.fieldId!,
+                                                   viewMode: .modalView,
+                                                   editMode: tableDataModel.mode) { editedCell  in
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                    }
+                    rowCellModels.append(cellModel)
+                }
+            }
+            cellModels.append(rowCellModels)
+        }
+        tableDataModel.cellModels = cellModels
+        tableDataModel.filteredcellModels = cellModels
+    }
 
     var rowTitle: String {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
@@ -57,7 +80,7 @@ class TableViewModel: ObservableObject {
         tableDataModel.setup()
         uuid = UUID()
         setTableDataDidChange(to: true)
-        tableDataModel.setupCellModels()
+        setupCellModels()
     }
     
     func setTableDataDidChange(to: Bool) {
@@ -71,7 +94,7 @@ class TableViewModel: ObservableObject {
         tableDataModel.setup()
 
         tableDataModel.emptySelection()
-        tableDataModel.setupCellModels()
+        setupCellModels()
     }
 
     func insertBelow() {
@@ -96,7 +119,7 @@ class TableViewModel: ObservableObject {
         setTableDataDidChange(to: true)
         tableDataModel.setup()
         tableDataModel.emptySelection()
-        tableDataModel.setupCellModels()
+        setupCellModels()
     }
 
     func addRow() {
@@ -133,7 +156,7 @@ class TableViewModel: ObservableObject {
         tableDataModel.setup()
         uuid = UUID()
         setTableDataDidChange(to: true)
-        tableDataModel.setupCellModels()
+        setupCellModels()
     }
     
     

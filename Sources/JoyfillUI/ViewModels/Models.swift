@@ -41,6 +41,7 @@ struct TableDataModel {
         self.valueToValueElements = fieldData?.valueToValueElements
         self.rowOrder = fieldData?.rowOrder
         self.title = fieldData?.title
+        self.fieldId = listModel.fieldID
 
         self.filterModels = columns.enumerated().map { colIndex, colID in
             FilterModel(colIndex: colIndex, colID: colID)
@@ -85,30 +86,6 @@ struct TableDataModel {
         setupRows()
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
         viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
-    }
-
-    mutating func setupCellModels() {
-        var cellModels = [[TableCellModel]]()
-        rows.enumerated().forEach { rowIndex, rowID in
-            var rowCellModels = [TableCellModel]()
-            columns.enumerated().forEach { colIndex, colID in
-                let columnModel = getFieldTableColumn(row: rowID, col: colIndex)
-                if let columnModel = columnModel {
-//                    let cellModel = TableCellModel(rowID: rowID,
-//                                                   data: columnModel,
-//                                                   eventHandler: eventHandler,
-//                                                   fieldId: fieldId!,
-//                                                   viewMode: .modalView,
-//                                                   editMode: mode) { editedCell  in
-//                        self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
-//                    }
-//                    rowCellModels.append(cellModel)
-                }
-            }
-            cellModels.append(rowCellModels)
-        }
-        self.cellModels = cellModels
-        self.filteredcellModels = cellModels
     }
 
     mutating private func setupColumns() {
