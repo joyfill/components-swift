@@ -197,7 +197,7 @@ struct TableModalView : View {
                             .darkLightThemeColor()
                         if viewModel.tableDataModel.getColumnType(columnId: columnId) != "image" {
                             Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(viewModel.tableDataModel.filterModels [index].filterText.isEmpty ? Color.gray : Color.blue)
+                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
                         
                     }

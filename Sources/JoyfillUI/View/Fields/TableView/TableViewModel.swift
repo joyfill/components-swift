@@ -22,6 +22,8 @@ class TableViewModel: ObservableObject {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
+        
+        setupCellModels()
     }
 
     func addCellModel(rowID: String) {
