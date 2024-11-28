@@ -15,7 +15,6 @@ class TableViewModel: ObservableObject {
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
 
-    private var tableDataDidChange = false
     @Published var uuid = UUID()
     
     init(tableDataModel: TableDataModel) {
@@ -81,18 +80,12 @@ class TableViewModel: ObservableObject {
         tableDataModel.emptySelection()
         tableDataModel.setup()
         uuid = UUID()
-        setTableDataDidChange(to: true)
         setupCellModels()
-    }
-    
-    func setTableDataDidChange(to: Bool) {
-        tableDataDidChange = to
     }
     
     func duplicateRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         guard let targetRows = tableDataModel.documentEditor?.duplicateRow(selectedRows: tableDataModel.selectedRows, tableDataModel: tableDataModel) else { return }
-        setTableDataDidChange(to: true)
         tableDataModel.setup()
 
         tableDataModel.emptySelection()
@@ -118,7 +111,6 @@ class TableViewModel: ObservableObject {
     }
 
     private func updateUI() {
-        setTableDataDidChange(to: true)
         tableDataModel.setup()
         tableDataModel.emptySelection()
         setupCellModels()
@@ -137,7 +129,6 @@ class TableViewModel: ObservableObject {
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
-        setTableDataDidChange(to: true)
         tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldId!)
         tableDataModel.setup()
         uuid = UUID()
@@ -153,19 +144,15 @@ class TableViewModel: ObservableObject {
             }
         }
         //Update local model with new bulk edit changes
-        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldId!)?.valueToValueElements
+//        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldId!)?.valueToValueElements
         tableDataModel.emptySelection()
         tableDataModel.setup()
         uuid = UUID()
-        setTableDataDidChange(to: true)
         setupCellModels()
     }
     
     
     func sendEventsIfNeeded() {
-        if tableDataDidChange {
-            setTableDataDidChange(to: false)
-            tableDataModel.documentEditor?.sendEventsIfNeeded(tableDataModel: tableDataModel)
-        }
+        tableDataModel.documentEditor?.sendEventsIfNeeded(tableDataModel: tableDataModel)
     }
 }

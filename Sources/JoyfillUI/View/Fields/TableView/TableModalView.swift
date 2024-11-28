@@ -39,8 +39,8 @@ struct TableModalView : View {
             viewModel.sendEventsIfNeeded()
         })
         .onAppear(perform: {
-//            let fieldEvent = FieldEventInternal(fieldID: viewModel.tableDataModel.fieldId!)
-//            viewModel.tableDataModel.eventHandler.onFocus(event: fieldEvent)
+            let fieldEvent = FieldEventInternal(fieldID: viewModel.tableDataModel.fieldId!)
+            viewModel.tableDataModel.documentEditor?.onFocus(event: fieldEvent)
         })
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
             filterRowsIfNeeded()

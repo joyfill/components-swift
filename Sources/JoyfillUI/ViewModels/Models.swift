@@ -36,10 +36,6 @@ struct TableDataModel {
         self.documentEditor = documentEditor
         self.pageId = listModel.pageID
         self.fileId = listModel.fileID
-        self.tableColumnOrder = fieldData?.tableColumnOrder
-        self.tableColumns = fieldData?.tableColumns
-        self.valueToValueElements = fieldData?.valueToValueElements
-        self.rowOrder = fieldData?.rowOrder
         self.title = fieldData?.title
         self.fieldId = listModel.fieldID
         
@@ -54,10 +50,6 @@ struct TableDataModel {
     var fieldId: String?
     var pageId: String?
     var fileId: String?
-    var tableColumnOrder: [String]?
-    var tableColumns: [FieldTableColumn]?
-    var valueToValueElements: [ValueElement]?
-    var rowOrder: [String]?
     var title: String?
     
     var rows: [String] = []
@@ -77,10 +69,6 @@ struct TableDataModel {
     var sortModel = SortModel()
     var viewMoreText: String = ""
     
-    var value: ValueUnion? {
-        .valueElementArray(valueToValueElements ?? [])
-    }
-    
     mutating func setup() {
         setupRows()
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count
@@ -88,16 +76,16 @@ struct TableDataModel {
     }
     
     mutating private func setupColumns() {
-        //        guard let joyDocModel = fieldDependency.fieldData else { return }
-        self.columns = (tableColumnOrder ?? []).filter { columnID in
-            if let columnType = tableColumns?.first { $0.id == columnID }?.type {
+        guard let fieldData = documentEditor?.field(fieldID: fieldId) else { return }
+        self.columns = (fieldData.tableColumnOrder ?? []).filter { columnID in
+            if let columnType = fieldData.tableColumns?.first { $0.id == columnID }?.type {
                 return supportedColumnTypes.contains(columnType)
             }
             return false
         }
         
         for column in self.columns {
-            columnIdToColumnMap[column] = tableColumns?.first { $0.id == column }
+            columnIdToColumnMap[column] = fieldData.tableColumns?.first { $0.id == column }
         }
         
         self.quickColumns = columns
@@ -107,20 +95,20 @@ struct TableDataModel {
     }
     
     mutating private func setupRows() {
-        //        guard let joyDocModel = fieldDependency.fieldData else { return }
-        guard let valueElements = valueToValueElements, !valueElements.isEmpty else {
+        guard let fieldData = documentEditor?.field(fieldID: fieldId) else { return }
+        guard let valueElements = fieldData.valueToValueElements, !valueElements.isEmpty else {
             setupQuickTableViewRows()
             return
         }
         
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: rowOrder)
+        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: fieldData.rowOrder)
         var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
         
         for row in sortedRows {
             var cells: [FieldTableColumn?] = []
             for column in self.columns {
-                let columnData = tableColumns?.first { $0.id == column }
+                let columnData = fieldData.tableColumns?.first { $0.id == column }
                 let cell = buildCell(data: columnData, row: row, column: column)
                 cells.append(cell)
             }
@@ -151,11 +139,12 @@ struct TableDataModel {
     }
     
     mutating func setupQuickTableViewRows() {
+        guard let fieldData = documentEditor?.field(fieldID: fieldId) else { return }
         if quickRows.isEmpty {
             quickRowToCellMap = [:]
             let id = generateObjectId()
             quickRows = [id]
-            quickRowToCellMap = [id : tableColumns ?? []]
+            quickRowToCellMap = [id : fieldData.tableColumns ?? []]
         }
         else {
             while quickRows.count > 3 {
