@@ -16,7 +16,7 @@ struct TableModalView : View {
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
-        self.rowsCount = self.viewModel.tableDataModel.rows.count
+        _rowsCount = State(initialValue: viewModel.tableDataModel.rows.count)
     }
     
     var body: some View {
