@@ -125,12 +125,9 @@ struct TableModalView : View {
                 case "dropdown":
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
                 case "number":
-                    let columnInt = String(column.number ?? 0.0)
-                    return columnInt.localizedCaseInsensitiveContains(model.filterText)
-                    
-//                    let filterInt = Int(model.filterNumber)
-//                    let columnInt = Int(column.number ?? 0.0)
-//                    return filterInt == columnInt
+                    let filterIntValue = Int(model.filterNumber)
+                    let columnIntValue = Int(column.number ?? 0)
+                    return filterIntValue == columnIntValue
                 default:
                     break
                 }
@@ -389,8 +386,7 @@ struct SearchBar: View {
                         case "text":
                             self.model.filterText = editedCell.title ?? ""
                         case "number":
-                            let number = String(editedCell.number ?? 0)
-                            self.model.filterText = number
+                            self.model.filterNumber = editedCell.number ?? 0
                         case "dropdown":
                             self.model.filterText = editedCell.defaultDropdownSelectedId ?? ""
                         default:
@@ -401,7 +397,7 @@ struct SearchBar: View {
                     case "text":
                         TextFieldSearchBar(text: $model.filterText)
                     case "number":
-                        TextFieldSearchBar(text: $model.filterText, numericalKeyboard: true)
+                        NumberTextFieldSearchBar(value: $model.filterNumber)
                     case "dropdown":
                         TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
@@ -511,7 +507,9 @@ struct NumberTextFieldSearchBar: View {
         TextField("Enter number", text: $text)
             .keyboardType(.decimalPad)
             .onChange(of: text) { newValue in
-                if let number = Double(newValue) {
+                if newValue.isEmpty {
+                    value = 0
+                } else if let number = Double(newValue) {
                     value = number
                 }
             }

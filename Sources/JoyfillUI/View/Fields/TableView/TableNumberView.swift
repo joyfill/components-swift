@@ -36,7 +36,6 @@ struct TableNumberView: View {
                 .font(.system(size: 15))
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
                 .onChange(of: numberValue) { newText in
-                    // Convert `numberValue` to Double and compare with `cellModel.data.number`
                     if let doubleValue = Double(numberValue), cellModel.data.number != doubleValue {
                         var editedCell = cellModel.data
                         editedCell.number = doubleValue
