@@ -285,8 +285,11 @@ struct FormView: View {
         }
         .listStyle(PlainListStyle())
         .gesture(DragGesture().onChanged({ _ in
-            dismissKeyboardOnScroll()
+            dismissKeyboard()
         }))
+        .onTapGesture {
+            dismissKeyboard()
+        }
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
             guard lastFocusedFielsID != newValue else { return }
@@ -298,7 +301,7 @@ struct FormView: View {
             documentEditor.onFocus(event: fieldEvent)
         }
     }
-    private func dismissKeyboardOnScroll() {
+    private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
