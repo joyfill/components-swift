@@ -314,6 +314,7 @@ struct FormView: View {
             documentEditor.onFocus(event: fieldEvent)
         }
     }
+    
     private func dismissKeyboardOnScroll() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

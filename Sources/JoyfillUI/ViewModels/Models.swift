@@ -57,9 +57,9 @@ struct TableDataModel {
     var columns: [String] = []
     var quickColumns: [String] = []
     var quickViewRowCount: Int = 0
-    var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
-    var quickRowToCellMap: [String?: [FieldTableColumn?]] = [:]
-    var columnIdToColumnMap: [String: FieldTableColumn] = [:]
+    var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
+    var quickRowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
+    var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
     var selectedRows = [String]()
     
     var cellModels = [[TableCellModel]]()
@@ -85,7 +85,33 @@ struct TableDataModel {
         }
         
         for column in self.columns {
-            columnIdToColumnMap[column] = fieldData.tableColumns?.first { $0.id == column }
+            if let fieldTableColumn = fieldData.tableColumns?.first(where: { $0.id == column }) {
+                let optionsLocal = fieldTableColumn.options?.map { option in
+                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+                }
+//                let imagesLocal = fieldTableColumn.images?.map { valueElement in
+//                    ValueElementLocal(
+//                        id: valueElement.id,
+//                        url: valueElement.url,
+//                        fileName: valueElement.fileName,
+//                        filePath: valueElement.filePath,
+//                        deleted: valueElement.deleted,
+//                        title: valueElement.title,
+//                        description: valueElement.description,
+//                        points: valueElement.points,
+//                        cells: valueElement.cells
+//                    )
+//                }
+                let fieldTableColumnLocal = FieldTableColumnLocal(
+                    id: fieldTableColumn.id,
+                    defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
+                    options: optionsLocal,
+                    images: fieldTableColumn.images,
+                    type: fieldTableColumn.type,
+                    title: fieldTableColumn.title
+                )
+                columnIdToColumnMap[column] = fieldTableColumnLocal
+            }
         }
         
         self.quickColumns = columns
@@ -103,13 +129,30 @@ struct TableDataModel {
         
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
         let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: fieldData.rowOrder)
-        var rowToCellMap: [String?: [FieldTableColumn?]] = [:]
+        var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
         
         for row in sortedRows {
-            var cells: [FieldTableColumn?] = []
+            var cells: [FieldTableColumnLocal?] = []
             for column in self.columns {
                 let columnData = fieldData.tableColumns?.first { $0.id == column }
-                let cell = buildCell(data: columnData, row: row, column: column)
+                let optionsLocal = columnData?.options?.map { option in
+                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+                }
+//                let imagesLocal = columnData?.images?.map { valueElement in
+//                    ValueElementLocal(
+//                        id: valueElement.id,
+//                        url: valueElement.url,
+//                        fileName: valueElement.fileName,
+//                        filePath: valueElement.filePath,
+//                        deleted: valueElement.deleted,
+//                        title: valueElement.title,
+//                        description: valueElement.description,
+//                        points: valueElement.points,
+//                        cells: valueElement.cells
+//                    )
+//                }
+                let columnDataLocal = FieldTableColumnLocal(id: columnData?.id, defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId, options: optionsLocal, images: columnData?.images, type: columnData?.type, title: columnData?.title )
+                let cell = buildCell(data: columnDataLocal, row: row, column: column)
                 cells.append(cell)
             }
             rowToCellMap[row.id] = cells
@@ -122,7 +165,7 @@ struct TableDataModel {
         setupQuickTableViewRows()
     }
     
-    private func buildCell(data: FieldTableColumn?, row: ValueElement, column: String) -> FieldTableColumn? {
+    private func buildCell(data: FieldTableColumnLocal?, row: ValueElement, column: String) -> FieldTableColumnLocal? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
@@ -144,7 +187,29 @@ struct TableDataModel {
             quickRowToCellMap = [:]
             let id = generateObjectId()
             quickRows = [id]
-            quickRowToCellMap = [id : fieldData.tableColumns ?? []]
+            let columnData = fieldData.tableColumns ?? []
+            var columnDataLocal: [FieldTableColumnLocal] = []
+            for column in columnData {
+                var optionsLocal: [OptionLocal] = []
+                for option in column.options ?? []{
+                    optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
+                }
+//                let imagesLocal = column.images?.map { valueElement in
+//                    ValueElementLocal(
+//                        id: valueElement.id,
+//                        url: valueElement.url,
+//                        fileName: valueElement.fileName,
+//                        filePath: valueElement.filePath,
+//                        deleted: valueElement.deleted,
+//                        title: valueElement.title,
+//                        description: valueElement.description,
+//                        points: valueElement.points,
+//                        cells: valueElement.cells
+//                    )
+//                }
+                columnDataLocal.append(FieldTableColumnLocal(id: column.id, defaultDropdownSelectedId: column.defaultDropdownSelectedId, options: optionsLocal, images: column.images, type: column.type, title: column.title ))
+            }
+            quickRowToCellMap = [id : columnDataLocal ?? []]
         }
         else {
             while quickRows.count > 3 {
@@ -153,7 +218,7 @@ struct TableDataModel {
         }
     }
     
-    mutating func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumn) {
+    mutating func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumnLocal) {
         var cellModel = cellModels[rowIndex][colIndex]
         cellModel.data  = editedCell
         cellModels[rowIndex][colIndex] = cellModel
@@ -173,11 +238,11 @@ struct TableDataModel {
         self.cellModels[rowIndex][colIndex] = cellModel
     }
     
-    func getFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
+    func getFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
         return rowToCellMap[row]?[col]
     }
     
-    func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumn? {
+    func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
         return quickRowToCellMap[row]?[col]
     }
     
@@ -233,6 +298,58 @@ struct TableDataModel {
     
 }
 
+struct FieldTableColumnLocal {
+    let id: String?
+    var defaultDropdownSelectedId: String?
+    let options: [OptionLocal]?
+    var images: [ValueElement]?
+    let type: String?
+    var title: String?
+}
+
+struct OptionLocal: Identifiable {
+    var id: String?
+    var deleted: Bool?
+    var value: String?
+}
+
+struct ValueElementLocal: Codable, Equatable, Identifiable {
+     var id: String?
+     var url: String?
+     var fileName: String?
+     var filePath: String?
+     var deleted: Bool?
+     var title: String?
+     var description: String?
+     var points: [Point]?
+     var cells: [String: ValueUnion]?
+
+     init(
+        id: String?,
+        url: String? = nil,
+        fileName: String? = nil,
+        filePath: String? = nil,
+        deleted: Bool? = false,
+        title: String? = nil,
+        description: String? = nil,
+        points: [Point]? = nil,
+        cells: [String: ValueUnion]? = nil
+    ) {
+        self.id = id
+        self.url = url
+        self.fileName = fileName
+        self.filePath = filePath
+        self.deleted = deleted
+        self.title = title
+        self.description = description
+        self.points = points
+        self.cells = cells
+    }
+        
+    mutating func setDeleted() {
+        self.deleted = true
+    }
+}
 struct ChartDataModel {
     var fieldId: String?
     var pageId: String?

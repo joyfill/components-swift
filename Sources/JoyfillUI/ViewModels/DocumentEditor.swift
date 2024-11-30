@@ -565,7 +565,7 @@ public class DocumentEditor: ObservableObject {
     ///   - editedCell: The cell that has been edited.
     ///
     /// - Note: The `editedCell` parameter is of type `FieldTableColumn`, which includes properties such as `type`, `id`, `title`, `defaultDropdownSelectedId`, and `images`.
-     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn, fieldId: String) {
+    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal, fieldId: String) {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
             return
         }
@@ -576,6 +576,14 @@ public class DocumentEditor: ObservableObject {
         case "dropdown":
             changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
+//            let convertedImages = editedCell.images?.map { valueElementLocal -> ValueElement in
+//                return ValueElement(id: valueElementLocal.id ?? "",
+//                                    deleted: valueElementLocal.deleted ?? false,
+//                                    description: valueElementLocal.description ?? "",
+//                                    title: valueElementLocal.title ?? "",
+//                                    points: valueElementLocal.points)
+//                    } ?? []
+//                    changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
             changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(editedCell.images ?? []), fieldId: fieldId)
         default:
             return

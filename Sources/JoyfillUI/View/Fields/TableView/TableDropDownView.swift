@@ -74,10 +74,10 @@ struct TableDropDownOptionListView: View {
 
 struct TableDropDownOptionList: View {
     @Environment(\.presentationMode) var presentationMode
-    private let data: FieldTableColumn
+    private let data: FieldTableColumnLocal
     @Binding var selectedDropdownValue: String?
     
-    public init(data: FieldTableColumn, selectedDropdownValue: Binding<String?>) {
+    public init(data: FieldTableColumnLocal, selectedDropdownValue: Binding<String?>) {
         self.data = data
         self._selectedDropdownValue = selectedDropdownValue
     }

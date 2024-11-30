@@ -67,31 +67,30 @@ struct TableModalView : View {
         if currentSelectedCol != Int.min {
             guard viewModel.tableDataModel.sortModel.order != .none else { return }
             viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowArr1, rowArr2 in
-                let column = rowArr1[currentSelectedCol].data
-                switch column.type {
+                let column1 = rowArr1[currentSelectedCol].data
+                let column2 = rowArr2[currentSelectedCol].data
+                switch column1.type {
                 case "text":
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (rowArr1[currentSelectedCol].data.title ?? "") < (rowArr2[currentSelectedCol].data.title ?? "")
+                        return (column1.title ?? "") < (column2.title ?? "")
                     case .descending:
-                        return (rowArr1[currentSelectedCol].data.title ?? "") > (rowArr2[currentSelectedCol].data.title ?? "")
+                        return (column1.title ?? "") > (column2.title ?? "")
                     case .none:
-                        return true
+                        return false
                     }
                 case "dropdown":
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (rowArr1[currentSelectedCol].data.selectedOptionText ?? "") < (rowArr2[currentSelectedCol].data.selectedOptionText ?? "")
+                        return (column1.defaultDropdownSelectedId ?? "") < (column2.defaultDropdownSelectedId ?? "")
                     case .descending:
-                        return (rowArr1[currentSelectedCol].data.selectedOptionText ?? "") > (rowArr2[currentSelectedCol].data.selectedOptionText ?? "")
+                        return (column1.defaultDropdownSelectedId ?? "") > (column2.defaultDropdownSelectedId ?? "")
                     case .none:
-                        return true
+                        return false
                     }
                 default:
-                    break
+                    return false
                 }
-                return false
-
             }
         }
     }

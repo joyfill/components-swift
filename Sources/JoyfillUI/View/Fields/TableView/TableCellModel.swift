@@ -15,7 +15,7 @@ struct TableCellModel: Identifiable, Equatable {
 
     let id = UUID()
     let rowID: String
-    var data: FieldTableColumn
+    var data: FieldTableColumnLocal
 //    let eventHandler: FieldChangeEvents
 //    let fieldData: JoyDocField?
     let documentEditor: DocumentEditor?
@@ -24,5 +24,5 @@ struct TableCellModel: Identifiable, Equatable {
     let fileid: String?
     let viewMode: TableViewMode
     let editMode: Mode
-    let didChange: ((_ cell: FieldTableColumn) -> Void)?
+    let didChange: ((_ cell: FieldTableColumnLocal) -> Void)?
 }
