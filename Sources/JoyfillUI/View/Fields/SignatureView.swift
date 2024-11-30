@@ -34,7 +34,7 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
-                let fieldEvent = FieldEventInternal(fieldID: signatureDataModel.fieldId!)
+                let fieldEvent = FieldEventInternal(fieldID: signatureDataModel.fieldId)
                 signatureDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
@@ -75,7 +75,7 @@ struct SignatureView: View {
                 }
                 let newSignatureImageValue = ValueUnion.string(url ?? "")
                 DispatchQueue.main.async {
-                    let fieldEvent = FieldChangeEvent(fieldID: signatureDataModel.fieldId!, updateValue: newSignatureImageValue)
+                    let fieldEvent = FieldChangeEvent(fieldID: signatureDataModel.fieldId,  pageID: signatureDataModel.pageId, fileID: signatureDataModel.fileId, updateValue: newSignatureImageValue)
                     signatureDataModel.eventHandler.onChange(event: fieldEvent)
                 }
             }

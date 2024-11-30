@@ -67,7 +67,7 @@ protocol FormChangeEventInternal {
 protocol FieldChangeEvents {
     func onChange(event: FieldChangeEvent)
     func onFocus(event: FieldEventInternal)
-    func onUpload(event: UploadEventInternal)
+    func onUpload(event: UploadEvent)
 }
     
 

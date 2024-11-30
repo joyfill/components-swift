@@ -50,15 +50,15 @@ extension ChangeManager: FormChangeEvent {
     }
 
     func onFocus(event: FieldEvent) {
-        print(">>>>>>>>onFocus", event.field!.id!)
+        print(">>>>>>>>onFocus", event.fieldID)
     }
 
     func onBlur(event: FieldEvent) {
-        print(">>>>>>>>onBlur", event.field!.id!)
+        print(">>>>>>>>onBlur", event.fieldID)
     }
 
     func onUpload(event: UploadEvent) {
-        print(">>>>>>>>onUpload", event.field.id!)
+        print(">>>>>>>>onUpload", event.fieldEvent.fieldID)
         showImagePicker(event.uploadHandler)
     }
 }

@@ -48,7 +48,7 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                let fieldEvent = FieldEventInternal(fieldID: imageDataModel.fieldId!)
+                                let fieldEvent = FieldEventInternal(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
                                 imageDataModel.eventHandler.onFocus(event: fieldEvent)
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
@@ -70,7 +70,7 @@ struct ImageView: View {
             } else {
                 Button(action: {
                     uploadAction()
-                    let fieldEvent = FieldEventInternal(fieldID: imageDataModel.fieldId!)
+                    let fieldEvent = FieldEventInternal(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
                     imageDataModel.eventHandler.onFocus(event: fieldEvent)
                 }, label: {
                     ZStack {
@@ -98,7 +98,7 @@ struct ImageView: View {
                 .disabled(showProgressView)
             }
             
-            NavigationLink(destination: 
+            NavigationLink(destination:
                             MoreImageView(valueElements: $valueElements,
                                           isMultiEnabled: imageDataModel.multi ?? true,
                                           showToast: $showToast,
@@ -119,7 +119,7 @@ struct ImageView: View {
         .onChange(of: valueElements) { newValue in
             fetchImages()
             let newImageValue = ValueUnion.valueElementArray(newValue)
-            let fieldEvent = FieldChangeEvent(fieldID: imageDataModel.fieldId!, updateValue: newImageValue)
+            let fieldEvent = FieldChangeEvent(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId, updateValue: newImageValue)
             imageDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }
@@ -138,7 +138,8 @@ struct ImageView: View {
     }
 
     func uploadAction() {
-        let uploadEvent = UploadEventInternal(fieldID: imageDataModel.fieldId!) { urls in
+        let fieldEvent = FieldEvent(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
+        let uploadEvent = UploadEvent(fieldEvent: fieldEvent) { urls in
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in

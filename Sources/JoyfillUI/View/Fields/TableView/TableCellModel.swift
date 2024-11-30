@@ -18,7 +18,10 @@ struct TableCellModel: Identifiable, Equatable {
     var data: FieldTableColumn
 //    let eventHandler: FieldChangeEvents
 //    let fieldData: JoyDocField?
+    let documentEditor: DocumentEditor?
     let fieldId: String
+    let pageId: String?
+    let fileid: String?
     let viewMode: TableViewMode
     let editMode: Mode
     let didChange: ((_ cell: FieldTableColumn) -> Void)?

@@ -251,7 +251,9 @@ struct ChartDataModel {
 }
 
 struct DateTimeDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var value: ValueUnion?
     var format: String?
     var eventHandler: FieldChangeEvents
@@ -265,7 +267,9 @@ struct DisplayTextDataModel {
 }
 
 struct DropdownDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var dropdownValue: String?
     var options: [Option]?
     var eventHandler: FieldChangeEvents
@@ -273,7 +277,9 @@ struct DropdownDataModel {
 }
 
 struct ImageDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var multi: Bool?
     var primaryDisplayOnly: Bool?
     var valueElements: [ValueElement]?
@@ -283,7 +289,9 @@ struct ImageDataModel {
 }
 
 struct MultiLineDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var multilineText: String?
     var mode: Mode
     var eventHandler: FieldChangeEvents
@@ -291,7 +299,9 @@ struct MultiLineDataModel {
 }
 
 struct MultiSelectionDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var currentFocusedFieldsDataId: String?
     var multi: Bool?
     var options: [Option]?
@@ -301,7 +311,9 @@ struct MultiSelectionDataModel {
 }
 
 struct NumberDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var number: Double?
     var mode: Mode
     var eventHandler: FieldChangeEvents
@@ -315,14 +327,18 @@ struct RichTextDataModel {
 }
 
 struct SignatureDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var signatureURL: String?
     var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct TextDataModel {
-    var fieldId: String?
+    var fieldId: String
+    var pageId: String?
+    var fileId: String?
     var text: String?
     var mode: Mode
     var eventHandler: FieldChangeEvents

@@ -18,7 +18,7 @@ struct DropdownView: View {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel)
             Button(action: {
                 isSheetPresented = true
-                let fieldEvent = FieldEventInternal(fieldID: dropdownDataModel.fieldId!)
+                let fieldEvent = FieldEventInternal(fieldID: dropdownDataModel.fieldId)
                 dropdownDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {
@@ -50,7 +50,7 @@ struct DropdownView: View {
         }
         .onChange(of: selectedDropdownValueID) { newValue in
             let newDrodDownValue = ValueUnion.string(newValue ?? "")
-            let fieldEvent = FieldChangeEvent(fieldID: dropdownDataModel.fieldId!, updateValue: newDrodDownValue)
+            let fieldEvent = FieldChangeEvent(fieldID: dropdownDataModel.fieldId, pageID: dropdownDataModel.pageId, fileID: dropdownDataModel.fileId, updateValue: newDrodDownValue)
             dropdownDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }

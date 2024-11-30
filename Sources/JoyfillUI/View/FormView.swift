@@ -169,7 +169,9 @@ struct FormView: View {
 
         switch fieldPosition.type {
         case .text:
-            let model = TextDataModel(fieldId: fieldData?.id,
+            let model = TextDataModel(fieldId: listModel.fieldID,
+                                      pageId: listModel.pageID,
+                                      fileId: listModel.fileID,
                                       text: fieldData?.value?.text ?? "",
                                       mode: fieldEditMode,
                                       eventHandler: self,
@@ -183,7 +185,9 @@ struct FormView: View {
             DisplayTextView(displayTextDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .multiSelect:
-            let model = MultiSelectionDataModel(fieldId: fieldData?.id,
+            let model = MultiSelectionDataModel(fieldId: listModel.fieldID,
+                                                pageId: listModel.pageID,
+                                                fileId: listModel.fileID,
                                                 currentFocusedFieldsDataId: currentFocusedFielsID,
                                                 multi: fieldData?.multi,
                                                 options: fieldData?.options,
@@ -193,7 +197,9 @@ struct FormView: View {
             MultiSelectionView(multiSelectionDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .dropdown:
-            let model = DropdownDataModel(fieldId: fieldData?.id,
+            let model = DropdownDataModel(fieldId: listModel.fieldID,
+                                          pageId: listModel.pageID,
+                                          fileId: listModel.fileID,
                                           dropdownValue: fieldData?.value?.dropdownValue,
                                           options: fieldData?.options,
                                           eventHandler: self,
@@ -201,7 +207,9 @@ struct FormView: View {
             DropdownView(dropdownDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .textarea:
-            let model = MultiLineDataModel(fieldId: fieldData?.id,
+            let model = MultiLineDataModel(fieldId: listModel.fieldID,
+                                           pageId: listModel.pageID,
+                                           fileId: listModel.fileID,
                                            multilineText: fieldData?.value?.multilineText,
                                            mode: fieldEditMode,
                                            eventHandler: self,
@@ -209,7 +217,9 @@ struct FormView: View {
             MultiLineTextView(multiLineDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .date:
-            let model = DateTimeDataModel(fieldId: fieldData?.id,
+            let model = DateTimeDataModel(fieldId: listModel.fieldID,
+                                          pageId: listModel.pageID,
+                                          fileId: listModel.fileID,
                                           value: fieldData?.value,
                                           format: fieldPosition.format,
                                           eventHandler: self,
@@ -217,14 +227,18 @@ struct FormView: View {
             DateTimeView(dateTimeDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .signature:
-            let model = SignatureDataModel(fieldId: fieldData?.id,
+            let model = SignatureDataModel(fieldId: listModel.fieldID,
+                                           pageId: listModel.pageID,
+                                           fileId: listModel.fileID,
                                            signatureURL: fieldData?.value?.signatureURL ?? "",
                                            eventHandler: self,
                                            fieldHeaderModel: fieldHeaderModel)
             SignatureView(signatureDataModel: model)
                 .disabled(fieldEditMode == .readonly)
         case .number:
-            let model = NumberDataModel(fieldId: fieldData?.id,
+            let model = NumberDataModel(fieldId: listModel.fieldID,
+                                        pageId: listModel.pageID,
+                                        fileId: listModel.fileID,
                                         number: fieldData?.value?.number,
                                         mode: fieldEditMode,
                                         eventHandler: self,
@@ -260,7 +274,9 @@ struct FormView: View {
                                        listModel: listModel)
             TableQuickView(tableDataModel: model)
         case .image:
-            let model = ImageDataModel(fieldId: fieldData?.id,
+            let model = ImageDataModel(fieldId: listModel.fieldID,
+                                       pageId: listModel.pageID,
+                                       fileId: listModel.fileID,
                                        multi: fieldData?.multi,
                                        primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
                                        valueElements: fieldData?.value?.valueElements,
@@ -315,8 +331,7 @@ extension FormView: FieldChangeEvents {
         currentFocusedFielsID = event.fieldID
     }
 
-    func onUpload(event: UploadEventInternal) {
-        let event = UploadEvent(field: documentEditor.field(fieldID: event.fieldID)!, uploadHandler: event.uploadHandler)
+    func onUpload(event: UploadEvent) {
         documentEditor.onUpload(event: event)
     }
 

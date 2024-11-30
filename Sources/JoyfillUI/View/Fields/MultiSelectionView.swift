@@ -66,12 +66,12 @@ struct MultiSelectionView: View {
         }
         .onChange(of: singleSelectedOptionArray) { newValue in
             let newSingleSelectedValue = ValueUnion.array(newValue)
-            let fieldEvent = FieldChangeEvent(fieldID: multiSelectionDataModel.fieldId!, updateValue: newSingleSelectedValue)
+            let fieldEvent = FieldChangeEvent(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newSingleSelectedValue)
             multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
             let newMultiSelectedValue = ValueUnion.array(newValue)
-            let fieldEvent = FieldChangeEvent(fieldID: multiSelectionDataModel.fieldId!, updateValue: newMultiSelectedValue)
+            let fieldEvent = FieldChangeEvent(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newMultiSelectedValue)
             multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }
@@ -89,7 +89,7 @@ struct MultiSelection: View {
         Button(action: {
             isSelected.toggle()
             if isAlreadyFocused == false {
-                let fieldEvent = FieldEventInternal(fieldID: multiSelectionDataModel.fieldId!)
+                let fieldEvent = FieldEventInternal(fieldID: multiSelectionDataModel.fieldId)
                 multiSelectionDataModel.eventHandler.onFocus(event: fieldEvent)
             }
             if let index = multiSelectedOptionArray.firstIndex(of: selectedItemId) {
@@ -130,7 +130,7 @@ struct RadioView: View {
                 singleSelectedOptionArray = [selectedItemId]
             }
             if isAlreadyFocused == false {
-                let fieldEvent = FieldEventInternal(fieldID: multiSelectionDataModel.fieldId!)
+                let fieldEvent = FieldEventInternal(fieldID: multiSelectionDataModel.fieldId)
                 multiSelectionDataModel.eventHandler.onFocus(event: fieldEvent)
             }
         }, label: {

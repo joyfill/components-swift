@@ -37,7 +37,7 @@ struct NumberView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEventInternal(fieldID: numberDataModel.fieldId!)
+                        let fieldEvent = FieldEventInternal(fieldID: numberDataModel.fieldId, pageID: numberDataModel.pageId, fileID: numberDataModel.fileId)
                         numberDataModel.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let newValue: ValueUnion
@@ -46,7 +46,7 @@ struct NumberView: View {
                         } else {
                             newValue = ValueUnion.string("")
                         }
-                        let event = FieldChangeEvent(fieldID: numberDataModel.fieldId!, updateValue: newValue)
+                        let event = FieldChangeEvent(fieldID: numberDataModel.fieldId, pageID: numberDataModel.pageId, fileID: numberDataModel.fileId, updateValue: newValue)
                         numberDataModel.eventHandler.onChange(event: event)
                     }
                 }

@@ -676,7 +676,7 @@ public class DocumentEditor: ObservableObject {
 
     func onChange(event: FieldChangeEvent) {
         var currentField = field(fieldID: event.fieldID)!
-        guard currentField.value != event.updateValue, event.chartData != nil else { return }
+        guard currentField.value != event.updateValue || event.chartData != nil else { return }
         guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty)) else { return }
         updateValue(event: event)
         currentField = field(fieldID: event.fieldID)!

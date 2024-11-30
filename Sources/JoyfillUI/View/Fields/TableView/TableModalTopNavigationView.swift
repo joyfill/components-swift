@@ -285,7 +285,10 @@ struct EditMultipleRowsSheetView: View {
                     if let cell = cell {
                         let cellModel = TableCellModel(rowID: row,
                                                        data: cell,
+                                                       documentEditor: viewModel.tableDataModel.documentEditor,
                                                        fieldId: viewModel.tableDataModel.fieldId!,
+                                                       pageId: viewModel.tableDataModel.pageId,
+                                                       fileid: viewModel.tableDataModel.fileId,
                                                        viewMode: .modalView,
                                                        editMode: viewModel.tableDataModel.mode)
                         { editedCell in

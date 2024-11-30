@@ -368,8 +368,11 @@ struct SearchBar: View {
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
                                                    data: column,
+                                                   documentEditor: viewModel.tableDataModel.documentEditor,
 //                                                   eventHandler: viewModel.tableDataModel.eventHandler,
                                                    fieldId: viewModel.tableDataModel.fieldId!,
+                                                   pageId: viewModel.tableDataModel.pageId,
+                                                   fileid: viewModel.tableDataModel.fileId,
                                                    viewMode: .modalView,
                                                    editMode: viewModel.tableDataModel.mode)
                     { editedCell in

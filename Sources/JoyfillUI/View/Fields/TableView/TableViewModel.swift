@@ -33,7 +33,10 @@ class TableViewModel: ObservableObject {
             if let columnModel = columnModel {
                 let cellModel = TableCellModel(rowID: rowID,
                                                data: columnModel,
+                                               documentEditor: tableDataModel.documentEditor,
                                                fieldId: tableDataModel.fieldId!,
+                                               pageId: tableDataModel.pageId,
+                                               fileid: tableDataModel.fileId,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { editedCell  in
                     self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
@@ -53,7 +56,10 @@ class TableViewModel: ObservableObject {
                 if let columnModel = columnModel {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    data: columnModel,
+                                                   documentEditor: tableDataModel.documentEditor,
                                                    fieldId: tableDataModel.fieldId!,
+                                                   pageId: tableDataModel.pageId,
+                                                   fileid: tableDataModel.fileId,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { editedCell  in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)

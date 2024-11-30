@@ -46,7 +46,8 @@ import JoyfillModel
     }
      
      func uploadAction() {
-         let uploadEvent = UploadEventInternal(fieldID: cellModel.fieldId) { urls in
+         let fieldEvent = FieldEvent(fieldID: cellModel.fieldId, pageID: cellModel.pageId , fileID: cellModel.fileid)
+         let uploadEvent = UploadEvent(fieldEvent: fieldEvent) { urls in
              for imageURL in urls {
                  let valueElement = valueElements.first { valueElement in
                      if valueElement.url == imageURL {
@@ -60,7 +61,6 @@ import JoyfillModel
              editedCell.images = valueElements
              cellModel.didChange?(editedCell)
          }
-         // TODO:
-//         cellModel.eventHandler.onUpload(event: uploadEvent)
+         cellModel.documentEditor?.onUpload(event: uploadEvent)
      }
 }
