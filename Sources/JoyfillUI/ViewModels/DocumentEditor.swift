@@ -576,15 +576,15 @@ public class DocumentEditor: ObservableObject {
         case "dropdown":
             changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
-//            let convertedImages = editedCell.images?.map { valueElementLocal -> ValueElement in
-//                return ValueElement(id: valueElementLocal.id ?? "",
-//                                    deleted: valueElementLocal.deleted ?? false,
-//                                    description: valueElementLocal.description ?? "",
-//                                    title: valueElementLocal.title ?? "",
-//                                    points: valueElementLocal.points)
-//                    } ?? []
-//                    changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(editedCell.images ?? []), fieldId: fieldId)
+            let convertedImages = editedCell.valueElements?.map { valueElementLocal -> ValueElement in
+                return ValueElement(id: valueElementLocal.id ?? "",
+                                    deleted: valueElementLocal.deleted ?? false,
+                                    description: valueElementLocal.description ?? "",
+                                    title: valueElementLocal.title ?? "",
+                                    points: valueElementLocal.points)
+                    } ?? []
+                    changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
+//            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(editedCell.valueElements ?? []), fieldId: fieldId)
         default:
             return
         }

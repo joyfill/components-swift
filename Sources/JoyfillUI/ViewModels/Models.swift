@@ -89,24 +89,24 @@ struct TableDataModel {
                 let optionsLocal = fieldTableColumn.options?.map { option in
                     OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
                 }
-//                let imagesLocal = fieldTableColumn.images?.map { valueElement in
-//                    ValueElementLocal(
-//                        id: valueElement.id,
-//                        url: valueElement.url,
-//                        fileName: valueElement.fileName,
-//                        filePath: valueElement.filePath,
-//                        deleted: valueElement.deleted,
-//                        title: valueElement.title,
-//                        description: valueElement.description,
-//                        points: valueElement.points,
-//                        cells: valueElement.cells
-//                    )
-//                }
+                let imagesLocal = fieldTableColumn.images?.map { valueElement in
+                    ValueElementLocal(
+                        id: valueElement.id ?? "",
+                        url: valueElement.url,
+                        fileName: valueElement.fileName,
+                        filePath: valueElement.filePath,
+                        deleted: valueElement.deleted,
+                        title: valueElement.title,
+                        description: valueElement.description,
+                        points: valueElement.points,
+                        cells: valueElement.cells
+                    )
+                }
                 let fieldTableColumnLocal = FieldTableColumnLocal(
                     id: fieldTableColumn.id,
                     defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                     options: optionsLocal,
-                    images: fieldTableColumn.images,
+                    valueElements: imagesLocal,
                     type: fieldTableColumn.type,
                     title: fieldTableColumn.title
                 )
@@ -126,8 +126,8 @@ struct TableDataModel {
             setupQuickTableViewRows()
             return
         }
-        
-        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
+        let valueElementsLocal = valueElements.map { $0.toLocal() }
+        let nonDeletedRows = valueElementsLocal.filter { !($0.deleted ?? false) }
         let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: fieldData.rowOrder)
         var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
         
@@ -138,20 +138,21 @@ struct TableDataModel {
                 let optionsLocal = columnData?.options?.map { option in
                     OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
                 }
-//                let imagesLocal = columnData?.images?.map { valueElement in
-//                    ValueElementLocal(
-//                        id: valueElement.id,
-//                        url: valueElement.url,
-//                        fileName: valueElement.fileName,
-//                        filePath: valueElement.filePath,
-//                        deleted: valueElement.deleted,
-//                        title: valueElement.title,
-//                        description: valueElement.description,
-//                        points: valueElement.points,
-//                        cells: valueElement.cells
-//                    )
-//                }
-                let columnDataLocal = FieldTableColumnLocal(id: columnData?.id, defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId, options: optionsLocal, images: columnData?.images, type: columnData?.type, title: columnData?.title )
+//                let imagesLocal = columnData?.images
+                let imagesLocal = columnData?.images?.map { valueElement in
+                    ValueElementLocal(
+                        id: valueElement.id ?? "",
+                        url: valueElement.url,
+                        fileName: valueElement.fileName,
+                        filePath: valueElement.filePath,
+                        deleted: valueElement.deleted,
+                        title: valueElement.title,
+                        description: valueElement.description,
+                        points: valueElement.points,
+                        cells: valueElement.cells
+                    )
+                }
+                let columnDataLocal = FieldTableColumnLocal(id: columnData?.id, defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId, options: optionsLocal, valueElements: imagesLocal, type: columnData?.type, title: columnData?.title )
                 let cell = buildCell(data: columnDataLocal, row: row, column: column)
                 cells.append(cell)
             }
@@ -165,7 +166,7 @@ struct TableDataModel {
         setupQuickTableViewRows()
     }
     
-    private func buildCell(data: FieldTableColumnLocal?, row: ValueElement, column: String) -> FieldTableColumnLocal? {
+    private func buildCell(data: FieldTableColumnLocal?, row: ValueElementLocal, column: String) -> FieldTableColumnLocal? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
@@ -174,7 +175,7 @@ struct TableDataModel {
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
-            cell?.images = valueUnion?.valueElements
+            cell?.valueElements = valueUnion?.valueElements?.map { $0.toLocal() }
         default:
             return nil
         }
@@ -194,20 +195,20 @@ struct TableDataModel {
                 for option in column.options ?? []{
                     optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
                 }
-//                let imagesLocal = column.images?.map { valueElement in
-//                    ValueElementLocal(
-//                        id: valueElement.id,
-//                        url: valueElement.url,
-//                        fileName: valueElement.fileName,
-//                        filePath: valueElement.filePath,
-//                        deleted: valueElement.deleted,
-//                        title: valueElement.title,
-//                        description: valueElement.description,
-//                        points: valueElement.points,
-//                        cells: valueElement.cells
-//                    )
-//                }
-                columnDataLocal.append(FieldTableColumnLocal(id: column.id, defaultDropdownSelectedId: column.defaultDropdownSelectedId, options: optionsLocal, images: column.images, type: column.type, title: column.title ))
+                let imagesLocal = column.images?.map { valueElement in
+                    ValueElementLocal(
+                        id: valueElement.id ?? "",
+                        url: valueElement.url,
+                        fileName: valueElement.fileName,
+                        filePath: valueElement.filePath,
+                        deleted: valueElement.deleted,
+                        title: valueElement.title,
+                        description: valueElement.description,
+                        points: valueElement.points,
+                        cells: valueElement.cells
+                    )
+                }
+                columnDataLocal.append(FieldTableColumnLocal(id: column.id, defaultDropdownSelectedId: column.defaultDropdownSelectedId, options: optionsLocal, valueElements: imagesLocal, type: column.type, title: column.title ))
             }
             quickRowToCellMap = [id : columnDataLocal ?? []]
         }
@@ -285,7 +286,7 @@ struct TableDataModel {
         !selectedRows.isEmpty && selectedRows.count == filteredcellModels.count
     }
     
-    func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
+    func sortElementsByRowOrder(elements: [ValueElementLocal], rowOrder: [String]?) -> [ValueElementLocal] {
         guard let rowOrder = rowOrder else { return elements }
         let sortedRows = elements.sorted { (a, b) -> Bool in
             if let first = rowOrder.firstIndex(of: a.id ?? ""), let second = rowOrder.firstIndex(of: b.id ?? "") {
@@ -302,7 +303,7 @@ struct FieldTableColumnLocal {
     let id: String?
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
-    var images: [ValueElement]?
+    var valueElements: [ValueElementLocal]?
     let type: String?
     var title: String?
 }
@@ -313,8 +314,8 @@ struct OptionLocal: Identifiable {
     var value: String?
 }
 
-struct ValueElementLocal: Codable, Equatable, Identifiable {
-     var id: String?
+struct ValueElementLocal: Codable,Hashable, Equatable, Identifiable {
+     var id: String
      var url: String?
      var fileName: String?
      var filePath: String?
@@ -325,7 +326,7 @@ struct ValueElementLocal: Codable, Equatable, Identifiable {
      var cells: [String: ValueUnion]?
 
      init(
-        id: String?,
+        id: String,
         url: String? = nil,
         fileName: String? = nil,
         filePath: String? = nil,
@@ -350,6 +351,31 @@ struct ValueElementLocal: Codable, Equatable, Identifiable {
         self.deleted = true
     }
 }
+
+extension ValueElement {
+    func toLocal() -> ValueElementLocal {
+        return ValueElementLocal(
+            id: self.id ?? "",
+            deleted: self.deleted,
+            title: self.title,
+            description: self.description,
+            points: self.points
+        )
+    }
+}
+
+extension ValueElementLocal {
+    func toValueElement() -> ValueElement {
+        return ValueElement(
+            id: self.id,
+            deleted: self.deleted ?? false,
+            description: self.description ?? "",
+            title: self.title ?? "",
+            points: self.points
+        )
+    }
+}
+
 struct ChartDataModel {
     var fieldId: String?
     var pageId: String?
@@ -399,7 +425,7 @@ struct ImageDataModel {
     var fileId: String?
     var multi: Bool?
     var primaryDisplayOnly: Bool?
-    var valueElements: [ValueElement]?
+    var valueElements: [ValueElementLocal]?
     var mode: Mode
     var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?

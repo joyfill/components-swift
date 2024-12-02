@@ -10,9 +10,9 @@ struct ImageView: View {
     @State var hasAppeared: Bool = false
     
     @State var uiImagesArray: [UIImage] = []
-    @State var valueElements: [ValueElement] = []
+    @State var valueElements: [ValueElementLocal] = []
     
-    @State private var imageDictionary: [ValueElement: UIImage] = [:]
+    @State private var imageDictionary: [ValueElementLocal: UIImage] = [:]
     @State var showToast: Bool = false
     
     @StateObject var imageViewModel = ImageFieldViewModel()
@@ -118,10 +118,21 @@ struct ImageView: View {
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
-            let newImageValue = ValueUnion.valueElementArray(newValue)
+            let convertedElements = newValue.map { convertToValueElement($0) }
+            let newImageValue = ValueUnion.valueElementArray(convertedElements)
             let fieldEvent = FieldChangeEvent(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId, updateValue: newImageValue)
             imageDataModel.eventHandler.onChange(event: fieldEvent)
         }
+    }
+    
+    private func convertToValueElement(_ local: ValueElementLocal) -> ValueElement {
+        return ValueElement(
+            id: local.id,
+            deleted: local.deleted ?? false,
+            description: local.description ?? "",
+            title: local.title ?? "",
+            points: local.points
+        )
     }
     
     func fetchImages() {
@@ -148,7 +159,7 @@ struct ImageView: View {
                             return true
                         }
                         return false
-                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+                    } ?? ValueElementLocal(id: JoyfillModel.generateObjectId(), url: imageURL)
                     self.imageDictionary[valueElement] = image
                     valueElements.append(valueElement)
                     showProgressView = false
@@ -166,10 +177,10 @@ struct MoreImageView: View {
     
     @State var images: [UIImage] = []
     @State var selectedImagesIndex: Set<Int> = Set()
-    @Binding var valueElements: [ValueElement]
+    @Binding var valueElements: [ValueElementLocal]
     @State var isMultiEnabled: Bool
     @State var showProgressView: Bool = false
-    @State var imageDictionary: [ValueElement: UIImage] = [:]
+    @State var imageDictionary: [ValueElementLocal: UIImage] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -262,7 +273,7 @@ struct UploadDeleteView: View {
     @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
     @Binding var isMultiEnabled: Bool
-    @Binding var valueElements: [ValueElement]
+    @Binding var valueElements: [ValueElementLocal]
     var uploadAction: () -> Void
     var deleteAction: () -> Void
     

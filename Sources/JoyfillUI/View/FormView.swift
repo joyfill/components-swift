@@ -279,7 +279,19 @@ struct FormView: View {
                                        fileId: listModel.fileID,
                                        multi: fieldData?.multi,
                                        primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
-                                       valueElements: fieldData?.value?.valueElements,
+                                       valueElements: fieldData?.value?.valueElements?.map { element in
+                                                   ValueElementLocal(
+                                                       id: element.id ?? "",
+                                                       url: element.url,
+                                                       fileName: element.fileName,
+                                                       filePath: element.filePath,
+                                                       deleted: element.deleted,
+                                                       title: element.title,
+                                                       description: element.description,
+                                                       points: element.points,
+                                                       cells: element.cells
+                                                   )
+                                               },
                                        mode: fieldEditMode,
                                        eventHandler: self,
                                        fieldHeaderModel: fieldHeaderModel)

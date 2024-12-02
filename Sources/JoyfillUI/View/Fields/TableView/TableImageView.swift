@@ -6,7 +6,7 @@ import JoyfillModel
  struct TableImageView: View {
      @State var showMoreImages: Int = 5
      @State var showMoreImages2: Bool = false
-     @State private var valueElements: [ValueElement] = []
+     @State private var valueElements: [ValueElementLocal] = []
      @State var showToast: Bool = false
      private var cellModel: TableCellModel
 
@@ -29,7 +29,7 @@ import JoyfillModel
         })
         .accessibilityIdentifier("TableImageIdentifier")
         .onAppear {
-            valueElements = cellModel.data.images ?? []
+            valueElements = cellModel.data.valueElements ?? []
         }
         .sheet(isPresented: $showMoreImages2) {
             MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
@@ -40,7 +40,7 @@ import JoyfillModel
         }
         .onChange(of: valueElements) { newValue in
             var editedCell = cellModel.data
-            editedCell.images = valueElements
+            editedCell.valueElements = valueElements
             cellModel.didChange?(editedCell)
         }
     }
@@ -54,11 +54,11 @@ import JoyfillModel
                          return true
                      }
                      return false
-                 } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+                 } ?? ValueElementLocal(id: JoyfillModel.generateObjectId(), url: imageURL)
                  valueElements.append(valueElement)
              }
              var editedCell = cellModel.data
-             editedCell.images = valueElements
+             editedCell.valueElements = valueElements
              cellModel.didChange?(editedCell)
          }
          cellModel.documentEditor?.onUpload(event: uploadEvent)
