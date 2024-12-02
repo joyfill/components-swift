@@ -126,13 +126,17 @@ struct ImageView: View {
     }
     
     private func convertToValueElement(_ local: ValueElementLocal) -> ValueElement {
-        return ValueElement(
+        var valueElement = ValueElement(
             id: local.id,
             deleted: local.deleted ?? false,
             description: local.description ?? "",
             title: local.title ?? "",
             points: local.points
         )
+        valueElement.fileName = local.fileName ?? ""
+        valueElement.filePath = local.filePath ?? ""
+        valueElement.url = local.url ?? ""
+        return valueElement
     }
     
     func fetchImages() {
