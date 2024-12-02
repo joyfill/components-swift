@@ -289,7 +289,7 @@ struct FormView: View {
                                                        title: element.title,
                                                        description: element.description,
                                                        points: element.points,
-                                                       cells: element.cells
+                                                       cells: element.cells?.mapValues { convertToValueUnionLocal($0) }
                                                    )
                                                },
                                        mode: fieldEditMode,
@@ -300,6 +300,25 @@ struct FormView: View {
             EmptyView()
         case .unknown:
             EmptyView()
+        }
+    }
+    
+    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
+        switch valueUnion {
+        case .double(let value):
+            return .double(value)
+        case .string(let value):
+            return .string(value)
+        case .array(let value):
+            return .array(value)
+        case .valueElementArray(let elements):
+            return .valueElementArray(elements.map { $0.toLocal() })
+        case .bool(let value):
+            return .bool(value)
+        case .null:
+            return .null
+        case .dictionary(_):
+            return .null
         }
     }
 

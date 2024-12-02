@@ -136,7 +136,9 @@ class TableViewModel: ObservableObject {
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
         tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldId!)
-        tableDataModel.setup()
+        // TODO: USE AND SEE WHY WE NEED THIS AND WE DONT
+        // If not required, simplify it by removing it to reduce complexity
+//        tableDataModel.setup()
         uuid = UUID()
         tableDataModel.updateCellModel(rowIndex: tableDataModel.rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
     }
