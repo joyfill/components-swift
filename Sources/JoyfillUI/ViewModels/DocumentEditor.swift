@@ -455,7 +455,7 @@ public class DocumentEditor: ObservableObject {
         
         let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId!, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        refreshField(fieldId: fieldId)
+//        refreshField(fieldId: fieldId)
     }
 
 
@@ -552,7 +552,7 @@ public class DocumentEditor: ObservableObject {
         
         let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
-        refreshField(fieldId: fieldId)
+//        refreshField(fieldId: fieldId)
     }
 
     /// A function that updates the cell value when a change is detected.
@@ -576,15 +576,8 @@ public class DocumentEditor: ObservableObject {
         case "dropdown":
             changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
-            let convertedImages = editedCell.valueElements?.map { valueElementLocal -> ValueElement in
-                return ValueElement(id: valueElementLocal.id ?? "",
-                                    deleted: valueElementLocal.deleted ?? false,
-                                    description: valueElementLocal.description ?? "",
-                                    title: valueElementLocal.title ?? "",
-                                    points: valueElementLocal.points)
-                    } ?? []
-                    changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
-//            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(editedCell.valueElements ?? []), fieldId: fieldId)
+            let convertedImages = editedCell.valueElements?.map { $0.toValueElement() } ?? []
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
         default:
             return
         }

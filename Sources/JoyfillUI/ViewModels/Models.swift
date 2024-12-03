@@ -199,7 +199,7 @@ struct TableDataModel {
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
-            cell?.valueElements = valueUnion?.valueElements?.map { $0.toLocal() }
+            cell?.valueElements = valueUnion?.valueElements
         default:
             return nil
         }
@@ -635,6 +635,23 @@ extension ValueUnionLocal {
             return nil
         }
     }
+    
+    func toValueUnion() -> ValueUnion {
+        switch self {
+        case .double(let value):
+            return .double(value)
+        case .string(let value):
+            return .string(value)
+        case .array(let value):
+            return .array(value)
+        case .valueElementArray(let elements):
+            return .valueElementArray(elements.map { $0.toValueElement() })
+        case .bool(let value):
+            return .bool(value)
+        case .null:
+            return .null
+        }
+    }
 }
 
 
@@ -678,17 +695,18 @@ extension ValueElement {
 }
 
 extension ValueElementLocal {
-    func toLocal() -> ValueElementLocal {
-        var valueElement = ValueElementLocal(
+    func toValueElement() -> ValueElement {
+        var valueElement = ValueElement(
             id: self.id ?? "",
-            deleted: self.deleted,
-            title: self.title,
-            description: self.description,
+            deleted: self.deleted ?? false,
+            description: self.description ?? "",
+            title: self.title ?? "",
             points: self.points
         )
         valueElement.url = self.url
         valueElement.fileName = self.fileName
         valueElement.filePath = self.filePath
+        valueElement.cells = self.cells?.mapValues { $0.toValueUnion() }
         
         return valueElement
     }
