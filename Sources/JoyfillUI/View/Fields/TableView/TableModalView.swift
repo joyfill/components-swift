@@ -77,16 +77,16 @@ struct TableModalView : View {
                     case .descending:
                         return (column1.title ?? "") > (column2.title ?? "")
                     case .none:
-                        return false
+                        return true
                     }
                 case "dropdown":
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (column1.defaultDropdownSelectedId ?? "") < (column2.defaultDropdownSelectedId ?? "")
+                        return (column1.selectedOptionText ?? "") < (column2.selectedOptionText ?? "")
                     case .descending:
-                        return (column1.defaultDropdownSelectedId ?? "") > (column2.defaultDropdownSelectedId ?? "")
+                        return (column1.selectedOptionText ?? "") > (column2.selectedOptionText ?? "")
                     case .none:
-                        return false
+                        return true
                     }
                 default:
                     return false

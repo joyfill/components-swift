@@ -176,7 +176,17 @@ struct TableDataModel {
                         }
                     )
                 }
-                let columnDataLocal = FieldTableColumnLocal(id: columnData?.id, defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId, options: optionsLocal, valueElements: imagesLocal, type: columnData?.type, title: columnData?.title )
+                let valueUnion = row.cells?.first(where: { $0.key == column })?.value
+                let defaultDropdownSelectedId = valueUnion?.dropdownValue
+                
+                let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
+                let columnDataLocal = FieldTableColumnLocal(id: columnData?.id,
+                                                            defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId,
+                                                            options: optionsLocal,
+                                                            valueElements: imagesLocal,
+                                                            type: columnData?.type,
+                                                            title: columnData?.title,
+                                                            selectedOptionText: selectedOptionText)
                 let cell = buildCell(data: columnDataLocal, row: row, column: column)
                 cells.append(cell)
             }
@@ -234,7 +244,14 @@ struct TableDataModel {
                         }
                     )
                 }
-                columnDataLocal.append(FieldTableColumnLocal(id: column.id, defaultDropdownSelectedId: column.defaultDropdownSelectedId, options: optionsLocal, valueElements: imagesLocal, type: column.type, title: column.title ))
+                
+                columnDataLocal.append(FieldTableColumnLocal(id: column.id,
+                                                             defaultDropdownSelectedId: column.defaultDropdownSelectedId,
+                                                             options: optionsLocal,
+                                                             valueElements: imagesLocal,
+                                                             type: column.type,
+                                                             title: column.title,
+                                                             selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? ""))
             }
             quickRowToCellMap = [id : columnDataLocal ?? []]
         } else {
@@ -331,6 +348,7 @@ struct FieldTableColumnLocal {
     var valueElements: [ValueElementLocal]?
     let type: String?
     var title: String?
+    var selectedOptionText: String?
 }
 
 struct OptionLocal: Identifiable {
