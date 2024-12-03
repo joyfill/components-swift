@@ -237,8 +237,7 @@ struct TableDataModel {
                 columnDataLocal.append(FieldTableColumnLocal(id: column.id, defaultDropdownSelectedId: column.defaultDropdownSelectedId, options: optionsLocal, valueElements: imagesLocal, type: column.type, title: column.title ))
             }
             quickRowToCellMap = [id : columnDataLocal ?? []]
-        }
-        else {
+        } else {
             while quickRows.count > 3 {
                 quickRows.removeLast()
             }
@@ -679,24 +678,19 @@ extension ValueElement {
 }
 
 extension ValueElementLocal {
-    func toValueElement() -> ValueElement {
-        return ValueElement(
-            id: self.id,
-            deleted: self.deleted ?? false,
-            description: self.description ?? "",
-            title: self.title ?? "",
-            points: self.points
-        )
-    }
-    
     func toLocal() -> ValueElementLocal {
-        return ValueElementLocal(
+        var valueElement = ValueElementLocal(
             id: self.id ?? "",
             deleted: self.deleted,
             title: self.title,
             description: self.description,
             points: self.points
         )
+        valueElement.url = self.url
+        valueElement.fileName = self.fileName
+        valueElement.filePath = self.filePath
+        
+        return valueElement
     }
 }
 
