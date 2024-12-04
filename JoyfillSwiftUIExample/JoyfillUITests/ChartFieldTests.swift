@@ -45,6 +45,49 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(10030.0, onChangeResultChange().yMax)
         XCTAssertEqual(10.0, onChangeResultChange().yMin)
     }
+    
+    func testEditAllCoordinatesFieldAfterRemoveLine() {
+        goToChartDetailField()
+        
+        let removeLineButtonIdentifier = app.buttons.matching(identifier: "RemoveLineIdentifier")
+        let removeLineButton = removeLineButtonIdentifier.element(boundBy: 0)
+        removeLineButton.tap()
+        
+        goBack()
+        goToChartDetailField()
+
+        app.buttons["ShowHideButtonIdentifier"].tap()
+        let verticalTitleTextFieldIdentifier = app.textFields["VerticalTextFieldIdentifier"]
+        let horizontalTitleTextFieldIdentifier = app.textFields["HorizontalTextFieldIdentifier"]
+
+        verticalTitleTextFieldIdentifier.tap()
+        verticalTitleTextFieldIdentifier.typeText(" Label Y")
+        horizontalTitleTextFieldIdentifier.tap()
+        horizontalTitleTextFieldIdentifier.typeText(" Label X")
+
+        let minYValuesTextField = app.textFields["MinY"]
+        let minXValuesTextField = app.textFields["MinX"]
+        let maxYValuesTextField = app.textFields["MaxY"]
+        let maxXValuesTextField = app.textFields["MaxX"]
+
+        minYValuesTextField.tap()
+        minYValuesTextField.typeText("10")
+        minXValuesTextField.tap()
+        minXValuesTextField.typeText("20")
+        maxYValuesTextField.tap()
+        maxYValuesTextField.typeText("30")
+        maxXValuesTextField.tap()
+        maxXValuesTextField.typeText("40")
+
+        goBack()
+
+        XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
+        XCTAssertEqual("Vertical Label Y", onChangeResultChange().yTitle)
+        XCTAssertEqual(10040.0, onChangeResultChange().xMax)
+        XCTAssertEqual(20.0, onChangeResultChange().xMin)
+        XCTAssertEqual(10030.0, onChangeResultChange().yMax)
+        XCTAssertEqual(10.0, onChangeResultChange().yMin)
+    }
 
     func testChartLineButton() throws {
         goToChartDetailField()

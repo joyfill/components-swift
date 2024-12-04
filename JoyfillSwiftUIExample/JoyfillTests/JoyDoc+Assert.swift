@@ -38,7 +38,7 @@ extension JoyDoc {
         XCTAssertEqual(fields[0].tipTitle, "")
         XCTAssertEqual(fields[0].tipDescription, "")
         XCTAssertEqual(fields[0].tipVisible, false)
-        XCTAssertEqual(fields[0].multi, false)
+        XCTAssertEqual(fields[0].multi, true)
         XCTAssertEqual(fields[0].file, "6629fab3c0ba3fb775b4a55c")
     }
     
