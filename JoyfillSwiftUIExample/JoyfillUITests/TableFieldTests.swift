@@ -44,6 +44,21 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         dropdownFieldColumnTitleButton.tap()
     }
     
+    // Delete all row - then check all row selector image for it is disbale or not
+    func testDeleteAllRowsAndCheckColumnClickability() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnMoreButton()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        
+        let selectallbuttonImage = XCUIApplication().images["SelectAllRowSelectorButton"]
+        selectallbuttonImage.tap()
+        XCTAssertTrue(selectallbuttonImage.label == "circle", "The button should initially display the 'circle' image")
+        
+        app.buttons["TableAddRowIdentifier"].tap()
+        selectallbuttonImage.tap()
+        XCTAssertTrue(selectallbuttonImage.label == "record.circle.fill", "The button should initially display the 'record.circle.fill' image")
+    }
+    
     // First Page Table Test Cases
     
     func testTableTextFields() throws {
