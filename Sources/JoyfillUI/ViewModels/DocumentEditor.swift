@@ -110,9 +110,6 @@ public class DocumentEditor: ObservableObject {
     }
 
     func applyConditionalLogicAndRefreshUI(event: FieldChangeEvent) {
-        // refresh current field
-        refreshField(fieldId: event.fieldID)
-
         guard let dependentFields = fieldConditionalDependencyMap[event.fieldID] else { return }
         // Refresh dependent fields if required
         for dependentField in dependentFields {
@@ -130,7 +127,6 @@ public class DocumentEditor: ObservableObject {
     }
 
     public func shouldShow(fieldID: String) -> Bool {
-        true
         return showFieldMap[fieldID] ?? true
     }
 
@@ -229,7 +225,7 @@ public class DocumentEditor: ObservableObject {
         let conditionModels = conditions.compactMap { condition -> ConditionModel?  in
             guard let fieldID = condition.field else { return nil }
             let dependentField = fieldMap[fieldID]!
-            var allDependentFields = fieldConditionalDependencyMap[field.id!] ?? []
+            var allDependentFields = fieldConditionalDependencyMap[dependentField.id!] ?? []
             if !allDependentFields.contains(dependentField.id!) {
                 fieldConditionalDependencyMap[dependentField.id!] = allDependentFields + [field.id!]
             }
