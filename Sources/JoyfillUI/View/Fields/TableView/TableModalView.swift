@@ -6,7 +6,6 @@ struct TableModalView : View {
     @ObservedObject var viewModel: TableViewModel
     @State private var heights: [Int: CGFloat] = [:]
     @State private var refreshID = UUID()
-    @State private var rowsCount: Int = 0
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
@@ -16,7 +15,6 @@ struct TableModalView : View {
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
-        _rowsCount = State(initialValue: viewModel.tableDataModel.rows.count)
     }
     
     var body: some View {
@@ -129,7 +127,7 @@ struct TableModalView : View {
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: textHeight)
-                            .foregroundColor(rowsCount == 0 ? Color.gray.opacity(0.4) : nil)
+                            .foregroundColor(viewModel.tableDataModel.rows.count == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
                                 if !viewModel.tableDataModel.allRowSelected {
                                     viewModel.tableDataModel.selectAllRows()
@@ -137,7 +135,7 @@ struct TableModalView : View {
                                     viewModel.tableDataModel.emptySelection()
                                 }
                             }
-                            .disabled(rowsCount == 0)
+                            .disabled(viewModel.tableDataModel.rows.count == 0)
                             .accessibilityIdentifier("SelectAllRowSelectorButton")
                     }
                     Text("#")
@@ -213,7 +211,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || rowsCount == 0)
+                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || viewModel.tableDataModel.rows.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -317,10 +315,7 @@ struct TableModalView : View {
     
     // Note: This is an optimisation to stop force re-render entire table
     private func refreshUUIDIfNeeded() {
-        if rowsCount != viewModel.tableDataModel.rows.count {
-            self.rowsCount = viewModel.tableDataModel.rows.count
-            self.refreshID = UUID()
-        }
+        self.refreshID = UUID()
     }
     
     private func updateNewHeight(newValue: [Int: CGFloat]) {
