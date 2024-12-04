@@ -271,7 +271,8 @@ struct FormView: View {
             let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
                                        mode: fieldEditMode,
                                        documentEditor: documentEditor,
-                                       listModel: listModel)
+                                       listModel: listModel,
+                                       eventHandler: self)
             TableQuickView(tableDataModel: model)
         case .image:
             let model = ImageDataModel(fieldId: listModel.fieldID,

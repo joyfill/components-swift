@@ -24,12 +24,13 @@ struct TableDataModel {
     let supportedColumnTypes = ["text", "image", "dropdown"]
     var fieldHeaderModel: FieldHeaderModel?
     var mode: Mode
+    var eventHandler: FieldChangeEvents
     var documentEditor: DocumentEditor?
     
     init(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
          documentEditor: DocumentEditor,
-         listModel: FieldListModel) {
+         listModel: FieldListModel, eventHandler: FieldChangeEvents) {
         let fieldData = documentEditor.field(fieldID: listModel.fieldID)
         self.fieldHeaderModel = fieldHeaderModel
         self.mode = mode
@@ -38,6 +39,7 @@ struct TableDataModel {
         self.fileId = listModel.fileID
         self.title = fieldData?.title
         self.fieldId = listModel.fieldID
+        self.eventHandler = eventHandler
         
         setupColumns()
         setup()
