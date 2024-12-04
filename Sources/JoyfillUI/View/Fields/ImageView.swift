@@ -265,7 +265,8 @@ struct MoreImageView: View {
     }
 
     func deleteSelectedImages() {
-        for index in selectedImagesIndex {
+        let sortedDescending = selectedImagesIndex.sorted(by: >)
+        for index in sortedDescending {
             valueElements.remove(at: index)
             images.remove(at: index)
         }
