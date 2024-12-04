@@ -338,10 +338,10 @@ struct FormView: View {
             guard newValue != nil else { return }
             guard lastFocusedFielsID != newValue else { return }
             if lastFocusedFielsID != nil {
-                let fieldEvent = FieldEventInternal(fieldID: lastFocusedFielsID!)
+                let fieldEvent = FieldEvent(fieldID: lastFocusedFielsID!)
                 documentEditor.onBlur(event: fieldEvent)
             }
-            let fieldEvent = FieldEventInternal(fieldID: newValue)
+            let fieldEvent = FieldEvent(fieldID: newValue)
             documentEditor.onFocus(event: fieldEvent)
         }
     }
@@ -358,9 +358,10 @@ extension FormView: FieldChangeEvents {
         documentEditor.onChange(event: event)
     }
 
-    func onFocus(event: FieldEventInternal) {
+    func onFocus(event: FieldEvent) {
         lastFocusedFielsID = currentFocusedFielsID
         currentFocusedFielsID = event.fieldID
+        documentEditor.onFocus(event: event)
     }
 
     func onUpload(event: UploadEvent) {

@@ -47,7 +47,7 @@ struct TableDataModel {
         }
     }
     
-    var fieldId: String?
+    var fieldId: String
     var pageId: String?
     var fileId: String?
     var title: String?

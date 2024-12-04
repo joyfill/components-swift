@@ -30,7 +30,7 @@ struct MultiLineTextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEventInternal(fieldID: multiLineDataModel.fieldId, pageID: multiLineDataModel.pageId, fileID: multiLineDataModel.fileId)
+                        let fieldEvent = FieldEvent(fieldID: multiLineDataModel.fieldId, pageID: multiLineDataModel.pageId, fileID: multiLineDataModel.fileId)
                         multiLineDataModel.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let newValue = ValueUnion.string(multilineText)

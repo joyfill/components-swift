@@ -286,7 +286,7 @@ struct EditMultipleRowsSheetView: View {
                         let cellModel = TableCellModel(rowID: row,
                                                        data: cell,
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
-                                                       fieldId: viewModel.tableDataModel.fieldId!,
+                                                       fieldId: viewModel.tableDataModel.fieldId,
                                                        pageId: viewModel.tableDataModel.pageId,
                                                        fileid: viewModel.tableDataModel.fileId,
                                                        viewMode: .modalView,

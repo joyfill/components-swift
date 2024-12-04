@@ -66,7 +66,7 @@ protocol FormChangeEventInternal {
 /// A protocol that defines the field change events for a document.
 protocol FieldChangeEvents {
     func onChange(event: FieldChangeEvent)
-    func onFocus(event: FieldEventInternal)
+    func onFocus(event: FieldEvent)
     func onUpload(event: UploadEvent)
 }
     

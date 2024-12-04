@@ -46,6 +46,8 @@ struct TableQuickView : View {
             
             Button(action: {
                 isTableModalViewPresented.toggle()
+                let fieldEvent = FieldEvent(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId)
+                tableDataModel.documentEditor?.onFocus(event: fieldEvent)
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Table View")
@@ -107,7 +109,7 @@ struct TableQuickView : View {
                             let cellModel = TableCellModel(rowID: row,
                                                            data: cell,
                                                            documentEditor: viewModel.tableDataModel.documentEditor,
-                                                           fieldId: viewModel.tableDataModel.fieldId!,
+                                                           fieldId: viewModel.tableDataModel.fieldId,
                                                            pageId: viewModel.tableDataModel.pageId,
                                                            fileid: viewModel.tableDataModel.fileId,
                                                            viewMode: .quickView,

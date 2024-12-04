@@ -34,7 +34,7 @@ class TableViewModel: ObservableObject {
                 let cellModel = TableCellModel(rowID: rowID,
                                                data: columnModel,
                                                documentEditor: tableDataModel.documentEditor,
-                                               fieldId: tableDataModel.fieldId!,
+                                               fieldId: tableDataModel.fieldId,
                                                pageId: tableDataModel.pageId,
                                                fileid: tableDataModel.fileId,
                                                viewMode: .modalView,
@@ -57,7 +57,7 @@ class TableViewModel: ObservableObject {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
-                                                   fieldId: tableDataModel.fieldId!,
+                                                   fieldId: tableDataModel.fieldId,
                                                    pageId: tableDataModel.pageId,
                                                    fileid: tableDataModel.fileId,
                                                    viewMode: .modalView,
@@ -135,7 +135,7 @@ class TableViewModel: ObservableObject {
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
-        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldId!)
+        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldId)
         // TODO: USE AND SEE WHY WE NEED THIS AND WE DONT
         // If not required, simplify it by removing it to reduce complexity
 //        tableDataModel.setup()
@@ -147,7 +147,7 @@ class TableViewModel: ObservableObject {
         for row in tableDataModel.selectedRows {
             for colIndex in changes.keys {
                 if let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
-                    tableDataModel.documentEditor?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldId!)
+                    tableDataModel.documentEditor?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldId)
                 }
             }
         }

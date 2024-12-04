@@ -29,7 +29,7 @@ struct TextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEventInternal(fieldID: textDataModel.fieldId, pageID: textDataModel.pageId, fileID: textDataModel.fileId)
+                        let fieldEvent = FieldEvent(fieldID: textDataModel.fieldId, pageID: textDataModel.pageId, fileID: textDataModel.fileId)
                         textDataModel.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let newText = ValueUnion.string(enterText)

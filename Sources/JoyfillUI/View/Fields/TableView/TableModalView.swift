@@ -39,7 +39,7 @@ struct TableModalView : View {
             viewModel.sendEventsIfNeeded()
         })
         .onAppear(perform: {
-            let fieldEvent = FieldEventInternal(fieldID: viewModel.tableDataModel.fieldId!)
+            let fieldEvent = FieldEvent(fieldID: viewModel.tableDataModel.fieldId, pageID: viewModel.tableDataModel.pageId, fileID: viewModel.tableDataModel.fileId)
             viewModel.tableDataModel.documentEditor?.onFocus(event: fieldEvent)
         })
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
@@ -369,7 +369,7 @@ struct SearchBar: View {
                                                    data: column,
                                                    documentEditor: viewModel.tableDataModel.documentEditor,
 //                                                   eventHandler: viewModel.tableDataModel.eventHandler,
-                                                   fieldId: viewModel.tableDataModel.fieldId!,
+                                                   fieldId: viewModel.tableDataModel.fieldId,
                                                    pageId: viewModel.tableDataModel.pageId,
                                                    fileid: viewModel.tableDataModel.fileId,
                                                    viewMode: .modalView,

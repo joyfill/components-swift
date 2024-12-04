@@ -46,7 +46,7 @@ struct ChartView: View {
             
             Button(action: {
                 showDetailChartView = true
-                let fieldEvent = FieldEventInternal(fieldID: chartDataModel.fieldId!)
+                let fieldEvent = FieldEvent(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId)
                 chartDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {

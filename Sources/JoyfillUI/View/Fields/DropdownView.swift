@@ -18,7 +18,7 @@ struct DropdownView: View {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel)
             Button(action: {
                 isSheetPresented = true
-                let fieldEvent = FieldEventInternal(fieldID: dropdownDataModel.fieldId)
+                let fieldEvent = FieldEvent(fieldID: dropdownDataModel.fieldId, pageID: dropdownDataModel.pageId, fileID: dropdownDataModel.fileId)
                 dropdownDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack {

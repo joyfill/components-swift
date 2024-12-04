@@ -48,7 +48,7 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                let fieldEvent = FieldEventInternal(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
+                                let fieldEvent = FieldEvent(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
                                 imageDataModel.eventHandler.onFocus(event: fieldEvent)
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
@@ -70,7 +70,7 @@ struct ImageView: View {
             } else {
                 Button(action: {
                     uploadAction()
-                    let fieldEvent = FieldEventInternal(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
+                    let fieldEvent = FieldEvent(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
                     imageDataModel.eventHandler.onFocus(event: fieldEvent)
                 }, label: {
                     ZStack {
