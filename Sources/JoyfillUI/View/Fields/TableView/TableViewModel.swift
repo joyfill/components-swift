@@ -96,7 +96,7 @@ class TableViewModel: ObservableObject {
 
     func insertBelow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.addRow(selectedRows: tableDataModel.selectedRows, tableDataModel: tableDataModel) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         updateUI()
     }
 
@@ -122,7 +122,7 @@ class TableViewModel: ObservableObject {
         let id = generateObjectId()
 
         if tableDataModel.filterModels.noFilterApplied {
-            tableDataModel.documentEditor?.insertLastRow(id: id, tableDataModel: tableDataModel)
+            tableDataModel.documentEditor?.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
         } else {
             tableDataModel.documentEditor?.addRowWithFilter(id: id, filterModels: tableDataModel.filterModels, tableDataModel: tableDataModel)
         }

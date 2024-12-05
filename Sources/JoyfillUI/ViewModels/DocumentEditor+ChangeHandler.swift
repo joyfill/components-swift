@@ -95,21 +95,21 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
-    func insertLastRow(id: String, tableDataModel: TableDataModel) {
-        let fieldId = tableDataModel.fieldIdentifier.fieldID
+    func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) {
+        let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
 
         elements.append(ValueElement(id: id))
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder?.append(id)
 
-        let changeEvent = FieldChangeData(fieldIdentifier: tableDataModel.fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
         refreshField(fieldId: fieldId)
     }
 
-    func addRow(selectedRows: [String], tableDataModel: TableDataModel) {
-        let fieldId = tableDataModel.fieldIdentifier.fieldID
+    func insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+        let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
         }
@@ -128,7 +128,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
-        let changeEvent = FieldChangeData(fieldIdentifier: tableDataModel.fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         refreshField(fieldId: fieldId)
     }
