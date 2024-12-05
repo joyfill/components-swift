@@ -23,6 +23,8 @@ public class DocumentEditor: ObservableObject {
     var showFieldMap = [String: Bool]()
     var events: FormChangeEvent?
 
+    private var validationHandler: ValidationHandler!
+
     public init(document: JoyDoc, events: FormChangeEvent?) {
         self.document = document
         self.events = events
@@ -49,37 +51,15 @@ public class DocumentEditor: ObservableObject {
             }
             pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
         }
+        self.validationHandler = ValidationHandler(documentEditor: self)
     }
 
     public func validate() -> Validation {
-        var fieldValidations = [FieldValidation]()
-        var isValid = true
-        let fieldPositionIDs = document.fieldPositionsForCurrentView.map {  $0.field }
-        for field in document.fields.filter { fieldPositionIDs.contains($0.id) } {
-            if shouldShowLocal(fieldID: field.id) {
-                fieldValidations.append(FieldValidation(field: field, status: .valid))
-                continue
-                fieldValidations.append(FieldValidation(field: field, status: .valid))
-                continue
-            }
-
-            guard let required = field.required, required else {
-                fieldValidations.append(FieldValidation(field: field, status: .valid))
-                continue
-            }
-
-            if let value = field.value, !value.isEmpty {
-                fieldValidations.append(FieldValidation(field: field, status: .valid))
-                continue
-            }
-            isValid = false
-            fieldValidations.append(FieldValidation(field: field, status: .invalid))
-        }
-
-        return Validation(status: isValid ? .valid: .invalid, fieldValidations: fieldValidations)
+        return validationHandler.validate()
     }
 
-    public func shouldShow(fieldID: String) -> Bool {
+    public func shouldShow(fieldID: String?) -> Bool {
+        guard let fieldID = fieldID else { return true }
         return showFieldMap[fieldID] ?? true
     }
 
