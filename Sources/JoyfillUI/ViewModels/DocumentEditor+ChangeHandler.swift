@@ -57,8 +57,8 @@ extension DocumentEditor {
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
 
-    func moveUP(rowID: String, tableDataModel: TableDataModel) {
-        let fieldId = tableDataModel.fieldIdentifier.fieldID
+    func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier) {
+        let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
         }
@@ -71,7 +71,7 @@ extension DocumentEditor {
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
-        let changeEvent = FieldChangeData(fieldIdentifier: tableDataModel.fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         refreshField(fieldId: fieldId)
     }

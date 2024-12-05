@@ -102,7 +102,7 @@ class TableViewModel: ObservableObject {
 
     func moveUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        tableDataModel.documentEditor?.moveUP(rowID: tableDataModel.selectedRows.first!, tableDataModel: tableDataModel)
+        tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
         updateUI()
     }
 
