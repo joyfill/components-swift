@@ -70,7 +70,12 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(page: page)
     }
 
-    func updateValue(event: FieldChangeEvent) {
+    func refreshDependent(for fieldID: String) {
+        let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
+        refreshFields.forEach(refreshField(fieldId:))
+    }
+
+    func updateField(event: FieldChangeEvent) {
         if var field = field(fieldID: event.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
@@ -83,7 +88,7 @@ public class DocumentEditor: ObservableObject {
             }
             updatefield(field: field)
             document.fields = allFields
-            refreshDependent(fieldID: event.fieldID)
+            refreshDependent(for: event.fieldID)
         }
     }
 }
@@ -125,11 +130,6 @@ extension DocumentEditor {
 
     public var fieldsCount: Int {
         return fieldMap.count
-    }
-
-    func refreshDependent(fieldID: String) {
-        let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
-        refreshFields.forEach(refreshField(fieldId:))
     }
 
     public func fieldPosition(fieldID: String?) -> FieldPosition? {

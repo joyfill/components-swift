@@ -299,7 +299,7 @@ extension DocumentEditor {
         var currentField = field(fieldID: event.fieldID)!
         guard currentField.value != event.updateValue || event.chartData != nil else { return }
         guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else { return }
-        updateValue(event: event)
+        updateField(event: event)
         currentField = field(fieldID: event.fieldID)!
         handleFieldsOnChange(event: event, currentField: currentField)
     }
