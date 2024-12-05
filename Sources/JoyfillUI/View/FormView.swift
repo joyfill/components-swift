@@ -2,7 +2,6 @@ import SwiftUI
 import JoyfillModel
 
 public struct Form: View {
-    @Binding var document: JoyDoc
     let currentPageID: String
     let mode: Mode
 
@@ -13,7 +12,6 @@ public struct Form: View {
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
         self.mode = mode
-        _document = document
         var pageId = pageID
         let documentEditor = DocumentEditor(document: document.wrappedValue, events: events)
         currentPageID = ((pageID == nil || pageID!.isEmpty) ? documentEditor.firstPageId : "") ?? ""
@@ -24,7 +22,6 @@ public struct Form: View {
     public init(documentEditor: DocumentEditor, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
         self.mode = mode
-        _document = Binding(get: { documentEditor.document }, set: { _ in })
         currentPageID = ((pageID == nil || pageID!.isEmpty) ? documentEditor.firstPageId : "") ?? ""
         self.navigation = navigation
         self.documentEditor = documentEditor
