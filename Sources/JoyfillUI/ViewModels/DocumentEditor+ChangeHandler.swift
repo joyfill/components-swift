@@ -32,8 +32,8 @@ extension DocumentEditor {
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
 
-    func duplicateRow(selectedRows: [String], tableDataModel: TableDataModel) {
-        let fieldId = tableDataModel.fieldIdentifier.fieldID
+    func duplicateRows(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+        let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
         }
@@ -53,7 +53,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
-        let changeEvent = FieldChangeData(fieldIdentifier: tableDataModel.fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
 

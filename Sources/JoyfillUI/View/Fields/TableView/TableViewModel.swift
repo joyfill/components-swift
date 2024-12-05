@@ -87,7 +87,7 @@ class TableViewModel: ObservableObject {
     
     func duplicateRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.duplicateRow(selectedRows: tableDataModel.selectedRows, tableDataModel: tableDataModel) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.duplicateRows(selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         tableDataModel.setup()
 
         tableDataModel.emptySelection()
