@@ -18,8 +18,8 @@ class ValidationHandler {
     func validate() -> Validation {
         var fieldValidations = [FieldValidation]()
         var isValid = true
-        let fieldPositionIDs = documentEditor.document.fieldPositionsForCurrentView.map {  $0.field }
-        for field in documentEditor.document.fields.filter { fieldPositionIDs.contains($0.id) } {
+        let fieldPositionIDs = documentEditor.allFieldPositions.map {  $0.field }
+        for field in documentEditor.allFields.filter { fieldPositionIDs.contains($0.id) } {
             if documentEditor.shouldShow(fieldID: field.id) {
                 fieldValidations.append(FieldValidation(field: field, status: .valid))
                 continue
