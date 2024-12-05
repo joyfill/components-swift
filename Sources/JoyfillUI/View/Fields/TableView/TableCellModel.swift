@@ -17,9 +17,7 @@ struct TableCellModel: Identifiable, Equatable {
     let rowID: String
     var data: FieldTableColumnLocal
     let documentEditor: DocumentEditor?
-    let fieldId: String
-    let pageId: String?
-    let fileid: String?
+    var fieldIdentifier: FieldIdentifier
     let viewMode: TableViewMode
     let editMode: Mode
     let didChange: ((_ cell: FieldTableColumnLocal) -> Void)?

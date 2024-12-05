@@ -38,7 +38,7 @@ struct MultiSelectionView: View {
                             MultiSelection(option: optionValue,
                                            isSelected: isSelected,
                                            multiSelectedOptionArray: $multiSelectedOptionArray,
-                                           isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldId,
+                                           isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldIdentifier.fieldID,
                                            multiSelectionDataModel: multiSelectionDataModel,
                                            selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
@@ -47,7 +47,7 @@ struct MultiSelectionView: View {
                         } else {
                             RadioView(option: optionValue,
                                       singleSelectedOptionArray: $singleSelectedOptionArray,
-                                      isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldId,
+                                      isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldIdentifier.fieldID,
                                       multiSelectionDataModel: multiSelectionDataModel,
                                       selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
@@ -66,12 +66,12 @@ struct MultiSelectionView: View {
         }
         .onChange(of: singleSelectedOptionArray) { newValue in
             let newSingleSelectedValue = ValueUnion.array(newValue)
-            let fieldEvent = FieldChangeData(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newSingleSelectedValue)
+            let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newSingleSelectedValue)
             multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
             let newMultiSelectedValue = ValueUnion.array(newValue)
-            let fieldEvent = FieldChangeData(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newMultiSelectedValue)
+            let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newMultiSelectedValue)
             multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }
@@ -89,8 +89,7 @@ struct MultiSelection: View {
         Button(action: {
             isSelected.toggle()
             if isAlreadyFocused == false {
-                let fieldEvent = FieldIdentifier(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId)
-                multiSelectionDataModel.eventHandler.onFocus(event: fieldEvent)
+                multiSelectionDataModel.eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
             }
             if let index = multiSelectedOptionArray.firstIndex(of: selectedItemId) {
                 multiSelectedOptionArray.remove(at: index) // Item exists, so remove it
@@ -130,8 +129,7 @@ struct RadioView: View {
                 singleSelectedOptionArray = [selectedItemId]
             }
             if isAlreadyFocused == false {
-                let fieldEvent = FieldIdentifier(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId)
-                multiSelectionDataModel.eventHandler.onFocus(event: fieldEvent)
+                multiSelectionDataModel.eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
             }
         }, label: {
             HStack(alignment: .top) {

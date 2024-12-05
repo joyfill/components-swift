@@ -37,8 +37,7 @@ struct NumberView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldIdentifier(fieldID: numberDataModel.fieldId, pageID: numberDataModel.pageId, fileID: numberDataModel.fileId)
-                        numberDataModel.eventHandler.onFocus(event: fieldEvent)
+                        numberDataModel.eventHandler.onFocus(event: numberDataModel.fieldIdentifier)
                     } else {
                         let newValue: ValueUnion
                         if !number.isEmpty, let doubleValue = Double(number) {
@@ -46,7 +45,7 @@ struct NumberView: View {
                         } else {
                             newValue = ValueUnion.string("")
                         }
-                        let event = FieldChangeData(fieldID: numberDataModel.fieldId, pageID: numberDataModel.pageId, fileID: numberDataModel.fileId, updateValue: newValue)
+                        let event = FieldChangeData(fieldIdentifier: numberDataModel.fieldIdentifier, updateValue: newValue)
                         numberDataModel.eventHandler.onChange(event: event)
                     }
                 }

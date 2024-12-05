@@ -38,13 +38,15 @@ public class DocumentEditor: ObservableObject {
             self.fieldPositionMap[fieldID] =  fieldPosition
         }
 
+        let fileID = files[0].id!
         for page in document.pagesForCurrentView {
             guard let pageID = page.id else { return }
             var fieldListModels = [FieldListModel]()
 
             let fieldPositions = mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
             for fieldPostion in fieldPositions {
-                fieldListModels.append(FieldListModel(fieldID: fieldPostion.field!, pageID: pageID, fileID: files[0].id!, refreshID: UUID()))
+                let fieldIdentifier = FieldIdentifier(fieldID: fieldPostion.field!, pageID: pageID, fileID: fileID)
+                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, refreshID: UUID()))
                 let index = fieldListModels.count - 1
                 fieldIndexMap[fieldPostion.field!] = fieldIndexMapValue(pageID: pageID, index: index)
             }
@@ -76,7 +78,7 @@ public class DocumentEditor: ObservableObject {
     }
 
     func updateField(event: FieldChangeData) {
-        if var field = field(fieldID: event.fieldID) {
+        if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
                 field.xMin = chartData.xMin
@@ -88,7 +90,7 @@ public class DocumentEditor: ObservableObject {
             }
             updatefield(field: field)
             document.fields = allFields
-            refreshDependent(for: event.fieldID)
+            refreshDependent(for: event.fieldIdentifier.fieldID)
         }
     }
 }

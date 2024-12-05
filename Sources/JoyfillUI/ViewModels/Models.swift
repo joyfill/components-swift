@@ -14,9 +14,7 @@ struct PageModel {
 }
 
 struct FieldListModel {
-    let fieldID: String
-    let pageID: String
-    let fileID: String
+    var fieldIdentifier: FieldIdentifier
     var refreshID: UUID
 }
 
@@ -26,9 +24,7 @@ struct TableDataModel {
     let mode: Mode
     let eventHandler: FieldChangeEvents
     let documentEditor: DocumentEditor?
-    let fieldId: String
-    let pageId: String?
-    let fileId: String?
+    var fieldIdentifier: FieldIdentifier
     let title: String?
     var rows: [String] = []
     var quickRows: [String] = []
@@ -49,14 +45,12 @@ struct TableDataModel {
          mode: Mode,
          documentEditor: DocumentEditor,
          listModel: FieldListModel, eventHandler: FieldChangeEvents) {
-        let fieldData = documentEditor.field(fieldID: listModel.fieldID)
+        let fieldData = documentEditor.field(fieldID: listModel.fieldIdentifier.fieldID)
         self.fieldHeaderModel = fieldHeaderModel
         self.mode = mode
         self.documentEditor = documentEditor
-        self.pageId = listModel.pageID
-        self.fileId = listModel.fileID
         self.title = fieldData?.title
-        self.fieldId = listModel.fieldID
+        self.fieldIdentifier = listModel.fieldIdentifier
         self.eventHandler = eventHandler
 
         setupColumns()
@@ -74,7 +68,7 @@ struct TableDataModel {
     }
     
     mutating private func setupColumns() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldId) else { return }
+        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
         self.columns = (fieldData.tableColumnOrder ?? []).filter { columnID in
             if let columnType = fieldData.tableColumns?.first { $0.id == columnID }?.type {
                 return supportedColumnTypes.contains(columnType)
@@ -141,7 +135,7 @@ struct TableDataModel {
 
     
     mutating private func setupRows() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldId) else { return }
+        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
         guard let valueElements = fieldData.valueToValueElements, !valueElements.isEmpty else {
             setupQuickTableViewRows()
             return
@@ -215,7 +209,7 @@ struct TableDataModel {
     }
     
     mutating func setupQuickTableViewRows() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldId) else { return }
+        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
         if quickRows.isEmpty {
             quickRowToCellMap = [:]
             let id = generateObjectId()
@@ -729,9 +723,7 @@ extension ValueElementLocal {
 }
 
 struct ChartDataModel {
-    var fieldId: String?
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var valueElements: [ValueElement]?
     var yTitle: String?
     var yMax: Double?
@@ -746,9 +738,7 @@ struct ChartDataModel {
 }
 
 struct DateTimeDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var value: ValueUnion?
     var format: String?
     var eventHandler: FieldChangeEvents
@@ -762,9 +752,7 @@ struct DisplayTextDataModel {
 }
 
 struct DropdownDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var dropdownValue: String?
     var options: [Option]?
     var eventHandler: FieldChangeEvents
@@ -772,9 +760,7 @@ struct DropdownDataModel {
 }
 
 struct ImageDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var multi: Bool?
     var primaryDisplayOnly: Bool?
     var valueElements: [ValueElementLocal]?
@@ -784,9 +770,7 @@ struct ImageDataModel {
 }
 
 struct MultiLineDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var multilineText: String?
     var mode: Mode
     var eventHandler: FieldChangeEvents
@@ -794,9 +778,7 @@ struct MultiLineDataModel {
 }
 
 struct MultiSelectionDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var currentFocusedFieldsDataId: String?
     var multi: Bool?
     var options: [Option]?
@@ -806,9 +788,7 @@ struct MultiSelectionDataModel {
 }
 
 struct NumberDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var number: Double?
     var mode: Mode
     var eventHandler: FieldChangeEvents
@@ -822,18 +802,14 @@ struct RichTextDataModel {
 }
 
 struct SignatureDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var signatureURL: String?
     var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct TextDataModel {
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
+    var fieldIdentifier: FieldIdentifier
     var text: String?
     var mode: Mode
     var eventHandler: FieldChangeEvents

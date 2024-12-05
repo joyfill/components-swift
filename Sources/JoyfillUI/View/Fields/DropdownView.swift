@@ -18,8 +18,7 @@ struct DropdownView: View {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel)
             Button(action: {
                 isSheetPresented = true
-                let fieldEvent = FieldIdentifier(fieldID: dropdownDataModel.fieldId, pageID: dropdownDataModel.pageId, fileID: dropdownDataModel.fileId)
-                dropdownDataModel.eventHandler.onFocus(event: fieldEvent)
+                dropdownDataModel.eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
             }, label: {
                 HStack {
                     Text(dropdownDataModel.options?.filter {
@@ -50,7 +49,7 @@ struct DropdownView: View {
         }
         .onChange(of: selectedDropdownValueID) { newValue in
             let newDrodDownValue = ValueUnion.string(newValue ?? "")
-            let fieldEvent = FieldChangeData(fieldID: dropdownDataModel.fieldId, pageID: dropdownDataModel.pageId, fileID: dropdownDataModel.fileId, updateValue: newDrodDownValue)
+            let fieldEvent = FieldChangeData(fieldIdentifier: dropdownDataModel.fieldIdentifier, updateValue: newDrodDownValue)
             dropdownDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }

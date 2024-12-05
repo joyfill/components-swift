@@ -30,11 +30,10 @@ struct MultiLineTextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldIdentifier(fieldID: multiLineDataModel.fieldId, pageID: multiLineDataModel.pageId, fileID: multiLineDataModel.fileId)
-                        multiLineDataModel.eventHandler.onFocus(event: fieldEvent)
+                        multiLineDataModel.eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
                     } else {
                         let newValue = ValueUnion.string(multilineText)
-                        let fieldEvent = FieldChangeData(fieldID: multiLineDataModel.fieldId, pageID: multiLineDataModel.pageId, fileID: multiLineDataModel.fileId, updateValue: newValue)
+                        let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
                         multiLineDataModel.eventHandler.onChange(event: fieldEvent)
                     }
                 }

@@ -59,10 +59,9 @@ struct DateTimeView: View {
         .onChange(of: selectedDate) { newValue in
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
             let newDateValue = ValueUnion.double(convertDateToInt)
-            let event = FieldChangeData(fieldID: dateTimeDataModel.fieldId, pageID: dateTimeDataModel.pageId, fileID: dateTimeDataModel.fileId, updateValue: newDateValue)
+            let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: newDateValue)
             dateTimeDataModel.eventHandler.onChange(event: event)
-            let fieldEvent = FieldIdentifier(fieldID: dateTimeDataModel.fieldId, pageID: dateTimeDataModel.pageId, fileID: dateTimeDataModel.fileId)
-            dateTimeDataModel.eventHandler.onFocus(event: fieldEvent)
+            dateTimeDataModel.eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
         }
     }
     

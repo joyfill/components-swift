@@ -48,8 +48,7 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                let fieldEvent = FieldIdentifier(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
-                                imageDataModel.eventHandler.onFocus(event: fieldEvent)
+                                imageDataModel.eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
                                     Text("More > ")
@@ -70,8 +69,7 @@ struct ImageView: View {
             } else {
                 Button(action: {
                     uploadAction()
-                    let fieldEvent = FieldIdentifier(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
-                    imageDataModel.eventHandler.onFocus(event: fieldEvent)
+                    imageDataModel.eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                 }, label: {
                     ZStack {
                         HStack(spacing: 8) {
@@ -120,7 +118,7 @@ struct ImageView: View {
             fetchImages()
             let convertedElements = newValue.map { convertToValueElement($0) }
             let newImageValue = ValueUnion.valueElementArray(convertedElements)
-            let fieldEvent = FieldChangeData(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId, updateValue: newImageValue)
+            let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
             imageDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }
@@ -153,8 +151,7 @@ struct ImageView: View {
     }
 
     func uploadAction() {
-        let fieldEvent = FieldIdentifier(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId)
-        let uploadEvent = UploadEvent(fieldEvent: fieldEvent) { urls in
+        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier) { urls in
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in

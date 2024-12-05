@@ -4,7 +4,6 @@ import JoyfillModel
 struct TableModalTopNavigationView: View {
     @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
-//    var fieldDependency: FieldDependency
     
     @State private var showingPopover = false
 
@@ -286,9 +285,7 @@ struct EditMultipleRowsSheetView: View {
                         let cellModel = TableCellModel(rowID: row,
                                                        data: cell,
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
-                                                       fieldId: viewModel.tableDataModel.fieldId,
-                                                       pageId: viewModel.tableDataModel.pageId,
-                                                       fileid: viewModel.tableDataModel.fileId,
+                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
                                                        editMode: viewModel.tableDataModel.mode)
                         { editedCell in

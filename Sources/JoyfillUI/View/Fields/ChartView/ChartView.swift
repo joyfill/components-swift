@@ -46,8 +46,7 @@ struct ChartView: View {
             
             Button(action: {
                 showDetailChartView = true
-                let fieldEvent = FieldIdentifier(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId)
-                chartDataModel.eventHandler.onFocus(event: fieldEvent)
+                chartDataModel.eventHandler.onFocus(event: chartDataModel.fieldIdentifier)
             }, label: {
                 HStack {
                     Image(systemName: "chart.xyaxis.line")

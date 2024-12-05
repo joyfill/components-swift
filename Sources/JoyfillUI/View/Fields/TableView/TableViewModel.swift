@@ -34,9 +34,7 @@ class TableViewModel: ObservableObject {
                 let cellModel = TableCellModel(rowID: rowID,
                                                data: columnModel,
                                                documentEditor: tableDataModel.documentEditor,
-                                               fieldId: tableDataModel.fieldId,
-                                               pageId: tableDataModel.pageId,
-                                               fileid: tableDataModel.fileId,
+                                               fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { editedCell  in
                     self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
@@ -57,9 +55,7 @@ class TableViewModel: ObservableObject {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
-                                                   fieldId: tableDataModel.fieldId,
-                                                   pageId: tableDataModel.pageId,
-                                                   fileid: tableDataModel.fileId,
+                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { editedCell  in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
@@ -135,7 +131,7 @@ class TableViewModel: ObservableObject {
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
-        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldId)
+        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldIdentifier.fieldID)
         // TODO: USE AND SEE WHY WE NEED THIS AND WE DONT
         // If not required, simplify it by removing it to reduce complexity
 //        tableDataModel.setup()
@@ -147,12 +143,12 @@ class TableViewModel: ObservableObject {
         for row in tableDataModel.selectedRows {
             for colIndex in changes.keys {
                 if let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
-                    tableDataModel.documentEditor?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldId)
+                    tableDataModel.documentEditor?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldIdentifier.fieldID)
                 }
             }
         }
         //Update local model with new bulk edit changes
-//        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldId!)?.valueToValueElements
+//        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID!)?.valueToValueElements
         tableDataModel.emptySelection()
         tableDataModel.setup()
         uuid = UUID()
