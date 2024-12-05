@@ -332,9 +332,7 @@ struct FormView: View {
             }
         }
         .listStyle(PlainListStyle())
-        .gesture(DragGesture().onChanged({ _ in
-            dismissKeyboardOnScroll()
-        }))
+        .modifier(KeyboardDismissModifier())
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
             guard lastFocusedFielsID != newValue else { return }
@@ -346,9 +344,18 @@ struct FormView: View {
             documentEditor.onFocus(event: fieldEvent)
         }
     }
-    
-    private func dismissKeyboardOnScroll() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+}
+
+// Dismiss Keyboard on Scroll
+struct KeyboardDismissModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            content.scrollDismissesKeyboard(.immediately)
+        } else {
+            content.gesture(DragGesture().onChanged({ _ in
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }))
+        }
     }
 }
 
