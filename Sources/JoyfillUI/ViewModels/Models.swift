@@ -22,11 +22,29 @@ struct FieldListModel {
 
 struct TableDataModel {
     let supportedColumnTypes = ["text", "image", "dropdown"]
-    var fieldHeaderModel: FieldHeaderModel?
-    var mode: Mode
-    var eventHandler: FieldChangeEvents
-    var documentEditor: DocumentEditor?
-    
+    let fieldHeaderModel: FieldHeaderModel?
+    let mode: Mode
+    let eventHandler: FieldChangeEvents
+    let documentEditor: DocumentEditor?
+    let fieldId: String
+    let pageId: String?
+    let fileId: String?
+    let title: String?
+    var rows: [String] = []
+    var quickRows: [String] = []
+    var columns: [String] = []
+    var quickColumns: [String] = []
+    var quickViewRowCount: Int = 0
+    var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
+    var quickRowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
+    var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
+    var selectedRows = [String]()
+    var cellModels = [[TableCellModel]]()
+    var filteredcellModels = [[TableCellModel]]()
+    var filterModels = [FilterModel]()
+    var sortModel = SortModel()
+    var viewMoreText: String = ""
+
     init(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
          documentEditor: DocumentEditor,
@@ -40,37 +58,15 @@ struct TableDataModel {
         self.title = fieldData?.title
         self.fieldId = listModel.fieldID
         self.eventHandler = eventHandler
-        
+
         setupColumns()
         setup()
-        
+
         self.filterModels = columns.enumerated().map { colIndex, colID in
             FilterModel(colIndex: colIndex, colID: colID)
         }
     }
-    
-    var fieldId: String
-    var pageId: String?
-    var fileId: String?
-    var title: String?
-    
-    var rows: [String] = []
-    var quickRows: [String] = []
-    var columns: [String] = []
-    var quickColumns: [String] = []
-    var quickViewRowCount: Int = 0
-    var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
-    var quickRowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
-    var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
-    var selectedRows = [String]()
-    
-    var cellModels = [[TableCellModel]]()
-    var filteredcellModels = [[TableCellModel]]()
-    
-    var filterModels = [FilterModel]()
-    var sortModel = SortModel()
-    var viewMoreText: String = ""
-    
+
     mutating func setup() {
         setupRows()
         quickViewRowCount = rows.count >= 3 ? 3 : rows.count

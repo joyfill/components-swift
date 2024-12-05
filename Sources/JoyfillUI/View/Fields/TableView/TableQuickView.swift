@@ -46,7 +46,7 @@ struct TableQuickView : View {
             
             Button(action: {
                 isTableModalViewPresented.toggle()
-                let fieldEvent = FieldEvent(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId)
+                let fieldEvent = FieldIdentifier(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId)
                 tableDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 HStack(alignment: .center, spacing: 0) {

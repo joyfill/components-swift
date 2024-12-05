@@ -192,11 +192,11 @@ extension DocumentEditor {
         handleFieldsOnChange(event: event, currentField: currentField)
     }
 
-    func onFocus(event: FieldEvent) {
+    func onFocus(event: FieldIdentifier) {
         events?.onFocus(event: event)
     }
 
-    func onBlur(event: FieldEvent) {
+    func onBlur(event: FieldIdentifier) {
         events?.onBlur(event: event)
     }
 

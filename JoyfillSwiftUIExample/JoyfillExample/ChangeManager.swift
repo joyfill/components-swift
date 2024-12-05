@@ -49,11 +49,11 @@ extension ChangeManager: FormChangeEvent {
         updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
 
-    func onFocus(event: FieldEvent) {
+    func onFocus(event: FieldIdentifier) {
         print(">>>>>>>>onFocus", event.fieldID)
     }
 
-    func onBlur(event: FieldEvent) {
+    func onBlur(event: FieldIdentifier) {
         print(">>>>>>>>onBlur", event.fieldID)
     }
 

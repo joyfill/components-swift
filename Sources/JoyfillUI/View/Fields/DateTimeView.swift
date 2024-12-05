@@ -61,7 +61,7 @@ struct DateTimeView: View {
             let newDateValue = ValueUnion.double(convertDateToInt)
             let event = FieldChangeData(fieldID: dateTimeDataModel.fieldId, pageID: dateTimeDataModel.pageId, fileID: dateTimeDataModel.fileId, updateValue: newDateValue)
             dateTimeDataModel.eventHandler.onChange(event: event)
-            let fieldEvent = FieldEvent(fieldID: dateTimeDataModel.fieldId, pageID: dateTimeDataModel.pageId, fileID: dateTimeDataModel.fileId)
+            let fieldEvent = FieldIdentifier(fieldID: dateTimeDataModel.fieldId, pageID: dateTimeDataModel.pageId, fileID: dateTimeDataModel.fileId)
             dateTimeDataModel.eventHandler.onFocus(event: fieldEvent)
         }
     }

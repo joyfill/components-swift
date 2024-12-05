@@ -34,7 +34,7 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
-                let fieldEvent = FieldEvent(fieldID: signatureDataModel.fieldId, pageID: signatureDataModel.pageId, fileID: signatureDataModel.fileId)
+                let fieldEvent = FieldIdentifier(fieldID: signatureDataModel.fieldId, pageID: signatureDataModel.pageId, fileID: signatureDataModel.fileId)
                 signatureDataModel.eventHandler.onFocus(event: fieldEvent)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")

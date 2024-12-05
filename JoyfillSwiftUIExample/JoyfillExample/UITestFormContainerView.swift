@@ -42,11 +42,11 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         }
     }
     
-    func onFocus(event: JoyfillModel.FieldEvent) {
+    func onFocus(event: JoyfillModel.FieldIdentifier) {
         
     }
     
-    func onBlur(event: JoyfillModel.FieldEvent) {
+    func onBlur(event: JoyfillModel.FieldIdentifier) {
         
     }
     

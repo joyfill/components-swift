@@ -26,6 +26,6 @@ struct ChartData {
 
 protocol FieldChangeEvents {
     func onChange(event: FieldChangeData)
-    func onFocus(event: FieldEvent)
+    func onFocus(event: FieldIdentifier)
     func onUpload(event: UploadEvent)
 }

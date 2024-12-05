@@ -64,11 +64,11 @@ class ChangeHandler: FormChangeEvent {
         print(">>>>>>>>onChange", changes.first!.fieldId)
     }
 
-    func onFocus(event: FieldEvent) {
+    func onFocus(event: FieldIdentifier) {
         print(">>>>>>>>onFocus", event.fieldID)
     }
 
-    func onBlur(event: FieldEvent) {
+    func onBlur(event: FieldIdentifier) {
         print(">>>>>>>>onBlur", event.fieldID)
     }
 
