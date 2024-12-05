@@ -16,8 +16,6 @@ struct TableCellModel: Identifiable, Equatable {
     let id = UUID()
     let rowID: String
     var data: FieldTableColumnLocal
-//    let eventHandler: FieldChangeEvents
-//    let fieldData: JoyDocField?
     let documentEditor: DocumentEditor?
     let fieldId: String
     let pageId: String?
