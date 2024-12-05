@@ -9,11 +9,11 @@ import JoyfillModel
 import Foundation
 
 extension DocumentEditor {
-    func deleteRows(rowIDs: [String], tableDataModel: TableDataModel) {
+    func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
         guard !rowIDs.isEmpty else {
             return
         }
-        let fieldId = tableDataModel.fieldIdentifier.fieldID
+        let fieldId = fieldIdentifier.fieldID
         var field = fieldMap[fieldId]!
         var lastRowOrder = field.rowOrder ?? []
         guard var elements = field.valueToValueElements else { return }
@@ -29,7 +29,7 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        onChangeForDelete(tableDataModel: tableDataModel, rowIDs: rowIDs)
+        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
 
     func duplicateRow(selectedRows: [String], tableDataModel: TableDataModel) {
@@ -230,8 +230,8 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
 
-    private func onChangeForDelete(tableDataModel: TableDataModel, rowIDs: [String]) {
-        let event = FieldChangeData(fieldIdentifier: tableDataModel.fieldIdentifier, updateValue: fieldMap[tableDataModel.fieldIdentifier.fieldID]?.value)
+    private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String]) {
+        let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldIdentifier.fieldID]?.value)
         let targetRowIndexes = rowIDs.map { TargetRowModel.init(id: $0, index: 0)}
         var changes = [Change]()
         let field = field(fieldID: event.fieldIdentifier.fieldID)!
@@ -252,7 +252,7 @@ extension DocumentEditor {
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
-        refreshField(fieldId: tableDataModel.fieldIdentifier.fieldID)
+        refreshField(fieldId: fieldIdentifier.fieldID)
     }
 
     private func moveRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {

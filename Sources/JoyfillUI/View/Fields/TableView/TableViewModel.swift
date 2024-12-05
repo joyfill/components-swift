@@ -77,7 +77,7 @@ class TableViewModel: ObservableObject {
         for row in tableDataModel.selectedRows {
             tableDataModel.rowToCellMap.removeValue(forKey: row)
         }
-        tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, tableDataModel: tableDataModel)
+        tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
 
         tableDataModel.emptySelection()
         tableDataModel.setup()
