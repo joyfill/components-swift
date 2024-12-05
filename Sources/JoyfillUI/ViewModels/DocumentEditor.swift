@@ -19,11 +19,10 @@ public class DocumentEditor: ObservableObject {
     @Published var pageFieldModels = [String: PageModel]()
     var fieldPositionMap = [String: FieldPosition]()
     var fieldIndexMap = [String: String]()
-    var fieldConditionalDependencyMap = [String: [String]]()
-    var showFieldMap = [String: Bool]()
     var events: FormChangeEvent?
 
     private var validationHandler: ValidationHandler!
+    private var conditionalLogicHandler: ConditionalLogicHandler!
 
     public init(document: JoyDoc, events: FormChangeEvent?) {
         self.document = document
@@ -36,7 +35,6 @@ public class DocumentEditor: ObservableObject {
         document.fieldPositionsForCurrentView.forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
-            showFieldMap[fieldID] = self.shouldShowLocal(fieldID: fieldPosition.field!)
         }
 
         for page in document.pagesForCurrentView {
@@ -52,6 +50,7 @@ public class DocumentEditor: ObservableObject {
             pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
+        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
     }
 
     public func validate() -> Validation {
@@ -59,16 +58,16 @@ public class DocumentEditor: ObservableObject {
     }
 
     public func shouldShow(fieldID: String?) -> Bool {
-        guard let fieldID = fieldID else { return true }
-        return showFieldMap[fieldID] ?? true
+        return conditionalLogicHandler.shouldShow(fieldID: fieldID)
     }
 
     public func shouldShow(pageID: String?) -> Bool {
-        guard let pageID = pageID else { return true }
-        guard let page = document.pagesForCurrentView.first(where: { $0.id == pageID }) else { return true }
-        return shouldShow(page: page)
+        return conditionalLogicHandler.shouldShow(pageID: pageID)
     }
 
+    public func shouldShow(page: Page?) -> Bool {
+        return conditionalLogicHandler.shouldShow(page: page)
+    }
 }
 
 extension DocumentEditor {
@@ -102,16 +101,13 @@ extension DocumentEditor {
         return fieldMap.map { $1 }
     }
 
-    func applyConditionalLogicAndRefreshUI(event: FieldChangeEvent) {
-        guard let dependentFields = fieldConditionalDependencyMap[event.fieldID] else { return }
-        // Refresh dependent fields if required
-        for dependentField in dependentFields {
-            let shouldShow = shouldShowLocal(fieldID: dependentField)
-            if showFieldMap[dependentField] != shouldShow {
-                showFieldMap[dependentField] = shouldShow
-                refreshField(fieldId: dependentField)
-            }
-        }
+    public var fieldsCount: Int {
+        return fieldMap.count
+    }
+
+    func refreshDependent(fieldID: String) {
+        let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
+        refreshFields.forEach(refreshField(fieldId:))
     }
 
     public func fieldPosition(fieldID: String?) -> FieldPosition? {

@@ -5,9 +5,46 @@
 //  Created by Vishnu Dutt on 05/12/24.
 //
 
+import Foundation
 import JoyfillModel
 
-extension DocumentEditor {
+class ConditionalLogicHandler {
+    weak var documentEditor: DocumentEditor!
+    private var showFieldMap = [String: Bool]()
+    private var fieldConditionalDependencyMap = [String: [String]]()
+
+    init(documentEditor: DocumentEditor) {
+        self.documentEditor = documentEditor
+        documentEditor.allFields.forEach { field in
+            showFieldMap[field.id!] = self.shouldShowLocal(fieldID: field.id!)
+        }
+    }
+
+    public func shouldShow(fieldID: String?) -> Bool {
+        guard let fieldID = fieldID else { return true }
+        return showFieldMap[fieldID] ?? true
+    }
+
+    public func shouldShow(pageID: String?) -> Bool {
+        guard let pageID = pageID else { return true }
+        guard let page = documentEditor.pagesForCurrentView.first(where: { $0.id == pageID }) else { return true }
+        return shouldShow(page: page)
+    }
+
+    func fieldsNeedsToBeRefreshed(fieldID: String) -> [String] {
+        var refreshFieldIDs = [String]()
+        guard let dependentFields = fieldConditionalDependencyMap[fieldID] else { return []}
+        // Refresh dependent fields if required
+        for dependentFieldId in dependentFields {
+            let shouldShow = shouldShowLocal(fieldID: dependentFieldId)
+            if showFieldMap[dependentFieldId] != shouldShow {
+                showFieldMap[dependentFieldId] = shouldShow
+                refreshFieldIDs.append(dependentFieldId)
+            }
+        }
+        return refreshFieldIDs
+    }
+
     func shouldShow(page: Page?) -> Bool {
         guard let page = page else { return true }
         let model = conditionalLogicModel(page: page)
@@ -20,14 +57,12 @@ extension DocumentEditor {
         guard let conditions = logic.conditions else { return nil }
 
         let conditionModels = conditions.compactMap { condition ->  ConditionModel? in
-            guard let fieldID = condition.field else { return nil }
-            guard let field = fieldMap[condition.field!] else { return nil }
             guard let conditionFieldID = condition.field else { return nil }
-            let conditionField = fieldMap[conditionFieldID]!
+            guard let conditionField = documentEditor.field(fieldID: conditionFieldID) else { return nil }
             return ConditionModel(fieldValue: conditionField.value, fieldType: FieldTypes(conditionField.type), condition: condition.condition, value: condition.value)
         }
         let logicModel = LogicModel(id: logic.id, action: logic.action, conditions: conditionModels)
-        let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: page.hidden, itemCount: document.pagesForCurrentView.count)
+        let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: page.hidden, itemCount: documentEditor.pagesForCurrentView.count)
         return conditionModel
     }
 
@@ -38,7 +73,8 @@ extension DocumentEditor {
 
         let conditionModels = conditions.compactMap { condition -> ConditionModel?  in
             guard let fieldID = condition.field else { return nil }
-            let dependentField = fieldMap[fieldID]!
+            guard let dependentField = documentEditor.field(fieldID: fieldID) else { return nil }
+
             var allDependentFields = fieldConditionalDependencyMap[dependentField.id!] ?? []
             if !allDependentFields.contains(dependentField.id!) {
                 fieldConditionalDependencyMap[dependentField.id!] = allDependentFields + [field.id!]
@@ -47,12 +83,12 @@ extension DocumentEditor {
         }
 
         let logicModel = LogicModel(id: field.logic?.id, action: logic.action, conditions: conditionModels)
-        let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: field.hidden, itemCount: fieldMap.count)
+        let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: field.hidden, itemCount: documentEditor.fieldsCount)
         return conditionModel
     }
 
     private func conditionalLogicModels() -> [ConditionalLogicModel] {
-        let fields = document.fields
+        let fields = documentEditor.allFields
         return fields.flatMap(conditionalLogicModel)
     }
 
@@ -191,7 +227,7 @@ extension DocumentEditor {
 
     func shouldShowLocal(fieldID: String?) -> Bool {
         guard let fieldID = fieldID else { return true }
-        let model = conditionalLogicModel(field: fieldMap[fieldID])
+        let model = conditionalLogicModel(field: documentEditor.field(fieldID: fieldID))
         return shouldShowItem(model: model)
     }
 }

@@ -51,7 +51,7 @@ extension DocumentEditor {
             }
             updatefield(field: field)
             document.fields = allFields
-            applyConditionalLogicAndRefreshUI(event: event)
+            refreshDependent(fieldID: event.fieldID)
         }
     }
 
