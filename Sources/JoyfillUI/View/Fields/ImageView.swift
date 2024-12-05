@@ -120,7 +120,7 @@ struct ImageView: View {
             fetchImages()
             let convertedElements = newValue.map { convertToValueElement($0) }
             let newImageValue = ValueUnion.valueElementArray(convertedElements)
-            let fieldEvent = FieldChangeEvent(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId, updateValue: newImageValue)
+            let fieldEvent = FieldChangeData(fieldID: imageDataModel.fieldId, pageID: imageDataModel.pageId, fileID: imageDataModel.fileId, updateValue: newImageValue)
             imageDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }

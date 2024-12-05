@@ -75,7 +75,7 @@ public class DocumentEditor: ObservableObject {
         refreshFields.forEach(refreshField(fieldId:))
     }
 
-    func updateField(event: FieldChangeEvent) {
+    func updateField(event: FieldChangeData) {
         if var field = field(fieldID: event.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {

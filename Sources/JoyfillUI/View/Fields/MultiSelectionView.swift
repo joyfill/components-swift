@@ -66,12 +66,12 @@ struct MultiSelectionView: View {
         }
         .onChange(of: singleSelectedOptionArray) { newValue in
             let newSingleSelectedValue = ValueUnion.array(newValue)
-            let fieldEvent = FieldChangeEvent(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newSingleSelectedValue)
+            let fieldEvent = FieldChangeData(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newSingleSelectedValue)
             multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
             let newMultiSelectedValue = ValueUnion.array(newValue)
-            let fieldEvent = FieldChangeEvent(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newMultiSelectedValue)
+            let fieldEvent = FieldChangeData(fieldID: multiSelectionDataModel.fieldId, pageID: multiSelectionDataModel.pageId, fileID: multiSelectionDataModel.fileId, updateValue: newMultiSelectedValue)
             multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }

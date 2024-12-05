@@ -46,7 +46,7 @@ struct NumberView: View {
                         } else {
                             newValue = ValueUnion.string("")
                         }
-                        let event = FieldChangeEvent(fieldID: numberDataModel.fieldId, pageID: numberDataModel.pageId, fileID: numberDataModel.fileId, updateValue: newValue)
+                        let event = FieldChangeData(fieldID: numberDataModel.fieldId, pageID: numberDataModel.pageId, fileID: numberDataModel.fileId, updateValue: newValue)
                         numberDataModel.eventHandler.onChange(event: event)
                     }
                 }

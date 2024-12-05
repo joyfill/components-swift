@@ -358,7 +358,7 @@ struct KeyboardDismissModifier: ViewModifier {
 
 extension FormView: FieldChangeEvents {
 
-    func onChange(event: FieldChangeEvent) {
+    func onChange(event: FieldChangeData) {
         documentEditor.onChange(event: event)
     }
 
@@ -375,7 +375,7 @@ extension FormView: FieldChangeEvents {
         documentEditor.onUpload(event: event)
     }
 
-    private func updateFocusedField(event: FieldChangeEvent) {
+    private func updateFocusedField(event: FieldChangeData) {
         currentFocusedFielsID = event.fieldID
     }
 }

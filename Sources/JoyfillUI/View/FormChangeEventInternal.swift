@@ -8,10 +8,10 @@
 import JoyfillModel
 
 
-/// `FieldChangeEvent` is a structure that encapsulates the changes in a field.
+/// `FieldChangeData` is a structure that encapsulates the changes in a field.
 ///
 /// It contains information about the position of the field, the field itself, the page containing the field, and the file associated with the field.
-struct FieldChangeEvent {
+struct FieldChangeData {
     let fieldID: String
     var pageID: String?
     var fileID: String?
@@ -33,18 +33,18 @@ protocol FormChangeEventInternal {
 
     /// A method that is called when a field's value changes.
     ///
-    /// - Parameter event: The `FieldChangeEvent` object that contains information about the field change event.
-    func onChange(event: FieldChangeEvent)
+    /// - Parameter event: The `FieldChangeData` object that contains information about the field change event.
+    func onChange(event: FieldChangeData)
 
     /// Adds a row to the form with the specified field change event.
     ///
     /// - Parameters:
     ///   - event: The field change event containing the necessary information for adding a row.
-    func addRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel])
+    func addRow(event: FieldChangeData, targetRowIndexes: [TargetRowModel])
 
-    func moveRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel])
+    func moveRow(event: FieldChangeData, targetRowIndexes: [TargetRowModel])
 
-    func deleteRow(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel])
+    func deleteRow(event: FieldChangeData, targetRowIndexes: [TargetRowModel])
 
     /// Notifies the form view that it has received focus.
     ///
@@ -65,7 +65,7 @@ protocol FormChangeEventInternal {
 
 /// A protocol that defines the field change events for a document.
 protocol FieldChangeEvents {
-    func onChange(event: FieldChangeEvent)
+    func onChange(event: FieldChangeData)
     func onFocus(event: FieldEvent)
     func onUpload(event: UploadEvent)
 }

@@ -75,7 +75,7 @@ struct SignatureView: View {
                 }
                 let newSignatureImageValue = ValueUnion.string(url ?? "")
                 DispatchQueue.main.async {
-                    let fieldEvent = FieldChangeEvent(fieldID: signatureDataModel.fieldId,  pageID: signatureDataModel.pageId, fileID: signatureDataModel.fileId, updateValue: newSignatureImageValue)
+                    let fieldEvent = FieldChangeData(fieldID: signatureDataModel.fieldId,  pageID: signatureDataModel.pageId, fileID: signatureDataModel.fileId, updateValue: newSignatureImageValue)
                     signatureDataModel.eventHandler.onChange(event: fieldEvent)
                 }
             }

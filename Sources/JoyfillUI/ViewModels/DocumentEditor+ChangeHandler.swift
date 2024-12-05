@@ -53,7 +53,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
 
@@ -71,7 +71,7 @@ extension DocumentEditor {
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         refreshField(fieldId: fieldId)
     }
@@ -90,7 +90,7 @@ extension DocumentEditor {
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         refreshField(fieldId: fieldId)
     }
@@ -103,7 +103,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder?.append(id)
 
-        let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
         refreshField(fieldId: fieldId)
     }
@@ -128,7 +128,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
-        let changeEvent = FieldChangeEvent(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId , fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         refreshField(fieldId: fieldId)
     }
@@ -145,7 +145,7 @@ extension DocumentEditor {
             cellDidChange(rowId: id, colIndex: filterModel.colIndex, editedCellId: filterModel.colID, value: filterModel.filterText, fieldId: fieldId)
         }
 
-        let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
     }
 
@@ -177,13 +177,13 @@ extension DocumentEditor {
 
     func sendEventsIfNeeded(tableDataModel: TableDataModel) {
         let fieldId = tableDataModel.fieldId
-        let changeEvent = FieldChangeEvent(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldID: fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
         refreshField(fieldId: tableDataModel.fieldId)
     }
 
-    func onChange(event: FieldChangeEvent) {
+    func onChange(event: FieldChangeData) {
         var currentField = field(fieldID: event.fieldID)!
         guard currentField.value != event.updateValue || event.chartData != nil else { return }
         guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else { return }
@@ -207,7 +207,7 @@ extension DocumentEditor {
 
 
 extension DocumentEditor {
-    private func addRowOnChange(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    private func addRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
         let field = field(fieldID: event.fieldID)!
         let fieldPosition = fieldPosition(fieldID: event.fieldID)!
@@ -231,7 +231,7 @@ extension DocumentEditor {
     }
 
     private func onChangeForDelete(tableDataModel: TableDataModel, rowIDs: [String]) {
-        let event = FieldChangeEvent(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[tableDataModel.fieldId]?.value)
+        let event = FieldChangeData(fieldID: tableDataModel.fieldId, pageID: tableDataModel.pageId, fileID: tableDataModel.fileId, updateValue: fieldMap[tableDataModel.fieldId]?.value)
         let targetRowIndexes = rowIDs.map { TargetRowModel.init(id: $0, index: 0)}
         var changes = [Change]()
         let field = field(fieldID: event.fieldID)!
@@ -255,7 +255,7 @@ extension DocumentEditor {
         refreshField(fieldId: tableDataModel.fieldId)
     }
 
-    private func moveRowOnChange(event: FieldChangeEvent, targetRowIndexes: [TargetRowModel]) {
+    private func moveRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {
         var changes = [Change]()
         let field = field(fieldID: event.fieldID)!
         let fieldPosition = fieldPosition(fieldID: event.fieldID)!
@@ -280,7 +280,7 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
 
-    private func handleFieldsOnChange(event: FieldChangeEvent, currentField: JoyDocField) {
+    private func handleFieldsOnChange(event: FieldChangeData, currentField: JoyDocField) {
         let fieldPosition = fieldPosition(fieldID: event.fieldID)!
         var change = Change(v: 1,
                             sdk: "swift",

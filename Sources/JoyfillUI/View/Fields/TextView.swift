@@ -33,7 +33,7 @@ struct TextView: View {
                         textDataModel.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let newText = ValueUnion.string(enterText)
-                        let fieldEvent = FieldChangeEvent(fieldID: textDataModel.fieldId, pageID: textDataModel.pageId, fileID: textDataModel.fileId, updateValue: newText)
+                        let fieldEvent = FieldChangeData(fieldID: textDataModel.fieldId, pageID: textDataModel.pageId, fileID: textDataModel.fileId, updateValue: newText)
                         textDataModel.eventHandler.onChange(event: fieldEvent)
                     }
                 }

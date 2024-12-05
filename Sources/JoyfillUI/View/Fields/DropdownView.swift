@@ -50,7 +50,7 @@ struct DropdownView: View {
         }
         .onChange(of: selectedDropdownValueID) { newValue in
             let newDrodDownValue = ValueUnion.string(newValue ?? "")
-            let fieldEvent = FieldChangeEvent(fieldID: dropdownDataModel.fieldId, pageID: dropdownDataModel.pageId, fileID: dropdownDataModel.fileId, updateValue: newDrodDownValue)
+            let fieldEvent = FieldChangeData(fieldID: dropdownDataModel.fieldId, pageID: dropdownDataModel.pageId, fileID: dropdownDataModel.fileId, updateValue: newDrodDownValue)
             dropdownDataModel.eventHandler.onChange(event: fieldEvent)
         }
     }

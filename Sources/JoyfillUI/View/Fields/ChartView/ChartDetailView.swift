@@ -51,7 +51,7 @@ struct ChartDetailView: View {
             }
             .onChange(of: chartCoordinatesData, perform:  { newValue in
                 let chartData = ChartData(xTitle: newValue.xTitle, yTitle: newValue.yTitle, xMax: newValue.xMax, xMin: newValue.xMin, yMax: newValue.yMax, yMin: newValue.yMin)
-                let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId, updateValue: .valueElementArray(valueElements), chartData: chartData)
+                let fieldEvent = FieldChangeData(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId, updateValue: .valueElementArray(valueElements), chartData: chartData)
                 chartDataModel.documentEditor?.onChange(event: fieldEvent)
             })
             .onTapGesture {
@@ -63,7 +63,7 @@ struct ChartDetailView: View {
     func updateValueElements(valueElements: [ValueElement]) {
         self.valueElements.removeAll()
         self.valueElements = valueElements
-        let fieldEvent = FieldChangeEvent(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId, updateValue: .valueElementArray(valueElements))
+        let fieldEvent = FieldChangeData(fieldID: chartDataModel.fieldId!, pageID: chartDataModel.pageId, fileID: chartDataModel.fileId, updateValue: .valueElementArray(valueElements))
         chartDataModel.documentEditor?.onChange(event: fieldEvent)
     }
 }

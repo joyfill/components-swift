@@ -34,7 +34,7 @@ struct MultiLineTextView: View {
                         multiLineDataModel.eventHandler.onFocus(event: fieldEvent)
                     } else {
                         let newValue = ValueUnion.string(multilineText)
-                        let fieldEvent = FieldChangeEvent(fieldID: multiLineDataModel.fieldId, pageID: multiLineDataModel.pageId, fileID: multiLineDataModel.fileId, updateValue: newValue)
+                        let fieldEvent = FieldChangeData(fieldID: multiLineDataModel.fieldId, pageID: multiLineDataModel.pageId, fileID: multiLineDataModel.fileId, updateValue: newValue)
                         multiLineDataModel.eventHandler.onChange(event: fieldEvent)
                     }
                 }
