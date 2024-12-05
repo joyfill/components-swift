@@ -108,7 +108,7 @@ class TableViewModel: ObservableObject {
 
     func moveDown() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        tableDataModel.documentEditor?.moveDown(rowID: tableDataModel.selectedRows.first!, tableDataModel: tableDataModel)
+        tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
         updateUI()
     }
 
