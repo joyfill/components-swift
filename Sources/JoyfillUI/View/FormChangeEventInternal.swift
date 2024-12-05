@@ -8,9 +8,7 @@
 import JoyfillModel
 
 struct FieldChangeData {
-    let fieldID: String
-    var pageID: String?
-    var fileID: String?
+    var fieldIdentifier: FieldIdentifier
     var updateValue: ValueUnion?
     var chartData: ChartData?
 }
