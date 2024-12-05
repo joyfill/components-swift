@@ -36,10 +36,6 @@ struct TableModalView : View {
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
         })
-        .onAppear(perform: {
-            let fieldEvent = FieldEvent(fieldID: viewModel.tableDataModel.fieldId, pageID: viewModel.tableDataModel.pageId, fileID: viewModel.tableDataModel.fileId)
-            viewModel.tableDataModel.documentEditor?.onFocus(event: fieldEvent)
-        })
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
             filterRowsIfNeeded()
             sortRowsIfNeeded()

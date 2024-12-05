@@ -333,6 +333,7 @@ struct FormView: View {
         }
         .listStyle(PlainListStyle())
         .modifier(KeyboardDismissModifier())
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
             guard lastFocusedFielsID != newValue else { return }
@@ -340,8 +341,7 @@ struct FormView: View {
                 let fieldEvent = FieldEvent(fieldID: lastFocusedFielsID!)
                 documentEditor.onBlur(event: fieldEvent)
             }
-            let fieldEvent = FieldEvent(fieldID: newValue)
-            documentEditor.onFocus(event: fieldEvent)
+            lastFocusedFielsID = currentFocusedFielsID
         }
     }
 }
@@ -362,14 +362,16 @@ struct KeyboardDismissModifier: ViewModifier {
 extension FormView: FieldChangeEvents {
 
     func onChange(event: FieldChangeEvent) {
-        updateFocusedField(event: event)
         documentEditor.onChange(event: event)
     }
 
     func onFocus(event: FieldEvent) {
-        lastFocusedFielsID = currentFocusedFielsID
         currentFocusedFielsID = event.fieldID
-        documentEditor.onFocus(event: event)
+        if lastFocusedFielsID == currentFocusedFielsID {
+            return
+        } else {
+            documentEditor.onFocus(event: event)
+        }
     }
 
     func onUpload(event: UploadEvent) {
