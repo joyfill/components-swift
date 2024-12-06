@@ -142,7 +142,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder?.append(id)
         for filterModel in filterModels {
-            cellDidChange(rowId: id, colIndex: filterModel.colIndex, editedCellId: filterModel.colID, value: filterModel.filterText, fieldId: fieldId)
+            cellDidChange(rowId: id, editedCellId: filterModel.colID, value: filterModel.filterText, fieldId: fieldId)
         }
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
@@ -167,7 +167,7 @@ extension DocumentEditor {
         }
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String, fieldId: String) {
+    func cellDidChange(rowId: String, editedCellId: String, value: String, fieldId: String) {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
             return
         }

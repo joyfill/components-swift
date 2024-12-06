@@ -143,7 +143,7 @@ class TableViewModel: ObservableObject {
         for row in tableDataModel.selectedRows {
             for colIndex in changes.keys {
                 if let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
-                    tableDataModel.documentEditor?.cellDidChange(rowId: row, colIndex: colIndex, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldIdentifier.fieldID)
+                    tableDataModel.documentEditor?.cellDidChange(rowId: row, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldIdentifier.fieldID)
                 }
             }
         }
