@@ -97,25 +97,6 @@ struct PageView: View {
     var body: some View {
         FormView(listModels: $page.fields, documentEditor: documentEditor)
     }
-
-    func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
-        let sortedFieldPositions =
-        fieldPositions
-            .sorted { fp1, fp2 in
-                if let y2 = fp2.y, let y1 = fp1.y {
-                    return Int(y1) < Int(y2)
-                }
-                return true
-            }
-
-        var resultFieldPositions =  [FieldPosition]()
-        for fp in sortedFieldPositions {
-            if !resultFieldPositions.contains(where: { $0.field == fp.field }) {
-                resultFieldPositions.append(fp)
-            }
-        }
-        return resultFieldPositions
-    }
 }
 
 enum FieldListModelType {
@@ -142,7 +123,6 @@ struct FormView: View {
 
     @ViewBuilder
     fileprivate func fieldView(listModel: FieldListModel) -> some View {
-        let fieldPosition: FieldPosition = documentEditor.fieldPosition(fieldID: listModel.fieldIdentifier.fieldID)!
         switch listModel.model {
         case .text(let model):
             TextView(textDataModel: model, eventHandler: self)
