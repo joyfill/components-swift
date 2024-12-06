@@ -33,7 +33,7 @@ public class DocumentEditor: ObservableObject {
         self.document = document
         self.mode = mode
         self.showPageNavigationView = navigation
-        self.currentPageID = ((pageID == nil || pageID!.isEmpty) ? document.pagesForCurrentView.first?.id : "") ?? ""
+        self.currentPageID = ((pageID == nil || pageID!.isEmpty) ? document.pagesForCurrentView.first?.id : pageID) ?? ""
         self.events = events
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
