@@ -116,25 +116,11 @@ struct ImageView: View {
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
-            let convertedElements = newValue.map { convertToValueElement($0) }
+            let convertedElements = newValue.map { $0.toValueElement() }
             let newImageValue = ValueUnion.valueElementArray(convertedElements)
             let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
             imageDataModel.eventHandler.onChange(event: fieldEvent)
         }
-    }
-    
-    private func convertToValueElement(_ local: ValueElementLocal) -> ValueElement {
-        var valueElement = ValueElement(
-            id: local.id,
-            deleted: local.deleted ?? false,
-            description: local.description ?? "",
-            title: local.title ?? "",
-            points: local.points
-        )
-        valueElement.fileName = local.fileName ?? ""
-        valueElement.filePath = local.filePath ?? ""
-        valueElement.url = local.url ?? ""
-        return valueElement
     }
     
     func fetchImages() {
