@@ -32,7 +32,7 @@ extension DocumentEditor {
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
 
-    public func duplicateRows(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
@@ -40,7 +40,7 @@ extension DocumentEditor {
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
 
-        selectedRows.forEach { rowID in
+        rowIDs.forEach { rowID in
             var element = elements.first(where: { $0.id == rowID })!
             let newRowID = generateObjectId()
             element.id = newRowID
