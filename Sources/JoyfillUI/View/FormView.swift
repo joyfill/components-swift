@@ -120,7 +120,6 @@ struct PageView: View {
 
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
-    @State var mode: Mode = .fill
     @State var currentFocusedFielsID: String = ""
     @State var lastFocusedFielsID: String? = nil
     let documentEditor: DocumentEditor
@@ -131,7 +130,7 @@ struct FormView: View {
 
         let fieldData = documentEditor.field(fieldID: listModel.fieldIdentifier.fieldID)
 
-        let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+        let fieldEditMode: Mode = ((fieldData?.disabled == true) || (documentEditor.mode == .readonly) ? .readonly : .fill)
 
         var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
 
