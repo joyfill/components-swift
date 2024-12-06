@@ -2,51 +2,42 @@ import SwiftUI
 import JoyfillModel
 
 public struct Form: View {
-    let currentPageID: String
     let mode: Mode
-
     let documentEditor: DocumentEditor
     private var navigation: Bool
-    public var events: FormChangeEvent?
 
     @available(*, deprecated, message: "Use init(documentEditor:mode:events:pageID:navigation:) instead")
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
-        self.events = events
         self.mode = mode
         var pageId = pageID
-        let documentEditor = DocumentEditor(document: document.wrappedValue, events: events)
-        currentPageID = ((pageID == nil || pageID!.isEmpty) ? documentEditor.firstPageId : "") ?? ""
+        let documentEditor = DocumentEditor(document: document.wrappedValue, events: events, pageID: pageID)
         self.navigation = navigation
         self.documentEditor = documentEditor
     }
 
-    public init(documentEditor: DocumentEditor, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
-        self.events = events
+    public init(documentEditor: DocumentEditor, mode: Mode = .fill, pageID: String?, navigation: Bool = true) {
         self.mode = mode
-        currentPageID = ((pageID == nil || pageID!.isEmpty) ? documentEditor.firstPageId : "") ?? ""
         self.navigation = navigation
         self.documentEditor = documentEditor
     }
 
     public var body: some View {
-        FilesView(currentPageID: currentPageID, documentEditor: documentEditor, files: documentEditor.files, mode: mode, showPageNavigationView: navigation)
+        FilesView(documentEditor: documentEditor, files: documentEditor.files, mode: mode, showPageNavigationView: navigation)
     }
 }
 
 struct FilesView: View {
-    let currentPageID: String
     let documentEditor: DocumentEditor
     let files: [File]
     let mode: Mode
     var showPageNavigationView: Bool
 
     var body: some View {
-        FileView(currentPageID: currentPageID, file: files.first, mode: mode, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+        FileView(file: files.first, mode: mode, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
     }
 }
 
 struct FileView: View {
-    let currentPageID: String
     let file: File?
     let mode: Mode
     var showPageNavigationView: Bool
@@ -54,14 +45,13 @@ struct FileView: View {
 
     var body: some View {
         if let file = file {
-            PagesView(currentPageID: currentPageID, pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, mode: mode, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+            PagesView(pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, mode: mode, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
         }
     }
 }
 
 struct PagesView: View {
     @State private var isSheetPresented = false
-    @State var currentPageID: String
     let pageOrder: [String]?
     @Binding var pageFieldModels: [String: PageModel]
     let mode: Mode
@@ -69,14 +59,12 @@ struct PagesView: View {
     @ObservedObject var documentEditor: DocumentEditor
 
     init(isSheetPresented: Bool = false,
-         currentPageID: String,
          pageOrder: [String]?,
          pageFieldModels: Binding<[String : PageModel]>,
          mode: Mode,
          showPageNavigationView: Bool,
          documentEditor: DocumentEditor) {
         self.isSheetPresented = isSheetPresented
-        self.currentPageID = currentPageID
         self.pageOrder = pageOrder
         _pageFieldModels = pageFieldModels
         self.mode = mode
@@ -92,7 +80,7 @@ struct PagesView: View {
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
-                        Text(documentEditor.firstValidPageFor(currentPageID: currentPageID)?.name ?? "")
+                        Text(documentEditor.firstValidPageFor(currentPageID: documentEditor.currentPageID)?.name ?? "")
                     }
                 })
                 .accessibilityIdentifier("PageNavigationIdentifier")
@@ -100,19 +88,19 @@ struct PagesView: View {
                 .padding(.leading, 16)
                 .sheet(isPresented: $isSheetPresented) {
                     if #available(iOS 16, *) {
-                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
+                        PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
                             .presentationDetents([.medium])
                     } else {
-                        PageDuplicateListView(currentPageID: $currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
+                        PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
                     }
                 }
             }
 
             let pageBinding = Binding(
                 get: {
-                    pageFieldModels[currentPageID] ?? pageFieldModels.first!.value
+                    pageFieldModels[documentEditor.currentPageID] ?? pageFieldModels.first!.value
                 }, set: {
-                    pageFieldModels[currentPageID] = $0
+                    pageFieldModels[documentEditor.currentPageID] = $0
                 })
             PageView(page: pageBinding, mode: mode, documentEditor: documentEditor)
         }

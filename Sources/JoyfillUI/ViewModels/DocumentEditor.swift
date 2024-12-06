@@ -10,6 +10,7 @@ import JoyfillModel
 
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
+    @Published public var currentPageID: String
 
     var fieldMap = [String: JoyDocField]() {
         didSet {
@@ -25,8 +26,9 @@ public class DocumentEditor: ObservableObject {
     private var validationHandler: ValidationHandler!
     private var conditionalLogicHandler: ConditionalLogicHandler!
 
-    public init(document: JoyDoc, events: FormChangeEvent?) {
+    public init(document: JoyDoc, events: FormChangeEvent?, pageID: String? = nil) {
         self.document = document
+        self.currentPageID = ((pageID == nil || pageID!.isEmpty) ? document.pagesForCurrentView.first?.id : "") ?? ""
         self.events = events
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
@@ -77,23 +79,6 @@ public class DocumentEditor: ObservableObject {
         refreshFields.forEach(refreshField(fieldId:))
     }
 
-    func updateField(event: FieldChangeData) {
-        if var field = field(fieldID: event.fieldIdentifier.fieldID) {
-            field.value = event.updateValue
-            if let chartData = event.chartData {
-                field.xMin = chartData.xMin
-                field.yMin = chartData.yMin
-                field.xMax = chartData.xMax
-                field.yMax = chartData.yMax
-                field.xTitle = chartData.xTitle
-                field.yTitle = chartData.yTitle
-            }
-            updatefield(field: field)
-            document.fields = allFields
-            refreshField(fieldId: event.fieldIdentifier.fieldID)
-            refreshDependent(for: event.fieldIdentifier.fieldID)
-        }
-    }
 }
 
 extension DocumentEditor {
@@ -166,12 +151,29 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
+    func updateField(event: FieldChangeData) {
+        if var field = field(fieldID: event.fieldIdentifier.fieldID) {
+            field.value = event.updateValue
+            if let chartData = event.chartData {
+                field.xMin = chartData.xMin
+                field.yMin = chartData.yMin
+                field.xMax = chartData.xMax
+                field.yMax = chartData.yMax
+                field.xTitle = chartData.xTitle
+                field.yTitle = chartData.yTitle
+            }
+            updatefield(field: field)
+            document.fields = allFields
+            refreshField(fieldId: event.fieldIdentifier.fieldID)
+            refreshDependent(for: event.fieldIdentifier.fieldID)
+        }
+    }
 
-    func fieldIndexMapValue(pageID: String, index: Int) -> String {
+    private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
     }
 
-    func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+    private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
             guard let y1 = fp1.y, let y2 = fp2.y else { return false }
             return Int(y1) < Int(y2)

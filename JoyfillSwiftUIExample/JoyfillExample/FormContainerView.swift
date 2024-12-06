@@ -20,7 +20,7 @@ struct FormContainerView: View {
 
     var body: some View {
         VStack {
-            Form(documentEditor: documentEditor, mode: .fill, events: changeManager, pageID: pageID)
+            Form(documentEditor: documentEditor, mode: .fill, pageID: pageID)
             SaveButtonView(changeManager: changeManager, documentEditor: documentEditor)
         }
     }
