@@ -7,7 +7,7 @@
 
 import JoyfillModel
 
-struct FieldChangeData {
+public struct FieldChangeData {
     var fieldIdentifier: FieldIdentifier
     var updateValue: ValueUnion?
     var chartData: ChartData?

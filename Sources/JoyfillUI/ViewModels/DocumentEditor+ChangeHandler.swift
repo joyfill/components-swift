@@ -9,7 +9,7 @@ import JoyfillModel
 import Foundation
 
 extension DocumentEditor {
-    func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
+    public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
         guard !rowIDs.isEmpty else {
             return
         }
@@ -32,7 +32,7 @@ extension DocumentEditor {
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
 
-    func duplicateRows(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func duplicateRows(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
@@ -57,7 +57,7 @@ extension DocumentEditor {
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
 
-    func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier) {
+    public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
@@ -76,7 +76,7 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
-    func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier) {
+    public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
@@ -95,7 +95,7 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
-    func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) {
+    public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
 
@@ -108,7 +108,7 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
-    func insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
@@ -133,7 +133,7 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
-    func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) {
+    public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return
         }
@@ -158,7 +158,7 @@ extension DocumentEditor {
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
     }
 
-    func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return
         }
@@ -197,7 +197,7 @@ extension DocumentEditor {
         }
     }
 
-    func onChange(fieldIdentifier: FieldIdentifier) {
+    public func onChange(fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
@@ -205,7 +205,7 @@ extension DocumentEditor {
         refreshField(fieldId: fieldIdentifier.fieldID)
     }
 
-    func onChange(event: FieldChangeData) {
+    public func onChange(event: FieldChangeData) {
         var currentField = field(fieldID: event.fieldIdentifier.fieldID)!
         guard currentField.value != event.updateValue || event.chartData != nil else { return }
         guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else { return }
