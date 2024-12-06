@@ -4,8 +4,11 @@ import JoyfillModel
 struct DisplayTextView: View {
     private var displayText: String = ""
     private var displayTextDataModel: DisplayTextDataModel
-    
-    public init(displayTextDataModel: DisplayTextDataModel) {
+
+    let eventHandler: FieldChangeEvents
+
+    public init(displayTextDataModel: DisplayTextDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.displayTextDataModel = displayTextDataModel
         self.displayText = displayTextDataModel.displayText ?? ""
     }

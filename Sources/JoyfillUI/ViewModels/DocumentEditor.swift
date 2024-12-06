@@ -51,16 +51,138 @@ public class DocumentEditor: ObservableObject {
             var fieldListModels = [FieldListModel]()
 
             let fieldPositions = mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
-            for fieldPostion in fieldPositions {
-                let fieldIdentifier = FieldIdentifier(fieldID: fieldPostion.field!, pageID: pageID, fileID: fileID)
-                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, refreshID: UUID()))
+            for fieldPosition in fieldPositions {
+                let fieldData = fieldMap[fieldPosition.field!]
+                let fieldIdentifier = FieldIdentifier(fieldID: fieldPosition.field!, pageID: pageID, fileID: fileID)
+                var dataModelType: FieldListModelType = .none
+                let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+
+                var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+
+                switch fieldPosition.type {
+                case .text:
+                    let model = TextDataModel(fieldIdentifier: fieldIdentifier,
+                                              text: fieldData?.value?.text ?? "",
+                                              mode: fieldEditMode,
+                                              fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .text(model)
+                case .block:
+                    let model = DisplayTextDataModel(displayText: fieldData?.value?.text,
+                                                     fontWeight: fieldPosition.fontWeight,
+                                                     fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .block(model)
+                case .multiSelect:
+                    let model = MultiSelectionDataModel(fieldIdentifier: fieldIdentifier,
+                                                        multi: fieldData?.multi,
+                                                        options: fieldData?.options,
+                                                        multiSelector: fieldData?.value?.multiSelector,
+                                                        fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .multiSelect(model)
+                case .dropdown:
+                    let model = DropdownDataModel(fieldIdentifier: fieldIdentifier,
+                                                  dropdownValue: fieldData?.value?.dropdownValue,
+                                                  options: fieldData?.options,
+                                                  fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .dropdown(model)
+                case .textarea:
+                    let model = MultiLineDataModel(fieldIdentifier: fieldIdentifier,
+                                                   multilineText: fieldData?.value?.multilineText,
+                                                   mode: fieldEditMode,
+                                                   fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .textarea(model)
+                case .date:
+                    let model = DateTimeDataModel(fieldIdentifier: fieldIdentifier,
+                                                  value: fieldData?.value,
+                                                  format: fieldPosition.format,
+                                                  fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .date(model)
+                case .signature:
+                    let model = SignatureDataModel(fieldIdentifier: fieldIdentifier,
+                                                   signatureURL: fieldData?.value?.signatureURL ?? "",
+                                                   fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .signature(model)
+                case .number:
+                    let model = NumberDataModel(fieldIdentifier: fieldIdentifier,
+                                                number: fieldData?.value?.number,
+                                                mode: fieldEditMode,
+                                                fieldHeaderModel: fieldHeaderModel)
+                  
+                    dataModelType = .number(model)
+                case .chart:
+                    let model = ChartDataModel(fieldIdentifier: fieldIdentifier,
+                                               valueElements: fieldData?.value?.valueElements,
+                                               yTitle: fieldData?.yTitle,
+                                               yMax: fieldData?.yMax,
+                                               yMin: fieldData?.yMin,
+                                               xTitle: fieldData?.xTitle,
+                                               xMax: fieldData?.xMax,
+                                               xMin: fieldData?.xMin,
+                                               mode: fieldEditMode,
+                                               documentEditor: self,
+                                               fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .chart(model)
+                case .richText:
+                    let model = RichTextDataModel(text: fieldData?.value?.text,
+                                                  fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .richText(model)
+                case .table:
+                    let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
+                                               mode: fieldEditMode,
+                                               documentEditor: self,
+                                               fieldIdentifier: fieldIdentifier)
+                    dataModelType = .table(model)
+                case .image:
+                    let model = ImageDataModel(fieldIdentifier: fieldIdentifier,
+                                               multi: fieldData?.multi,
+                                               primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
+                                               valueElements: fieldData?.value?.valueElements?.map { element in
+                                                           ValueElementLocal(
+                                                               id: element.id ?? "",
+                                                               url: element.url,
+                                                               fileName: element.fileName,
+                                                               filePath: element.filePath,
+                                                               deleted: element.deleted,
+                                                               title: element.title,
+                                                               description: element.description,
+                                                               points: element.points,
+                                                               cells: element.cells?.mapValues { convertToValueUnionLocal($0) }
+                                                           )
+                                                       },
+                                               mode: fieldEditMode,
+                                               fieldHeaderModel: fieldHeaderModel)
+                    dataModelType = .image(model)
+                case .none:
+                    dataModelType = .none
+                case .some(.unknown):
+                    dataModelType = .none
+                }
+                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, refreshID: UUID(), fieldEditMode: fieldEditMode, model: dataModelType))
                 let index = fieldListModels.count - 1
-                fieldIndexMap[fieldPostion.field!] = fieldIndexMapValue(pageID: pageID, index: index)
+                fieldIndexMap[fieldPosition.field!] = fieldIndexMapValue(pageID: pageID, index: index)
             }
             pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+    }
+
+    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
+        switch valueUnion {
+        case .double(let value):
+            return .double(value)
+        case .string(let value):
+            return .string(value)
+        case .array(let value):
+            return .array(value)
+        case .valueElementArray(let elements):
+            return .valueElementArray(elements.map { $0.toLocal() })
+        case .bool(let value):
+            return .bool(value)
+        case .null:
+            return .null
+        case .dictionary(_):
+            return .null
+        }
     }
 
     public func validate() -> Validation {

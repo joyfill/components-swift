@@ -4,9 +4,11 @@ import JoyfillModel
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
     private var multiLineDataModel: MultiLineDataModel
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(multiLineDataModel: MultiLineDataModel) {
+    @FocusState private var isFocused: Bool 
+    let eventHandler: FieldChangeEvents
+
+    public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.multiLineDataModel = multiLineDataModel
         if let multilineText = multiLineDataModel.multilineText {
             _multilineText = State(initialValue: multilineText)
@@ -30,11 +32,11 @@ struct MultiLineTextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        multiLineDataModel.eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
+                        eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
                     } else {
                         let newValue = ValueUnion.string(multilineText)
                         let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
-                        multiLineDataModel.eventHandler.onChange(event: fieldEvent)
+                        eventHandler.onChange(event: fieldEvent)
                     }
                 }
         }

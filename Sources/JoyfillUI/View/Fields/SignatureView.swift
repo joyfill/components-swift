@@ -13,8 +13,10 @@ struct SignatureView: View {
 
     private var signatureDataModel: SignatureDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(signatureDataModel: SignatureDataModel) {
+    let eventHandler: FieldChangeEvents
+
+    public init(signatureDataModel: SignatureDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.signatureDataModel = signatureDataModel
     }
     
@@ -34,7 +36,7 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
-                signatureDataModel.eventHandler.onFocus(event: signatureDataModel.fieldIdentifier)
+                eventHandler.onFocus(event: signatureDataModel.fieldIdentifier)
             }, label: {
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .darkLightThemeColor()
@@ -75,7 +77,7 @@ struct SignatureView: View {
                 let newSignatureImageValue = ValueUnion.string(url ?? "")
                 DispatchQueue.main.async {
                     let fieldEvent = FieldChangeData(fieldIdentifier: signatureDataModel.fieldIdentifier, updateValue: newSignatureImageValue)
-                    signatureDataModel.eventHandler.onChange(event: fieldEvent)
+                    eventHandler.onChange(event: fieldEvent)
                 }
             }
         }

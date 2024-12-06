@@ -14,15 +14,16 @@ struct PageModel {
 }
 
 struct FieldListModel {
-    var fieldIdentifier: FieldIdentifier
+    let fieldIdentifier: FieldIdentifier
     var refreshID: UUID
+    let fieldEditMode: Mode
+    let model: FieldListModelType
 }
 
 struct TableDataModel {
     let supportedColumnTypes = ["text", "image", "dropdown"]
     let fieldHeaderModel: FieldHeaderModel?
     let mode: Mode
-    let eventHandler: FieldChangeEvents
     let documentEditor: DocumentEditor?
     var fieldIdentifier: FieldIdentifier
     let title: String?
@@ -44,14 +45,13 @@ struct TableDataModel {
     init(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
          documentEditor: DocumentEditor,
-         listModel: FieldListModel, eventHandler: FieldChangeEvents) {
-        let fieldData = documentEditor.field(fieldID: listModel.fieldIdentifier.fieldID)
+         fieldIdentifier: FieldIdentifier) {
+        let fieldData = documentEditor.field(fieldID: fieldIdentifier.fieldID)
         self.fieldHeaderModel = fieldHeaderModel
         self.mode = mode
         self.documentEditor = documentEditor
         self.title = fieldData?.title
-        self.fieldIdentifier = listModel.fieldIdentifier
-        self.eventHandler = eventHandler
+        self.fieldIdentifier = fieldIdentifier
 
         setupColumns()
         setup()
@@ -664,7 +664,6 @@ extension ValueUnionLocal {
     }
 }
 
-
 extension ValueElement {
     func toLocal() -> ValueElementLocal {
         var valueElements = ValueElementLocal(
@@ -733,7 +732,6 @@ struct ChartDataModel {
     var xMin: Double?
     var mode: Mode
     var documentEditor: DocumentEditor?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -741,7 +739,6 @@ struct DateTimeDataModel {
     var fieldIdentifier: FieldIdentifier
     var value: ValueUnion?
     var format: String?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -755,7 +752,6 @@ struct DropdownDataModel {
     var fieldIdentifier: FieldIdentifier
     var dropdownValue: String?
     var options: [Option]?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -765,7 +761,6 @@ struct ImageDataModel {
     var primaryDisplayOnly: Bool?
     var valueElements: [ValueElementLocal]?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -773,17 +768,14 @@ struct MultiLineDataModel {
     var fieldIdentifier: FieldIdentifier
     var multilineText: String?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct MultiSelectionDataModel {
     var fieldIdentifier: FieldIdentifier
-    var currentFocusedFieldsDataId: String?
     var multi: Bool?
     var options: [Option]?
     var multiSelector: [String]?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -791,20 +783,17 @@ struct NumberDataModel {
     var fieldIdentifier: FieldIdentifier
     var number: Double?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct RichTextDataModel {
     var text: String?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct SignatureDataModel {
     var fieldIdentifier: FieldIdentifier
     var signatureURL: String?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -812,6 +801,5 @@ struct TextDataModel {
     var fieldIdentifier: FieldIdentifier
     var text: String?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
