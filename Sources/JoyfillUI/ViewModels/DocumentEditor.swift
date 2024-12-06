@@ -79,11 +79,6 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(page: page)
     }
 
-    func refreshDependent(for fieldID: String) {
-        let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
-        refreshFields.forEach(refreshField(fieldId:))
-    }
-
 }
 
 extension DocumentEditor {
@@ -210,5 +205,10 @@ extension DocumentEditor {
 
     private func valueElements(fieldID: String) -> [ValueElement]? {
         return field(fieldID: fieldID)?.valueToValueElements
+    }
+
+    func refreshDependent(for fieldID: String) {
+        let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
+        refreshFields.forEach(refreshField(fieldId:))
     }
 }
