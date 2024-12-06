@@ -229,6 +229,6 @@ class ConditionalLogicHandler {
         guard let fieldID = fieldID else { return true }
         guard let field = documentEditor.field(fieldID: fieldID) else { return true }
         let model = conditionalLogicModel(field: field)
-        return shouldShowItem(model: model, lastHiddenState: field.hidden ?? true)
+        return shouldShowItem(model: model, lastHiddenState: field.hidden)
     }
 }
