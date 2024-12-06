@@ -167,6 +167,27 @@ extension DocumentEditor {
         }
     }
 
+    func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+            return
+        }
+        for rowId in selectedRows {
+            for editedCellId in changes.keys {
+                if let change = changes[editedCellId] {
+                    guard let index = elements.firstIndex(where: { $0.id == rowId }) else { return }
+                    if var cells = elements[index].cells {
+                        cells[editedCellId ?? ""] = ValueUnion.string(change)
+                        elements[index].cells = cells
+                    } else {
+                        elements[index].cells = [editedCellId ?? "" : ValueUnion.string(change)]
+                    }
+                }
+            }
+        }
+
+        fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+    }
+
     func cellDidChange(rowId: String, editedCellId: String, value: String, fieldId: String) {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
             return

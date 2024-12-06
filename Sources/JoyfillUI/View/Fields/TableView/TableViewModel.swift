@@ -140,13 +140,12 @@ class TableViewModel: ObservableObject {
     }
 
     func bulkEdit(changes: [Int: String]) {
-        for row in tableDataModel.selectedRows {
-            for colIndex in changes.keys {
-                if let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex), let change = changes[colIndex] {
-                    tableDataModel.documentEditor?.cellDidChange(rowId: row, editedCellId: editedCellId, value: change, fieldId: tableDataModel.fieldIdentifier.fieldID)
-                }
-            }
+        var columnIDChanges = [String: String]()
+        changes.forEach { (colIndex: Int, value: String) in
+            guard let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+            columnIDChanges[editedCellId] = value
         }
+        tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         //Update local model with new bulk edit changes
 //        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID!)?.valueToValueElements
         tableDataModel.emptySelection()
