@@ -133,8 +133,8 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
-    func addRowWithFilter(id: String, filterModels: [FilterModel], tableDataModel: TableDataModel) {
-        let fieldId = tableDataModel.fieldIdentifier.fieldID
+    func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) {
+        let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
@@ -145,7 +145,7 @@ extension DocumentEditor {
             cellDidChange(rowId: id, colIndex: filterModel.colIndex, editedCellId: filterModel.colID, value: filterModel.filterText, fieldId: fieldId)
         }
 
-        let changeEvent = FieldChangeData(fieldIdentifier: tableDataModel.fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
     }
 

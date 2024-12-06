@@ -124,7 +124,7 @@ class TableViewModel: ObservableObject {
         if tableDataModel.filterModels.noFilterApplied {
             tableDataModel.documentEditor?.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
         } else {
-            tableDataModel.documentEditor?.addRowWithFilter(id: id, filterModels: tableDataModel.filterModels, tableDataModel: tableDataModel)
+            tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier)
         }
         
         updateUI()
