@@ -4,9 +4,9 @@ import JoyfillModel
 public struct Form: View {
     let documentEditor: DocumentEditor
 
-    @available(*, deprecated, message: "Use init(documentEditor:mode:events:pageID:navigation:) instead")
+    @available(*, deprecated, message: "Use init(documentEditor:) instead")
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
-        let documentEditor = DocumentEditor(document: document.wrappedValue, events: events, pageID: pageID)
+        let documentEditor = DocumentEditor(document: document.wrappedValue, mode: mode, events: events, pageID: pageID, navigation: navigation)
         self.documentEditor = documentEditor
     }
 
