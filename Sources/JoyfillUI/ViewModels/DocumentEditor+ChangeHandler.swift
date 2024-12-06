@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Vishnu Dutt on 05/12/24.
 //
@@ -9,6 +9,10 @@ import JoyfillModel
 import Foundation
 
 extension DocumentEditor {
+    /// Deletes specified rows from a table field.
+    /// - Parameters:
+    ///   - rowIDs: An array of String identifiers for the rows to be deleted.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
         guard !rowIDs.isEmpty else {
             return
@@ -32,6 +36,10 @@ extension DocumentEditor {
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
 
+    /// Duplicates specified rows in a table field.
+    /// - Parameters:
+    ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -57,6 +65,10 @@ extension DocumentEditor {
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
 
+    /// Moves a specified row up in a table field.
+    /// - Parameters:
+    ///   - rowID: The String identifier of the row to be moved up.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -76,6 +88,10 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
+    /// Moves a specified row down in a table field.
+    /// - Parameters:
+    ///   - rowID: The String identifier of the row to be moved down.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -95,6 +111,10 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
+    /// Inserts a new row at the end of a table field.
+    /// - Parameters:
+    ///   - id: The String identifier for the new row.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
@@ -108,6 +128,10 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
+    /// Inserts new rows below specified rows in a table field.
+    /// - Parameters:
+    ///   - selectedRows: An array of String identifiers for the rows below which new rows will be inserted.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -133,6 +157,11 @@ extension DocumentEditor {
         refreshField(fieldId: fieldId)
     }
 
+    /// Inserts a new row with specified filter conditions in a table field.
+    /// - Parameters:
+    ///   - id: The String identifier for the new row.
+    ///   - filterModels: An array of `FilterModel` objects specifying the filter conditions.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return
@@ -158,6 +187,11 @@ extension DocumentEditor {
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
     }
 
+    /// Performs bulk editing on specified rows in a table field.
+    /// - Parameters:
+    ///   - changes: A dictionary of String keys and values representing the changes to be made.
+    ///   - selectedRows: An array of String identifiers for the rows to be edited.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return
@@ -197,6 +231,8 @@ extension DocumentEditor {
         }
     }
 
+    /// Handles changes in a specific field.
+    /// - Parameter fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the changed field.
     public func onChange(fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
@@ -205,6 +241,8 @@ extension DocumentEditor {
         refreshField(fieldId: fieldIdentifier.fieldID)
     }
 
+    /// Handles changes based on a `FieldChangeData` event.
+    /// - Parameter event: A `FieldChangeData` object representing the change event.
     public func onChange(event: FieldChangeData) {
         var currentField = field(fieldID: event.fieldIdentifier.fieldID)!
         guard currentField.value != event.updateValue || event.chartData != nil else { return }
@@ -226,7 +264,6 @@ extension DocumentEditor {
         events?.onUpload(event: event)
     }
 }
-
 
 extension DocumentEditor {
     private func addRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {
