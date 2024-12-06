@@ -20,9 +20,7 @@ class ValidationHandler {
         var isValid = true
         let fieldPositionIDs = documentEditor.allFieldPositions.map {  $0.field }
         for field in documentEditor.allFields.filter { fieldPositionIDs.contains($0.id) } {
-            if documentEditor.shouldShow(fieldID: field.id) {
-                fieldValidations.append(FieldValidation(field: field, status: .valid))
-                continue
+            if !documentEditor.shouldShow(fieldID: field.id) {
                 fieldValidations.append(FieldValidation(field: field, status: .valid))
                 continue
             }
