@@ -134,37 +134,28 @@ extension DocumentEditor {
     }
 
     func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) {
-        let fieldId = fieldIdentifier.fieldID
-        var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
+        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+            return
+        }
 
         var newRow = ValueElement(id: id)
         elements.append(newRow)
-        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        fieldMap[fieldId]?.rowOrder?.append(id)
+
         for filterModel in filterModels {
-            cellDidChange(rowId: id, editedCellId: filterModel.colID, value: filterModel.filterText, fieldId: fieldId)
+            let change = filterModel.filterText
+            guard let index = elements.firstIndex(where: { $0.id == id }) else { return }
+            if var cells = elements[index].cells {
+                cells[filterModel.colID ?? ""] = ValueUnion.string(change)
+                elements[index].cells = cells
+            } else {
+                elements[index].cells = [filterModel.colID ?? "" : ValueUnion.string(change)]
+            }
         }
 
+        fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
-    }
-
-    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal, fieldId: String) {
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
-            return
-        }
-
-        switch editedCell.type {
-        case "text":
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.title ?? ""), fieldId: fieldId)
-        case "dropdown":
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
-        case "image":
-            let convertedImages = editedCell.valueElements?.map { $0.toValueElement() } ?? []
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
-        default:
-            return
-        }
     }
 
     func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
@@ -188,12 +179,22 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
     }
 
-    func cellDidChange(rowId: String, editedCellId: String, value: String, fieldId: String) {
+    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal, fieldId: String) {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
             return
         }
 
-        changeCell(elements: elements, index: index, editedCellId: editedCellId, newCell: ValueUnion.string(value), fieldId: fieldId)
+        switch editedCell.type {
+        case "text":
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.title ?? ""), fieldId: fieldId)
+        case "dropdown":
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
+        case "image":
+            let convertedImages = editedCell.valueElements?.map { $0.toValueElement() } ?? []
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
+        default:
+            return
+        }
     }
 
     func onChange(fieldIdentifier: FieldIdentifier) {
