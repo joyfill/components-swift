@@ -93,13 +93,9 @@ class ConditionalLogicHandler {
     }
 
     private func shouldShowItem(model: ConditionalLogicModel?, lastHiddenState: Bool?) -> Bool {
-        guard let model = model else {
+        guard let model = model, model.itemCount > 1, let logic = model.logic else {
             return !(lastHiddenState ?? false)
         }
-        guard model.itemCount > 1 else {
-            return !(lastHiddenState ?? false)
-        }
-        guard let logic = model.logic else { return !(lastHiddenState ?? false) }
 
         if let hidden = lastHiddenState {
             //Hidden is not nil
