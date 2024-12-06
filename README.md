@@ -48,12 +48,18 @@ import Joyfill
 import JoyfillModel
 
 struct FormContainerView: View {
-    @Binding var document: JoyDoc
-    let pageID: String
-    private let changeManager: FormChangeEvent = ChangeManager()
-    
+    let documentEditor: DocumentEditor
+    let changeManager: ChangeManager
+
+    init(document: JoyDoc, pageID: String, changeManager: ChangeManager) {
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true)
+        self.changeManager = changeManager
+    }
+
     var body: some View {
-      Form(document: $document, mode: .fill, events: changeManager, pageID: pageID)
+        VStack {
+            Form(documentEditor: documentEditor)
+        }
     }
 }
 ```
@@ -78,8 +84,25 @@ for fieldResult in result.fieldValidations {
 
 ```
 
-### `JoyFillView`
+### `DocumentEditor`
+The DocumentEditor is a key component of the Joyfill SDK, offering features such as document editing, conditional logic, validation, page navigation, and field event handling. It provides easy to use functions to access and modify documents seamlessly. Additionally, any document updates made using the helper functions in the DocumentEditor automatically trigger change events.
 
+Below is an overview of its key components and usage:
+
+```swift
+import Joyfill
+import JoyfillModel
+
+let documentEditor = DocumentEditor(
+    document: myDocument, // Your JoyDoc instance
+    mode: .fill,          // The editor mode (fill or readonly)
+    events: myChangeManager, // Custom FormChangeEvent instance
+    pageID: "your_page_ID",     // Optional: Page ID to start with
+    navigation: true      // Whether to show the page navigation view
+)
+
+```
+## `Params`
 * `mode: 'fill' | 'readonly'`
   * Enables and disables certain JoyDoc functionality and features. 
   * Default is `fill`.
@@ -97,6 +120,34 @@ for fieldResult in result.fieldValidations {
 
 * `events: FormChangeEvent`
   * Used to listen to form events.
+  
+## `Properties`
+* `currentPageID: String`
+  * Represents the unique identifier of the current page being displayed.
+  * Changing this value will update the displayed page in the document.
+  
+```swift
+  // Example of changing the current page
+documentEditor.currentPageID = "newPageID"
+
+```
+
+## `Functions`
+### `validate() -> Validation`
+* Validates the current document and returns a Validation object.
+* Usage: `let validationResult = documentEditor.validate()`
+
+### `shouldShow(fieldID: String?) -> Bool`
+* Determines if a field should be shown based on conditional logic.
+* Usage: `let isFieldVisible = documentEditor.shouldShow(fieldID: "someFieldID")`
+
+### `shouldShow(pageID: String?) -> Bool`
+* Determines if a page should be shown based on conditional logic.
+* Usage: `let isPageVisible = documentEditor.shouldShow(pageID: "somePageID")`
+
+### `shouldShow(page: Page?) -> Bool`
+* Determines if a given Page object should be shown based on conditional logic.
+* Usage: `let isPageVisible = documentEditor.shouldShow(page: somePage)`
 
 ### FormChangeEvent Params
 * `onChange: (changelogs: object_array, doc: object) => {}` 
