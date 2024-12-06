@@ -48,7 +48,7 @@ class ConditionalLogicHandler {
     func shouldShow(page: Page?) -> Bool {
         guard let page = page else { return true }
         let model = conditionalLogicModel(page: page)
-        return shouldShowItem(model: model)
+        return shouldShowItem(model: model, lastHiddenState: page.hidden)
     }
 
     private func conditionalLogicModel(page: Page?) -> ConditionalLogicModel? {
@@ -92,16 +92,16 @@ class ConditionalLogicHandler {
         return fields.flatMap(conditionalLogicModel)
     }
 
-    private func shouldShowItem(model: ConditionalLogicModel?) -> Bool {
+    private func shouldShowItem(model: ConditionalLogicModel?, lastHiddenState: Bool?) -> Bool {
         guard let model = model else {
-            return true
+            return !(lastHiddenState ?? false)
         }
         guard model.itemCount > 1 else {
-            return true
+            return !(lastHiddenState ?? false)
         }
-        guard let logic = model.logic else { return !(model.isItemHidden ?? false) }
+        guard let logic = model.logic else { return !(lastHiddenState ?? false) }
 
-        if let hidden = model.isItemHidden {
+        if let hidden = lastHiddenState {
             //Hidden is not nil
             if hidden && logic.action == "show" {
                 //Hidden is true and action is show
@@ -227,11 +227,8 @@ class ConditionalLogicHandler {
 
     func shouldShowLocal(fieldID: String?) -> Bool {
         guard let fieldID = fieldID else { return true }
-        let model = conditionalLogicModel(field: documentEditor.field(fieldID: fieldID))
-        if let model {
-            return shouldShowItem(model: model)
-        } else {
-            return !(documentEditor.field(fieldID: fieldID)?.hidden ?? false)
-        }
+        guard let field = documentEditor.field(fieldID: fieldID) else { return true }
+        let model = conditionalLogicModel(field: field)
+        return shouldShowItem(model: model, lastHiddenState: field.hidden ?? true)
     }
 }
