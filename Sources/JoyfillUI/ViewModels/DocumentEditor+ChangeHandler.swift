@@ -175,12 +175,12 @@ extension DocumentEditor {
         changeCell(elements: elements, index: index, editedCellId: editedCellId, newCell: ValueUnion.string(value), fieldId: fieldId)
     }
 
-    func sendEventsIfNeeded(tableDataModel: TableDataModel) {
-        let fieldId = tableDataModel.fieldIdentifier.fieldID
-        let changeEvent = FieldChangeData(fieldIdentifier: tableDataModel.fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+    func onChange(fieldIdentifier: FieldIdentifier) {
+        let fieldId = fieldIdentifier.fieldID
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
-        refreshField(fieldId: tableDataModel.fieldIdentifier.fieldID)
+        refreshField(fieldId: fieldIdentifier.fieldID)
     }
 
     func onChange(event: FieldChangeData) {
