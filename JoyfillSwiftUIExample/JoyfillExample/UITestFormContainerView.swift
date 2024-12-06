@@ -19,7 +19,7 @@ struct UITestFormContainerView: View {
 
     var body: some View {
         VStack {
-            Form(documentEditor: documentEditor, pageID: pageID)
+            Form(documentEditor: documentEditor)
         }
     }
 }

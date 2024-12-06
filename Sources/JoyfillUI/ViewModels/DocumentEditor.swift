@@ -12,6 +12,9 @@ public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
 
+    public var mode: Mode
+    public var showPageNavigationView: Bool
+
     var fieldMap = [String: JoyDocField]() {
         didSet {
             document.fields = allFields
@@ -26,8 +29,10 @@ public class DocumentEditor: ObservableObject {
     private var validationHandler: ValidationHandler!
     private var conditionalLogicHandler: ConditionalLogicHandler!
 
-    public init(document: JoyDoc, events: FormChangeEvent?, pageID: String? = nil) {
+    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent?, pageID: String? = nil, navigation: Bool = true) {
         self.document = document
+        self.mode = mode
+        self.showPageNavigationView = navigation
         self.currentPageID = ((pageID == nil || pageID!.isEmpty) ? document.pagesForCurrentView.first?.id : "") ?? ""
         self.events = events
         document.fields.forEach { field in

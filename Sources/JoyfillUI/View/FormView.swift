@@ -2,50 +2,39 @@ import SwiftUI
 import JoyfillModel
 
 public struct Form: View {
-    let mode: Mode
     let documentEditor: DocumentEditor
-    private var navigation: Bool
 
     @available(*, deprecated, message: "Use init(documentEditor:mode:events:pageID:navigation:) instead")
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
-        self.mode = mode
-        var pageId = pageID
         let documentEditor = DocumentEditor(document: document.wrappedValue, events: events, pageID: pageID)
-        self.navigation = navigation
         self.documentEditor = documentEditor
     }
 
-    public init(documentEditor: DocumentEditor, mode: Mode = .fill, pageID: String?, navigation: Bool = true) {
-        self.mode = mode
-        self.navigation = navigation
+    public init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
     }
 
     public var body: some View {
-        FilesView(documentEditor: documentEditor, files: documentEditor.files, mode: mode, showPageNavigationView: navigation)
+        FilesView(documentEditor: documentEditor, files: documentEditor.files)
     }
 }
 
 struct FilesView: View {
     let documentEditor: DocumentEditor
     let files: [File]
-    let mode: Mode
-    var showPageNavigationView: Bool
 
     var body: some View {
-        FileView(file: files.first, mode: mode, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+        FileView(file: files.first, documentEditor: documentEditor)
     }
 }
 
 struct FileView: View {
     let file: File?
-    let mode: Mode
-    var showPageNavigationView: Bool
     @ObservedObject var documentEditor: DocumentEditor
 
     var body: some View {
         if let file = file {
-            PagesView(pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, mode: mode, showPageNavigationView: showPageNavigationView, documentEditor: documentEditor)
+            PagesView(pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, documentEditor: documentEditor)
         }
     }
 }
@@ -54,27 +43,21 @@ struct PagesView: View {
     @State private var isSheetPresented = false
     let pageOrder: [String]?
     @Binding var pageFieldModels: [String: PageModel]
-    let mode: Mode
-    var showPageNavigationView: Bool
     @ObservedObject var documentEditor: DocumentEditor
 
     init(isSheetPresented: Bool = false,
          pageOrder: [String]?,
          pageFieldModels: Binding<[String : PageModel]>,
-         mode: Mode,
-         showPageNavigationView: Bool,
          documentEditor: DocumentEditor) {
         self.isSheetPresented = isSheetPresented
         self.pageOrder = pageOrder
         _pageFieldModels = pageFieldModels
-        self.mode = mode
-        self.showPageNavigationView = showPageNavigationView
         self.documentEditor = documentEditor
     }
 
     var body: some View {
         VStack(alignment: .leading) {
-            if showPageNavigationView && pageFieldModels.count > 1 {
+            if documentEditor.showPageNavigationView && pageFieldModels.count > 1 {
                 Button(action: {
                     isSheetPresented = true
                 }, label: {
@@ -102,18 +85,17 @@ struct PagesView: View {
                 }, set: {
                     pageFieldModels[documentEditor.currentPageID] = $0
                 })
-            PageView(page: pageBinding, mode: mode, documentEditor: documentEditor)
+            PageView(page: pageBinding, documentEditor: documentEditor)
         }
     }
 }
 
 struct PageView: View {
     @Binding var page: PageModel
-    let mode: Mode
     var documentEditor: DocumentEditor
 
     var body: some View {
-        FormView(listModels: $page.fields, mode: mode, documentEditor: documentEditor)
+        FormView(listModels: $page.fields, documentEditor: documentEditor)
     }
 
     func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
