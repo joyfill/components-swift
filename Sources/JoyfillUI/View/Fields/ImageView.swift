@@ -21,8 +21,10 @@ struct ImageView: View {
     
     private let imageDataModel: ImageDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(imageDataModel: ImageDataModel) {
+    let eventHandler: FieldChangeEvents
+
+    public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.imageDataModel = imageDataModel
     }
         
@@ -48,7 +50,7 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                imageDataModel.eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
+                                eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
                                     Text("More > ")
@@ -69,7 +71,7 @@ struct ImageView: View {
             } else {
                 Button(action: {
                     uploadAction()
-                    imageDataModel.eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
+                    eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                 }, label: {
                     ZStack {
                         HStack(spacing: 8) {
@@ -119,7 +121,7 @@ struct ImageView: View {
             let convertedElements = newValue.map { $0.toValueElement() }
             let newImageValue = ValueUnion.valueElementArray(convertedElements)
             let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
-            imageDataModel.eventHandler.onChange(event: fieldEvent)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
     
@@ -156,7 +158,7 @@ struct ImageView: View {
                 })
             }
         }
-        imageDataModel.eventHandler.onUpload(event: uploadEvent)
+        eventHandler.onUpload(event: uploadEvent)
     }
 }
 struct MoreImageView: View {

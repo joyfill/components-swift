@@ -5,8 +5,11 @@ struct DropdownView: View {
     @State var selectedDropdownValueID: String?
     @State private var isSheetPresented = false
     private var dropdownDataModel: DropdownDataModel
-    
-    public init(dropdownDataModel: DropdownDataModel) {
+
+    let eventHandler: FieldChangeEvents
+
+    public init(dropdownDataModel: DropdownDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.dropdownDataModel = dropdownDataModel
         if let value = dropdownDataModel.dropdownValue {
             _selectedDropdownValueID = State(initialValue: value)
@@ -18,7 +21,7 @@ struct DropdownView: View {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel)
             Button(action: {
                 isSheetPresented = true
-                dropdownDataModel.eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
+                eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
             }, label: {
                 HStack {
                     Text(dropdownDataModel.options?.filter {
@@ -50,7 +53,7 @@ struct DropdownView: View {
         .onChange(of: selectedDropdownValueID) { newValue in
             let newDrodDownValue = ValueUnion.string(newValue ?? "")
             let fieldEvent = FieldChangeData(fieldIdentifier: dropdownDataModel.fieldIdentifier, updateValue: newDrodDownValue)
-            dropdownDataModel.eventHandler.onChange(event: fieldEvent)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
 }

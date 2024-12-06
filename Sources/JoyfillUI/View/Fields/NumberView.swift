@@ -5,9 +5,11 @@ struct NumberView: View {
     @State var number: String = ""
     private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
-    
-    public init(numberDataModel: NumberDataModel) {
+    let eventHandler: FieldChangeEvents
+
+    public init(numberDataModel: NumberDataModel, eventHandler: FieldChangeEvents) {
         self.numberDataModel = numberDataModel
+        self.eventHandler = eventHandler
         if let number = numberDataModel.number {
             let formatter = NumberFormatter()
             formatter.minimumFractionDigits = 0
@@ -37,7 +39,7 @@ struct NumberView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        numberDataModel.eventHandler.onFocus(event: numberDataModel.fieldIdentifier)
+                        eventHandler.onFocus(event: numberDataModel.fieldIdentifier)
                     } else {
                         let newValue: ValueUnion
                         if !number.isEmpty, let doubleValue = Double(number) {
@@ -46,7 +48,7 @@ struct NumberView: View {
                             newValue = ValueUnion.string("")
                         }
                         let event = FieldChangeData(fieldIdentifier: numberDataModel.fieldIdentifier, updateValue: newValue)
-                        numberDataModel.eventHandler.onChange(event: event)
+                        eventHandler.onChange(event: event)
                     }
                 }
         }

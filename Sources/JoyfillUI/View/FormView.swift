@@ -118,6 +118,22 @@ struct PageView: View {
     }
 }
 
+enum FieldListModelType {
+    case text(TextDataModel)
+    case table(TableDataModel)
+    case chart(ChartDataModel)
+    case date(DateTimeDataModel)
+    case block(DisplayTextDataModel)
+    case dropdown(DropdownDataModel)
+    case image(ImageDataModel)
+    case textarea(MultiLineDataModel)
+    case multiSelect(MultiSelectionDataModel)
+    case number(NumberDataModel)
+    case richText(RichTextDataModel)
+    case signature(SignatureDataModel)
+    case none
+}
+
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
     @State var currentFocusedFielsID: String = ""
@@ -127,148 +143,44 @@ struct FormView: View {
     @ViewBuilder
     fileprivate func fieldView(listModel: FieldListModel) -> some View {
         let fieldPosition: FieldPosition = documentEditor.fieldPosition(fieldID: listModel.fieldIdentifier.fieldID)!
+        switch listModel.model {
+        case .text(let model):
+            TextView(textDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .block(let model):
 
-        let fieldData = documentEditor.field(fieldID: listModel.fieldIdentifier.fieldID)
+            DisplayTextView(displayTextDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .multiSelect(let model):
+            MultiSelectionView(multiSelectionDataModel: model, eventHandler: self, currentFocusedFieldsDataId: currentFocusedFielsID)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .dropdown(let model):
+            DropdownView(dropdownDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .textarea(let model):
 
-        let fieldEditMode: Mode = ((fieldData?.disabled == true) || (documentEditor.mode == .readonly) ? .readonly : .fill)
-
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
-
-        switch fieldPosition.type {
-        case .text:
-            let model = TextDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                      text: fieldData?.value?.text ?? "",
-                                      mode: fieldEditMode,
-                                      eventHandler: self,
-                                      fieldHeaderModel: fieldHeaderModel)
-            TextView(textDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .block:
-            let model = DisplayTextDataModel(displayText: fieldData?.value?.text,
-                                             fontWeight: fieldPosition.fontWeight,
-                                             fieldHeaderModel: fieldHeaderModel)
-            DisplayTextView(displayTextDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .multiSelect:
-            let model = MultiSelectionDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                                currentFocusedFieldsDataId: currentFocusedFielsID,
-                                                multi: fieldData?.multi,
-                                                options: fieldData?.options,
-                                                multiSelector: fieldData?.value?.multiSelector,
-                                                eventHandler: self,
-                                                fieldHeaderModel: fieldHeaderModel)
-            MultiSelectionView(multiSelectionDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .dropdown:
-            let model = DropdownDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                          dropdownValue: fieldData?.value?.dropdownValue,
-                                          options: fieldData?.options,
-                                          eventHandler: self,
-                                          fieldHeaderModel: fieldHeaderModel)
-            DropdownView(dropdownDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .textarea:
-            let model = MultiLineDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                           multilineText: fieldData?.value?.multilineText,
-                                           mode: fieldEditMode,
-                                           eventHandler: self,
-                                           fieldHeaderModel: fieldHeaderModel)
-            MultiLineTextView(multiLineDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .date:
-            let model = DateTimeDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                          value: fieldData?.value,
-                                          format: fieldPosition.format,
-                                          eventHandler: self,
-                                          fieldHeaderModel: fieldHeaderModel)
-            DateTimeView(dateTimeDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .signature:
-            let model = SignatureDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                           signatureURL: fieldData?.value?.signatureURL ?? "",
-                                           eventHandler: self,
-                                           fieldHeaderModel: fieldHeaderModel)
-            SignatureView(signatureDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .number:
-            let model = NumberDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                        number: fieldData?.value?.number,
-                                        mode: fieldEditMode,
-                                        eventHandler: self,
-                                        fieldHeaderModel: fieldHeaderModel)
-            NumberView(numberDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .chart:
-            let model = ChartDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                       valueElements: fieldData?.value?.valueElements,
-                                       yTitle: fieldData?.yTitle,
-                                       yMax: fieldData?.yMax,
-                                       yMin: fieldData?.yMin,
-                                       xTitle: fieldData?.xTitle,
-                                       xMax: fieldData?.xMax,
-                                       xMin: fieldData?.xMin,
-                                       mode: fieldEditMode,
-                                       documentEditor: documentEditor,
-                                       eventHandler: self,
-                                       fieldHeaderModel: fieldHeaderModel)
-            ChartView(chartDataModel: model)
-        case .richText:
-            let model = RichTextDataModel(text: fieldData?.value?.text,
-                                          eventHandler: self,
-                                          fieldHeaderModel: fieldHeaderModel)
-            RichTextView(richTextDataModel: model)
-                .disabled(fieldEditMode == .readonly)
-        case .table:
-            let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
-                                       mode: fieldEditMode,
-                                       documentEditor: documentEditor,
-                                       listModel: listModel,
-                                       eventHandler: self)
-            TableQuickView(tableDataModel: model)
-        case .image:
-            let model = ImageDataModel(fieldIdentifier: listModel.fieldIdentifier,
-                                       multi: fieldData?.multi,
-                                       primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
-                                       valueElements: fieldData?.value?.valueElements?.map { element in
-                                                   ValueElementLocal(
-                                                       id: element.id ?? "",
-                                                       url: element.url,
-                                                       fileName: element.fileName,
-                                                       filePath: element.filePath,
-                                                       deleted: element.deleted,
-                                                       title: element.title,
-                                                       description: element.description,
-                                                       points: element.points,
-                                                       cells: element.cells?.mapValues { convertToValueUnionLocal($0) }
-                                                   )
-                                               },
-                                       mode: fieldEditMode,
-                                       eventHandler: self,
-                                       fieldHeaderModel: fieldHeaderModel)
-            ImageView(imageDataModel: model)
+            MultiLineTextView(multiLineDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .date(let model):
+            DateTimeView(dateTimeDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .signature(let model):
+            SignatureView(signatureDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .number(let model):
+            NumberView(numberDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .chart(let model):
+            ChartView(chartDataModel: model, eventHandler: self)
+        case .richText(let model):
+            RichTextView(richTextDataModel: model, eventHandler: self)
+                .disabled(listModel.fieldEditMode == .readonly)
+        case .table(let model):
+            TableQuickView(tableDataModel: model, eventHandler: self)
+        case .image(let model):
+            ImageView(imageDataModel: model, eventHandler: self)
         case .none:
             EmptyView()
-        case .unknown:
-            EmptyView()
-        }
-    }
-    
-    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
-        switch valueUnion {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toLocal() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        case .dictionary(_):
-            return .null
         }
     }
 

@@ -16,10 +16,12 @@ struct TableQuickView : View {
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
+    let eventHandler: FieldChangeEvents
 
-    public init(tableDataModel: TableDataModel) {
+    public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
         self.viewModel = TableViewModel(tableDataModel: tableDataModel)
         self.tableDataModel = tableDataModel
+        self.eventHandler = eventHandler
     }
         
     var body: some View {
@@ -46,7 +48,7 @@ struct TableQuickView : View {
             
             Button(action: {
                 isTableModalViewPresented.toggle()
-                tableDataModel.eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+                eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Table View")

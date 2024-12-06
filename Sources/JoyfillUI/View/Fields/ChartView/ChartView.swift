@@ -13,10 +13,12 @@ struct ChartView: View {
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
-    
+    let eventHandler: FieldChangeEvents
+
 //    let data : MultiLineChartData
-    public init(chartDataModel: ChartDataModel) {
+    public init(chartDataModel: ChartDataModel, eventHandler: FieldChangeEvents) {
         self.chartDataModel = chartDataModel
+        self.eventHandler = eventHandler
         _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
 //        data = ChartView.getData(fieldDependency: fieldDependency)
     }
@@ -46,7 +48,7 @@ struct ChartView: View {
             
             Button(action: {
                 showDetailChartView = true
-                chartDataModel.eventHandler.onFocus(event: chartDataModel.fieldIdentifier)
+                eventHandler.onFocus(event: chartDataModel.fieldIdentifier)
             }, label: {
                 HStack {
                     Image(systemName: "chart.xyaxis.line")
