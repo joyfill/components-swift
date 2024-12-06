@@ -9,6 +9,7 @@ public struct Form: View {
     private var navigation: Bool
     public var events: FormChangeEvent?
 
+    @available(*, deprecated, message: "Use init(documentEditor:mode:events:pageID:navigation:) instead")
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         self.events = events
         self.mode = mode
