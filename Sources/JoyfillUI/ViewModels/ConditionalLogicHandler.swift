@@ -228,6 +228,10 @@ class ConditionalLogicHandler {
     func shouldShowLocal(fieldID: String?) -> Bool {
         guard let fieldID = fieldID else { return true }
         let model = conditionalLogicModel(field: documentEditor.field(fieldID: fieldID))
-        return shouldShowItem(model: model)
+        if let model {
+            return shouldShowItem(model: model)
+        } else {
+            return !(documentEditor.field(fieldID: fieldID)?.hidden ?? false)
+        }
     }
 }
