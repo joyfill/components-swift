@@ -54,6 +54,7 @@ struct ChartDetailView: View {
                 let fieldEvent = FieldChangeData(fieldIdentifier: chartDataModel.fieldIdentifier, updateValue: .valueElementArray(valueElements), chartData: chartData)
                 chartDataModel.documentEditor?.onChange(event: fieldEvent)
             })
+            .modifier(KeyboardDismissModifier())
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }

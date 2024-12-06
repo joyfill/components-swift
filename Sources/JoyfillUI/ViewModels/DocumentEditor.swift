@@ -90,6 +90,7 @@ public class DocumentEditor: ObservableObject {
             }
             updatefield(field: field)
             document.fields = allFields
+            refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
         }
     }
