@@ -15,9 +15,8 @@ struct PageModel {
 
 struct FieldListModel {
     let fieldIdentifier: FieldIdentifier
-    var refreshID: UUID
     let fieldEditMode: Mode
-    let model: FieldListModelType
+    var model: FieldListModelType
 }
 
 struct TableDataModel {
