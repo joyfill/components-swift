@@ -68,9 +68,9 @@ struct TableModalView : View {
     func sortRowsIfNeeded() {
         if currentSelectedCol != Int.min {
             guard viewModel.tableDataModel.sortModel.order != .none else { return }
-            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowArr1, rowArr2 in
-                let column1 = rowArr1[currentSelectedCol].data
-                let column2 = rowArr2[currentSelectedCol].data
+            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowModel1, rowModel2 in
+                let column1 = rowModel1.cells[currentSelectedCol].data
+                let column2 = rowModel2.cells[currentSelectedCol].data
                 switch column1.type {
                 case "text":
                     switch viewModel.tableDataModel.sortModel.order {
@@ -210,25 +210,27 @@ struct TableModalView : View {
     
     var rowsHeader: some View {
        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
+            ForEach(viewModel.tableDataModel.filteredcellModels, id: \.id) { rowModel in
+                let rowArray = rowModel.cells
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
-                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowArray.first?.rowID ?? "")
+                        let isRowSelected = rowModel.selected
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: heights[index] ?? 50)
+                            .frame(width: 40, height: heights[rowModel.index] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
+                                viewModel.tableDataModel.filteredcellModels[rowModel.index].selected.toggle()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                             }
                             .accessibilityIdentifier("MyButton")
                         
                     }
-                    Text("\(index+1)")
+                    Text("\(rowModel.index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                        .frame(width: 40, height: heights[index] ?? 50)
+                        .frame(width: 40, height: heights[rowModel.index] ?? 50)
                         .border(Color.tableCellBorderColor)
-                        .id("\(index)")
+                        .id("\(rowModel.index)")
                 }
             }
         }
@@ -239,10 +241,9 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(viewModel.tableDataModel.filteredcellModels), id: \.id) { rowCellModels in
-                            let rowIndex = viewModel.tableDataModel.rowOrder.firstIndex(of: rowCellModels.rowID ?? "") ?? 0
-                            HStack(alignment: .top, spacing: 0) {
-                                ForEach(rowCellModels, id: \.id) { cellModel in
+                        ForEach(viewModel.tableDataModel.filteredcellModels, id: \.id) { rowCellModels in
+                            LazyHStack(alignment: .top, spacing: 0) {
+                                ForEach(rowCellModels.cells, id: \.id) { cellModel in
                                     ZStack {
                                         Rectangle()
                                             .stroke()
@@ -251,10 +252,9 @@ struct TableModalView : View {
                                     }
                                     .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
                                     .background(GeometryReader { proxy in
-                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [rowIndex: proxy.size.height])
+                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [rowCellModels.index: proxy.size.height])
                                     })
                                 }
-
                             }
                         }
 //                        .onReceive(viewModel.tableDataModel.$rows) { _ in

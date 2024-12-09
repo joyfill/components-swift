@@ -19,9 +19,12 @@ struct FieldListModel {
     var model: FieldListModelType
 }
 
-struct RowDataModel {
-    var id = UUID()
+struct RowDataModel: Equatable {
+    let id = UUID()
+    let index: Int
+    let rowID: String
     var cells: [TableCellModel]
+    var selected = false
 }
 
 struct TableDataModel {
@@ -42,7 +45,7 @@ struct TableDataModel {
     var quickRowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
     var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
     var selectedRows = [String]()
-    var cellModels = [[TableCellModel]]()
+    var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
@@ -83,7 +86,7 @@ struct TableDataModel {
             }
 
              let filtred = filteredcellModels.filter { rowArr in
-                 let column = rowArr[model.colIndex].data
+                 let column = rowArr.cells[model.colIndex].data
                 switch column.type {
                 case "text":
                     return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
@@ -228,9 +231,9 @@ struct TableDataModel {
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumnLocal) {
-        var cellModel = cellModels[rowIndex][colIndex]
+        var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data  = editedCell
-        cellModels[rowIndex][colIndex] = cellModel
+        cellModels[rowIndex].cells[colIndex] = cellModel
     }
     
     var lastRowSelected: Bool {
@@ -242,9 +245,9 @@ struct TableDataModel {
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
-        var cellModel = cellModels[rowIndex][colIndex]
+        var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data.title  = value
-        self.cellModels[rowIndex][colIndex] = cellModel
+        cellModels[rowIndex].cells[colIndex] = cellModel
     }
     
     func getFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
@@ -283,7 +286,7 @@ struct TableDataModel {
     }
     
     mutating func selectAllRows() {
-        selectedRows = filteredcellModels.compactMap { $0.first?.rowID }
+        selectedRows = filteredcellModels.compactMap { $0.cells.first?.rowID }
     }
     
     mutating func emptySelection() {

@@ -43,14 +43,14 @@ class TableViewModel: ObservableObject {
             }
         }
         if self.tableDataModel.cellModels.count > (index - 1) {
-            self.tableDataModel.cellModels.insert(rowCellModels, at: index)
+            self.tableDataModel.cellModels.insert(RowDataModel(index: index, rowID: rowID, cells: rowCellModels), at: index)
         } else {
-            self.tableDataModel.cellModels.append(rowCellModels)
+            self.tableDataModel.cellModels.append(RowDataModel(index: self.tableDataModel.cellModels.count, rowID: rowID, cells: rowCellModels))
         }
     }
     
     func setupCellModels() {
-        var cellModels = [[TableCellModel]]()
+        var cellModels = [RowDataModel]()
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.columns.enumerated().forEach { colIndex, colID in
@@ -67,7 +67,7 @@ class TableViewModel: ObservableObject {
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(rowCellModels)
+            cellModels.append(RowDataModel(index: cellModels.count, rowID: rowID, cells: rowCellModels))
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
