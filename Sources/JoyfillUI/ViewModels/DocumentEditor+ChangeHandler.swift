@@ -73,7 +73,8 @@ extension DocumentEditor {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+        // TODO:
+//        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
     }
 
     public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier) {
@@ -92,10 +93,11 @@ extension DocumentEditor {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+        // TODO:
+//        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
     }
 
-    public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) {
+    public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) -> ValueElement {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
 
@@ -105,7 +107,8 @@ extension DocumentEditor {
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
-        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+        
+        return elements.last!
     }
 
     public func insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
@@ -130,32 +133,34 @@ extension DocumentEditor {
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+        // TODO:
+//        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
     }
 
-    public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) {
+    func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier, tableDataModel: TableDataModel) -> ValueElement? {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            return
+            return nil
         }
 
         var newRow = ValueElement(id: id)
-        elements.append(newRow)
 
         for filterModel in filterModels {
             let change = filterModel.filterText
-            guard let index = elements.firstIndex(where: { $0.id == id }) else { return }
-            if var cells = elements[index].cells {
+            if var cells = newRow.cells {
                 cells[filterModel.colID ?? ""] = ValueUnion.string(change)
-                elements[index].cells = cells
+                newRow.cells = cells
             } else {
-                elements[index].cells = [filterModel.colID ?? "" : ValueUnion.string(change)]
+                newRow.cells = [filterModel.colID ?? "" : ValueUnion.string(change)]
             }
         }
+        elements.append(newRow)
 
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
+      
+        return newRow
     }
 
     public func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
@@ -201,7 +206,8 @@ extension DocumentEditor {
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
-        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
+        // TODO:
+//        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
     }
 
     public func onChange(event: FieldChangeData) {
@@ -273,7 +279,7 @@ extension DocumentEditor {
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
-        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
+//        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
     }
 
     private func moveRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {

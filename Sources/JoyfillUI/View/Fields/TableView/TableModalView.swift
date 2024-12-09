@@ -35,25 +35,33 @@ struct TableModalView : View {
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
+            clearFilter()
         })
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
-            filterRowsIfNeeded()
+            viewModel.tableDataModel.filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
         .onChange(of: viewModel.tableDataModel.filterModels ) { _ in
-            filterRowsIfNeeded()
+            viewModel.tableDataModel.filterRowsIfNeeded()
             sortRowsIfNeeded()
             viewModel.tableDataModel.emptySelection()
         }
         .onChange(of: viewModel.tableDataModel.cellModels) { _ in
-            filterRowsIfNeeded()
+            viewModel.tableDataModel.filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
-        .onChange(of: viewModel.tableDataModel.rows) { _ in
-            if viewModel.tableDataModel.rows.isEmpty {
+        .onChange(of: viewModel.tableDataModel.rowOrder) { _ in
+            if viewModel.tableDataModel.rowOrder.isEmpty {
                 currentSelectedCol = Int.min
                 viewModel.tableDataModel.emptySelection()
             }
+        }
+    }
+    
+    func clearFilter() {
+        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        for i in 0..<viewModel.tableDataModel.filterModels.count {
+            viewModel.tableDataModel.filterModels[i].filterText = ""
         }
     }
 
@@ -89,33 +97,6 @@ struct TableModalView : View {
         }
     }
 
-    func filterRowsIfNeeded() {
-        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
-        guard !viewModel.tableDataModel.filterModels .noFilterApplied else {
-            return
-        }
-
-        for model in viewModel.tableDataModel.filterModels  {
-            if model.filterText.isEmpty {
-                continue
-            }
-
-             let filtred = viewModel.tableDataModel.filteredcellModels.filter { rowArr in
-                 let column = rowArr[model.colIndex].data
-                switch column.type {
-                case "text":
-                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                case "dropdown":
-                    return (column.defaultDropdownSelectedId ?? "") == model.filterText
-                default:
-                    break
-                }
-                return false
-            }
-            viewModel.tableDataModel.filteredcellModels = filtred
-        }
-    }
-
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
@@ -123,7 +104,7 @@ struct TableModalView : View {
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: textHeight)
-                            .foregroundColor(viewModel.tableDataModel.rows.count == 0 ? Color.gray.opacity(0.4) : nil)
+                            .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
                                 if !viewModel.tableDataModel.allRowSelected {
                                     viewModel.tableDataModel.selectAllRows()
@@ -131,7 +112,7 @@ struct TableModalView : View {
                                     viewModel.tableDataModel.emptySelection()
                                 }
                             }
-                            .disabled(viewModel.tableDataModel.rows.count == 0)
+                            .disabled(viewModel.tableDataModel.rowOrder.count == 0)
                             .accessibilityIdentifier("SelectAllRowSelectorButton")
                     }
                     Text("#")
@@ -207,7 +188,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || viewModel.tableDataModel.rows.count == 0)
+                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -352,8 +333,8 @@ struct SearchBar: View {
     
     var body: some View {
         HStack {
-            if !viewModel.tableDataModel.rows.isEmpty, selectedColumnIndex != Int.min {
-                let row = viewModel.tableDataModel.rows[0]
+            if !viewModel.tableDataModel.rowOrder.isEmpty, selectedColumnIndex != Int.min {
+                let row = viewModel.tableDataModel.rowOrder[0]
                 let column = viewModel.tableDataModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",

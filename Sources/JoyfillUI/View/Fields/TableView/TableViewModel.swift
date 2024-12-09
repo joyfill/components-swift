@@ -23,10 +23,10 @@ class TableViewModel: ObservableObject {
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
         
         setupCellModels()
+        self.tableDataModel.filterRowsIfNeeded()
     }
 
     func addCellModel(rowID: String) {
-        let rowIndex: Int = tableDataModel.rows.isEmpty ? 0 : tableDataModel.rows.count - 1
         var rowCellModels = [TableCellModel]()
         tableDataModel.columns.enumerated().forEach { colIndex, colID in
             let columnModel = tableDataModel.getFieldTableColumn(row: rowID, col: colIndex)
@@ -47,7 +47,7 @@ class TableViewModel: ObservableObject {
     
     func setupCellModels() {
         var cellModels = [[TableCellModel]]()
-        tableDataModel.rows.enumerated().forEach { rowIndex, rowID in
+        tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.columns.enumerated().forEach { colIndex, colID in
                 let columnModel = tableDataModel.getFieldTableColumn(row: rowID, col: colIndex)
@@ -118,16 +118,24 @@ class TableViewModel: ObservableObject {
         setupCellModels()
     }
 
+    fileprivate func updateRow(_ id: String, valueElement: ValueElement) {
+        tableDataModel.rowToCellMap[id] = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
+        tableDataModel.rowOrder.append(id)
+        addCellModel(rowID: id)
+        tableDataModel.filterRowsIfNeeded()
+    }
+    
     func addRow() {
         let id = generateObjectId()
 
         if tableDataModel.filterModels.noFilterApplied {
-            tableDataModel.documentEditor?.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
+            let rowData = tableDataModel.documentEditor!.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
+            updateRow(id, valueElement: rowData)
         } else {
-            tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier)
+            if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier, tableDataModel: tableDataModel) {
+                updateRow(id, valueElement: rowData)
+            }
         }
-        
-        updateUI()
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
@@ -136,7 +144,7 @@ class TableViewModel: ObservableObject {
         // If not required, simplify it by removing it to reduce complexity
 //        tableDataModel.setup()
         uuid = UUID()
-        tableDataModel.updateCellModel(rowIndex: tableDataModel.rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
+        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
     }
 
     func bulkEdit(changes: [Int: String]) {

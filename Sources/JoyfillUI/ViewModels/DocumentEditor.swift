@@ -171,7 +171,8 @@ extension DocumentEditor {
             }
             updatefield(field: field)
             document.fields = allFields
-            refreshField(fieldId: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
+            // TODO:
+//            refreshField(fieldId: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
             refreshDependent(for: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
         }
     }
@@ -204,11 +205,11 @@ extension DocumentEditor {
         return (pageID, index)
     }
 
-    func refreshField(fieldId: String, fieldIdentifier: FieldIdentifier) {
+    func refreshField(fieldId: String, fieldIdentifier: FieldIdentifier, model: FieldListModelType) {
         let pageIDIndexValue = fieldIndexMap[fieldId]!
         let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
         let fieldPosition = self.fieldPositionMap[fieldId]
-        pageFieldModels[pageID]!.fields[index].model = getFieldModel(fieldPosition: fieldPosition!, fieldIdentifier: fieldIdentifier)
+        pageFieldModels[pageID]!.fields[index].model = model
     }
 
     private func valueElements(fieldID: String) -> [ValueElement]? {
@@ -218,7 +219,8 @@ extension DocumentEditor {
     func refreshDependent(for fieldID: String, fieldIdentifier: FieldIdentifier) {
         let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
         for fieldId in refreshFields {
-            refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+            // TODO:
+//            refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
         }
     }
     

@@ -24,14 +24,16 @@ struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
     let mode: Mode
     let documentEditor: DocumentEditor?
-    var fieldIdentifier: FieldIdentifier
+    let fieldIdentifier: FieldIdentifier
     let title: String?
-    var rows: [String] = []
     var quickRows: [String] = []
+    var rowOrder: [String]
+    var valueToValueElements: [ValueElement]?
+    var tableColumns: [FieldTableColumn]
     var columns: [String] = []
     var quickColumns: [String] = []
     var quickViewRowCount: Int = 0
-    var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
+    var rowToCellMap: [String: [FieldTableColumnLocal]] = [:]
     var quickRowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
     var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
     var selectedRows = [String]()
@@ -45,25 +47,55 @@ struct TableDataModel {
          mode: Mode,
          documentEditor: DocumentEditor,
          fieldIdentifier: FieldIdentifier) {
-        let fieldData = documentEditor.field(fieldID: fieldIdentifier.fieldID)
+        let fieldData = documentEditor.field(fieldID: fieldIdentifier.fieldID)!
         self.fieldHeaderModel = fieldHeaderModel
         self.mode = mode
         self.documentEditor = documentEditor
-        self.title = fieldData?.title
+        self.title = fieldData.title
         self.fieldIdentifier = fieldIdentifier
-
+        self.rowOrder = fieldData.rowOrder ?? []
+        self.valueToValueElements = fieldData.valueToValueElements
+        self.tableColumns = fieldData.tableColumns ?? []
         setupColumns()
         setup()
+        filterRowsIfNeeded()
 
         self.filterModels = columns.enumerated().map { colIndex, colID in
             FilterModel(colIndex: colIndex, colID: colID)
         }
     }
+    
+    mutating func filterRowsIfNeeded() {
+        filteredcellModels = cellModels
+        guard !filterModels .noFilterApplied else {
+            return
+        }
+
+        for model in filterModels  {
+            if model.filterText.isEmpty {
+                continue
+            }
+
+             let filtred = filteredcellModels.filter { rowArr in
+                 let column = rowArr[model.colIndex].data
+                switch column.type {
+                case "text":
+                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
+                case "dropdown":
+                    return (column.defaultDropdownSelectedId ?? "") == model.filterText
+                default:
+                    break
+                }
+                return false
+            }
+           filteredcellModels = filtred
+        }
+    }
 
     mutating func setup() {
         setupRows()
-        quickViewRowCount = rows.count >= 3 ? 3 : rows.count
-        viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
+        quickViewRowCount = rowOrder.count >= 3 ? 3 : rowOrder.count
+        viewMoreText = rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
     }
     
     mutating private func setupColumns() {
@@ -99,44 +131,45 @@ struct TableDataModel {
         }
     }
     
+    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [FieldTableColumnLocal] {
+        var cells: [FieldTableColumnLocal] = []
+        for columnData in tableColumns {
+            let optionsLocal = columnData.options?.map { option in
+                OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+            }
+            let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
+            let defaultDropdownSelectedId = valueUnion?.dropdownValue
+            
+            let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
+            let columnDataLocal = FieldTableColumnLocal(id: columnData.id,
+                                                        defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
+                                                        options: optionsLocal,
+                                                        valueElements: columnData.images,
+                                                        type: columnData.type,
+                                                        title: columnData.title,
+                                                        selectedOptionText: selectedOptionText)
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
+                cells.append(cell)
+            }
+        }
+        return cells
+    }
+    
     mutating private func setupRows() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
-        guard let valueElements = fieldData.valueToValueElements, !valueElements.isEmpty else {
+        guard let valueElements = valueToValueElements, !valueElements.isEmpty else {
             setupQuickTableViewRows()
             return
         }
         
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: fieldData.rowOrder)
-        var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
-        
+        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: rowOrder)
+        var rowToCellMap: [String: [FieldTableColumnLocal]] = [:]
+        let tableColumns = tableColumns
         for row in sortedRows {
-            var cells: [FieldTableColumnLocal?] = []
-            for column in self.columns {
-                let columnData = fieldData.tableColumns?.first { $0.id == column }
-                let optionsLocal = columnData?.options?.map { option in
-                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
-                }
-                
-                let valueUnion = row.cells?.first(where: { $0.key == column })?.value
-                let defaultDropdownSelectedId = valueUnion?.dropdownValue
-                
-                let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
-                let columnDataLocal = FieldTableColumnLocal(id: columnData?.id,
-                                                            defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId,
-                                                            options: optionsLocal,
-                                                            valueElements: columnData?.images,
-                                                            type: columnData?.type,
-                                                            title: columnData?.title,
-                                                            selectedOptionText: selectedOptionText)
-                let cell = buildCell(data: columnDataLocal, row: row, column: column)
-                cells.append(cell)
-            }
-            rowToCellMap[row.id] = cells
+            rowToCellMap[row.id!] = buildAllCellsForRow(tableColumns: tableColumns, row)
         }
         
-        self.rows = sortedRows.map { $0.id ?? "" }
-        self.quickRows = self.rows
+        self.quickRows = self.rowOrder
         self.rowToCellMap = rowToCellMap
         self.quickRowToCellMap = rowToCellMap
         setupQuickTableViewRows()
@@ -195,11 +228,11 @@ struct TableDataModel {
     }
     
     var lastRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.last! == rows.last!
+        return !selectedRows.isEmpty && selectedRows.last! == rowOrder.last!
     }
     
     var firstRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.first! == rows.first!
+        return !selectedRows.isEmpty && selectedRows.first! == rowOrder.first!
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
