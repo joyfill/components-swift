@@ -171,12 +171,7 @@ class TableViewModel: ObservableObject {
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
         tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldIdentifier.fieldID)
-        // TODO: USE AND SEE WHY WE NEED THIS AND WE DONT
-        // If not required, simplify it by removing it to reduce complexity
-//        tableDataModel.setup()
-//        uuid = UUID()
-        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
-        //TODO: Need to check if ui model needs to be upsated
+        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
     }
 
     func bulkEdit(changes: [Int: String]) {

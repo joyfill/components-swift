@@ -34,15 +34,11 @@ struct TableDataModel {
     let documentEditor: DocumentEditor?
     let fieldIdentifier: FieldIdentifier
     let title: String?
-    var quickRows: [String] = []
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
     var tableColumns: [FieldTableColumn]
     var columns: [String] = []
-    var quickColumns: [String] = []
-    var quickViewRowCount: Int = 0
     var rowToCellMap: [String: [FieldTableColumnLocal]] = [:]
-    var quickRowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
     var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
@@ -103,7 +99,6 @@ struct TableDataModel {
 
     mutating func setup() {
         setupRows()
-        quickViewRowCount = rowOrder.count >= 3 ? 3 : rowOrder.count
         viewMoreText = rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
     }
     
@@ -133,13 +128,8 @@ struct TableDataModel {
                 columnIdToColumnMap[column] = fieldTableColumnLocal
             }
         }
-        
-        self.quickColumns = columns
-        while quickColumns.count > 3 {
-            quickColumns.removeLast()
-        }
     }
-    
+
     func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [FieldTableColumnLocal] {
         var cells: [FieldTableColumnLocal] = []
         for columnData in tableColumns {
@@ -172,15 +162,11 @@ struct TableDataModel {
         
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
         let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: rowOrder)
-        var rowToCellMap: [String: [FieldTableColumnLocal]] = [:]
         let tableColumns = tableColumns
         for row in sortedRows {
-            rowToCellMap[row.id!] = buildAllCellsForRow(tableColumns: tableColumns, row)
+            let cellRowModel = buildAllCellsForRow(tableColumns: tableColumns, row)
+            self.rowToCellMap[row.id!] = cellRowModel
         }
-        
-        self.quickRows = self.rowOrder
-        self.rowToCellMap = rowToCellMap
-        self.quickRowToCellMap = rowToCellMap
         setupQuickTableViewRows()
     }
     
@@ -199,41 +185,18 @@ struct TableDataModel {
         }
         return cell
     }
-    
+
     mutating func setupQuickTableViewRows() {
         guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
-        if quickRows.isEmpty {
-            quickRowToCellMap = [:]
-            let id = generateObjectId()
-            quickRows = [id]
-            let columnData = fieldData.tableColumns ?? []
-            var columnDataLocal: [FieldTableColumnLocal] = []
-            for column in columnData {
-                var optionsLocal: [OptionLocal] = []
-                for option in column.options ?? []{
-                    optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
-                }
-                
-                columnDataLocal.append(FieldTableColumnLocal(id: column.id,
-                                                             defaultDropdownSelectedId: column.defaultDropdownSelectedId,
-                                                             options: optionsLocal,
-                                                             valueElements: column.images,
-                                                             type: column.type,
-                                                             title: column.title,
-                                                             selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? ""))
-            }
-            quickRowToCellMap = [id : columnDataLocal ?? []]
-        } else {
-            while quickRows.count > 3 {
-                quickRows.removeLast()
-            }
-        }
+
     }
     
-    mutating func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumnLocal) {
+    mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
+        rowToCellMap[rowId]?[colIndex] = editedCell
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data  = editedCell
         cellModels[rowIndex].cells[colIndex] = cellModel
+        filterRowsIfNeeded()
     }
     
     var lastRowSelected: Bool {
@@ -255,7 +218,24 @@ struct TableDataModel {
     }
     
     func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
-        return quickRowToCellMap[row]?[col]
+        if rowOrder.isEmpty {
+            let id = generateObjectId()
+            let columnData = tableColumns ?? []
+            var columnDataLocal: [FieldTableColumnLocal] = []
+            let column = columnData[col]
+            var optionsLocal: [OptionLocal] = []
+            for option in column.options ?? []{
+                optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
+            }
+            return FieldTableColumnLocal(id: column.id,
+                                         defaultDropdownSelectedId: column.defaultDropdownSelectedId,
+                                         options: optionsLocal,
+                                         valueElements: column.images,
+                                         type: column.type,
+                                         title: column.title,
+                                         selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "")
+        }
+        return rowToCellMap[row]?[col]
     }
     
     
