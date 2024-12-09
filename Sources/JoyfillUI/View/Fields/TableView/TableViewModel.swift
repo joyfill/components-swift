@@ -122,7 +122,11 @@ class TableViewModel: ObservableObject {
     
     fileprivate func updateRow(valueElement: ValueElement, at index: Int) {
         tableDataModel.rowToCellMap[valueElement.id!] = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
-        tableDataModel.rowOrder.insert(valueElement.id!, at: index)
+        if tableDataModel.rowOrder.count > (index - 1) {
+            tableDataModel.rowOrder.insert(valueElement.id!, at: index)
+        } else {
+            tableDataModel.rowOrder.append(valueElement.id!)
+        }
         addCellModel(rowID: valueElement.id!, index: index)
         tableDataModel.filterRowsIfNeeded()
     }
