@@ -42,7 +42,11 @@ class TableViewModel: ObservableObject {
                 rowCellModels.append(cellModel)
             }
         }
-        self.tableDataModel.cellModels.insert(rowCellModels, at: index)
+        if self.tableDataModel.cellModels.count > (index - 1) {
+            self.tableDataModel.cellModels.insert(rowCellModels, at: index)
+        } else {
+            self.tableDataModel.cellModels.append(rowCellModels)
+        }
     }
     
     func setupCellModels() {
@@ -167,25 +171,34 @@ class TableViewModel: ObservableObject {
         // TODO: USE AND SEE WHY WE NEED THIS AND WE DONT
         // If not required, simplify it by removing it to reduce complexity
 //        tableDataModel.setup()
-        uuid = UUID()
+//        uuid = UUID()
         tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
         //TODO: Need to check if ui model needs to be upsated
     }
 
     func bulkEdit(changes: [Int: String]) {
+//        tableDataModel.filteredcellModels()
+        
         var columnIDChanges = [String: String]()
         changes.forEach { (colIndex: Int, value: String) in
             guard let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
             columnIDChanges[editedCellId] = value
         }
         tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-        //Update local model with new bulk edit changes
-//        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID!)?.valueToValueElements
-        tableDataModel.emptySelection()
-        tableDataModel.setup()
-        uuid = UUID()
-        setupCellModels()
-        //TODO: Need to check if ui model needs to be upsated
+        
+        for rowId in tableDataModel.selectedRows {
+            let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
+            tableDataModel.columns.enumerated().forEach { colIndex, colID in
+                tableDataModel.updateCellModel(rowIndex: rowIndex, colIndex: colIndex, value: changes[colIndex] ?? "")
+            }
+        }
+        tableDataModel.filterRowsIfNeeded()
+        
+//        tableDataModel.emptySelection()
+//        tableDataModel.setup()
+//        uuid = UUID()
+//        setupCellModels()
+        //TODO: Need to check if ui model needs to be updated
     }
     
     
