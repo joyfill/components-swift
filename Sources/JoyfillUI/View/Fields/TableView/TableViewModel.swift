@@ -102,6 +102,7 @@ class TableViewModel: ObservableObject {
         guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
+        tableDataModel.emptySelection()
     }
 
     func moveUP() {
@@ -146,12 +147,14 @@ class TableViewModel: ObservableObject {
         tableDataModel.rowOrder.swapAt(index, index-1)
         self.tableDataModel.cellModels.swapAt(index, index-1)
         tableDataModel.filterRowsIfNeeded()
+        tableDataModel.emptySelection()
     }
 
     fileprivate func moveDown(at index: Int, rowID: String) {
         tableDataModel.rowOrder.swapAt(index, index+1)
         self.tableDataModel.cellModels.swapAt(index, index+1)
         tableDataModel.filterRowsIfNeeded()
+        tableDataModel.emptySelection()
     }
 
     func addRow() {
