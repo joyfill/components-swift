@@ -239,7 +239,8 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
+                        ForEach(Array(viewModel.tableDataModel.filteredcellModels), id: \.id) { rowCellModels in
+                            let rowIndex = viewModel.tableDataModel.rowOrder.firstIndex(of: rowCellModels.rowID ?? "") ?? 0
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels, id: \.id) { cellModel in
                                     ZStack {

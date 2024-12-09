@@ -19,6 +19,11 @@ struct FieldListModel {
     var model: FieldListModelType
 }
 
+struct RowDataModel {
+    var id = UUID()
+    var cells: [TableCellModel]
+}
+
 struct TableDataModel {
     let supportedColumnTypes = ["text", "image", "dropdown"]
     let fieldHeaderModel: FieldHeaderModel?
@@ -38,10 +43,11 @@ struct TableDataModel {
     var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
     var selectedRows = [String]()
     var cellModels = [[TableCellModel]]()
-    var filteredcellModels = [[TableCellModel]]()
+    var filteredcellModels = [RowDataModel]()
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
     var viewMoreText: String = ""
+    var id = UUID()
 
     init(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
