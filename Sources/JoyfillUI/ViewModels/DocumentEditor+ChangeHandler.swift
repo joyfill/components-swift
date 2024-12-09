@@ -32,13 +32,15 @@ extension DocumentEditor {
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
 
-    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
+    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> [Int: ValueElement]{
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return
+            return [:]
         }
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+        
+        var changes = [Int: ValueElement]()
 
         rowIDs.forEach { rowID in
             var element = elements.first(where: { $0.id == rowID })!
@@ -48,6 +50,7 @@ extension DocumentEditor {
             let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
             lastRowOrder.insert(newRowID, at: lastRowIndex+1)
             targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+            changes[lastRowIndex+1] = element
         }
 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
@@ -55,6 +58,7 @@ extension DocumentEditor {
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        return changes
     }
 
     public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier) {
@@ -111,30 +115,29 @@ extension DocumentEditor {
         return elements.last!
     }
 
-    public func insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func insertBelow(selectedRowID: String, fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return
+            return nil
         }
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
-
-        selectedRows.forEach { rowID in
-            let newRowID = generateObjectId()
-            var element = ValueElement(id: newRowID)
-            elements.append(element)
-            let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
-            lastRowOrder.insert(newRowID, at: lastRowIndex+1)
-            targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
-        }
-
+        
+        let newRowID = generateObjectId()
+        var element = ValueElement(id: newRowID)
+        elements.append(element)
+        let lastRowIndex = lastRowOrder.firstIndex(of: selectedRowID)!
+        lastRowOrder.insert(newRowID, at: lastRowIndex+1)
+        targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+        
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        // TODO:
-//        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+
+        return (element, lastRowIndex+1)
+        
     }
 
     func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier, tableDataModel: TableDataModel) -> ValueElement? {
