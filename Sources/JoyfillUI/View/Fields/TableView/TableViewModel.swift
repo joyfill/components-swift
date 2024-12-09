@@ -103,13 +103,15 @@ class TableViewModel: ObservableObject {
     func moveUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        updateUI()
+        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+        moveUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
 
     func moveDown() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        updateUI()
+        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+        moveDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
 
     private func updateUI() {
@@ -131,7 +133,19 @@ class TableViewModel: ObservableObject {
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
     }
-    
+
+    fileprivate func moveUP(at index: Int, rowID: String) {
+        tableDataModel.rowOrder.swapAt(index, index-1)
+        self.tableDataModel.cellModels.swapAt(index, index-1)
+        tableDataModel.filterRowsIfNeeded()
+    }
+
+    fileprivate func moveDown(at index: Int, rowID: String) {
+        tableDataModel.rowOrder.swapAt(index, index+1)
+        self.tableDataModel.cellModels.swapAt(index, index+1)
+        tableDataModel.filterRowsIfNeeded()
+    }
+
     func addRow() {
         let id = generateObjectId()
         if tableDataModel.filterModels.noFilterApplied {
