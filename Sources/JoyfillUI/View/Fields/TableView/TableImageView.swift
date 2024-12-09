@@ -6,7 +6,7 @@ import JoyfillModel
  struct TableImageView: View {
      @State var showMoreImages: Int = 5
      @State var showMoreImages2: Bool = false
-     @State private var valueElements: [ValueElementLocal] = []
+     @State private var valueElements: [ValueElement] = []
      @State var showToast: Bool = false
      private var cellModel: TableCellModel
 
@@ -53,7 +53,7 @@ import JoyfillModel
                          return true
                      }
                      return false
-                 } ?? ValueElementLocal(id: JoyfillModel.generateObjectId(), url: imageURL)
+                 } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                  valueElements.append(valueElement)
              }
              var editedCell = cellModel.data

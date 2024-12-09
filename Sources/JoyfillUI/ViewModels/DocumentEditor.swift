@@ -70,25 +70,6 @@ public class DocumentEditor: ObservableObject {
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
     }
 
-    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
-        switch valueUnion {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toLocal() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        case .dictionary(_):
-            return .null
-        }
-    }
-
     public func validate() -> Validation {
         return validationHandler.validate()
     }
@@ -324,19 +305,7 @@ extension DocumentEditor {
             let model = ImageDataModel(fieldIdentifier: fieldIdentifier,
                                        multi: fieldData?.multi,
                                        primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
-                                       valueElements: fieldData?.value?.valueElements?.map { element in
-                                                   ValueElementLocal(
-                                                       id: element.id ?? "",
-                                                       url: element.url,
-                                                       fileName: element.fileName,
-                                                       filePath: element.filePath,
-                                                       deleted: element.deleted,
-                                                       title: element.title,
-                                                       description: element.description,
-                                                       points: element.points,
-                                                       cells: element.cells?.mapValues { convertToValueUnionLocal($0) }
-                                                   )
-                                               },
+                                       valueElements: fieldData?.value?.valueElements,
                                        mode: fieldEditMode,
                                        fieldHeaderModel: fieldHeaderModel)
             dataModelType = .image(model)

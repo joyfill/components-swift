@@ -10,9 +10,9 @@ struct ImageView: View {
     @State var hasAppeared: Bool = false
     
     @State var uiImagesArray: [UIImage] = []
-    @State var valueElements: [ValueElementLocal] = []
+    @State var valueElements: [ValueElement] = []
     
-    @State private var imageDictionary: [ValueElementLocal: UIImage] = [:]
+    @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State var showToast: Bool = false
     
     @StateObject var imageViewModel = ImageFieldViewModel()
@@ -118,8 +118,7 @@ struct ImageView: View {
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
-            let convertedElements = newValue.map { $0.toValueElement() }
-            let newImageValue = ValueUnion.valueElementArray(convertedElements)
+            let newImageValue = ValueUnion.valueElementArray(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
             eventHandler.onChange(event: fieldEvent)
         }
@@ -148,7 +147,7 @@ struct ImageView: View {
                             return true
                         }
                         return false
-                    } ?? ValueElementLocal(id: JoyfillModel.generateObjectId(), url: imageURL)
+                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                     self.imageDictionary[valueElement] = image
                     valueElements.append(valueElement)
                     showProgressView = false
@@ -166,10 +165,10 @@ struct MoreImageView: View {
     
     @State var images: [UIImage] = []
     @State var selectedImagesIndex: Set<Int> = Set()
-    @Binding var valueElements: [ValueElementLocal]
+    @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
     @State var showProgressView: Bool = false
-    @State var imageDictionary: [ValueElementLocal: UIImage] = [:]
+    @State var imageDictionary: [ValueElement: UIImage] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -263,7 +262,7 @@ struct UploadDeleteView: View {
     @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
     @Binding var isMultiEnabled: Bool
-    @Binding var valueElements: [ValueElementLocal]
+    @Binding var valueElements: [ValueElement]
     var uploadAction: () -> Void
     var deleteAction: () -> Void
     

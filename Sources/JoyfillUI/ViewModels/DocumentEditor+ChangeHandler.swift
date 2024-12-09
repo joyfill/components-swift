@@ -190,8 +190,7 @@ extension DocumentEditor {
         case "dropdown":
             changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
-            let convertedImages = editedCell.valueElements?.map { $0.toValueElement() } ?? []
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(elements), fieldId: fieldId)
         default:
             return
         }

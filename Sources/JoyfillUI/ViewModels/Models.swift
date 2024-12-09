@@ -80,26 +80,12 @@ struct TableDataModel {
                 let optionsLocal = fieldTableColumn.options?.map { option in
                     OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
                 }
-                let imagesLocal = fieldTableColumn.images?.map { valueElement in
-                    ValueElementLocal(
-                        id: valueElement.id ?? "",
-                        url: valueElement.url,
-                        fileName: valueElement.fileName,
-                        filePath: valueElement.filePath,
-                        deleted: valueElement.deleted,
-                        title: valueElement.title,
-                        description: valueElement.description,
-                        points: valueElement.points,
-                        cells: valueElement.cells?.mapValues { valueUnion in
-                            convertToValueUnionLocal(valueUnion)
-                        }
-                    )
-                }
+                
                 let fieldTableColumnLocal = FieldTableColumnLocal(
                     id: fieldTableColumn.id,
                     defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                     options: optionsLocal,
-                    valueElements: imagesLocal,
+                    valueElements: fieldTableColumn.images,
                     type: fieldTableColumn.type,
                     title: fieldTableColumn.title
                 )
@@ -113,34 +99,14 @@ struct TableDataModel {
         }
     }
     
-    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
-        switch valueUnion {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toLocal() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        case .dictionary(_):
-            return .null
-        }
-    }
-
-    
     mutating private func setupRows() {
         guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
         guard let valueElements = fieldData.valueToValueElements, !valueElements.isEmpty else {
             setupQuickTableViewRows()
             return
         }
-        let valueElementsLocal = valueElements.map { $0.toLocal() }
-        let nonDeletedRows = valueElementsLocal.filter { !($0.deleted ?? false) }
+        
+        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
         let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: fieldData.rowOrder)
         var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
         
@@ -152,21 +118,6 @@ struct TableDataModel {
                     OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
                 }
                 
-                let imagesLocal = columnData?.images?.map { valueElement in
-                    ValueElementLocal(
-                        id: valueElement.id ?? "",
-                        url: valueElement.url,
-                        fileName: valueElement.fileName,
-                        filePath: valueElement.filePath,
-                        deleted: valueElement.deleted,
-                        title: valueElement.title,
-                        description: valueElement.description,
-                        points: valueElement.points,
-                        cells: valueElement.cells?.mapValues { valueUnion in
-                            convertToValueUnionLocal(valueUnion)
-                        }
-                    )
-                }
                 let valueUnion = row.cells?.first(where: { $0.key == column })?.value
                 let defaultDropdownSelectedId = valueUnion?.dropdownValue
                 
@@ -174,7 +125,7 @@ struct TableDataModel {
                 let columnDataLocal = FieldTableColumnLocal(id: columnData?.id,
                                                             defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId,
                                                             options: optionsLocal,
-                                                            valueElements: imagesLocal,
+                                                            valueElements: columnData?.images,
                                                             type: columnData?.type,
                                                             title: columnData?.title,
                                                             selectedOptionText: selectedOptionText)
@@ -191,7 +142,7 @@ struct TableDataModel {
         setupQuickTableViewRows()
     }
     
-    private func buildCell(data: FieldTableColumnLocal?, row: ValueElementLocal, column: String) -> FieldTableColumnLocal? {
+    private func buildCell(data: FieldTableColumnLocal?, row: ValueElement, column: String) -> FieldTableColumnLocal? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
@@ -220,26 +171,11 @@ struct TableDataModel {
                 for option in column.options ?? []{
                     optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
                 }
-                let imagesLocal = column.images?.map { valueElement in
-                    ValueElementLocal(
-                        id: valueElement.id ?? "",
-                        url: valueElement.url,
-                        fileName: valueElement.fileName,
-                        filePath: valueElement.filePath,
-                        deleted: valueElement.deleted,
-                        title: valueElement.title,
-                        description: valueElement.description,
-                        points: valueElement.points,
-                        cells: valueElement.cells?.mapValues { valueUnion in
-                            convertToValueUnionLocal(valueUnion)
-                        }
-                    )
-                }
                 
                 columnDataLocal.append(FieldTableColumnLocal(id: column.id,
                                                              defaultDropdownSelectedId: column.defaultDropdownSelectedId,
                                                              options: optionsLocal,
-                                                             valueElements: imagesLocal,
+                                                             valueElements: column.images,
                                                              type: column.type,
                                                              title: column.title,
                                                              selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? ""))
@@ -319,7 +255,7 @@ struct TableDataModel {
         !selectedRows.isEmpty && selectedRows.count == filteredcellModels.count
     }
     
-    func sortElementsByRowOrder(elements: [ValueElementLocal], rowOrder: [String]?) -> [ValueElementLocal] {
+    func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
         guard let rowOrder = rowOrder else { return elements }
         let sortedRows = elements.sorted { (a, b) -> Bool in
             if let first = rowOrder.firstIndex(of: a.id ?? ""), let second = rowOrder.firstIndex(of: b.id ?? "") {
@@ -336,7 +272,7 @@ struct FieldTableColumnLocal {
     let id: String?
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
-    var valueElements: [ValueElementLocal]?
+    var valueElements: [ValueElement]?
     let type: String?
     var title: String?
     var selectedOptionText: String?
@@ -346,378 +282,6 @@ struct OptionLocal: Identifiable {
     var id: String?
     var deleted: Bool?
     var value: String?
-}
-
-struct ValueElementLocal: Codable,Hashable, Equatable, Identifiable {
-    var id: String
-    var url: String?
-    var fileName: String?
-    var filePath: String?
-    var deleted: Bool?
-    var title: String?
-    var description: String?
-    var points: [Point]?
-    var cells: [String: ValueUnionLocal]?
-    
-    init(
-        id: String,
-        url: String? = nil,
-        fileName: String? = nil,
-        filePath: String? = nil,
-        deleted: Bool? = false,
-        title: String? = nil,
-        description: String? = nil,
-        points: [Point]? = nil,
-        cells: [String: ValueUnionLocal]? = nil
-    ) {
-        self.id = id
-        self.url = url
-        self.fileName = fileName
-        self.filePath = filePath
-        self.deleted = deleted
-        self.title = title
-        self.description = description
-        self.points = points
-        self.cells = cells
-    }
-    
-    mutating func setDeleted() {
-        self.deleted = true
-    }
-}
-
-enum ValueUnionLocal: Codable, Hashable, Equatable {
-    case double(Double)
-    case string(String)
-    case array([String])
-    case valueElementArray([ValueElementLocal])
-    case bool(Bool)
-    case null
-
-    public static func == (lhs: ValueUnionLocal, rhs: ValueUnionLocal) -> Bool {
-        switch (lhs, rhs) {
-        case (.double(let a), .double(let b)):
-            return a == b
-        case (.string(let a), .string(let b)):
-            return a == b
-        case (.array(let a), .array(let b)):
-            return a == b
-        case (.valueElementArray(let a), .valueElementArray(let b)):
-            return a == b
-        case (.bool(let a), .bool(let b)):
-            return a == b
-        case (.null, .null):
-            return true
-        default:
-            return false
-        }
-    }
-
-    public init?(value: Any) {
-        if let doubleValue = value as? Double {
-            self = .double(doubleValue)
-            return
-        }
-        if let boolValue = value as? Bool {
-            self = .bool(boolValue)
-            return
-        }
-        if let strValue = value as? String {
-            self = .string(strValue)
-            return
-        }
-        if let arrayValue = value as? [String] {
-            self = .array(arrayValue)
-            return
-        }
-        if let valueElementArray = value as? [ValueElementLocal] {
-            self = .valueElementArray(valueElementArray)
-            return
-        }
-        if value is NSNull {
-            self = .null
-            return
-        }
-#if DEBUG
-        fatalError()
-#else
-        self = .null
-#endif
-    }
-
-    public var isEmpty: Bool {
-        switch self {
-        case .double:
-            return false
-        case .string(let string):
-            return string.isEmpty
-        case .array(let stringArray):
-            return stringArray.isEmpty
-        case .valueElementArray(let valueElementArray):
-            return valueElementArray.isEmpty
-        case .bool(let bool):
-            return bool
-        case .null:
-            return true
-        }
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let x = try? container.decode(Double.self) {
-            self = .double(x)
-            return
-        }
-        if let x = try? container.decode([ValueElementLocal].self) {
-            self = .valueElementArray(x)
-            return
-        }
-        if let x = try? container.decode(String.self) {
-            self = .string(x)
-            return
-        }
-        if let x = try? container.decode([String].self) {
-            self = .array(x)
-            return
-        }
-        if let x = try? container.decode(Bool.self) {
-            self = .bool(x)
-            return
-        }
-        if container.decodeNil() {
-            self = .null
-            return
-        }
-        throw DecodingError.typeMismatch(ValueUnionLocal.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for ValueUnionLocal"))
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .double(let x):
-            if x.truncatingRemainder(dividingBy: 1) == 0 {
-                try container.encode(Double(x))
-            } else {
-                try container.encode(x)
-            }
-        case .string(let x):
-            try container.encode(x)
-        case .valueElementArray(let x):
-            try container.encode(x)
-        case .array(let x):
-            try container.encode(x)
-        case .bool(let x):
-            try container.encode(x)
-        case .null:
-            try container.encodeNil()
-        }
-    }
-}
-
-extension ValueUnionLocal {
-    
-    var text: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-
-    var bool: Bool? {
-        switch self {
-        case .bool(let bool):
-            return bool
-        case .double(let double):
-            return double != 0
-        default:
-            return nil
-        }
-    }
-
-    var displayText: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-
-    var stringArray: [String]? {
-        switch self {
-        case .array(let stringArray):
-            return stringArray
-        default:
-            return nil
-        }
-    }
-
-    var imageURLs: [String]? {
-        switch self {
-        case .valueElementArray(let valueElements):
-            var imageURLArray: [String] = []
-            for element in valueElements {
-                imageURLArray.append(element.url ?? "")
-            }
-            return imageURLArray
-        default:
-            return nil
-        }
-    }
-    
-    var signatureURL: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var multilineText: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var number: Double? {
-        switch self {
-        case .double(let value):
-            return value
-        case .bool(let boolValue):
-            return boolValue ? 1 : 0
-        default:
-            return nil
-        }
-    }
-
-    var dropdownValue: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var selector: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var multiSelector: [String]? {
-        switch self {
-        case .array(let array):
-            return array
-        default:
-            return nil
-        }
-    }
-    
-    func dateTime(format: String) -> String? {
-        switch self {
-        case .string(let string):
-            let date = getTimeFromISO8601Format(iso8601String: string)
-            return date
-        case .double(let value):
-            let date = timestampMillisecondsToDate(value: Int(value), format: format)
-            return date
-        default:
-            return nil
-        }
-    }
-    
-    var valueElements: [ValueElementLocal]? {
-        switch self {
-        case .valueElementArray(let valueElements):
-            return valueElements
-        default:
-            return nil
-        }
-    }
-    
-    func toValueUnion() -> ValueUnion {
-        switch self {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toValueElement() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        }
-    }
-}
-
-extension ValueElement {
-    func toLocal() -> ValueElementLocal {
-        var valueElements = ValueElementLocal(
-            id: self.id ?? "",
-            deleted: self.deleted,
-            title: self.title,
-            description: self.description,
-            points: self.points
-        )
-        valueElements.url = self.url
-        valueElements.fileName = self.fileName
-        valueElements.filePath = self.filePath
-        valueElements.cells = self.cells?.mapValues { valueUnion in
-            convertToValueUnionLocal(valueUnion)
-        }
-        
-        return valueElements
-    }
-    
-    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
-        switch valueUnion {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toLocal() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        case .dictionary(_):
-            return .null
-        }
-    }
-}
-
-extension ValueElementLocal {
-    func toValueElement() -> ValueElement {
-        var valueElement = ValueElement(
-            id: self.id ?? "",
-            deleted: self.deleted ?? false,
-            description: self.description ?? "",
-            title: self.title ?? "",
-            points: self.points
-        )
-        valueElement.url = self.url
-        valueElement.fileName = self.fileName
-        valueElement.filePath = self.filePath
-        valueElement.cells = self.cells?.mapValues { $0.toValueUnion() }
-        
-        return valueElement
-    }
 }
 
 struct ChartDataModel {
@@ -758,7 +322,7 @@ struct ImageDataModel {
     var fieldIdentifier: FieldIdentifier
     var multi: Bool?
     var primaryDisplayOnly: Bool?
-    var valueElements: [ValueElementLocal]?
+    var valueElements: [ValueElement]?
     var mode: Mode
     var fieldHeaderModel: FieldHeaderModel?
 }
