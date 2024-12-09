@@ -5,7 +5,6 @@ struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
     @State private var heights: [Int: CGFloat] = [:]
-    @State private var refreshID = UUID()
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
@@ -257,14 +256,10 @@ struct TableModalView : View {
                                 }
                             }
                         }
-//                        .onReceive(viewModel.tableDataModel.$rows) { _ in
-//                            refreshUUIDIfNeeded()
-//                        }
                         .onPreferenceChange(HeightPreferenceKey.self) { value in
                             updateNewHeight(newValue: value)
                         }
                     }
-                    .id(refreshID)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
@@ -289,11 +284,6 @@ struct TableModalView : View {
 
     private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-    
-    // Note: This is an optimisation to stop force re-render entire table
-    private func refreshUUIDIfNeeded() {
-        self.refreshID = UUID()
     }
     
     private func updateNewHeight(newValue: [Int: CGFloat]) {
