@@ -44,8 +44,11 @@ struct TableDataModel {
     var filteredcellModels = [RowDataModel]()
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
-    var viewMoreText: String = ""
     var id = UUID()
+    
+    var viewMoreText: String {
+        rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
+    }
 
     init(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
@@ -98,7 +101,6 @@ struct TableDataModel {
 
     mutating func setup() {
         setupRows()
-        viewMoreText = rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
     }
     
     mutating private func setupColumns() {
