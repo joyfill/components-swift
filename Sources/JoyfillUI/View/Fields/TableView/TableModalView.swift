@@ -124,12 +124,20 @@ struct TableModalView : View {
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
-                
-                ScrollView([.vertical], showsIndicators: false) {
-                    rowsHeader
-                        .offset(y: offset.y)
+                if #available(iOS 16, *) {
+                    ScrollView([.vertical], showsIndicators: false) {
+                        rowsHeader
+                            .offset(y: offset.y)
+                    }
+                    .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
+                    .scrollDisabled(true)
+                } else {
+                    ScrollView([.vertical], showsIndicators: false) {
+                        rowsHeader
+                            .offset(y: offset.y)
+                    }
+                    .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
                 }
-                .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
             }
             
             VStack(alignment: .leading, spacing: 0) {
