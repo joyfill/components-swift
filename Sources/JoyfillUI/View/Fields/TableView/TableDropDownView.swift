@@ -65,7 +65,7 @@ struct TableDropDownOptionListView: View {
             var editedCell = cellModel.data
             editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
             if (editedCell.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
-                cellModel.didChange?(editedCell)
+                cellModel.didChange?(editedCell, true)
             }
         }
     }

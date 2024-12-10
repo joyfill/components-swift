@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TableTextView: View {
+    @FocusState private var isTextFieldFocused: Bool
     var cellModel: TableCellModel
     @State var text = ""
 
@@ -29,7 +30,17 @@ struct TableTextView: View {
                     if cellModel.data.title != text {
                         var editedCell = cellModel.data
                         editedCell.title = text
-                        cellModel.didChange?(editedCell)
+                        cellModel.didChange?(editedCell, false)
+                    }
+                }
+                .focused($isTextFieldFocused)
+                .onChange(of: isTextFieldFocused) { isFocused in
+                    if !isFocused {
+                        if cellModel.data.title != text {
+                            var editedCell = cellModel.data
+                            editedCell.title = text
+                            cellModel.didChange?(editedCell, true)
+                        }
                     }
                 }
         }

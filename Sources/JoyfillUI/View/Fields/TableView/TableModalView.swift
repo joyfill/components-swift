@@ -343,7 +343,7 @@ struct SearchBar: View {
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: viewModel.tableDataModel.mode)
-                    { editedCell in
+                    { editedCell,_ in
                         switch column.type {
                         case "text":
                             self.model.filterText = editedCell.title ?? ""

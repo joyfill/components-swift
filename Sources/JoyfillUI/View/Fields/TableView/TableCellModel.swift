@@ -20,5 +20,5 @@ struct TableCellModel: Identifiable, Equatable {
     var fieldIdentifier: FieldIdentifier
     let viewMode: TableViewMode
     let editMode: Mode
-    let didChange: ((_ cell: FieldTableColumnLocal) -> Void)?
+    let didChange: ((_ cell: FieldTableColumnLocal, _ shouldChangeID: Bool) -> Void)?
 }
