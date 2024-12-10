@@ -194,10 +194,9 @@ class TableViewModel: ObservableObject {
                     editedCell.title = change
                 }
                 
-                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+                tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
             }
         }
-        setupCellModels()
     }
     
     func sendEventsIfNeeded() {

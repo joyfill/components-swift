@@ -20,7 +20,7 @@ struct FieldListModel {
 }
 
 struct RowDataModel: Equatable {
-    let id = UUID()
+    var id = UUID()
     let rowID: String
     var cells: [TableCellModel]
     var selected = false
@@ -195,6 +195,15 @@ struct TableDataModel {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data  = editedCell
         cellModels[rowIndex].cells[colIndex] = cellModel
+        filterRowsIfNeeded()
+    }
+    
+    mutating func updateCellModelForBulkEdit(rowIndex: Int, rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
+        rowToCellMap[rowId]?[colIndex] = editedCell
+        var cellModel = cellModels[rowIndex].cells[colIndex]
+        cellModel.data  = editedCell
+        cellModels[rowIndex].cells[colIndex] = cellModel
+        cellModels[rowIndex].id = UUID()
         filterRowsIfNeeded()
     }
     
