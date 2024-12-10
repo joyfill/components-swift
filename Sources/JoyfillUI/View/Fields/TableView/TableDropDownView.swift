@@ -64,6 +64,7 @@ struct TableDropDownOptionListView: View {
         .onChange(of: selectedDropdownValue) { value in
             var editedCell = cellModel.data
             editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
+            editedCell.selectedOptionText = value
             if (editedCell.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
                 cellModel.didChange?(editedCell, true)
             }

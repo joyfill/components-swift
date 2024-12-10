@@ -197,7 +197,6 @@ struct TableDataModel {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data  = editedCell
         cellModels[rowIndex].cells[colIndex] = cellModel
-        filterRowsIfNeeded()
     }
     
     mutating func updateCellModelForBulkEdit(rowIndex: Int, rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
@@ -206,7 +205,6 @@ struct TableDataModel {
         cellModel.data  = editedCell
         cellModels[rowIndex].cells[colIndex] = cellModel
         cellModels[rowIndex].id = UUID()
-        filterRowsIfNeeded()
     }
     
     var lastRowSelected: Bool {
