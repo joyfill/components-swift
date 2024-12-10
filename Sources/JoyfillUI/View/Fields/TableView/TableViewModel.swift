@@ -91,7 +91,8 @@ class TableViewModel: ObservableObject {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         guard let changes = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         
-        changes.forEach { (index: Int, value: ValueElement) in
+        let sortedChanges = changes.sorted { $0.key < $1.key }
+        sortedChanges.forEach { (index, value) in
             updateRow(valueElement: value, at: index)
         }
         tableDataModel.emptySelection()
