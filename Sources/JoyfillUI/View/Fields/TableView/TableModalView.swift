@@ -62,6 +62,7 @@ struct TableModalView : View {
         for i in 0..<viewModel.tableDataModel.filterModels.count {
             viewModel.tableDataModel.filterModels[i].filterText = ""
         }
+        viewModel.tableDataModel.emptySelection()
     }
 
     func sortRowsIfNeeded() {
