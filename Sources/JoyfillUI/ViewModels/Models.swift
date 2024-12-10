@@ -21,7 +21,6 @@ struct FieldListModel {
 
 struct RowDataModel: Equatable {
     let id = UUID()
-    let index: Int
     let rowID: String
     var cells: [TableCellModel]
     var selected = false

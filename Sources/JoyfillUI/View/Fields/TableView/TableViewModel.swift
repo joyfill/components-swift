@@ -43,9 +43,9 @@ class TableViewModel: ObservableObject {
             }
         }
         if self.tableDataModel.cellModels.count > (index - 1) {
-            self.tableDataModel.cellModels.insert(RowDataModel(index: index, rowID: rowID, cells: rowCellModels), at: index)
+            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels), at: index)
         } else {
-            self.tableDataModel.cellModels.append(RowDataModel(index: self.tableDataModel.cellModels.count, rowID: rowID, cells: rowCellModels))
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
         }
     }
     
@@ -67,7 +67,7 @@ class TableViewModel: ObservableObject {
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(RowDataModel(index: cellModels.count, rowID: rowID, cells: rowCellModels))
+            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels

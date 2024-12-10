@@ -4,7 +4,7 @@ import JoyfillModel
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
-    @State private var heights: [Int: CGFloat] = [:]
+    @State private var heights: [UUID: CGFloat] = [:]
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
@@ -209,27 +209,27 @@ struct TableModalView : View {
     
     var rowsHeader: some View {
        VStack(alignment: .leading, spacing: 0) {
-            ForEach(viewModel.tableDataModel.filteredcellModels, id: \.id) { rowModel in
+           ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
                 let rowArray = rowModel.cells
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
                         let isRowSelected = rowModel.selected
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: heights[rowModel.index] ?? 50)
+                            .frame(width: 40, height: heights[rowModel.id] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
-                                viewModel.tableDataModel.filteredcellModels[rowModel.index].selected.toggle()
+                                viewModel.tableDataModel.filteredcellModels[index].selected.toggle()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                             }
                             .accessibilityIdentifier("MyButton")
                         
                     }
-                    Text("\(rowModel.index+1)")
+                    Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                        .frame(width: 40, height: heights[rowModel.index] ?? 50)
+                        .frame(width: 40, height: heights[rowModel.id] ?? 50)
                         .border(Color.tableCellBorderColor)
-                        .id("\(rowModel.index)")
+                        .id("\(index)")
                 }
             }
         }
@@ -251,7 +251,7 @@ struct TableModalView : View {
                                     }
                                     .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
                                     .background(GeometryReader { proxy in
-                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [rowCellModels.index: proxy.size.height])
+                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [rowCellModels.id: proxy.size.height])
                                     })
                                 }
                             }
@@ -286,7 +286,7 @@ struct TableModalView : View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
-    private func updateNewHeight(newValue: [Int: CGFloat]) {
+    private func updateNewHeight(newValue: [UUID: CGFloat]) {
         for (key, value) in newValue {
             heights[key] = value > 0 ? value : heights[key] ?? 50
         }
@@ -294,8 +294,8 @@ struct TableModalView : View {
 }
 
 struct HeightPreferenceKey: PreferenceKey {
-    static var defaultValue: [Int: CGFloat] = [:]
-    static func reduce(value: inout [Int: CGFloat], nextValue: () -> [Int: CGFloat]) {
+    static var defaultValue: [UUID: CGFloat] = [:]
+    static func reduce(value: inout [UUID: CGFloat], nextValue: () -> [UUID: CGFloat]) {
         for (key, newValue) in nextValue() {
             if let currentValue = value[key] {
                 value[key] = max(currentValue, newValue)
