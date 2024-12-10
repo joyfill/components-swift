@@ -175,8 +175,6 @@ class TableViewModel: ObservableObject {
     }
 
     func bulkEdit(changes: [Int: String]) {
-//        tableDataModel.filteredcellModels()
-        
         var columnIDChanges = [String: String]()
         changes.forEach { (colIndex: Int, value: String) in
             guard let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
@@ -187,18 +185,20 @@ class TableViewModel: ObservableObject {
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
             tableDataModel.columns.enumerated().forEach { colIndex, colID in
-                tableDataModel.updateCellModel(rowIndex: rowIndex, colIndex: colIndex, value: changes[colIndex] ?? "")
+                var editedCell = tableDataModel.cellModels[rowIndex].cells[colIndex].data
+                guard let change = changes[colIndex] else { return }
+                if editedCell.type == "dropdown" {
+                    editedCell.selectedOptionText =  editedCell.options?.filter { $0.id == change }.first?.value ?? ""
+                    editedCell.defaultDropdownSelectedId = change
+                } else {
+                    editedCell.title = change
+                }
+                
+                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
             }
         }
-        tableDataModel.filterRowsIfNeeded()
-        
-//        tableDataModel.emptySelection()
-//        tableDataModel.setup()
-//        uuid = UUID()
-//        setupCellModels()
-        //TODO: Need to check if ui model needs to be updated
+        setupCellModels()
     }
-    
     
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
