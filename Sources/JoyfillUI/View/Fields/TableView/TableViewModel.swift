@@ -203,6 +203,7 @@ class TableViewModel: ObservableObject {
                 tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
             }
         }
+        tableDataModel.emptySelection()
     }
     
     func sendEventsIfNeeded() {
