@@ -267,10 +267,20 @@ struct TableDataModel {
     
     mutating func selectAllRows() {
         selectedRows = filteredcellModels.compactMap { $0.cells.first?.rowID }
+        filteredcellModels = filteredcellModels.map { element in
+            var element = element
+            element.selected = true
+            return element
+        }
     }
     
     mutating func emptySelection() {
         selectedRows = []
+        filteredcellModels = filteredcellModels.map { element in
+            var element = element
+            element.selected = false
+            return element
+        }
     }
     
     var allRowSelected: Bool {
