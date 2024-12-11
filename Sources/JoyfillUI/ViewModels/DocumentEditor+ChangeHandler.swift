@@ -188,17 +188,21 @@ extension DocumentEditor {
     }
 
     func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal, fieldId: String) {
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            return
+        }
+
+        guard let rowIndex = elements.firstIndex(where: { $0.id == rowId }) else {
             return
         }
 
         switch editedCell.type {
         case "text":
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.title ?? ""), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, editedCellId: editedCell.id!, newCell: ValueUnion.string(editedCell.title ?? ""), fieldId: fieldId)
         case "dropdown":
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, editedCellId: editedCell.id!, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(elements), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, editedCellId: editedCell.id!, newCell: ValueUnion.valueElementArray(editedCell.valueElements ?? []), fieldId: fieldId)
         default:
             return
         }
@@ -356,10 +360,10 @@ extension DocumentEditor {
         return valueDict
     }
 
-    private func changeCell(elements: [ValueElement], index: Int, editedCellId: String?, newCell: ValueUnion, fieldId: String) {
+    private func changeCell(elements: [ValueElement], index: Int, editedCellId: String, newCell: ValueUnion, fieldId: String) {
         var elements = elements
         if var cells = elements[index].cells {
-            cells[editedCellId ?? ""] = newCell
+            cells[editedCellId] = newCell
             elements[index].cells = cells
         } else {
             elements[index].cells = [editedCellId ?? "" : newCell]
