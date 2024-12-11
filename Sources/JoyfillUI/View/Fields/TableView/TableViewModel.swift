@@ -174,8 +174,6 @@ class TableViewModel: ObservableObject {
         tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
         
         if shouldChangeId {
-            tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
-        } else {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
         }
     }
@@ -187,7 +185,6 @@ class TableViewModel: ObservableObject {
             columnIDChanges[cellDataModelId] = value
         }
         tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-        
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
             tableDataModel.columns.enumerated().forEach { colIndex, colID in
@@ -200,7 +197,7 @@ class TableViewModel: ObservableObject {
                     cellDataModel.title = change
                 }
                 
-                tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
+                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
             }
         }
         tableDataModel.emptySelection()

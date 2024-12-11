@@ -198,19 +198,7 @@ struct TableDataModel {
         cellModel.data  = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
     }
-    
-    mutating func updateCellModelForBulkEdit(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
-        rowToCellMap[rowId]?[colIndex] = cellDataModel
-        var cellModel = cellModels[rowIndex].cells[colIndex]
-        cellModel.data  = cellDataModel
-        var rowModel = cellModels[rowIndex]
-        rowModel.cells[colIndex].data.title = cellDataModel.title
-        rowModel.id = UUID()
-        cellModels[rowIndex] = rowModel
-//        cellModels[rowIndex].id = UUID()
-//        filterRowsIfNeeded()
-    }
-    
+
     var lastRowSelected: Bool {
         return !selectedRows.isEmpty && selectedRows.last! == rowOrder.last!
     }
