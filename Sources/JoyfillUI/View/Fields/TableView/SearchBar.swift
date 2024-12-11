@@ -27,12 +27,12 @@ struct SearchBar: View {
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: viewModel.tableDataModel.mode)
-                    { editedCell,_ in
+                    { cellDataModel,_ in
                         switch column.type {
                         case "text":
-                            self.model.filterText = editedCell.title ?? ""
+                            self.model.filterText = cellDataModel.title ?? ""
                         case "dropdown":
-                            self.model.filterText = editedCell.defaultDropdownSelectedId ?? ""
+                            self.model.filterText = cellDataModel.defaultDropdownSelectedId ?? ""
                         default:
                             break
                         }

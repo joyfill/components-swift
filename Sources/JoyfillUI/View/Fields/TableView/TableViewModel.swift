@@ -36,8 +36,8 @@ class TableViewModel: ObservableObject {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { editedCell, shouldChangeID   in
-                    self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell, shouldChangeId: shouldChangeID)
+                                               editMode: tableDataModel.mode) { cellDataModel, shouldChangeID   in
+                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, shouldChangeId: shouldChangeID)
                 }
                 rowCellModels.append(cellModel)
             }
@@ -61,8 +61,8 @@ class TableViewModel: ObservableObject {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { editedCell, shouldChangeID   in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell, shouldChangeId: shouldChangeID)
+                                                   editMode: tableDataModel.mode) { cellDataModel, shouldChangeID   in
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, shouldChangeId: shouldChangeID)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -170,37 +170,37 @@ class TableViewModel: ObservableObject {
         }
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal, shouldChangeId: Bool) {
-        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldIdentifier.fieldID)
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, shouldChangeId: Bool) {
+        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
         
         if shouldChangeId {
-            tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+            tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
         } else {
-            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
         }
     }
 
     func bulkEdit(changes: [Int: String]) {
         var columnIDChanges = [String: String]()
         changes.forEach { (colIndex: Int, value: String) in
-            guard let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
-            columnIDChanges[editedCellId] = value
+            guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+            columnIDChanges[cellDataModelId] = value
         }
         tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
             tableDataModel.columns.enumerated().forEach { colIndex, colID in
-                var editedCell = tableDataModel.cellModels[rowIndex].cells[colIndex].data
+                var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
-                if editedCell.type == "dropdown" {
-                    editedCell.selectedOptionText =  editedCell.options?.filter { $0.id == change }.first?.value ?? ""
-                    editedCell.defaultDropdownSelectedId = change
+                if cellDataModel.type == "dropdown" {
+                    cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change }.first?.value ?? ""
+                    cellDataModel.defaultDropdownSelectedId = change
                 } else {
-                    editedCell.title = change
+                    cellDataModel.title = change
                 }
                 
-                tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, editedCell: editedCell)
+                tableDataModel.updateCellModelForBulkEdit(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
             }
         }
         tableDataModel.emptySelection()

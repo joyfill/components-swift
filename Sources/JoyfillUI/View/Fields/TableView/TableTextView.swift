@@ -28,18 +28,18 @@ struct TableTextView: View {
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
                 .onChange(of: text) { newText in
                     if cellModel.data.title != text {
-                        var editedCell = cellModel.data
-                        editedCell.title = text
-                        cellModel.didChange?(editedCell, false)
+                        var cellDataModel = cellModel.data
+                        cellDataModel.title = text
+                        cellModel.didChange?(cellDataModel, false)
                     }
                 }
                 .focused($isTextFieldFocused)
                 .onChange(of: isTextFieldFocused) { isFocused in
                     if !isFocused {
                         if cellModel.data.title != text {
-                            var editedCell = cellModel.data
-                            editedCell.title = text
-                            cellModel.didChange?(editedCell, true)
+                            var cellDataModel = cellModel.data
+                            cellDataModel.title = text
+                            cellModel.didChange?(cellDataModel, true)
                         }
                     }
                 }

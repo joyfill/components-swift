@@ -37,8 +37,8 @@ struct TableDataModel {
     var valueToValueElements: [ValueElement]?
     var tableColumns: [FieldTableColumn]
     var columns: [String] = []
-    var rowToCellMap: [String: [FieldTableColumnLocal]] = [:]
-    var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
+    var rowToCellMap: [String: [CellDataModel]] = [:]
+    var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -118,7 +118,7 @@ struct TableDataModel {
                     OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
                 }
                 
-                let fieldTableColumnLocal = FieldTableColumnLocal(
+                let fieldTableColumnLocal = CellDataModel(
                     id: fieldTableColumn.id,
                     defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                     options: optionsLocal,
@@ -131,8 +131,8 @@ struct TableDataModel {
         }
     }
 
-    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [FieldTableColumnLocal] {
-        var cells: [FieldTableColumnLocal] = []
+    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
+        var cells: [CellDataModel] = []
         for columnData in tableColumns {
             let optionsLocal = columnData.options?.map { option in
                 OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
@@ -141,7 +141,7 @@ struct TableDataModel {
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
             
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
-            let columnDataLocal = FieldTableColumnLocal(id: columnData.id,
+            let columnDataLocal = CellDataModel(id: columnData.id,
                                                         defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
                                                         options: optionsLocal,
                                                         valueElements: columnData.images,
@@ -171,7 +171,7 @@ struct TableDataModel {
         setupQuickTableViewRows()
     }
     
-    private func buildCell(data: FieldTableColumnLocal?, row: ValueElement, column: String) -> FieldTableColumnLocal? {
+    private func buildCell(data: CellDataModel?, row: ValueElement, column: String) -> CellDataModel? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
@@ -192,19 +192,23 @@ struct TableDataModel {
 
     }
     
-    mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
-        rowToCellMap[rowId]?[colIndex] = editedCell
+    mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
+        rowToCellMap[rowId]?[colIndex] = cellDataModel
         var cellModel = cellModels[rowIndex].cells[colIndex]
-        cellModel.data  = editedCell
+        cellModel.data  = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
     }
     
-    mutating func updateCellModelForBulkEdit(rowIndex: Int, rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
-        rowToCellMap[rowId]?[colIndex] = editedCell
+    mutating func updateCellModelForBulkEdit(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
+        rowToCellMap[rowId]?[colIndex] = cellDataModel
         var cellModel = cellModels[rowIndex].cells[colIndex]
-        cellModel.data  = editedCell
-        cellModels[rowIndex].cells[colIndex] = cellModel
-        cellModels[rowIndex].id = UUID()
+        cellModel.data  = cellDataModel
+        var rowModel = cellModels[rowIndex]
+        rowModel.cells[colIndex].data.title = cellDataModel.title
+        rowModel.id = UUID()
+        cellModels[rowIndex] = rowModel
+//        cellModels[rowIndex].id = UUID()
+//        filterRowsIfNeeded()
     }
     
     var lastRowSelected: Bool {
@@ -221,21 +225,21 @@ struct TableDataModel {
         cellModels[rowIndex].cells[colIndex] = cellModel
     }
     
-    func getFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
+    func getFieldTableColumn(row: String, col: Int) -> CellDataModel? {
         return rowToCellMap[row]?[col]
     }
     
-    func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
+    func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
         if rowOrder.isEmpty {
             let id = generateObjectId()
             let columnData = tableColumns ?? []
-            var columnDataLocal: [FieldTableColumnLocal] = []
+            var columnDataLocal: [CellDataModel] = []
             let column = columnData[col]
             var optionsLocal: [OptionLocal] = []
             for option in column.options ?? []{
                 optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
             }
-            return FieldTableColumnLocal(id: column.id,
+            return CellDataModel(id: column.id,
                                          defaultDropdownSelectedId: column.defaultDropdownSelectedId,
                                          options: optionsLocal,
                                          valueElements: column.images,
@@ -308,7 +312,11 @@ struct TableDataModel {
     
 }
 
-struct FieldTableColumnLocal {
+struct CellDataModel: Hashable, Equatable {
+    static func == (lhs: CellDataModel, rhs: CellDataModel) -> Bool {
+        lhs.title == rhs.title && rhs.id == lhs.id && rhs.uuid == lhs.uuid
+    }
+    var uuid = UUID()
     let id: String?
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
@@ -316,6 +324,12 @@ struct FieldTableColumnLocal {
     let type: String?
     var title: String?
     var selectedOptionText: String?
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+        hasher.combine(id)
+        hasher.combine(uuid)
+    }
 }
 
 struct OptionLocal: Identifiable {

@@ -288,12 +288,12 @@ struct EditMultipleRowsSheetView: View {
                                                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
                                                        editMode: viewModel.tableDataModel.mode)
-                        { editedCell,_ in
+                        { cellDataModel,_ in
                             switch cell.type {
                             case "text":
-                                self.changes[colIndex] = editedCell.title
+                                self.changes[colIndex] = cellDataModel.title
                             case "dropdown":
-                                self.changes[colIndex] = editedCell.defaultDropdownSelectedId
+                                self.changes[colIndex] = cellDataModel.defaultDropdownSelectedId
                             default:
                                 break
                             }

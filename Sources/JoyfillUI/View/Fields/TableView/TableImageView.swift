@@ -39,9 +39,9 @@ import JoyfillModel
             showMoreImages2 = true
         }
         .onChange(of: valueElements) { newValue in
-            var editedCell = cellModel.data
-            editedCell.valueElements = valueElements
-            cellModel.didChange?(editedCell, false)
+            var cellDataModel = cellModel.data
+            cellDataModel.valueElements = valueElements
+            cellModel.didChange?(cellDataModel, false)
         }
     }
      
@@ -56,9 +56,9 @@ import JoyfillModel
                  } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                  valueElements.append(valueElement)
              }
-             var editedCell = cellModel.data
-             editedCell.valueElements = valueElements
-             cellModel.didChange?(editedCell, false)
+             var cellDataModel = cellModel.data
+             cellDataModel.valueElements = valueElements
+             cellModel.didChange?(cellDataModel, false)
          }
          cellModel.documentEditor?.onUpload(event: uploadEvent)
      }

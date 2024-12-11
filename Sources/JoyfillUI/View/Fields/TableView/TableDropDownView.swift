@@ -62,11 +62,11 @@ struct TableDropDownOptionListView: View {
         }
         .focused($isFocused) // Observe focus state
         .onChange(of: selectedDropdownValue) { value in
-            var editedCell = cellModel.data
-            editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
-            editedCell.selectedOptionText = value
-            if (editedCell.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
-                cellModel.didChange?(editedCell, true)
+            var cellDataModel = cellModel.data
+            cellDataModel.defaultDropdownSelectedId = cellDataModel.options?.filter { $0.value == value }.first?.id
+            cellDataModel.selectedOptionText = value
+            if (cellDataModel.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
+                cellModel.didChange?(cellDataModel, true)
             }
         }
     }
@@ -75,10 +75,10 @@ struct TableDropDownOptionListView: View {
 
 struct TableDropDownOptionList: View {
     @Environment(\.presentationMode) var presentationMode
-    private let data: FieldTableColumnLocal
+    private let data: CellDataModel
     @Binding var selectedDropdownValue: String?
     
-    public init(data: FieldTableColumnLocal, selectedDropdownValue: Binding<String?>) {
+    public init(data: CellDataModel, selectedDropdownValue: Binding<String?>) {
         self.data = data
         self._selectedDropdownValue = selectedDropdownValue
     }
