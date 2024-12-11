@@ -128,6 +128,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
+//                            .frame(width: viewModel.showRowSelector ? 80 : 40)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -217,17 +218,16 @@ struct TableModalView : View {
     }
     
     var rowsHeader: some View {
-       VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
                 let rowArray = rowModel.cells
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
-                        let isRowSelected = rowModel.selected
+                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: heights[rowModel.id] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
-                                viewModel.tableDataModel.filteredcellModels[index].selected.toggle()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                             }
                             .accessibilityIdentifier("MyButton")
@@ -249,7 +249,7 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(viewModel.tableDataModel.filteredcellModels, id: \.cells) { rowCellModels in
+                        ForEach(viewModel.tableDataModel.filteredcellModels, id: \.self) { rowCellModels in
                             HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels.cells, id: \.id) { cellModel in
                                     ZStack {

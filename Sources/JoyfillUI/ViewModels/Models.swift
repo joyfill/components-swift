@@ -19,11 +19,18 @@ struct FieldListModel {
     var model: FieldListModelType
 }
 
-struct RowDataModel: Equatable {
+struct RowDataModel: Equatable, Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(cells)
+    }
+
+    static func == (lhs: RowDataModel, rhs: RowDataModel) -> Bool {
+        lhs.cells == rhs.cells
+    }
+
     var id = UUID()
     let rowID: String
     var cells: [TableCellModel]
-    var selected = false
 }
 
 struct TableDataModel {
@@ -267,20 +274,10 @@ struct TableDataModel {
     
     mutating func selectAllRows() {
         selectedRows = filteredcellModels.compactMap { $0.cells.first?.rowID }
-        filteredcellModels = filteredcellModels.map { element in
-            var element = element
-            element.selected = true
-            return element
-        }
     }
     
     mutating func emptySelection() {
         selectedRows = []
-        filteredcellModels = filteredcellModels.map { element in
-            var element = element
-            element.selected = false
-            return element
-        }
     }
     
     var allRowSelected: Bool {
