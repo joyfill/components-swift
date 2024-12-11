@@ -77,8 +77,6 @@ extension DocumentEditor {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        // TODO:
-//        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
     }
 
     public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier) {
@@ -97,8 +95,6 @@ extension DocumentEditor {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        // TODO:
-//        refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
     }
 
     public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) -> ValueElement {
@@ -213,8 +209,6 @@ extension DocumentEditor {
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
-        // TODO:
-//        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
     }
 
     public func onChange(event: FieldChangeData) {

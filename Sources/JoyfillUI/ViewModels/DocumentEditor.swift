@@ -60,7 +60,7 @@ public class DocumentEditor: ObservableObject {
                 var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
                 
                 dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
-                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
+                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType, refreshID: UUID()))
                 let index = fieldListModels.count - 1
                 fieldIndexMap[fieldPosition.field!] = fieldIndexMapValue(pageID: pageID, index: index)
             }
@@ -170,9 +170,7 @@ extension DocumentEditor {
                 field.yTitle = chartData.yTitle
             }
             updatefield(field: field)
-            document.fields = allFields
-            // TODO:
-//            refreshField(fieldId: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
+            refreshField(fieldId: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
             refreshDependent(for: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
         }
     }
@@ -204,12 +202,12 @@ extension DocumentEditor {
         let index = components.last.map { Int(String($0))! }!
         return (pageID, index)
     }
-
-    func refreshField(fieldId: String, fieldIdentifier: FieldIdentifier, model: FieldListModelType) {
+    
+    func refreshField(fieldId: String, fieldIdentifier: FieldIdentifier) {
         let pageIDIndexValue = fieldIndexMap[fieldId]!
         let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
         let fieldPosition = self.fieldPositionMap[fieldId]
-        pageFieldModels[pageID]!.fields[index].model = model
+        pageFieldModels[pageID]!.fields[index].refreshID = UUID()
     }
 
     private func valueElements(fieldID: String) -> [ValueElement]? {
@@ -219,8 +217,7 @@ extension DocumentEditor {
     func refreshDependent(for fieldID: String, fieldIdentifier: FieldIdentifier) {
         let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
         for fieldId in refreshFields {
-            // TODO:
-//            refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+            refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
         }
     }
     
