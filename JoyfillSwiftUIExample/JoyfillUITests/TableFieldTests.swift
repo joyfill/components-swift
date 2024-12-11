@@ -543,11 +543,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         checkSortingDataOnSecondDropdownField.tap()
         
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-        let firstOption = dropdownOptions.element(boundBy: 1)
+        let firstOption = dropdownOptions.element(boundBy: 2)
         firstOption.tap()
         
         let checkSortingDataOnThirdDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("No", checkSortingDataOnThirdDropdownField.element(boundBy: 2).label)
+        XCTAssertEqual("N/A", checkSortingDataOnThirdDropdownField.element(boundBy: 2).label)
         
         let checkSortingDataOnFourthDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("N/A", checkSortingDataOnFourthDropdownField.element(boundBy: 3).label)
@@ -569,7 +569,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("N/A", checkSortingDataOnThirdDropdownField.element(boundBy: 2).label)
         
         let checkSortingDataOnFourthDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("No", checkSortingDataOnFourthDropdownField.element(boundBy: 3).label)
+        XCTAssertEqual("N/A", checkSortingDataOnFourthDropdownField.element(boundBy: 3).label)
         
         let checkSortingDataOnFifthDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Select Option", checkSortingDataOnFifthDropdownField.element(boundBy: 4).label)
