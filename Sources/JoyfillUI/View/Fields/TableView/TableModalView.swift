@@ -250,7 +250,7 @@ struct TableModalView : View {
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(viewModel.tableDataModel.filteredcellModels, id: \.id) { rowCellModels in
-                            LazyHStack(alignment: .top, spacing: 0) {
+                            HStack(alignment: .top, spacing: 0) {
                                 ForEach(rowCellModels.cells, id: \.id) { cellModel in
                                     ZStack {
                                         Rectangle()
