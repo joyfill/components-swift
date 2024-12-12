@@ -300,9 +300,8 @@ struct TableDataModel {
 
 struct CellDataModel: Hashable, Equatable {
     static func == (lhs: CellDataModel, rhs: CellDataModel) -> Bool {
-        lhs.title == rhs.title && rhs.id == lhs.id && rhs.uuid == lhs.uuid && rhs.defaultDropdownSelectedId == lhs.defaultDropdownSelectedId
+        lhs.title == rhs.title && rhs.id == lhs.id && rhs.valueElements == lhs.valueElements
     }
-    var uuid = UUID()
     let id: String?
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
@@ -314,8 +313,8 @@ struct CellDataModel: Hashable, Equatable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(id)
-        hasher.combine(uuid)
         hasher.combine(defaultDropdownSelectedId)
+        hasher.combine(valueElements)
     }
 }
 

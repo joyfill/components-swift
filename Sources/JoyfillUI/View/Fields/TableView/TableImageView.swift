@@ -41,7 +41,7 @@ import JoyfillModel
         .onChange(of: valueElements) { newValue in
             var cellDataModel = cellModel.data
             cellDataModel.valueElements = valueElements
-            cellModel.didChange?(cellDataModel, false)
+            cellModel.didChange?(cellDataModel, true)
         }
     }
      
@@ -58,7 +58,7 @@ import JoyfillModel
              }
              var cellDataModel = cellModel.data
              cellDataModel.valueElements = valueElements
-             cellModel.didChange?(cellDataModel, false)
+             cellModel.didChange?(cellDataModel, true)
          }
          cellModel.documentEditor?.onUpload(event: uploadEvent)
      }
