@@ -22,7 +22,6 @@ struct TableRowView : View {
     }
 }
 
-
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
@@ -67,9 +66,12 @@ struct TableModalView : View {
             sortRowsIfNeeded()
             viewModel.tableDataModel.emptySelection()
         }
-        .onChange(of: viewModel.tableDataModel.cellModels) { _ in
-            viewModel.tableDataModel.filterRowsIfNeeded()
-            sortRowsIfNeeded()
+        .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
+            for model in viewModel.tableDataModel.filteredcellModels {
+                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
+                    viewModel.tableDataModel.cellModels[index] = model
+                }
+            }
         }
         .onChange(of: viewModel.tableDataModel.rowOrder) { _ in
             if viewModel.tableDataModel.rowOrder.isEmpty {

@@ -44,7 +44,6 @@ struct TableDataModel {
     var valueToValueElements: [ValueElement]?
     var tableColumns: [FieldTableColumn]
     var columns: [String] = []
-    var rowToCellMap: [String: [CellDataModel]] = [:]
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
@@ -71,7 +70,6 @@ struct TableDataModel {
         self.valueToValueElements = fieldData.valueToValueElements
         self.tableColumns = fieldData.tableColumns ?? []
         setupColumns()
-        setup()
         filterRowsIfNeeded()
 
         self.filterModels = columns.enumerated().map { colIndex, colID in
@@ -89,7 +87,6 @@ struct TableDataModel {
             if model.filterText.isEmpty {
                 continue
             }
-
              let filtred = filteredcellModels.filter { rowArr in
                  let column = rowArr.cells[model.colIndex].data
                 switch column.type {
@@ -104,10 +101,6 @@ struct TableDataModel {
             }
            filteredcellModels = filtred
         }
-    }
-
-    mutating func setup() {
-        setupRows()
     }
     
     mutating private func setupColumns() {
@@ -162,22 +155,6 @@ struct TableDataModel {
         return cells
     }
     
-    mutating private func setupRows() {
-        guard let valueElements = valueToValueElements, !valueElements.isEmpty else {
-            setupQuickTableViewRows()
-            return
-        }
-        
-        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: rowOrder)
-        let tableColumns = tableColumns
-        for row in sortedRows {
-            let cellRowModel = buildAllCellsForRow(tableColumns: tableColumns, row)
-            self.rowToCellMap[row.id!] = cellRowModel
-        }
-        setupQuickTableViewRows()
-    }
-    
     private func buildCell(data: CellDataModel?, row: ValueElement, column: String) -> CellDataModel? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
@@ -193,14 +170,8 @@ struct TableDataModel {
         }
         return cell
     }
-
-    mutating func setupQuickTableViewRows() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
-
-    }
     
     mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
-        rowToCellMap[rowId]?[colIndex] = cellDataModel
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data  = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
@@ -219,9 +190,16 @@ struct TableDataModel {
         cellModel.data.title  = value
         cellModels[rowIndex].cells[colIndex] = cellModel
     }
-    
+
+    func getFieldTableColumn(rowIndex: Int, col: Int) -> CellDataModel? {
+        return cellModels[rowIndex].cells[col].data
+    }
+
     func getFieldTableColumn(row: String, col: Int) -> CellDataModel? {
-        return rowToCellMap[row]?[col]
+        let rowIndex = filteredcellModels.firstIndex(where: { rowDataModel in
+            rowDataModel.rowID == row
+        })!
+        return filteredcellModels[rowIndex].cells[col].data
     }
     
     func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
@@ -242,7 +220,8 @@ struct TableDataModel {
                                          title: column.title,
                                          selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "")
         }
-        return rowToCellMap[row]?[col]
+        let rowIndex = rowOrder.firstIndex(of: row)!
+        return cellModels[rowIndex].cells[col].data
     }
     
     

@@ -51,10 +51,11 @@ class TableViewModel: ObservableObject {
     
     func setupCellModels() {
         var cellModels = [RowDataModel]()
+        let rowDataMap = setupRows()
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.columns.enumerated().forEach { colIndex, colID in
-                let columnModel = tableDataModel.getFieldTableColumn(row: rowID, col: colIndex)
+                let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    data: columnModel,
@@ -71,6 +72,22 @@ class TableViewModel: ObservableObject {
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
+    }
+
+    private func setupRows() -> [String: [CellDataModel]] {
+        guard let valueElements = tableDataModel.valueToValueElements, !valueElements.isEmpty else {
+            return [:]
+        }
+
+        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
+        let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
+        let tableColumns = tableDataModel.tableColumns
+        var rowToCellMap = [String: [CellDataModel]]()
+        for row in sortedRows {
+            let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
+            rowToCellMap[row.id!] = cellRowModel
+        }
+        return rowToCellMap
     }
 
     var rowTitle: String {
@@ -119,15 +136,8 @@ class TableViewModel: ObservableObject {
         let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
         moveDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
-
-    private func updateUI() {
-        tableDataModel.setup()
-        tableDataModel.emptySelection()
-        setupCellModels()
-    }
     
     fileprivate func updateRow(valueElement: ValueElement, at index: Int) {
-        tableDataModel.rowToCellMap[valueElement.id!] = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
         if tableDataModel.rowOrder.count > (index - 1) {
             tableDataModel.rowOrder.insert(valueElement.id!, at: index)
         } else {
@@ -138,7 +148,6 @@ class TableViewModel: ObservableObject {
     }
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
-        tableDataModel.rowToCellMap.removeValue(forKey: rowID)
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
@@ -173,9 +182,7 @@ class TableViewModel: ObservableObject {
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, shouldChangeId: Bool) {
         tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
         
-        if shouldChangeId {
-            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
-        }
+        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
     }
 
     func bulkEdit(changes: [Int: String]) {
