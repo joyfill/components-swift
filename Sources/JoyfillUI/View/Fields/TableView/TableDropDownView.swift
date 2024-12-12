@@ -12,10 +12,11 @@ struct TableDropDownOptionListView: View {
     @State var selectedDropdownValue: String? = ""
     @State private var isSheetPresented: Int = 0
     @State private var isSheetPresented2 = false
+    @State private var text: String = ""
 
     private var isUsedForBulkEdit = false
     private var cellModel: TableCellModel
-    @FocusState private var isFocused: Bool // Declare a FocusState property
+    @FocusState private var isTextFieldFocused: Bool // Declare a FocusState property
     @State private var lastSelectedValue: String?
     
     public init(cellModel: TableCellModel, isUsedForBulkEdit: Bool = false, selectedDropdownValue: String? = nil) {
@@ -31,7 +32,12 @@ struct TableDropDownOptionListView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
+            TextField("Hidden field to bring focus here", text: $text)
+                .hidden()
+                .frame(height: 0)
+                .focused($isTextFieldFocused)
             Button(action: {
+                isTextFieldFocused = true
                 isSheetPresented = Int.random(in: 0...100)
             }, label: {
                 HStack {
@@ -60,7 +66,6 @@ struct TableDropDownOptionListView: View {
                 TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
             }
         }
-        .focused($isFocused) // Observe focus state
         .onChange(of: selectedDropdownValue) { value in
             var cellDataModel = cellModel.data
             cellDataModel.defaultDropdownSelectedId = cellDataModel.options?.filter { $0.value == value }.first?.id
