@@ -119,7 +119,7 @@ struct TableDataModel {
                 }
                 
                 let fieldTableColumnLocal = CellDataModel(
-                    id: fieldTableColumn.id,
+                    id: fieldTableColumn.id!,
                     defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                     options: optionsLocal,
                     valueElements: fieldTableColumn.images,
@@ -141,7 +141,7 @@ struct TableDataModel {
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
             
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
-            let columnDataLocal = CellDataModel(id: columnData.id,
+            let columnDataLocal = CellDataModel(id: columnData.id!,
                                                         defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
                                                         options: optionsLocal,
                                                         valueElements: columnData.images,
@@ -195,7 +195,7 @@ struct TableDataModel {
         return cellModels[rowIndex].cells[col].data
     }
 
-    func getFieldTableColumn(row: String, col: Int) -> CellDataModel? {
+    func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
         let rowIndex = filteredcellModels.firstIndex(where: { rowDataModel in
             rowDataModel.rowID == row
         })!
@@ -212,7 +212,7 @@ struct TableDataModel {
             for option in column.options ?? []{
                 optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
             }
-            return CellDataModel(id: column.id,
+            return CellDataModel(id: column.id!,
                                          defaultDropdownSelectedId: column.defaultDropdownSelectedId,
                                          options: optionsLocal,
                                          valueElements: column.images,
@@ -281,7 +281,7 @@ struct CellDataModel: Hashable, Equatable {
         lhs.uuid == rhs.uuid
     }
     let uuid = UUID()
-    let id: String?
+    let id: String
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
     var valueElements: [ValueElement]?

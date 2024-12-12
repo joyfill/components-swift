@@ -26,22 +26,21 @@ class TableViewModel: ObservableObject {
         self.tableDataModel.filterRowsIfNeeded()
     }
 
-    func addCellModel(rowID: String, index: Int) {
-        var rowCellModels = [TableCellModel]()
-        tableDataModel.columns.enumerated().forEach { colIndex, colID in
-            let columnModel = tableDataModel.getFieldTableColumn(row: rowID, col: colIndex)
-            if let columnModel = columnModel {
+    func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
+        var rowCellModels = [TableCellModel]()        
+        let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
+            for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
-                                               data: columnModel,
+                                               data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { cellDataModel in
+                    let colIndex = self.tableDataModel.columns.firstIndex(of: rowDataModel.id)!
                     self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                 }
                 rowCellModels.append(cellModel)
             }
-        }
         if self.tableDataModel.cellModels.count > (index - 1) {
             self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels), at: index)
         } else {
@@ -143,7 +142,7 @@ class TableViewModel: ObservableObject {
         } else {
             tableDataModel.rowOrder.append(valueElement.id!)
         }
-        addCellModel(rowID: valueElement.id!, index: index)
+        addCellModel(rowID: valueElement.id!, index: index, valueElement: valueElement)
         tableDataModel.filterRowsIfNeeded()
     }
     
