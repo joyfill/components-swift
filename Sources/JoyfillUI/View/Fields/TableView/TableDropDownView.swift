@@ -66,10 +66,10 @@ struct TableDropDownOptionListView: View {
             var cellDataModel = cellModel.data
             cellDataModel.defaultDropdownSelectedId = cellDataModel.options?.filter { $0.value == value }.first?.id
             cellDataModel.selectedOptionText = value
-            cellModel.data = cellDataModel
             if (cellDataModel.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
                 cellModel.didChange?(cellDataModel)
             }
+            cellModel.data = cellDataModel
         }
     }
 }
