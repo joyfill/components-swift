@@ -181,7 +181,7 @@ class TableViewModel: ObservableObject {
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
         tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
         
-        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
+        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
     }
 
     func bulkEdit(changes: [Int: String]) {
@@ -203,9 +203,10 @@ class TableViewModel: ObservableObject {
                     cellDataModel.title = change
                 }
                 
-                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)
+                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
             }
         }
+        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
     

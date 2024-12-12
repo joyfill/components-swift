@@ -171,11 +171,13 @@ struct TableDataModel {
         return cell
     }
     
-    mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
+    mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data  = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
-        filterRowsIfNeeded()
+        if isBulkEdit {
+            cellModels[rowIndex].cells[colIndex].id = UUID()
+        }
     }
 
     var lastRowSelected: Bool {

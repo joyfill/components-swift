@@ -17,7 +17,7 @@ struct TableCellModel: Identifiable, Equatable, Hashable {
         lhs.id == rhs.id
     }
 
-    let id = UUID()
+    var id = UUID()
     let rowID: String
     var data: CellDataModel
     let documentEditor: DocumentEditor?
