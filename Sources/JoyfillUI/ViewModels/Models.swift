@@ -310,7 +310,7 @@ struct CellDataModel: Hashable, Equatable {
     let options: [OptionLocal]?
     var valueElements: [ValueElement]?
     let type: String?
-    var title: String?
+    var title: String
     var selectedOptionText: String?
 
     func hash(into hasher: inout Hasher) {

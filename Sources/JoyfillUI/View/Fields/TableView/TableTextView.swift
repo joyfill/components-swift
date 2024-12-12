@@ -9,40 +9,25 @@ import SwiftUI
 
 struct TableTextView: View {
     @FocusState private var isTextFieldFocused: Bool
-    var cellModel: TableCellModel
-    @State var text = ""
+    @Binding var cellModel: TableCellModel
 
-    public init(cellModel: TableCellModel) {
-        self.cellModel = cellModel
-        _text = State(initialValue: cellModel.data.title ?? "")
+    public init(cellModel: Binding<TableCellModel>) {
+        _cellModel = cellModel
     }
     
     var body: some View {
         if cellModel.viewMode == .quickView {
-            Text(text)
+            Text(cellModel.data.title)
                 .font(.system(size: 15))
                 .lineLimit(1)
         } else {
-            TextEditor(text: $text)
+            TextEditor(text: $cellModel.data.title)
                 .font(.system(size: 15))
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
-                .onChange(of: text) { newText in
-                    if cellModel.data.title != text {
-                        var cellDataModel = cellModel.data
-                        cellDataModel.title = text
-                        cellModel.didChange?(cellDataModel, false)
-                    }
+                .onChange(of: cellModel.data.title) { newText in
+                    cellModel.didChange?(cellModel.data, false)
                 }
                 .focused($isTextFieldFocused)
-                .onChange(of: isTextFieldFocused) { isFocused in
-                    if !isFocused {
-                        if cellModel.data.title != text {
-                            var cellDataModel = cellModel.data
-                            cellDataModel.title = text
-                            cellModel.didChange?(cellDataModel, true)
-                        }
-                    }
-                }
         }
     }
 }

@@ -14,16 +14,12 @@ enum TableViewMode {
 }
 
 struct TableViewCellBuilder: View {
-    private var cellModel: TableCellModel
-
-    public init(cellModel: TableCellModel) {
-        self.cellModel = cellModel
-    }
+    @Binding var cellModel: TableCellModel
     
     var body: some View {
         switch cellModel.data.type {
         case "text":
-            TableTextView(cellModel: cellModel)
+            TableTextView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case "dropdown":
             TableDropDownOptionListView(cellModel: cellModel)

@@ -1,6 +1,28 @@
 import SwiftUI
 import JoyfillModel
 
+struct TableRowView : View {
+    @Binding var rowDataModel: RowDataModel
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 0) {
+            ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+                ZStack {
+                    Rectangle()
+                        .stroke()
+                        .foregroundColor(Color.tableCellBorderColor)
+                    TableViewCellBuilder(cellModel: $cellModel)
+                }
+                .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                .background(GeometryReader { proxy in
+                    Color.clear.preference(key: HeightPreferenceKey.self, value: [rowDataModel.id: proxy.size.height])
+                })
+            }
+        }
+    }
+}
+
+
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
@@ -249,21 +271,8 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(viewModel.tableDataModel.filteredcellModels, id: \.self) { rowCellModels in
-                            HStack(alignment: .top, spacing: 0) {
-                                ForEach(rowCellModels.cells, id: \.id) { cellModel in
-                                    ZStack {
-                                        Rectangle()
-                                            .stroke()
-                                            .foregroundColor(Color.tableCellBorderColor)
-                                        TableViewCellBuilder(cellModel: cellModel)
-                                    }
-                                    .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
-                                    .background(GeometryReader { proxy in
-                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [rowCellModels.id: proxy.size.height])
-                                    })
-                                }
-                            }
+                        ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
+                            TableRowView(rowDataModel: $rowCellModels)
                         }
                         .onPreferenceChange(HeightPreferenceKey.self) { value in
                             updateNewHeight(newValue: value)
