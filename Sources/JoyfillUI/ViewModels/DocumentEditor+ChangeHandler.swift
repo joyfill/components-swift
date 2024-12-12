@@ -194,11 +194,11 @@ extension DocumentEditor {
 
         switch cellDataModel.type {
         case "text":
-            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id!, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
         case "dropdown":
-            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id!, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
-            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id!, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
         default:
             return
         }
