@@ -8,10 +8,10 @@ import JoyfillModel
      @State var showMoreImages2: Bool = false
      @State private var valueElements: [ValueElement] = []
      @State var showToast: Bool = false
-     private var cellModel: TableCellModel
+     @Binding var cellModel: TableCellModel
 
-     public init(cellModel: TableCellModel) {
-         self.cellModel = cellModel
+     public init(cellModel: Binding<TableCellModel>) {
+         _cellModel = cellModel
          _showMoreImages = State(wrappedValue: 6)
      }
     
@@ -41,7 +41,8 @@ import JoyfillModel
         .onChange(of: valueElements) { newValue in
             var cellDataModel = cellModel.data
             cellDataModel.valueElements = valueElements
-            cellModel.didChange?(cellDataModel, true)
+            cellModel.data = cellDataModel
+            cellModel.didChange?(cellDataModel, false)
         }
     }
      
@@ -58,7 +59,8 @@ import JoyfillModel
              }
              var cellDataModel = cellModel.data
              cellDataModel.valueElements = valueElements
-             cellModel.didChange?(cellDataModel, true)
+             cellModel.data = cellDataModel
+             cellModel.didChange?(cellDataModel, false)
          }
          cellModel.documentEditor?.onUpload(event: uploadEvent)
      }
