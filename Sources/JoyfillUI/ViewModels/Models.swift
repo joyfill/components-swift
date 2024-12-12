@@ -197,6 +197,12 @@ struct TableDataModel {
     func getFieldTableColumn(rowIndex: Int, col: Int) -> CellDataModel? {
         return cellModels[rowIndex].cells[col].data
     }
+    
+    func getDummyCell(col: Int, selectedOptionText: String = "") -> CellDataModel? {
+        var dummyCell = filteredcellModels[0].cells[col].data
+        dummyCell.selectedOptionText = selectedOptionText
+        return dummyCell
+    }
 
     func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
         let rowIndex = filteredcellModels.firstIndex(where: { rowDataModel in

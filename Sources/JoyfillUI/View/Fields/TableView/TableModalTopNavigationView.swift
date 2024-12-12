@@ -280,7 +280,7 @@ struct EditMultipleRowsSheetView: View {
 
                 ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
-                    let cell = viewModel.tableDataModel.getFieldTableColumn(row: row, col: colIndex)
+                    let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
                     let cellModel = TableCellModel(rowID: row,
                                                    data: cell,
                                                    documentEditor: viewModel.tableDataModel.documentEditor,

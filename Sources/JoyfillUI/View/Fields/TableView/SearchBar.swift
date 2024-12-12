@@ -18,7 +18,7 @@ struct SearchBar: View {
     var body: some View {
         HStack {
             if !viewModel.tableDataModel.rowOrder.isEmpty, selectedColumnIndex != Int.min {
-                let column = viewModel.tableDataModel.getFieldTableColumn(rowIndex: 0, col: selectedColumnIndex)
+                let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
                                                    data: column,
