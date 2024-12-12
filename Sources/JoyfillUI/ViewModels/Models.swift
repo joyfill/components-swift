@@ -300,7 +300,10 @@ struct TableDataModel {
 
 struct CellDataModel: Hashable, Equatable {
     static func == (lhs: CellDataModel, rhs: CellDataModel) -> Bool {
-        lhs.title == rhs.title && rhs.id == lhs.id && rhs.valueElements == lhs.valueElements
+        lhs.title == rhs.title 
+        && rhs.id == lhs.id 
+        && rhs.valueElements == lhs.valueElements
+        && rhs.defaultDropdownSelectedId == lhs.defaultDropdownSelectedId
     }
     let id: String?
     var defaultDropdownSelectedId: String?
