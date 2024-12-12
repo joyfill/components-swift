@@ -10,12 +10,11 @@ import JoyfillModel
 
 struct TableCellModel: Identifiable, Equatable, Hashable {
     func hash(into hasher: inout Hasher) {
-        hasher.combine(data)
         hasher.combine(id)
     }
 
     static func == (lhs: TableCellModel, rhs: TableCellModel) -> Bool {
-        lhs.id == rhs.id &&  lhs.data == rhs.data
+        lhs.id == rhs.id
     }
 
     let id = UUID()

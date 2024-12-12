@@ -22,14 +22,13 @@ struct FieldListModel {
 
 struct RowDataModel: Equatable, Hashable {
     func hash(into hasher: inout Hasher) {
-        hasher.combine(cells)
+        hasher.combine(rowID)
     }
 
     static func == (lhs: RowDataModel, rhs: RowDataModel) -> Bool {
-        lhs.cells == rhs.cells
+        lhs.rowID == rhs.rowID
     }
 
-    var id = UUID()
     let rowID: String
     var cells: [TableCellModel]
 }
@@ -300,11 +299,9 @@ struct TableDataModel {
 
 struct CellDataModel: Hashable, Equatable {
     static func == (lhs: CellDataModel, rhs: CellDataModel) -> Bool {
-        lhs.title == rhs.title 
-        && rhs.id == lhs.id 
-        && rhs.valueElements == lhs.valueElements
-        && rhs.defaultDropdownSelectedId == lhs.defaultDropdownSelectedId
+        lhs.uuid == rhs.uuid
     }
+    let uuid = UUID()
     let id: String?
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
@@ -314,10 +311,7 @@ struct CellDataModel: Hashable, Equatable {
     var selectedOptionText: String?
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(title)
-        hasher.combine(id)
-        hasher.combine(defaultDropdownSelectedId)
-        hasher.combine(valueElements)
+        hasher.combine(uuid)
     }
 }
 

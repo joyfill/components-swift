@@ -15,7 +15,7 @@ struct TableRowView : View {
                 }
                 .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
                 .background(GeometryReader { proxy in
-                    Color.clear.preference(key: HeightPreferenceKey.self, value: [rowDataModel.id: proxy.size.height])
+                    Color.clear.preference(key: HeightPreferenceKey.self, value: [rowDataModel.rowID: proxy.size.height])
                 })
             }
         }
@@ -26,7 +26,7 @@ struct TableRowView : View {
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
-    @State private var heights: [UUID: CGFloat] = [:]
+    @State private var heights: [String: CGFloat] = [:]
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
@@ -247,7 +247,7 @@ struct TableModalView : View {
                     if viewModel.showRowSelector {
                         let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: heights[rowModel.id] ?? 50)
+                            .frame(width: 40, height: heights[rowModel.rowID] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
                                 viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
@@ -258,7 +258,7 @@ struct TableModalView : View {
                     Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                        .frame(width: 40, height: heights[rowModel.id] ?? 50)
+                        .frame(width: 40, height: heights[rowModel.rowID] ?? 50)
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                 }
@@ -304,7 +304,7 @@ struct TableModalView : View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
-    private func updateNewHeight(newValue: [UUID: CGFloat]) {
+    private func updateNewHeight(newValue: [String: CGFloat]) {
         for (key, value) in newValue {
             heights[key] = value > 0 ? value : heights[key] ?? 50
         }
@@ -312,8 +312,8 @@ struct TableModalView : View {
 }
 
 struct HeightPreferenceKey: PreferenceKey {
-    static var defaultValue: [UUID: CGFloat] = [:]
-    static func reduce(value: inout [UUID: CGFloat], nextValue: () -> [UUID: CGFloat]) {
+    static var defaultValue: [String: CGFloat] = [:]
+    static func reduce(value: inout [String: CGFloat], nextValue: () -> [String: CGFloat]) {
         for (key, newValue) in nextValue() {
             if let currentValue = value[key] {
                 value[key] = max(currentValue, newValue)
