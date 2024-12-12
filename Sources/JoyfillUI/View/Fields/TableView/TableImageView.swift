@@ -42,7 +42,7 @@ import JoyfillModel
             var cellDataModel = cellModel.data
             cellDataModel.valueElements = valueElements
             cellModel.data = cellDataModel
-            cellModel.didChange?(cellDataModel, false)
+            cellModel.didChange?(cellDataModel)
         }
     }
      
@@ -60,7 +60,7 @@ import JoyfillModel
              var cellDataModel = cellModel.data
              cellDataModel.valueElements = valueElements
              cellModel.data = cellDataModel
-             cellModel.didChange?(cellDataModel, false)
+             cellModel.didChange?(cellDataModel)
          }
          cellModel.documentEditor?.onUpload(event: uploadEvent)
      }

@@ -288,7 +288,7 @@ struct EditMultipleRowsSheetView: View {
                                                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
                                                        editMode: viewModel.tableDataModel.mode)
-                        { cellDataModel,_ in
+                        { cellDataModel in
                             switch cell.type {
                             case "text":
                                 self.changes[colIndex] = cellDataModel.title
@@ -328,7 +328,7 @@ struct EditMultipleRowsSheetView: View {
                             Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
-                            TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
+                            TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
                                         .stroke(Color.allFieldBorderColor, lineWidth: 1)

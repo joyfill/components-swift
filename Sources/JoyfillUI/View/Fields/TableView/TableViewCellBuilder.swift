@@ -22,7 +22,7 @@ struct TableViewCellBuilder: View {
             TableTextView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case "dropdown":
-            TableDropDownOptionListView(cellModel: cellModel)
+            TableDropDownOptionListView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case "image":
             TableImageView(cellModel: $cellModel)

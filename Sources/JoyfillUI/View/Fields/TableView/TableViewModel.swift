@@ -36,8 +36,8 @@ class TableViewModel: ObservableObject {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { cellDataModel, shouldChangeID   in
-                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, shouldChangeId: shouldChangeID)
+                                               editMode: tableDataModel.mode) { cellDataModel in
+                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                 }
                 rowCellModels.append(cellModel)
             }
@@ -62,8 +62,8 @@ class TableViewModel: ObservableObject {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { cellDataModel, shouldChangeID   in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, shouldChangeId: shouldChangeID)
+                                                   editMode: tableDataModel.mode) { cellDataModel in
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -179,7 +179,7 @@ class TableViewModel: ObservableObject {
         }
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, shouldChangeId: Bool) {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
         tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
         
         tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel)

@@ -26,7 +26,7 @@ struct SearchBar: View {
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: viewModel.tableDataModel.mode)
-                    { cellDataModel,_ in
+                    { cellDataModel in
                         switch column.type {
                         case "text":
                             self.model.filterText = cellDataModel.title ?? ""
@@ -40,7 +40,7 @@ struct SearchBar: View {
                     case "text":
                         TextFieldSearchBar(text: $model.filterText)
                     case "dropdown":
-                        TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
+                        TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
                     default:

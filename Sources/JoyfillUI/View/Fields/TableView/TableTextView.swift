@@ -25,7 +25,7 @@ struct TableTextView: View {
                 .font(.system(size: 15))
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
                 .onChange(of: cellModel.data.title) { newText in
-                    cellModel.didChange?(cellModel.data, false)
+                    cellModel.didChange?(cellModel.data)
                 }
                 .focused($isTextFieldFocused)
         }
