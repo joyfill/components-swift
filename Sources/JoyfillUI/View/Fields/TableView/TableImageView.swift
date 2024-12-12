@@ -6,7 +6,6 @@ import JoyfillModel
  struct TableImageView: View {
      @State var showMoreImages: Int = 5
      @State var showMoreImages2: Bool = false
-     @State private var valueElements: [ValueElement] = []
      @State var showToast: Bool = false
      @Binding var cellModel: TableCellModel
 
@@ -22,45 +21,36 @@ import JoyfillModel
             HStack(spacing: 2) {
                 Image(systemName: "photo")
                     .grayLightThemeColor()
-                Text(valueElements.count == 0 ? "" : "+\(valueElements.count)")
+                Text(cellModel.data.valueElements.count == 0 ? "" : "+\(cellModel.data.valueElements.count)")
                     .darkLightThemeColor()
             }
             .font(.system(size: 15))
         })
         .accessibilityIdentifier("TableImageIdentifier")
-        .onAppear {
-            valueElements = cellModel.data.valueElements ?? []
-        }
         .sheet(isPresented: $showMoreImages2) {
-            MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+            MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                 .disabled(cellModel.editMode == .readonly)
         }
         .onChange(of: showMoreImages) { newValue in
             showMoreImages2 = true
         }
-        .onChange(of: valueElements) { newValue in
-            var cellDataModel = cellModel.data
-            cellDataModel.valueElements = valueElements
-            cellModel.data = cellDataModel
-            cellModel.didChange?(cellDataModel)
+        .onChange(of: cellModel.data.valueElements) { newValue in
+            cellModel.didChange?(cellModel.data)
         }
     }
      
      func uploadAction() {
          let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier) { urls in
              for imageURL in urls {
-                 let valueElement = valueElements.first { valueElement in
+                 let valueElement = cellModel.data.valueElements.first { valueElement in
                      if valueElement.url == imageURL {
                          return true
                      }
                      return false
                  } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-                 valueElements.append(valueElement)
+                 cellModel.data.valueElements.append(valueElement)
              }
-             var cellDataModel = cellModel.data
-             cellDataModel.valueElements = valueElements
-             cellModel.data = cellDataModel
-             cellModel.didChange?(cellDataModel)
+             cellModel.didChange?(cellModel.data)
          }
          cellModel.documentEditor?.onUpload(event: uploadEvent)
      }

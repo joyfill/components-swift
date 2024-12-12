@@ -122,7 +122,7 @@ struct TableDataModel {
                     id: fieldTableColumn.id!,
                     defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                     options: optionsLocal,
-                    valueElements: fieldTableColumn.images,
+                    valueElements: fieldTableColumn.images ?? [],
                     type: fieldTableColumn.type,
                     title: fieldTableColumn.title
                 )
@@ -144,7 +144,7 @@ struct TableDataModel {
             let columnDataLocal = CellDataModel(id: columnData.id!,
                                                         defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
                                                         options: optionsLocal,
-                                                        valueElements: columnData.images,
+                                                        valueElements: columnData.images ?? [],
                                                         type: columnData.type,
                                                         title: columnData.title,
                                                         selectedOptionText: selectedOptionText)
@@ -164,7 +164,7 @@ struct TableDataModel {
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
-            cell?.valueElements = valueUnion?.valueElements
+            cell?.valueElements = valueUnion?.valueElements ?? []
         default:
             return nil
         }
@@ -175,6 +175,7 @@ struct TableDataModel {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data  = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
+        filterRowsIfNeeded()
     }
 
     var lastRowSelected: Bool {
@@ -215,7 +216,7 @@ struct TableDataModel {
             return CellDataModel(id: column.id!,
                                          defaultDropdownSelectedId: column.defaultDropdownSelectedId,
                                          options: optionsLocal,
-                                         valueElements: column.images,
+                                         valueElements: column.images ?? [],
                                          type: column.type,
                                          title: column.title,
                                          selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "")
@@ -284,7 +285,7 @@ struct CellDataModel: Hashable, Equatable {
     let id: String
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
-    var valueElements: [ValueElement]?
+    var valueElements: [ValueElement]
     let type: String?
     var title: String
     var selectedOptionText: String?
