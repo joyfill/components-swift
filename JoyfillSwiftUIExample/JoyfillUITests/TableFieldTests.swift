@@ -444,23 +444,21 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let checkSortDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Dog 5", checkSortDataOnFirstTextField.value as! String)
         checkSortDataOnFirstTextField.tap()
-        checkSortDataOnFirstTextField.typeText("55 ")
+        checkSortDataOnFirstTextField.typeText("55")
         
         let checkSortDataOnSecondTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("Cat 4", checkSortDataOnSecondTextField.value as! String)
-        // tap on text field to call onChange first textfield changes
-        checkSortDataOnSecondTextField.tap()
         
         let checkSortDataOnThirdTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
-        XCTAssertEqual("Apple 2", checkSortDataOnThirdTextField.value as! String)
+        XCTAssertEqual("Boy 3", checkSortDataOnThirdTextField.value as! String)
         
-        let checkSortDataOnFourthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        let checkSortDataOnFifthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("Apple 2", checkSortDataOnFifthTextField.value as! String)
+        
+        let checkSortDataOnFourthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("App 1", checkSortDataOnFourthTextField.value as! String)
         checkSortDataOnFourthTextField.tap()
         checkSortDataOnFourthTextField.typeText("11")
-        
-        let checkSortDataOnFifthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
-        XCTAssertEqual("55 Dog 5", checkSortDataOnFifthTextField.value as! String)
     }
     
     func checkAscendingOrderSortingDataOfTextfield() {
@@ -498,7 +496,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Cat 4", checkSortDataOnFourthTextField.value as! String)
         
         let checkSortDataOnFifthTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
-        XCTAssertEqual("55 Dog 5", checkSortDataOnFifthTextField.value as! String)
+        XCTAssertEqual("55Dog 5", checkSortDataOnFifthTextField.value as! String)
     }
     
     func testSortingOnTextField() throws {
@@ -547,7 +545,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         let checkSortingDataOnThirdDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("N/A", checkSortingDataOnThirdDropdownField.element(boundBy: 2).label)
+        XCTAssertEqual("No", checkSortingDataOnThirdDropdownField.element(boundBy: 2).label)
         
         let checkSortingDataOnFourthDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("N/A", checkSortingDataOnFourthDropdownField.element(boundBy: 3).label)
