@@ -199,8 +199,8 @@ struct TableDataModel {
     }
     
     func getDummyCell(col: Int, selectedOptionText: String = "") -> CellDataModel? {
-        var dummyCell = filteredcellModels[0].cells[col].data
-        dummyCell.selectedOptionText = selectedOptionText
+        var dummyCell = cellModels.first?.cells[col].data
+        dummyCell?.selectedOptionText = selectedOptionText
         return dummyCell
     }
 
