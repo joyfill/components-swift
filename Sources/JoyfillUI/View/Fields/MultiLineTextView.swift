@@ -3,10 +3,13 @@ import JoyfillModel
 
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
+    @State private var debounceTask: Task<Void, Never>?
     private var multiLineDataModel: MultiLineDataModel
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(multiLineDataModel: MultiLineDataModel) {
+    @FocusState private var isFocused: Bool 
+    let eventHandler: FieldChangeEvents
+
+    public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.multiLineDataModel = multiLineDataModel
         if let multilineText = multiLineDataModel.multilineText {
             _multilineText = State(initialValue: multilineText)
@@ -30,13 +33,30 @@ struct MultiLineTextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        multiLineDataModel.eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
+                        eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
                     } else {
-                        let newValue = ValueUnion.string(multilineText)
-                        let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
-                        multiLineDataModel.eventHandler.onChange(event: fieldEvent)
+                        updateFieldValue()
                     }
                 }
+                .onChange(of: multilineText, perform: debounceTextChange)
+        }
+    }
+    
+    private func updateFieldValue() {
+        let newValue = ValueUnion.string(multilineText)
+        let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
+        eventHandler.onChange(event: fieldEvent)
+    }
+    
+    private func debounceTextChange(newValue: String) {
+        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask = Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            if !Task.isCancelled {
+                await MainActor.run {
+                    updateFieldValue()
+                }
+            }
         }
     }
 }

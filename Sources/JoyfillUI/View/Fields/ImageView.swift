@@ -10,9 +10,9 @@ struct ImageView: View {
     @State var hasAppeared: Bool = false
     
     @State var uiImagesArray: [UIImage] = []
-    @State var valueElements: [ValueElementLocal] = []
+    @State var valueElements: [ValueElement] = []
     
-    @State private var imageDictionary: [ValueElementLocal: UIImage] = [:]
+    @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State var showToast: Bool = false
     
     @StateObject var imageViewModel = ImageFieldViewModel()
@@ -21,8 +21,10 @@ struct ImageView: View {
     
     private let imageDataModel: ImageDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(imageDataModel: ImageDataModel) {
+    let eventHandler: FieldChangeEvents
+
+    public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.imageDataModel = imageDataModel
     }
         
@@ -48,7 +50,7 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                imageDataModel.eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
+                                eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
                                     Text("More > ")
@@ -69,7 +71,7 @@ struct ImageView: View {
             } else {
                 Button(action: {
                     uploadAction()
-                    imageDataModel.eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
+                    eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                 }, label: {
                     ZStack {
                         HStack(spacing: 8) {
@@ -116,10 +118,9 @@ struct ImageView: View {
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
-            let convertedElements = newValue.map { $0.toValueElement() }
-            let newImageValue = ValueUnion.valueElementArray(convertedElements)
+            let newImageValue = ValueUnion.valueElementArray(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
-            imageDataModel.eventHandler.onChange(event: fieldEvent)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
     
@@ -146,7 +147,7 @@ struct ImageView: View {
                             return true
                         }
                         return false
-                    } ?? ValueElementLocal(id: JoyfillModel.generateObjectId(), url: imageURL)
+                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                     self.imageDictionary[valueElement] = image
                     valueElements.append(valueElement)
                     showProgressView = false
@@ -156,7 +157,7 @@ struct ImageView: View {
                 })
             }
         }
-        imageDataModel.eventHandler.onUpload(event: uploadEvent)
+        eventHandler.onUpload(event: uploadEvent)
     }
 }
 struct MoreImageView: View {
@@ -164,10 +165,10 @@ struct MoreImageView: View {
     
     @State var images: [UIImage] = []
     @State var selectedImagesIndex: Set<Int> = Set()
-    @Binding var valueElements: [ValueElementLocal]
+    @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
     @State var showProgressView: Bool = false
-    @State var imageDictionary: [ValueElementLocal: UIImage] = [:]
+    @State var imageDictionary: [ValueElement: UIImage] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -261,7 +262,7 @@ struct UploadDeleteView: View {
     @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
     @Binding var isMultiEnabled: Bool
-    @Binding var valueElements: [ValueElementLocal]
+    @Binding var valueElements: [ValueElement]
     var uploadAction: () -> Void
     var deleteAction: () -> Void
     

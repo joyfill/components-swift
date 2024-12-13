@@ -1,11 +1,31 @@
 import SwiftUI
 import JoyfillModel
 
+struct TableRowView : View {
+    @Binding var rowDataModel: RowDataModel
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 0) {
+            ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+                ZStack {
+                    Rectangle()
+                        .stroke()
+                        .foregroundColor(Color.tableCellBorderColor)
+                    TableViewCellBuilder(cellModel: $cellModel)
+                }
+                .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                .background(GeometryReader { proxy in
+                    Color.clear.preference(key: HeightPreferenceKey.self, value: [rowDataModel.rowID: proxy.size.height])
+                })
+            }
+        }
+    }
+}
+
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
-    @State private var heights: [Int: CGFloat] = [:]
-    @State private var refreshID = UUID()
+    @State private var heights: [String: CGFloat] = [:]
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
@@ -35,34 +55,46 @@ struct TableModalView : View {
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
+            clearFilter()
         })
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
-            filterRowsIfNeeded()
+            viewModel.tableDataModel.filterRowsIfNeeded()
             sortRowsIfNeeded()
         }
         .onChange(of: viewModel.tableDataModel.filterModels ) { _ in
-            filterRowsIfNeeded()
+            viewModel.tableDataModel.filterRowsIfNeeded()
             sortRowsIfNeeded()
             viewModel.tableDataModel.emptySelection()
         }
-        .onChange(of: viewModel.tableDataModel.cellModels) { _ in
-            filterRowsIfNeeded()
-            sortRowsIfNeeded()
+        .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
+            for model in viewModel.tableDataModel.filteredcellModels {
+                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
+                    viewModel.tableDataModel.cellModels[index] = model
+                }
+            }
         }
-        .onChange(of: viewModel.tableDataModel.rows) { _ in
-            if viewModel.tableDataModel.rows.isEmpty {
+        .onChange(of: viewModel.tableDataModel.rowOrder) { _ in
+            if viewModel.tableDataModel.rowOrder.isEmpty {
                 currentSelectedCol = Int.min
                 viewModel.tableDataModel.emptySelection()
             }
         }
     }
+    
+    func clearFilter() {
+        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        for i in 0..<viewModel.tableDataModel.filterModels.count {
+            viewModel.tableDataModel.filterModels[i].filterText = ""
+        }
+        viewModel.tableDataModel.emptySelection()
+    }
 
     func sortRowsIfNeeded() {
         if currentSelectedCol != Int.min {
             guard viewModel.tableDataModel.sortModel.order != .none else { return }
-            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowArr1, rowArr2 in
-                let column1 = rowArr1[currentSelectedCol].data
-                let column2 = rowArr2[currentSelectedCol].data
+            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowModel1, rowModel2 in
+                let column1 = rowModel1.cells[currentSelectedCol].data
+                let column2 = rowModel2.cells[currentSelectedCol].data
                 switch column1.type {
                 case "text":
                     switch viewModel.tableDataModel.sortModel.order {
@@ -89,33 +121,6 @@ struct TableModalView : View {
         }
     }
 
-    func filterRowsIfNeeded() {
-        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
-        guard !viewModel.tableDataModel.filterModels .noFilterApplied else {
-            return
-        }
-
-        for model in viewModel.tableDataModel.filterModels  {
-            if model.filterText.isEmpty {
-                continue
-            }
-
-             let filtred = viewModel.tableDataModel.filteredcellModels.filter { rowArr in
-                 let column = rowArr[model.colIndex].data
-                switch column.type {
-                case "text":
-                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                case "dropdown":
-                    return (column.defaultDropdownSelectedId ?? "") == model.filterText
-                default:
-                    break
-                }
-                return false
-            }
-            viewModel.tableDataModel.filteredcellModels = filtred
-        }
-    }
-
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
@@ -123,7 +128,7 @@ struct TableModalView : View {
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: textHeight)
-                            .foregroundColor(viewModel.tableDataModel.rows.count == 0 ? Color.gray.opacity(0.4) : nil)
+                            .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
                                 if !viewModel.tableDataModel.allRowSelected {
                                     viewModel.tableDataModel.selectAllRows()
@@ -131,7 +136,7 @@ struct TableModalView : View {
                                     viewModel.tableDataModel.emptySelection()
                                 }
                             }
-                            .disabled(viewModel.tableDataModel.rows.count == 0)
+                            .disabled(viewModel.tableDataModel.rowOrder.count == 0)
                             .accessibilityIdentifier("SelectAllRowSelectorButton")
                     }
                     Text("#")
@@ -144,12 +149,21 @@ struct TableModalView : View {
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
                 
-                
-                ScrollView([.vertical], showsIndicators: false) {
-                    rowsHeader
-                        .offset(y: offset.y)
+                if #available(iOS 16, *) {
+                    ScrollView([.vertical], showsIndicators: false) {
+                        rowsHeader
+//                            .frame(width: viewModel.showRowSelector ? 80 : 40)
+                            .offset(y: offset.y)
+                    }
+                    .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
+                    .scrollDisabled(true)
+                } else {
+                    ScrollView([.vertical], showsIndicators: false) {
+                        rowsHeader
+                            .offset(y: offset.y)
+                    }
+                    .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
                 }
-                .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
             }
             
             VStack(alignment: .leading, spacing: 0) {
@@ -207,7 +221,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || viewModel.tableDataModel.rows.count == 0)
+                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -228,13 +242,14 @@ struct TableModalView : View {
     }
     
     var rowsHeader: some View {
-       VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowArray) in
+        VStack(alignment: .leading, spacing: 0) {
+           ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
+                let rowArray = rowModel.cells
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
-                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowArray.first?.rowID ?? "")
+                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: heights[index] ?? 50)
+                            .frame(width: 40, height: heights[rowModel.rowID] ?? 50)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
                                 viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
@@ -245,7 +260,7 @@ struct TableModalView : View {
                     Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                        .frame(width: 40, height: heights[index] ?? 50)
+                        .frame(width: 40, height: heights[rowModel.rowID] ?? 50)
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                 }
@@ -258,31 +273,13 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { rowIndex, rowCellModels in
-                            HStack(alignment: .top, spacing: 0) {
-                                ForEach(rowCellModels, id: \.id) { cellModel in
-                                    ZStack {
-                                        Rectangle()
-                                            .stroke()
-                                            .foregroundColor(Color.tableCellBorderColor)
-                                        TableViewCellBuilder(cellModel: cellModel)
-                                    }
-                                    .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
-                                    .background(GeometryReader { proxy in
-                                        Color.clear.preference(key: HeightPreferenceKey.self, value: [rowIndex: proxy.size.height])
-                                    })
-                                }
-
-                            }
+                        ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
+                            TableRowView(rowDataModel: $rowCellModels)
                         }
-//                        .onReceive(viewModel.tableDataModel.$rows) { _ in
-//                            refreshUUIDIfNeeded()
-//                        }
                         .onPreferenceChange(HeightPreferenceKey.self) { value in
                             updateNewHeight(newValue: value)
                         }
                     }
-                    .id(refreshID)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
@@ -309,12 +306,7 @@ struct TableModalView : View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
-    // Note: This is an optimisation to stop force re-render entire table
-    private func refreshUUIDIfNeeded() {
-        self.refreshID = UUID()
-    }
-    
-    private func updateNewHeight(newValue: [Int: CGFloat]) {
+    private func updateNewHeight(newValue: [String: CGFloat]) {
         for (key, value) in newValue {
             heights[key] = value > 0 ? value : heights[key] ?? 50
         }
@@ -322,8 +314,8 @@ struct TableModalView : View {
 }
 
 struct HeightPreferenceKey: PreferenceKey {
-    static var defaultValue: [Int: CGFloat] = [:]
-    static func reduce(value: inout [Int: CGFloat], nextValue: () -> [Int: CGFloat]) {
+    static var defaultValue: [String: CGFloat] = [:]
+    static func reduce(value: inout [String: CGFloat], nextValue: () -> [String: CGFloat]) {
         for (key, newValue) in nextValue() {
             if let currentValue = value[key] {
                 value[key] = max(currentValue, newValue)
@@ -343,154 +335,3 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
-struct SearchBar: View {
-    @Binding var model: FilterModel
-    @Binding var sortModel: SortModel
-    @Binding var selectedColumnIndex: Int
-
-    let viewModel: TableViewModel
-    
-    var body: some View {
-        HStack {
-            if !viewModel.tableDataModel.rows.isEmpty, selectedColumnIndex != Int.min {
-                let row = viewModel.tableDataModel.rows[0]
-                let column = viewModel.tableDataModel.getFieldTableColumn(row: row, col: selectedColumnIndex)
-                if let column = column {
-                    let cellModel = TableCellModel(rowID: "",
-                                                   data: column,
-                                                   documentEditor: viewModel.tableDataModel.documentEditor,
-                                                   fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                   viewMode: .modalView,
-                                                   editMode: viewModel.tableDataModel.mode)
-                    { editedCell in
-                        switch column.type {
-                        case "text":
-                            self.model.filterText = editedCell.title ?? ""
-                        case "dropdown":
-                            self.model.filterText = editedCell.defaultDropdownSelectedId ?? ""
-                        default:
-                            break
-                        }
-                    }
-                    switch cellModel.data.type {
-                    case "text":
-                        TextFieldSearchBar(text: $model.filterText)
-                    case "dropdown":
-                        TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
-                            .disabled(cellModel.editMode == .readonly)
-                            .accessibilityIdentifier("SearchBarDropdownIdentifier")
-                    default:
-                        Text("")
-                    }
-                }
-                Button(action: {
-                    sortModel.order.next()
-                }, label: {
-                    HStack {
-                        Text("Sort")
-                        Image(systemName: getSortIcon())
-                            .foregroundColor(getIconColor())
-                    }
-                    .font(.system(size: 14))
-                    .foregroundColor(.black)
-                })
-                .accessibilityIdentifier("SortButtonIdentifier")
-                .frame(width: 75, height: 25)
-                .background(.white)
-                .cornerRadius(4)
-                
-                Button(action: {
-                    model.filterText = ""
-                    selectedColumnIndex = Int.min
-                }, label: {
-                    Image(systemName: "xmark")
-                        .resizable()
-                        .frame(width: 10, height: 10)
-                        .foregroundColor(.black)
-                        .padding(.all, 8)
-                        .background(.white)
-                        .cornerRadius(4)
-                        .padding(.trailing, 8)
-                    
-                })
-                .accessibilityIdentifier("HideFilterSearchBar")
-            }
-        }
-        .frame(height: 40)
-        .background(Color(.systemGray6))
-        .cornerRadius(8)
-        .padding(.horizontal, 12)
-    }
-
-    func getSortIcon() -> String {
-        switch viewModel.tableDataModel.sortModel.order {
-        case .ascending:
-            return "arrow.up"
-        case .descending:
-            return "arrow.down"
-        case .none:
-            return "arrow.up.arrow.down"
-        }
-    }
-
-    func getIconColor() -> Color {
-        switch viewModel.tableDataModel.sortModel.order {
-        case .none:
-            return .black
-        case .ascending, .descending:
-            return .blue
-        }
-    }
-}
-
-struct TextFieldSearchBar: View {
-    @Binding var text: String
-
-    var body: some View {
-        TextField("Search ", text: $text)
-            .accessibilityIdentifier("TextFieldSearchBarIdentifier")
-            .font(.system(size: 12))
-            .foregroundColor(.black)
-            .padding(.all, 4)
-            .frame(height: 25)
-            .background(.white)
-            .cornerRadius(6)
-            .padding(.leading, 8)
-            .overlay(
-                HStack {
-                    Spacer()
-                    if !text.isEmpty {
-                        Button(action: {
-                            self.text = ""
-                        }) {
-                            Image(systemName: "multiply.circle.fill")
-                                .foregroundColor(.gray)
-                                .padding(.all, 4)
-                        }
-                    }
-                }
-            )
-    }
-}
-
-struct DropdownFieldSearchBar: View {
-    var body: some View {
-        Button(action: {
-            
-        }, label: {
-            HStack {
-                Text("Select Option")
-                .lineLimit(1)
-                Spacer()
-                Image(systemName: "chevron.down")
-            }
-            .foregroundStyle(.gray)
-            .font(.system(size: 12))
-            .padding(.all, 6)
-            .frame(height: 25)
-            .background(.white)
-            .cornerRadius(6)
-            .padding(.leading, 8)
-        })
-    }
-}

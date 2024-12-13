@@ -40,13 +40,15 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
+    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> [Int: ValueElement]{
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return
+            return [:]
         }
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+        
+        var changes = [Int: ValueElement]()
 
         rowIDs.forEach { rowID in
             var element = elements.first(where: { $0.id == rowID })!
@@ -56,6 +58,7 @@ extension DocumentEditor {
             let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
             lastRowOrder.insert(newRowID, at: lastRowIndex+1)
             targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+            changes[lastRowIndex+1] = element
         }
 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
@@ -63,6 +66,7 @@ extension DocumentEditor {
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        return changes
     }
 
     /// Moves a specified row up in a table field.
@@ -85,7 +89,6 @@ extension DocumentEditor {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        refreshField(fieldId: fieldId)
     }
 
     /// Moves a specified row down in a table field.
@@ -108,14 +111,13 @@ extension DocumentEditor {
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        refreshField(fieldId: fieldId)
     }
 
     /// Inserts a new row at the end of a table field.
     /// - Parameters:
     ///   - id: The String identifier for the new row.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) {
+    public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) -> ValueElement {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
 
@@ -125,36 +127,37 @@ extension DocumentEditor {
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
-        refreshField(fieldId: fieldId)
+        
+        return elements.last!
     }
 
     /// Inserts new rows below specified rows in a table field.
     /// - Parameters:
     ///   - selectedRows: An array of String identifiers for the rows below which new rows will be inserted.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func insertBelow(selectedRowID: String, fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return
+            return nil
         }
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
-
-        selectedRows.forEach { rowID in
-            let newRowID = generateObjectId()
-            var element = ValueElement(id: newRowID)
-            elements.append(element)
-            let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
-            lastRowOrder.insert(newRowID, at: lastRowIndex+1)
-            targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
-        }
-
+        
+        let newRowID = generateObjectId()
+        var element = ValueElement(id: newRowID)
+        elements.append(element)
+        let lastRowIndex = lastRowOrder.firstIndex(of: selectedRowID)!
+        lastRowOrder.insert(newRowID, at: lastRowIndex+1)
+        targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+        
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        refreshField(fieldId: fieldId)
+
+        return (element, lastRowIndex+1)
+        
     }
 
     /// Inserts a new row with specified filter conditions in a table field.
@@ -162,29 +165,30 @@ extension DocumentEditor {
     ///   - id: The String identifier for the new row.
     ///   - filterModels: An array of `FilterModel` objects specifying the filter conditions.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) {
+    func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier, tableDataModel: TableDataModel) -> ValueElement? {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            return
+            return nil
         }
 
         var newRow = ValueElement(id: id)
-        elements.append(newRow)
 
         for filterModel in filterModels {
             let change = filterModel.filterText
-            guard let index = elements.firstIndex(where: { $0.id == id }) else { return }
-            if var cells = elements[index].cells {
+            if var cells = newRow.cells {
                 cells[filterModel.colID ?? ""] = ValueUnion.string(change)
-                elements[index].cells = cells
+                newRow.cells = cells
             } else {
-                elements[index].cells = [filterModel.colID ?? "" : ValueUnion.string(change)]
+                newRow.cells = [filterModel.colID ?? "" : ValueUnion.string(change)]
             }
         }
+        elements.append(newRow)
 
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
+      
+        return newRow
     }
 
     /// Performs bulk editing on specified rows in a table field.
@@ -197,14 +201,14 @@ extension DocumentEditor {
             return
         }
         for rowId in selectedRows {
-            for editedCellId in changes.keys {
-                if let change = changes[editedCellId] {
+            for cellDataModelId in changes.keys {
+                if let change = changes[cellDataModelId] {
                     guard let index = elements.firstIndex(where: { $0.id == rowId }) else { return }
                     if var cells = elements[index].cells {
-                        cells[editedCellId ?? ""] = ValueUnion.string(change)
+                        cells[cellDataModelId ?? ""] = ValueUnion.string(change)
                         elements[index].cells = cells
                     } else {
-                        elements[index].cells = [editedCellId ?? "" : ValueUnion.string(change)]
+                        elements[index].cells = [cellDataModelId ?? "" : ValueUnion.string(change)]
                     }
                 }
             }
@@ -213,19 +217,22 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal, fieldId: String) {
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, fieldId: String) {
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
         }
 
-        switch editedCell.type {
+        guard let rowIndex = elements.firstIndex(where: { $0.id == rowId }) else {
+            return
+        }
+
+        switch cellDataModel.type {
         case "text":
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.title ?? ""), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
         case "dropdown":
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
-            let convertedImages = editedCell.valueElements?.map { $0.toValueElement() } ?? []
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.valueElementArray(convertedImages), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
         default:
             return
         }
@@ -238,7 +245,6 @@ extension DocumentEditor {
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
-        refreshField(fieldId: fieldIdentifier.fieldID)
     }
 
     /// Handles changes based on a `FieldChangeData` event.
@@ -247,7 +253,7 @@ extension DocumentEditor {
         var currentField = field(fieldID: event.fieldIdentifier.fieldID)!
         guard currentField.value != event.updateValue || event.chartData != nil else { return }
         guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else { return }
-        updateField(event: event)
+        updateField(event: event, fieldIdentifier: event.fieldIdentifier)
         currentField = field(fieldID: event.fieldIdentifier.fieldID)!
         handleFieldsOnChange(event: event, currentField: currentField)
     }
@@ -311,7 +317,7 @@ extension DocumentEditor {
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
-        refreshField(fieldId: fieldIdentifier.fieldID)
+//        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
     }
 
     private func moveRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {
@@ -385,13 +391,13 @@ extension DocumentEditor {
         return valueDict
     }
 
-    private func changeCell(elements: [ValueElement], index: Int, editedCellId: String?, newCell: ValueUnion, fieldId: String) {
+    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion, fieldId: String) {
         var elements = elements
         if var cells = elements[index].cells {
-            cells[editedCellId ?? ""] = newCell
+            cells[cellDataModelId] = newCell
             elements[index].cells = cells
         } else {
-            elements[index].cells = [editedCellId ?? "" : newCell]
+            elements[index].cells = [cellDataModelId ?? "" : newCell]
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }

@@ -9,10 +9,12 @@ struct MultiSelectionView: View {
     private let multiSelectionDataModel: MultiSelectionDataModel
     private let currentFocusedFielsID: String?
     @FocusState private var isFocused: Bool
-    
-    public init(multiSelectionDataModel: MultiSelectionDataModel) {
+    let eventHandler: FieldChangeEvents
+
+    public init(multiSelectionDataModel: MultiSelectionDataModel, eventHandler: FieldChangeEvents, currentFocusedFieldsDataId: String?) {
+        self.eventHandler = eventHandler
         self.multiSelectionDataModel = multiSelectionDataModel
-        self.currentFocusedFielsID = multiSelectionDataModel.currentFocusedFieldsDataId
+        self.currentFocusedFielsID = currentFocusedFieldsDataId
         if multiSelectionDataModel.multi ?? true {
             if let values = multiSelectionDataModel.multiSelector {
                 _multiSelectedOptionArray = State(initialValue: values)
@@ -40,7 +42,8 @@ struct MultiSelectionView: View {
                                            multiSelectedOptionArray: $multiSelectedOptionArray,
                                            isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldIdentifier.fieldID,
                                            multiSelectionDataModel: multiSelectionDataModel,
-                                           selectedItemId: options[index].id ?? "")
+                                           selectedItemId: options[index].id ?? "",
+                                           eventHandler: eventHandler)
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -49,7 +52,8 @@ struct MultiSelectionView: View {
                                       singleSelectedOptionArray: $singleSelectedOptionArray,
                                       isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldIdentifier.fieldID,
                                       multiSelectionDataModel: multiSelectionDataModel,
-                                      selectedItemId: options[index].id ?? "")
+                                      selectedItemId: options[index].id ?? "",
+                                      eventHandler: eventHandler)
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -67,12 +71,12 @@ struct MultiSelectionView: View {
         .onChange(of: singleSelectedOptionArray) { newValue in
             let newSingleSelectedValue = ValueUnion.array(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newSingleSelectedValue)
-            multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
+           eventHandler.onChange(event: fieldEvent)
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
             let newMultiSelectedValue = ValueUnion.array(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newMultiSelectedValue)
-            multiSelectionDataModel.eventHandler.onChange(event: fieldEvent)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
 }
@@ -84,12 +88,13 @@ struct MultiSelection: View {
     var isAlreadyFocused: Bool
     var multiSelectionDataModel: MultiSelectionDataModel
     var selectedItemId: String
-    
+    let eventHandler: FieldChangeEvents
+
     var body: some View {
         Button(action: {
             isSelected.toggle()
             if isAlreadyFocused == false {
-                multiSelectionDataModel.eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
+                eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
             }
             if let index = multiSelectedOptionArray.firstIndex(of: selectedItemId) {
                 multiSelectedOptionArray.remove(at: index) // Item exists, so remove it
@@ -120,7 +125,8 @@ struct RadioView: View {
     var isAlreadyFocused: Bool
     var multiSelectionDataModel: MultiSelectionDataModel
     var selectedItemId: String
-    
+    let eventHandler: FieldChangeEvents
+
     var body: some View {
         Button(action: {
             if singleSelectedOptionArray.contains(selectedItemId) {
@@ -129,7 +135,7 @@ struct RadioView: View {
                 singleSelectedOptionArray = [selectedItemId]
             }
             if isAlreadyFocused == false {
-                multiSelectionDataModel.eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
+                eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
             }
         }, label: {
             HStack(alignment: .top) {

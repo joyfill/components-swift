@@ -5,8 +5,10 @@ import UIKit
 struct RichTextView: View {
     @State private var text: AttributedString
     private let richTextDataModel: RichTextDataModel
-    
-    init(richTextDataModel: RichTextDataModel) {
+    let eventHandler: FieldChangeEvents
+
+    public init(richTextDataModel: RichTextDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
         self.richTextDataModel = richTextDataModel
         let text = richTextDataModel.text ?? ""
         let data =  text.data(using: .utf8)!

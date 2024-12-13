@@ -51,11 +51,18 @@ public class DocumentEditor: ObservableObject {
             var fieldListModels = [FieldListModel]()
 
             let fieldPositions = mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
-            for fieldPostion in fieldPositions {
-                let fieldIdentifier = FieldIdentifier(fieldID: fieldPostion.field!, pageID: pageID, fileID: fileID)
-                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, refreshID: UUID()))
+            for fieldPosition in fieldPositions {
+                let fieldData = fieldMap[fieldPosition.field!]
+                let fieldIdentifier = FieldIdentifier(fieldID: fieldPosition.field!, pageID: pageID, fileID: fileID)
+                var dataModelType: FieldListModelType = .none
+                let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+
+                var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+                
+                dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
+                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType, refreshID: UUID()))
                 let index = fieldListModels.count - 1
-                fieldIndexMap[fieldPostion.field!] = fieldIndexMapValue(pageID: pageID, index: index)
+                fieldIndexMap[fieldPosition.field!] = fieldIndexMapValue(pageID: pageID, index: index)
             }
             pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
         }
@@ -151,7 +158,7 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateField(event: FieldChangeData) {
+    func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
@@ -163,9 +170,8 @@ extension DocumentEditor {
                 field.yTitle = chartData.yTitle
             }
             updatefield(field: field)
-            document.fields = allFields
-            refreshField(fieldId: event.fieldIdentifier.fieldID)
-            refreshDependent(for: event.fieldIdentifier.fieldID)
+            refreshField(fieldId: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
+            refreshDependent(for: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
         }
     }
 
@@ -196,10 +202,11 @@ extension DocumentEditor {
         let index = components.last.map { Int(String($0))! }!
         return (pageID, index)
     }
-
-    func refreshField(fieldId: String) {
+    
+    func refreshField(fieldId: String, fieldIdentifier: FieldIdentifier) {
         let pageIDIndexValue = fieldIndexMap[fieldId]!
         let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
+        let fieldPosition = self.fieldPositionMap[fieldId]
         pageFieldModels[pageID]!.fields[index].refreshID = UUID()
     }
 
@@ -207,8 +214,105 @@ extension DocumentEditor {
         return field(fieldID: fieldID)?.valueToValueElements
     }
 
-    func refreshDependent(for fieldID: String) {
+    func refreshDependent(for fieldID: String, fieldIdentifier: FieldIdentifier) {
         let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
-        refreshFields.forEach(refreshField(fieldId:))
+        for fieldId in refreshFields {
+            refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+        }
+    }
+    
+    func getFieldModel(fieldPosition: FieldPosition, fieldIdentifier: FieldIdentifier) -> FieldListModelType {
+        let fieldData = fieldMap[fieldPosition.field!]
+        var dataModelType: FieldListModelType = .none
+        let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+
+        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+
+        switch fieldPosition.type {
+        case .text:
+            let model = TextDataModel(fieldIdentifier: fieldIdentifier,
+                                      text: fieldData?.value?.text ?? "",
+                                      mode: fieldEditMode,
+                                      fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .text(model)
+        case .block:
+            let model = DisplayTextDataModel(displayText: fieldData?.value?.text,
+                                             fontWeight: fieldPosition.fontWeight,
+                                             fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .block(model)
+        case .multiSelect:
+            let model = MultiSelectionDataModel(fieldIdentifier: fieldIdentifier,
+                                                multi: fieldData?.multi,
+                                                options: fieldData?.options,
+                                                multiSelector: fieldData?.value?.multiSelector,
+                                                fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .multiSelect(model)
+        case .dropdown:
+            let model = DropdownDataModel(fieldIdentifier: fieldIdentifier,
+                                          dropdownValue: fieldData?.value?.dropdownValue,
+                                          options: fieldData?.options,
+                                          fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .dropdown(model)
+        case .textarea:
+            let model = MultiLineDataModel(fieldIdentifier: fieldIdentifier,
+                                           multilineText: fieldData?.value?.multilineText,
+                                           mode: fieldEditMode,
+                                           fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .textarea(model)
+        case .date:
+            let model = DateTimeDataModel(fieldIdentifier: fieldIdentifier,
+                                          value: fieldData?.value,
+                                          format: fieldPosition.format,
+                                          fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .date(model)
+        case .signature:
+            let model = SignatureDataModel(fieldIdentifier: fieldIdentifier,
+                                           signatureURL: fieldData?.value?.signatureURL ?? "",
+                                           fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .signature(model)
+        case .number:
+            let model = NumberDataModel(fieldIdentifier: fieldIdentifier,
+                                        number: fieldData?.value?.number,
+                                        mode: fieldEditMode,
+                                        fieldHeaderModel: fieldHeaderModel)
+          
+            dataModelType = .number(model)
+        case .chart:
+            let model = ChartDataModel(fieldIdentifier: fieldIdentifier,
+                                       valueElements: fieldData?.value?.valueElements,
+                                       yTitle: fieldData?.yTitle,
+                                       yMax: fieldData?.yMax,
+                                       yMin: fieldData?.yMin,
+                                       xTitle: fieldData?.xTitle,
+                                       xMax: fieldData?.xMax,
+                                       xMin: fieldData?.xMin,
+                                       mode: fieldEditMode,
+                                       documentEditor: self,
+                                       fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .chart(model)
+        case .richText:
+            let model = RichTextDataModel(text: fieldData?.value?.text,
+                                          fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .richText(model)
+        case .table:
+            let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
+                                       mode: fieldEditMode,
+                                       documentEditor: self,
+                                       fieldIdentifier: fieldIdentifier)
+            dataModelType = .table(model)
+        case .image:
+            let model = ImageDataModel(fieldIdentifier: fieldIdentifier,
+                                       multi: fieldData?.multi,
+                                       primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
+                                       valueElements: fieldData?.value?.valueElements,
+                                       mode: fieldEditMode,
+                                       fieldHeaderModel: fieldHeaderModel)
+            dataModelType = .image(model)
+        case .none:
+            dataModelType = .none
+        case .some(.unknown):
+            dataModelType = .none
+        }
+        return dataModelType
     }
 }

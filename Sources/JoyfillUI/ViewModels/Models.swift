@@ -14,57 +14,93 @@ struct PageModel {
 }
 
 struct FieldListModel {
-    var fieldIdentifier: FieldIdentifier
+    let fieldIdentifier: FieldIdentifier
+    let fieldEditMode: Mode
+    var model: FieldListModelType
     var refreshID: UUID
+}
+
+struct RowDataModel: Equatable, Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(rowID)
+    }
+
+    static func == (lhs: RowDataModel, rhs: RowDataModel) -> Bool {
+        lhs.rowID == rhs.rowID
+    }
+
+    let rowID: String
+    var cells: [TableCellModel]
 }
 
 struct TableDataModel {
     let supportedColumnTypes = ["text", "image", "dropdown"]
     let fieldHeaderModel: FieldHeaderModel?
     let mode: Mode
-    let eventHandler: FieldChangeEvents
     let documentEditor: DocumentEditor?
-    var fieldIdentifier: FieldIdentifier
+    let fieldIdentifier: FieldIdentifier
     let title: String?
-    var rows: [String] = []
-    var quickRows: [String] = []
+    var rowOrder: [String]
+    var valueToValueElements: [ValueElement]?
+    var tableColumns: [FieldTableColumn]
     var columns: [String] = []
-    var quickColumns: [String] = []
-    var quickViewRowCount: Int = 0
-    var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
-    var quickRowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
-    var columnIdToColumnMap: [String: FieldTableColumnLocal] = [:]
+    var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
-    var cellModels = [[TableCellModel]]()
-    var filteredcellModels = [[TableCellModel]]()
+    var cellModels = [RowDataModel]()
+    var filteredcellModels = [RowDataModel]()
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
-    var viewMoreText: String = ""
+    var id = UUID()
+    
+    var viewMoreText: String {
+        rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
+    }
 
     init(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
          documentEditor: DocumentEditor,
-         listModel: FieldListModel, eventHandler: FieldChangeEvents) {
-        let fieldData = documentEditor.field(fieldID: listModel.fieldIdentifier.fieldID)
+         fieldIdentifier: FieldIdentifier) {
+        let fieldData = documentEditor.field(fieldID: fieldIdentifier.fieldID)!
         self.fieldHeaderModel = fieldHeaderModel
         self.mode = mode
         self.documentEditor = documentEditor
-        self.title = fieldData?.title
-        self.fieldIdentifier = listModel.fieldIdentifier
-        self.eventHandler = eventHandler
-
+        self.title = fieldData.title
+        self.fieldIdentifier = fieldIdentifier
+        self.rowOrder = fieldData.rowOrder ?? []
+        self.valueToValueElements = fieldData.valueToValueElements
+        self.tableColumns = fieldData.tableColumns ?? []
         setupColumns()
-        setup()
+        filterRowsIfNeeded()
 
         self.filterModels = columns.enumerated().map { colIndex, colID in
             FilterModel(colIndex: colIndex, colID: colID)
         }
     }
+    
+    mutating func filterRowsIfNeeded() {
+        filteredcellModels = cellModels
+        guard !filterModels .noFilterApplied else {
+            return
+        }
 
-    mutating func setup() {
-        setupRows()
-        quickViewRowCount = rows.count >= 3 ? 3 : rows.count
-        viewMoreText = rows.count > 1 ? "+\(rows.count)" : ""
+        for model in filterModels  {
+            if model.filterText.isEmpty {
+                continue
+            }
+             let filtred = filteredcellModels.filter { rowArr in
+                 let column = rowArr.cells[model.colIndex].data
+                switch column.type {
+                case "text":
+                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
+                case "dropdown":
+                    return (column.defaultDropdownSelectedId ?? "") == model.filterText
+                default:
+                    break
+                }
+                return false
+            }
+           filteredcellModels = filtred
+        }
     }
     
     mutating private func setupColumns() {
@@ -81,118 +117,45 @@ struct TableDataModel {
                 let optionsLocal = fieldTableColumn.options?.map { option in
                     OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
                 }
-                let imagesLocal = fieldTableColumn.images?.map { valueElement in
-                    ValueElementLocal(
-                        id: valueElement.id ?? "",
-                        url: valueElement.url,
-                        fileName: valueElement.fileName,
-                        filePath: valueElement.filePath,
-                        deleted: valueElement.deleted,
-                        title: valueElement.title,
-                        description: valueElement.description,
-                        points: valueElement.points,
-                        cells: valueElement.cells?.mapValues { valueUnion in
-                            convertToValueUnionLocal(valueUnion)
-                        }
-                    )
-                }
-                let fieldTableColumnLocal = FieldTableColumnLocal(
-                    id: fieldTableColumn.id,
+                
+                let fieldTableColumnLocal = CellDataModel(
+                    id: fieldTableColumn.id!,
                     defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                     options: optionsLocal,
-                    valueElements: imagesLocal,
+                    valueElements: fieldTableColumn.images ?? [],
                     type: fieldTableColumn.type,
                     title: fieldTableColumn.title
                 )
                 columnIdToColumnMap[column] = fieldTableColumnLocal
             }
         }
-        
-        self.quickColumns = columns
-        while quickColumns.count > 3 {
-            quickColumns.removeLast()
-        }
-    }
-    
-    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
-        switch valueUnion {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toLocal() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        case .dictionary(_):
-            return .null
-        }
     }
 
-    
-    mutating private func setupRows() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
-        guard let valueElements = fieldData.valueToValueElements, !valueElements.isEmpty else {
-            setupQuickTableViewRows()
-            return
-        }
-        let valueElementsLocal = valueElements.map { $0.toLocal() }
-        let nonDeletedRows = valueElementsLocal.filter { !($0.deleted ?? false) }
-        let sortedRows = sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: fieldData.rowOrder)
-        var rowToCellMap: [String?: [FieldTableColumnLocal?]] = [:]
-        
-        for row in sortedRows {
-            var cells: [FieldTableColumnLocal?] = []
-            for column in self.columns {
-                let columnData = fieldData.tableColumns?.first { $0.id == column }
-                let optionsLocal = columnData?.options?.map { option in
-                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
-                }
-                
-                let imagesLocal = columnData?.images?.map { valueElement in
-                    ValueElementLocal(
-                        id: valueElement.id ?? "",
-                        url: valueElement.url,
-                        fileName: valueElement.fileName,
-                        filePath: valueElement.filePath,
-                        deleted: valueElement.deleted,
-                        title: valueElement.title,
-                        description: valueElement.description,
-                        points: valueElement.points,
-                        cells: valueElement.cells?.mapValues { valueUnion in
-                            convertToValueUnionLocal(valueUnion)
-                        }
-                    )
-                }
-                let valueUnion = row.cells?.first(where: { $0.key == column })?.value
-                let defaultDropdownSelectedId = valueUnion?.dropdownValue
-                
-                let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
-                let columnDataLocal = FieldTableColumnLocal(id: columnData?.id,
-                                                            defaultDropdownSelectedId: columnData?.defaultDropdownSelectedId,
-                                                            options: optionsLocal,
-                                                            valueElements: imagesLocal,
-                                                            type: columnData?.type,
-                                                            title: columnData?.title,
-                                                            selectedOptionText: selectedOptionText)
-                let cell = buildCell(data: columnDataLocal, row: row, column: column)
+    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
+        var cells: [CellDataModel] = []
+        for columnData in tableColumns {
+            let optionsLocal = columnData.options?.map { option in
+                OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+            }
+            let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
+            let defaultDropdownSelectedId = valueUnion?.dropdownValue
+            
+            let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
+            let columnDataLocal = CellDataModel(id: columnData.id!,
+                                                        defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
+                                                        options: optionsLocal,
+                                                        valueElements: columnData.images ?? [],
+                                                        type: columnData.type,
+                                                        title: columnData.title,
+                                                        selectedOptionText: selectedOptionText)
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
                 cells.append(cell)
             }
-            rowToCellMap[row.id] = cells
         }
-        
-        self.rows = sortedRows.map { $0.id ?? "" }
-        self.quickRows = self.rows
-        self.rowToCellMap = rowToCellMap
-        self.quickRowToCellMap = rowToCellMap
-        setupQuickTableViewRows()
+        return cells
     }
     
-    private func buildCell(data: FieldTableColumnLocal?, row: ValueElementLocal, column: String) -> FieldTableColumnLocal? {
+    private func buildCell(data: CellDataModel?, row: ValueElement, column: String) -> CellDataModel? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         switch data?.type {
@@ -201,84 +164,73 @@ struct TableDataModel {
         case "dropdown":
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
-            cell?.valueElements = valueUnion?.valueElements
+            cell?.valueElements = valueUnion?.valueElements ?? []
         default:
             return nil
         }
         return cell
     }
     
-    mutating func setupQuickTableViewRows() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
-        if quickRows.isEmpty {
-            quickRowToCellMap = [:]
-            let id = generateObjectId()
-            quickRows = [id]
-            let columnData = fieldData.tableColumns ?? []
-            var columnDataLocal: [FieldTableColumnLocal] = []
-            for column in columnData {
-                var optionsLocal: [OptionLocal] = []
-                for option in column.options ?? []{
-                    optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
-                }
-                let imagesLocal = column.images?.map { valueElement in
-                    ValueElementLocal(
-                        id: valueElement.id ?? "",
-                        url: valueElement.url,
-                        fileName: valueElement.fileName,
-                        filePath: valueElement.filePath,
-                        deleted: valueElement.deleted,
-                        title: valueElement.title,
-                        description: valueElement.description,
-                        points: valueElement.points,
-                        cells: valueElement.cells?.mapValues { valueUnion in
-                            convertToValueUnionLocal(valueUnion)
-                        }
-                    )
-                }
-                
-                columnDataLocal.append(FieldTableColumnLocal(id: column.id,
-                                                             defaultDropdownSelectedId: column.defaultDropdownSelectedId,
-                                                             options: optionsLocal,
-                                                             valueElements: imagesLocal,
-                                                             type: column.type,
-                                                             title: column.title,
-                                                             selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? ""))
-            }
-            quickRowToCellMap = [id : columnDataLocal ?? []]
-        } else {
-            while quickRows.count > 3 {
-                quickRows.removeLast()
-            }
+    mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
+        var cellModel = cellModels[rowIndex].cells[colIndex]
+        cellModel.data  = cellDataModel
+        cellModels[rowIndex].cells[colIndex] = cellModel
+        if isBulkEdit {
+            cellModels[rowIndex].cells[colIndex].id = UUID()
         }
     }
-    
-    mutating func updateCellModel(rowIndex: Int, colIndex: Int, editedCell: FieldTableColumnLocal) {
-        var cellModel = cellModels[rowIndex][colIndex]
-        cellModel.data  = editedCell
-        cellModels[rowIndex][colIndex] = cellModel
-    }
-    
+
     var lastRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.last! == rows.last!
+        return !selectedRows.isEmpty && selectedRows.last! == rowOrder.last!
     }
     
     var firstRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.first! == rows.first!
+        return !selectedRows.isEmpty && selectedRows.first! == rowOrder.first!
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
-        var cellModel = cellModels[rowIndex][colIndex]
+        var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data.title  = value
-        self.cellModels[rowIndex][colIndex] = cellModel
+        cellModels[rowIndex].cells[colIndex] = cellModel
+    }
+
+    func getFieldTableColumn(rowIndex: Int, col: Int) -> CellDataModel? {
+        return cellModels[rowIndex].cells[col].data
     }
     
-    func getFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
-        return rowToCellMap[row]?[col]
+    func getDummyCell(col: Int, selectedOptionText: String = "") -> CellDataModel? {
+        var dummyCell = filteredcellModels[0].cells[col].data
+        dummyCell.selectedOptionText = selectedOptionText
+        return dummyCell
+    }
+
+    func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
+        let rowIndex = filteredcellModels.firstIndex(where: { rowDataModel in
+            rowDataModel.rowID == row
+        })!
+        return filteredcellModels[rowIndex].cells[col].data
     }
     
-    func getQuickFieldTableColumn(row: String, col: Int) -> FieldTableColumnLocal? {
-        return quickRowToCellMap[row]?[col]
+    func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
+        if rowOrder.isEmpty {
+            let id = generateObjectId()
+            let columnData = tableColumns ?? []
+            var columnDataLocal: [CellDataModel] = []
+            let column = columnData[col]
+            var optionsLocal: [OptionLocal] = []
+            for option in column.options ?? []{
+                optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
+            }
+            return CellDataModel(id: column.id!,
+                                         defaultDropdownSelectedId: column.defaultDropdownSelectedId,
+                                         options: optionsLocal,
+                                         valueElements: column.images ?? [],
+                                         type: column.type,
+                                         title: column.title,
+                                         selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "")
+        }
+        let rowIndex = rowOrder.firstIndex(of: row)!
+        return cellModels[rowIndex].cells[col].data
     }
     
     
@@ -309,7 +261,7 @@ struct TableDataModel {
     }
     
     mutating func selectAllRows() {
-        selectedRows = filteredcellModels.compactMap { $0.first?.rowID }
+        selectedRows = filteredcellModels.compactMap { $0.cells.first?.rowID }
     }
     
     mutating func emptySelection() {
@@ -320,7 +272,7 @@ struct TableDataModel {
         !selectedRows.isEmpty && selectedRows.count == filteredcellModels.count
     }
     
-    func sortElementsByRowOrder(elements: [ValueElementLocal], rowOrder: [String]?) -> [ValueElementLocal] {
+    func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
         guard let rowOrder = rowOrder else { return elements }
         let sortedRows = elements.sorted { (a, b) -> Bool in
             if let first = rowOrder.firstIndex(of: a.id ?? ""), let second = rowOrder.firstIndex(of: b.id ?? "") {
@@ -333,393 +285,28 @@ struct TableDataModel {
     
 }
 
-struct FieldTableColumnLocal {
-    let id: String?
+struct CellDataModel: Hashable, Equatable {
+    static func == (lhs: CellDataModel, rhs: CellDataModel) -> Bool {
+        lhs.uuid == rhs.uuid
+    }
+    let uuid = UUID()
+    let id: String
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
-    var valueElements: [ValueElementLocal]?
+    var valueElements: [ValueElement]
     let type: String?
-    var title: String?
+    var title: String
     var selectedOptionText: String?
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(uuid)
+    }
 }
 
 struct OptionLocal: Identifiable {
     var id: String?
     var deleted: Bool?
     var value: String?
-}
-
-struct ValueElementLocal: Codable,Hashable, Equatable, Identifiable {
-    var id: String
-    var url: String?
-    var fileName: String?
-    var filePath: String?
-    var deleted: Bool?
-    var title: String?
-    var description: String?
-    var points: [Point]?
-    var cells: [String: ValueUnionLocal]?
-    
-    init(
-        id: String,
-        url: String? = nil,
-        fileName: String? = nil,
-        filePath: String? = nil,
-        deleted: Bool? = false,
-        title: String? = nil,
-        description: String? = nil,
-        points: [Point]? = nil,
-        cells: [String: ValueUnionLocal]? = nil
-    ) {
-        self.id = id
-        self.url = url
-        self.fileName = fileName
-        self.filePath = filePath
-        self.deleted = deleted
-        self.title = title
-        self.description = description
-        self.points = points
-        self.cells = cells
-    }
-    
-    mutating func setDeleted() {
-        self.deleted = true
-    }
-}
-
-enum ValueUnionLocal: Codable, Hashable, Equatable {
-    case double(Double)
-    case string(String)
-    case array([String])
-    case valueElementArray([ValueElementLocal])
-    case bool(Bool)
-    case null
-
-    public static func == (lhs: ValueUnionLocal, rhs: ValueUnionLocal) -> Bool {
-        switch (lhs, rhs) {
-        case (.double(let a), .double(let b)):
-            return a == b
-        case (.string(let a), .string(let b)):
-            return a == b
-        case (.array(let a), .array(let b)):
-            return a == b
-        case (.valueElementArray(let a), .valueElementArray(let b)):
-            return a == b
-        case (.bool(let a), .bool(let b)):
-            return a == b
-        case (.null, .null):
-            return true
-        default:
-            return false
-        }
-    }
-
-    public init?(value: Any) {
-        if let doubleValue = value as? Double {
-            self = .double(doubleValue)
-            return
-        }
-        if let boolValue = value as? Bool {
-            self = .bool(boolValue)
-            return
-        }
-        if let strValue = value as? String {
-            self = .string(strValue)
-            return
-        }
-        if let arrayValue = value as? [String] {
-            self = .array(arrayValue)
-            return
-        }
-        if let valueElementArray = value as? [ValueElementLocal] {
-            self = .valueElementArray(valueElementArray)
-            return
-        }
-        if value is NSNull {
-            self = .null
-            return
-        }
-#if DEBUG
-        fatalError()
-#else
-        self = .null
-#endif
-    }
-
-    public var isEmpty: Bool {
-        switch self {
-        case .double:
-            return false
-        case .string(let string):
-            return string.isEmpty
-        case .array(let stringArray):
-            return stringArray.isEmpty
-        case .valueElementArray(let valueElementArray):
-            return valueElementArray.isEmpty
-        case .bool(let bool):
-            return bool
-        case .null:
-            return true
-        }
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let x = try? container.decode(Double.self) {
-            self = .double(x)
-            return
-        }
-        if let x = try? container.decode([ValueElementLocal].self) {
-            self = .valueElementArray(x)
-            return
-        }
-        if let x = try? container.decode(String.self) {
-            self = .string(x)
-            return
-        }
-        if let x = try? container.decode([String].self) {
-            self = .array(x)
-            return
-        }
-        if let x = try? container.decode(Bool.self) {
-            self = .bool(x)
-            return
-        }
-        if container.decodeNil() {
-            self = .null
-            return
-        }
-        throw DecodingError.typeMismatch(ValueUnionLocal.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for ValueUnionLocal"))
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .double(let x):
-            if x.truncatingRemainder(dividingBy: 1) == 0 {
-                try container.encode(Double(x))
-            } else {
-                try container.encode(x)
-            }
-        case .string(let x):
-            try container.encode(x)
-        case .valueElementArray(let x):
-            try container.encode(x)
-        case .array(let x):
-            try container.encode(x)
-        case .bool(let x):
-            try container.encode(x)
-        case .null:
-            try container.encodeNil()
-        }
-    }
-}
-
-extension ValueUnionLocal {
-    
-    var text: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-
-    var bool: Bool? {
-        switch self {
-        case .bool(let bool):
-            return bool
-        case .double(let double):
-            return double != 0
-        default:
-            return nil
-        }
-    }
-
-    var displayText: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-
-    var stringArray: [String]? {
-        switch self {
-        case .array(let stringArray):
-            return stringArray
-        default:
-            return nil
-        }
-    }
-
-    var imageURLs: [String]? {
-        switch self {
-        case .valueElementArray(let valueElements):
-            var imageURLArray: [String] = []
-            for element in valueElements {
-                imageURLArray.append(element.url ?? "")
-            }
-            return imageURLArray
-        default:
-            return nil
-        }
-    }
-    
-    var signatureURL: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var multilineText: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var number: Double? {
-        switch self {
-        case .double(let value):
-            return value
-        case .bool(let boolValue):
-            return boolValue ? 1 : 0
-        default:
-            return nil
-        }
-    }
-
-    var dropdownValue: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var selector: String? {
-        switch self {
-        case .string(let string):
-            return string
-        default:
-            return nil
-        }
-    }
-    
-    var multiSelector: [String]? {
-        switch self {
-        case .array(let array):
-            return array
-        default:
-            return nil
-        }
-    }
-    
-    func dateTime(format: String) -> String? {
-        switch self {
-        case .string(let string):
-            let date = getTimeFromISO8601Format(iso8601String: string)
-            return date
-        case .double(let value):
-            let date = timestampMillisecondsToDate(value: Int(value), format: format)
-            return date
-        default:
-            return nil
-        }
-    }
-    
-    var valueElements: [ValueElementLocal]? {
-        switch self {
-        case .valueElementArray(let valueElements):
-            return valueElements
-        default:
-            return nil
-        }
-    }
-    
-    func toValueUnion() -> ValueUnion {
-        switch self {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toValueElement() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        }
-    }
-}
-
-
-extension ValueElement {
-    func toLocal() -> ValueElementLocal {
-        var valueElements = ValueElementLocal(
-            id: self.id ?? "",
-            deleted: self.deleted,
-            title: self.title,
-            description: self.description,
-            points: self.points
-        )
-        valueElements.url = self.url
-        valueElements.fileName = self.fileName
-        valueElements.filePath = self.filePath
-        valueElements.cells = self.cells?.mapValues { valueUnion in
-            convertToValueUnionLocal(valueUnion)
-        }
-        
-        return valueElements
-    }
-    
-    func convertToValueUnionLocal(_ valueUnion: ValueUnion) -> ValueUnionLocal {
-        switch valueUnion {
-        case .double(let value):
-            return .double(value)
-        case .string(let value):
-            return .string(value)
-        case .array(let value):
-            return .array(value)
-        case .valueElementArray(let elements):
-            return .valueElementArray(elements.map { $0.toLocal() })
-        case .bool(let value):
-            return .bool(value)
-        case .null:
-            return .null
-        case .dictionary(_):
-            return .null
-        }
-    }
-}
-
-extension ValueElementLocal {
-    func toValueElement() -> ValueElement {
-        var valueElement = ValueElement(
-            id: self.id ?? "",
-            deleted: self.deleted ?? false,
-            description: self.description ?? "",
-            title: self.title ?? "",
-            points: self.points
-        )
-        valueElement.url = self.url
-        valueElement.fileName = self.fileName
-        valueElement.filePath = self.filePath
-        valueElement.cells = self.cells?.mapValues { $0.toValueUnion() }
-        
-        return valueElement
-    }
 }
 
 struct ChartDataModel {
@@ -733,7 +320,6 @@ struct ChartDataModel {
     var xMin: Double?
     var mode: Mode
     var documentEditor: DocumentEditor?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -741,7 +327,6 @@ struct DateTimeDataModel {
     var fieldIdentifier: FieldIdentifier
     var value: ValueUnion?
     var format: String?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -755,7 +340,6 @@ struct DropdownDataModel {
     var fieldIdentifier: FieldIdentifier
     var dropdownValue: String?
     var options: [Option]?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -763,9 +347,8 @@ struct ImageDataModel {
     var fieldIdentifier: FieldIdentifier
     var multi: Bool?
     var primaryDisplayOnly: Bool?
-    var valueElements: [ValueElementLocal]?
+    var valueElements: [ValueElement]?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -773,17 +356,14 @@ struct MultiLineDataModel {
     var fieldIdentifier: FieldIdentifier
     var multilineText: String?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct MultiSelectionDataModel {
     var fieldIdentifier: FieldIdentifier
-    var currentFocusedFieldsDataId: String?
     var multi: Bool?
     var options: [Option]?
     var multiSelector: [String]?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -791,20 +371,17 @@ struct NumberDataModel {
     var fieldIdentifier: FieldIdentifier
     var number: Double?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct RichTextDataModel {
     var text: String?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
 struct SignatureDataModel {
     var fieldIdentifier: FieldIdentifier
     var signatureURL: String?
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -812,6 +389,5 @@ struct TextDataModel {
     var fieldIdentifier: FieldIdentifier
     var text: String?
     var mode: Mode
-    var eventHandler: FieldChangeEvents
     var fieldHeaderModel: FieldHeaderModel?
 }

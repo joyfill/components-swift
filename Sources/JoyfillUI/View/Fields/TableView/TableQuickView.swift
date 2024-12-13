@@ -16,10 +16,13 @@ struct TableQuickView : View {
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
+    let eventHandler: FieldChangeEvents
+    @State private var refreshID = UUID()
 
-    public init(tableDataModel: TableDataModel) {
+    public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
         self.viewModel = TableViewModel(tableDataModel: tableDataModel)
         self.tableDataModel = tableDataModel
+        self.eventHandler = eventHandler
     }
         
     var body: some View {
@@ -34,10 +37,10 @@ struct TableQuickView : View {
                     .disabled(true)
                     .background(Color.clear)
                     .cornerRadius(14, corners: [.topRight, .topLeft])
-                    
                     table
+                        .id(refreshID)
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
-                }.frame(maxHeight: CGFloat(viewModel.tableDataModel.quickRows.count) * rowHeight + rowHeight)
+                }.frame(maxHeight: CGFloat(viewModel.tableDataModel.rowOrder.count) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -46,7 +49,7 @@ struct TableQuickView : View {
             
             Button(action: {
                 isTableModalViewPresented.toggle()
-                tableDataModel.eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+                eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Table View")
@@ -79,11 +82,14 @@ struct TableQuickView : View {
             .frame(width: 0, height: 0)
             .hidden()
         }
+        .onAppear() {
+            refreshID = UUID()
+        }
     }
     
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(viewModel.tableDataModel.quickColumns, id: \.self) { col in
+            ForEach(viewModel.tableDataModel.columns.prefix(3), id: \.self) { col in
                 ZStack {
                     Rectangle()
                         .stroke()
@@ -99,9 +105,9 @@ struct TableQuickView : View {
     
     var table: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(viewModel.tableDataModel.quickRows, id: \.self) { row in
+            ForEach(viewModel.tableDataModel.rowOrder.prefix(3), id: \.self) { row in
                 HStack(alignment: .top, spacing: 0) {
-                    ForEach(Array(viewModel.tableDataModel.quickColumns.enumerated()), id: \.offset) { index, col in
+                    ForEach(Array(viewModel.tableDataModel.columns.prefix(3).enumerated()), id: \.offset) { index, col in
                         // Cell
                         let cell = viewModel.tableDataModel.getQuickFieldTableColumn(row: row, col: index)
                         if let cell = cell {
@@ -116,7 +122,7 @@ struct TableQuickView : View {
                                 Rectangle()
                                     .stroke()
                                     .foregroundColor(Color.tableCellBorderColor)
-                                TableViewCellBuilder(cellModel: cellModel)
+                                TableViewCellBuilder(cellModel: Binding.constant(cellModel))
                             }
                             .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                         }

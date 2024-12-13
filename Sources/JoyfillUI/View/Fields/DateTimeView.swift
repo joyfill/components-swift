@@ -7,9 +7,11 @@ struct DateTimeView: View {
     @State private var selectedDate = Date()
     private var dateTimeDataModel: DateTimeDataModel
     @FocusState private var isFocused: Bool
-    
-    public init(dateTimeDataModel: DateTimeDataModel) {
+    let eventHandler: FieldChangeEvents
+
+    public init(dateTimeDataModel: DateTimeDataModel, eventHandler: FieldChangeEvents) {
         self.dateTimeDataModel = dateTimeDataModel
+        self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
             let dateString = value.dateTime(format: dateTimeDataModel.format ?? "") ?? ""
             if let date = stringToDate(dateString, format: dateTimeDataModel.format ?? "") {
@@ -60,8 +62,8 @@ struct DateTimeView: View {
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
             let newDateValue = ValueUnion.double(convertDateToInt)
             let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: newDateValue)
-            dateTimeDataModel.eventHandler.onChange(event: event)
-            dateTimeDataModel.eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
+            eventHandler.onChange(event: event)
+            eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
         }
     }
     

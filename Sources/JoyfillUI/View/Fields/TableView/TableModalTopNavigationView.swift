@@ -280,65 +280,63 @@ struct EditMultipleRowsSheetView: View {
 
                 ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
-                    let cell = viewModel.tableDataModel.getFieldTableColumn(row: row, col: colIndex)
-                    if let cell = cell {
-                        let cellModel = TableCellModel(rowID: row,
-                                                       data: cell,
-                                                       documentEditor: viewModel.tableDataModel.documentEditor,
-                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                       viewMode: .modalView,
-                                                       editMode: viewModel.tableDataModel.mode)
-                        { editedCell in
-                            switch cell.type {
-                            case "text":
-                                self.changes[colIndex] = editedCell.title
-                            case "dropdown":
-                                self.changes[colIndex] = editedCell.defaultDropdownSelectedId
-                            default:
-                                break
-                            }
-                        }
-                        switch cellModel.data.type {
+                    let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
+                    let cellModel = TableCellModel(rowID: row,
+                                                   data: cell,
+                                                   documentEditor: viewModel.tableDataModel.documentEditor,
+                                                   fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                   viewMode: .modalView,
+                                                   editMode: viewModel.tableDataModel.mode)
+                    { cellDataModel in
+                        switch cell.type {
                         case "text":
-                            var str = ""
-                            Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
-                            let binding = Binding<String>(
-                                get: {
-                                    str
-                                },
-                                set: { newValue in
-                                    str = newValue
-                                    self.changes[colIndex] = newValue
-                                }
-                            )
-                            TextField("", text: binding)
-                                .font(.system(size: 15))
-                                .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                                .disabled(viewModel.tableDataModel.mode == .readonly)
-                                .padding(.horizontal, 10)
-                                .frame(height: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                            self.changes[colIndex] = cellDataModel.title
                         case "dropdown":
-                            Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
-                            TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
-                                .disabled(cellModel.editMode == .readonly)
-                                .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                            self.changes[colIndex] = cellDataModel.defaultDropdownSelectedId
                         default:
-                            Text("")
+                            break
                         }
+                    }
+                    switch cellModel.data.type {
+                    case "text":
+                        var str = ""
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        let binding = Binding<String>(
+                            get: {
+                                str
+                            },
+                            set: { newValue in
+                                str = newValue
+                                self.changes[colIndex] = newValue
+                            }
+                        )
+                        TextField("", text: binding)
+                            .font(.system(size: 15))
+                            .accessibilityIdentifier("EditRowsTextFieldIdentifier")
+                            .disabled(viewModel.tableDataModel.mode == .readonly)
+                            .padding(.horizontal, 10)
+                            .frame(height: 40)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                    case "dropdown":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                            .disabled(cellModel.editMode == .readonly)
+                            .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                    default:
+                        Text("")
                     }
                 }
                 Spacer()

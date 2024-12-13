@@ -23,50 +23,70 @@ class TableViewModel: ObservableObject {
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
         
         setupCellModels()
+        self.tableDataModel.filterRowsIfNeeded()
     }
 
-    func addCellModel(rowID: String) {
-        let rowIndex: Int = tableDataModel.rows.isEmpty ? 0 : tableDataModel.rows.count - 1
-        var rowCellModels = [TableCellModel]()
-        tableDataModel.columns.enumerated().forEach { colIndex, colID in
-            let columnModel = tableDataModel.getFieldTableColumn(row: rowID, col: colIndex)
-            if let columnModel = columnModel {
+    func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
+        var rowCellModels = [TableCellModel]()        
+        let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
+            for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
-                                               data: columnModel,
+                                               data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { editedCell  in
-                    self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                                               editMode: tableDataModel.mode) { cellDataModel in
+                    let colIndex = self.tableDataModel.columns.firstIndex(of: rowDataModel.id)!
+                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                 }
                 rowCellModels.append(cellModel)
             }
+        if self.tableDataModel.cellModels.count > (index - 1) {
+            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels), at: index)
+        } else {
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
         }
-        self.tableDataModel.cellModels.append(rowCellModels)
     }
     
     func setupCellModels() {
-        var cellModels = [[TableCellModel]]()
-        tableDataModel.rows.enumerated().forEach { rowIndex, rowID in
+        var cellModels = [RowDataModel]()
+        let rowDataMap = setupRows()
+        tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.columns.enumerated().forEach { colIndex, colID in
-                let columnModel = tableDataModel.getFieldTableColumn(row: rowID, col: colIndex)
+                let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { editedCell  in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, editedCell: editedCell)
+                                                   editMode: tableDataModel.mode) { cellDataModel in
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                     }
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(rowCellModels)
+            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
+    }
+
+    private func setupRows() -> [String: [CellDataModel]] {
+        guard let valueElements = tableDataModel.valueToValueElements, !valueElements.isEmpty else {
+            return [:]
+        }
+
+        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
+        let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
+        let tableColumns = tableDataModel.tableColumns
+        var rowToCellMap = [String: [CellDataModel]]()
+        for row in sortedRows {
+            let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
+            rowToCellMap[row.id!] = cellRowModel
+        }
+        return rowToCellMap
     }
 
     var rowTitle: String {
@@ -74,86 +94,121 @@ class TableViewModel: ObservableObject {
     }
     
     func deleteSelectedRow() {
-        for row in tableDataModel.selectedRows {
-            tableDataModel.rowToCellMap.removeValue(forKey: row)
-        }
         tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-
+        for rowID in tableDataModel.selectedRows {
+            if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
+                deleteRow(at: index, rowID: rowID)
+            }
+        }
         tableDataModel.emptySelection()
-        tableDataModel.setup()
-        uuid = UUID()
-        setupCellModels()
     }
     
     func duplicateRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
-        tableDataModel.setup()
-
+        guard let changes = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        
+        let sortedChanges = changes.sorted { $0.key < $1.key }
+        sortedChanges.forEach { (index, value) in
+            updateRow(valueElement: value, at: index)
+        }
         tableDataModel.emptySelection()
-        setupCellModels()
     }
 
     func insertBelow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
-        updateUI()
+        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
+        updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
+        tableDataModel.emptySelection()
     }
 
     func moveUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        updateUI()
+        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+        moveUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
 
     func moveDown() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        updateUI()
+        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+        moveDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+    }
+    
+    fileprivate func updateRow(valueElement: ValueElement, at index: Int) {
+        if tableDataModel.rowOrder.count > (index - 1) {
+            tableDataModel.rowOrder.insert(valueElement.id!, at: index)
+        } else {
+            tableDataModel.rowOrder.append(valueElement.id!)
+        }
+        addCellModel(rowID: valueElement.id!, index: index, valueElement: valueElement)
+        tableDataModel.filterRowsIfNeeded()
+    }
+    
+    fileprivate func deleteRow(at index: Int, rowID: String) {
+        tableDataModel.rowOrder.remove(at: index)
+        self.tableDataModel.cellModels.remove(at: index)
+        tableDataModel.filterRowsIfNeeded()
     }
 
-    private func updateUI() {
-        tableDataModel.setup()
+    fileprivate func moveUP(at index: Int, rowID: String) {
+        tableDataModel.rowOrder.swapAt(index, index-1)
+        self.tableDataModel.cellModels.swapAt(index, index-1)
+        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
-        setupCellModels()
+    }
+
+    fileprivate func moveDown(at index: Int, rowID: String) {
+        tableDataModel.rowOrder.swapAt(index, index+1)
+        self.tableDataModel.cellModels.swapAt(index, index+1)
+        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.emptySelection()
     }
 
     func addRow() {
         let id = generateObjectId()
-
         if tableDataModel.filterModels.noFilterApplied {
-            tableDataModel.documentEditor?.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
+            let rowData = tableDataModel.documentEditor!.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
+            updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
         } else {
-            tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier)
+            if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier, tableDataModel: tableDataModel) {
+                updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
+            }
         }
-        
-        updateUI()
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumnLocal) {
-        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, editedCell: editedCell, fieldId: tableDataModel.fieldIdentifier.fieldID)
-        // TODO: USE AND SEE WHY WE NEED THIS AND WE DONT
-        // If not required, simplify it by removing it to reduce complexity
-//        tableDataModel.setup()
-        uuid = UUID()
-        tableDataModel.updateCellModel(rowIndex: tableDataModel.rows.firstIndex(of: rowId) ?? 0, colIndex: colIndex, editedCell: editedCell)
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
+        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
+        
+        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
     }
 
     func bulkEdit(changes: [Int: String]) {
         var columnIDChanges = [String: String]()
         changes.forEach { (colIndex: Int, value: String) in
-            guard let editedCellId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
-            columnIDChanges[editedCellId] = value
+            guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+            columnIDChanges[cellDataModelId] = value
         }
         tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-        //Update local model with new bulk edit changes
-//        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID!)?.valueToValueElements
+        for rowId in tableDataModel.selectedRows {
+            let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
+            tableDataModel.columns.enumerated().forEach { colIndex, colID in
+                var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
+                guard let change = changes[colIndex] else { return }
+                if cellDataModel.type == "dropdown" {
+                    cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change }.first?.value ?? ""
+                    cellDataModel.defaultDropdownSelectedId = change
+                } else {
+                    cellDataModel.title = change
+                }
+                
+                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
+            }
+        }
+        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
-        tableDataModel.setup()
-        uuid = UUID()
-        setupCellModels()
     }
-    
     
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
