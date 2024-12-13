@@ -33,8 +33,9 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
 }
 
+let supportedColumnTypes = ["text", "image", "dropdown"]
+
 struct TableDataModel {
-    let supportedColumnTypes = ["text", "image", "dropdown"]
     let fieldHeaderModel: FieldHeaderModel?
     let mode: Mode
     let documentEditor: DocumentEditor?
@@ -68,7 +69,17 @@ struct TableDataModel {
         self.fieldIdentifier = fieldIdentifier
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
-        self.tableColumns = fieldData.tableColumns ?? []
+        self.columns = (fieldData.tableColumnOrder ?? []).filter { columnID in
+            if let columnType = fieldData.tableColumns?.first { $0.id == columnID }?.type {
+                return supportedColumnTypes.contains(columnType)
+            }
+            return false
+        }
+        self.tableColumns = self.columns.compactMap(  { columnId in
+            fieldData.tableColumns?.first(where: {
+                $0.id == columnId
+            })!
+        })
         setupColumns()
         filterRowsIfNeeded()
 
@@ -105,12 +116,6 @@ struct TableDataModel {
     
     mutating private func setupColumns() {
         guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
-        self.columns = (fieldData.tableColumnOrder ?? []).filter { columnID in
-            if let columnType = fieldData.tableColumns?.first { $0.id == columnID }?.type {
-                return supportedColumnTypes.contains(columnType)
-            }
-            return false
-        }
         
         for column in self.columns {
             if let fieldTableColumn = fieldData.tableColumns?.first(where: { $0.id == column }) {
