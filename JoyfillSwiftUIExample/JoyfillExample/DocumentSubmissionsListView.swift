@@ -30,7 +30,7 @@ struct DocumentSubmissionsListView: View {
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
-                    NavigationLink("", destination: FormContainerView(document: documentBinding, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
+                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
                 }
                 Text("Document List")
                     .padding()
@@ -38,6 +38,7 @@ struct DocumentSubmissionsListView: View {
                 List(documents) { submission in
                     Button(action: {
                         fetchDocument(submission)
+//                        fetchLocalDocument()
                     }) {
                         HStack {
                             Image(systemName: "doc")
@@ -49,24 +50,30 @@ struct DocumentSubmissionsListView: View {
             .navigationTitle(title)
         }
     }
-    
-    private var documentBinding: Binding<JoyDoc> {
-        Binding(get: { document! }, set: { document = $0 })
-    }
-    
+
     private var pageID: String {
-//        document!.files[0].pages?.first(where: { $0.hidden == false })?.id ?? ""
         return ""
     }
-    
+
     private var changeManager: ChangeManager {
         ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
     }
-    
+
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
         uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
     }
-    
+
+    private func fetchLocalDocument() {
+        isloading = true
+        DispatchQueue.global().async {
+            self.document = sampleJSONDocument(fileName: "3000-fields")
+            DispatchQueue.main.async {
+                showDocumentDetails = true
+                isloading = false
+            }
+        }
+    }
+
     private func fetchDocument(_ submission: Document) {
         isloading = true
         apiService.fetchJoyDoc(identifier: submission.identifier) { result in

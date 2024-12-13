@@ -48,12 +48,18 @@ import Joyfill
 import JoyfillModel
 
 struct FormContainerView: View {
-    @Binding var document: JoyDoc
-    let pageID: String
-    private let changeManager: FormChangeEvent = ChangeManager()
-    
+    let documentEditor: DocumentEditor
+    let changeManager: ChangeManager
+
+    init(document: JoyDoc, pageID: String, changeManager: ChangeManager) {
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true)
+        self.changeManager = changeManager
+    }
+
     var body: some View {
-      Form(document: $document, mode: .fill, events: changeManager, pageID: pageID)
+        VStack {
+            Form(documentEditor: documentEditor)
+        }
     }
 }
 ```
@@ -78,8 +84,25 @@ for fieldResult in result.fieldValidations {
 
 ```
 
-### `JoyFillView`
+### `DocumentEditor`
+The DocumentEditor is a key component of the Joyfill SDK, offering features such as document editing, conditional logic, validation, page navigation, and field event handling. It provides easy to use functions to access and modify documents seamlessly. Additionally, any document updates made using the helper functions in the DocumentEditor automatically trigger change events.
 
+Below is an overview of its key components and usage:
+
+```swift
+import Joyfill
+import JoyfillModel
+
+let documentEditor = DocumentEditor(
+    document: myDocument, // Your JoyDoc instance
+    mode: .fill,          // The editor mode (fill or readonly)
+    events: myChangeManager, // Custom FormChangeEvent instance
+    pageID: "your_page_ID",     // Optional: Page ID to start with
+    navigation: true      // Whether to show the page navigation view
+)
+
+```
+## `Params`
 * `mode: 'fill' | 'readonly'`
   * Enables and disables certain JoyDoc functionality and features. 
   * Default is `fill`.
@@ -97,8 +120,68 @@ for fieldResult in result.fieldValidations {
 
 * `events: FormChangeEvent`
   * Used to listen to form events.
+  
+## `Properties`
+* `currentPageID: String`
+  * Represents the unique identifier of the current page being displayed.
+  * Changing this value will update the displayed page in the document.
+  
+```swift
+  // Example of changing the current page
+documentEditor.currentPageID = "newPageID"
 
-### FormChangeEvent Params
+```
+
+## `Functions`
+### `validate() -> Validation`
+* Validates the current document and returns a Validation object.
+* Usage: `let validationResult = documentEditor.validate()`
+
+### `shouldShow(fieldID: String?) -> Bool`
+* Determines if a field should be shown based on conditional logic.
+* Usage: `let isFieldVisible = documentEditor.shouldShow(fieldID: "someFieldID")`
+
+### `shouldShow(pageID: String?) -> Bool`
+* Determines if a page should be shown based on conditional logic.
+* Usage: `let isPageVisible = documentEditor.shouldShow(pageID: "somePageID")`
+
+### `shouldShow(page: Page?) -> Bool`
+* Determines if a given Page object should be shown based on conditional logic.
+* Usage: `let isPageVisible = documentEditor.shouldShow(page: somePage)`
+
+### `deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier)`
+* Deletes specified rows from a table field.
+* Usage: `documentEditor.deleteRows(rowIDs: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+### `duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier)`
+* Duplicates specified rows in a table field.
+* Usage: `documentEditor.duplicateRows(rowIDs: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+### `moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier)`
+* Moves a specified row up in a table field.
+* Usage: `documentEditor.moveRowUp(rowID: "row1", fieldIdentifier: fieldIdentifier)`
+
+### `moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier)`
+* Moves a specified row down in a table field.
+* Usage: `documentEditor.moveRowDown(rowID: "row1", fieldIdentifier: fieldIdentifier)`
+
+### `insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier)`
+* Inserts a new row at the end of a table field.
+* Usage: `documentEditor.insertRowAtTheEnd(id: "newRow", fieldIdentifier: fieldIdentifier)`
+
+### `insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier)`
+* Inserts new rows below specified rows in a table field.
+* Usage: `documentEditor.insertBelow(selectedRows: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+### `insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier)`
+* Inserts a new row with specified filter conditions in a table field.
+* Usage: `documentEditor.insertRowWithFilter(id: "newRow", filterModels: filters, fieldIdentifier: fieldIdentifier)`
+
+### `bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier)`
+* Performs bulk editing on specified rows in a table field.
+* Usage: `documentEditor.bulkEdit(changes: ["column1": "newValue"], selectedRows: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+## `FormChangeEvent Params`
 * `onChange: (changelogs: object_array, doc: object) => {}` 
   * Used to listen to any field change events.
   * `changelogs: object_array`

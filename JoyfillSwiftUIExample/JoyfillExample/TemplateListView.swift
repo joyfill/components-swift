@@ -25,10 +25,6 @@ public struct TemplateListView: View {
         ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
     }
 
-    private var documentBinding: Binding<JoyDoc> {
-        Binding(get: { document! }, set: { document = $0 })
-    }
-
     public var body: some View {
             if fetchSubmissions || createSubmission {
                 ProgressView()
@@ -55,7 +51,7 @@ public struct TemplateListView: View {
                             }
 
                             if showNewSubmission {
-                                NavigationLink("", destination: FormContainerView(document: documentBinding, pageID: "pageID", changeManager: changeManager), isActive: $showNewSubmission)
+                                NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
                             }
                             Button(action: {
                                 createDocumentSubmission(identifier: template.identifier, completion: { _ in })

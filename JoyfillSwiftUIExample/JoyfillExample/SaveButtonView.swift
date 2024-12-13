@@ -10,13 +10,13 @@ import JoyfillAPIService
 
 struct SaveButtonView: View {
     let changeManager: ChangeManager
-    @Binding var document: JoyDoc
+    let documentEditor: DocumentEditor
     
     var body: some View {
         VStack {
             Button(action: {
-                changeManager.saveJoyDoc(document: document)
-                let result = Validator.validate(document: document)
+                changeManager.saveJoyDoc(document: documentEditor.document)
+                let result = documentEditor.validate()
                 print("Document status:", result.status)
                 for fieldResult in result.fieldValidations {
                     print("Field status:", fieldResult.field.id!, ":", fieldResult.status)

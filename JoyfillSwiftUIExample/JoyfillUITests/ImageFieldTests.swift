@@ -18,14 +18,27 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
     func testImageUploadFromDetailPage() {
         goToImageDetailPage()
         uploadImageOnDetailPageAndGoBack()
-        imageAssert()
+        imageAssertCount(count: 2)
+        XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", onChangeResultValue().imageURLs?[1])
     }
 
+    // Upload multiple images and delete all images
     func testMultipleImageUploadFromDetailPage() {
-        goToImageDetailPage()
+        app.buttons["ImageMoreIdentifier"].tap()
+        
         uploadImageOnDetailPage()
-//        uploadImageOnDetailPageAndGoBack()
-//        imageAssertCount(count: 2)
+        uploadImageOnDetailPage()
+        uploadImageOnDetailPage()
+        uploadImageOnDetailPage()
+        clickOnFirstImage()
+        clickOnSecondImage()
+        clickOnThirdImage()
+        clickOnFourthImage()
+        clickOnFifthImage()
+        
+        app.buttons["ImageDeleteIdentifier"].tap()
+        goBack()
+        emptyImageAssert()
     }
 }
 
@@ -39,6 +52,26 @@ extension ImageFieldTests {
         goToImageDetailPage()
         app.buttons["ImageDeleteIdentifier"].tap()
         goBack()
+    }
+    
+    func clickOnFirstImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1).tap()
+    }
+    
+    func clickOnSecondImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 2).tap()
+    }
+    
+    func clickOnThirdImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 4).tap()
+    }
+    
+    func clickOnFourthImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 6).tap()
+    }
+    
+    func clickOnFifthImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 8).tap()
     }
 
     private func imageAssert() {

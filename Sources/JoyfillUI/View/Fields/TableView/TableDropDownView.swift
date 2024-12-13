@@ -14,18 +14,19 @@ struct TableDropDownOptionListView: View {
     @State private var isSheetPresented2 = false
 
     private var isUsedForBulkEdit = false
-    private var cellModel: TableCellModel
+    @Binding var cellModel: TableCellModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State private var lastSelectedValue: String?
-    
-    public init(cellModel: TableCellModel, isUsedForBulkEdit: Bool = false, selectedDropdownValue: String? = nil) {
-        self.cellModel = cellModel
+   
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, selectedDropdownValue: String? = nil) {
+        _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
-        lastSelectedValue = cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? ""
+        lastSelectedValue = cellModel.wrappedValue.data.options?.first(where: { $0.id == cellModel.wrappedValue.data.defaultDropdownSelectedId })?.value ?? ""
+        
         if let selectedDropdownValue = selectedDropdownValue {
-            _selectedDropdownValue = State(initialValue: cellModel.data.options?.filter { $0.id == selectedDropdownValue }.first?.value ?? "" )
+            _selectedDropdownValue = State(initialValue: cellModel.wrappedValue.data.options?.first(where: { $0.id == selectedDropdownValue })?.value ?? "")
         } else if !isUsedForBulkEdit {
-            _selectedDropdownValue = State(initialValue: cellModel.data.options?.filter { $0.id == cellModel.data.defaultDropdownSelectedId }.first?.value ?? "" )
+            _selectedDropdownValue = State(initialValue: cellModel.wrappedValue.data.options?.first(where: { $0.id == cellModel.wrappedValue.data.defaultDropdownSelectedId })?.value ?? "")
         }
     }
     
@@ -62,11 +63,13 @@ struct TableDropDownOptionListView: View {
         }
         .focused($isFocused) // Observe focus state
         .onChange(of: selectedDropdownValue) { value in
-            var editedCell = cellModel.data
-            editedCell.defaultDropdownSelectedId = editedCell.options?.filter { $0.value == value }.first?.id
-            if (editedCell.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
-                cellModel.didChange?(editedCell)
+            var cellDataModel = cellModel.data
+            cellDataModel.defaultDropdownSelectedId = cellDataModel.options?.filter { $0.value == value }.first?.id
+            cellDataModel.selectedOptionText = value
+            if (cellDataModel.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
+                cellModel.didChange?(cellDataModel)
             }
+            cellModel.data = cellDataModel
         }
     }
 }
@@ -74,10 +77,10 @@ struct TableDropDownOptionListView: View {
 
 struct TableDropDownOptionList: View {
     @Environment(\.presentationMode) var presentationMode
-    private let data: FieldTableColumn
+    private let data: CellDataModel
     @Binding var selectedDropdownValue: String?
     
-    public init(data: FieldTableColumn, selectedDropdownValue: Binding<String?>) {
+    public init(data: CellDataModel, selectedDropdownValue: Binding<String?>) {
         self.data = data
         self._selectedDropdownValue = selectedDropdownValue
     }

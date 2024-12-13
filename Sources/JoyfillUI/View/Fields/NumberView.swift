@@ -3,12 +3,15 @@ import JoyfillModel
 
 struct NumberView: View {
     @State var number: String = ""
-    private let fieldDependency: FieldDependency
+    @State private var debounceTask: Task<Void, Never>?
+    private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
-    
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let number = fieldDependency.fieldData?.value?.number {
+    let eventHandler: FieldChangeEvents
+
+    public init(numberDataModel: NumberDataModel, eventHandler: FieldChangeEvents) {
+        self.numberDataModel = numberDataModel
+        self.eventHandler = eventHandler
+        if let number = numberDataModel.number {
             let formatter = NumberFormatter()
             formatter.minimumFractionDigits = 0
             formatter.maximumFractionDigits = 10
@@ -22,10 +25,10 @@ struct NumberView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(numberDataModel.fieldHeaderModel)
             TextField("", text: $number)
                 .accessibilityIdentifier("Number")
-                .disabled(fieldDependency.mode == .readonly)
+                .disabled(numberDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .keyboardType(.decimalPad)
                 .frame(minHeight: 40)
@@ -37,23 +40,35 @@ struct NumberView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                        eventHandler.onFocus(event: numberDataModel.fieldIdentifier)
                     } else {
-                        let newValue: ValueUnion
-                        if !number.isEmpty, let doubleValue = Double(number) {
-                            newValue = ValueUnion.double(doubleValue)
-                        } else {
-                            newValue = ValueUnion.string("")
-                        }
-                        guard fieldDependency.fieldData?.value != newValue else { return }
-                        guard var fieldData = fieldDependency.fieldData else {
-                            fatalError("FieldData should never be null")
-                        }
-                        fieldData.value = newValue
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+                        updateFieldValue()
                     }
                 }
+                .onChange(of: number, perform: debounceTextChange)
+        }
+    }
+    
+    private func updateFieldValue() {
+        let newValue: ValueUnion
+        if !number.isEmpty, let doubleValue = Double(number) {
+            newValue = ValueUnion.double(doubleValue)
+        } else {
+            newValue = ValueUnion.string("")
+        }
+        let event = FieldChangeData(fieldIdentifier: numberDataModel.fieldIdentifier, updateValue: newValue)
+        eventHandler.onChange(event: event)
+    }
+    
+    private func debounceTextChange(newValue: String) {
+        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask = Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            if !Task.isCancelled {
+                await MainActor.run {
+                    updateFieldValue()
+                }
+            }
         }
     }
 }

@@ -3,22 +3,25 @@ import JoyfillModel
 
 struct TextView: View {
     @State var enterText: String = ""
-    private var fieldDependency: FieldDependency
+    @State private var debounceTask: Task<Void, Never>?
     @FocusState private var isFocused: Bool
-    
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let text = fieldDependency.fieldData?.value?.text {
+    private var textDataModel: TextDataModel
+    let eventHandler: FieldChangeEvents
+
+    public init(textDataModel: TextDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
+        self.textDataModel = textDataModel
+        if let text = textDataModel.text {
             _enterText = State(initialValue: text)
         }
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(textDataModel.fieldHeaderModel)
             TextField("", text: $enterText)
                 .accessibilityIdentifier("Text")
-                .disabled(fieldDependency.mode == .readonly)
+                .disabled(textDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
                 .overlay(
@@ -29,19 +32,31 @@ struct TextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                        eventHandler.onFocus(event: textDataModel.fieldIdentifier)
                     } else {
-                        let newText = ValueUnion.string(enterText)
-                        guard fieldDependency.fieldData?.value != newText else { return }
-                        guard !((fieldDependency.fieldData?.value == nil) && enterText.isEmpty) else { return }
-                        guard var fieldData = fieldDependency.fieldData else {
-                            fatalError("FieldData should never be null")
-                        }
-                        fieldData.value = newText
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+                        updateFieldValue()
                     }
                 }
+                .onChange(of: enterText, perform: debounceTextChange)
         }
     }
+    
+    private func debounceTextChange(newValue: String) {
+        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask = Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            if !Task.isCancelled {
+                await MainActor.run {
+                    updateFieldValue()
+                }
+            }
+        }
+    }
+    
+    private func updateFieldValue() {
+        let newText = ValueUnion.string(enterText)
+        let fieldEvent = FieldChangeData(fieldIdentifier: textDataModel.fieldIdentifier, updateValue: newText)
+        eventHandler.onChange(event: fieldEvent)
+    }
 }
+

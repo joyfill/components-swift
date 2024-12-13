@@ -2,48 +2,51 @@ import SwiftUI
 import Joyfill
 import JoyfillModel
 
-func sampleJSONDocument() -> JoyDoc {
-    let path = Bundle.main.path(forResource: "Joydocjson", ofType: "json")!
+func sampleJSONDocument(fileName: String = "Joydocjson") -> JoyDoc {
+    let path = Bundle.main.path(forResource: fileName, ofType: "json")!
     let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
     let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
     return JoyDoc(dictionary: dict)
 }
 
 struct UITestFormContainerView: View {
-    @State var document: JoyDoc
-    @State var pageID: String
-    @Binding var changeResult: String
+    let documentEditor: DocumentEditor
+    @State var pageID: String = ""
     
-    init(changeResult: Binding<String>) {
-        self.pageID = ""
-        self.document = sampleJSONDocument()
-        _changeResult = changeResult
+    init(documentEditor: DocumentEditor) {
+        self.documentEditor = documentEditor
     }
 
     var body: some View {
         VStack {
-            Form(document: $document, mode: .fill, events: self, pageID: pageID)
+            Form(documentEditor: documentEditor)
         }
     }
 }
 
-extension UITestFormContainerView: FormChangeEvent {
+class UITestFormContainerViewHandler: FormChangeEvent {
+    var setResult: (String) -> Void
+    
+    init(setResult: @escaping (String) -> Void) {
+        self.setResult = setResult
+    }
+    
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
         let dictionary = changes.map { $0.dictionary }
         if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted),
            let jsonString = String(data: jsonData, encoding: .utf8) {
             print(jsonString)
-            changeResult = jsonString
+            setResult(jsonString)
         } else {
             print("Failed to convert dictionary to JSON string")
         }
     }
     
-    func onFocus(event: JoyfillModel.FieldEvent) {
+    func onFocus(event: JoyfillModel.FieldIdentifier) {
         
     }
     
-    func onBlur(event: JoyfillModel.FieldEvent) {
+    func onBlur(event: JoyfillModel.FieldIdentifier) {
         
     }
     

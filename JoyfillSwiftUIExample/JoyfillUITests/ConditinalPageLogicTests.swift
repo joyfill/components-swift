@@ -27,13 +27,18 @@ final class ConditionalPageLogicTests: JoyfillUITestsBaseClass {
         let tapOnConditionPage = pageSheetSelectionButton.element(boundBy: 2)
         tapOnConditionPage.tap()
         
-        let conditionPageTextField = app.textFields["Text"]
+        let conditionPageTextField = textFields[0]
         conditionPageTextField.tap()
         conditionPageTextField.typeText("Hello\n")
         
         let conditionPageTextFieldTitle = "Page 5 Text Field - Type Hello"
         let conditionPageLabel = app.staticTexts[conditionPageTextFieldTitle]
         XCTAssertTrue(conditionPageLabel.exists, "The title label does not exist or does not have the correct title.")
+        
+        // check field is hidden or not - simle hidden field
+        let checkTitleField = textFields[2]
+        XCTAssertFalse(checkTitleField.exists, "The second field that should be hidden is visible.")
+        
         pageSelectionButton.tap()
         
         // Page 4 (Page show when condition is true)

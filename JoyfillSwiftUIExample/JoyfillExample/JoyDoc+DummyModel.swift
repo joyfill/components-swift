@@ -58,7 +58,7 @@ extension JoyDoc {
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false
-        field.multi = false
+        field.multi = true
         field.file = "6629fab3c0ba3fb775b4a55c"
         var document = self
         document.fields.append(field)

@@ -44,21 +44,21 @@ class ChangeManager {
 
 extension ChangeManager: FormChangeEvent {
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!.id)
+        print(">>>>>>>>onChange", changes.first!.fieldId)
         let changeLogs = ["changelogs": changes.map { $0.dictionary }]
         updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
 
-    func onFocus(event: FieldEvent) {
-        print(">>>>>>>>onFocus", event.field!.id!)
+    func onFocus(event: FieldIdentifier) {
+        print(">>>>>>>>onFocus", event.fieldID)
     }
 
-    func onBlur(event: FieldEvent) {
-        print(">>>>>>>>onBlur", event.field!.id!)
+    func onBlur(event: FieldIdentifier) {
+        print(">>>>>>>>onBlur", event.fieldID)
     }
 
     func onUpload(event: UploadEvent) {
-        print(">>>>>>>>onUpload", event.field.id!)
+        print(">>>>>>>>onUpload", event.fieldEvent.fieldID)
         showImagePicker(event.uploadHandler)
     }
 }

@@ -4,20 +4,19 @@ import JoyfillModel
 struct TableModalTopNavigationView: View {
     @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
-    var fieldDependency: FieldDependency
     
     @State private var showingPopover = false
 
     var body: some View {
         HStack {
-            if let title = fieldDependency.fieldData?.title {
+            if let title = viewModel.tableDataModel.title {
                 Text("\(title)")
                     .font(.headline.bold())
             }
 
             Spacer()
 
-            if !viewModel.selectedRows.isEmpty {
+            if !viewModel.tableDataModel.selectedRows.isEmpty {
                 Button(action: {
                     showingPopover = true
                 }) {
@@ -32,7 +31,7 @@ struct TableModalTopNavigationView: View {
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
-                            if viewModel.selectedRows.count == 1 {
+                            if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -55,7 +54,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.firstRowSelected)
+                                .disabled(viewModel.tableDataModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
                                 
@@ -68,7 +67,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.lastRowSelected)
+                                .disabled(viewModel.tableDataModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
@@ -84,7 +83,7 @@ struct TableModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.top, viewModel.selectedRows.count > 1 ? 16 : 0)
+                            .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
                             
                             Button(action: {
@@ -117,7 +116,7 @@ struct TableModalTopNavigationView: View {
 
                     } else {
                         VStack(spacing: 8) {
-                            if viewModel.selectedRows.count == 1 {
+                            if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -140,7 +139,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.firstRowSelected)
+                                .disabled(viewModel.tableDataModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
@@ -154,7 +153,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.lastRowSelected)
+                                .disabled(viewModel.tableDataModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
@@ -206,7 +205,7 @@ struct TableModalTopNavigationView: View {
             Button(action: {
                 viewModel.addRow()
             }) {
-                Text(viewModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
+                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
                     .foregroundStyle(.selection)
                     .font(.system(size: 14))
                     .frame(height: 27)
@@ -219,7 +218,7 @@ struct TableModalTopNavigationView: View {
     }
 
     var rowTitle: String {
-        "\(viewModel.selectedRows.count) " + (viewModel.selectedRows.count > 1 ? "rows": "row")
+        "\(viewModel.tableDataModel.selectedRows.count) " + (viewModel.tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
 }
 
@@ -236,7 +235,7 @@ struct EditMultipleRowsSheetView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top) {
-                    if let title = viewModel.fieldDependency.fieldData?.title {
+                    if let title = viewModel.tableDataModel.title {
                         VStack(alignment: .leading) {
                             Text("\(title)")
                                 .font(.headline.bold())
@@ -279,62 +278,65 @@ struct EditMultipleRowsSheetView: View {
                     })
                 }
 
-                ForEach(Array(viewModel.columns.enumerated()), id: \.offset) { colIndex, col in
-                    let row = viewModel.selectedRows.first!
-                    let cell = viewModel.getFieldTableColumn(row: row, col: colIndex)
-                    if let cell = cell {
-                        let cellModel = TableCellModel(rowID: row, data: cell, eventHandler: viewModel.fieldDependency.eventHandler, fieldData: viewModel.fieldDependency.fieldData, viewMode: .modalView, editMode: viewModel.fieldDependency.mode)
-                        { editedCell in
-                            switch cell.type {
-                            case "text":
-                                self.changes[colIndex] = editedCell.title
-                            case "dropdown":
-                                self.changes[colIndex] = editedCell.defaultDropdownSelectedId
-                            default:
-                                break
-                            }
-                        }
-                        switch cellModel.data.type {
+                ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
+                    let row = viewModel.tableDataModel.selectedRows.first!
+                    let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
+                    let cellModel = TableCellModel(rowID: row,
+                                                   data: cell,
+                                                   documentEditor: viewModel.tableDataModel.documentEditor,
+                                                   fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                   viewMode: .modalView,
+                                                   editMode: viewModel.tableDataModel.mode)
+                    { cellDataModel in
+                        switch cell.type {
                         case "text":
-                            var str = ""
-                            Text(viewModel.getColumnTitle(columnId: col))
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
-                            let binding = Binding<String>(
-                                get: {
-                                    str
-                                },
-                                set: { newValue in
-                                    str = newValue
-                                    self.changes[colIndex] = newValue
-                                }
-                            )
-                            TextField("", text: binding)
-                                .font(.system(size: 15))
-                                .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                                .disabled(viewModel.fieldDependency.mode == .readonly)
-                                .padding(.horizontal, 10)
-                                .frame(height: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                            self.changes[colIndex] = cellDataModel.title
                         case "dropdown":
-                            Text(viewModel.getColumnTitle(columnId: col))
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
-                            TableDropDownOptionListView(cellModel: cellModel, isUsedForBulkEdit: true)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
-                                .disabled(cellModel.editMode == .readonly)
-                                .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                            self.changes[colIndex] = cellDataModel.defaultDropdownSelectedId
                         default:
-                            Text("")
+                            break
                         }
+                    }
+                    switch cellModel.data.type {
+                    case "text":
+                        var str = ""
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        let binding = Binding<String>(
+                            get: {
+                                str
+                            },
+                            set: { newValue in
+                                str = newValue
+                                self.changes[colIndex] = newValue
+                            }
+                        )
+                        TextField("", text: binding)
+                            .font(.system(size: 15))
+                            .accessibilityIdentifier("EditRowsTextFieldIdentifier")
+                            .disabled(viewModel.tableDataModel.mode == .readonly)
+                            .padding(.horizontal, 10)
+                            .frame(height: 40)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                    case "dropdown":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                            .disabled(cellModel.editMode == .readonly)
+                            .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                    default:
+                        Text("")
                     }
                 }
                 Spacer()

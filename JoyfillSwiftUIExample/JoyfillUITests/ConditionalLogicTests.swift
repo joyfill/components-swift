@@ -17,6 +17,7 @@ final class ConditionalLogicTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(alwaysShowTextField.exists, "The alwaysShow text field does not exist.")
         alwaysShowTextField.tap()
         alwaysShowTextField.typeText("Always Show\n")
+        XCTAssertEqual("Always Show", onChangeResultValue().text!)
         
         let alwaysShowTextFieldTitle = "Always Show Field - Page Logic - Hide when condition is true"
         let alwaysShowTextFieldTitleLabel = app.staticTexts[alwaysShowTextFieldTitle]
@@ -27,6 +28,7 @@ final class ConditionalLogicTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(hideFieldOnConditionTrueTextField.exists, "The hideFieldOnConditionTrue text field does not exist.")
         hideFieldOnConditionTrueTextField.tap()
         hideFieldOnConditionTrueTextField.typeText("Field is Hide when condition true\n")
+        XCTAssertEqual("Field is Hide when condition true", onChangeResultValue().text!)
         
         let hideFieldTitle = "Field Hide When Condition True"
         let hideFieldLabel = app.staticTexts[hideFieldTitle]
@@ -37,6 +39,7 @@ final class ConditionalLogicTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(applyIsEqualConditionTextField.exists, "The applyIsEqualCondition text field does not exist.")
         applyIsEqualConditionTextField.tap()
         applyIsEqualConditionTextField.typeText("Hello\n")
+        XCTAssertEqual("Hello", onChangeResultValue().text!)
         
         let applyConditionTextFieldTitle = "Always Show Field - Page Logic - Hide when condition is true"
         let applyConditionTextFieldLabel = app.staticTexts[applyConditionTextFieldTitle]

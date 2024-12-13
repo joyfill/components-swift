@@ -6,19 +6,21 @@ struct MultiSelectionView: View {
     @State var singleSelectedOptionArray: [String] = []
     @State var multiSelectedOptionArray: [String] = []
     
-    private let fieldDependency: FieldDependency
-    private let currentFocusedFielsData: JoyDocField?
+    private let multiSelectionDataModel: MultiSelectionDataModel
+    private let currentFocusedFielsID: String?
     @FocusState private var isFocused: Bool
-    
-    public init(fieldDependency: FieldDependency,currentFocusedFielsData: JoyDocField?) {
-        self.fieldDependency = fieldDependency
-        self.currentFocusedFielsData = currentFocusedFielsData
-        if fieldDependency.fieldData?.multi ?? true {
-            if let values = fieldDependency.fieldData?.value?.multiSelector {
+    let eventHandler: FieldChangeEvents
+
+    public init(multiSelectionDataModel: MultiSelectionDataModel, eventHandler: FieldChangeEvents, currentFocusedFieldsDataId: String?) {
+        self.eventHandler = eventHandler
+        self.multiSelectionDataModel = multiSelectionDataModel
+        self.currentFocusedFielsID = currentFocusedFieldsDataId
+        if multiSelectionDataModel.multi ?? true {
+            if let values = multiSelectionDataModel.multiSelector {
                 _multiSelectedOptionArray = State(initialValue: values)
             }
         } else {
-            if let values = fieldDependency.fieldData?.value?.multiSelector {
+            if let values = multiSelectionDataModel.multiSelector {
                 _singleSelectedOptionArray = State(initialValue: values)
             }
         }
@@ -26,21 +28,32 @@ struct MultiSelectionView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(multiSelectionDataModel.fieldHeaderModel)
             VStack {
-                if let options = fieldDependency.fieldData?.options?.filter({ !($0.deleted ?? false) }) {
+                if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
                         let optionValue = options[index].value ?? ""
-                        let isSelected = fieldDependency.fieldData?.value?.multiSelector?.first(where: {
+                        let isSelected = multiSelectionDataModel.multiSelector?.first(where: {
                             $0 == options[index].id
                         }) != nil
-                        if fieldDependency.fieldData?.multi ?? true {
-                            MultiSelection(option: optionValue, isSelected: isSelected, multiSelectedOptionArray: $multiSelectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
+                        if multiSelectionDataModel.multi ?? true {
+                            MultiSelection(option: optionValue,
+                                           isSelected: isSelected,
+                                           multiSelectedOptionArray: $multiSelectedOptionArray,
+                                           isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldIdentifier.fieldID,
+                                           multiSelectionDataModel: multiSelectionDataModel,
+                                           selectedItemId: options[index].id ?? "",
+                                           eventHandler: eventHandler)
                             if index < options.count - 1 {
                                 Divider()
                             }
                         } else {
-                            RadioView(option: optionValue, singleSelectedOptionArray: $singleSelectedOptionArray,isAlreadyFocused: currentFocusedFielsData?.id == fieldDependency.fieldData?.id, fieldDependency: fieldDependency, selectedItemId: options[index].id ?? "")
+                            RadioView(option: optionValue,
+                                      singleSelectedOptionArray: $singleSelectedOptionArray,
+                                      isAlreadyFocused: currentFocusedFielsID == multiSelectionDataModel.fieldIdentifier.fieldID,
+                                      multiSelectionDataModel: multiSelectionDataModel,
+                                      selectedItemId: options[index].id ?? "",
+                                      eventHandler: eventHandler)
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -57,21 +70,13 @@ struct MultiSelectionView: View {
         }
         .onChange(of: singleSelectedOptionArray) { newValue in
             let newSingleSelectedValue = ValueUnion.array(newValue)
-            guard fieldDependency.fieldData?.value != newSingleSelectedValue else { return }
-            guard var fieldData = fieldDependency.fieldData else {
-                fatalError("FieldData should never be null")
-            }
-            fieldData.value = newSingleSelectedValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newSingleSelectedValue)
+           eventHandler.onChange(event: fieldEvent)
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
             let newMultiSelectedValue = ValueUnion.array(newValue)
-            guard fieldDependency.fieldData?.value != newMultiSelectedValue else { return }
-            guard var fieldData = fieldDependency.fieldData else {
-                fatalError("FieldData should never be null")
-            }
-            fieldData.value = newMultiSelectedValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newMultiSelectedValue)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
 }
@@ -81,15 +86,15 @@ struct MultiSelection: View {
     @State var isSelected: Bool
     @Binding var multiSelectedOptionArray: [String]
     var isAlreadyFocused: Bool
-    var fieldDependency: FieldDependency
+    var multiSelectionDataModel: MultiSelectionDataModel
     var selectedItemId: String
-    
+    let eventHandler: FieldChangeEvents
+
     var body: some View {
         Button(action: {
             isSelected.toggle()
             if isAlreadyFocused == false {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
             }
             if let index = multiSelectedOptionArray.firstIndex(of: selectedItemId) {
                 multiSelectedOptionArray.remove(at: index) // Item exists, so remove it
@@ -118,9 +123,10 @@ struct RadioView: View {
     var option: String
     @Binding var singleSelectedOptionArray: [String]
     var isAlreadyFocused: Bool
-    var fieldDependency: FieldDependency
+    var multiSelectionDataModel: MultiSelectionDataModel
     var selectedItemId: String
-    
+    let eventHandler: FieldChangeEvents
+
     var body: some View {
         Button(action: {
             if singleSelectedOptionArray.contains(selectedItemId) {
@@ -129,8 +135,7 @@ struct RadioView: View {
                 singleSelectedOptionArray = [selectedItemId]
             }
             if isAlreadyFocused == false {
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
             }
         }, label: {
             HStack(alignment: .top) {
@@ -148,3 +153,4 @@ struct RadioView: View {
         .frame(maxWidth: .infinity)
     }
 }
+

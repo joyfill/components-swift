@@ -8,17 +8,21 @@
 import Foundation
 import JoyfillModel
 
-struct TableCellModel: Identifiable, Equatable {
+struct TableCellModel: Identifiable, Equatable, Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
     static func == (lhs: TableCellModel, rhs: TableCellModel) -> Bool {
         lhs.id == rhs.id
     }
 
-    let id = UUID()
+    var id = UUID()
     let rowID: String
-    var data: FieldTableColumn
-    let eventHandler: FieldChangeEvents
-    let fieldData: JoyDocField?
+    var data: CellDataModel
+    let documentEditor: DocumentEditor?
+    var fieldIdentifier: FieldIdentifier
     let viewMode: TableViewMode
     let editMode: Mode
-    let didChange: ((_ cell: FieldTableColumn) -> Void)?
+    let didChange: ((_ cell: CellDataModel) -> Void)?
 }

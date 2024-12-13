@@ -1,20 +1,23 @@
 import SwiftUI
+import JoyfillModel
 import UIKit
 
 struct RichTextView: View {
     @State private var text: AttributedString
-    private let fieldDependency: FieldDependency
-    
-    init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        let text = fieldDependency.fieldData?.value?.text ?? ""
+    private let richTextDataModel: RichTextDataModel
+    let eventHandler: FieldChangeEvents
+
+    public init(richTextDataModel: RichTextDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
+        self.richTextDataModel = richTextDataModel
+        let text = richTextDataModel.text ?? ""
         let data =  text.data(using: .utf8)!
         let attributedString = parseRT(data: data)
         _text = State(initialValue: attributedString!)
     }
     
     var body: some View {
-        FieldHeaderView(fieldDependency)
+        FieldHeaderView(richTextDataModel.fieldHeaderModel)
         HStack {
             Text(text)
             Spacer()

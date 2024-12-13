@@ -9,21 +9,23 @@ import SwiftUI
 import JoyfillModel
 
 struct ChartView: View {
-    private let fieldDependency: FieldDependency
+    private let chartDataModel: ChartDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
-    
+    let eventHandler: FieldChangeEvents
+
 //    let data : MultiLineChartData
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.valueElements ?? [])
+    public init(chartDataModel: ChartDataModel, eventHandler: FieldChangeEvents) {
+        self.chartDataModel = chartDataModel
+        self.eventHandler = eventHandler
+        _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
 //        data = ChartView.getData(fieldDependency: fieldDependency)
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-           FieldHeaderView(fieldDependency)
+            FieldHeaderView(chartDataModel.fieldHeaderModel)
             
 //            RoundedRectangle(cornerRadius: 10)
 //                .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -46,8 +48,7 @@ struct ChartView: View {
             
             Button(action: {
                 showDetailChartView = true
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                eventHandler.onFocus(event: chartDataModel.fieldIdentifier)
             }, label: {
                 HStack {
                     Image(systemName: "chart.xyaxis.line")
@@ -64,7 +65,7 @@ struct ChartView: View {
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             
-            NavigationLink(destination: ChartDetailView(fieldDependency: fieldDependency), isActive: $showDetailChartView) {
+            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -111,3 +112,4 @@ struct ChartView: View {
 //        return lineChartDataPoints
 //    }
 }
+

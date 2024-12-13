@@ -3,22 +3,25 @@ import JoyfillModel
 
 struct MultiLineTextView: View {
     @State var multilineText: String = ""
-    private let fieldDependency: FieldDependency
-    @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let multilineText = fieldDependency.fieldData?.value?.multilineText {
+    @State private var debounceTask: Task<Void, Never>?
+    private var multiLineDataModel: MultiLineDataModel
+    @FocusState private var isFocused: Bool 
+    let eventHandler: FieldChangeEvents
+
+    public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
+        self.multiLineDataModel = multiLineDataModel
+        if let multilineText = multiLineDataModel.multilineText {
             _multilineText = State(initialValue: multilineText)
         }
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(multiLineDataModel.fieldHeaderModel)
             TextEditor(text: $multilineText)
                 .accessibilityIdentifier("MultilineTextFieldIdentifier")
-                .disabled(fieldDependency.mode == .readonly)
+                .disabled(multiLineDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .autocorrectionDisabled()
                 .frame(minHeight: 200, maxHeight: 200)
@@ -30,18 +33,30 @@ struct MultiLineTextView: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
-                        let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                        fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                        eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
                     } else {
-                        let newValue = ValueUnion.string(multilineText)
-                        guard fieldDependency.fieldData?.value != newValue else { return }
-                        guard var fieldData = fieldDependency.fieldData else {
-                            fatalError("FieldData should never be null")
-                        }
-                        fieldData.value = newValue
-                        fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+                        updateFieldValue()
                     }
                 }
+                .onChange(of: multilineText, perform: debounceTextChange)
+        }
+    }
+    
+    private func updateFieldValue() {
+        let newValue = ValueUnion.string(multilineText)
+        let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
+        eventHandler.onChange(event: fieldEvent)
+    }
+    
+    private func debounceTextChange(newValue: String) {
+        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask = Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            if !Task.isCancelled {
+                await MainActor.run {
+                    updateFieldValue()
+                }
+            }
         }
     }
 }

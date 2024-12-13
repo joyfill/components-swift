@@ -19,17 +19,18 @@ struct ImageView: View {
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
     
-    private let fieldDependency: FieldDependency
+    private let imageDataModel: ImageDataModel
     @FocusState private var isFocused: Bool // Declare a FocusState property
-    
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-//        _valueElements = State(initialValue: fieldDependency.fieldData?.value?.images ?? [])
+    let eventHandler: FieldChangeEvents
+
+    public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
+        self.imageDataModel = imageDataModel
     }
         
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(imageDataModel.fieldHeaderModel)
             if let uiImage = uiImagesArray.first {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
@@ -49,8 +50,7 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                                eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
                                     Text("More > ")
@@ -71,8 +71,7 @@ struct ImageView: View {
             } else {
                 Button(action: {
                     uploadAction()
-                    let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                    fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                    eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                 }, label: {
                     ZStack {
                         HStack(spacing: 8) {
@@ -99,8 +98,12 @@ struct ImageView: View {
                 .disabled(showProgressView)
             }
             
-            NavigationLink(destination: 
-                            MoreImageView(valueElements: $valueElements, isMultiEnabled: fieldDependency.fieldData?.multi ?? true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: fieldDependency.fieldPosition.primaryDisplayOnly ?? (fieldDependency.mode == .readonly))
+            NavigationLink(destination:
+                            MoreImageView(valueElements: $valueElements,
+                                          isMultiEnabled: imageDataModel.multi ?? true,
+                                          showToast: $showToast,
+                                          uploadAction: uploadAction,
+                                          isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
                            , isActive: $showMoreImages) {
                 EmptyView()
             }
@@ -109,19 +112,15 @@ struct ImageView: View {
         }
         .onAppear {
             if !hasAppeared {
-                self.valueElements = fieldDependency.fieldData?.value?.valueElements ?? []
+                self.valueElements = imageDataModel.valueElements ?? []
                 hasAppeared = true
             }
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
             let newImageValue = ValueUnion.valueElementArray(newValue)
-            guard fieldDependency.fieldData?.value != newImageValue else { return }
-            guard var fieldData = fieldDependency.fieldData else {
-                fatalError("FieldData should never be null")
-            }
-            fieldData.value = newImageValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
     
@@ -139,7 +138,7 @@ struct ImageView: View {
     }
 
     func uploadAction() {
-        let uploadEvent = UploadEvent(field: fieldDependency.fieldData!) { urls in
+        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier) { urls in
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
@@ -158,7 +157,7 @@ struct ImageView: View {
                 })
             }
         }
-        fieldDependency.eventHandler.onUpload(event: uploadEvent)
+        eventHandler.onUpload(event: uploadEvent)
     }
 }
 struct MoreImageView: View {
@@ -250,7 +249,8 @@ struct MoreImageView: View {
     }
 
     func deleteSelectedImages() {
-        for index in selectedImagesIndex {
+        let sortedDescending = selectedImagesIndex.sorted(by: >)
+        for index in sortedDescending {
             valueElements.remove(at: index)
             images.remove(at: index)
         }

@@ -90,5 +90,34 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         }
         XCTAssertEqual("6628f2e16bf0362dd5498eb4", onChangeResultValue().multiSelector?.first!)
     }
+    
+    // Test case for textfields call onChange after two seconds 
+    func testTextFieldCallOnChangeAfterTwoSeconds() throws {
+        let textField = app.textFields["Text"]
+        XCTAssertEqual("Hello sir", textField.value as! String)
+        textField.tap()
+        textField.typeText("Hello")
+        sleep(3)
+        XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
+    }
+    
+    func testMultilineFieldCallOnChangeAfterTwoSeconds() throws {
+        let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
+        XCTAssertEqual("Hello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", multiLineTextField.value as! String)
+        multiLineTextField.tap()
+        multiLineTextField.typeText("Hello")
+        sleep(3)
+        XCTAssertEqual("HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", onChangeResultValue().multilineText)
+    }
+    
+    func testNumberFieldCallOnChangeAfterTwoSeconds() throws {
+        app.swipeUp()
+        let numberTextField = app.textFields["Number"]
+        XCTAssertEqual("98789", numberTextField.value as! String)
+        numberTextField.tap()
+        numberTextField.typeText("345")
+        sleep(3)
+        XCTAssertEqual(98789345.0, onChangeResultValue().number!)
+    }
 }
 

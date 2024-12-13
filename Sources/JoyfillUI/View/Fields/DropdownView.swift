@@ -4,25 +4,27 @@ import JoyfillModel
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
     @State private var isSheetPresented = false
-    private let fieldDependency: FieldDependency
-    
-    public init(fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
-        if let value = fieldDependency.fieldData?.value?.dropdownValue {
+    private var dropdownDataModel: DropdownDataModel
+
+    let eventHandler: FieldChangeEvents
+
+    public init(dropdownDataModel: DropdownDataModel, eventHandler: FieldChangeEvents) {
+        self.eventHandler = eventHandler
+        self.dropdownDataModel = dropdownDataModel
+        if let value = dropdownDataModel.dropdownValue {
             _selectedDropdownValueID = State(initialValue: value)
         }
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(fieldDependency)
+            FieldHeaderView(dropdownDataModel.fieldHeaderModel)
             Button(action: {
                 isSheetPresented = true
-                let fieldEvent = FieldEvent(field: fieldDependency.fieldData)
-                fieldDependency.eventHandler.onFocus(event: fieldEvent)
+                eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
             }, label: {
                 HStack {
-                    Text(fieldDependency.fieldData?.options?.filter {
+                    Text(dropdownDataModel.options?.filter {
                         $0.id == selectedDropdownValueID
                     }.first?.value  ?? "Select Option")
                     .darkLightThemeColor()
@@ -40,23 +42,18 @@ struct DropdownView: View {
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
             .sheet(isPresented: $isSheetPresented) {
-
                 if #available(iOS 16, *) {
-                    DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
+                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
                         .presentationDetents([.medium])
-                    } else {
-                        DropDownOptionList(fieldDependency: fieldDependency, selectedDropdownValueID: $selectedDropdownValueID)
-                    }
+                } else {
+                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
+                }
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
             let newDrodDownValue = ValueUnion.string(newValue ?? "")
-            guard fieldDependency.fieldData?.value != newDrodDownValue else { return }
-            guard var fieldData = fieldDependency.fieldData else {
-                fatalError("FieldData should never be null")
-            }
-            fieldData.value = newDrodDownValue
-            fieldDependency.eventHandler.onChange(event: FieldChangeEvent(fieldPosition: fieldDependency.fieldPosition, field: fieldData))
+            let fieldEvent = FieldChangeData(fieldIdentifier: dropdownDataModel.fieldIdentifier, updateValue: newDrodDownValue)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
 }
@@ -64,11 +61,11 @@ struct DropdownView: View {
 
 struct DropDownOptionList: View {
     @Environment(\.presentationMode) var presentationMode
-    private let fieldDependency: FieldDependency
+    private var dropdownDataModel: DropdownDataModel
     @Binding var selectedDropdownValueID: String?
     
-    public init(fieldDependency: FieldDependency, selectedDropdownValueID: Binding<String?>) {
-        self.fieldDependency = fieldDependency
+    public init(dropdownDataModel: DropdownDataModel, selectedDropdownValueID: Binding<String?>) {
+        self.dropdownDataModel = dropdownDataModel
         self._selectedDropdownValueID = selectedDropdownValueID
     }
     
@@ -85,7 +82,7 @@ struct DropDownOptionList: View {
                 .padding(.horizontal, 16)
             }
             ScrollView {
-                if let options = fieldDependency.fieldData?.options?.filter({ !($0.deleted ?? false) }) {
+                if let options = dropdownDataModel.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(options) { option in
                         Button(action: {
                             if selectedDropdownValueID == option.id {
@@ -117,6 +114,4 @@ struct DropDownOptionList: View {
         .padding(.vertical, 20)
     }
 }
-
-
 

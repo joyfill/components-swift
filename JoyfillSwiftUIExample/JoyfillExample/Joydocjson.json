@@ -437,6 +437,26 @@
                     "y": 0,
                     "_id": "66852dcdc88bb2d8c30d8bf0",
                     "type": "text"
+                },
+                {
+                    "field": "66852e1fbdc1ad24d412408f",
+                    "displayType": "original",
+                    "width": 4,
+                    "height": 8,
+                    "x": 0,
+                    "y": 12,
+                    "_id": "66852dcdc88bb2d8c30d8bf0",
+                    "type": "text"
+                },
+                {
+                    "field": "66852e1fbdc1ad24d412408g",
+                    "displayType": "original",
+                    "width": 4,
+                    "height": 8,
+                    "x": 0,
+                    "y": 24,
+                    "_id": "66852dcdc88bb2d8c30d8bf0",
+                    "type": "text"
                 }
             ],
             "metadata": {},
@@ -1091,7 +1111,7 @@
       "tipDescription": "",
       "tipVisible": false,
       "metadata": {},
-      "multi": false,
+      "multi": true,
       "file": "6629fab3c0ba3fb775b4a55c"
     },
     {
@@ -1833,6 +1853,33 @@
         "tipDescription": "",
         "tipVisible": false,
         "metadata": {},
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "text",
+        "_id": "66852e1fbdc1ad24d412408f",
+        "identifier": "field_66852dcdacc70082d0fbccec",
+        "title": "Check under Field is hidden or not - simple hidden field check",
+        "description": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "file": "6629fab3c0ba3fb775b4a55c"
+    },
+    {
+        "type": "text",
+        "_id": "66852e1fbdc1ad24d412408g",
+        "identifier": "field_66852dcdacc70082d0fbccec",
+        "title": "Hide Field - No Condition to this field - Simple hide",
+        "description": "",
+        "required": false,
+        "tipTitle": "",
+        "tipDescription": "",
+        "tipVisible": false,
+        "metadata": {},
+        "hidden": true,
         "file": "6629fab3c0ba3fb775b4a55c"
     },
     {

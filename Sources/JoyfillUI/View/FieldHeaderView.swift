@@ -6,35 +6,35 @@ import Foundation
 import SwiftUI
 
 struct FieldHeaderView: View {
-    let fieldDependency: FieldDependency
     @State private var alertMessage: String? = nil
     @State private var alertDescription: String? = nil
     @State private var showAlert: Bool = false
+    let fieldHeaderModel: FieldHeaderModel?
     
-    public init(_ fieldDependency: FieldDependency) {
-        self.fieldDependency = fieldDependency
+    public init(_ fieldHeaderModel: FieldHeaderModel?) {
+        self.fieldHeaderModel = fieldHeaderModel
     }
     
     var body: some View {
-        if let title = fieldDependency.fieldData?.title {
+        if let title = fieldHeaderModel?.title {
             HStack(alignment: .top) {
                 Text("\(title)")
                     .font(.headline.bold())
                 
-                if fieldDependency.fieldData?.required == true {
+                if fieldHeaderModel?.required == true {
                     Image(systemName: "asterisk")
                         .foregroundColor(.red)
                         .imageScale(.small)
                 }
                 
                 Spacer()
-                let tipDescription = fieldDependency.fieldData?.tipDescription ?? ""
-                let tipTitle = fieldDependency.fieldData?.tipTitle ?? ""
-                if let tipVisible = fieldDependency.fieldData?.tipVisible {
+                let tipDescription = fieldHeaderModel?.tipDescription ?? ""
+                let tipTitle = fieldHeaderModel?.tipTitle ?? ""
+                if let tipVisible = fieldHeaderModel?.tipVisible {
                     if tipVisible == true && !(tipDescription.isEmpty && tipTitle.isEmpty) {
                         Button(action: {
-                            if let tipTitle = fieldDependency.fieldData?.tipTitle,
-                               let tipDescription = fieldDependency.fieldData?.tipDescription {
+                            if let tipTitle = fieldHeaderModel?.tipTitle,
+                               let tipDescription = fieldHeaderModel?.tipDescription {
                                 alertMessage = tipTitle
                                 alertDescription = tipDescription
                                 showAlert = true
@@ -55,4 +55,12 @@ struct FieldHeaderView: View {
             }
         }
     }
+}
+
+struct FieldHeaderModel {
+    var title: String?
+    var required: Bool?
+    var tipDescription: String?
+    var tipTitle: String?
+    var tipVisible: Bool?
 }
