@@ -149,7 +149,39 @@ documentEditor.currentPageID = "newPageID"
 * Determines if a given Page object should be shown based on conditional logic.
 * Usage: `let isPageVisible = documentEditor.shouldShow(page: somePage)`
 
-### FormChangeEvent Params
+### `deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier)`
+* Deletes specified rows from a table field.
+* Usage: `documentEditor.deleteRows(rowIDs: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+### `duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier)`
+* Duplicates specified rows in a table field.
+* Usage: `documentEditor.duplicateRows(rowIDs: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+### `moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier)`
+* Moves a specified row up in a table field.
+* Usage: `documentEditor.moveRowUp(rowID: "row1", fieldIdentifier: fieldIdentifier)`
+
+### `moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier)`
+* Moves a specified row down in a table field.
+* Usage: `documentEditor.moveRowDown(rowID: "row1", fieldIdentifier: fieldIdentifier)`
+
+### `insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier)`
+* Inserts a new row at the end of a table field.
+* Usage: `documentEditor.insertRowAtTheEnd(id: "newRow", fieldIdentifier: fieldIdentifier)`
+
+### `insertBelow(selectedRows: [String], fieldIdentifier: FieldIdentifier)`
+* Inserts new rows below specified rows in a table field.
+* Usage: `documentEditor.insertBelow(selectedRows: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+### `insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier)`
+* Inserts a new row with specified filter conditions in a table field.
+* Usage: `documentEditor.insertRowWithFilter(id: "newRow", filterModels: filters, fieldIdentifier: fieldIdentifier)`
+
+### `bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier)`
+* Performs bulk editing on specified rows in a table field.
+* Usage: `documentEditor.bulkEdit(changes: ["column1": "newValue"], selectedRows: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
+
+## `FormChangeEvent Params`
 * `onChange: (changelogs: object_array, doc: object) => {}` 
   * Used to listen to any field change events.
   * `changelogs: object_array`
