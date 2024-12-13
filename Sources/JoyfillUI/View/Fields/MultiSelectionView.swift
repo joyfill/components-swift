@@ -2,13 +2,11 @@ import SwiftUI
 import JoyfillModel
 
 struct MultiSelectionView: View {
-    @State var isSelected: Bool = false
     @State var singleSelectedOptionArray: [String] = []
     @State var multiSelectedOptionArray: [String] = []
     
     private let multiSelectionDataModel: MultiSelectionDataModel
     private let currentFocusedFielsID: String?
-    @FocusState private var isFocused: Bool
     let eventHandler: FieldChangeEvents
 
     public init(multiSelectionDataModel: MultiSelectionDataModel, eventHandler: FieldChangeEvents, currentFocusedFieldsDataId: String?) {

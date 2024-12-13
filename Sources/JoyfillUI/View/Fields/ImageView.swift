@@ -3,9 +3,7 @@ import JoyfillModel
 
 struct ImageView: View {
     @State var imageURL: String?
-    @State private var showImagePicker: Bool = false
     @State private var showMoreImages: Bool = false
-    @State private var imageLoaded: Bool = false
     @State private var showProgressView : Bool = false
     @State var hasAppeared: Bool = false
     
@@ -16,11 +14,8 @@ struct ImageView: View {
     @State var showToast: Bool = false
     
     @StateObject var imageViewModel = ImageFieldViewModel()
-    let screenWidth = UIScreen.main.bounds.width
-    let screenHeight = UIScreen.main.bounds.height
     
     private let imageDataModel: ImageDataModel
-    @FocusState private var isFocused: Bool // Declare a FocusState property
     let eventHandler: FieldChangeEvents
 
     public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {

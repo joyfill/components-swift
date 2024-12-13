@@ -5,10 +5,7 @@ struct DisplayTextView: View {
     private var displayText: String = ""
     private var displayTextDataModel: DisplayTextDataModel
 
-    let eventHandler: FieldChangeEvents
-
-    public init(displayTextDataModel: DisplayTextDataModel, eventHandler: FieldChangeEvents) {
-        self.eventHandler = eventHandler
+    public init(displayTextDataModel: DisplayTextDataModel) {
         self.displayTextDataModel = displayTextDataModel
         self.displayText = displayTextDataModel.displayText ?? ""
     }

@@ -44,7 +44,7 @@ struct TextView: View {
     private func debounceTextChange(newValue: String) {
         debounceTask?.cancel() // Cancel any ongoing debounce task
         debounceTask = Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            try? await Task.sleep(nanoseconds: Constants.DEBOUNCE_TIME_IN_NANOSECONDS) 
             if !Task.isCancelled {
                 await MainActor.run {
                     updateFieldValue()

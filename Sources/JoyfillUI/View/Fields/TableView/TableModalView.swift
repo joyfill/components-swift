@@ -14,9 +14,6 @@ struct TableRowView : View {
                     TableViewCellBuilder(cellModel: $cellModel)
                 }
                 .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
-                .background(GeometryReader { proxy in
-                    Color.clear.preference(key: HeightPreferenceKey.self, value: [rowDataModel.rowID: proxy.size.height])
-                })
             }
         }
     }
@@ -25,7 +22,6 @@ struct TableRowView : View {
 struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
-    @State private var heights: [String: CGFloat] = [:]
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
@@ -152,7 +148,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-//                            .frame(width: viewModel.showRowSelector ? 80 : 40)
+                            .frame(width: viewModel.showRowSelector ? 80 : 40)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -242,14 +238,14 @@ struct TableModalView : View {
     }
     
     var rowsHeader: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 0) {
            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
                 let rowArray = rowModel.cells
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
                         let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: heights[rowModel.rowID] ?? 50)
+                            .frame(width: 40, height: 60)
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
                                 viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
@@ -260,7 +256,7 @@ struct TableModalView : View {
                     Text("\(index+1)")
                         .foregroundColor(.secondary)
                         .font(.caption)
-                        .frame(width: 40, height: heights[rowModel.rowID] ?? 50)
+                        .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                 }
@@ -275,9 +271,7 @@ struct TableModalView : View {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
                             TableRowView(rowDataModel: $rowCellModels)
-                        }
-                        .onPreferenceChange(HeightPreferenceKey.self) { value in
-                            updateNewHeight(newValue: value)
+                                .frame(height: 60)
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
@@ -304,25 +298,6 @@ struct TableModalView : View {
 
     private func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-    
-    private func updateNewHeight(newValue: [String: CGFloat]) {
-        for (key, value) in newValue {
-            heights[key] = value > 0 ? value : heights[key] ?? 50
-        }
-    }
-}
-
-struct HeightPreferenceKey: PreferenceKey {
-    static var defaultValue: [String: CGFloat] = [:]
-    static func reduce(value: inout [String: CGFloat], nextValue: () -> [String: CGFloat]) {
-        for (key, newValue) in nextValue() {
-            if let currentValue = value[key] {
-                value[key] = max(currentValue, newValue)
-            } else {
-                value[key] = newValue
-            }
-        }
     }
 }
 

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		044D2F312D0329EC0019E255 /* ValidationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 044D2F302D0329EC0019E255 /* ValidationTestCase.swift */; };
+		0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */; };
 		048149FA2CDA8F8E0061FBDC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048149F92CDA8F8E0061FBDC /* JoyfillModel */; };
 		048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048149FC2CDA8F9A0061FBDC /* JoyfillAPIService */; };
 		048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */; };
@@ -86,7 +86,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		044D2F302D0329EC0019E255 /* ValidationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTestCase.swift; sourceTree = "<<<<<<<<<<<<<<<<group>"; };
+		0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTestCase.swift; sourceTree = "<group>"; };
 		048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccessTokenTextFieldView.swift; sourceTree = "<group>"; };
 		04814A022CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldHidePageLogicTests.swift; sourceTree = "<group>"; };
 		04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldLogicTests.swift; sourceTree = "<group>"; };
@@ -202,7 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
-				044D2F302D0329EC0019E255 /* ValidationTestCase.swift */,
+				0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 			);
 			path = JoyfillTests;
@@ -462,7 +462,7 @@
 			files = (
 				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
 				1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */,
-				044D2F312D0329EC0019E255 /* ValidationTestCase.swift in Sources */,
+				0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */,
 				134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

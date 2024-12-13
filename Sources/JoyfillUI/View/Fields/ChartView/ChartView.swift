@@ -10,7 +10,6 @@ import JoyfillModel
 
 struct ChartView: View {
     private let chartDataModel: ChartDataModel
-    @FocusState private var isFocused: Bool // Declare a FocusState property
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
     let eventHandler: FieldChangeEvents

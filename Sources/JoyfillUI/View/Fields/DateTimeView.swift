@@ -3,10 +3,8 @@ import JoyfillModel
 
 struct DateTimeView: View {
     @State private var isDatePickerPresented = false
-    @State private var isDatePickerVisible = false
     @State private var selectedDate = Date()
     private var dateTimeDataModel: DateTimeDataModel
-    @FocusState private var isFocused: Bool
     let eventHandler: FieldChangeEvents
 
     public init(dateTimeDataModel: DateTimeDataModel, eventHandler: FieldChangeEvents) {
@@ -20,12 +18,6 @@ struct DateTimeView: View {
             }
         }
     }
-    
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy h:mm a"
-        return formatter
-    }()
     
     var body: some View {
         FieldHeaderView(dateTimeDataModel.fieldHeaderModel)

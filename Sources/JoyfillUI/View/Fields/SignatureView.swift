@@ -12,7 +12,6 @@ struct SignatureView: View {
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
 
     private var signatureDataModel: SignatureDataModel
-    @FocusState private var isFocused: Bool // Declare a FocusState property
     let eventHandler: FieldChangeEvents
 
     public init(signatureDataModel: SignatureDataModel, eventHandler: FieldChangeEvents) {
@@ -137,28 +136,14 @@ struct CanvasView: View {
                     }))
         }
     }
-    
-    private func getDigits(number: Int) -> [Int] {
-        guard number > 0 else { return [number] }
-        var firstDigit = number
-        var digits = [Int]()
-        while firstDigit > 0 {
-            digits.append(firstDigit%10)
-            firstDigit = firstDigit / 10
-        }
-        return digits.reversed()
-    }
-    
 }
 
 struct CanvasSignatureView: View {
-    @State private var enterYourSignName: String = ""
     @Binding var lines: [Line]
     @Binding var savedLines: [Line]
     @Binding var signatureImage: UIImage?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
-    let screenHeight = UIScreen.main.bounds.height
     
     var body: some View {
         VStack(alignment: .leading) {
