@@ -75,5 +75,5 @@ struct NumberView: View {
 
 
 class Constants {
-    static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 600_000_000
+    static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 100_000_000
 }
