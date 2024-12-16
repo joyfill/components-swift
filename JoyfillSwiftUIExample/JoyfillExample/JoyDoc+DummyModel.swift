@@ -811,8 +811,8 @@ extension JoyDoc {
         column3.identifier = ""
         field.tableColumns = [column1,column2,column3]
         field.tableColumnOrder = [
-            "6628f2e11a2b28119985cfbb",
             "6628f2e123ca77fa82a2c45e",
+            "6628f2e11a2b28119985cfbb",
             "663dcdcfcd08ad955955fd95"
         ]
         var document = self

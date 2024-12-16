@@ -61,6 +61,15 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     
     // First Page Table Test Cases
     
+    // Test case for Check column order - check column titles
+    func testDropdownFieldColumnTitle() throws {
+        goToTableDetailPage()
+        let dropdownFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let textFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 1)
+        XCTAssertTrue(dropdownFieldColumnTitleButton.label == "Dropdown Column", "\(dropdownFieldColumnTitleButton.label)")
+        XCTAssertTrue(textFieldColumnTitleButton.label == "Text Column", "\(textFieldColumnTitleButton.label)")
+    }
+    
     func testTableTextFields() throws {
         goToTableDetailPage()
         
@@ -217,10 +226,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         goBack()
         sleep(2)
-//        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
-//        let lastRow = try XCTUnwrap(valueElements.last)
-//        XCTAssertTrue(lastRow.deleted!)
-//        XCTAssertEqual(5, valueElements.count)
+        let valueElements = try XCTUnwrap(onChangeResultValue().valueElements)
+        let lastRow = try XCTUnwrap(valueElements.last)
+        XCTAssertTrue(lastRow.deleted!)
+        XCTAssertEqual(5, valueElements.count)
     }
     
     func testDuplicateAllRow() throws {
