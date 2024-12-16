@@ -40,7 +40,7 @@ When finished, Xcode will automatically begin resolving and downloading your dep
 
 ## Getting Started
 
-### Show a Joyfill Document with SwiftUI `JoyFillView` view
+### Show a Joyfill Document with SwiftUI `Form` view
 
 ```swift
 import SwiftUI
@@ -69,20 +69,6 @@ struct FormContainerView: View {
 SwiftUI example at [/JoyfillSwiftUIExample](https://github.com/joyfill/components-swift/tree/main/JoyfillSwiftUIExample)
 UIKit example at [/JoyfillUIKitExample](https://github.com/joyfill/components-swift/tree/main/JoyfillUIKitExample)
 Flutter example at [/joyfillflutterexample](https://github.com/joyfill/components-swift/tree/main/joyfillflutterexample)
-
-### `Validation`
-You can use our 'Validator' APIs from 'JoyFillModel' to check if the document and fields are valid.
-
-```swift
-import JoyfillModel
-
-let result = Validator.validate(document: document)
-print("Document status:", result.status)
-for fieldResult in result.fieldValidations {
-  print("Field status:", fieldResult.field.id!, ":", fieldResult.status)
-}
-
-```
 
 ### `DocumentEditor`
 The DocumentEditor is a key component of the Joyfill SDK, offering features such as document editing, conditional logic, validation, page navigation, and field event handling. It provides easy to use functions to access and modify documents seamlessly. Additionally, any document updates made using the helper functions in the DocumentEditor automatically trigger change events.
