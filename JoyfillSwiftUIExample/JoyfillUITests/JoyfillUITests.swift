@@ -97,7 +97,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Hello sir", textField.value as! String)
         textField.tap()
         textField.typeText("Hello")
-        sleep(3)
+        sleep(2)
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
     }
     
@@ -106,7 +106,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Hello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", multiLineTextField.value as! String)
         multiLineTextField.tap()
         multiLineTextField.typeText("Hello")
-        sleep(3)
+        sleep(2)
         XCTAssertEqual("HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", onChangeResultValue().multilineText)
     }
     
@@ -116,7 +116,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("98789", numberTextField.value as! String)
         numberTextField.tap()
         numberTextField.typeText("345")
-        sleep(3)
+        sleep(2)
         XCTAssertEqual(98789345.0, onChangeResultValue().number!)
     }
 }
