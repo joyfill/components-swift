@@ -244,6 +244,7 @@ extension DocumentEditor {
         let fieldId = fieldIdentifier.fieldID
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         let currentField = field(fieldID: fieldId)!
+        updateField(event: changeEvent, fieldIdentifier: fieldIdentifier)
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
     }
 
