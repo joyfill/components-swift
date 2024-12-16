@@ -336,8 +336,10 @@ struct DateTimeDataModel {
 
 struct DisplayTextDataModel {
     var displayText: String?
+    var fontSize: Double?
     var fontWeight: String?
-    var fieldHeaderModel: FieldHeaderModel?
+    var fontColor: String?
+    var fontStyle: String?
 }
 
 struct DropdownDataModel {

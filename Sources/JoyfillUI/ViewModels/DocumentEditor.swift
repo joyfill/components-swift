@@ -239,8 +239,10 @@ extension DocumentEditor {
             dataModelType = .text(model)
         case .block:
             let model = DisplayTextDataModel(displayText: fieldData?.value?.text,
+                                             fontSize: fieldPosition.fontSize,
                                              fontWeight: fieldPosition.fontWeight,
-                                             fieldHeaderModel: fieldHeaderModel)
+                                             fontColor: fieldPosition.fontColor,
+                                             fontStyle: fieldPosition.fontStyle)
             dataModelType = .block(model)
         case .multiSelect:
             let model = MultiSelectionDataModel(fieldIdentifier: fieldIdentifier,
