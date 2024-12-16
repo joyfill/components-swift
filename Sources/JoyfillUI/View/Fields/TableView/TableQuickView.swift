@@ -40,7 +40,10 @@ struct TableQuickView : View {
                     table
                         .id(refreshID)
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
-                }.frame(maxHeight: CGFloat(viewModel.tableDataModel.rowOrder.count) * rowHeight + rowHeight)
+                }
+                .frame(maxHeight:
+                        (CGFloat((viewModel.tableDataModel.rowOrder.isEmpty ? 2:  viewModel.tableDataModel.rowOrder.count)) * rowHeight + rowHeight)
+                       )
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -105,7 +108,8 @@ struct TableQuickView : View {
     
     var table: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(viewModel.tableDataModel.rowOrder.prefix(3), id: \.self) { row in
+            let rows = (viewModel.tableDataModel.rowOrder.prefix(3).count != 0) ? viewModel.tableDataModel.rowOrder.prefix(3) : ["Dummy-rowID"]
+            ForEach(rows, id: \.self) { row in
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(Array(viewModel.tableDataModel.columns.prefix(3).enumerated()), id: \.offset) { index, col in
                         // Cell
