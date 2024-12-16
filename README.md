@@ -135,6 +135,16 @@ documentEditor.currentPageID = "newPageID"
 * Determines if a given Page object should be shown based on conditional logic.
 * Usage: `let isPageVisible = documentEditor.shouldShow(page: somePage)`
 
+### FieldIdentifier - Uniquely identifies the field
+
+```swift
+
+ // Example of creating a FieldIdentifier for a field  
+  let fieldIdentifier = FieldIdentifier(fieldID: "field123", pageID: "page45", fileID: "file678")
+```
+
+###
+
 ### `deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier)`
 * Deletes specified rows from a table field.
 * Usage: `documentEditor.deleteRows(rowIDs: ["row1", "row2"], fieldIdentifier: fieldIdentifier)`
