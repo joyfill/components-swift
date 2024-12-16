@@ -44,6 +44,17 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(20.0, onChangeResultChange().xMin)
         XCTAssertEqual(10030.0, onChangeResultChange().yMax)
         XCTAssertEqual(10.0, onChangeResultChange().yMin)
+        
+        sleep(1)
+        goToChartDetailField()
+        app.buttons["ShowHideButtonIdentifier"].tap()
+
+        XCTAssertEqual(verticalTitleTextFieldIdentifier.value as? String, "Vertical Label Y", "TextField value is incorrect after navigation")
+        XCTAssertEqual(horizontalTitleTextFieldIdentifier.value as? String, "Horizontal Label X", "TextField value is incorrect after navigation")
+        XCTAssertEqual(minYValuesTextField.value as? String, "10", "TextField value is incorrect after navigation")
+        XCTAssertEqual(minXValuesTextField.value as? String, "20", "TextField value is incorrect after navigation")
+        XCTAssertEqual(maxYValuesTextField.value as? String, "10030", "TextField value is incorrect after navigation")
+        XCTAssertEqual(maxXValuesTextField.value as? String, "10040", "TextField value is incorrect after navigation")
     }
     
     func testEditAllCoordinatesFieldAfterRemoveLine() {
@@ -132,6 +143,12 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 
         XCTAssertEqual("Line Title", onChangeResultValue().valueElements?[0].title)
         XCTAssertEqual("Line Description", onChangeResultValue().valueElements?[0].description)
+        
+        sleep(1)
+        goToChartDetailField()
+
+        XCTAssertEqual(titleTextFieldIdentifier.value as? String, "Line Title", "TextField value is incorrect after navigation")
+        XCTAssertEqual(descriptionTextFieldIdentifier.value as? String, "Line Description", "TextField value is incorrect after navigation")
 
     }
 
@@ -159,6 +176,14 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("PointLabel1", onChangeResultValue().valueElements?[0].points?[0].label)
         XCTAssertEqual("PointLabel2", onChangeResultValue().valueElements?[0].points?[1].label)
         XCTAssertEqual("PointLabel3", onChangeResultValue().valueElements?[0].points?[2].label)
+        
+        sleep(1)
+        goToChartDetailField()
+        
+        for i in 0..<textFields.count {
+            let textField = textFields.element(boundBy: i)
+            XCTAssertEqual(textField.value as? String, texts[i], "Text field \(i) value does not match expected value after navigation.")
+        }
     }
 
     func testChartPointsValue() throws {
@@ -201,6 +226,16 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(40, onChangeResultValue().valueElements?[0].points?[1].y)
         XCTAssertEqual(50, onChangeResultValue().valueElements?[0].points?[2].x)
         XCTAssertEqual(60, onChangeResultValue().valueElements?[0].points?[2].y)
+        
+        sleep(1)
+        goToChartDetailField()
+
+        XCTAssertEqual(horizontalPointsValue.value as? String, "10", "TextField value is incorrect after navigation")
+        XCTAssertEqual(horizontalPointsValue1.value as? String, "20", "TextField value is incorrect after navigation")
+        XCTAssertEqual(verticalPointsValue.value as? String, "30", "TextField value is incorrect after navigation")
+        XCTAssertEqual(verticalPointsValue1.value as? String, "40", "TextField value is incorrect after navigation")
+        XCTAssertEqual(horizontalPointsValue2.value as? String, "50", "TextField value is incorrect after navigation")
+        XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
     }
 
 }
