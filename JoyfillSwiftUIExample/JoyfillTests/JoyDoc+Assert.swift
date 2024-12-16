@@ -277,8 +277,8 @@ extension JoyDoc {
         XCTAssertEqual(fields[14].tableColumns?[2].identifier, "")
         
         XCTAssertEqual(fields[14].tableColumnOrder?.count, 3)
-        XCTAssertEqual(fields[14].tableColumnOrder?[0], "6628f2e11a2b28119985cfbb")
-        XCTAssertEqual(fields[14].tableColumnOrder?[1], "6628f2e123ca77fa82a2c45e")
+        XCTAssertEqual(fields[14].tableColumnOrder?[0], "6628f2e123ca77fa82a2c45e")
+        XCTAssertEqual(fields[14].tableColumnOrder?[1], "6628f2e11a2b28119985cfbb")
         XCTAssertEqual(fields[14].tableColumnOrder?[2], "663dcdcfcd08ad955955fd95")
     }
     
