@@ -170,8 +170,8 @@ extension DocumentEditor {
                 field.yTitle = chartData.yTitle
             }
             updatefield(field: field)
-            refreshField(fieldId: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
-            refreshDependent(for: event.fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
+            refreshField(fieldId: event.fieldIdentifier.fieldID)
+            refreshDependent(for: event.fieldIdentifier.fieldID)
         }
     }
 
@@ -203,11 +203,12 @@ extension DocumentEditor {
         return (pageID, index)
     }
     
-    func refreshField(fieldId: String, fieldIdentifier: FieldIdentifier) {
+    func refreshField(fieldId: String) {
         let pageIDIndexValue = fieldIndexMap[fieldId]!
         let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
         let fieldPosition = self.fieldPositionMap[fieldId]
-        let dataModelType = getFieldModel(fieldPosition: fieldPosition!, fieldIdentifier: fieldIdentifier)
+        let identifier = pageFieldModels[pageID]!.fields[index].fieldIdentifier
+        let dataModelType = getFieldModel(fieldPosition: fieldPosition!, fieldIdentifier: identifier)
         pageFieldModels[pageID]!.fields[index].model = dataModelType
     }
 
@@ -215,10 +216,10 @@ extension DocumentEditor {
         return field(fieldID: fieldID)?.valueToValueElements
     }
 
-    func refreshDependent(for fieldID: String, fieldIdentifier: FieldIdentifier) {
+    func refreshDependent(for fieldID: String) {
         let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
         for fieldId in refreshFields {
-            refreshField(fieldId: fieldId, fieldIdentifier: fieldIdentifier)
+            refreshField(fieldId: fieldId)
         }
     }
     
