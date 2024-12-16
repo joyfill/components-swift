@@ -11,7 +11,7 @@ import JoyfillModel
 class ConditionalLogicHandler {
     weak var documentEditor: DocumentEditor!
     private var showFieldMap = [String: Bool]()
-    private var fieldConditionalDependencyMap = [String: [String]]()
+    private var fieldConditionalDependencyMap = [String: Set<String>]()
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
@@ -75,9 +75,10 @@ class ConditionalLogicHandler {
             guard let fieldID = condition.field else { return nil }
             guard let dependentField = documentEditor.field(fieldID: fieldID) else { return nil }
 
-            var allDependentFields = fieldConditionalDependencyMap[dependentField.id!] ?? []
+            var allDependentFields: Set<String> = fieldConditionalDependencyMap[dependentField.id!] ?? []
             if !allDependentFields.contains(dependentField.id!) {
-                fieldConditionalDependencyMap[dependentField.id!] = allDependentFields + [field.id!]
+                allDependentFields.insert(field.id!)
+                fieldConditionalDependencyMap[dependentField.id!] = allDependentFields
             }
             return ConditionModel(fieldValue: dependentField.value, fieldType: FieldTypes(dependentField.type), condition: condition.condition, value: condition.value)
         }
