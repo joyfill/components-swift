@@ -17,7 +17,6 @@ struct FieldListModel {
     let fieldIdentifier: FieldIdentifier
     let fieldEditMode: Mode
     var model: FieldListModelType
-    var refreshID: UUID
 }
 
 struct RowDataModel: Equatable, Hashable {

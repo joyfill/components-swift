@@ -60,7 +60,7 @@ public class DocumentEditor: ObservableObject {
                 var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
                 
                 dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
-                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType, refreshID: UUID()))
+                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
                 let index = fieldListModels.count - 1
                 fieldIndexMap[fieldPosition.field!] = fieldIndexMapValue(pageID: pageID, index: index)
             }
@@ -207,7 +207,8 @@ extension DocumentEditor {
         let pageIDIndexValue = fieldIndexMap[fieldId]!
         let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
         let fieldPosition = self.fieldPositionMap[fieldId]
-        pageFieldModels[pageID]!.fields[index].refreshID = UUID()
+        let dataModelType = getFieldModel(fieldPosition: fieldPosition!, fieldIdentifier: fieldIdentifier)
+        pageFieldModels[pageID]!.fields[index].model = dataModelType
     }
 
     private func valueElements(fieldID: String) -> [ValueElement]? {
