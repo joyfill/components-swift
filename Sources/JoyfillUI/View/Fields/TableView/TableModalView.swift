@@ -13,9 +13,13 @@ struct TableRowView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     TableViewCellBuilder(cellModel: $cellModel)
                 }
-                .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                .frame(minWidth: getWidth(type: cellModel.data.type ?? "", format: ""), maxWidth: getWidth(type: cellModel.data.type ?? "", format: ""), minHeight: 50, maxHeight: .infinity)
             }
         }
+    }
+    
+    func getWidth(type: String, format: String) -> CGFloat {
+        return type == "date" ? 270 : 170
     }
 }
 
@@ -198,7 +202,7 @@ struct TableModalView : View {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: columnId))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if !["image", "block"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) {
+                        if !["image", "block", "date"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -206,7 +210,7 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: 170)
+                    .frame(width: viewModel.tableDataModel.getColumnType(columnId: columnId) == "date" ? 270 : 170)
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
@@ -217,7 +221,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(["image", "block"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled(["image", "block", "date"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in

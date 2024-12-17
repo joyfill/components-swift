@@ -32,7 +32,7 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
 }
 
-let supportedColumnTypes = ["text", "image", "dropdown", "block"]
+let supportedColumnTypes = ["text", "image", "dropdown", "block", "date"]
 
 struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
@@ -128,7 +128,9 @@ struct TableDataModel {
                     options: optionsLocal,
                     valueElements: fieldTableColumn.images ?? [],
                     type: fieldTableColumn.type,
-                    title: fieldTableColumn.title
+                    title: fieldTableColumn.title,
+                    date: fieldTableColumn.value,
+                    format: fieldTableColumn.format
                 )
                 columnIdToColumnMap[column] = fieldTableColumnLocal
             }
@@ -146,12 +148,14 @@ struct TableDataModel {
             
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
             let columnDataLocal = CellDataModel(id: columnData.id!,
-                                                        defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
-                                                        options: optionsLocal,
-                                                        valueElements: columnData.images ?? [],
-                                                        type: columnData.type,
-                                                        title: columnData.title,
-                                                        selectedOptionText: selectedOptionText)
+                                                defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
+                                                options: optionsLocal,
+                                                valueElements: columnData.images ?? [],
+                                                type: columnData.type,
+                                                title: columnData.title,
+                                                selectedOptionText: selectedOptionText,
+                                                date: columnData.value,
+                                                format: columnData.format)
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
                 cells.append(cell)
             }
@@ -171,6 +175,8 @@ struct TableDataModel {
             cell?.valueElements = valueUnion?.valueElements ?? []
         case "block":
             cell?.title = valueUnion?.text ?? ""
+        case "date":
+            cell?.date = valueUnion
         default:
             return nil
         }
@@ -228,12 +234,14 @@ struct TableDataModel {
                 optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
             }
             return CellDataModel(id: column.id!,
-                                         defaultDropdownSelectedId: column.defaultDropdownSelectedId,
-                                         options: optionsLocal,
-                                         valueElements: column.images ?? [],
-                                         type: column.type,
-                                         title: column.title,
-                                         selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "")
+                                 defaultDropdownSelectedId: column.defaultDropdownSelectedId,
+                                 options: optionsLocal,
+                                 valueElements: column.images ?? [],
+                                 type: column.type,
+                                 title: column.title,
+                                 selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
+                                 date: column.value,
+                                 format: column.format)
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
         return cellModels[rowIndex].cells[col].data
@@ -303,6 +311,8 @@ struct CellDataModel: Hashable, Equatable {
     let type: String?
     var title: String
     var selectedOptionText: String?
+    var date: ValueUnion?
+    let format: String?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)
