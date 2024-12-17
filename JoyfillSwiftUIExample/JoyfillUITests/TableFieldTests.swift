@@ -113,6 +113,16 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("FirstHello", firstCellTextValue)
         XCTAssertEqual("SecondHis", secondCellTextValue)
         XCTAssertEqual("ThirdHis", thirdCellTextValue)
+        
+        // Navigate to signature detail view - then go to table detail view - to check recently enterd data is saved or not in table
+        app.buttons["SignatureIdentifier"].tap()
+        sleep(1)
+        goBack()
+        
+        goToTableDetailPage()
+        XCTAssertEqual("FirstHello", firstTableTextField.value as! String)
+        XCTAssertEqual("SecondHis", secondTableTextField.value as! String)
+        XCTAssertEqual("ThirdHis", thirdTableTextField.value as! String)
     }
     
     func testTableDropdownOption() throws {
