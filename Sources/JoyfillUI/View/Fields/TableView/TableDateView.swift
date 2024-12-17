@@ -15,8 +15,8 @@ struct TableDateView: View {
     public init(cellModel: Binding<TableCellModel>) {
         _cellModel = cellModel
         if let dateValue = cellModel.wrappedValue.data.date {
-            if let dateString = dateValue.dateTime(format: "hh:mma") {
-                if let date = stringToDate(dateString, format: "hh:mma") {
+            if let dateString = dateValue.dateTime(format: cellModel.wrappedValue.data.format ?? "") {
+                if let date = stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
                     _selectedDate = State(initialValue: date)
                     _isDatePickerPresented = State(initialValue: true)
                 }
@@ -32,33 +32,49 @@ struct TableDateView: View {
     }
     
     var body: some View {
-        Group {
-            if isDatePickerPresented {
-                HStack {
-                    DatePicker("", selection: dateBinding, displayedComponents: getDateType(format: "hh:mma"))
-                        .accessibilityIdentifier("DateIdenitfier")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .labelsHidden()
-                        .padding(.all, 8)
-                    
-                    Image(systemName: "xmark.circle")
-                        .onTapGesture {
+        if cellModel.viewMode == .quickView {
+            if let dateValue = cellModel.data.date {
+                if let dateString = dateValue.dateTime(format: cellModel.data.format ?? "") {
+                    Text(dateString)
+                        .font(.system(size: 15))
+                        .lineLimit(1)
+                }
+            }
+        } else {
+            Group {
+                if isDatePickerPresented {
+                    HStack {
+                        Spacer()
+                        
+                        DatePicker("", selection: dateBinding, displayedComponents: getDateType(format: $cellModel.wrappedValue.data.format ?? ""))
+                            .accessibilityIdentifier("DateIdenitfier")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .labelsHidden()
+                        
+                        Spacer()
+                        
+                        Button {
                             isDatePickerPresented = false
                             selectedDate = nil
+                        } label: {
+                            Image(systemName: "xmark.circle")
+                        }
+                        
+                        Spacer()
+                    }
+                } else {
+                    Image(systemName: "calendar")
+                        .frame(maxWidth: .infinity)
+                        .padding(.all, 10)
+                        .onTapGesture {
+                            isDatePickerPresented = true
+                            selectedDate = Date()
                         }
                 }
-            } else {
-                Image(systemName: "calendar")
-                    .frame(maxWidth: .infinity)
-                    .padding(.all, 10)
-                    .onTapGesture {
-                        isDatePickerPresented = true
-                        selectedDate = Date()
-                    }
             }
-        }
-        .onChange(of: selectedDate) { newValue in
-            
+            .onChange(of: selectedDate) { newValue in
+                
+            }
         }
     }
     
