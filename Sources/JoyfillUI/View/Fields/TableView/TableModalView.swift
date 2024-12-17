@@ -198,7 +198,7 @@ struct TableModalView : View {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: columnId))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if viewModel.tableDataModel.getColumnType(columnId: columnId) != "image" {
+                        if !["image", "block"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -217,7 +217,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled(["image", "block"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
