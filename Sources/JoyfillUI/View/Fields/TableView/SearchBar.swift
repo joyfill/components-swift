@@ -41,7 +41,6 @@ struct SearchBar: View {
                         TextFieldSearchBar(text: $model.filterText)
                     case "dropdown":
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
-                            .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
                     default:
                         Text("")
