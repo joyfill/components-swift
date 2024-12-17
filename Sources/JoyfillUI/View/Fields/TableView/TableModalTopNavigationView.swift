@@ -278,7 +278,7 @@ struct EditMultipleRowsSheetView: View {
                     })
                 }
 
-                ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
+                ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
                     let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
                     let cellModel = TableCellModel(rowID: row,
@@ -300,7 +300,7 @@ struct EditMultipleRowsSheetView: View {
                     switch cellModel.data.type {
                     case "text":
                         var str = ""
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         let binding = Binding<String>(
@@ -324,7 +324,7 @@ struct EditMultipleRowsSheetView: View {
                             )
                             .cornerRadius(10)
                     case "dropdown":
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)

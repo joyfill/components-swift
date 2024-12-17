@@ -36,7 +36,9 @@ class TableViewModel: ObservableObject {
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { cellDataModel in
-                    let colIndex = self.tableDataModel.columns.firstIndex(of: rowDataModel.id)!
+                    let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+                        fieldTableColumn.id == cellDataModel.id
+                    })!
                     self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                 }
                 rowCellModels.append(cellModel)
@@ -53,7 +55,7 @@ class TableViewModel: ObservableObject {
         let rowDataMap = setupRows()
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
-            tableDataModel.columns.enumerated().forEach { colIndex, colID in
+            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
                     let cellModel = TableCellModel(rowID: rowID,
@@ -193,7 +195,7 @@ class TableViewModel: ObservableObject {
         tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
-            tableDataModel.columns.enumerated().forEach { colIndex, colID in
+            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 if cellDataModel.type == "dropdown" {
