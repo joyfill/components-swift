@@ -130,7 +130,7 @@ struct TableDataModel {
                     type: fieldTableColumn.type,
                     title: fieldTableColumn.title,
                     date: fieldTableColumn.value,
-                    format: fieldTableColumn.format
+                    format: ""
                 )
                 columnIdToColumnMap[column] = fieldTableColumnLocal
             }
@@ -155,7 +155,7 @@ struct TableDataModel {
                                                 title: columnData.title,
                                                 selectedOptionText: selectedOptionText,
                                                 date: columnData.value,
-                                                format: columnData.format)
+                                                format: "")
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
                 cells.append(cell)
             }
@@ -241,7 +241,7 @@ struct TableDataModel {
                                  title: column.title,
                                  selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
                                  date: column.value,
-                                 format: column.format)
+                                 format: "")
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
         return cellModels[rowIndex].cells[col].data
