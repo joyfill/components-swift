@@ -32,7 +32,7 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
 }
 
-let supportedColumnTypes = ["text", "image", "dropdown"]
+let supportedColumnTypes = ["text", "image", "dropdown", "block"]
 
 struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
@@ -169,6 +169,8 @@ struct TableDataModel {
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
         case "image":
             cell?.valueElements = valueUnion?.valueElements ?? []
+        case "block":
+            cell?.title = valueUnion?.text ?? ""
         default:
             return nil
         }
