@@ -234,7 +234,7 @@ extension DocumentEditor {
         case "image":
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
         case "date":
-            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.date ?? 0.0), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId)
         default:
             return
         }
@@ -394,14 +394,20 @@ extension DocumentEditor {
         return valueDict
     }
 
-    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion, fieldId: String) {
+    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion?, fieldId: String) {
         var elements = elements
+        
         if var cells = elements[index].cells {
-            cells[cellDataModelId] = newCell
+            if let newCell = newCell {
+                cells[cellDataModelId] = newCell
+            } else {
+                cells.removeValue(forKey: cellDataModelId)
+            }
             elements[index].cells = cells
-        } else {
-            elements[index].cells = [cellDataModelId ?? "" : newCell]
+        } else if let newCell = newCell {
+            elements[index].cells = [cellDataModelId: newCell]
         }
+        
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }
 }

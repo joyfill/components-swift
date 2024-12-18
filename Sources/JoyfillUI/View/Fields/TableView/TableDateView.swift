@@ -74,13 +74,10 @@ struct TableDateView: View {
                 }
             }
             .onChange(of: selectedDate) { newValue in
-                if let newValue {
-                    let convertDateToInt = dateToTimestampMilliseconds(date: newValue)
-                    var cellDataModel = cellModel.data
-                    cellDataModel.date = convertDateToInt
-                    cellModel.didChange?(cellDataModel)
-                    cellModel.data = cellDataModel
-                }
+                var cellDataModel = cellModel.data
+                cellDataModel.date = newValue.map { dateToTimestampMilliseconds(date: $0) }
+                cellModel.didChange?(cellDataModel)
+                cellModel.data = cellDataModel
             }
         }
     }
