@@ -32,7 +32,7 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
 }
 
-let supportedColumnTypes = ["text", "image", "dropdown", "block", "date"]
+let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number"]
 
 struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
@@ -104,6 +104,8 @@ struct TableDataModel {
                     return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
                 case "dropdown":
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
+                case "number":
+                    return (column.number ?? 0) == Double(model.filterText)
                 default:
                     break
                 }
@@ -128,6 +130,7 @@ struct TableDataModel {
                     valueElements: fieldTableColumn.images ?? [],
                     type: fieldTableColumn.type,
                     title: fieldTableColumn.title,
+                    number: fieldTableColumn.number,
                     date: fieldTableColumn.date,
                     format: fieldPositionTableColumns?.first(where: { tableColumn in
                         tableColumn.id == fieldTableColumn.id
@@ -153,6 +156,7 @@ struct TableDataModel {
                                                 valueElements: columnData.images ?? [],
                                                 type: columnData.type,
                                                 title: columnData.title,
+                                                number: columnData.number,
                                                 selectedOptionText: selectedOptionText,
                                                 date: columnData.date,
                                                 format: fieldPositionTableColumns?.first(where: { tableColumn in
@@ -182,6 +186,8 @@ struct TableDataModel {
             cell?.title = valueUnion?.text ?? ""
         case "date":
             cell?.date = valueUnion?.number
+        case "number":
+            cell?.number = valueUnion?.number ?? 0
         default:
             return nil
         }
@@ -244,6 +250,7 @@ struct TableDataModel {
                                  valueElements: column.images ?? [],
                                  type: column.type,
                                  title: column.title,
+                                 number: column.number,
                                  selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
                                  date: column.date,
                                  format: fieldPositionTableColumns?.first(where: { tableColumn in
@@ -321,6 +328,7 @@ struct CellDataModel: Hashable, Equatable {
     var valueElements: [ValueElement]
     let type: String?
     var title: String
+    var number: Double?
     var selectedOptionText: String?
     var date: Double?
     var format: String?

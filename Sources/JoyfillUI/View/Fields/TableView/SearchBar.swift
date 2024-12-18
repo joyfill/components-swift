@@ -32,6 +32,9 @@ struct SearchBar: View {
                             self.model.filterText = cellDataModel.title ?? ""
                         case "dropdown":
                             self.model.filterText = cellDataModel.defaultDropdownSelectedId ?? ""
+                        case "number":
+                            var stringNumberValue = String(cellDataModel.number ?? 0)
+                            self.model.filterText = stringNumberValue
                         default:
                             break
                         }
@@ -43,6 +46,15 @@ struct SearchBar: View {
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
+                    case "number":
+                        TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, number: model.filterText)
+                            .font(.system(size: 12))
+                            .foregroundColor(.black)
+                            .padding(.vertical, 4)
+                            .frame(height: 25)
+                            .background(.white)
+                            .cornerRadius(6)
+                            .padding(.leading, 8)
                     default:
                         Text("")
                     }

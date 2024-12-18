@@ -234,7 +234,9 @@ extension DocumentEditor {
         case "image":
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
         case "date":
-            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.date ?? 0.0), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.date ?? 0), fieldId: fieldId)
+        case "number":
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.number ?? 0), fieldId: fieldId)
         default:
             return
         }

@@ -32,6 +32,9 @@ struct TableViewCellBuilder: View {
         case "date":
             TableDateView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case "number":
+            TableNumberView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
         default:
             Text("")
         }

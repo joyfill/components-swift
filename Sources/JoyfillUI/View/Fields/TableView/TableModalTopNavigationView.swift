@@ -339,13 +339,19 @@ struct EditMultipleRowsSheetView: View {
                             .cornerRadius(10)
                             .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
-                        
                     case "date":
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
                             .padding(.vertical, 8)
+                    case "number":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            .keyboardType(.decimalPad)
+                            .frame(minHeight: 40)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
