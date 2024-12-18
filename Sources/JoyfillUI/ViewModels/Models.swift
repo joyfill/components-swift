@@ -128,7 +128,7 @@ struct TableDataModel {
                     valueElements: fieldTableColumn.images ?? [],
                     type: fieldTableColumn.type,
                     title: fieldTableColumn.title,
-                    date: fieldTableColumn.value,
+                    date: fieldTableColumn.date,
                     format: fieldPositionTableColumns?.first(where: { tableColumn in
                         tableColumn.id == fieldTableColumn.id
                     })?.format
@@ -154,7 +154,7 @@ struct TableDataModel {
                                                 type: columnData.type,
                                                 title: columnData.title,
                                                 selectedOptionText: selectedOptionText,
-                                                date: columnData.value,
+                                                date: columnData.date,
                                                 format: fieldPositionTableColumns?.first(where: { tableColumn in
                 tableColumn.id == columnData.id
             })?.format)
@@ -168,6 +168,9 @@ struct TableDataModel {
     private func buildCell(data: CellDataModel?, row: ValueElement, column: String) -> CellDataModel? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
+        let format = fieldPositionTableColumns?.first(where: { tableColumn in
+            tableColumn.id == column
+        })?.format
         switch data?.type {
         case "text":
             cell?.title = valueUnion?.text ?? ""
@@ -178,7 +181,7 @@ struct TableDataModel {
         case "block":
             cell?.title = valueUnion?.text ?? ""
         case "date":
-            cell?.date = valueUnion
+            cell?.date = valueUnion?.number
         default:
             return nil
         }
@@ -242,7 +245,7 @@ struct TableDataModel {
                                  type: column.type,
                                  title: column.title,
                                  selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
-                                 date: column.value,
+                                 date: column.date,
                                  format: fieldPositionTableColumns?.first(where: { tableColumn in
                 tableColumn.id == column.id
             })?.format)
@@ -319,7 +322,7 @@ struct CellDataModel: Hashable, Equatable {
     let type: String?
     var title: String
     var selectedOptionText: String?
-    var date: ValueUnion?
+    var date: Double?
     var format: String?
 
     func hash(into hasher: inout Hasher) {

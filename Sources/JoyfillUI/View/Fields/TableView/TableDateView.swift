@@ -11,11 +11,12 @@ struct TableDateView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate: Date? = nil
     @Binding var cellModel: TableCellModel
+    private var isUsedForBulkEdit = false
         
-    public init(cellModel: Binding<TableCellModel>) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
         if let dateValue = cellModel.wrappedValue.data.date {
-            if let dateString = dateValue.dateTime(format: cellModel.wrappedValue.data.format ?? "") {
+            if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? "") {
                 if let date = stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
                     _selectedDate = State(initialValue: date)
                     _isDatePickerPresented = State(initialValue: true)
@@ -34,7 +35,7 @@ struct TableDateView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             if let dateValue = cellModel.data.date {
-                if let dateString = dateValue.dateTime(format: cellModel.data.format ?? "") {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? "") {
                     Text(dateString)
                         .font(.system(size: 15))
                         .lineLimit(1)
@@ -73,7 +74,13 @@ struct TableDateView: View {
                 }
             }
             .onChange(of: selectedDate) { newValue in
-                
+                if let newValue {
+                    let convertDateToInt = dateToTimestampMilliseconds(date: newValue)
+                    var cellDataModel = cellModel.data
+                    cellDataModel.date = convertDateToInt
+                    cellModel.didChange?(cellDataModel)
+                    cellModel.data = cellDataModel
+                }
             }
         }
     }
