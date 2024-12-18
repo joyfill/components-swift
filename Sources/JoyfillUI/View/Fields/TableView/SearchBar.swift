@@ -33,7 +33,12 @@ struct SearchBar: View {
                         case "dropdown":
                             self.model.filterText = cellDataModel.defaultDropdownSelectedId ?? ""
                         case "number":
-                            var stringNumberValue = String(cellDataModel.number ?? 0)
+                            var stringNumberValue: String
+                            if let number = cellDataModel.number {
+                                stringNumberValue = String(number)
+                            } else {
+                                stringNumberValue = ""
+                            }
                             self.model.filterText = stringNumberValue
                         default:
                             break

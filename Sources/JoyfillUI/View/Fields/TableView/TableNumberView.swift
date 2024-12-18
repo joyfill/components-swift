@@ -20,12 +20,11 @@ struct TableNumberView: View {
         let cellNumber = cellModel.wrappedValue.data.number ?? 0.0
         let formattedCellNumber = numberFormatter.string(from: NSNumber(value: cellNumber)) ?? "0"
         
-//        if let providedNumber = number {
-//            _number = State(initialValue: providedNumber)
-//        } else if !isUsedForBulkEdit {
-//            _number = State(initialValue: formattedCellNumber)
-//        }
-        _number = State(initialValue: formattedCellNumber)
+        if let providedNumber = number {
+            _number = State(initialValue: providedNumber)
+        } else if !isUsedForBulkEdit {
+            _number = State(initialValue: formattedCellNumber)
+        }
     }
     
     var body: some View {
@@ -35,7 +34,6 @@ struct TableNumberView: View {
                     .font(.system(size: 15))
                     .lineLimit(1)
             }
-            
         } else {
             TextField("", text: $number)
                 .padding(.leading, 8)
