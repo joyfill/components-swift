@@ -207,6 +207,8 @@ class TableViewModel: ObservableObject {
                     cellDataModel.title = change.text ?? ""
                 case "date":
                     cellDataModel.date = change.number
+                case "number":
+                    cellDataModel.number = change.number
                 default:
                     break
                 }
