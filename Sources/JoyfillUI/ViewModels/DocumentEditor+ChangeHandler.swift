@@ -196,7 +196,7 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func bulkEdit(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return
         }
@@ -205,10 +205,10 @@ extension DocumentEditor {
                 if let change = changes[cellDataModelId] {
                     guard let index = elements.firstIndex(where: { $0.id == rowId }) else { return }
                     if var cells = elements[index].cells {
-                        cells[cellDataModelId ?? ""] = ValueUnion.string(change)
+                        cells[cellDataModelId ?? ""] = change
                         elements[index].cells = cells
                     } else {
-                        elements[index].cells = [cellDataModelId ?? "" : ValueUnion.string(change)]
+                        elements[index].cells = [cellDataModelId ?? "" : change]
                     }
                 }
             }
@@ -233,6 +233,8 @@ extension DocumentEditor {
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
+        case "date":
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.date ?? 0.0), fieldId: fieldId)
         default:
             return
         }

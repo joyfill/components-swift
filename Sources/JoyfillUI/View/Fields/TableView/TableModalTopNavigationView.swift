@@ -225,7 +225,7 @@ struct TableModalTopNavigationView: View {
 struct EditMultipleRowsSheetView: View {
     let viewModel: TableViewModel
     @Environment(\.presentationMode)  var presentationMode
-    @State var changes = [Int: String]()
+    @State var changes = [Int: ValueUnion]()
 
     init(viewModel: TableViewModel) {
         self.viewModel =  viewModel
@@ -278,7 +278,7 @@ struct EditMultipleRowsSheetView: View {
                     })
                 }
 
-                ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
+                ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
                     let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
                     let cellModel = TableCellModel(rowID: row,
@@ -290,9 +290,13 @@ struct EditMultipleRowsSheetView: View {
                     { cellDataModel in
                         switch cell.type {
                         case "text":
-                            self.changes[colIndex] = cellDataModel.title
+                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
                         case "dropdown":
-                            self.changes[colIndex] = cellDataModel.defaultDropdownSelectedId
+                            self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
+                        case "date":
+                            if let date = cellDataModel.date {
+                                self.changes[colIndex] = ValueUnion.double(date)
+                            }
                         default:
                             break
                         }
@@ -300,7 +304,7 @@ struct EditMultipleRowsSheetView: View {
                     switch cellModel.data.type {
                     case "text":
                         var str = ""
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         let binding = Binding<String>(
@@ -309,7 +313,7 @@ struct EditMultipleRowsSheetView: View {
                             },
                             set: { newValue in
                                 str = newValue
-                                self.changes[colIndex] = newValue
+                                self.changes[colIndex] = ValueUnion.string(newValue) 
                             }
                         )
                         TextField("", text: binding)
@@ -324,7 +328,7 @@ struct EditMultipleRowsSheetView: View {
                             )
                             .cornerRadius(10)
                     case "dropdown":
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -335,6 +339,20 @@ struct EditMultipleRowsSheetView: View {
                             .cornerRadius(10)
                             .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                        
+                    case "date":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            .padding(.vertical, 8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                            .disabled(cellModel.editMode == .readonly)
+                            .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                     default:
                         Text("")
                     }

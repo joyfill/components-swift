@@ -92,12 +92,12 @@ struct TableQuickView : View {
     
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(viewModel.tableDataModel.columns.prefix(3), id: \.self) { col in
+            ForEach(viewModel.tableDataModel.tableColumns.prefix(3), id: \.id) { col in
                 ZStack {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                         .padding(.horizontal, 4)
                 }
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
@@ -111,7 +111,7 @@ struct TableQuickView : View {
             let rows = (viewModel.tableDataModel.rowOrder.prefix(3).count != 0) ? viewModel.tableDataModel.rowOrder.prefix(3) : ["Dummy-rowID"]
             ForEach(rows, id: \.self) { row in
                 HStack(alignment: .top, spacing: 0) {
-                    ForEach(Array(viewModel.tableDataModel.columns.prefix(3).enumerated()), id: \.offset) { index, col in
+                    ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
                         // Cell
                         let cell = viewModel.tableDataModel.getQuickFieldTableColumn(row: row, col: index)
                         if let cell = cell {

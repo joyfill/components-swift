@@ -13,9 +13,13 @@ struct TableRowView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     TableViewCellBuilder(cellModel: $cellModel)
                 }
-                .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                .frame(minWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), maxWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), minHeight: 50, maxHeight: .infinity)
             }
         }
+    }
+    
+    func getWidth(type: String, format: String) -> CGFloat {
+        return type == "date" && format == "MM/DD/YYYY hh:mma" ? 270 : 170
     }
 }
 
@@ -75,6 +79,10 @@ struct TableModalView : View {
                 viewModel.tableDataModel.emptySelection()
             }
         }
+    }
+    
+    func getWidth(type: String, format: String) -> CGFloat {
+        return type == "date" && format == "MM/DD/YYYY hh:mma" ? 270 : 170
     }
     
     func clearFilter() {
@@ -190,15 +198,15 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { index, columnId in
+            ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
                 Button(action: {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     HStack {
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: columnId))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if !["image", "block"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) {
+                        if !["image", "block", "date"].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -206,7 +214,7 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: 170)
+                    .frame(width: getWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? "", format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? ""))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
@@ -217,7 +225,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(["image", "block"].contains(viewModel.tableDataModel.getColumnType(columnId: columnId)) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled(["image", "block", "date"].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in

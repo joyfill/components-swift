@@ -29,6 +29,9 @@ struct TableViewCellBuilder: View {
         case "block":
             TableTextView(cellModel: $cellModel)
                 .disabled(true)
+        case "date":
+            TableDateView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
         default:
             Text("")
         }
