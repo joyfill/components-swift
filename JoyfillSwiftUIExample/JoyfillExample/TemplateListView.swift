@@ -80,7 +80,9 @@ extension TemplateListView {
 
     func fetchData() {
         fetchTemplates() { 
-            fetchDocuments()
+            fetchDocuments() {
+
+            }
         }
     }
     
@@ -95,13 +97,14 @@ extension TemplateListView {
        return documentsWithSourceAsDoc + documentsWithSourceAsTemplate
     }
     
-    private func fetchDocuments() {
+    private func fetchDocuments(completion: @escaping (() -> Void)) {
         apiService.fetchDocuments() { result in
             DispatchQueue.main.async {
                 self.fetchSubmissions = false
                 switch result {
                 case .success(let documents):
                     self.documents = documents
+                    completion()
                 case .failure(let error):
                     print("Error fetching documents: \(error.localizedDescription)")
                 }
@@ -125,13 +128,14 @@ extension TemplateListView {
         self.createSubmission = true
         apiService.createDocumentSubmission(identifier: identifier) { result in
             DispatchQueue.main.async {
-                self.createSubmission = false
                 switch result {
                 case .success(let jsonRes):
                     let dictionary = (jsonRes as! [String: Any])
                     self.document = JoyDoc(dictionary: dictionary)
-                    showNewSubmission = true
-                    fetchDocuments()
+                    fetchDocuments() {
+                        self.createSubmission = false
+                        showNewSubmission = true
+                    }
                     break
                 case .failure(let error):
                     print("Error creating submission: \(error.localizedDescription)")
