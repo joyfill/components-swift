@@ -40,22 +40,18 @@ struct TableNumberView: View {
                 .keyboardType(.decimalPad)
                 .font(.system(size: 15))
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
-                .onChange(of: number) { newText in
-                    updateNumberValue(newText)
+                .onChange(of: number) { _ in
+                    var cellModelData = cellModel.data
+                    if !number.isEmpty, let doubleValue = Double(number) {
+                        cellModelData.number = doubleValue
+                    } else {
+                        cellModelData.number = nil
+                    }
+                    cellModel.data = cellModelData
+                    cellModel.didChange?(cellModelData)
                 }
                 .focused($isTextFieldFocused)
         }
-    }
-    
-    private func updateNumberValue(_ newText: String) {
-        var cellModelData = cellModel.data
-        if !number.isEmpty, let doubleValue = Double(number) {
-            cellModelData.number = doubleValue
-        } else {
-            cellModelData.number = nil
-        }
-        cellModel.data = cellModelData
-        cellModel.didChange?(cellModelData)
     }
 }
 
