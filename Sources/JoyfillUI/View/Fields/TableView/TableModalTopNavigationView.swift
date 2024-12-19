@@ -294,9 +294,7 @@ struct EditMultipleRowsSheetView: View {
                         case "dropdown":
                             self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
                         case "date":
-                            if let date = cellDataModel.date {
-                                self.changes[colIndex] = ValueUnion.double(date)
-                            }
+                            self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
                         case "number":
                             if let number = cellDataModel.number {
                                 self.changes[colIndex] = ValueUnion.double(number)

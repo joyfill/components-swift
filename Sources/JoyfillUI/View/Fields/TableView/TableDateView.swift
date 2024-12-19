@@ -15,11 +15,13 @@ struct TableDateView: View {
         
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
-        if let dateValue = cellModel.wrappedValue.data.date {
-            if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? "") {
-                if let date = stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
-                    _selectedDate = State(initialValue: date)
-                    _isDatePickerPresented = State(initialValue: true)
+        if !isUsedForBulkEdit {
+            if let dateValue = cellModel.wrappedValue.data.date {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? "") {
+                    if let date = stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
+                        _selectedDate = State(initialValue: date)
+                        _isDatePickerPresented = State(initialValue: true)
+                    }
                 }
             }
         }
@@ -40,6 +42,10 @@ struct TableDateView: View {
                         .font(.system(size: 15))
                         .lineLimit(1)
                 }
+            } else {
+                Image(systemName: "calendar")
+                    .frame(maxWidth: .infinity)
+                    .padding(.all, 10)
             }
         } else {
             Group {
@@ -74,13 +80,10 @@ struct TableDateView: View {
                 }
             }
             .onChange(of: selectedDate) { newValue in
-                if let newValue {
-                    let convertDateToInt = dateToTimestampMilliseconds(date: newValue)
-                    var cellDataModel = cellModel.data
-                    cellDataModel.date = convertDateToInt
-                    cellModel.didChange?(cellDataModel)
-                    cellModel.data = cellDataModel
-                }
+                var cellDataModel = cellModel.data
+                cellDataModel.date = newValue.map { dateToTimestampMilliseconds(date: $0) }
+                cellModel.didChange?(cellDataModel)
+                cellModel.data = cellDataModel
             }
         }
     }

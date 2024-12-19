@@ -120,8 +120,20 @@ extension DocumentEditor {
     public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) -> ValueElement {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
-
-        elements.append(ValueElement(id: id))
+        var newRow = ValueElement(id: id)
+        
+        for column in field(fieldID: fieldId)?.tableColumns ?? [] {
+            if column.type == "block" {
+                if var cells = newRow.cells {
+                    cells[column.id!] = ValueUnion.string(column.value ?? "")
+                    newRow.cells = cells
+                } else {
+                    newRow.cells = [column.id! : ValueUnion.string(column.value ?? "")]
+                }
+            }
+        }
+                
+        elements.append(newRow)
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder?.append(id)
 
@@ -234,7 +246,7 @@ extension DocumentEditor {
         case "image":
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
         case "date":
-            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.date ?? 0), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId)
         case "number":
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.number ?? 0), fieldId: fieldId)
         default:
@@ -396,14 +408,20 @@ extension DocumentEditor {
         return valueDict
     }
 
-    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion, fieldId: String) {
+    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion?, fieldId: String) {
         var elements = elements
+        
         if var cells = elements[index].cells {
-            cells[cellDataModelId] = newCell
+            if let newCell = newCell {
+                cells[cellDataModelId] = newCell
+            } else {
+                cells.removeValue(forKey: cellDataModelId)
+            }
             elements[index].cells = cells
-        } else {
-            elements[index].cells = [cellDataModelId ?? "" : newCell]
+        } else if let newCell = newCell {
+            elements[index].cells = [cellDataModelId: newCell]
         }
+        
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }
 }
