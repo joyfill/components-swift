@@ -17,13 +17,13 @@ struct TableNumberView: View {
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, number: String? = nil) {
         _cellModel = cellModel
         
-        let cellNumber = cellModel.wrappedValue.data.number ?? 0.0
-        let formattedCellNumber = numberFormatter.string(from: NSNumber(value: cellNumber)) ?? "0"
-        
-        if let providedNumber = number {
-            _number = State(initialValue: providedNumber)
-        } else if !isUsedForBulkEdit {
-            _number = State(initialValue: formattedCellNumber)
+        if let cellNumber = cellModel.wrappedValue.data.number {
+            let formattedCellNumber = numberFormatter.string(from: NSNumber(value: cellNumber)) ?? ""
+            if let providedNumber = number {
+                _number = State(initialValue: providedNumber)
+            } else if !isUsedForBulkEdit {
+                _number = State(initialValue: formattedCellNumber)
+            }
         }
     }
     

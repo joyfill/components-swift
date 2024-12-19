@@ -191,7 +191,7 @@ struct TableDataModel {
         case "date":
             cell?.date = valueUnion?.number
         case "number":
-            cell?.number = valueUnion?.number ?? 0
+            cell?.number = valueUnion?.number
         default:
             return nil
         }
