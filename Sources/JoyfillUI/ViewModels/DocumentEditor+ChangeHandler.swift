@@ -120,8 +120,20 @@ extension DocumentEditor {
     public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) -> ValueElement {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
-
-        elements.append(ValueElement(id: id))
+        var newRow = ValueElement(id: id)
+        
+        for column in field(fieldID: fieldId)?.tableColumns ?? [] {
+            if column.type == "block" {
+                if var cells = newRow.cells {
+                    cells[column.id!] = ValueUnion.string(column.value ?? "")
+                    newRow.cells = cells
+                } else {
+                    newRow.cells = [column.id! : ValueUnion.string(column.value ?? "")]
+                }
+            }
+        }
+                
+        elements.append(newRow)
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder?.append(id)
 
