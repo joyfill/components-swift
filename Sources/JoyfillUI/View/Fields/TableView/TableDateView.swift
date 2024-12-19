@@ -15,11 +15,13 @@ struct TableDateView: View {
         
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
-        if let dateValue = cellModel.wrappedValue.data.date {
-            if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? "") {
-                if let date = stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
-                    _selectedDate = State(initialValue: date)
-                    _isDatePickerPresented = State(initialValue: true)
+        if !isUsedForBulkEdit {
+            if let dateValue = cellModel.wrappedValue.data.date {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? "") {
+                    if let date = stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
+                        _selectedDate = State(initialValue: date)
+                        _isDatePickerPresented = State(initialValue: true)
+                    }
                 }
             }
         }
