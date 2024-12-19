@@ -42,6 +42,10 @@ struct TableDateView: View {
                         .font(.system(size: 15))
                         .lineLimit(1)
                 }
+            } else {
+                Image(systemName: "calendar")
+                    .frame(maxWidth: .infinity)
+                    .padding(.all, 10)
             }
         } else {
             Group {
