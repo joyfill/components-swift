@@ -39,6 +39,7 @@ struct TableDateView: View {
             if let dateValue = cellModel.data.date {
                 if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? "") {
                     Text(dateString)
+                        .padding(.horizontal, 8)
                         .font(.system(size: 15))
                         .lineLimit(1)
                 }
