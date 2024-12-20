@@ -1325,10 +1325,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     // Check moved row data on top
     func checkMovedRowDataOfSecondRow() {
         let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+        XCTAssertEqual("Apple 2", checkMovedRowTextField.value as! String)
 
         let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 0).label)
+        XCTAssertEqual("No", checkSearchDataOnDropdownField.element(boundBy: 0).label)
     }
     
     // Check moved row data at the end
@@ -1549,7 +1549,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnSearchBarTextField()
         
         tapOnMoveUpRowButton()
-        checkMovedRowDataOfSecondRow()
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 0).label)
     }
     
     // Apply Search filter and then move row down in filter rows
