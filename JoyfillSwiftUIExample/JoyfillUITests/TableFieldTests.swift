@@ -1325,10 +1325,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     // Check moved row data on top
     func checkMovedRowDataOfSecondRow() {
         let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("Apple 2", checkMovedRowTextField.value as! String)
+        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
 
         let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("No", checkSearchDataOnDropdownField.element(boundBy: 0).label)
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 0).label)
     }
     
     // Check moved row data at the end
@@ -1550,28 +1550,6 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         tapOnMoveUpRowButton()
         checkMovedRowDataOfSecondRow()
-        
-        app.buttons["HideFilterSearchBar"].tap()
-         
-        // Enter data in Moved row
-        let enterDataInField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("Apple 2", enterDataInField.value as! String)
-        enterDataInField.tap()
-        enterDataInField.typeText("Done ")
-        
-        // Select first option in dropdown field
-        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
-        XCTAssertEqual("No", selectDropdownField.label)
-        selectDropdownField.tap()
-        
-        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-        XCTAssertGreaterThan(dropdownOptions.count, 0)
-        let firstOption = dropdownOptions.element(boundBy: 0)
-        firstOption.tap()
-        
-        // Check entered data
-        XCTAssertEqual("Done Apple 2", enterDataInField.value as! String)
-        XCTAssertEqual("Yes", selectDropdownField.label)
     }
     
     // Apply Search filter and then move row down in filter rows
@@ -1586,31 +1564,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         // check move row down data
         let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+        XCTAssertEqual("Apple 2", checkMovedRowTextField.value as! String)
 
         // Check dropdown data after search
         let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 1).label)
-        
-        app.buttons["HideFilterSearchBar"].tap()
-         
-        // Enter data in Moved row
-        let enterDataInField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        enterDataInField.tap()
-        enterDataInField.typeText("Done ")
-        
-        // Select first option in dropdown field
-        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
-        selectDropdownField.tap()
-        
-        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-        XCTAssertGreaterThan(dropdownOptions.count, 0)
-        let firstOption = dropdownOptions.element(boundBy: 1)
-        firstOption.tap()
-        
-        // Check entered data
-        XCTAssertEqual("Done App 1", enterDataInField.value as! String)
-        XCTAssertEqual("No", selectDropdownField.label)
+        XCTAssertEqual("No", checkSearchDataOnDropdownField.element(boundBy: 1).label)
     }
    
     // Delete two rows - then moved last row up

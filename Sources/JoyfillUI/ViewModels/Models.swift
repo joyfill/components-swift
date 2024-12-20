@@ -215,6 +215,14 @@ struct TableDataModel {
         return !selectedRows.isEmpty && selectedRows.first! == rowOrder.first!
     }
     
+    var shouldDisableMoveUp: Bool {
+        firstRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
+    }
+    
+    var shouldDisableMoveDown: Bool {
+        lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
+    }
+    
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data.title  = value
