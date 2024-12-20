@@ -26,6 +26,7 @@ struct TableViewCellBuilder: View {
                 .disabled(cellModel.editMode == .readonly)
         case "image":
             TableImageView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
         case "block":
             TableTextView(cellModel: $cellModel)
                 .disabled(true)
