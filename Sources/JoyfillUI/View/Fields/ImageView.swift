@@ -90,7 +90,7 @@ struct ImageView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundColor(.gray)
                 )
-                .disabled(showProgressView)
+                .disabled(imageDataModel.mode == .readonly || showProgressView)
             }
             
             NavigationLink(destination:
