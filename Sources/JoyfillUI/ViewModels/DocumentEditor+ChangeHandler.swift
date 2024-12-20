@@ -183,23 +183,31 @@ extension DocumentEditor {
         }
 
         var newRow = ValueElement(id: id)
-
+        
         for filterModel in filterModels {
+            let column = tableDataModel.tableColumns.first(where: { $0.id == filterModel.colID })
             let change = filterModel.filterText
-            if var cells = newRow.cells {
-                cells[filterModel.colID ?? ""] = ValueUnion.string(change)
-                newRow.cells = cells
+            
+            if newRow.cells == nil {
+                newRow.cells = [:]
+            }
+            
+            if column?.type == "number" {
+                if let doubleChange = Double(change) {
+                    newRow.cells![filterModel.colID ?? ""] = ValueUnion.double(doubleChange)
+                } else {
+                    newRow.cells![filterModel.colID ?? ""] = ValueUnion.null
+                }
             } else {
-                newRow.cells = [filterModel.colID ?? "" : ValueUnion.string(change)]
+                newRow.cells![filterModel.colID ?? ""] = ValueUnion.string(change)
             }
         }
         elements.append(newRow)
-
+        
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
-      
         return newRow
     }
 
@@ -248,7 +256,7 @@ extension DocumentEditor {
         case "date":
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId)
         case "number":
-            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.double(cellDataModel.number ?? 0), fieldId: fieldId)
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId)
         default:
             return
         }
