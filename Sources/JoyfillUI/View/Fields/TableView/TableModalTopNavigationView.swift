@@ -320,7 +320,6 @@ struct EditMultipleRowsSheetView: View {
                         TextField("", text: binding)
                             .font(.system(size: 15))
                             .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                            .disabled(viewModel.tableDataModel.mode == .readonly)
                             .padding(.horizontal, 10)
                             .frame(height: 40)
                             .overlay(
@@ -338,7 +337,6 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                            .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                     case "date":
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
@@ -351,7 +349,6 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                            .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                     case "number":
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
@@ -365,8 +362,7 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                            .disabled(cellModel.editMode == .readonly)
-                            .accessibilityIdentifier("EditRowsDateFieldIdentifier")
+                            .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                     default:
                         Text("")
                     }
