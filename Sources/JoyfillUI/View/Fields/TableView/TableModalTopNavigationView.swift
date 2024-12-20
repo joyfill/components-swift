@@ -296,9 +296,7 @@ struct EditMultipleRowsSheetView: View {
                         case "date":
                             self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
                         case "number":
-                            if let number = cellDataModel.number {
-                                self.changes[colIndex] = ValueUnion.double(number)
-                            }
+                            self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
                         default:
                             break
                         }
