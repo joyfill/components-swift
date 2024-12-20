@@ -345,6 +345,13 @@ struct EditMultipleRowsSheetView: View {
                             .padding(.bottom, -8)
                         TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
                             .padding(.vertical, 8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                            .disabled(cellModel.editMode == .readonly)
+                            .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                     case "number":
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
