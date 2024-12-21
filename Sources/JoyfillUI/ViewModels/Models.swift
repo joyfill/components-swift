@@ -32,7 +32,7 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
 }
 
-let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number"]
+let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number", "multiSelect"]
 
 struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
@@ -138,7 +138,9 @@ struct TableDataModel {
                     date: fieldTableColumn.date,
                     format: fieldPositionTableColumns?.first(where: { tableColumn in
                         tableColumn.id == fieldTableColumn.id
-                    })?.format
+                    })?.format,
+                    multiSelectValues: fieldTableColumn.multiSelectValues,
+                    multi: fieldTableColumn.multi
                 )
                 columnIdToColumnMap[fieldTableColumn.id!] = fieldTableColumnLocal
         }
@@ -164,8 +166,11 @@ struct TableDataModel {
                                                 selectedOptionText: selectedOptionText,
                                                 date: columnData.date,
                                                 format: fieldPositionTableColumns?.first(where: { tableColumn in
-                tableColumn.id == columnData.id
-            })?.format)
+                                                        tableColumn.id == columnData.id
+                                                })?.format,
+                                                multiSelectValues: columnData.multiSelectValues,
+                                                multi: columnData.multi
+            )
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
                 cells.append(cell)
             }
@@ -192,6 +197,8 @@ struct TableDataModel {
             cell?.date = valueUnion?.number
         case "number":
             cell?.number = valueUnion?.number
+        case "multiSelect":
+            cell?.multiSelectValues = valueUnion?.stringArray
         default:
             return nil
         }
@@ -258,8 +265,11 @@ struct TableDataModel {
                                  selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
                                  date: column.date,
                                  format: fieldPositionTableColumns?.first(where: { tableColumn in
-                tableColumn.id == column.id
-            })?.format)
+                                        tableColumn.id == column.id
+                                 })?.format,
+                                 multiSelectValues: column.multiSelectValues,
+                                 multi: column.multi
+            )
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
         return cellModels[rowIndex].cells[col].data
@@ -336,6 +346,8 @@ struct CellDataModel: Hashable, Equatable {
     var selectedOptionText: String?
     var date: Double?
     var format: String?
+    var multiSelectValues: [String]?
+    var multi: Bool?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)

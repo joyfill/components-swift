@@ -36,6 +36,9 @@ struct TableViewCellBuilder: View {
         case "number":
             TableNumberView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case "multiSelect":
+            TableMultiSelectView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
         default:
             Text("")
         }
