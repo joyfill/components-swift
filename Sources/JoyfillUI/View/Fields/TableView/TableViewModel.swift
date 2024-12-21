@@ -174,7 +174,7 @@ class TableViewModel: ObservableObject {
             let rowData = tableDataModel.documentEditor!.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
             updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
         } else {
-            if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier, tableDataModel: tableDataModel) {
+            if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier) {
                 updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
             }
         }
