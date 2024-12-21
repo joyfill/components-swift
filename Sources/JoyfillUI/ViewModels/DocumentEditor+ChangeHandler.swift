@@ -147,43 +147,37 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - selectedRows: An array of String identifiers for the rows below which new rows will be inserted.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func insertBelow(selectedRowID: String, fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
+    func insertBelow(selectedRowID: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
         let fieldId = fieldIdentifier.fieldID
+        
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return nil
         }
-        var targetRows = [TargetRowModel]()
-        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+        
+        guard var lastRowOrder = fieldMap[fieldId]?.rowOrder,
+              let selectedRowIndex = lastRowOrder.firstIndex(of: selectedRowID) else {
+            return nil
+        }
         
         let newRowID = generateObjectId()
-        var element = ValueElement(id: newRowID)
-        elements.append(element)
-        let lastRowIndex = lastRowOrder.firstIndex(of: selectedRowID)!
-        lastRowOrder.insert(newRowID, at: lastRowIndex+1)
-        targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+        var newRow = ValueElement(id: newRowID)
+        
+        addDataToNewRow(filterModels, &newRow)
+        
+        elements.append(newRow)
+        let insertIndex = selectedRowIndex + 1
+        lastRowOrder.insert(newRowID, at: insertIndex)
         
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-
+        
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
-        addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-
-        return (element, lastRowIndex+1)
+        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)])
         
+        return (newRow, insertIndex)
     }
-
-    /// Inserts a new row with specified filter conditions in a table field.
-    /// - Parameters:
-    ///   - id: The String identifier for the new row.
-    ///   - filterModels: An array of `FilterModel` objects specifying the filter conditions.
-    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) -> ValueElement? {
-        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            return nil
-        }
-
-        var newRow = ValueElement(id: id)
-        
+    
+    fileprivate func addDataToNewRow(_ filterModels: [FilterModel], _ newRow: inout ValueElement) {
         for filterModel in filterModels {
             let change = filterModel.filterText
             
@@ -201,6 +195,21 @@ extension DocumentEditor {
                 newRow.cells![filterModel.colID ?? ""] = ValueUnion.string(change)
             }
         }
+    }
+    
+    /// Inserts a new row with specified filter conditions in a table field.
+    /// - Parameters:
+    ///   - id: The String identifier for the new row.
+    ///   - filterModels: An array of `FilterModel` objects specifying the filter conditions.
+    ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
+    public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) -> ValueElement? {
+        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+            return nil
+        }
+
+        var newRow = ValueElement(id: id)
+        
+        addDataToNewRow(filterModels, &newRow)
         elements.append(newRow)
         
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)

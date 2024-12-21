@@ -1102,24 +1102,32 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
         tapOnSearchBarTextField()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
         tapOnInsertRowButton()
-        app.buttons["HideFilterSearchBar"].tap()
         
         // Enter Data in textfield
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("app", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("Inserted Row")
+        enterDateInInsertedField.typeText("Inserted Row ")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
-        XCTAssertEqual("Select Option", selectDropdownField.label)
+        XCTAssertEqual("Yes", selectDropdownField.label)
         selectDropdownField.tap()
         
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
+        
+        app.buttons["HideFilterSearchBar"].tap()
+        tapOnTextFieldColumn()
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        XCTAssertEqual("Inserted Row app", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("No", selectDropdownField.label)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
         let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
