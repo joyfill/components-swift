@@ -144,15 +144,18 @@ struct TableMultiSelectSheetView: View {
         }
         .padding(.all, 12)
         .onChange(of: singleSelectedOptionArray) { newValue in
-//            let newSingleSelectedValue = ValueUnion.array(newValue)
-//            let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newSingleSelectedValue)
-//           eventHandler.onChange(event: fieldEvent)
+            onChange(newValue: newValue)
         }
         .onChange(of: multiSelectedOptionArray) { newValue in
-//            let newMultiSelectedValue = ValueUnion.array(newValue)
-//            let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newMultiSelectedValue)
-//            eventHandler.onChange(event: fieldEvent)
+            onChange(newValue: newValue)
         }
+    }
+    
+    func onChange(newValue: [String]) {
+        var cellDataModel = cellModel.data
+        cellDataModel.multiSelectValues = newValue
+        cellModel.didChange?(cellDataModel)
+        cellModel.data = cellDataModel
     }
 }
 
