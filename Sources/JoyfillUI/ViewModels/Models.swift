@@ -83,7 +83,9 @@ struct TableDataModel {
         filterRowsIfNeeded()
 
         self.filterModels = fieldData.tableColumnOrder?.enumerated().map { colIndex, colID in
-            FilterModel(colIndex: colIndex, colID: colID)
+            FilterModel(colIndex: colIndex, colID: colID, type: fieldData.tableColumns?.first(where: { fieldTableColumn in
+                fieldTableColumn.id == colID
+            })?.type ?? "")
         } ?? []
     }
     

@@ -177,7 +177,7 @@ extension DocumentEditor {
     ///   - id: The String identifier for the new row.
     ///   - filterModels: An array of `FilterModel` objects specifying the filter conditions.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier, tableDataModel: TableDataModel) -> ValueElement? {
+    public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) -> ValueElement? {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return nil
         }
@@ -185,14 +185,13 @@ extension DocumentEditor {
         var newRow = ValueElement(id: id)
         
         for filterModel in filterModels {
-            let column = tableDataModel.tableColumns.first(where: { $0.id == filterModel.colID })
             let change = filterModel.filterText
             
             if newRow.cells == nil {
                 newRow.cells = [:]
             }
             
-            if column?.type == "number" {
+            if filterModel.type == "number" {
                 if let doubleChange = Double(change) {
                     newRow.cells![filterModel.colID ?? ""] = ValueUnion.double(doubleChange)
                 } else {
