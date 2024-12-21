@@ -91,21 +91,22 @@ struct TableMultiSelectSheetView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Text(cellModel.data.title)
-                    .fontWeight(.bold)
-                
-                Spacer()
-                
-                Button(action: {
-                    presentationMode.wrappedValue.dismiss()
-                }, label: {
-                    Image(systemName: "xmark.circle")
-                        .imageScale(.large)
-                })
+            if !isUsedForBulkEdit {
+                HStack {
+                    Text(cellModel.data.title)
+                        .fontWeight(.bold)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Image(systemName: "xmark.circle")
+                            .imageScale(.large)
+                    })
+                }
+                .padding(.bottom, 12)
             }
-            .padding(.bottom, 12)
-            
             VStack {
                 if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
@@ -141,7 +142,7 @@ struct TableMultiSelectSheetView: View {
             
             Spacer()
         }
-        .padding(.all, 12)
+        .padding(.all, isUsedForBulkEdit ? 0 : 16)
         .onChange(of: singleSelectedOptionArray) { newValue in
             onChange(newValue: newValue)
         }

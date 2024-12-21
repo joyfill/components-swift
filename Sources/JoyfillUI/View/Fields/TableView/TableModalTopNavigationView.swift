@@ -363,6 +363,11 @@ struct EditMultipleRowsSheetView: View {
                             )
                             .cornerRadius(10)
                             .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
+                    case "multiSelect":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableMultiSelectSheetView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
                     default:
                         Text("")
                     }
