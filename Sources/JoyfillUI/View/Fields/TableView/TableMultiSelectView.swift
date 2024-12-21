@@ -58,7 +58,6 @@ struct TableMultiSelectView: View {
        .background(Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255))
        .cornerRadius(16)
        .padding(.horizontal, 8)
-       .accessibilityIdentifier("TableImageIdentifier")
        .sheet(isPresented: $showMoreImages2) {
            TableMultiSelectSheetView(cellModel: $cellModel)
                .disabled(cellModel.editMode == .readonly)
@@ -186,7 +185,6 @@ struct TableMultiSelection: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         })
-        .accessibilityIdentifier("MultiSelectionIdenitfier")
         .frame(maxWidth: .infinity)
     }
 }
@@ -216,7 +214,6 @@ struct TableRadioView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         })
-        .accessibilityIdentifier("SingleSelectionIdentifier")
         .frame(maxWidth: .infinity)
     }
 }
