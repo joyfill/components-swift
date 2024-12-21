@@ -55,7 +55,7 @@ struct TableMultiSelectView: View {
                    .padding(.trailing, 8)
            }
        })
-       .background(Color(red: 0xDB / 255.0, green: 0xE8 / 255.0, blue: 0xFD / 255.0))
+       .background(Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255))
        .cornerRadius(16)
        .padding(.horizontal, 8)
        .accessibilityIdentifier("TableImageIdentifier")
