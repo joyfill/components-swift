@@ -104,11 +104,8 @@ struct TableDataModel {
                 case "dropdown":
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
                 case "number":
-                    let columnNumberString = String(format: "%.15g", column.number ?? 0)
-                    let filterTextString = model.filterText.hasSuffix(".0")
-                    ? String(model.filterText.dropLast(2))
-                    : model.filterText
-                    return columnNumberString.hasPrefix(filterTextString)
+                    let columnNumberString = String(format: "%g", column.number ?? 0)
+                    return columnNumberString.hasPrefix(model.filterText)
                 default:
                     break
                 }
