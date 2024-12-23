@@ -70,15 +70,15 @@ struct TableDataModel {
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
-        
-        self.tableColumns = (fieldData.tableColumnOrder?.compactMap { columnId in
-            fieldData.tableColumns?.first { $0.id == columnId }
-        } ?? []).filter { column in
-            if let columnType = column.type {
-                return supportedColumnTypes.contains(columnType)
+        self.tableColumns = fieldData.tableColumnOrder?.compactMap { columnId in
+            let column = fieldData.tableColumns?.first { $0.id == columnId }
+            if let columnType = column?.type {
+                if supportedColumnTypes.contains(columnType) {
+                    return column
+                }
             }
-            return false
-        }
+            return nil
+        } ?? []
         setupColumns()
         filterRowsIfNeeded()
 
