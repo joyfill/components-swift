@@ -209,6 +209,8 @@ class TableViewModel: ObservableObject {
                     cellDataModel.date = change.number
                 case "number":
                     cellDataModel.number = change.number
+                case "multiSelect":
+                    cellDataModel.multiSelectValues = change.stringArray
                 default:
                     break
                 }

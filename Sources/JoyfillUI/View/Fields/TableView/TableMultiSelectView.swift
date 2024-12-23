@@ -37,6 +37,7 @@ struct TableMultiSelectView: View {
                                        .foregroundStyle(.black)
                                    
                                    Text(optionValue)
+                                       .lineLimit(1)
                                        .font(.system(size: 15))
                                        .foregroundStyle(.black)
                                }
@@ -59,7 +60,7 @@ struct TableMultiSelectView: View {
        .cornerRadius(16)
        .padding(.horizontal, 8)
        .sheet(isPresented: $showMoreImages2) {
-           TableMultiSelectSheetView(cellModel: $cellModel)
+           TableMultiSelectSheetView(cellModel: $cellModel, isUsedForBulkEdit: isUsedForBulkEdit)
                .disabled(cellModel.editMode == .readonly)
        }
        .onChange(of: showMoreImages) { newValue in
@@ -78,13 +79,15 @@ struct TableMultiSelectSheetView: View {
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
-        if cellModel.wrappedValue.data.multi ?? true {
-            if let values = cellModel.wrappedValue.data.multiSelectValues {
-                _multiSelectedOptionArray = State(initialValue: values)
-            }
-        } else {
-            if let values = cellModel.wrappedValue.data.multiSelectValues {
-                _singleSelectedOptionArray = State(initialValue: values)
+        if !isUsedForBulkEdit {
+            if cellModel.wrappedValue.data.multi ?? true {
+                if let values = cellModel.wrappedValue.data.multiSelectValues {
+                    _multiSelectedOptionArray = State(initialValue: values)
+                }
+            } else {
+                if let values = cellModel.wrappedValue.data.multiSelectValues {
+                    _singleSelectedOptionArray = State(initialValue: values)
+                }
             }
         }
     }
@@ -111,9 +114,11 @@ struct TableMultiSelectSheetView: View {
                 if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
                         let optionValue = options[index].value ?? ""
-                        let isSelected: Bool = cellModel.data.multiSelectValues?.first(where: {
-                            $0 == options[index].id
-                        }) != nil
+                        let isSelected: Bool = {
+                            let selectedArray = (cellModel.data.multi ?? true) ? multiSelectedOptionArray : singleSelectedOptionArray
+                            return selectedArray.contains(options[index].id ?? "") ?? false
+                        }()
+                        
                         if cellModel.data.multi ?? true {
                             TableMultiSelection(option: optionValue,
                                            isSelected: isSelected,

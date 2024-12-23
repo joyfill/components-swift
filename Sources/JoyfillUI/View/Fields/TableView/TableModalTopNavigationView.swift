@@ -298,6 +298,8 @@ struct EditMultipleRowsSheetView: View {
                             self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
                         case "number":
                             self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
+                        case "multiSelect":
+                            self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
                         default:
                             break
                         }
