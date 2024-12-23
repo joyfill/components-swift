@@ -213,6 +213,7 @@ struct TableModalTopNavigationView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6)
                         .stroke(Color.buttonBorderColor, lineWidth: 1))
             }
+            .disabled(viewModel.tableDataModel.mode == .readonly)
             .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
