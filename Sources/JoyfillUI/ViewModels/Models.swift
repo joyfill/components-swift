@@ -42,7 +42,7 @@ struct TableDataModel {
     let title: String?
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
-    var tableColumns: [FieldTableColumn]
+    var tableColumns = [FieldTableColumn]()
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
@@ -70,23 +70,20 @@ struct TableDataModel {
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
-        self.tableColumns = fieldData.tableColumnOrder?.compactMap { columnId in
-            let column = fieldData.tableColumns?.first { $0.id == columnId }
-            if let columnType = column?.type {
+
+        fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
+            let column = fieldData.tableColumns?.first { $0.id == colID }
+            guard let column = column else { return }
+            let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? "")
+            self.filterModels.append(filterModel)
+            if let columnType = column.type {
                 if supportedColumnTypes.contains(columnType) {
-                    return column
+                    tableColumns.append(column)
                 }
             }
-            return nil
-        } ?? []
+        }
         setupColumns()
         filterRowsIfNeeded()
-
-        self.filterModels = fieldData.tableColumnOrder?.enumerated().map { colIndex, colID in
-            FilterModel(colIndex: colIndex, colID: colID, type: fieldData.tableColumns?.first(where: { fieldTableColumn in
-                fieldTableColumn.id == colID
-            })?.type ?? "")
-        } ?? []
     }
     
     mutating func filterRowsIfNeeded() {
