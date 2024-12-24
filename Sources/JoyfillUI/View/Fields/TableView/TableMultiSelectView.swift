@@ -14,16 +14,18 @@ struct TableMultiSelectView: View {
     private var isUsedForBulkEdit = false
     @State var singleSelectedOptionArray: [String] = []
     @State var multiSelectedOptionArray: [String] = []
-    @State var isMulti: Bool = true
+    
+    var isMulti: Bool {
+        cellModel.data.multi ?? true
+    }
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
         _showMoreImages = State(wrappedValue: 6)
-        self.isMulti = cellModel.wrappedValue.data.multi ?? true
         
         if !isUsedForBulkEdit {
-            if self.isMulti {
+            if isMulti {
                 if let values = cellModel.wrappedValue.data.multiSelectValues {
                     _multiSelectedOptionArray = State(initialValue: values)
                 }
@@ -41,7 +43,7 @@ struct TableMultiSelectView: View {
        }, label: {
            HStack {
                VStack(alignment: .leading, spacing: 2) {
-                let selectedValues = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
+                   let selectedValues = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
                       if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                        ForEach(0..<options.count, id: \.self) { index in
                            let optionValue = options[index].value ?? ""
