@@ -8,79 +8,92 @@
 import SwiftUI
 
 struct TableMultiSelectView: View {
-    @State var showMoreImages: Int = 5
-    @State var showMoreImages2: Bool = false
+    @State private var showMoreImages = 5
+    @State private var showMoreImages2 = false
     @Binding var cellModel: TableCellModel
-    private var isUsedForBulkEdit = false
-    @State var singleSelectedOptionArray: [String] = []
-    @State var multiSelectedOptionArray: [String] = []
-    var isSearching: Bool = false
-    
-    var isMulti: Bool {
+    @State private var singleSelectedOptionArray: [String] = []
+    @State private var multiSelectedOptionArray: [String] = []
+
+    private var isUsedForBulkEdit: Bool
+    private var isSearching: Bool
+
+    private var isMulti: Bool {
         cellModel.data.multi ?? true
+    }
+
+    private var selectedValues: [String] {
+        isSearching ? singleSelectedOptionArray : (isMulti ? multiSelectedOptionArray : singleSelectedOptionArray)
+    }
+
+    private var selectedOptionColor: Color {
+        if let firstSelectedOption = cellModel.data.options?.first(where: { selectedValues.contains($0.id ?? "") }),
+           let color = firstSelectedOption.color {
+            return Color(hex: color)
+        }
+        return Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255)
     }
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, isSearching: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
-        _showMoreImages = State(wrappedValue: 6)
         self.isSearching = isSearching
+        
         if !isUsedForBulkEdit {
-            if isMulti {
-                if let values = cellModel.wrappedValue.data.multiSelectValues {
-                    _multiSelectedOptionArray = State(initialValue: values)
-                }
+            let values = cellModel.wrappedValue.data.multiSelectValues ?? []
+            if cellModel.wrappedValue.data.multi ?? true {
+                _multiSelectedOptionArray = State(initialValue: values)
             } else {
-                if let values = cellModel.wrappedValue.data.multiSelectValues {
-                    _singleSelectedOptionArray = State(initialValue: values)
-                }
+                _singleSelectedOptionArray = State(initialValue: values)
             }
         }
     }
-   
+
     var body: some View {
         Button(action: {
             showMoreImages = Int.random(in: 0...100)
-        }, label: {
+        }) {
             HStack {
-                let selectedValues = isSearching ? singleSelectedOptionArray : isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
-                
-                if let firstSelectedOption = cellModel.data.options?.first(where: { selectedValues.contains($0.id ?? "") }) {
-                    let optionValue = firstSelectedOption.value ?? ""
+                if let firstSelectedOption = cellModel.data.options?.first(where: { selectedValues.contains($0.id ?? "") }),
+                   let optionValue = firstSelectedOption.value {
                     Image(systemName: "checkmark")
                         .resizable()
                         .frame(width: 12, height: 12)
                         .foregroundStyle(.black)
-                    
+
                     Text(optionValue)
                         .lineLimit(1)
                         .font(.system(size: 15))
                         .foregroundStyle(.black)
                 }
-                
+
                 Spacer()
-                
+
                 if selectedValues.count > 1 {
                     Text("+\(selectedValues.count - 1)")
                         .font(.system(size: 15))
                         .foregroundStyle(.black)
                 }
-                
+
                 Image(systemName: "chevron.down")
                     .foregroundStyle(.black)
                     .padding(.vertical, 2)
             }
-            
-        })
-        .padding(.all, 8)
-        .background(Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255))
+        }
+        .padding(8)
+        .background(selectedOptionColor)
         .cornerRadius(16)
         .padding(.horizontal, 8)
         .sheet(isPresented: $showMoreImages2) {
-            TableMultiSelectSheetView(cellModel: $cellModel, isUsedForBulkEdit: isUsedForBulkEdit,singleSelectedOptionArray: $singleSelectedOptionArray, multiSelectedOptionArray: $multiSelectedOptionArray, isMulti: isSearching ? false : isMulti)
-                .disabled(cellModel.editMode == .readonly)
+            TableMultiSelectSheetView(
+                cellModel: $cellModel,
+                isUsedForBulkEdit: isUsedForBulkEdit,
+                singleSelectedOptionArray: $singleSelectedOptionArray,
+                multiSelectedOptionArray: $multiSelectedOptionArray,
+                isMulti: isSearching ? false : isMulti
+            )
+            .disabled(cellModel.editMode == .readonly)
         }
-        .onChange(of: showMoreImages) { newValue in
+        .onChange(of: showMoreImages) { _ in
             showMoreImages2 = true
         }
     }
@@ -142,7 +155,7 @@ struct TableMultiSelectSheetView: View {
             }
             .padding(.bottom, 12)
 
-            VStack {
+            VStack(spacing: 0){
                 if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
                         let optionValue = options[index].value ?? ""
@@ -155,14 +168,17 @@ struct TableMultiSelectSheetView: View {
                             TableMultiSelection(option: optionValue,
                                                 isSelected: isSelected,
                                                 multiSelectedOptionArray: $tempMultiSelectedOptionArray,
-                                                selectedItemId: options[index].id ?? "")
+                                                selectedItemId: options[index].id ?? "",
+                                                color: Color(hex: options[index].color ?? ""))
+                            
                             if index < options.count - 1 {
                                 Divider()
                             }
                         } else {
                             TableRadioView(option: optionValue,
                                            singleSelectedOptionArray: $tempSingleSelectedOptionArray,
-                                           selectedItemId: options[index].id ?? "")
+                                           selectedItemId: options[index].id ?? "",
+                                           color: Color(hex: options[index].color ?? ""))
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -170,12 +186,13 @@ struct TableMultiSelectSheetView: View {
                     }
                 }
             }
+            .cornerRadius(10)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    .padding(.vertical, -10)
+//                    .padding(.vertical, -10)
             )
-            .padding(.vertical, 12)
+//            .padding(.vertical, 12)
             
             Spacer()
         }
@@ -209,6 +226,7 @@ struct TableMultiSelection: View {
     @State var isSelected: Bool
     @Binding var multiSelectedOptionArray: [String]
     var selectedItemId: String
+    var color: Color = .primary
 
     var body: some View {
         Button(action: {
@@ -230,6 +248,7 @@ struct TableMultiSelection: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
+            .background(color)
         })
         .frame(maxWidth: .infinity)
     }
@@ -240,6 +259,7 @@ struct TableRadioView: View {
     var option: String
     @Binding var singleSelectedOptionArray: [String]
     var selectedItemId: String
+    var color: Color = .primary
 
     var body: some View {
         Button(action: {
@@ -259,6 +279,7 @@ struct TableRadioView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
+            .background(color)
         })
         .frame(maxWidth: .infinity)
     }

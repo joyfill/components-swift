@@ -122,7 +122,7 @@ struct TableDataModel {
         
         for fieldTableColumn in self.tableColumns {
                 let optionsLocal = fieldTableColumn.options?.map { option in
-                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
                 }
                 
                 let fieldTableColumnLocal = CellDataModel(
@@ -148,7 +148,7 @@ struct TableDataModel {
         var cells: [CellDataModel] = []
         for columnData in tableColumns {
             let optionsLocal = columnData.options?.map { option in
-                OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+                OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
             }
             let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
@@ -259,7 +259,7 @@ struct TableDataModel {
             let column = columnData[col]
             var optionsLocal: [OptionLocal] = []
             for option in column.options ?? []{
-                optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
+                optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color))
             }
             return CellDataModel(id: column.id!,
                                  defaultDropdownSelectedId: column.defaultDropdownSelectedId,
@@ -364,6 +364,7 @@ struct OptionLocal: Identifiable {
     var id: String?
     var deleted: Bool?
     var value: String?
+    var color: String?
 }
 
 struct ChartDataModel {
