@@ -14,16 +14,17 @@ struct TableMultiSelectView: View {
     private var isUsedForBulkEdit = false
     @State var singleSelectedOptionArray: [String] = []
     @State var multiSelectedOptionArray: [String] = []
+    var isSearching: Bool = false
     
     var isMulti: Bool {
         cellModel.data.multi ?? true
     }
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, isSearching: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
         _showMoreImages = State(wrappedValue: 6)
-        
+        self.isSearching = isSearching
         if !isUsedForBulkEdit {
             if isMulti {
                 if let values = cellModel.wrappedValue.data.multiSelectValues {
@@ -37,54 +38,52 @@ struct TableMultiSelectView: View {
         }
     }
    
-   var body: some View {
-       Button(action: {
-           showMoreImages = Int.random(in: 0...100)
-       }, label: {
-           HStack {
-               VStack(alignment: .leading, spacing: 2) {
-                   let selectedValues = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
-                      if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
-                       ForEach(0..<options.count, id: \.self) { index in
-                           let optionValue = options[index].value ?? ""
-                           if selectedValues.contains(options[index].id ?? "") {
-                               HStack {
-                                   Image(systemName: "checkmark")
-                                       .resizable()
-                                       .frame(width: 12, height: 12)
-                                       .foregroundStyle(.black)
-                                   
-                                   Text(optionValue)
-                                       .lineLimit(1)
-                                       .font(.system(size: 15))
-                                       .foregroundStyle(.black)
-                               }
-                           }
-                       }
-                   }
-               }
-               .padding(.leading, 8)
-               .padding(.vertical, 4)
-               
-               Spacer()
-               
-               Image(systemName: "chevron.down")
-                   .foregroundStyle(.black)
-                   .padding(.vertical, 12)
-                   .padding(.trailing, 8)
-           }
-       })
-       .background(Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255))
-       .cornerRadius(16)
-       .padding(.horizontal, 8)
-       .sheet(isPresented: $showMoreImages2) {
-           TableMultiSelectSheetView(cellModel: $cellModel, isUsedForBulkEdit: isUsedForBulkEdit,singleSelectedOptionArray: $singleSelectedOptionArray, multiSelectedOptionArray: $multiSelectedOptionArray, isMulti: isMulti)
-               .disabled(cellModel.editMode == .readonly)
-       }
-       .onChange(of: showMoreImages) { newValue in
-           showMoreImages2 = true
-       }
-   }
+    var body: some View {
+        Button(action: {
+            showMoreImages = Int.random(in: 0...100)
+        }, label: {
+            HStack {
+                let selectedValues = isSearching ? singleSelectedOptionArray : isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
+                
+                if let firstSelectedOption = cellModel.data.options?.first(where: { selectedValues.contains($0.id ?? "") }) {
+                    let optionValue = firstSelectedOption.value ?? ""
+                    Image(systemName: "checkmark")
+                        .resizable()
+                        .frame(width: 12, height: 12)
+                        .foregroundStyle(.black)
+                    
+                    Text(optionValue)
+                        .lineLimit(1)
+                        .font(.system(size: 15))
+                        .foregroundStyle(.black)
+                }
+                
+                Spacer()
+                
+                if selectedValues.count > 1 {
+                    Text("+\(selectedValues.count - 1)")
+                        .font(.system(size: 15))
+                        .foregroundStyle(.black)
+                }
+                
+                Image(systemName: "chevron.down")
+                    .foregroundStyle(.black)
+                    .padding(.vertical, 2)
+            }
+            
+        })
+        .padding(.all, 8)
+        .background(Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255))
+        .cornerRadius(16)
+        .padding(.horizontal, 8)
+        .sheet(isPresented: $showMoreImages2) {
+            TableMultiSelectSheetView(cellModel: $cellModel, isUsedForBulkEdit: isUsedForBulkEdit,singleSelectedOptionArray: $singleSelectedOptionArray, multiSelectedOptionArray: $multiSelectedOptionArray, isMulti: isSearching ? false : isMulti)
+                .disabled(cellModel.editMode == .readonly)
+        }
+        .onChange(of: showMoreImages) { newValue in
+            showMoreImages2 = true
+        }
+    }
 }
 
 struct TableMultiSelectSheetView: View {

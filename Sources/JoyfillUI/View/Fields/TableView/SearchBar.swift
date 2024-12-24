@@ -63,7 +63,7 @@ struct SearchBar: View {
                             .padding(.leading, 8)
                         
                     case "multiSelect":
-                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
                     default:
                         Text("")
                     }
