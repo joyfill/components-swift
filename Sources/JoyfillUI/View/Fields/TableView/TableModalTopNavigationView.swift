@@ -54,7 +54,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.firstRowSelected)
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
                                 
@@ -67,7 +67,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.lastRowSelected)
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
@@ -139,7 +139,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.firstRowSelected)
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
@@ -153,7 +153,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.lastRowSelected)
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")

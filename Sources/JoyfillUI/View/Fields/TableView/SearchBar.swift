@@ -35,7 +35,7 @@ struct SearchBar: View {
                         case "number":
                             var stringNumberValue: String
                             if let number = cellDataModel.number {
-                                stringNumberValue = String(number)
+                                stringNumberValue = String(format: "%g", number)
                             } else {
                                 stringNumberValue = ""
                             }
