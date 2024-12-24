@@ -190,9 +190,7 @@ struct TableMultiSelectSheetView: View {
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
-//                    .padding(.vertical, -10)
             )
-//            .padding(.vertical, 12)
             
             Spacer()
         }
