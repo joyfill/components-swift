@@ -110,6 +110,8 @@ struct TableDataModel {
                     ? String(model.filterText.dropLast(2))
                     : model.filterText
                     return columnNumberString.hasPrefix(filterTextString)
+                case "multiSelect":
+                    column.multiSelectValues?.first == model.filterText
                 default:
                     break
                 }

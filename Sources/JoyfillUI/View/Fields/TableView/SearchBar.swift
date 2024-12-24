@@ -40,6 +40,8 @@ struct SearchBar: View {
                                 stringNumberValue = ""
                             }
                             self.model.filterText = stringNumberValue
+                        case "multiSelect":
+                            self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
                         default:
                             break
                         }
@@ -59,6 +61,9 @@ struct SearchBar: View {
                             .background(.white)
                             .cornerRadius(6)
                             .padding(.leading, 8)
+                        
+                    case "multiSelect":
+                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
                     default:
                         Text("")
                     }

@@ -282,7 +282,7 @@ struct EditMultipleRowsSheetView: View {
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
                     let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
-                    let cellModel = TableCellModel(rowID: row,
+                    var cellModel = TableCellModel(rowID: row,
                                                    data: cell,
                                                    documentEditor: viewModel.tableDataModel.documentEditor,
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
@@ -369,7 +369,13 @@ struct EditMultipleRowsSheetView: View {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
-                        TableMultiSelectSheetView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                        TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
+                            .padding(.vertical, 4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
                     default:
                         Text("")
                     }

@@ -12,11 +12,27 @@ struct TableMultiSelectView: View {
     @State var showMoreImages2: Bool = false
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
+    @State var singleSelectedOptionArray: [String] = []
+    @State var multiSelectedOptionArray: [String] = []
+    @State var isMulti: Bool = true
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
         _showMoreImages = State(wrappedValue: 6)
+        self.isMulti = cellModel.wrappedValue.data.multi ?? true
+        
+        if !isUsedForBulkEdit {
+            if self.isMulti {
+                if let values = cellModel.wrappedValue.data.multiSelectValues {
+                    _multiSelectedOptionArray = State(initialValue: values)
+                }
+            } else {
+                if let values = cellModel.wrappedValue.data.multiSelectValues {
+                    _singleSelectedOptionArray = State(initialValue: values)
+                }
+            }
+        }
     }
    
    var body: some View {
@@ -25,8 +41,8 @@ struct TableMultiSelectView: View {
        }, label: {
            HStack {
                VStack(alignment: .leading, spacing: 2) {
-                   if let selectedValues = cellModel.data.multiSelectValues,
-                      let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
+                let selectedValues = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
+                      if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                        ForEach(0..<options.count, id: \.self) { index in
                            let optionValue = options[index].value ?? ""
                            if selectedValues.contains(options[index].id ?? "") {
@@ -59,67 +75,96 @@ struct TableMultiSelectView: View {
        .background(Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255))
        .cornerRadius(16)
        .padding(.horizontal, 8)
-       .sheet(isPresented: $showMoreImages2) {
-           TableMultiSelectSheetView(cellModel: $cellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+       .sheet(isPresented: $showMoreImages2, onDismiss: {
+           if isMulti {
+               multiSelectedOptionArray = cellModel.data.multiSelectValues ?? []
+           } else {
+               singleSelectedOptionArray = cellModel.data.multiSelectValues ?? []
+           }
+       }) {
+           TableMultiSelectSheetView(cellModel: $cellModel, isUsedForBulkEdit: isUsedForBulkEdit,singleSelectedOptionArray: $singleSelectedOptionArray, multiSelectedOptionArray: $multiSelectedOptionArray, isMulti: isMulti)
                .disabled(cellModel.editMode == .readonly)
        }
        .onChange(of: showMoreImages) { newValue in
            showMoreImages2 = true
        }
    }
+    
+    func onChange(newValue: [String]) {
+        var cellDataModel = cellModel.data
+        cellDataModel.multiSelectValues = newValue
+        cellModel.didChange?(cellDataModel)
+        cellModel.data = cellDataModel
+    }
 }
 
 struct TableMultiSelectSheetView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State var singleSelectedOptionArray: [String] = []
-    @State var multiSelectedOptionArray: [String] = []
+    @Binding var singleSelectedOptionArray: [String]
+    @Binding var multiSelectedOptionArray: [String]
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
+    let isMulti: Bool
+    
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, singleSelectedOptionArray: Binding<[String]>, multiSelectedOptionArray: Binding<[String]>, isMulti: Bool) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
-        if !isUsedForBulkEdit {
-            if cellModel.wrappedValue.data.multi ?? true {
-                if let values = cellModel.wrappedValue.data.multiSelectValues {
-                    _multiSelectedOptionArray = State(initialValue: values)
-                }
-            } else {
-                if let values = cellModel.wrappedValue.data.multiSelectValues {
-                    _singleSelectedOptionArray = State(initialValue: values)
-                }
-            }
-        }
+        _singleSelectedOptionArray = singleSelectedOptionArray
+        _multiSelectedOptionArray = multiSelectedOptionArray
+        self.isMulti = isMulti
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            if !isUsedForBulkEdit {
-                HStack {
-                    Text(cellModel.data.title)
-                        .fontWeight(.bold)
+            HStack {
+                Text(cellModel.data.title)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button(action: {
+                    (cellModel.data.multi ?? true) ? onChange(newValue: multiSelectedOptionArray) : onChange(newValue: singleSelectedOptionArray)
                     
-                    Spacer()
-                    
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Image(systemName: "xmark.circle")
-                            .imageScale(.large)
-                    })
-                }
-                .padding(.bottom, 12)
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    Text("Apply")
+                        .darkLightThemeColor()
+                        .font(.system(size: 14))
+                        .frame(width: 88, height: 27)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                })
+
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            .frame(width: 27, height: 27)
+
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 10, height: 10)
+                            .darkLightThemeColor()
+                    }
+                })
             }
+            .padding(.bottom, 12)
+            
             VStack {
                 if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
                         let optionValue = options[index].value ?? ""
                         let isSelected: Bool = {
-                            let selectedArray = (cellModel.data.multi ?? true) ? multiSelectedOptionArray : singleSelectedOptionArray
+                            let selectedArray = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
                             return selectedArray.contains(options[index].id ?? "") ?? false
                         }()
                         
-                        if cellModel.data.multi ?? true {
+                        if isMulti {
                             TableMultiSelection(option: optionValue,
                                            isSelected: isSelected,
                                            multiSelectedOptionArray: $multiSelectedOptionArray,
@@ -147,13 +192,7 @@ struct TableMultiSelectSheetView: View {
             
             Spacer()
         }
-        .padding(.all, isUsedForBulkEdit ? 0 : 16)
-        .onChange(of: singleSelectedOptionArray) { newValue in
-            onChange(newValue: newValue)
-        }
-        .onChange(of: multiSelectedOptionArray) { newValue in
-            onChange(newValue: newValue)
-        }
+        .padding(.all, 16)
     }
     
     func onChange(newValue: [String]) {
