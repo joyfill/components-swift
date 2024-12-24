@@ -27,6 +27,18 @@ struct TableViewCellBuilder: View {
         case "image":
             TableImageView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case "block":
+            TableTextView(cellModel: $cellModel)
+                .disabled(true)
+        case "date":
+            TableDateView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
+        case "number":
+            TableNumberView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
+        case "multiSelect":
+            TableMultiSelectView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
         default:
             Text("")
         }
