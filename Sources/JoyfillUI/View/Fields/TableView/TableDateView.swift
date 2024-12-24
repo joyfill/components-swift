@@ -15,10 +15,11 @@ struct TableDateView: View {
         
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
+        self.isUsedForBulkEdit = isUsedForBulkEdit
         if !isUsedForBulkEdit {
             if let dateValue = cellModel.wrappedValue.data.date {
                 if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? "") {
-                    if let date = stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
+                    if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
                         _selectedDate = State(initialValue: date)
                         _isDatePickerPresented = State(initialValue: true)
                     }
@@ -45,8 +46,6 @@ struct TableDateView: View {
                 }
             } else {
                 Image(systemName: "calendar")
-                    .frame(maxWidth: .infinity)
-                    .padding(.all, 10)
             }
         } else {
             Group {
@@ -54,10 +53,11 @@ struct TableDateView: View {
                     HStack {
                         Spacer()
                         
-                        DatePicker("", selection: dateBinding, displayedComponents: getDateType(format: $cellModel.wrappedValue.data.format ?? ""))
+                        DatePicker("", selection: dateBinding, displayedComponents: Utility.getDateType(format: $cellModel.wrappedValue.data.format ?? ""))
                             .accessibilityIdentifier("DateIdenitfier")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .labelsHidden()
+                            .scaleEffect(isUsedForBulkEdit ? 0.85 : 1, anchor: .leading)
                         
                         Spacer()
                         
@@ -86,27 +86,6 @@ struct TableDateView: View {
                 cellModel.didChange?(cellDataModel)
                 cellModel.data = cellDataModel
             }
-        }
-    }
-    
-    func stringToDate(_ dateString: String, format: String) -> Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = DateFormatType(rawValue: format)?.dateFormat ?? ""
-        return dateFormatter.date(from: dateString)
-    }
-    
-    func getDateType(format: String) -> DatePickerComponents {
-        switch DateFormatType(rawValue: format) {
-        case .dateOnly:
-            return [.date]
-        case .timeOnly:
-            return [.hourAndMinute]
-        case .dateTime:
-            return [.date, .hourAndMinute]
-        case .none:
-            return [.date, .hourAndMinute]
-        case .some(.empty):
-            return [.date, .hourAndMinute]
         }
     }
 }

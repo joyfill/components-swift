@@ -13,13 +13,9 @@ struct TableRowView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     TableViewCellBuilder(cellModel: $cellModel)
                 }
-                .frame(minWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), maxWidth: getWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), minHeight: 50, maxHeight: .infinity)
+                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), minHeight: 50, maxHeight: .infinity)
             }
         }
-    }
-    
-    func getWidth(type: String, format: String) -> CGFloat {
-        return type == "date" && format == "MM/DD/YYYY hh:mma" ? 270 : 170
     }
 }
 
@@ -79,10 +75,6 @@ struct TableModalView : View {
                 viewModel.tableDataModel.emptySelection()
             }
         }
-    }
-    
-    func getWidth(type: String, format: String) -> CGFloat {
-        return type == "date" && format == "MM/DD/YYYY hh:mma" ? 270 : 170
     }
     
     func clearFilter() {
@@ -223,7 +215,7 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: getWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? "", format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? ""))
+                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? "", format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? ""))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()

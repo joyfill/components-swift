@@ -343,7 +343,7 @@ struct EditMultipleRowsSheetView: View {
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 2)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
