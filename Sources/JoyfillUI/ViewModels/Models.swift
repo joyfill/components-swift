@@ -111,7 +111,7 @@ struct TableDataModel {
                     : model.filterText
                     return columnNumberString.hasPrefix(filterTextString)
                 case "multiSelect":
-                    column.multiSelectValues?.first == model.filterText
+                    return column.multiSelectValues?.contains(model.filterText) ?? false
                 default:
                     break
                 }
