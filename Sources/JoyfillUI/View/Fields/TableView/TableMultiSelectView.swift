@@ -75,13 +75,7 @@ struct TableMultiSelectView: View {
        .background(Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255))
        .cornerRadius(16)
        .padding(.horizontal, 8)
-       .sheet(isPresented: $showMoreImages2, onDismiss: {
-           if isMulti {
-               multiSelectedOptionArray = cellModel.data.multiSelectValues ?? []
-           } else {
-               singleSelectedOptionArray = cellModel.data.multiSelectValues ?? []
-           }
-       }) {
+       .sheet(isPresented: $showMoreImages2) {
            TableMultiSelectSheetView(cellModel: $cellModel, isUsedForBulkEdit: isUsedForBulkEdit,singleSelectedOptionArray: $singleSelectedOptionArray, multiSelectedOptionArray: $multiSelectedOptionArray, isMulti: isMulti)
                .disabled(cellModel.editMode == .readonly)
        }
@@ -89,23 +83,17 @@ struct TableMultiSelectView: View {
            showMoreImages2 = true
        }
    }
-    
-    func onChange(newValue: [String]) {
-        var cellDataModel = cellModel.data
-        cellDataModel.multiSelectValues = newValue
-        cellModel.didChange?(cellDataModel)
-        cellModel.data = cellDataModel
-    }
 }
 
 struct TableMultiSelectSheetView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var singleSelectedOptionArray: [String]
     @Binding var multiSelectedOptionArray: [String]
+    @State private var tempSingleSelectedOptionArray: [String] = []
+    @State private var tempMultiSelectedOptionArray: [String] = []
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
     let isMulti: Bool
-    
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, singleSelectedOptionArray: Binding<[String]>, multiSelectedOptionArray: Binding<[String]>, isMulti: Bool) {
         _cellModel = cellModel
@@ -120,13 +108,11 @@ struct TableMultiSelectSheetView: View {
             HStack {
                 Text(cellModel.data.title)
                     .fontWeight(.bold)
-                
+
                 Spacer()
-                
+
                 Button(action: {
-                    (cellModel.data.multi ?? true) ? onChange(newValue: multiSelectedOptionArray) : onChange(newValue: singleSelectedOptionArray)
-                    
-                    presentationMode.wrappedValue.dismiss()
+                    applyChanges()
                 }, label: {
                     Text("Apply")
                         .darkLightThemeColor()
@@ -154,7 +140,7 @@ struct TableMultiSelectSheetView: View {
                 })
             }
             .padding(.bottom, 12)
-            
+
             VStack {
                 if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
@@ -163,19 +149,19 @@ struct TableMultiSelectSheetView: View {
                             let selectedArray = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
                             return selectedArray.contains(options[index].id ?? "") ?? false
                         }()
-                        
+
                         if isMulti {
                             TableMultiSelection(option: optionValue,
-                                           isSelected: isSelected,
-                                           multiSelectedOptionArray: $multiSelectedOptionArray,
-                                           selectedItemId: options[index].id ?? "")
+                                                isSelected: isSelected,
+                                                multiSelectedOptionArray: $tempMultiSelectedOptionArray,
+                                                selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
                                 Divider()
                             }
                         } else {
                             TableRadioView(option: optionValue,
-                                      singleSelectedOptionArray: $singleSelectedOptionArray,
-                                      selectedItemId: options[index].id ?? "")
+                                           singleSelectedOptionArray: $tempSingleSelectedOptionArray,
+                                           selectedItemId: options[index].id ?? "")
                             if index < options.count - 1 {
                                 Divider()
                             }
@@ -193,6 +179,20 @@ struct TableMultiSelectSheetView: View {
             Spacer()
         }
         .padding(.all, 16)
+        .onAppear {
+            tempSingleSelectedOptionArray = singleSelectedOptionArray
+            tempMultiSelectedOptionArray = multiSelectedOptionArray
+        }
+    }
+    
+    func applyChanges() {
+        if isMulti {
+            multiSelectedOptionArray = tempMultiSelectedOptionArray
+        } else {
+            singleSelectedOptionArray = tempSingleSelectedOptionArray
+        }
+        isMulti ? onChange(newValue: multiSelectedOptionArray) : onChange(newValue: singleSelectedOptionArray)
+        presentationMode.wrappedValue.dismiss()
     }
     
     func onChange(newValue: [String]) {
