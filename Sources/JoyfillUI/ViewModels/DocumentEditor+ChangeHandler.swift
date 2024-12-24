@@ -191,6 +191,8 @@ extension DocumentEditor {
                 } else {
                     newRow.cells![filterModel.colID ?? ""] = ValueUnion.null
                 }
+            } else if filterModel.type == "multiSelect" {
+                newRow.cells![filterModel.colID ?? ""] = ValueUnion.array([change])
             } else {
                 newRow.cells![filterModel.colID ?? ""] = ValueUnion.string(change)
             }
