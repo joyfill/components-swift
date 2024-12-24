@@ -34,6 +34,12 @@ struct RowDataModel: Equatable, Hashable {
 
 let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number"]
 
+extension FieldTableColumn {
+    func getFormat(from tableColumns: [TableColumn]?) -> String? {
+        return tableColumns?.first(where: { $0.id == self.id })?.format
+    }
+}
+
 struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
     let mode: Mode
@@ -132,13 +138,13 @@ struct TableDataModel {
                     title: fieldTableColumn.title,
                     number: fieldTableColumn.number,
                     date: fieldTableColumn.date,
-                    format: fieldPositionTableColumns?.first(where: { tableColumn in
-                        tableColumn.id == fieldTableColumn.id
-                    })?.format
+                    format: fieldTableColumn.getFormat(from: fieldPositionTableColumns)
                 )
                 columnIdToColumnMap[fieldTableColumn.id!] = fieldTableColumnLocal
         }
     }
+    
+    
 
     func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
         var cells: [CellDataModel] = []
@@ -159,9 +165,7 @@ struct TableDataModel {
                                                 number: columnData.number,
                                                 selectedOptionText: selectedOptionText,
                                                 date: columnData.date,
-                                                format: fieldPositionTableColumns?.first(where: { tableColumn in
-                tableColumn.id == columnData.id
-            })?.format)
+                                                format: columnData.getFormat(from: fieldPositionTableColumns))
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
                 cells.append(cell)
             }
@@ -251,9 +255,7 @@ struct TableDataModel {
                                  number: column.number,
                                  selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
                                  date: column.date,
-                                 format: fieldPositionTableColumns?.first(where: { tableColumn in
-                tableColumn.id == column.id
-            })?.format)
+                                 format: column.getFormat(from: fieldPositionTableColumns))
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
         return cellModels[rowIndex].cells[col].data
