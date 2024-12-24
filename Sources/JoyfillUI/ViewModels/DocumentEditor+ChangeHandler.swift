@@ -120,8 +120,20 @@ extension DocumentEditor {
     public func insertRowAtTheEnd(id: String, fieldIdentifier: FieldIdentifier) -> ValueElement {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
-
-        elements.append(ValueElement(id: id))
+        var newRow = ValueElement(id: id)
+        
+        for column in field(fieldID: fieldId)?.tableColumns ?? [] {
+            if column.type == "block" {
+                if var cells = newRow.cells {
+                    cells[column.id!] = ValueUnion.string(column.value ?? "")
+                    newRow.cells = cells
+                } else {
+                    newRow.cells = [column.id! : ValueUnion.string(column.value ?? "")]
+                }
+            }
+        }
+                
+        elements.append(newRow)
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder?.append(id)
 
@@ -165,29 +177,36 @@ extension DocumentEditor {
     ///   - id: The String identifier for the new row.
     ///   - filterModels: An array of `FilterModel` objects specifying the filter conditions.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier, tableDataModel: TableDataModel) -> ValueElement? {
+    public func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier) -> ValueElement? {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return nil
         }
 
         var newRow = ValueElement(id: id)
-
+        
         for filterModel in filterModels {
             let change = filterModel.filterText
-            if var cells = newRow.cells {
-                cells[filterModel.colID ?? ""] = ValueUnion.string(change)
-                newRow.cells = cells
+            
+            if newRow.cells == nil {
+                newRow.cells = [:]
+            }
+            
+            if filterModel.type == "number" {
+                if let doubleChange = Double(change) {
+                    newRow.cells![filterModel.colID ?? ""] = ValueUnion.double(doubleChange)
+                } else {
+                    newRow.cells![filterModel.colID ?? ""] = ValueUnion.null
+                }
             } else {
-                newRow.cells = [filterModel.colID ?? "" : ValueUnion.string(change)]
+                newRow.cells![filterModel.colID ?? ""] = ValueUnion.string(change)
             }
         }
         elements.append(newRow)
-
+        
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
-      
         return newRow
     }
 
@@ -196,7 +215,7 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func bulkEdit(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return
         }
@@ -205,10 +224,10 @@ extension DocumentEditor {
                 if let change = changes[cellDataModelId] {
                     guard let index = elements.firstIndex(where: { $0.id == rowId }) else { return }
                     if var cells = elements[index].cells {
-                        cells[cellDataModelId ?? ""] = ValueUnion.string(change)
+                        cells[cellDataModelId ?? ""] = change
                         elements[index].cells = cells
                     } else {
-                        elements[index].cells = [cellDataModelId ?? "" : ValueUnion.string(change)]
+                        elements[index].cells = [cellDataModelId ?? "" : change]
                     }
                 }
             }
@@ -233,6 +252,10 @@ extension DocumentEditor {
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
         case "image":
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
+        case "date":
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId)
+        case "number":
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId)
         default:
             return
         }
@@ -392,14 +415,20 @@ extension DocumentEditor {
         return valueDict
     }
 
-    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion, fieldId: String) {
+    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion?, fieldId: String) {
         var elements = elements
+        
         if var cells = elements[index].cells {
-            cells[cellDataModelId] = newCell
+            if let newCell = newCell {
+                cells[cellDataModelId] = newCell
+            } else {
+                cells.removeValue(forKey: cellDataModelId)
+            }
             elements[index].cells = cells
-        } else {
-            elements[index].cells = [cellDataModelId ?? "" : newCell]
+        } else if let newCell = newCell {
+            elements[index].cells = [cellDataModelId: newCell]
         }
+        
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }
 }

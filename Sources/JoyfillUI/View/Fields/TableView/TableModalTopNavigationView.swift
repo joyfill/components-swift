@@ -226,7 +226,7 @@ struct TableModalTopNavigationView: View {
 struct EditMultipleRowsSheetView: View {
     let viewModel: TableViewModel
     @Environment(\.presentationMode)  var presentationMode
-    @State var changes = [Int: String]()
+    @State var changes = [Int: ValueUnion]()
 
     init(viewModel: TableViewModel) {
         self.viewModel =  viewModel
@@ -279,7 +279,7 @@ struct EditMultipleRowsSheetView: View {
                     })
                 }
 
-                ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
+                ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
                     let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
                     let cellModel = TableCellModel(rowID: row,
@@ -291,9 +291,13 @@ struct EditMultipleRowsSheetView: View {
                     { cellDataModel in
                         switch cell.type {
                         case "text":
-                            self.changes[colIndex] = cellDataModel.title
+                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
                         case "dropdown":
-                            self.changes[colIndex] = cellDataModel.defaultDropdownSelectedId
+                            self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
+                        case "date":
+                            self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
+                        case "number":
+                            self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
                         default:
                             break
                         }
@@ -301,7 +305,7 @@ struct EditMultipleRowsSheetView: View {
                     switch cellModel.data.type {
                     case "text":
                         var str = ""
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         let binding = Binding<String>(
@@ -310,13 +314,12 @@ struct EditMultipleRowsSheetView: View {
                             },
                             set: { newValue in
                                 str = newValue
-                                self.changes[colIndex] = newValue
+                                self.changes[colIndex] = ValueUnion.string(newValue) 
                             }
                         )
                         TextField("", text: binding)
                             .font(.system(size: 15))
                             .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                            .disabled(viewModel.tableDataModel.mode == .readonly)
                             .padding(.horizontal, 10)
                             .frame(height: 40)
                             .overlay(
@@ -325,7 +328,7 @@ struct EditMultipleRowsSheetView: View {
                             )
                             .cornerRadius(10)
                     case "dropdown":
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -334,8 +337,32 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                            .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                    case "date":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            .padding(.vertical, 2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                            .accessibilityIdentifier("EditRowsDateFieldIdentifier")
+                    case "number":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            .keyboardType(.decimalPad)
+                            .frame(minHeight: 40)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                            .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                     default:
                         Text("")
                     }
