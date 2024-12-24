@@ -172,9 +172,7 @@ struct TableDataModel {
     private func buildCell(data: CellDataModel?, row: ValueElement, column: String) -> CellDataModel? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
-        let format = fieldPositionTableColumns?.first(where: { tableColumn in
-            tableColumn.id == column
-        })?.format
+        
         switch data?.type {
         case "text":
             cell?.title = valueUnion?.text ?? ""
