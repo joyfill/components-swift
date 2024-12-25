@@ -1,0 +1,178 @@
+{
+  "_id": "67692ecc196161f0435f69b4",
+  "type": "document",
+  "stage": "published",
+  "source": "template_67691d2fb8720f8a4a5db62a",
+  "metadata": {},
+  "identifier": "doc_67692ecc196161f0435f69b4",
+  "name": "Test Case Of New Table",
+  "createdOn": 1734946508793,
+  "files": [
+    {
+      "_id": "67691d2f268e121323b45666",
+      "metadata": {},
+      "name": "Test Case Of New Table",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "field": "67691d3a34a88f0aa9850968",
+              "displayType": "original",
+              "width": 8,
+              "height": 15,
+              "x": 0,
+              "y": 0,
+              "_id": "67691d3d5233df47cb4c9585",
+              "type": "table",
+              "tableColumns": [
+                {
+                  "_id": "676919715e36fed325f2f048",
+                  "format": "MM/DD/YYYY hh:mma",
+                  "hidden": false
+                },
+                {
+                  "_id": "67692e13fa282a51845f4f14",
+                  "format": "",
+                  "hidden": false
+                },
+                {
+                  "_id": "67691971e689df0b1208de63",
+                  "format": "",
+                  "hidden": false
+                }
+              ]
+            }
+          ],
+          "metadata": {},
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "67691d2fc10197848332d113"
+        }
+      ],
+      "pageOrder": [
+        "67691d2fc10197848332d113"
+      ],
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "type": "table",
+      "_id": "67691d3a34a88f0aa9850968",
+      "identifier": "field_67691d3d9a1abacc10fb80bd",
+      "title": "Table",
+      "description": "",
+      "value": [
+        {
+          "_id": "67691971a4c41137665f362a",
+          "deleted": false,
+          "cells": {
+            "67691971e689df0b1208de63": 2,
+            "67692e13fa282a51845f4f14": "First row",
+            "676919715e36fed325f2f048": 1712255400000
+          }
+        },
+        {
+          "_id": "67691971e3f0e90c473f6db1",
+          "deleted": false,
+          "cells": {
+            "67691971e689df0b1208de63": 22,
+            "67692e13fa282a51845f4f14": "Second row",
+            "676919715e36fed325f2f048": 1713984174769
+          }
+        },
+        {
+          "_id": "676919712bdb40e9d61b59a6",
+          "deleted": false,
+          "cells": {
+            "67691971e689df0b1208de63": 200,
+            "67692e13fa282a51845f4f14": "112",
+            "676919715e36fed325f2f048": 1712385780000
+          }
+        },
+        {
+          "_id": "67692d899b1de7220aebc897",
+          "deleted": false,
+          "cells": {
+            "676919715e36fed325f2f048": "Date",
+            "6769197102fe4635130814eb": "",
+            "67691971e689df0b1208de63": 2.111
+          }
+        },
+        {
+          "_id": "67692d8a3fddfae28c005d61",
+          "deleted": false,
+          "cells": {
+            "6769197102fe4635130814eb": "",
+            "67691971e689df0b1208de63": 102,
+            "67692e13fa282a51845f4f14": "Block Field"
+          }
+        },
+        {
+          "_id": "67692df9dd6fb28904da322a",
+          "deleted": false,
+          "cells": {
+            "6769197102fe4635130814eb": "",
+            "67691971e689df0b1208de63": 32
+          }
+        }
+      ],
+      "required": false,
+      "tipTitle": "",
+      "tipDescription": "",
+      "tipVisible": false,
+      "metadata": {},
+      "rowOrder": [
+        "67691971a4c41137665f362a",
+        "67691971e3f0e90c473f6db1",
+        "676919712bdb40e9d61b59a6",
+        "67692d899b1de7220aebc897",
+        "67692d8a3fddfae28c005d61",
+        "67692df9dd6fb28904da322a"
+      ],
+      "tableColumns": [
+        {
+          "_id": "676919715e36fed325f2f048",
+          "type": "date",
+          "title": "Date Column",
+          "width": 0,
+          "identifier": "field_column_67691d3d5d0431eac83b8690"
+        },
+        {
+          "_id": "67691971e689df0b1208de63",
+          "type": "number",
+          "title": "Number Column",
+          "width": 0,
+          "identifier": "field_column_67691d3db03b73e47a0a8e0f"
+        },
+        {
+          "_id": "67692e13fa282a51845f4f14",
+          "type": "block",
+          "title": "Block Column",
+          "width": 0,
+          "identifier": ""
+        }
+      ],
+      "tableColumnOrder": [
+        "676919715e36fed325f2f048",
+        "67692e13fa282a51845f4f14",
+        "67691971e689df0b1208de63"
+      ],
+      "file": "67691d2f268e121323b45666"
+    }
+  ],
+  "deleted": false
+}

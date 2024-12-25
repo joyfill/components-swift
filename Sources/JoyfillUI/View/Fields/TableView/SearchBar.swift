@@ -52,6 +52,7 @@ struct SearchBar: View {
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
                     case "number":
                         TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, number: model.filterText)
+                            .accessibilityIdentifier("SearchBarNumberIdentifier")
                             .font(.system(size: 12))
                             .foregroundColor(.black)
                             .padding(.vertical, 4)
