@@ -12,8 +12,8 @@ class Utility {
     
     static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 1_000_000_000
     
-    static func getCellWidth(type: String, format: String) -> CGFloat {
-        return (type == "date") && (format == "MM/DD/YYYY hh:mma" || format == "") ? 270 : 170
+    static func getCellWidth(type: ColumnTypes, format: String) -> CGFloat {
+        return (type == .date) && (format == "MM/DD/YYYY hh:mma" || format == "") ? 270 : 170
     }
 
     static func getDateType(format: String) -> DatePickerComponents {

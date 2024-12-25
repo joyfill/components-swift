@@ -200,16 +200,16 @@ class TableViewModel: ObservableObject {
                 guard let change = changes[colIndex] else { return }
                 
                 switch cellDataModel.type {
-                case "dropdown":
+                case .dropdown:
                     cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change.text }.first?.value ?? ""
                     cellDataModel.defaultDropdownSelectedId = change.text
-                case "text":
+                case .text:
                     cellDataModel.title = change.text ?? ""
-                case "date":
+                case .date:
                     cellDataModel.date = change.number
-                case "number":
+                case .number:
                     cellDataModel.number = change.number
-                case "multiSelect":
+                case .multiSelect:
                     cellDataModel.multiSelectValues = change.stringArray
                 default:
                     break

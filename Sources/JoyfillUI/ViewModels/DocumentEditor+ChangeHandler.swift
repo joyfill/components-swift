@@ -123,7 +123,7 @@ extension DocumentEditor {
         var newRow = ValueElement(id: id)
         
         for column in field(fieldID: fieldId)?.tableColumns ?? [] {
-            if column.type == "block" {
+            if column.type == .block {
                 if var cells = newRow.cells {
                     cells[column.id!] = ValueUnion.string(column.value ?? "")
                     newRow.cells = cells
@@ -185,13 +185,13 @@ extension DocumentEditor {
                 newRow.cells = [:]
             }
             
-            if filterModel.type == "number" {
+            if filterModel.type == .number {
                 if let doubleChange = Double(change) {
                     newRow.cells![filterModel.colID ?? ""] = ValueUnion.double(doubleChange)
                 } else {
                     newRow.cells![filterModel.colID ?? ""] = ValueUnion.null
                 }
-            } else if filterModel.type == "multiSelect" {
+            } else if filterModel.type == .multiSelect {
                 newRow.cells![filterModel.colID ?? ""] = ValueUnion.array([change])
             } else {
                 newRow.cells![filterModel.colID ?? ""] = ValueUnion.string(change)
@@ -257,17 +257,17 @@ extension DocumentEditor {
         }
 
         switch cellDataModel.type {
-        case "text":
+        case .text:
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
-        case "dropdown":
+        case .dropdown:
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
-        case "image":
+        case .image:
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
-        case "date":
+        case .date:
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId)
-        case "number":
+        case .number:
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId)
-        case "multiSelect":
+        case .multiSelect:
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
         default:
             return

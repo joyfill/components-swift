@@ -793,19 +793,19 @@ extension JoyDoc {
         ]
         var column1 = FieldTableColumn()
         column1.id = "6628f2e11a2b28119985cfbb"
-        column1.type = "text"
+        column1.type = .text
         column1.title = "Text Column"
         column1.width = 0
         column1.identifier = "field_column_6629fbc70c9e53f683a18007"
         var column2 = FieldTableColumn()
         column2.id = "6628f2e123ca77fa82a2c45e"
-        column2.type = "dropdown"
+        column2.type = .dropdown
         column2.title = "Dropdown Column"
         column2.width = 0
         column2.identifier = "field_column_6629fbc7e2493a155a32c509"
         var column3 = FieldTableColumn()
         column3.id = "663dcdcfcd08ad955955fd95"
-        column3.type = "image"
+        column3.type = .image
         column3.title = "Image Column"
         column3.width = 0
         column3.identifier = ""

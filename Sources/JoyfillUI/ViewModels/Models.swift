@@ -32,7 +32,7 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
 }
 
-let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number", "multiSelect"]
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect]
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> String? {
@@ -80,7 +80,7 @@ struct TableDataModel {
         fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
             let column = fieldData.tableColumns?.first { $0.id == colID }
             guard let column = column else { return }
-            let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? "")
+            let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
             self.filterModels.append(filterModel)
             if let columnType = column.type {
                 if supportedColumnTypes.contains(columnType) {
@@ -105,14 +105,14 @@ struct TableDataModel {
              let filtred = filteredcellModels.filter { rowArr in
                  let column = rowArr.cells[model.colIndex].data
                 switch column.type {
-                case "text":
+                case .text:
                     return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                case "dropdown":
+                case .dropdown:
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
-                case "number":
+                case .number:
                     let columnNumberString = String(format: "%g", column.number ?? 0)
                     return columnNumberString.hasPrefix(model.filterText)
-                case "multiSelect":
+                case .multiSelect:
                     return column.multiSelectValues?.contains(model.filterText) ?? false
                 default:
                     break
@@ -183,19 +183,19 @@ struct TableDataModel {
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         
         switch data?.type {
-        case "text":
+        case .text:
             cell?.title = valueUnion?.text ?? ""
-        case "dropdown":
+        case .dropdown:
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
-        case "image":
+        case .image:
             cell?.valueElements = valueUnion?.valueElements ?? []
-        case "block":
+        case .block:
             cell?.title = valueUnion?.text ?? ""
-        case "date":
+        case .date:
             cell?.date = valueUnion?.number
-        case "number":
+        case .number:
             cell?.number = valueUnion?.number
-        case "multiSelect":
+        case .multiSelect:
             cell?.multiSelectValues = valueUnion?.stringArray
         default:
             return nil
@@ -288,7 +288,7 @@ struct TableDataModel {
         return columnIdToColumnMap[tableColumns[index].id!]?.title ?? ""
     }
     
-    func getColumnType(columnId: String) -> String? {
+    func getColumnType(columnId: String) -> ColumnTypes? {
         return columnIdToColumnMap[columnId]?.type
     }
     
@@ -343,7 +343,7 @@ struct CellDataModel: Hashable, Equatable {
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
     var valueElements: [ValueElement]
-    let type: String?
+    let type: ColumnTypes?
     var title: String
     var number: Double?
     var selectedOptionText: String?
