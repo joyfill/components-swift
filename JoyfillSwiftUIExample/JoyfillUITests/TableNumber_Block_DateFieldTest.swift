@@ -325,6 +325,30 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual(20012, thirdCellTextValue)
         XCTAssertEqual(102.34, fifthCellTextValue)
     }
+    
+    // Block field test case
+    func testTableTextFields() throws {
+        goToTableDetailPage()
+        sleep(1)
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("First row", firstTableTextField.value as! String)
+        
+        let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Second row", secondTableTextField.value as! String)
+        
+        let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("112", thirdTableTextField.value as! String)
+        
+        let fourthTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", fourthTableTextField.value as! String)
+        
+        let fifthTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("Block Field", fifthTableTextField.value as! String)
+        
+        let sixthTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
+        XCTAssertEqual("", sixthTableTextField.value as! String)
+        sleep(1)
+    }
 }
 
 
