@@ -55,11 +55,6 @@ struct TableMultiSelectView: View {
             HStack {
                 if let firstSelectedOption = cellModel.data.options?.first(where: { selectedValues.contains($0.id ?? "") }),
                    let optionValue = firstSelectedOption.value {
-                    Image(systemName: "checkmark")
-                        .resizable()
-                        .frame(width: 12, height: 12)
-                        .foregroundStyle(.black)
-
                     Text(optionValue)
                         .lineLimit(1)
                         .font(.system(size: 15))
