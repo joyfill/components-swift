@@ -34,6 +34,12 @@ struct RowDataModel: Equatable, Hashable {
 
 let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number", "multiSelect"]
 
+extension FieldTableColumn {
+    func getFormat(from tableColumns: [TableColumn]?) -> String? {
+        return tableColumns?.first(where: { $0.id == self.id })?.format
+    }
+}
+
 struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
     let mode: Mode
@@ -134,15 +140,14 @@ struct TableDataModel {
                     title: fieldTableColumn.title,
                     number: fieldTableColumn.number,
                     date: fieldTableColumn.date,
-                    format: fieldPositionTableColumns?.first(where: { tableColumn in
-                        tableColumn.id == fieldTableColumn.id
-                    })?.format,
+                    format: fieldTableColumn.getFormat(from: fieldPositionTableColumns),
                     multiSelectValues: fieldTableColumn.multiSelectValues,
-                    multi: fieldTableColumn.multi
-                )
+                    multi: fieldTableColumn.multi)
                 columnIdToColumnMap[fieldTableColumn.id!] = fieldTableColumnLocal
         }
     }
+    
+    
 
     func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
         var cells: [CellDataModel] = []
@@ -163,12 +168,9 @@ struct TableDataModel {
                                                 number: columnData.number,
                                                 selectedOptionText: selectedOptionText,
                                                 date: columnData.date,
-                                                format: fieldPositionTableColumns?.first(where: { tableColumn in
-                                                        tableColumn.id == columnData.id
-                                                })?.format,
+                                                format: columnData.getFormat(from: fieldPositionTableColumns),
                                                 multiSelectValues: columnData.multiSelectValues,
-                                                multi: columnData.multi
-            )
+                                                multi: columnData.multi)
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
                 cells.append(cell)
             }
@@ -179,9 +181,7 @@ struct TableDataModel {
     private func buildCell(data: CellDataModel?, row: ValueElement, column: String) -> CellDataModel? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
-        let format = fieldPositionTableColumns?.first(where: { tableColumn in
-            tableColumn.id == column
-        })?.format
+        
         switch data?.type {
         case "text":
             cell?.title = valueUnion?.text ?? ""
@@ -270,12 +270,9 @@ struct TableDataModel {
                                  number: column.number,
                                  selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
                                  date: column.date,
-                                 format: fieldPositionTableColumns?.first(where: { tableColumn in
-                                        tableColumn.id == column.id
-                                 })?.format,
+                                 format: column.getFormat(from: fieldPositionTableColumns),
                                  multiSelectValues: column.multiSelectValues,
-                                 multi: column.multi
-            )
+                                 multi: column.multi)
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
         return cellModels[rowIndex].cells[col].data
