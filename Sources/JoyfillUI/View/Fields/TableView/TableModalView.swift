@@ -13,7 +13,7 @@ struct TableRowView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     TableViewCellBuilder(cellModel: $cellModel)
                 }
-                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? ""), maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? ""), minHeight: 50, maxHeight: .infinity)
+                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? .empty), maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? .empty), minHeight: 50, maxHeight: .infinity)
             }
         }
     }
@@ -215,7 +215,7 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown, format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? ""))
+                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown, format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()

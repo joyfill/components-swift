@@ -35,7 +35,7 @@ struct RowDataModel: Equatable, Hashable {
 let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect]
 
 extension FieldTableColumn {
-    func getFormat(from tableColumns: [TableColumn]?) -> String? {
+    func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
         return tableColumns?.first(where: { $0.id == self.id })?.format
     }
 }
@@ -292,7 +292,7 @@ struct TableDataModel {
         return columnIdToColumnMap[columnId]?.type
     }
     
-    func getColumnFormat(columnId: String) -> String? {
+    func getColumnFormat(columnId: String) -> DateFormatType? {
         return columnIdToColumnMap[columnId]?.format
     }
     
@@ -348,7 +348,7 @@ struct CellDataModel: Hashable, Equatable {
     var number: Double?
     var selectedOptionText: String?
     var date: Double?
-    var format: String?
+    var format: DateFormatType?
     var multiSelectValues: [String]?
     var multi: Bool?
 
@@ -381,7 +381,7 @@ struct ChartDataModel {
 struct DateTimeDataModel {
     var fieldIdentifier: FieldIdentifier
     var value: ValueUnion?
-    var format: String?
+    var format: DateFormatType?
     var fieldHeaderModel: FieldHeaderModel?
 }
 

@@ -1199,7 +1199,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = "MM/DD/YYYY"
+        fieldPosition.format = .dateOnly
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1215,7 +1215,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = "MM/DD/YYYY"
+        fieldPosition.format = .dateOnly
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1231,7 +1231,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = "hh:mma"
+        fieldPosition.format = .timeOnly
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1247,7 +1247,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = "hh:mma"
+        fieldPosition.format = .timeOnly
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1263,7 +1263,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = "MM/DD/YYYY hh:mma"
+        fieldPosition.format = .dateTime
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self
@@ -1279,7 +1279,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = "MM/DD/YYYY hh:mma"
+        fieldPosition.format = .dateTime
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self

@@ -11,8 +11,8 @@ struct DateTimeView: View {
         self.dateTimeDataModel = dateTimeDataModel
         self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
-            let dateString = value.dateTime(format: dateTimeDataModel.format ?? "") ?? ""
-            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? "") {
+            let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty) ?? ""
+            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }
@@ -23,7 +23,7 @@ struct DateTimeView: View {
         FieldHeaderView(dateTimeDataModel.fieldHeaderModel)
         Group {
             if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: dateTimeDataModel.format ?? ""))
+                DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: dateTimeDataModel.format ?? .empty))
                     .accessibilityIdentifier("DateIdenitfier")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
