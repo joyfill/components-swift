@@ -54,7 +54,7 @@ struct TableDateView: View {
                         Spacer()
                         
                         DatePicker("", selection: dateBinding, displayedComponents: Utility.getDateType(format: $cellModel.wrappedValue.data.format ?? ""))
-                            .accessibilityIdentifier("DateIdenitfier")
+                            .accessibilityIdentifier("TableDateIdentifier")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .labelsHidden()
                             .scaleEffect(isUsedForBulkEdit ? 0.85 : 1, anchor: .leading)
@@ -67,11 +67,13 @@ struct TableDateView: View {
                         } label: {
                             Image(systemName: "xmark.circle")
                         }
+                        .accessibilityIdentifier("SetDateToNilIdentifier")
                         
                         Spacer()
                     }
                 } else {
                     Image(systemName: "calendar")
+                        .accessibilityIdentifier("CalendarImageIdentifier")
                         .frame(maxWidth: .infinity)
                         .padding(.all, 10)
                         .onTapGesture {

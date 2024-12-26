@@ -349,6 +349,103 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual("", sixthTableTextField.value as! String)
         sleep(1)
     }
+    
+    // Date field test case
+    
+    // Change selected date
+    func testChangeSelectedDate() throws {
+        goToTableDetailPage()
+        let firstDatePicker = app.datePickers.element(boundBy: 0)
+        firstDatePicker.tap()
+        
+        let nextButton = app.buttons["Next"]
+        while !app.staticTexts["April 2024"].exists {
+            nextButton.tap()
+        }
+        
+       // Remember - ["Sunday 7 April"] - here set the date of current month
+        let specificDayButton = app.buttons["Sunday 7 April"] // The full label of the button
+        XCTAssertTrue(specificDayButton.exists, "The date 'Sunday 7 April' should be visible in the calendar.")
+            specificDayButton.tap()
+        XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        
+        goBack()
+        sleep(1)
+        let checkSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertEqual(1712428200000.0, checkSelectedDateValue)
+    }
+    
+    // Set nil to selected date
+    func testSetDateToNil() throws {
+        goToTableDetailPage()
+        
+        let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
+        let tapOnButton = setDateToNilIdentifierButton.element(boundBy: 0)
+        tapOnButton.tap()
+        sleep(1)
+        app.scrollViews.otherElements.containing(.image, identifier:"CalendarImageIdentifier").children(matching: .image).matching(identifier: "CalendarImageIdentifier").element(boundBy: 0).tap()
+        
+        let firstDatePicker = app.datePickers.element(boundBy: 0)
+        firstDatePicker.tap()
+        
+       // Remember - ["Sunday 7 April"] - here set the date of current month
+        let specificDayButton = app.buttons["Sunday 29 December"] // The full label of the button
+        XCTAssertTrue(specificDayButton.exists, "The date 'Sunday 29 December' should be visible in the calendar.")
+        specificDayButton.tap()
+        XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        
+        goBack()
+        sleep(1)
+        
+        let checkSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(checkSelectedDateValue)
+    }
+
+    // Bulk single edit test case
+    func testBulkEditDateFieldSingleRow() throws {
+        goToTableDetailPage()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        sleep(1)
+        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        sleep(1)
+        goBack()
+        sleep(1)
+        let checkSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[3].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(checkSelectedDateValue)
+    }
+    
+    // Bulk edit all rows
+    func testBulkEditDateFieldAllRow() throws {
+        goToTableDetailPage()
+        
+        tapOnMoreButton()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        sleep(1)
+        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
+                                
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        sleep(1)
+        goBack()
+        sleep(1)
+        
+        let firstSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(firstSelectedDateValue)
+        let secondSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(secondSelectedDateValue)
+        let thirdSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(thirdSelectedDateValue)
+        let fourthSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[3].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(fourthSelectedDateValue)
+        let fifthSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[4].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(fifthSelectedDateValue)
+        let sixthSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[5].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(sixthSelectedDateValue)
+        
+    }
 }
 
 
