@@ -118,7 +118,8 @@ class TableViewModel: ObservableObject {
 
     func insertBelow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        let cellValues = getCellValues()
+        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
         tableDataModel.emptySelection()
@@ -170,14 +171,46 @@ class TableViewModel: ObservableObject {
 
     func addRow() {
         let id = generateObjectId()
-        if tableDataModel.filterModels.noFilterApplied {
-            let rowData = tableDataModel.documentEditor!.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
+        let cellValues = getCellValues()
+
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) {
             updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
-        } else {
-            if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier) {
-                updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
+        }
+    }
+    
+    func getCellValues() -> [String: ValueUnion] {
+        var cellValues: [String: ValueUnion] = [:]
+        
+        for filterModel in tableDataModel.filterModels {
+            let change = filterModel.filterText
+            let columnId = filterModel.colID ?? ""
+            
+            if change.isEmpty {
+                // No filter Applied, Extract default value if present
+                if let defaultValue = tableDataModel.tableColumns.first(where: { $0.id == columnId })?.value {
+                    cellValues[columnId] = defaultValue
+                }
+            } else {
+                // Filter Applied based on column type
+                switch filterModel.type {
+                case .text:
+                    cellValues[columnId] = ValueUnion.string(change)
+                case .dropdown:
+                    cellValues[columnId] = ValueUnion.string(change)
+                case .number:
+                    if let doubleChange = Double(change) {
+                        cellValues[columnId] = ValueUnion.double(doubleChange)
+                    } else {
+                        cellValues[columnId] = ValueUnion.null
+                    }
+                case .multiSelect:
+                    cellValues[columnId] = ValueUnion.array([change])
+                default:
+                    break
+                }
             }
         }
+        return cellValues
     }
 
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
