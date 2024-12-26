@@ -350,7 +350,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         sleep(1)
     }
     
-    // Date field test case
+    // Date and time format field test case
     
     // Change selected date
     func testChangeSelectedDate() throws {
@@ -375,8 +375,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual(1712428200000.0, checkSelectedDateValue)
     }
     
-    // Set nil to selected date
-    func testSetDateToNil() throws {
+    // Set nil to existing date & select another date
+    func testSetNilToExitingDate() throws {
         goToTableDetailPage()
         
         let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
@@ -420,6 +420,106 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     
     // Bulk edit all rows
     func testBulkEditDateFieldAllRow() throws {
+        goToTableDetailPage()
+        
+        tapOnMoreButton()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        sleep(1)
+        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
+                                
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        sleep(1)
+        goBack()
+        sleep(1)
+        
+        let firstSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(firstSelectedDateValue)
+        let secondSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(secondSelectedDateValue)
+        let thirdSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(thirdSelectedDateValue)
+        let fourthSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[3].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(fourthSelectedDateValue)
+        let fifthSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[4].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(fifthSelectedDateValue)
+        let sixthSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[5].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(sixthSelectedDateValue)
+        
+    }
+    
+    // Time only field test case - Change format in json - "hh:mma" to run time only test case
+    
+    // Change selected time
+    func testChangeTimePicker() throws {
+        goToTableDetailPage()
+        let firstDatePicker = app.datePickers.element(boundBy: 0)
+        firstDatePicker.tap()
+        
+        let hourPicker = app.pickerWheels.element(boundBy: 0)
+        let minutePicker = app.pickerWheels.element(boundBy: 1)
+        let periodPicker = app.pickerWheels.element(boundBy: 2)
+        
+        hourPicker.adjust(toPickerWheelValue: "1")
+        minutePicker.adjust(toPickerWheelValue: "02")
+        periodPicker.adjust(toPickerWheelValue: "PM")
+        XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        
+        sleep(1)
+        goBack()
+        sleep(1)
+        let checkSelectedTimeValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertEqual(946711920000.0, checkSelectedTimeValue)
+        
+    }
+    
+    // Set nil to existing time & change another time
+    func testSetNilToExitingTime() throws {
+        goToTableDetailPage()
+        
+        let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
+        let tapOnButton = setDateToNilIdentifierButton.element(boundBy: 0)
+        tapOnButton.tap()
+        sleep(1)
+        app.scrollViews.otherElements.containing(.image, identifier:"CalendarImageIdentifier").children(matching: .image).matching(identifier: "CalendarImageIdentifier").element(boundBy: 0).tap()
+        
+        let firstDatePicker = app.datePickers.element(boundBy: 0)
+        firstDatePicker.tap()
+        
+        let hourPicker = app.pickerWheels.element(boundBy: 0)
+        let minutePicker = app.pickerWheels.element(boundBy: 1)
+        let periodPicker = app.pickerWheels.element(boundBy: 2)
+        
+        hourPicker.adjust(toPickerWheelValue: "12")
+        minutePicker.adjust(toPickerWheelValue: "12")
+        periodPicker.adjust(toPickerWheelValue: "AM")
+        XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        
+        sleep(1)
+        goBack()
+        sleep(1)
+        let checkSelectedTimeValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertEqual(1735152120000.0, checkSelectedTimeValue)
+    }
+    
+    // Bulk single edit test case
+    func testBulkEditTimeFieldSingleRow() throws {
+        goToTableDetailPage()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        sleep(1)
+        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        sleep(1)
+        goBack()
+        sleep(1)
+        let checkSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[3].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertNotNil(checkSelectedDateValue)
+    }
+    
+    // Bulk edit all rows
+    func testBulkEditTimeFieldAllRow() throws {
         goToTableDetailPage()
         
         tapOnMoreButton()
