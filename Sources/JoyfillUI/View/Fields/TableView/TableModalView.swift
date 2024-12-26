@@ -13,7 +13,7 @@ struct TableRowView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     TableViewCellBuilder(cellModel: $cellModel)
                 }
-                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? "", format: cellModel.data.format ?? ""), minHeight: 50, maxHeight: .infinity)
+                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? .empty), maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? .empty), minHeight: 50, maxHeight: .infinity)
             }
         }
     }
@@ -92,7 +92,7 @@ struct TableModalView : View {
                 let column1 = rowModel1.cells[currentSelectedCol].data
                 let column2 = rowModel2.cells[currentSelectedCol].data
                 switch column1.type {
-                case "text":
+                case .text:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return (column1.title ?? "") < (column2.title ?? "")
@@ -101,7 +101,7 @@ struct TableModalView : View {
                     case .none:
                         return true
                     }
-                case "dropdown":
+                case .dropdown:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return (column1.selectedOptionText ?? "") < (column2.selectedOptionText ?? "")
@@ -110,7 +110,7 @@ struct TableModalView : View {
                     case .none:
                         return true
                     }
-                case "number":
+                case .number:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return (column1.number ?? 0) < (column2.number ?? 0)
@@ -207,7 +207,7 @@ struct TableModalView : View {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if !["image", "block", "date"].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
+                        if ![.image, .block, .date].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -215,7 +215,7 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? "", format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? ""))
+                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown, format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
@@ -226,7 +226,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(["image", "block", "date"].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled([.image, .block, .date].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in

@@ -18,23 +18,26 @@ struct TableViewCellBuilder: View {
     
     var body: some View {
         switch cellModel.data.type {
-        case "text":
+        case .text:
             TableTextView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
-        case "dropdown":
+        case .dropdown:
             TableDropDownOptionListView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
-        case "image":
+        case .image:
             TableImageView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
-        case "block":
+        case .block:
             TableTextView(cellModel: $cellModel)
                 .disabled(true)
-        case "date":
+        case .date:
             TableDateView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
-        case "number":
+        case .number:
             TableNumberView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
+        case .multiSelect:
+            TableMultiSelectView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         default:
             Text("")

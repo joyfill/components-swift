@@ -32,10 +32,10 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
 }
 
-let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number"]
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect]
 
 extension FieldTableColumn {
-    func getFormat(from tableColumns: [TableColumn]?) -> String? {
+    func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
         return tableColumns?.first(where: { $0.id == self.id })?.format
     }
 }
@@ -80,7 +80,7 @@ struct TableDataModel {
         fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
             let column = fieldData.tableColumns?.first { $0.id == colID }
             guard let column = column else { return }
-            let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? "")
+            let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
             self.filterModels.append(filterModel)
             if let columnType = column.type {
                 if supportedColumnTypes.contains(columnType) {
@@ -105,13 +105,15 @@ struct TableDataModel {
              let filtred = filteredcellModels.filter { rowArr in
                  let column = rowArr.cells[model.colIndex].data
                 switch column.type {
-                case "text":
+                case .text:
                     return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                case "dropdown":
+                case .dropdown:
                     return (column.defaultDropdownSelectedId ?? "") == model.filterText
-                case "number":
+                case .number:
                     let columnNumberString = String(format: "%g", column.number ?? 0)
                     return columnNumberString.hasPrefix(model.filterText)
+                case .multiSelect:
+                    return column.multiSelectValues?.contains(model.filterText) ?? false
                 default:
                     break
                 }
@@ -126,7 +128,7 @@ struct TableDataModel {
         
         for fieldTableColumn in self.tableColumns {
                 let optionsLocal = fieldTableColumn.options?.map { option in
-                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
                 }
                 
                 let fieldTableColumnLocal = CellDataModel(
@@ -138,8 +140,9 @@ struct TableDataModel {
                     title: fieldTableColumn.title,
                     number: fieldTableColumn.number,
                     date: fieldTableColumn.date,
-                    format: fieldTableColumn.getFormat(from: fieldPositionTableColumns)
-                )
+                    format: fieldTableColumn.getFormat(from: fieldPositionTableColumns),
+                    multiSelectValues: fieldTableColumn.multiSelectValues,
+                    multi: fieldTableColumn.multi)
                 columnIdToColumnMap[fieldTableColumn.id!] = fieldTableColumnLocal
         }
     }
@@ -150,7 +153,7 @@ struct TableDataModel {
         var cells: [CellDataModel] = []
         for columnData in tableColumns {
             let optionsLocal = columnData.options?.map { option in
-                OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
+                OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
             }
             let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
@@ -165,7 +168,9 @@ struct TableDataModel {
                                                 number: columnData.number,
                                                 selectedOptionText: selectedOptionText,
                                                 date: columnData.date,
-                                                format: columnData.getFormat(from: fieldPositionTableColumns))
+                                                format: columnData.getFormat(from: fieldPositionTableColumns),
+                                                multiSelectValues: columnData.multiSelectValues,
+                                                multi: columnData.multi)
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
                 cells.append(cell)
             }
@@ -178,18 +183,20 @@ struct TableDataModel {
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         
         switch data?.type {
-        case "text":
+        case .text:
             cell?.title = valueUnion?.text ?? ""
-        case "dropdown":
+        case .dropdown:
             cell?.defaultDropdownSelectedId = valueUnion?.dropdownValue
-        case "image":
+        case .image:
             cell?.valueElements = valueUnion?.valueElements ?? []
-        case "block":
+        case .block:
             cell?.title = valueUnion?.text ?? ""
-        case "date":
+        case .date:
             cell?.date = valueUnion?.number
-        case "number":
+        case .number:
             cell?.number = valueUnion?.number
+        case .multiSelect:
+            cell?.multiSelectValues = valueUnion?.stringArray
         default:
             return nil
         }
@@ -252,7 +259,7 @@ struct TableDataModel {
             let column = columnData[col]
             var optionsLocal: [OptionLocal] = []
             for option in column.options ?? []{
-                optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
+                optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color))
             }
             return CellDataModel(id: column.id!,
                                  defaultDropdownSelectedId: column.defaultDropdownSelectedId,
@@ -263,7 +270,9 @@ struct TableDataModel {
                                  number: column.number,
                                  selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
                                  date: column.date,
-                                 format: column.getFormat(from: fieldPositionTableColumns))
+                                 format: column.getFormat(from: fieldPositionTableColumns),
+                                 multiSelectValues: column.multiSelectValues,
+                                 multi: column.multi)
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
         return cellModels[rowIndex].cells[col].data
@@ -279,11 +288,11 @@ struct TableDataModel {
         return columnIdToColumnMap[tableColumns[index].id!]?.title ?? ""
     }
     
-    func getColumnType(columnId: String) -> String? {
+    func getColumnType(columnId: String) -> ColumnTypes? {
         return columnIdToColumnMap[columnId]?.type
     }
     
-    func getColumnFormat(columnId: String) -> String? {
+    func getColumnFormat(columnId: String) -> DateFormatType? {
         return columnIdToColumnMap[columnId]?.format
     }
     
@@ -334,12 +343,14 @@ struct CellDataModel: Hashable, Equatable {
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
     var valueElements: [ValueElement]
-    let type: String?
+    let type: ColumnTypes?
     var title: String
     var number: Double?
     var selectedOptionText: String?
     var date: Double?
-    var format: String?
+    var format: DateFormatType?
+    var multiSelectValues: [String]?
+    var multi: Bool?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)
@@ -350,6 +361,7 @@ struct OptionLocal: Identifiable {
     var id: String?
     var deleted: Bool?
     var value: String?
+    var color: String?
 }
 
 struct ChartDataModel {
@@ -369,7 +381,7 @@ struct ChartDataModel {
 struct DateTimeDataModel {
     var fieldIdentifier: FieldIdentifier
     var value: ValueUnion?
-    var format: String?
+    var format: DateFormatType?
     var fieldHeaderModel: FieldHeaderModel?
 }
 
