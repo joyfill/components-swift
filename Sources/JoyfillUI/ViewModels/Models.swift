@@ -205,7 +205,7 @@ struct TableDataModel {
     
     mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
-        cellModel.data  = cellDataModel
+        cellModel.data = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
         if isBulkEdit {
             cellModels[rowIndex].cells[colIndex].id = UUID()
