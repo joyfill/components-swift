@@ -62,9 +62,9 @@ struct SearchBar: View {
                             .background(.white)
                             .cornerRadius(6)
                             .padding(.leading, 8)
-                        
                     case .multiSelect:
                         TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
+                            .accessibilityIdentifier("SearchBarMultiSelectionFieldIdentifier")
                     default:
                         Text("")
                     }

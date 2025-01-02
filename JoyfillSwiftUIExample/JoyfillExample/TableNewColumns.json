@@ -44,6 +44,11 @@
                   "_id": "67691971e689df0b1208de63",
                   "format": "",
                   "hidden": false
+                },
+                {
+                  "_id": "66a1ead8a7d8bff7bb2f982a",
+                  "format": "",
+                  "hidden": false
                 }
               ]
             }
@@ -82,7 +87,8 @@
           "cells": {
             "67691971e689df0b1208de63": 2,
             "67692e13fa282a51845f4f14": "First row",
-            "676919715e36fed325f2f048": 1712255400000
+            "676919715e36fed325f2f048": 1712255400000,
+            "66a1ead8a7d8bff7bb2f982a": ["66a1e2e9e9e6674ea80d71f7"]
           }
         },
         {
@@ -91,7 +97,9 @@
           "cells": {
             "67691971e689df0b1208de63": 22,
             "67692e13fa282a51845f4f14": "Second row",
-            "676919715e36fed325f2f048": 1713984174769
+            "676919715e36fed325f2f048": 1713984174769,
+            "66a1ead8a7d8bff7bb2f982a": ["66a1e2e9ed6de57065b6cede"]
+           
           }
         },
         {
@@ -100,7 +108,8 @@
           "cells": {
             "67691971e689df0b1208de63": 200,
             "67692e13fa282a51845f4f14": "112",
-            "676919715e36fed325f2f048": 1712385780000
+            "676919715e36fed325f2f048": 1712385780000,
+            "66a1ead8a7d8bff7bb2f982a": ["66a1e2e9e9e6674ea80d71f7", "66a1e2e9ed6de57065b6cede", "66a1e2e9a3948b3bdc7a5d62"]
           }
         },
         {
@@ -109,7 +118,8 @@
           "cells": {
             "676919715e36fed325f2f048": "Date",
             "6769197102fe4635130814eb": "",
-            "67691971e689df0b1208de63": 2.111
+            "67691971e689df0b1208de63": 2.111,
+            "66a1ead8a7d8bff7bb2f982a": []
           }
         },
         {
@@ -164,12 +174,38 @@
           "title": "Block Column",
           "width": 0,
           "identifier": ""
+        },
+        {
+          "_id": "66a1ead8a7d8bff7bb2f982a",
+          "type": "multiSelect",
+          "identifier": "field_66a1eae01a1e96bf57c89111",
+          "title": "Multiple Column",
+          "value": ["66a1e2e9e9e6674ea80d71f7"],
+          "options": [
+            {
+              "_id": "66a1e2e9e9e6674ea80d71f7",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "66a1e2e9ed6de57065b6cede",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "66a1e2e9a3948b3bdc7a5d62",
+              "value": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters",
+              "deleted": false
+            }
+          ],
+          "multi": true
         }
       ],
       "tableColumnOrder": [
         "676919715e36fed325f2f048",
         "67692e13fa282a51845f4f14",
-        "67691971e689df0b1208de63"
+        "67691971e689df0b1208de63",
+        "66a1ead8a7d8bff7bb2f982a"
       ],
       "file": "67691d2f268e121323b45666"
     }
