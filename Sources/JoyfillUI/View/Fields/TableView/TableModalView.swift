@@ -3,6 +3,7 @@ import JoyfillModel
 
 struct TableRowView : View {
     @Binding var rowDataModel: RowDataModel
+    var longestBlockText: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -13,7 +14,14 @@ struct TableRowView : View {
                         .foregroundColor(Color.tableCellBorderColor)
                     TableViewCellBuilder(cellModel: $cellModel)
                 }
-                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? .empty), maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown, format: cellModel.data.format ?? .empty), minHeight: 50, maxHeight: .infinity)
+                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
+                                                      format: cellModel.data.format ?? .empty,
+                                                      text: cellModel.data.type == .block ? longestBlockText : ""),
+                       maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
+                                                      format: cellModel.data.format ?? .empty,
+                                                      text: cellModel.data.type == .block ? longestBlockText : ""),
+                       minHeight: 50,
+                       maxHeight: .infinity)
             }
         }
     }
@@ -27,10 +35,12 @@ struct TableModalView : View {
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
+    var longestBlockText: String = ""
 
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
         UIScrollView.appearance().bounces = false
+        longestBlockText = viewModel.tableDataModel.getLongestBlockText()
     }
     
     var body: some View {
@@ -215,7 +225,9 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown, format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty))
+                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown,
+                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty,
+                                                       text: longestBlockText))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
@@ -279,7 +291,7 @@ struct TableModalView : View {
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                            TableRowView(rowDataModel: $rowCellModels)
+                            TableRowView(rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                 .frame(height: 60)
                         }
                     }

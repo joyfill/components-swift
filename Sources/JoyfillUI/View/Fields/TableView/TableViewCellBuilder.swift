@@ -28,8 +28,7 @@ struct TableViewCellBuilder: View {
             TableImageView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case .block:
-            TableTextView(cellModel: $cellModel)
-                .disabled(true)
+            TableBlockView(cellModel: $cellModel)
         case .date:
             TableDateView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
