@@ -23,9 +23,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     func swipeForMultiSelctionField() {
-        let element = XCUIApplication().windows.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
-        let tabeltextfieldidentifierTextView = element.children(matching: .textView).matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
-                tabeltextfieldidentifierTextView.swipeLeft()
+        let element = app.windows.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
+        element.swipeLeft()
     }
     
     func tapOnSearchBarTextField(value: String) {
@@ -343,23 +342,17 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     func testTableTextFields() throws {
         goToTableDetailPage()
         sleep(1)
-        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("First row", firstTableTextField.value as! String)
+        let firstTableTextField = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("First row", firstTableTextField.label)
         
-        let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("Second row", secondTableTextField.value as! String)
+        let secondTableTextField = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Second row", secondTableTextField.label)
         
-        let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
-        XCTAssertEqual("112", thirdTableTextField.value as! String)
+        let thirdTableTextField = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("112", thirdTableTextField.label)
         
-        let fourthTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
-        XCTAssertEqual("", fourthTableTextField.value as! String)
-        
-        let fifthTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
-        XCTAssertEqual("Block Field", fifthTableTextField.value as! String)
-        
-        let sixthTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
-        XCTAssertEqual("", sixthTableTextField.value as! String)
+        let fourthTableTextField = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("Block Field", fourthTableTextField.label)
         sleep(1)
     }
     
@@ -711,6 +704,62 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", seventhRowDropdownValue)
         let eigthRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
         XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", eigthRowDropdownValue)
+    }
+    
+    // Default Columns value test case
+    
+    // Add row - Check defalut column value is set on added new row
+    func testDefaultColumnValueOnAddRow() throws {
+        goToTableDetailPage()
+        app.buttons["TableAddRowIdentifier"].tap()
+        
+        let addedCellBlockValue = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
+        
+        let addedCellNumberValue = tapOnNumberTextField(atIndex: 6)
+        XCTAssertEqual("12345", addedCellNumberValue.value as! String)
+        
+        let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 6).label)
+        sleep(1)
+        goBack()
+        sleep(1)
+        let addedDateFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertEqual(1712255400000.0, addedDateFieldRowValue)
+        let addedBlockFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["67692e13fa282a51845f4f14"]?.text)
+        XCTAssertEqual("Block Column Value", addedBlockFieldRowValue)
+        let addedNumberFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["67691971e689df0b1208de63"]?.number)
+        XCTAssertEqual(12345, addedNumberFieldRowValue)
+        let addedMultiSelectionFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", addedMultiSelectionFieldRowValue)
+    }
+    
+    // Insert row - Check defalut column value is set on Inserted row
+    func testInsertRowDefaultColumnValue() throws {
+        goToTableDetailPage()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableInsertRowIdentifier"].tap()
+        
+        let addedCellBlockValue = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
+        
+        let addedCellNumberValue = tapOnNumberTextField(atIndex: 1)
+        XCTAssertEqual("12345", addedCellNumberValue.value as! String)
+        
+        let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+        sleep(1)
+        goBack()
+        sleep(1)
+        let addedDateFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertEqual(1712255400000.0, addedDateFieldRowValue)
+        let addedBlockFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["67692e13fa282a51845f4f14"]?.text)
+        XCTAssertEqual("Block Column Value", addedBlockFieldRowValue)
+        let addedNumberFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["67691971e689df0b1208de63"]?.number)
+        XCTAssertEqual(12345, addedNumberFieldRowValue)
+        let addedMultiSelectionFieldRowValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", addedMultiSelectionFieldRowValue)
     }
     
 }
