@@ -376,6 +376,7 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
+                            .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                     default:
                         Text("")
                     }
