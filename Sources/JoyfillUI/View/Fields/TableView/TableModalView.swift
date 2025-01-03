@@ -218,6 +218,13 @@ struct TableModalView : View {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
+                        
+                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+                            Image(systemName: "asterisk")
+                                .foregroundColor(.red)
+                                .imageScale(.small)
+                        }
+                        
                         if ![.image, .block, .date, .progress].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)

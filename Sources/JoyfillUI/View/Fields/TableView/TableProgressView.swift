@@ -10,14 +10,16 @@ import SwiftUI
 struct TableProgressView: View {
     @Binding var cellModel: TableCellModel
     @ObservedObject var viewModel: TableViewModel
+    let progress: (Int, Int)
     
     public init(cellModel: Binding<TableCellModel>, viewModel: TableViewModel) {
         _cellModel = cellModel
         self.viewModel = viewModel
+        progress = viewModel.getProgress(rowId: cellModel.wrappedValue.rowID)
     }
     
     var body: some View {
-        ProgressCircleView(currentProgress: viewModel.getProgress(rowId: cellModel.rowID), totalProgress: viewModel.tableDataModel.cellModels.first?.cells.count ?? 0)
+        ProgressCircleView(currentProgress: progress.0, totalProgress: progress.1)
     }
 }
 
@@ -45,6 +47,7 @@ struct ProgressCircleView: View {
                     )
                     .darkLightThemeColor()
                     .rotationEffect(.degrees(-90))
+                    .animation(.easeOut(duration: 0.5), value: currentProgress)
             }
             .frame(width: 20, height: 20)
         }

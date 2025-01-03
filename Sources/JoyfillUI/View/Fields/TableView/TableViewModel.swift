@@ -14,6 +14,7 @@ class TableViewModel: ObservableObject {
     
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
+    private var requiredColumnIds: [String] = []
 
     @Published var uuid = UUID()
     
@@ -24,6 +25,9 @@ class TableViewModel: ObservableObject {
         
         setupCellModels()
         self.tableDataModel.filterRowsIfNeeded()
+        self.requiredColumnIds = tableDataModel.tableColumns
+            .filter { $0.required == true }
+            .map { $0.id! }
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
@@ -50,10 +54,28 @@ class TableViewModel: ObservableObject {
         }
     }
     
-    func getProgress(rowId: String) -> Int {
-        tableDataModel.cellModels.first(where:  { rowDataModel in
-            rowDataModel.rowID == rowId
-        })?.filledCellCount ?? 0
+    func getProgress(rowId: String) -> (Int, Int) {
+        guard let rowCells = tableDataModel.cellModels
+            .first(where: { $0.rowID == rowId })?.cells else {
+            return (0,0)
+        }
+        
+        let filledCount = rowCells.filter { cellModel in
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+        }.count
+        
+        return (filledCount, requiredColumnIds.count)
+    }
+    
+    func isColumnFilled(columnId: String) -> Bool {
+        for rowDataModel in tableDataModel.cellModels {
+            if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
+                if !cellDataModel.data.isCellFilled {
+                    return false
+                }
+            }
+        }
+        return true
     }
     
     func setupCellModels() {
