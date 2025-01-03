@@ -20,6 +20,11 @@ struct FieldListModel {
 }
 
 struct RowDataModel: Equatable, Hashable {
+    init(rowID: String, cells: [TableCellModel], rowType: RowType) {
+        self.rowID = rowID
+        self.cells = cells
+        self.rowType = rowType
+    }
     func hash(into hasher: inout Hasher) {
         hasher.combine(rowID)
     }
@@ -30,6 +35,22 @@ struct RowDataModel: Equatable, Hashable {
 
     let rowID: String
     var cells: [TableCellModel]
+    let rowType: RowType
+    var isExpanded: Bool = false
+
+    public var cellsCopy: [TableCellModel] {
+        cells.map { cell in
+            var cell = cell
+            cell.id = UUID()
+            return cell
+        }
+    }
+}
+
+enum RowType: Equatable {
+    case row(index: Int)
+    case header
+    case nastedRow(level: Int, index: Int)
 }
 
 let supportedColumnTypes = ["text", "image", "dropdown", "block", "date", "number"]

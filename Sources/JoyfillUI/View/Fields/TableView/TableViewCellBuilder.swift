@@ -15,12 +15,21 @@ enum TableViewMode {
 
 struct TableViewCellBuilder: View {
     @Binding var cellModel: TableCellModel
-    
+    var action: () -> Void
+
     var body: some View {
         switch cellModel.data.type {
         case "text":
-            TableTextView(cellModel: $cellModel)
-                .disabled(cellModel.editMode == .readonly)
+//            TableTextView(cellModel: $cellModel)
+//                .disabled(cellModel.editMode == .readonly)
+            Button(action:
+                    {
+                action()
+//                cellModel.editMode.toggle()
+            }, label:
+                    {
+                Text("Table")
+            })
         case "dropdown":
             TableDropDownOptionListView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
@@ -36,6 +45,14 @@ struct TableViewCellBuilder: View {
         case "number":
             TableNumberView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case "table":
+            Button(action:
+                    {
+//                cellModel.editMode.toggle()
+            }, label:
+                    {
+                Text("Table")
+            })
         default:
             Text("")
         }
