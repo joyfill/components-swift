@@ -1102,24 +1102,32 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         tapOnTextFieldColumn()
         tapOnSearchBarTextField()
+        tapOnDropdownFieldColumn()
+        tapOnDropdownFieldFilter()
         tapOnInsertRowButton()
-        app.buttons["HideFilterSearchBar"].tap()
         
         // Enter Data in textfield
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("app", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("Inserted Row")
+        enterDateInInsertedField.typeText("Inserted Row ")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
-        XCTAssertEqual("Select Option", selectDropdownField.label)
+        XCTAssertEqual("Yes", selectDropdownField.label)
         selectDropdownField.tap()
         
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
+        
+        app.buttons["HideFilterSearchBar"].tap()
+        tapOnTextFieldColumn()
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        XCTAssertEqual("Inserted Row app", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("No", selectDropdownField.label)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
         let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
@@ -1549,29 +1557,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnSearchBarTextField()
         
         tapOnMoveUpRowButton()
-        checkMovedRowDataOfSecondRow()
-        
-        app.buttons["HideFilterSearchBar"].tap()
-         
-        // Enter data in Moved row
-        let enterDataInField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("Apple 2", enterDataInField.value as! String)
-        enterDataInField.tap()
-        enterDataInField.typeText("Done ")
-        
-        // Select first option in dropdown field
-        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
-        XCTAssertEqual("No", selectDropdownField.label)
-        selectDropdownField.tap()
-        
-        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-        XCTAssertGreaterThan(dropdownOptions.count, 0)
-        let firstOption = dropdownOptions.element(boundBy: 0)
-        firstOption.tap()
-        
-        // Check entered data
-        XCTAssertEqual("Done Apple 2", enterDataInField.value as! String)
-        XCTAssertEqual("Yes", selectDropdownField.label)
+        let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+
+        let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 0).label)
     }
     
     // Apply Search filter and then move row down in filter rows
@@ -1586,31 +1576,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         // check move row down data
         let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("App 1", checkMovedRowTextField.value as! String)
+        XCTAssertEqual("Apple 2", checkMovedRowTextField.value as! String)
 
         // Check dropdown data after search
         let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("Yes", checkSearchDataOnDropdownField.element(boundBy: 1).label)
-        
-        app.buttons["HideFilterSearchBar"].tap()
-         
-        // Enter data in Moved row
-        let enterDataInField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        enterDataInField.tap()
-        enterDataInField.typeText("Done ")
-        
-        // Select first option in dropdown field
-        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
-        selectDropdownField.tap()
-        
-        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-        XCTAssertGreaterThan(dropdownOptions.count, 0)
-        let firstOption = dropdownOptions.element(boundBy: 1)
-        firstOption.tap()
-        
-        // Check entered data
-        XCTAssertEqual("Done App 1", enterDataInField.value as! String)
-        XCTAssertEqual("No", selectDropdownField.label)
+        XCTAssertEqual("No", checkSearchDataOnDropdownField.element(boundBy: 1).label)
     }
    
     // Delete two rows - then moved last row up

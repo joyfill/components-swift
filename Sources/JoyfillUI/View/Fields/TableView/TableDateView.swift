@@ -18,8 +18,8 @@ struct TableDateView: View {
         self.isUsedForBulkEdit = isUsedForBulkEdit
         if !isUsedForBulkEdit {
             if let dateValue = cellModel.wrappedValue.data.date {
-                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? "") {
-                    if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? "") {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty) {
+                    if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? .empty) {
                         _selectedDate = State(initialValue: date)
                         _isDatePickerPresented = State(initialValue: true)
                     }
@@ -38,7 +38,7 @@ struct TableDateView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             if let dateValue = cellModel.data.date {
-                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? "") {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty) {
                     Text(dateString)
                         .padding(.horizontal, 8)
                         .font(.system(size: 15))
@@ -53,7 +53,7 @@ struct TableDateView: View {
                     HStack {
                         Spacer()
                         
-                        DatePicker("", selection: dateBinding, displayedComponents: Utility.getDateType(format: $cellModel.wrappedValue.data.format ?? ""))
+                        DatePicker("", selection: dateBinding, displayedComponents: Utility.getDateType(format: $cellModel.wrappedValue.data.format ?? .empty))
                             .accessibilityIdentifier("DateIdenitfier")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .labelsHidden()
