@@ -2,6 +2,7 @@ import SwiftUI
 import JoyfillModel
 
 struct TableRowView : View {
+    @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
     var longestBlockText: String
 
@@ -12,7 +13,7 @@ struct TableRowView : View {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    TableViewCellBuilder(cellModel: $cellModel)
+                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                 }
                 .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
                                                       format: cellModel.data.format ?? .empty,
@@ -217,7 +218,14 @@ struct TableModalView : View {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if ![.image, .block, .date].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
+                        
+                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+                            Image(systemName: "asterisk")
+                                .foregroundColor(.red)
+                                .imageScale(.small)
+                        }
+                        
+                        if ![.image, .block, .date, .progress].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -238,7 +246,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled([.image, .block, .date, .progress].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -291,7 +299,7 @@ struct TableModalView : View {
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                            TableRowView(rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                            TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                 .frame(height: 60)
                         }
                     }

@@ -14,6 +14,7 @@ enum TableViewMode {
 }
 
 struct TableViewCellBuilder: View {
+    @ObservedObject var viewModel: TableViewModel
     @Binding var cellModel: TableCellModel
     
     var body: some View {
@@ -38,6 +39,8 @@ struct TableViewCellBuilder: View {
         case .multiSelect:
             TableMultiSelectView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case .progress:
+            TableProgressView(cellModel: $cellModel, viewModel: viewModel)
         default:
             Text("")
         }
