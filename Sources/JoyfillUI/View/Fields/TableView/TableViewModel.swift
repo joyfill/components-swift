@@ -50,6 +50,12 @@ class TableViewModel: ObservableObject {
         }
     }
     
+    func getProgress(rowId: String) -> Int {
+        tableDataModel.cellModels.first(where:  { rowDataModel in
+            rowDataModel.rowID == rowId
+        })?.filledCellCount ?? 0
+    }
+    
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
