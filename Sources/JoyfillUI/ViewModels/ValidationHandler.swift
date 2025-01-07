@@ -47,13 +47,14 @@ class ValidationHandler {
      
     func validateTableField(id: String) -> FieldValidity {
         var fieldValidities = [FieldValidity]()
-
         let field = documentEditor.field(fieldID: id)
-        
+        let fieldPosition = documentEditor.fieldPosition(fieldID: id)!
         var isTableValid = true
-        
         let rows = field?.valueToValueElements ?? []
-        let columns = field?.tableColumns ?? []
+        let columns = (field?.tableColumns ?? []).filter { column in
+            let isHidden = fieldPosition.tableColumns?.first(where: { $0.id == column.id! })?.hidden ?? false
+            return !isHidden
+        }
         var rowValidities = [RowValidity]()
         var columnValidities = [ColumnValidity]()
         
