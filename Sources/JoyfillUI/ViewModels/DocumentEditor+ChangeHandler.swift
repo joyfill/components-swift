@@ -161,9 +161,7 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
     public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> ValueElement? {
-        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            return nil
-        }
+        var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
