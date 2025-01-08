@@ -31,7 +31,11 @@ class ValidationHandler {
             }
             
             if field.fieldType == .table {
-                fieldValidities.append(validateTableField(id: field.id!))
+                let tableFieldValidity = validateTableField(id: field.id!)
+                if tableFieldValidity.status == .invalid {
+                    isValid = false
+                }
+                fieldValidities.append(tableFieldValidity)
             } else {
                 if let value = field.value, !value.isEmpty {
                     fieldValidities.append(FieldValidity(field: field, status: .valid))
