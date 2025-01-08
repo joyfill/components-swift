@@ -1479,6 +1479,130 @@ extension JoyDoc {
         return document
     }
     
+    func setRequiredTableField(hideColumn: Bool, isTableRequired: Bool, isColumnRequired: Bool) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "table"
+        field.id = "67612793c4e6a5e6a05e64a3"
+        field.identifier = "field_676127963e76996d780e6c51"
+        field.title = "Table"
+        field.description = ""
+        field.required = isTableRequired
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        field.rowOrder = [
+            "676127938056dcd158942bad",
+            "67612793f70928da78973744",
+            "67612793a6cd1f9d39c8433b"
+        ]
+        var column1 = FieldTableColumn()
+        column1.id = "676127938fb7c5fd4321a2f4"
+        column1.type = .text
+        column1.title = "Text Column"
+        column1.width = 0
+        column1.identifier = "field_column_6629fbc70c9e53f683a18007"
+        column1.required = isColumnRequired
+        
+        var column2 = FieldTableColumn()
+        column2.id = "67612793b5f860ae8d6a4ae6"
+        column2.type = .dropdown
+        column2.title = "Dropdown Column"
+        column2.width = 0
+        column2.identifier = "field_column_6629fbc7e2493a155a32c509"
+        column2.required = isColumnRequired
+        
+        var column3 = FieldTableColumn()
+        column3.id = "67612793c76286eb2763c366"
+        column3.type = .date
+        column3.title = "Date Column"
+        column3.width = 0
+        column3.identifier = ""
+        column3.value = .double(1712385780000)
+        column3.required = isColumnRequired
+        
+        field.tableColumns = [column1,column2,column3]
+        field.tableColumnOrder = [
+            "676127938fb7c5fd4321a2f4",
+            "67612793b5f860ae8d6a4ae6",
+            "67612793c76286eb2763c366"
+        ]
+        
+        var valueElements1 = ValueElement()
+        valueElements1.id = "676127938056dcd158942bad"
+        valueElements1.deleted = false
+        let cells1: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 1, Column 1"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        
+        let cellsOnHideColumn: [String: ValueUnion] = [
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements1.cells = hideColumn ? cellsOnHideColumn : cells1
+
+        var valueElements2 = ValueElement()
+        valueElements2.id = "67612793f70928da78973744"
+        valueElements2.deleted = false
+        let cells2: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements2.cells = cells2
+
+        var valueElements3 = ValueElement()
+        valueElements3.id = "67612793a6cd1f9d39c8433b"
+        valueElements3.deleted = false
+        let cells3: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements3.cells = cells3
+
+        let value = ValueUnion.valueElementArray([valueElements1, valueElements2, valueElements3])
+        
+        field.value = value
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    func setTableFieldPosition(hideColumn: Bool) -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "67612793c4e6a5e6a05e64a3"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 24
+        fieldPosition.height = 24
+        fieldPosition.x = 0
+        fieldPosition.y = 0
+        fieldPosition.id = "6629fbc736d179b9014abae0"
+        fieldPosition.type = .table
+        
+        var tableColumn1 = TableColumn()
+        tableColumn1.id = "676127938fb7c5fd4321a2f4"
+        tableColumn1.format = .empty
+        tableColumn1.hidden = hideColumn
+        
+        var tableColumn2 = TableColumn()
+        tableColumn2.id = "67612793b5f860ae8d6a4ae6"
+        tableColumn2.format = .empty
+        tableColumn2.hidden = hideColumn
+        
+        var tableColumn3 = TableColumn()
+        tableColumn3.id = "67612793c76286eb2763c366"
+        tableColumn3.format = .empty
+        tableColumn3.hidden = hideColumn
+        
+        fieldPosition.tableColumns = [tableColumn1, tableColumn2, tableColumn3]
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        return document
+    }
+    
     func setRequiredTextFieldInMobile() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "66aa2865da10ac1c7b7acb1d"
