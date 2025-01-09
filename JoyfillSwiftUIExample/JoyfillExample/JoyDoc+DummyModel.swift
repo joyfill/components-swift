@@ -1479,7 +1479,7 @@ extension JoyDoc {
         return document
     }
     
-    func setRequiredTableField(hideColumn: Bool, isTableRequired: Bool, isColumnRequired: Bool) -> JoyDoc {
+    func setRequiredTableField(hideColumn: Bool, isTableRequired: Bool, isColumnRequired: Bool, areCellsEmpty: Bool, isZeroRows: Bool, isColumnsZero: Bool) -> JoyDoc {
         var field = JoyDocField()
         field.type = "table"
         field.id = "67612793c4e6a5e6a05e64a3"
@@ -1519,9 +1519,12 @@ extension JoyDoc {
         column3.width = 0
         column3.identifier = ""
         column3.value = .double(1712385780000)
-        column3.required = isColumnRequired
+//        column3.required = isColumnRequired
         
-        field.tableColumns = [column1,column2,column3]
+        if !isColumnsZero {
+            field.tableColumns = [column1,column2,column3]
+        }
+        
         field.tableColumnOrder = [
             "676127938fb7c5fd4321a2f4",
             "67612793b5f860ae8d6a4ae6",
@@ -1551,7 +1554,7 @@ extension JoyDoc {
             "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
-        valueElements2.cells = cells2
+        valueElements2.cells = areCellsEmpty ? [:] : cells2
 
         var valueElements3 = ValueElement()
         valueElements3.id = "67612793a6cd1f9d39c8433b"
@@ -1562,10 +1565,30 @@ extension JoyDoc {
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
         valueElements3.cells = cells3
-
-        let value = ValueUnion.valueElementArray([valueElements1, valueElements2, valueElements3])
         
-        field.value = value
+        // Delete true a row
+        var valueElements4 = ValueElement()
+        valueElements4.id = "67612793a6cd1f9d39c8433c"
+        valueElements4.deleted = true
+        let cells4: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements4.cells = cells4
+        
+        // Nil cells for a row
+        var valueElements5 = ValueElement()
+        valueElements5.id = "67612793a6cd1f9d39c8433d"
+        valueElements5.deleted = false
+        
+        //For case zero rows
+
+        let value = ValueUnion.valueElementArray([valueElements1, valueElements2, valueElements3, valueElements4, valueElements5])
+        if !isZeroRows {
+            field.value = value
+        }
+        
         var document = self
         document.fields.append(field)
         return document
@@ -1581,6 +1604,7 @@ extension JoyDoc {
         fieldPosition.y = 0
         fieldPosition.id = "6629fbc736d179b9014abae0"
         fieldPosition.type = .table
+        fieldPosition.titleDisplay = "none"
         
         var tableColumn1 = TableColumn()
         tableColumn1.id = "676127938fb7c5fd4321a2f4"
@@ -1595,7 +1619,7 @@ extension JoyDoc {
         var tableColumn3 = TableColumn()
         tableColumn3.id = "67612793c76286eb2763c366"
         tableColumn3.format = .empty
-        tableColumn3.hidden = hideColumn
+//        tableColumn3.hidden = hideColumn
         
         fieldPosition.tableColumns = [tableColumn1, tableColumn2, tableColumn3]
         var document = self

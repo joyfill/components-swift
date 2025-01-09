@@ -760,7 +760,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true)
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
@@ -771,6 +771,63 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
     }
     
+    //Zero columns
+    func testRequiredTableFieldZeroColumns() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: true)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+        
+        XCTAssertEqual(validationResult.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
+    }
+    
+    // Zero rows
+    func testRequiredTableFieldZeroRows() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+        
+        XCTAssertEqual(validationResult.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
+    }
+    
+    // table is required , columns are required , cells are empty should be invalid
+    func testRequiredTableFieldEmptyCells() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: true, isZeroRows: false, isColumnsZero: false)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+        
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
+    }
+    
     func testRequiredTableFieldIfHidden() {
         let document = JoyDoc()
             .setDocument()
@@ -778,7 +835,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: true, isTableRequired: true, isColumnRequired: true)
+            .setRequiredTableField(hideColumn: true, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
             .setTableFieldPosition(hideColumn: true)
         
         let documentEditor = documentEditor(document: document)
@@ -796,7 +853,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: true)
+            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
@@ -814,7 +871,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false)
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
