@@ -1843,5 +1843,50 @@ extension JoyDoc {
         document.fields.append(field)
         return document
     }
-
+    
+// Conditional logic methods
+    
+    func setConditionalLogicToField(fieldID: String, logic: Logic?) -> JoyDoc {
+        var document = self
+        if let index = document.fields.firstIndex(where: { $0.id == fieldID }) {
+            document.fields[index].logic = logic
+        }
+        return document
+    }
+    
+    func setNumberField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "number"
+        field.id = "6629fb3df03de10b26270ab3"
+        field.identifier = "field_6629fb3fabb87e37c9578b8b"
+        field.title = "Number"
+        field.description = ""
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    func setTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "text"
+        field.id = "66aa2865da10ac1c7b7acb1d"
+        field.identifier = "field_66aa2520d3285f2fcf8e53b3"
+        field.title = "Text"
+        field.description = ""
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "66a0fdb2acd89d30121053b9"
+        field.hidden = hidden
+        var document = self
+        document.fields.append(field)
+        return document
+    }
 }
