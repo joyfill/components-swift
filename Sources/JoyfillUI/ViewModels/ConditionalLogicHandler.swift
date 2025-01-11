@@ -61,7 +61,7 @@ class ConditionalLogicHandler {
             guard let conditionField = documentEditor.field(fieldID: conditionFieldID) else { return nil }
             return ConditionModel(fieldValue: conditionField.value, fieldType: FieldTypes(conditionField.type), condition: condition.condition, value: condition.value)
         }
-        let logicModel = LogicModel(id: logic.id, action: logic.action, conditions: conditionModels)
+        let logicModel = LogicModel(id: logic.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
         let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: page.hidden, itemCount: documentEditor.pagesForCurrentView.count)
         return conditionModel
     }
@@ -83,7 +83,7 @@ class ConditionalLogicHandler {
             return ConditionModel(fieldValue: dependentField.value, fieldType: FieldTypes(dependentField.type), condition: condition.condition, value: condition.value)
         }
 
-        let logicModel = LogicModel(id: field.logic?.id, action: logic.action, conditions: conditionModels)
+        let logicModel = LogicModel(id: field.logic?.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
         let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: field.hidden, itemCount: documentEditor.fieldsCount)
         return conditionModel
     }
