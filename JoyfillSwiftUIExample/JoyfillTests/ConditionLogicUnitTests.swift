@@ -232,6 +232,106 @@ final class ConditionLogicUnitTests: XCTestCase {
         
         XCTAssertEqual(result, true)
     }
+    
+    func testTextFieldShowOnNotDropdownAndMultipleChoice() {
+        //Text Field(hidden at first) should Show when both dropdown is not yes and multiselect is not yes
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        let multiSelectFieldID = "678104b387d3004e70120ac6"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .notEquals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: multiSelectFieldID,
+                                                     conditionType: .notEquals,
+                                                     value: .array(["677e2bfa1ff43cf15d159310"]))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: true,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello")) // Hidden at first
+            .setDropdownField(hidden: false, value: .string("677e2bfaf81647d2f6a016a0")) // No is selected
+            .setMultiSelectField(hidden: false, value: .array(["677e2bfa9c5249a2acd3644f"]), multi: true) // No selected
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testTextFieldShowOnOneNotDropdownAndMultipleChoice() {
+        //Text Field(Shown at first) should Hide when both dropdown is yes and multiselect is not yes
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        let multiSelectFieldID = "678104b387d3004e70120ac6"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: multiSelectFieldID,
+                                                     conditionType: .notEquals,
+                                                     value: .array(["677e2bfa1ff43cf15d159310"]))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello")) // Shown at first
+            .setDropdownField(hidden: false, value: .string("677e2bfab0d5dce4162c36c1")) // Yes is selected
+            .setMultiSelectField(hidden: false, value: .array(["677e2bfa9c5249a2acd3644f"]), multi: true) // No selected
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, false)
+    }
+    
+    func testTextFieldShowOnOneNullOneNotNullDropdownAndMultipleChoice() {
+        //Text Field(Shown at first) should Hide when both dropdown is null and multiselect is not Null
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        let multiSelectFieldID = "678104b387d3004e70120ac6"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .isNull,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: multiSelectFieldID,
+                                                     conditionType: .isNotNull,
+                                                     value: .array(["677e2bfa1ff43cf15d159310"]))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello")) // Shown at first
+            .setDropdownField(hidden: false, value: .null) // Is Null
+            .setMultiSelectField(hidden: false, value: .array(["677e2bfa9c5249a2acd3644f"]), multi: true) // No selected(IS Not Null)
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, false)//Text field is hidden now
+    }
+    
 
     func getLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType) -> [String: Any] {
         [
