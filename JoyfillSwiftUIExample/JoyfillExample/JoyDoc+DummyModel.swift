@@ -1889,4 +1889,73 @@ extension JoyDoc {
         document.fields.append(field)
         return document
     }
+    
+    //Set Dropdown Field
+    func setDropdownField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "dropdown"
+        field.id = "6781040987a55e48b4507a38"
+        field.identifier = "field_678104b10279a22deca9beb6"
+        field.title = "Dropdown"
+        field.description = ""
+        
+        var option1 = Option()
+        option1.id = "677e2bfab0d5dce4162c36c1"
+        option1.value = "Yes"
+        option1.deleted = false
+        var option2 = Option()
+        option2.id = "677e2bfaf81647d2f6a016a0"
+        option2.value = "No"
+        option2.deleted = false
+        var option3 = Option()
+        option3.id = "677e2bfa0f4ed64ef5055bcf"
+        option3.value = "N/A"
+        option3.deleted = false
+        
+        field.options = [option1, option2, option3]
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "66a0fdb2acd89d30121053b9"
+        field.hidden = hidden
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    //Set MultiSelect Field
+    func setMultiSelectField(hidden: Bool, value: ValueUnion, multi: Bool) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "multiSelect"
+        field.id = "678104b387d3004e70120ac6"
+        field.identifier = "field_6781058d099fc0a3107973fb"
+        field.title = "Multiple Choice"
+        field.description = ""
+        
+        var option1 = Option()
+        option1.id = "677e2bfa1ff43cf15d159310"
+        option1.value = "Yes"
+        option1.deleted = false
+        var option2 = Option()
+        option2.id = "677e2bfa9c5249a2acd3644f"
+        option2.value = "No"
+        option2.deleted = false
+        var option3 = Option()
+        option3.id = "677e2bfa152e9f549edf0813"
+        option3.value = "N/A"
+        option3.deleted = false
+        
+        field.options = [option1, option2, option3]
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "66a0fdb2acd89d30121053b9"
+        field.hidden = hidden
+        field.multi = multi
+        var document = self
+        document.fields.append(field)
+        return document
+    }
 }
