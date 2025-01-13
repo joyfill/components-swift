@@ -40,7 +40,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals)
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals, value: .double(100))
         
         let document = JoyDoc()
             .setDocument()
@@ -63,7 +63,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals)
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals, value: .double(100))
         
         let document = JoyDoc()
             .setDocument()
@@ -86,7 +86,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .equals)
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .equals, value: .double(100))
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -108,7 +108,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .greaterThan)
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .greaterThan, value: .double(100))
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -124,13 +124,57 @@ final class ConditionLogicUnitTests: XCTestCase {
         
         XCTAssertEqual(result, false)
     }
+    //Edge case 1 for greaterThan(When field value is null)
+    func testTextFieldOnGreaterWithNullFieldValue() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .greaterThan, value: .double(100))
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .null)//When field value is null
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+    }
+    //Edge case 2 for greaterThan (When condition value is null)
+    func testTextFieldOnGreaterWithNullConditionValue() {
+        //Text Field should Not hide when number is Not greater than 100
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .greaterThan, value: .null)
+        //When condition value is null
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+    }
     
     func testTextFieldHideOnLessNumber() {
         //Text Field should hide when number is less than 100
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .lessThan)
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .lessThan, value: .double(100))
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -146,13 +190,58 @@ final class ConditionLogicUnitTests: XCTestCase {
         
         XCTAssertEqual(result, false)
     }
+    //Edge case 1 for lessThan (When field value is null)
+    func testTextFieldOnLessNumberNullFieldValue() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .lessThan, value: .double(100))
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .null) // When field value is null
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    //Edge case 2 for lessThan(When condition value is null)
+    func testTextFieldOnLessNumberNullConditionValue() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .lessThan, value: .null)
+        //When condition value is null
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+    }
     
     func testTextFieldHideOnNotEqualNumber() {
         //Text Field should hide when number is not equals 100
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .notEquals)
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .notEquals, value: .double(100))
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -174,7 +263,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .isNull)
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .isNull, value: .double(100))
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -196,7 +285,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
-        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .isNotNull)
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .isNotNull, value: .double(100))
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -444,6 +533,39 @@ final class ConditionLogicUnitTests: XCTestCase {
         
         XCTAssertEqual(result, true) // Text field is hidden now
     }
+    //Edge case for contains when field value is null
+    func testTextFieldMultilineValueNull() {
+        //Text Field(Shown at first) should Hide when both dropdown is yes and MultiLine is contains "vivek"
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        let multiLineFieldID = "6629fb2b9a487ce1c1f35f6c"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .null)
+        let conditionTestModel2 = LogicConditionTest(fieldID: multiLineFieldID,
+                                                     conditionType: .contains,
+                                                     value: .null)
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello")) // Shown at first
+            .setDropdownField(hidden: false, value: .null) // Is Null
+            .setMultilineTextField(hidden: false, value: .null) // when field value is null
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true) // Text field is hidden now
+    }
     
     //Empty conditions
     func getEmptyConditionsLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType) -> [String: Any] {
@@ -454,7 +576,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         ]
     }
 
-    func getLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType) -> [String: Any] {
+    func getLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType, value: ValueUnion) -> [String: Any] {
         [
             "action": isShow ? "show" : "hide",
             "eval": "and",
@@ -464,7 +586,7 @@ final class ConditionLogicUnitTests: XCTestCase {
                     "page": pageID,
                     "field": fieldID,
                     "condition": conditionType.rawValue,
-                    "value": ValueUnion.double(100),
+                    "value": value,
                     "_id": "66aa2a7c4bbc669133bad221"
                 ]
             ],
