@@ -397,6 +397,50 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false)
     }
     
+    func testNumberOnTextField() {
+        //Number Field should hide when test is not nill
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: textFieldID, conditionType: .isNull, value: .null)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("hello"))
+            .setNumberField(hidden: false, value: .double(99))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true) //Conition not satisfying
+    }
+    
+    func testNumberOnNotNullConditionTextField() {
+        //Number Field should hide when test is not nill
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: textFieldID, conditionType: .isNotNull, value: .null)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("hello"))
+            .setNumberField(hidden: false, value: .double(99))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, false)
+    }
+    
     func testTextFieldShowOnDropdownAndMultipleChoice() {
         //Text Field should Show when both dropdown is yes and multiselect is yes
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
