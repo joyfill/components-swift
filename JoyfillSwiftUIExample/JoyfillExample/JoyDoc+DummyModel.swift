@@ -1958,4 +1958,24 @@ extension JoyDoc {
         document.fields.append(field)
         return document
     }
+    
+    //Set multiline field
+    func setMultilineTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "textarea"
+        field.id = "6629fb2b9a487ce1c1f35f6c"
+        field.identifier = "field_6629fb2feff29e90331e4e8e"
+        field.title = "Multiline Text"
+        field.hidden = hidden
+        field.description = ""
+        field.value = value
+        field.required = false
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        var document = self
+        document.fields.append(field)
+        return document
+    }
 }

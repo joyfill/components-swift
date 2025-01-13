@@ -11,8 +11,54 @@ final class ConditionLogicUnitTests: XCTestCase {
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document)
     }
+    
+    func testTextFieldOnNullCondition() {
+        //Text Field should show when number is 100
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getEmptyConditionsLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals)
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, true)
+    }
         
     func testTextFieldShowOnNumber() {
+        //Text Field should show when number is 100
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals)
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testTextFieldShowOn() {
         //Text Field should show when number is 100
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
         let numberFieldID = "6629fb3df03de10b26270ab3"
@@ -331,7 +377,82 @@ final class ConditionLogicUnitTests: XCTestCase {
         
         XCTAssertEqual(result, false)//Text field is hidden now
     }
+    // 6629fb2b9a487ce1c1f35f6c
     
+    func testTextFieldShowOnOneNullOneNotNullDropdownAndMultiline() {
+        //Text Field(Shown at first) should Hide when both dropdown is Null and MultiLine is contains "vivek"
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        let multiLineFieldID = "6629fb2b9a487ce1c1f35f6c"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .isNull,
+                                                     value: .null)
+        let conditionTestModel2 = LogicConditionTest(fieldID: multiLineFieldID,
+                                                     conditionType: .contains,
+                                                     value: .string("vivek"))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello")) // Shown at first
+            .setDropdownField(hidden: false, value: .null) // Is Null
+            .setMultilineTextField(hidden: false, value: .string("hello world vivek")) //Multiline contains "vivek"
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, false)//Text field is hidden now
+    }
+    
+    func testTextFieldShowOnAllNullDropdownAndMultiline() {
+        //Text Field(Shown at first) should Hide when both dropdown is yes and MultiLine is contains "vivek"
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        let multiLineFieldID = "6629fb2b9a487ce1c1f35f6c"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .null)
+        let conditionTestModel2 = LogicConditionTest(fieldID: multiLineFieldID,
+                                                     conditionType: .contains,
+                                                     value: .null)
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello")) // Shown at first
+            .setDropdownField(hidden: false, value: .null) // Is Null
+            .setMultilineTextField(hidden: false, value: .string("hello world vivek")) //Multiline contains "vivek"
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true) // Text field is hidden now
+    }
+    
+    //Empty conditions
+    func getEmptyConditionsLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType) -> [String: Any] {
+        [
+            "action": isShow ? "show" : "hide",
+            "eval": "and",
+            "_id": "66aa2a7c4bbc669133bad220"
+        ]
+    }
 
     func getLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType) -> [String: Any] {
         [
