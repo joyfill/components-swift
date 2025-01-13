@@ -58,6 +58,52 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, true)
     }
     
+    func testTextAsShownAndConditionOfShow() {
+        //Text Field should show when number is 100 and also showed at first(Its an edge case)
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals, value: .double(100))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testTextAsHideAndConditionOfHide() {
+        //Text Field should show when number is 100 and also showed at first(Its an edge case)
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .equals, value: .double(100))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, false)
+    }
+    
     func testTextFieldShowOn() {
         //Text Field should show when number is 100
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
@@ -235,6 +281,55 @@ final class ConditionLogicUnitTests: XCTestCase {
         
         XCTAssertEqual(result, true)
     }
+    
+    //Edge case 1 for isNull (When condition value is null)
+    func testTextFieldOnIsNullNumberNullConditionValue() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .isNull, value: .null)
+        //When condition value is null
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    //Edge case 1 for isNotNull (When condition value is null)
+    func testTextFieldOnIsNotNullNumberNullConditionValue() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getLogicDictionary(isShow: false, fieldID: numberFieldID, conditionType: .isNotNull, value: .null)
+        //When condition value is null
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("hello"))
+            .setNumberField(hidden: false, value: .null)
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+    }
+    
     
     func testTextFieldHideOnNotEqualNumber() {
         //Text Field should hide when number is not equals 100
