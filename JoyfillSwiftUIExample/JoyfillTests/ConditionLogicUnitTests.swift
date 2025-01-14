@@ -706,6 +706,77 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, true) // Text field is hidden now
     }
     
+    // page condition logic tests
+    func testPageConditionLogic() {
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
+        
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: textFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("Hello"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              customePageID: page2ID,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setTwoPageField(page1hidden: false, page2hidden: false)
+            .setTextField(hidden: false, value: .string("Hello"))
+            .setDropdownField(hidden: false, value: .string("677e2bfab0d5dce4162c36c1"))
+            .setConditionalLogic(pageID: page2ID, logic: Logic(field: logicDictionary))
+            
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(pageID: page2ID)
+        
+        XCTAssertEqual(result, false) // Page is hidden now
+    }
+    
+    func testPageOnORConditionLogic() {
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
+        
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: textFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("Hello"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              customePageID: page2ID,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .or)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setTwoPageField(page1hidden: false, page2hidden: false)
+            .setTextField(hidden: false, value: .null)
+            .setDropdownField(hidden: false, value: .string("677e2bfab0d5dce4162c36c1"))
+            .setConditionalLogic(pageID: page2ID, logic: Logic(field: logicDictionary))
+            
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(pageID: page2ID)
+        
+        XCTAssertEqual(result, false) // Page is hidden now
+    }
+    
     //Empty conditions
     func getEmptyConditionsLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType) -> [String: Any] {
         [
@@ -733,14 +804,14 @@ final class ConditionLogicUnitTests: XCTestCase {
         ]
     }
     
-    func getTwoConditionsLogicDictionary(isShow: Bool,logicConditionTests: [LogicConditionTest], evaluationType: EvaluationType) -> [String: Any] {
+    func getTwoConditionsLogicDictionary(isShow: Bool,customePageID: String? = nil, logicConditionTests: [LogicConditionTest], evaluationType: EvaluationType) -> [String: Any] {
         [
             "action": isShow ? "show" : "hide",
             "eval": evaluationType.rawValue,
             "conditions": [
                 [
                     "file": fileID,
-                    "page": pageID,
+                    "page": customePageID ?? pageID,
                     "field": logicConditionTests[0].fieldID,
                     "condition": logicConditionTests[0].conditionType.rawValue,
                     "value": logicConditionTests[0].value,
@@ -748,7 +819,7 @@ final class ConditionLogicUnitTests: XCTestCase {
                 ],
                 [
                     "file": fileID,
-                    "page": pageID,
+                    "page": customePageID ?? pageID,
                     "field": logicConditionTests[1].fieldID,
                     "condition": logicConditionTests[1].conditionType.rawValue,
                     "value": logicConditionTests[1].value,

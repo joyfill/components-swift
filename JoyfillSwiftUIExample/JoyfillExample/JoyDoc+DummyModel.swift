@@ -1854,6 +1854,14 @@ extension JoyDoc {
         return document
     }
     
+    func setConditionalLogic(pageID: String, logic: Logic?) -> JoyDoc {
+        var updatedDocument = self
+        if let pageIndex = updatedDocument.files[0].views?[0].pages?.firstIndex(where: { $0.id == pageID }) {
+            updatedDocument.files[0].views?[0].pages?[pageIndex].logic = logic
+        }
+        return updatedDocument
+    }
+    
     func setNumberField(hidden: Bool, value: ValueUnion) -> JoyDoc {
         var field = JoyDocField()
         field.type = "number"
@@ -1976,6 +1984,51 @@ extension JoyDoc {
         field.file = "6629fab3c0ba3fb775b4a55c"
         var document = self
         document.fields.append(field)
+        return document
+    }
+    
+    func setTwoPageField(page1hidden: Bool, page2hidden: Bool) -> JoyDoc {
+        var page1 = Page()
+        page1.name = "Page 1"
+        page1.hidden = false
+        page1.width = 816
+        page1.height = 1056
+        page1.cols = 24
+        page1.rowHeight = 8
+        page1.layout = "grid"
+        page1.presentation = "normal"
+        page1.margin = 0
+        page1.padding = 0
+        page1.borderWidth = 0
+        page1.hidden = page1hidden
+        page1.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
+        page1.id = "6629fab320fca7c8107a6cf6"
+        
+        var page2 = Page()
+        page2.name = "Page 2"
+        page2.hidden = false
+        page2.width = 816
+        page2.height = 1056
+        page2.cols = 24
+        page2.rowHeight = 8
+        page2.layout = "grid"
+        page2.presentation = "normal"
+        page2.margin = 0
+        page2.padding = 0
+        page2.borderWidth = 0
+        page2.hidden = page2hidden
+        page2.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
+        page2.id = "66600801dc1d8b4f72f54917"
+        
+        
+        var document = self
+        if var pages = document.files[0].views?[0].pages {
+            pages.append(page1)
+            pages.append(page2)
+            document.files[0].views?[0].pages = pages
+        } else {
+            document.files[0].pages = [page1, page2]
+        }
         return document
     }
 }
