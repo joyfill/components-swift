@@ -2031,4 +2031,29 @@ extension JoyDoc {
         }
         return document
     }
+    
+    func setFieldPositionToPage(pageId: String, idAndTypes: [String : FieldTypes]) -> JoyDoc {
+        
+        var document = self
+        
+        var fieldsPositions = [FieldPosition]()
+        for idAndType in idAndTypes {
+            var fieldPosition = FieldPosition()
+            fieldPosition.field = idAndType.key
+            fieldPosition.id = UUID().uuidString
+            fieldPosition.type = idAndType.value
+            fieldsPositions.append(fieldPosition)
+        }
+                
+        if var pages = document.files[0].views?[0].pages {
+            let pageIndex = pages.firstIndex { page in
+                page.id == pageId
+            }
+            pages[pageIndex ?? 0].fieldPositions = fieldsPositions
+            
+            document.files[0].views?[0].pages = pages
+        }
+        
+        return document
+    }
 }
