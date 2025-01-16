@@ -119,6 +119,8 @@ struct TableDataModel {
                     return columnNumberString.hasPrefix(model.filterText)
                 case .multiSelect:
                     return column.multiSelectValues?.contains(model.filterText) ?? false
+                case .barcode:
+                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
                 default:
                     break
                 }

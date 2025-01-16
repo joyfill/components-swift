@@ -42,6 +42,8 @@ struct SearchBar: View {
                             self.model.filterText = stringNumberValue
                         case .multiSelect:
                             self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
+                        case .barcode:
+                            self.model.filterText = cellDataModel.title ?? ""
                         default:
                             break
                         }
@@ -66,7 +68,7 @@ struct SearchBar: View {
                         TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
                         
                     case .barcode:
-                        TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                        TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
                             .font(.system(size: 12))
                             .foregroundColor(.black)
                             .padding(.vertical, 4)
