@@ -50,14 +50,14 @@ struct TableBarcodeView: View {
     }
     
     func uploadAction() {
-        let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier) { urls in
+        let captureEvent = CaptureEvent(fieldEvent: cellModel.fieldIdentifier) { value in
             var cellModelData = cellModel.data
-            cellModelData.title = urls[0]
-            text = urls[0]
+            cellModelData.title = value.text ?? ""
+            text = value.text ?? ""
             cellModel.data = cellModelData
             cellModel.didChange?(cellModelData)
         }
-        cellModel.documentEditor?.onUpload(event: uploadEvent)
+        cellModel.documentEditor?.onCapture(event: captureEvent)
     }
 }
 

@@ -266,6 +266,10 @@ extension DocumentEditor {
     func onUpload(event: JoyfillModel.UploadEvent) {
         events?.onUpload(event: event)
     }
+    
+    func onCapture(event: JoyfillModel.CaptureEvent) {
+        events?.onCapture(event: event)
+    }
 }
 
 extension DocumentEditor {
