@@ -14,6 +14,7 @@ class TableViewModel: ObservableObject {
     
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
+    private var requiredColumnIds: [String] = []
 
     @Published var uuid = UUID()
     
@@ -24,6 +25,9 @@ class TableViewModel: ObservableObject {
         
         setupCellModels()
         self.tableDataModel.filterRowsIfNeeded()
+        self.requiredColumnIds = tableDataModel.tableColumns
+            .filter { $0.required == true }
+            .map { $0.id! }
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
@@ -36,7 +40,9 @@ class TableViewModel: ObservableObject {
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { cellDataModel in
-                    let colIndex = self.tableDataModel.columns.firstIndex(of: rowDataModel.id)!
+                    let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+                        fieldTableColumn.id == cellDataModel.id
+                    })!
                     self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                 }
                 rowCellModels.append(cellModel)
@@ -48,12 +54,36 @@ class TableViewModel: ObservableObject {
         }
     }
     
+    func getProgress(rowId: String) -> (Int, Int) {
+        guard let rowCells = tableDataModel.cellModels
+            .first(where: { $0.rowID == rowId })?.cells else {
+            return (0,0)
+        }
+        
+        let filledCount = rowCells.filter { cellModel in
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+        }.count
+        
+        return (filledCount, requiredColumnIds.count)
+    }
+    
+    func isColumnFilled(columnId: String) -> Bool {
+        for rowDataModel in tableDataModel.cellModels {
+            if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
+                if !cellDataModel.data.isCellFilled {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+    
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
-            tableDataModel.columns.enumerated().forEach { colIndex, colID in
+            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
                     let cellModel = TableCellModel(rowID: rowID,
@@ -116,7 +146,8 @@ class TableViewModel: ObservableObject {
 
     func insertBelow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        let cellValues = getCellValues()
+        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
         tableDataModel.emptySelection()
@@ -168,14 +199,46 @@ class TableViewModel: ObservableObject {
 
     func addRow() {
         let id = generateObjectId()
-        if tableDataModel.filterModels.noFilterApplied {
-            let rowData = tableDataModel.documentEditor!.insertRowAtTheEnd(id: id, fieldIdentifier: tableDataModel.fieldIdentifier)
+        let cellValues = getCellValues()
+
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) {
             updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
-        } else {
-            if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, filterModels: tableDataModel.filterModels, fieldIdentifier: tableDataModel.fieldIdentifier, tableDataModel: tableDataModel) {
-                updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
+        }
+    }
+    
+    func getCellValues() -> [String: ValueUnion] {
+        var cellValues: [String: ValueUnion] = [:]
+        
+        for filterModel in tableDataModel.filterModels {
+            let change = filterModel.filterText
+            let columnId = filterModel.colID ?? ""
+            
+            if change.isEmpty {
+                // No filter Applied, Extract default value if present
+                if let defaultValue = tableDataModel.tableColumns.first(where: { $0.id == columnId })?.value {
+                    cellValues[columnId] = defaultValue
+                }
+            } else {
+                // Filter Applied based on column type
+                switch filterModel.type {
+                case .text:
+                    cellValues[columnId] = ValueUnion.string(change)
+                case .dropdown:
+                    cellValues[columnId] = ValueUnion.string(change)
+                case .number:
+                    if let doubleChange = Double(change) {
+                        cellValues[columnId] = ValueUnion.double(doubleChange)
+                    } else {
+                        cellValues[columnId] = ValueUnion.null
+                    }
+                case .multiSelect:
+                    cellValues[columnId] = ValueUnion.array([change])
+                default:
+                    break
+                }
             }
         }
+        return cellValues
     }
 
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
@@ -184,23 +247,33 @@ class TableViewModel: ObservableObject {
         tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
     }
 
-    func bulkEdit(changes: [Int: String]) {
-        var columnIDChanges = [String: String]()
-        changes.forEach { (colIndex: Int, value: String) in
+    func bulkEdit(changes: [Int: ValueUnion]) {
+        var columnIDChanges = [String: ValueUnion]()
+        changes.forEach { (colIndex: Int, value: ValueUnion) in
             guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
             columnIDChanges[cellDataModelId] = value
         }
         tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
-            tableDataModel.columns.enumerated().forEach { colIndex, colID in
+            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
-                if cellDataModel.type == "dropdown" {
-                    cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change }.first?.value ?? ""
-                    cellDataModel.defaultDropdownSelectedId = change
-                } else {
-                    cellDataModel.title = change
+                
+                switch cellDataModel.type {
+                case .dropdown:
+                    cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change.text }.first?.value ?? ""
+                    cellDataModel.defaultDropdownSelectedId = change.text
+                case .text:
+                    cellDataModel.title = change.text ?? ""
+                case .date:
+                    cellDataModel.date = change.number
+                case .number:
+                    cellDataModel.number = change.number
+                case .multiSelect:
+                    cellDataModel.multiSelectValues = change.stringArray
+                default:
+                    break
                 }
                 
                 tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)

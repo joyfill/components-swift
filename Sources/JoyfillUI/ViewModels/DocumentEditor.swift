@@ -73,6 +73,10 @@ public class DocumentEditor: ObservableObject {
     public func validate() -> Validation {
         return validationHandler.validate()
     }
+    
+    public func validateTableField(fieldID: String) -> FieldValidity {
+        return validationHandler.validateTableField(id: fieldID)
+    }
 
     public func shouldShow(fieldID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(fieldID: fieldID)
@@ -158,7 +162,7 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
+    public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {

@@ -28,20 +28,42 @@ struct SearchBar: View {
                                                    editMode: viewModel.tableDataModel.mode)
                     { cellDataModel in
                         switch column.type {
-                        case "text":
+                        case .text:
                             self.model.filterText = cellDataModel.title ?? ""
-                        case "dropdown":
+                        case .dropdown:
                             self.model.filterText = cellDataModel.defaultDropdownSelectedId ?? ""
+                        case .number:
+                            var stringNumberValue: String
+                            if let number = cellDataModel.number {
+                                stringNumberValue = String(format: "%g", number)
+                            } else {
+                                stringNumberValue = ""
+                            }
+                            self.model.filterText = stringNumberValue
+                        case .multiSelect:
+                            self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
                         default:
                             break
                         }
                     }
                     switch cellModel.data.type {
-                    case "text":
+                    case .text:
                         TextFieldSearchBar(text: $model.filterText)
-                    case "dropdown":
+                    case .dropdown:
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
+                    case .number:
+                        TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, number: model.filterText)
+                            .font(.system(size: 12))
+                            .foregroundColor(.black)
+                            .padding(.vertical, 4)
+                            .frame(height: 25)
+                            .background(.white)
+                            .cornerRadius(6)
+                            .padding(.leading, 8)
+                        
+                    case .multiSelect:
+                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
                     default:
                         Text("")
                     }
