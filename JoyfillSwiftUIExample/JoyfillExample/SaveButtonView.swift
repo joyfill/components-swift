@@ -18,7 +18,7 @@ struct SaveButtonView: View {
                 changeManager.saveJoyDoc(document: documentEditor.document)
                 let result = documentEditor.validate()
                 print("Document status:", result.status)
-                for fieldResult in result.fieldValidations {
+                for fieldResult in result.fieldValidities {
                     print("Field status:", fieldResult.field.id!, ":", fieldResult.status)
                 }
             }) {

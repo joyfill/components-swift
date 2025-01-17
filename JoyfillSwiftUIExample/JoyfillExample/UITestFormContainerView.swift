@@ -2,7 +2,7 @@ import SwiftUI
 import Joyfill
 import JoyfillModel
 
-func sampleJSONDocument(fileName: String = "Joydocjson") -> JoyDoc {
+func sampleJSONDocument(fileName: String = "TableNewColumns") -> JoyDoc {
     let path = Bundle.main.path(forResource: fileName, ofType: "json")!
     let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
     let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]

@@ -14,19 +14,33 @@ enum TableViewMode {
 }
 
 struct TableViewCellBuilder: View {
+    @ObservedObject var viewModel: TableViewModel
     @Binding var cellModel: TableCellModel
     
     var body: some View {
         switch cellModel.data.type {
-        case "text":
+        case .text:
             TableTextView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
-        case "dropdown":
+        case .dropdown:
             TableDropDownOptionListView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
-        case "image":
+        case .image:
             TableImageView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case .block:
+            TableBlockView(cellModel: $cellModel)
+        case .date:
+            TableDateView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
+        case .number:
+            TableNumberView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
+        case .multiSelect:
+            TableMultiSelectView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
+        case .progress:
+            TableProgressView(cellModel: $cellModel, viewModel: viewModel)
         default:
             Text("")
         }
