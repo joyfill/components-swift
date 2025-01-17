@@ -16,7 +16,7 @@ class Utility {
     static func getCellWidth(type: ColumnTypes, format: DateFormatType, text: String) -> CGFloat {
         switch type {
         case .block:
-            let measuredWidth = measureTextWidth(text: text, font: UIFont.systemFont(ofSize: 15))
+            let measuredWidth = measureTextWidth(text: text, font: UIFont.systemFont(ofSize: 15)) + 20
             
             return max(singleColumnWidth, min(measuredWidth, 2 * singleColumnWidth))
         case .date:

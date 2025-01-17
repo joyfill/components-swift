@@ -30,9 +30,13 @@ struct RowDataModel: Equatable, Hashable {
 
     let rowID: String
     var cells: [TableCellModel]
+    
+    var filledCellCount: Int {
+        cells.filter { $0.data.isCellFilled }.count
+    }
 }
 
-let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect]
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress]
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -79,6 +83,7 @@ struct TableDataModel {
 
         fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
             let column = fieldData.tableColumns?.first { $0.id == colID }
+            if fieldPositionTableColumns?.first(where: { $0.id == colID })?.hidden == true { return }
             guard let column = column else { return }
             let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
             self.filterModels.append(filterModel)
@@ -197,6 +202,8 @@ struct TableDataModel {
             cell?.number = valueUnion?.number
         case .multiSelect:
             cell?.multiSelectValues = valueUnion?.stringArray
+        case .progress:
+            cell?.title = valueUnion?.text ?? ""
         default:
             return nil
         }
@@ -361,6 +368,26 @@ struct CellDataModel: Hashable, Equatable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)
+    }
+    
+    var isCellFilled: Bool {
+        guard let type = type else { return false }
+        switch type {
+        case .text, .block:
+            return title.isEmpty || title != ""
+        case .number:
+            return number != nil
+        case .dropdown:
+            return !(selectedOptionText?.isEmpty ?? true)
+        case .multiSelect:
+            return !(multiSelectValues?.isEmpty ?? true)
+        case .date:
+            return date != nil
+        case .image:
+            return valueElements != nil || valueElements != []
+        case .progress, .unknown:
+            return false
+        }
     }
 }
 
