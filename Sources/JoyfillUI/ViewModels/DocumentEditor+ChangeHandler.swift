@@ -227,6 +227,8 @@ extension DocumentEditor {
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId)
         case .multiSelect:
             changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
+        case .barcode:
+            changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
         default:
             return
         }
@@ -263,6 +265,10 @@ extension DocumentEditor {
 
     func onUpload(event: JoyfillModel.UploadEvent) {
         events?.onUpload(event: event)
+    }
+    
+    func onCapture(event: JoyfillModel.CaptureEvent) {
+        events?.onCapture(event: event)
     }
 }
 

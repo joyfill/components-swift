@@ -22,7 +22,7 @@ public struct TemplateListView: View {
     }
 
     private var changeManager: ChangeManager {
-        ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
+        ChangeManager(apiService: apiService, showImagePicker: showImagePicker, showScan: showScan)
     }
 
     public var body: some View {
@@ -73,6 +73,10 @@ public struct TemplateListView: View {
 
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
         uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    }
+    
+    private func showScan(captureHandler: (ValueUnion) -> Void) {
+        captureHandler(.string("Hello sir."))
     }
 }
 

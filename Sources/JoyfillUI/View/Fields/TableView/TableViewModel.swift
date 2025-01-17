@@ -272,6 +272,8 @@ class TableViewModel: ObservableObject {
                     cellDataModel.number = change.number
                 case .multiSelect:
                     cellDataModel.multiSelectValues = change.stringArray
+                case .barcode:
+                    cellDataModel.title = change.text ?? ""
                 default:
                     break
                 }
