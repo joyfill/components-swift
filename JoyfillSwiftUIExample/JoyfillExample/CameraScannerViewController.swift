@@ -51,19 +51,14 @@ struct CameraScannerViewController: UIViewControllerRepresentable {
         
         func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem) {
             switch item {
-                case .barcode(let barcode):
-                    // Symbology will be `.qr` in this case
-                    guard let payload = barcode.payloadStringValue else { return }
-                    parent.scanResult = payload
-                    // Now you have the QR code's content (often a URL or text) in `payload`
-                    
-                case .text(let text):
-                    // If you also recognized text
-                    parent.scanResult = text.transcript
-                    
-                @unknown default:
-                    break
-                }
+            case .barcode(let barcode):
+                guard let payload = barcode.payloadStringValue else { return }
+                parent.scanResult = payload
+            case .text(let text):
+                parent.scanResult = text.transcript
+            @unknown default:
+                break
+            }
         }
     }
 }

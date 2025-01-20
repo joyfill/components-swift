@@ -45,7 +45,6 @@ struct CameraScanner: View {
                 }
                 .interactiveDismissDisabled(true)
 
-                // Optional: Display selected text for user confirmation
                 if !selectedText.isEmpty {
                     Text("Selected Text:")
                         .font(.headline)
