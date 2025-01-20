@@ -14,6 +14,9 @@ struct DocumentSubmissionsListView: View {
     @State var document: JoyDoc?
     @State private var showDocumentDetails = false
     @State private var isloading = false
+    @State private var showCameraScannerView = false
+    @State private var scanResults: String = ""
+    @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
 
     let title: String
     private let apiService: APIService
@@ -48,6 +51,19 @@ struct DocumentSubmissionsListView: View {
                 }
             }
             .navigationTitle(title)
+            .sheet(isPresented: $showCameraScannerView) {
+                if #available(iOS 16.0, *) {
+                    CameraScanner(startScanning: $showCameraScannerView,
+                                  scanResult: $scanResults,
+                                  onSave: { result in
+                        if let currentCaptureHandler = currentCaptureHandler {
+                            currentCaptureHandler(.string(result))
+                        }
+                    })
+                } else {
+                    // Fallback on earlier versions
+                }
+            }
         }
     }
 
@@ -60,11 +76,12 @@ struct DocumentSubmissionsListView: View {
     }
 
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
-        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+        uploadHandler(["https://example.com/sample-image"])
     }
-    
-    private func showScan(captureHandler: (ValueUnion) -> Void) {
-        captureHandler(.string("Hello sir."))
+
+    private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
+        currentCaptureHandler = captureHandler
+        showCameraScannerView = true
     }
 
     private func fetchLocalDocument() {

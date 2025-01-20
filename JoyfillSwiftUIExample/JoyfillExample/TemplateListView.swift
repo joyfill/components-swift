@@ -15,6 +15,8 @@ public struct TemplateListView: View {
     @State var showNewSubmission = false
     private var apiService: APIService
     @State var document: JoyDoc?
+    @State var showCameraScannerView: Bool = false
+    @State var scanResults: String = ""
 
     init(userAccessToken: String) {
         self.apiService = APIService(accessToken: userAccessToken,
@@ -76,7 +78,8 @@ public struct TemplateListView: View {
     }
     
     private func showScan(captureHandler: (ValueUnion) -> Void) {
-        captureHandler(.string("Hello sir."))
+        showCameraScannerView = true
+        captureHandler(.string(scanResults))
     }
 }
 
