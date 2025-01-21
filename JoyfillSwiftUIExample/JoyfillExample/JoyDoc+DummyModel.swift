@@ -1494,7 +1494,9 @@ extension JoyDoc {
         field.rowOrder = [
             "676127938056dcd158942bad",
             "67612793f70928da78973744",
-            "67612793a6cd1f9d39c8433b"
+            "67612793a6cd1f9d39c8433b",
+            "67612793a6cd1f9d39c8433c",
+            "67612793a6cd1f9d39c8433d"
         ]
         var column1 = FieldTableColumn()
         column1.id = "676127938fb7c5fd4321a2f4"

@@ -119,7 +119,7 @@ extension DocumentEditor {
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: A tuple containing the newly created ValueElement and its insert index if successful, nil otherwise.
-    func insertBelow(selectedRowID: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
+    public func insertBelow(selectedRowID: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
         let fieldId = fieldIdentifier.fieldID
         
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
