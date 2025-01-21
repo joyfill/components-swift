@@ -378,6 +378,7 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
+                            .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                     case .barcode:
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
                             .font(.headline.bold())
