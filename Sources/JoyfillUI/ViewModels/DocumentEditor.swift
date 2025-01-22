@@ -162,7 +162,7 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
+    public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
