@@ -130,6 +130,15 @@ struct TableModalView : View {
                     case .none:
                         return true
                     }
+                case .barcode:
+                    switch viewModel.tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (column1.title ?? "") < (column2.title ?? "")
+                    case .descending:
+                        return (column1.title ?? "") > (column2.title ?? "")
+                    case .none:
+                        return true
+                    }
                 default:
                     return false
                 }
