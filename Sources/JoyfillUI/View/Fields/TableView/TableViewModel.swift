@@ -233,6 +233,8 @@ class TableViewModel: ObservableObject {
                     }
                 case .multiSelect:
                     cellValues[columnId] = ValueUnion.array([change])
+                case .barcode:
+                    cellValues[columnId] = ValueUnion.string(change)
                 default:
                     break
                 }
@@ -272,6 +274,8 @@ class TableViewModel: ObservableObject {
                     cellDataModel.number = change.number
                 case .multiSelect:
                     cellDataModel.multiSelectValues = change.stringArray
+                case .barcode:
+                    cellDataModel.title = change.text ?? ""
                 default:
                     break
                 }

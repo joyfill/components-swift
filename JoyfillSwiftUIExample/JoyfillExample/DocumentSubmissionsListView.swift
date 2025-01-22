@@ -14,6 +14,9 @@ struct DocumentSubmissionsListView: View {
     @State var document: JoyDoc?
     @State private var showDocumentDetails = false
     @State private var isloading = false
+    @State private var showCameraScannerView = false
+    @State private var scanResults: String = ""
+    @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
 
     let title: String
     private let apiService: APIService
@@ -48,6 +51,19 @@ struct DocumentSubmissionsListView: View {
                 }
             }
             .navigationTitle(title)
+            .sheet(isPresented: $showCameraScannerView) {
+                if #available(iOS 16.0, *) {
+                    CameraScanner(startScanning: $showCameraScannerView,
+                                  scanResult: $scanResults,
+                                  onSave: { result in
+                        if let currentCaptureHandler = currentCaptureHandler {
+                            currentCaptureHandler(.string(result))
+                        }
+                    })
+                } else {
+                    // Fallback on earlier versions
+                }
+            }
         }
     }
 
@@ -56,11 +72,17 @@ struct DocumentSubmissionsListView: View {
     }
 
     private var changeManager: ChangeManager {
-        ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
+        ChangeManager(apiService: apiService, showImagePicker: showImagePicker, showScan: showScan)
     }
 
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
-        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+        uploadHandler(["https://example.com/sample-image"])
+    }
+
+    private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
+        currentCaptureHandler = captureHandler
+        showCameraScannerView = true
+        presentCameraScannerView()
     }
 
     private func fetchLocalDocument() {
@@ -94,5 +116,48 @@ struct DocumentSubmissionsListView: View {
                 }
             }
         }
+    }
+
+    func presentCameraScannerView() {
+        guard let topVC = UIViewController.topViewController() else {
+            print("No top view controller found.")
+            return
+        }
+        let hostingController: UIHostingController<AnyView>
+        if #available(iOS 16.0, *) {
+                let swiftUIView = CameraScanner(
+                    startScanning: $showCameraScannerView,
+                    scanResult: $scanResults,
+                    onSave: { result in
+                        if let currentCaptureHandler = currentCaptureHandler {
+                            currentCaptureHandler(.string(result))
+                        }
+                    }
+                )
+                hostingController = UIHostingController(rootView: AnyView(swiftUIView))
+            } else {
+                // Fallback on earlier versions
+                let fallbackView = Text("Camera scanner is not available on this version.")
+                    .padding()
+                    .multilineTextAlignment(.center)
+                hostingController = UIHostingController(rootView: AnyView(fallbackView))
+            }
+
+        topVC.present(hostingController, animated: true, completion: nil)
+    }
+}
+
+extension UIViewController {
+    static func topViewController(base: UIViewController? = UIApplication.shared.connectedScenes
+                                    .compactMap { ($0 as? UIWindowScene)?.keyWindow?.rootViewController }
+                                    .first) -> UIViewController? {
+        if let nav = base as? UINavigationController {
+            return topViewController(base: nav.visibleViewController)
+        } else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
+            return topViewController(base: selected)
+        } else if let presented = base?.presentedViewController {
+            return topViewController(base: presented)
+        }
+        return base
     }
 }

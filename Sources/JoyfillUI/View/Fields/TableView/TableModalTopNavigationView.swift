@@ -300,6 +300,8 @@ struct EditMultipleRowsSheetView: View {
                             self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
                         case .multiSelect:
                             self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
+                        case .barcode:
+                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
                         default:
                             break
                         }
@@ -377,6 +379,17 @@ struct EditMultipleRowsSheetView: View {
                             )
                             .cornerRadius(10)
                             .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
+                    case .barcode:
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                            .font(.headline.bold())
+                            .padding(.bottom, -8)
+                        TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            .frame(minHeight: 40)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
                     default:
                         Text("")
                     }
