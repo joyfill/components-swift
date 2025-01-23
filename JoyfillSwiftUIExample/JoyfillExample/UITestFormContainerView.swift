@@ -55,6 +55,6 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     }
     
     func onCapture(event: JoyfillModel.CaptureEvent) {
-        event.captureHandler(.string("Hello world"))
+        event.captureHandler(.string("Scan Button Clicked"))
     }
 }

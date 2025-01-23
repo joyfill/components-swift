@@ -69,6 +69,7 @@ struct SearchBar: View {
                             .accessibilityIdentifier("SearchBarMultiSelectionFieldIdentifier")
                     case .barcode:
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
+                            .accessibilityIdentifier("SearchBarCodeFieldIdentifier")
                             .font(.system(size: 12))
                             .foregroundColor(.black)
                             .padding(.vertical, 4)
