@@ -16,6 +16,7 @@ enum TableViewMode {
 struct TableViewCellBuilder: View {
     @ObservedObject var viewModel: TableViewModel
     @Binding var cellModel: TableCellModel
+    var action: () -> Void
     
     var body: some View {
         switch cellModel.data.type {
@@ -44,6 +45,13 @@ struct TableViewCellBuilder: View {
         case .barcode:
             TableBarcodeView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case .table:
+            Button(action: {
+                action()
+            }, label: {
+                Image(systemName: "tablecells")
+                    .font(.system(size: 15))
+            })
         default:
             Text("")
         }

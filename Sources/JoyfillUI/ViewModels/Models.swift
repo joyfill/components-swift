@@ -30,13 +30,35 @@ struct RowDataModel: Equatable, Hashable {
 
     let rowID: String
     var cells: [TableCellModel]
+    let rowType: RowType
+    var isExpanded: Bool = false
     
     var filledCellCount: Int {
         cells.filter { $0.data.isCellFilled }.count
     }
+    
+    public var cellsCopy: [TableCellModel] {
+        cells.map { cell in
+            var cell = cell
+            cell.id = UUID()
+            return cell
+        }
+    }
+    
+    init(rowID: String, cells: [TableCellModel], rowType: RowType) {
+        self.rowID = rowID
+        self.cells = cells
+        self.rowType = rowType
+    }
 }
 
-let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode]
+enum RowType: Equatable {
+    case row(index: Int)
+    case header
+    case nestedRow(level: Int, index: Int)
+}
+
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table]
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -207,6 +229,8 @@ struct TableDataModel {
         case .progress:
             cell?.title = valueUnion?.text ?? ""
         case .barcode:
+            cell?.title = valueUnion?.text ?? ""
+        case .table:
             cell?.title = valueUnion?.text ?? ""
         default:
             return nil
@@ -389,7 +413,8 @@ struct CellDataModel: Hashable, Equatable {
             return date != nil
         case .image:
             return valueElements != nil || valueElements != []
-        case .progress, .unknown:
+        case .progress, .unknown, .table:
+            // TODO: Handle it for nested table
             return false
         }
     }

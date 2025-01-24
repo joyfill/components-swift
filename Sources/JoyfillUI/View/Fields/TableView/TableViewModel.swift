@@ -48,9 +48,9 @@ class TableViewModel: ObservableObject {
                 rowCellModels.append(cellModel)
             }
         if self.tableDataModel.cellModels.count > (index - 1) {
-            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels), at: index)
+            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: index)), at: index)
         } else {
-            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: self.tableDataModel.cellModels.count)))
         }
     }
     
@@ -97,7 +97,7 @@ class TableViewModel: ObservableObject {
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
+            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count)))
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
@@ -121,6 +121,24 @@ class TableViewModel: ObservableObject {
 
     var rowTitle: String {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
+    }
+    
+    func expendTable(rowDataModel: RowDataModel) {
+        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
+        if rowDataModel.isExpanded {
+            tableDataModel.filteredcellModels.remove(at: index+1)
+            for i in 0..<30 {
+                tableDataModel.filteredcellModels.remove(at: index+1)
+            }
+        } else {
+            var cellModels = [RowDataModel]()
+            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
+            
+            for i in 0..<30 {
+                cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: tableDataModel.filteredcellModels.first!.cellsCopy, rowType: .nestedRow(level: 0, index: i+1)))
+            }
+            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+        }
     }
     
     func deleteSelectedRow() {

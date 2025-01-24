@@ -1,10 +1,11 @@
 import SwiftUI
 import JoyfillModel
 
-struct TableRowView : View {
+struct TableRowView: View {
     @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
     var longestBlockText: String
+    var action: () -> Void
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -13,7 +14,7 @@ struct TableRowView : View {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel, action: action)
                 }
                 .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
                                                       format: cellModel.data.format ?? .empty,
@@ -194,7 +195,7 @@ struct TableModalView : View {
             VStack(alignment: .leading, spacing: 0) {
                 if #available(iOS 16, *) {
                     ScrollView([.horizontal], showsIndicators: false) {
-                        colsHeader
+                        colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
@@ -202,13 +203,12 @@ struct TableModalView : View {
                     .scrollDisabled(true)
                 } else {
                     ScrollView([.horizontal], showsIndicators: false) {
-                        colsHeader
+                        colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
                     .cornerRadius(14, corners: [.topRight])
                 }
-                
                 
                 table
                     .coordinateSpace(name: "scroll")
@@ -217,11 +217,15 @@ struct TableModalView : View {
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
 
-    var colsHeader: some View {
+    func colsHeader(viewModel: TableViewModel,
+                        currentSelectedCol: Binding<Int>,
+                        textHeight: Binding<CGFloat>,
+                        colorScheme: ColorScheme,
+                    columnHeights: Binding<[Int: CGFloat]>) -> some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
                 Button(action: {
-                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
+                    currentSelectedCol.wrappedValue = currentSelectedCol.wrappedValue == index ? Int.min : index
                 }, label: {
                     HStack {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
@@ -245,10 +249,10 @@ struct TableModalView : View {
                     .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown,
                                                        format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty,
                                                        text: longestBlockText))
-                    .frame(minHeight: textHeight)
+                    .frame(minHeight: textHeight.wrappedValue)
                     .overlay(
                         Rectangle()
-                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
+                            .stroke(currentSelectedCol.wrappedValue != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
                     )
                     .background(
                         colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
@@ -262,11 +266,10 @@ struct TableModalView : View {
                         Color.clear
                             .onAppear {
                                 let height = geometry.size.height
-                                columnHeights[index] = height // Store height for this column
+                                columnHeights.wrappedValue[index] = height
                                 
-                                // Calculate the maximum height after adding this column's height
-                                if let maxColumnHeight = columnHeights.values.max() {
-                                    self.textHeight = maxColumnHeight // Update textHeight with max height
+                                if let maxColumnHeight = columnHeights.wrappedValue.values.max() {
+                                    textHeight.wrappedValue = maxColumnHeight
                                 }
                             }
                     }
@@ -279,25 +282,59 @@ struct TableModalView : View {
         LazyVStack(alignment: .leading, spacing: 0) {
            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
                 let rowArray = rowModel.cells
-                HStack(spacing: 0) {
-                    if viewModel.showRowSelector {
-                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
-                        Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: 60)
-                            .border(Color.tableCellBorderColor)
-                            .onTapGesture {
-                                viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
-                            }
-                            .accessibilityIdentifier("MyButton")
-                        
-                    }
-                    Text("\(index+1)")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                        .frame(width: 40, height: 60)
-                        .border(Color.tableCellBorderColor)
-                        .id("\(index)")
-                }
+               HStack(spacing: 0) {
+                   switch rowModel.rowType {
+                   case .row(let index):
+                       if viewModel.showRowSelector {
+                           let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
+                           Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
+                               .frame(width: 40, height: 60)
+                               .border(Color.tableCellBorderColor)
+                               .onTapGesture {
+                                   viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                               }
+                               .accessibilityIdentifier("MyButton")
+                           
+                       } else {
+                           Rectangle()
+                               .fill(Color.white)
+                               .frame(width: 40, height: 60)
+                               .border(Color.tableCellBorderColor)
+                       }
+                   case .header:
+                       Rectangle()
+                           .fill(Color.white)
+                           .frame(width: 40, height: 60)
+                           .border(Color.tableCellBorderColor)
+                   case .nestedRow(let level, let index):
+                       Rectangle()
+                           .fill(Color.white)
+                           .frame(width: 40, height: 60)
+                           .border(Color.tableCellBorderColor)
+                   }
+                   
+                   
+                   switch rowModel.rowType {
+                   case .header:
+                       Text("#")
+                           .frame(width: 40, height: textHeight)
+                           .border(Color.tableCellBorderColor)
+                   case .nestedRow(let level, let nastedRowIndex):
+                       Text("\(nastedRowIndex)")
+                           .foregroundColor(.secondary)
+                           .font(.caption)
+                           .frame(width: 40, height: 60)
+                           .border(Color.tableCellBorderColor)
+                           .id("\(index)")
+                   case .row(let index):
+                       Text("\(index)")
+                           .foregroundColor(.secondary)
+                           .font(.caption)
+                           .frame(width: 40, height: 60)
+                           .border(Color.tableCellBorderColor)
+                           .id("\(index)")
+                   }
+               }
             }
         }
     }
@@ -308,8 +345,17 @@ struct TableModalView : View {
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                            TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                            switch rowCellModels.rowType {
+                            case .row, .nestedRow:
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: {
+                                    viewModel.expendTable(rowDataModel: rowCellModels)
+                                    rowCellModels.isExpanded.toggle()
+                                })
                                 .frame(height: 60)
+                            case .header:
+                                colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
+                                    .frame(height: 60)
+                            }
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
