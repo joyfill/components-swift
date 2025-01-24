@@ -14,6 +14,7 @@ class TableViewModel: ObservableObject {
     
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
+    @Published var showRowExpender: Bool = false
     private var requiredColumnIds: [String] = []
 
     @Published var uuid = UUID()
@@ -22,7 +23,7 @@ class TableViewModel: ObservableObject {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
-        
+        self.showRowExpender = tableDataModel.tableColumns.contains(where: { $0.type == .table })
         setupCellModels()
         self.tableDataModel.filterRowsIfNeeded()
         self.requiredColumnIds = tableDataModel.tableColumns
@@ -127,14 +128,14 @@ class TableViewModel: ObservableObject {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             tableDataModel.filteredcellModels.remove(at: index+1)
-            for i in 0..<30 {
+            for i in 0..<5 {
                 tableDataModel.filteredcellModels.remove(at: index+1)
             }
         } else {
             var cellModels = [RowDataModel]()
             cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
             
-            for i in 0..<30 {
+            for i in 0..<5 {
                 cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: tableDataModel.filteredcellModels.first!.cellsCopy, rowType: .nestedRow(level: 0, index: i+1)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)

@@ -151,6 +151,9 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
+                    if viewModel.showRowExpender {
+                        Spacer()
+                    }
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: textHeight)
@@ -170,7 +173,7 @@ struct TableModalView : View {
                         .border(Color.tableCellBorderColor)
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight)
+                .frame(width: viewModel.showRowSelector ? (viewModel.showRowExpender ? 120 : 80) : 40, height: textHeight)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
@@ -178,7 +181,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? 80 : 40)
+                            .frame(width: viewModel.showRowSelector ? (viewModel.showRowExpender ? 120 : 80) : 40)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -238,7 +241,7 @@ struct TableModalView : View {
                                 .imageScale(.small)
                         }
                         
-                        if ![.image, .block, .date, .progress].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
+                        if ![.image, .block, .date, .progress, .table].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -259,7 +262,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled([.image, .block, .date, .progress, .table].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -280,9 +283,34 @@ struct TableModalView : View {
     
     var rowsHeader: some View {
         LazyVStack(alignment: .leading, spacing: 0) {
-           ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
+           ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, $rowModel) in
                 let rowArray = rowModel.cells
                HStack(spacing: 0) {
+                   // Expand Button View
+                   if viewModel.showRowExpender {
+                       switch rowModel.rowType {
+                       case .header:
+                           Rectangle()
+                               .fill(Color.white)
+                               .frame(width: 40, height: 60)
+                               .border(Color.tableCellBorderColor)
+                       case .row:
+                           Image(systemName: rowModel.isExpanded ? "arrow.down.square" : "arrow.right.square")
+                               .frame(width: 40, height: 60)
+                               .border(Color.tableCellBorderColor)
+                               .onTapGesture {
+                                   viewModel.expendTable(rowDataModel: rowModel)
+                                   rowModel.isExpanded.toggle()
+                               }
+                       case .nestedRow(level: let level, index: let index):
+                           Rectangle()
+                               .fill(Color.white)
+                               .frame(width: 40, height: 60)
+                               .border(Color.tableCellBorderColor)
+                       }
+                   }
+                   
+                   // Selector Button View
                    switch rowModel.rowType {
                    case .row(let index):
                        if viewModel.showRowSelector {
@@ -307,13 +335,17 @@ struct TableModalView : View {
                            .frame(width: 40, height: 60)
                            .border(Color.tableCellBorderColor)
                    case .nestedRow(let level, let index):
-                       Rectangle()
-                           .fill(Color.white)
+                       let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
+                       Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                            .frame(width: 40, height: 60)
                            .border(Color.tableCellBorderColor)
+                           .onTapGesture {
+                               viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                           }
+                           .accessibilityIdentifier("MyButton")
                    }
                    
-                   
+                   // Indexing View
                    switch rowModel.rowType {
                    case .header:
                        Text("#")
