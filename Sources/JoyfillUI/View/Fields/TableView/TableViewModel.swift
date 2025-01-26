@@ -124,6 +124,49 @@ class TableViewModel: ObservableObject {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
     
+    func getDummyCells(rowId: String) -> [TableCellModel] {
+        let columns = tableDataModel.tableColumns
+        var tableCellModels: [TableCellModel] = []
+        
+        for (index, col) in columns.enumerated() {
+            let data = getDataForDummyCells(col: index)
+            let cell = TableCellModel(rowID: rowId,
+                                      data: data,
+                                      documentEditor: tableDataModel.documentEditor,
+                                      fieldIdentifier: tableDataModel.fieldIdentifier,
+                                      viewMode: .modalView,
+                                      editMode: .fill,
+                                      didChange: { cell in
+            })
+            tableCellModels.append(cell)
+        }
+        return tableCellModels
+    }
+    
+    func getDataForDummyCells(col: Int) -> CellDataModel {
+        let id = generateObjectId()
+        let columnData = tableDataModel.tableColumns ?? []
+        var columnDataLocal: [CellDataModel] = []
+        let column = columnData[col]
+        var optionsLocal: [OptionLocal] = []
+        for option in column.options ?? []{
+            optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color))
+        }
+        return CellDataModel(id: column.id!,
+                             defaultDropdownSelectedId: column.defaultDropdownSelectedId,
+                             options: optionsLocal,
+                             valueElements: column.images ?? [],
+                             type: column.type,
+                             title: column.title,
+                             number: column.number,
+                             selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
+                             date: column.date,
+                             format: column.getFormat(from: tableDataModel.fieldPositionTableColumns),
+                             multiSelectValues: column.multiSelectValues,
+                             multi: column.multi)
+    }
+    
+    
     func expendTable(rowDataModel: RowDataModel) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
@@ -136,7 +179,8 @@ class TableViewModel: ObservableObject {
             cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
             
             for i in 0..<5 {
-                cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: tableDataModel.filteredcellModels.first!.cellsCopy, rowType: .nestedRow(level: 0, index: i+1)))
+                let rowID = UUID().uuidString
+                cellModels.append(RowDataModel(rowID: rowID, cells: getDummyCells(rowId: rowID), rowType: .nestedRow(level: 0, index: i+1)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
