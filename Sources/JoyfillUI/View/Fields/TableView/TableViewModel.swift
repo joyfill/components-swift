@@ -23,7 +23,6 @@ class TableViewModel: ObservableObject {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
-        //TODO: Send count of total nested table here (For showing the whcih table should open on expend button tap)
         self.nestedTableCount = tableDataModel.tableColumns.filter { $0.type == .table }.count
         setupCellModels()
         self.tableDataModel.filterRowsIfNeeded()
