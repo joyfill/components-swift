@@ -23,6 +23,7 @@ class TableViewModel: ObservableObject {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
+        //TODO: Send count of total nested table here (For showing the whcih table should open on expend button tap)
         self.showRowExpender = tableDataModel.tableColumns.contains(where: { $0.type == .table })
         setupCellModels()
         self.tableDataModel.filterRowsIfNeeded()
@@ -174,6 +175,7 @@ class TableViewModel: ObservableObject {
             for i in 0..<5 {
                 tableDataModel.filteredcellModels.remove(at: index+1)
             }
+            //TODO: Close all the nested rows for a particular row
         } else {
             var cellModels = [RowDataModel]()
             cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
