@@ -151,7 +151,7 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
-                    if viewModel.showRowExpender {
+                    if viewModel.nestedTableCount > 0 {
                         Spacer()
                     }
                     if viewModel.showRowSelector  {
@@ -173,7 +173,7 @@ struct TableModalView : View {
                         .border(Color.tableCellBorderColor)
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? (viewModel.showRowExpender ? 120 : 80) : 40, height: textHeight)
+                .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 40, height: textHeight)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft])
@@ -181,7 +181,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? (viewModel.showRowExpender ? 120 : 80) : 40)
+                            .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 40)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -287,7 +287,7 @@ struct TableModalView : View {
                 let rowArray = rowModel.cells
                HStack(spacing: 0) {
                    // Expand Button View
-                   if viewModel.showRowExpender {
+                   if viewModel.nestedTableCount > 0 {
                        switch rowModel.rowType {
                        case .header:
                            Rectangle()
@@ -299,14 +299,27 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendTable(rowDataModel: rowModel)
+                                   viewModel.expandTable(rowDataModel: rowModel, nestedTableCount: viewModel.nestedTableCount)
                                    rowModel.isExpanded.toggle()
                                }
                        case .nestedRow(level: let level, index: let index):
-                           Rectangle()
-                               .fill(Color.white)
+                           //Show this if it has more nested table Else keep empty
+                           Image(systemName: rowModel.isExpanded ? "arrow.down.square" : "arrow.right.square")
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
+                               .onTapGesture {
+                                   viewModel.expendTable(rowDataModel: rowModel)
+                                   rowModel.isExpanded.toggle()
+                               }
+                       case .tableExpander:
+                           Image(systemName: rowModel.isExpanded ? "arrow.down.square" : "arrow.right.square")
+                               .frame(width: 40, height: 60)
+                               .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                               .border(Color.tableCellBorderColor)
+                               .onTapGesture {
+                                   viewModel.expendTable(rowDataModel: rowModel)
+                                   rowModel.isExpanded.toggle()
+                               }
                        }
                    }
                    
@@ -343,6 +356,11 @@ struct TableModalView : View {
                                viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                            }
                            .accessibilityIdentifier("MyButton")
+                   case .tableExpander:
+                       Spacer()
+                           .frame(width: 40, height: 60)
+                           .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                           .border(Color.tableCellBorderColor)
                    }
                    
                    // Indexing View
@@ -365,6 +383,11 @@ struct TableModalView : View {
                            .frame(width: 40, height: 60)
                            .border(Color.tableCellBorderColor)
                            .id("\(index)")
+                   case .tableExpander:
+                       Spacer()
+                           .frame(width: 40, height: 60)
+                           .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                           .border(Color.tableCellBorderColor)
                    }
                }
             }
@@ -387,6 +410,14 @@ struct TableModalView : View {
                             case .header:
                                 colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
                                     .frame(height: 60)
+                            case .tableExpander:
+                                HStack{
+                                    Text("Expand this table")
+                                    Spacer()
+                                }
+                                .frame(height: 60)
+                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                                .border(Color.tableCellBorderColor)
                             }
                         }
                     }

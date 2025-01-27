@@ -14,7 +14,7 @@ class TableViewModel: ObservableObject {
     
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
-    @Published var showRowExpender: Bool = false
+    @Published var nestedTableCount: Int = 0
     private var requiredColumnIds: [String] = []
 
     @Published var uuid = UUID()
@@ -24,7 +24,7 @@ class TableViewModel: ObservableObject {
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
         //TODO: Send count of total nested table here (For showing the whcih table should open on expend button tap)
-        self.showRowExpender = tableDataModel.tableColumns.contains(where: { $0.type == .table })
+        self.nestedTableCount = tableDataModel.tableColumns.filter { $0.type == .table }.count
         setupCellModels()
         self.tableDataModel.filterRowsIfNeeded()
         self.requiredColumnIds = tableDataModel.tableColumns
@@ -183,6 +183,22 @@ class TableViewModel: ObservableObject {
             for i in 0..<5 {
                 let rowID = UUID().uuidString
                 cellModels.append(RowDataModel(rowID: rowID, cells: getDummyCells(rowId: rowID), rowType: .nestedRow(level: 0, index: i+1)))
+            }
+            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+        }
+    }
+    
+    func expandTable(rowDataModel: RowDataModel, nestedTableCount: Int) {
+        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
+        if rowDataModel.isExpanded {
+            for i in 0..<nestedTableCount {
+                tableDataModel.filteredcellModels.remove(at: index+1)
+            }
+        } else {
+            var cellModels = [RowDataModel]()
+            
+            for i in 0..<nestedTableCount {
+                cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .tableExpander))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
