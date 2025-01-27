@@ -411,13 +411,8 @@ struct TableModalView : View {
                                 colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
                                     .frame(height: 60)
                             case .tableExpander:
-                                HStack{
-                                    Text("Expand this table")
-                                    Spacer()
-                                }
-                                .frame(height: 60)
-                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                                .border(Color.tableCellBorderColor)
+                                TableExpanderView(rowDataModel: $rowCellModels)
+                                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                             }
                         }
                     }
@@ -457,3 +452,29 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
+struct TableExpanderView: View {
+    @Binding var rowDataModel: RowDataModel
+    
+    var body: some View {
+        HStack{
+            Text("Sub table title")
+            Spacer()
+            
+            if rowDataModel.isExpanded {
+                Button(action: {
+                    
+                }) {
+                    Text("Add Row +")
+                        .foregroundStyle(.selection)
+                        .font(.system(size: 14))
+                        .frame(height: 27)
+                        .padding(.horizontal, 16)
+                        .overlay(RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.buttonBorderColor, lineWidth: 1))
+                }
+            }
+        }
+        .frame(height: 60)
+        .border(Color.tableCellBorderColor)
+    }
+}
