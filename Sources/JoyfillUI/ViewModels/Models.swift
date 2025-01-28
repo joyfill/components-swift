@@ -36,7 +36,7 @@ struct RowDataModel: Equatable, Hashable {
     }
 }
 
-let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode]
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .signature]
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -208,6 +208,8 @@ struct TableDataModel {
             cell?.title = valueUnion?.text ?? ""
         case .barcode:
             cell?.title = valueUnion?.text ?? ""
+        case .signature:
+            cell?.title = valueUnion?.text ?? ""
         default:
             return nil
         }
@@ -377,7 +379,7 @@ struct CellDataModel: Hashable, Equatable {
     var isCellFilled: Bool {
         guard let type = type else { return false }
         switch type {
-        case .text, .block, .barcode:
+        case .text, .block, .barcode, .signature:
             return title.isEmpty || title != ""
         case .number:
             return number != nil
