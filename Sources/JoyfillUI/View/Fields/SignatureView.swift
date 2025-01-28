@@ -170,7 +170,7 @@ struct CanvasSignatureView: View {
                             .overlay {
                                 Image(uiImage: signatureImage)
                                     .resizable()
-                                    .scaledToFill()
+                                    .scaledToFit()
                             }
                         
                         Button(action: {
