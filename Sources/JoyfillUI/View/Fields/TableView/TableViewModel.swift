@@ -175,18 +175,29 @@ class TableViewModel: ObservableObject {
 
             for i in index + 1..<tableDataModel.filteredcellModels.count {
                 let nextRow = tableDataModel.filteredcellModels[i]
-                if nextRow.rowType == .row(index: index + 1) {
-                    break
-                }
-                switch nextRow.rowType {
-                case .header, .nestedRow, .tableExpander:
-                    indicesToRemove.append(i)
-                case .row:
-                    break
+                //Handle closing tableExpander
+                if rowDataModel.rowType == .tableExpander {
+                    if nextRow.rowType == .tableExpander {
+                        break
+                    }
+                    switch nextRow.rowType {
+                    case .header, .nestedRow:
+                        indicesToRemove.append(i)
+                    case .row, .tableExpander:
+                        break
+                    }
+                } else {
+                    if nextRow.rowType == .row(index: index + 1) {
+                        break
+                    }
+                    switch nextRow.rowType {
+                    case .header, .nestedRow, .tableExpander:
+                        indicesToRemove.append(i)
+                    case .row:
+                        break
+                    }
                 }
             }
-
-            // Remove the collected indices after the loop
             for i in indicesToRemove.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
             }
