@@ -167,14 +167,29 @@ class TableViewModel: ObservableObject {
     }
     
     
-    func expendTable(rowDataModel: RowDataModel) {
+    func expendSpecificTable(rowDataModel: RowDataModel) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
-            tableDataModel.filteredcellModels.remove(at: index+1)
-            for i in 0..<5 {
-                tableDataModel.filteredcellModels.remove(at: index+1)
+            // Close all the nested rows for a particular row
+            var indicesToRemove: [Int] = []
+
+            for i in index + 1..<tableDataModel.filteredcellModels.count {
+                let nextRow = tableDataModel.filteredcellModels[i]
+                if nextRow.rowType == .row(index: index + 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .nestedRow, .tableExpander:
+                    indicesToRemove.append(i)
+                case .row:
+                    break
+                }
             }
-            //TODO: Close all the nested rows for a particular row
+
+            // Remove the collected indices after the loop
+            for i in indicesToRemove.reversed() {
+                tableDataModel.filteredcellModels.remove(at: i)
+            }
         } else {
             var cellModels = [RowDataModel]()
             cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
@@ -187,11 +202,26 @@ class TableViewModel: ObservableObject {
         }
     }
     
-    func expandTable(rowDataModel: RowDataModel, nestedTableCount: Int) {
+    func expandTables(rowDataModel: RowDataModel, nestedTableCount: Int) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
-            for i in 0..<nestedTableCount {
-                tableDataModel.filteredcellModels.remove(at: index+1)
+            var indicesToRemove: [Int] = []
+
+            for i in index + 1..<tableDataModel.filteredcellModels.count {
+                let nextRow = tableDataModel.filteredcellModels[i]
+                if nextRow.rowType == .row(index: index + 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .nestedRow, .tableExpander:
+                    indicesToRemove.append(i)
+                case .row:
+                    break
+                }
+            }
+
+            for i in indicesToRemove.reversed() {
+                tableDataModel.filteredcellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()

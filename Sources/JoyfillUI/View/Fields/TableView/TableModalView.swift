@@ -299,7 +299,7 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expandTable(rowDataModel: rowModel, nestedTableCount: viewModel.nestedTableCount)
+                                   viewModel.expandTables(rowDataModel: rowModel, nestedTableCount: viewModel.nestedTableCount)
                                    rowModel.isExpanded.toggle()
                                }
                        case .nestedRow(level: let level, index: let index):
@@ -308,7 +308,7 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendTable(rowDataModel: rowModel)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel)
                                    rowModel.isExpanded.toggle()
                                }
                        case .tableExpander:
@@ -317,7 +317,7 @@ struct TableModalView : View {
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendTable(rowDataModel: rowModel)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel)
                                    rowModel.isExpanded.toggle()
                                }
                        }
@@ -403,7 +403,7 @@ struct TableModalView : View {
                             switch rowCellModels.rowType {
                             case .row, .nestedRow:
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: {
-                                    viewModel.expendTable(rowDataModel: rowCellModels)
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
