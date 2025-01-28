@@ -295,7 +295,7 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                        case .row:
-                           Image(systemName: rowModel.isExpanded ? "arrow.down.square" : "arrow.right.square")
+                           Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
@@ -304,7 +304,7 @@ struct TableModalView : View {
                                }
                        case .nestedRow(level: let level, index: let index):
                            //Show this if it has more nested table Else keep empty
-                           Image(systemName: rowModel.isExpanded ? "arrow.down.square" : "arrow.right.square")
+                           Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
@@ -312,7 +312,7 @@ struct TableModalView : View {
                                    rowModel.isExpanded.toggle()
                                }
                        case .tableExpander:
-                           Image(systemName: rowModel.isExpanded ? "arrow.down.square" : "arrow.right.square")
+                           Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
