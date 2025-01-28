@@ -21,11 +21,7 @@ struct TableSignatureView: View {
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
             isEditable = false
         }) {
-            CanvasSignatureView(
-                lines: $lines, isEditable: $isEditable,
-                savedLines: $savedLines,
-                signatureImage: $signatureImage
-            )
+            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, isEditable: $isEditable)
         }
         .onChange(of: signatureImage) { newImage in
             if let newImage = newImage, let data = newImage.pngData() {
