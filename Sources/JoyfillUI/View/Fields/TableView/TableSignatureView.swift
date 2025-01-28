@@ -18,6 +18,7 @@ struct TableSignatureView: View {
             Image(systemName: "signature")
                 .foregroundColor((cellModel.data.title.isEmpty || cellModel.data.title == nil) ? .gray : .black)
         })
+        .accessibilityIdentifier("TableSignatureOpenSheetButton")
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
             isEditable = false
         }) {

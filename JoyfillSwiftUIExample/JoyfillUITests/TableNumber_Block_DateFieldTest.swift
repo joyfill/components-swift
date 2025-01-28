@@ -1061,6 +1061,64 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual("2 Second row", secondCellTextValue)
         XCTAssertEqual("3 Third row", thirdCellTextValue)
     }
+    
+    // Signature Column Test cases
+    
+    // Swipe for siganture column
+    func swipeLeftForSignatureColumn() {
+        let element = app.children(matching: .window).element(boundBy: 0).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
+        element.swipeLeft()
+        element.swipeLeft()
+    }
+    
+    func testClearExistingSignature() throws {
+        goToTableDetailPage()
+        swipeLeftForSignatureColumn()
+        
+        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        let firstSignatureButton = signatureButtons.element(boundBy: 0)
+        firstSignatureButton.tap()
+        
+        app.buttons["TableSignatureEditButton"].tap()
+        drawSignatureLine()
+        app.buttons["ClearSignatureIdentifier"].tap()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        sleep(1)
+        goBack()
+        sleep(1)
+        XCTAssertEqual("", onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f040"]?.text)
+    }
+    
+    func testSaveNewSignature() throws {
+        goToTableDetailPage()
+        swipeLeftForSignatureColumn()
+        
+        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        let tapOnSignatureButton = signatureButtons.element(boundBy: 1)
+        tapOnSignatureButton.tap()
+        
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        sleep(1)
+        tapOnSignatureButton.tap()
+        
+        app.buttons["TableSignatureEditButton"].tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        sleep(1)
+        goBack()
+        sleep(1)
+        XCTAssertNotNil(onChangeResultValue().valueElements?[1].cells?["676919715e36fed325f2f040"]?.text)
+    }
+    
+    func drawSignatureLine() {
+        let canvas = app.otherElements["CanvasIdentifier"]
+        canvas.tap()
+        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+        let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
+        startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+    }
 }
 
 
