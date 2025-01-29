@@ -3,7 +3,6 @@ import SwiftUI
 struct TableSignatureView: View {
     @Binding var cellModel: TableCellModel
     @State var isEditable: Bool = false
-    
     @State private var lines: [Line] = []
     @State private var savedLines: [Line] = []
     @State private var signatureImage: UIImage?
@@ -13,7 +12,6 @@ struct TableSignatureView: View {
         Button(action: {
             loadImageFromURL()
             showCanvasSignatureView = true
-            
         }, label: {
             Image(systemName: "signature")
                 .foregroundColor((cellModel.data.title.isEmpty || cellModel.data.title == nil) ? .gray : .black)
