@@ -124,50 +124,7 @@ class TableViewModel: ObservableObject {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
     
-    func getDummyCells(rowId: String) -> [TableCellModel] {
-        let columns = tableDataModel.tableColumns
-        var tableCellModels: [TableCellModel] = []
-        
-        for (index, col) in columns.enumerated() {
-            let data = getDataForDummyCells(col: index)
-            let cell = TableCellModel(rowID: rowId,
-                                      data: data,
-                                      documentEditor: tableDataModel.documentEditor,
-                                      fieldIdentifier: tableDataModel.fieldIdentifier,
-                                      viewMode: .modalView,
-                                      editMode: .fill,
-                                      didChange: { cell in
-            })
-            tableCellModels.append(cell)
-        }
-        return tableCellModels
-    }
-    
-    func getDataForDummyCells(col: Int) -> CellDataModel {
-        let id = generateObjectId()
-        let columnData = tableDataModel.tableColumns ?? []
-        var columnDataLocal: [CellDataModel] = []
-        let column = columnData[col]
-        var optionsLocal: [OptionLocal] = []
-        for option in column.options ?? []{
-            optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color))
-        }
-        return CellDataModel(id: column.id!,
-                             defaultDropdownSelectedId: column.defaultDropdownSelectedId,
-                             options: optionsLocal,
-                             valueElements: column.images ?? [],
-                             type: column.type,
-                             title: column.title,
-                             number: column.number,
-                             selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
-                             date: column.date,
-                             format: column.getFormat(from: tableDataModel.fieldPositionTableColumns),
-                             multiSelectValues: column.multiSelectValues,
-                             multi: column.multi)
-    }
-    
-    
-    func expendSpecificTable(rowDataModel: RowDataModel) {
+    func expendSpecificTable(rowDataModel: RowDataModel, colIndex: Int) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
@@ -204,10 +161,47 @@ class TableViewModel: ObservableObject {
         } else {
             var cellModels = [RowDataModel]()
             cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
+
+            let clickedCellID = tableDataModel.tableColumns[colIndex].id
+            let subRowIds = rowDataModel.cells.first { tableCellModel in
+                tableCellModel.data.id == clickedCellID
+            }?.data.multiSelectValues ?? []
+
             
-            for i in 0..<5 {
-                let rowID = UUID().uuidString
-                cellModels.append(RowDataModel(rowID: rowID, cells: getDummyCells(rowId: rowID), rowType: .nestedRow(level: 0, index: i+1)))
+            for (index, id) in subRowIds.enumerated() {
+                let newRowID = UUID().uuidString
+                
+                var subCells: [TableCellModel] = []
+                let column = tableDataModel.tableColumns.first { tableColumn in
+                    tableColumn.id == clickedCellID
+                }
+                
+                guard let valueElement = tableDataModel.valueToValueElements?.first(where: { valueElement in
+                    valueElement.id == id
+                }) else {
+                    return
+                }
+                //only one level(How much deep is tableColumns -> tablecolumns)
+                let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: column?.tableColumns ?? [], valueElement)
+                
+                for rowDataModel in rowDataModels {
+                    let cellModel = TableCellModel(rowID: newRowID,
+                                                   data: rowDataModel,
+                                                   documentEditor: tableDataModel.documentEditor,
+                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                   viewMode: .modalView,
+                                                   editMode: tableDataModel.mode) { cellDataModel in
+                        let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+                            fieldTableColumn.id == cellDataModel.id
+                        })!
+                        self.cellDidChange(rowId: newRowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                    }
+                    subCells.append(cellModel)
+                }
+                
+                cellModels.append(RowDataModel(rowID: newRowID,
+                                               cells: subCells,
+                                               rowType: .nestedRow(level: 0, index: index+1)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
@@ -236,9 +230,15 @@ class TableViewModel: ObservableObject {
             }
         } else {
             var cellModels = [RowDataModel]()
+            let columns = tableDataModel.tableColumns.filter { column in
+                column.type == .table
+            }
             
-            for i in 0..<nestedTableCount {
-                cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .tableExpander))
+            for column in columns {
+                let newRowID = UUID().uuidString
+                cellModels.append(RowDataModel(rowID: newRowID,
+                                               cells: rowDataModel.cells,
+                                               rowType: .tableExpander, expanderTitle: column.title))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }

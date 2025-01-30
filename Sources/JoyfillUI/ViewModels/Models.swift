@@ -36,19 +36,14 @@ struct RowDataModel: Equatable, Hashable {
     var filledCellCount: Int {
         cells.filter { $0.data.isCellFilled }.count
     }
+    //RowExpander title(It would be the title of column for Expander)
+    var expanderTitle: String?
     
-    public var cellsCopy: [TableCellModel] {
-        cells.map { cell in
-            var cell = cell
-            cell.id = UUID()
-            return cell
-        }
-    }
-    
-    init(rowID: String, cells: [TableCellModel], rowType: RowType) {
+    init(rowID: String, cells: [TableCellModel], rowType: RowType, expanderTitle: String? = nil) {
         self.rowID = rowID
         self.cells = cells
         self.rowType = rowType
+        self.expanderTitle = expanderTitle
     }
 }
 
@@ -232,7 +227,7 @@ struct TableDataModel {
         case .barcode:
             cell?.title = valueUnion?.text ?? ""
         case .table:
-            cell?.title = valueUnion?.text ?? ""
+            cell?.multiSelectValues = valueUnion?.stringArray
         default:
             return nil
         }

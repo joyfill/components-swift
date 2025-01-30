@@ -308,7 +308,7 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, colIndex: 0)
                                    rowModel.isExpanded.toggle()
                                }
                        case .tableExpander:
@@ -317,7 +317,7 @@ struct TableModalView : View {
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, colIndex: 0)
                                    rowModel.isExpanded.toggle()
                                }
                        }
@@ -403,7 +403,7 @@ struct TableModalView : View {
                             switch rowCellModels.rowType {
                             case .row, .nestedRow:
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: {
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels)
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, colIndex: 0)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
@@ -456,8 +456,8 @@ struct TableExpanderView: View {
     @Binding var rowDataModel: RowDataModel
     
     var body: some View {
-        HStack{
-            Text("Sub table title")
+        HStack {
+            Text(rowDataModel.expanderTitle ?? "")
             Spacer()
             
             if rowDataModel.isExpanded {
