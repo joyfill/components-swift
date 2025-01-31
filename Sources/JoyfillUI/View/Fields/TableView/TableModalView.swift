@@ -198,7 +198,13 @@ struct TableModalView : View {
             VStack(alignment: .leading, spacing: 0) {
                 if #available(iOS 16, *) {
                     ScrollView([.horizontal], showsIndicators: false) {
-                        colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
+                        TableColumnHeaderView(viewModel: viewModel,
+                                              tableColumns: viewModel.tableDataModel.tableColumns,
+                                              currentSelectedCol: $currentSelectedCol,
+                                              textHeight: $textHeight,
+                                              colorScheme: colorScheme,
+                                              columnHeights: $columnHeights,
+                                              longestBlockText: longestBlockText)
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
@@ -206,7 +212,13 @@ struct TableModalView : View {
                     .scrollDisabled(true)
                 } else {
                     ScrollView([.horizontal], showsIndicators: false) {
-                        colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
+                        TableColumnHeaderView(viewModel: viewModel,
+                                              tableColumns: viewModel.tableDataModel.tableColumns,
+                                              currentSelectedCol: $currentSelectedCol,
+                                              textHeight: $textHeight,
+                                              colorScheme: colorScheme,
+                                              columnHeights: $columnHeights,
+                                              longestBlockText: longestBlockText)
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
@@ -219,67 +231,6 @@ struct TableModalView : View {
         }
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
     }
-
-    func colsHeader(viewModel: TableViewModel,
-                        currentSelectedCol: Binding<Int>,
-                        textHeight: Binding<CGFloat>,
-                        colorScheme: ColorScheme,
-                    columnHeights: Binding<[Int: CGFloat]>) -> some View {
-        HStack(alignment: .top, spacing: 0) {
-            ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
-                Button(action: {
-                    currentSelectedCol.wrappedValue = currentSelectedCol.wrappedValue == index ? Int.min : index
-                }, label: {
-                    HStack {
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
-                            .multilineTextAlignment(.leading)
-                            .darkLightThemeColor()
-                        
-                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-                            Image(systemName: "asterisk")
-                                .foregroundColor(.red)
-                                .imageScale(.small)
-                        }
-                        
-                        if ![.image, .block, .date, .progress, .table].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
-                        }
-                        
-                    }
-                    .padding(.all, 4)
-                    .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown,
-                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty,
-                                                       text: longestBlockText))
-                    .frame(minHeight: textHeight.wrappedValue)
-                    .overlay(
-                        Rectangle()
-                            .stroke(currentSelectedCol.wrappedValue != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
-                    )
-                    .background(
-                        colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
-                    )
-                })
-                .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress, .table].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
-                .fixedSize(horizontal: false, vertical: true)
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear
-                            .onAppear {
-                                let height = geometry.size.height
-                                columnHeights.wrappedValue[index] = height
-                                
-                                if let maxColumnHeight = columnHeights.wrappedValue.values.max() {
-                                    textHeight.wrappedValue = maxColumnHeight
-                                }
-                            }
-                    }
-                )
-            }
-        }
-    }
     
     var rowsHeader: some View {
         LazyVStack(alignment: .leading, spacing: 0) {
@@ -289,12 +240,12 @@ struct TableModalView : View {
                    // Expand Button View
                    if viewModel.nestedTableCount > 0 {
                        switch rowModel.rowType {
-                       case .header:
+                       case .header(tableColumns: let columns):
                            Rectangle()
                                .fill(Color.white)
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
-                       case .row:
+                       case .row(index: let index):
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
@@ -311,13 +262,13 @@ struct TableModalView : View {
                                    viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: "")
                                    rowModel.isExpanded.toggle()
                                }
-                       case .tableExpander:
+                       case .tableExpander(tableColumn: let column):
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: "")
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: column?.id ?? "")
                                    rowModel.isExpanded.toggle()
                                }
                        }
@@ -407,8 +358,14 @@ struct TableModalView : View {
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
-                            case .header:
-                                colsHeader(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, textHeight: $textHeight, colorScheme: colorScheme, columnHeights: $columnHeights)
+                            case .header(tableColumns: let tableColumns):
+                                TableColumnHeaderView(viewModel: viewModel,
+                                                      tableColumns: tableColumns,
+                                                      currentSelectedCol: $currentSelectedCol,
+                                                      textHeight: $textHeight,
+                                                      colorScheme: colorScheme,
+                                                      columnHeights: $columnHeights,
+                                                      longestBlockText: longestBlockText)
                                     .frame(height: 60)
                             case .tableExpander:
                                 TableExpanderView(rowDataModel: $rowCellModels)
@@ -476,5 +433,72 @@ struct TableExpanderView: View {
         }
         .frame(height: 60)
         .border(Color.tableCellBorderColor)
+    }
+}
+
+struct TableColumnHeaderView: View {
+    @ObservedObject var viewModel: TableViewModel
+    let tableColumns: [FieldTableColumn]
+    @Binding var currentSelectedCol: Int
+    @Binding var textHeight: CGFloat
+    let colorScheme: ColorScheme
+    @Binding var columnHeights: [Int: CGFloat]
+    let longestBlockText: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 0) {
+            ForEach(Array(tableColumns.enumerated()), id: \.offset) { index, column in
+                Button(action: {
+                    //TODO: Handle column click for nested tables(May be use id instead of index)
+                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
+                }, label: {
+                    HStack {
+                        Text(column.title)
+                            .multilineTextAlignment(.leading)
+                            .darkLightThemeColor()
+                        
+                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+                            Image(systemName: "asterisk")
+                                .foregroundColor(.red)
+                                .imageScale(.small)
+                        }
+                        
+                        if ![.image, .block, .date, .progress, .table].contains(column.type) {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
+                        }
+                    }
+                    .padding(.all, 4)
+                    .font(.system(size: 15))
+                    .frame(width: Utility.getCellWidth(type: column.type ?? .unknown,
+                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty,
+                                                     text: longestBlockText))
+                    .frame(minHeight: textHeight)
+                    .overlay(
+                        Rectangle()
+                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
+                    )
+                    .background(
+                        colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
+                    )
+                })
+                .accessibilityIdentifier("ColumnButtonIdentifier")
+                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.rowOrder.count == 0)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(
+                    GeometryReader { geometry in
+                        Color.clear
+                            .onAppear {
+                                let height = geometry.size.height
+                                columnHeights[index] = height
+                                
+                                if let maxColumnHeight = columnHeights.values.max() {
+                                    textHeight = maxColumnHeight
+                                }
+                            }
+                    }
+                )
+            }
+        }
     }
 }

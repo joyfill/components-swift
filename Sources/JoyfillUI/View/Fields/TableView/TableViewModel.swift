@@ -133,8 +133,8 @@ class TableViewModel: ObservableObject {
             for i in index + 1..<tableDataModel.filteredcellModels.count {
                 let nextRow = tableDataModel.filteredcellModels[i]
                 //Handle closing tableExpander
-                if rowDataModel.rowType == .tableExpander {
-                    if nextRow.rowType == .tableExpander {
+                if rowDataModel.rowType == .tableExpander() {
+                    if nextRow.rowType == .tableExpander() {
                         break
                     }
                     switch nextRow.rowType {
@@ -160,11 +160,13 @@ class TableViewModel: ObservableObject {
             }
         } else {
             var cellModels = [RowDataModel]()
-            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
+            let column = tableDataModel.tableColumns.first { tableColumn in
+                tableColumn.id == columnID
+            }
+            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header(tableColumns: column?.tableColumns ?? [])))
 
-            let clickedCellID = columnID
             let subRowIds = rowDataModel.cells.first { tableCellModel in
-                tableCellModel.data.id == clickedCellID
+                tableCellModel.data.id == columnID
             }?.data.multiSelectValues ?? []
 
             
@@ -172,9 +174,7 @@ class TableViewModel: ObservableObject {
                 let newRowID = UUID().uuidString
                 
                 var subCells: [TableCellModel] = []
-                let column = tableDataModel.tableColumns.first { tableColumn in
-                    tableColumn.id == clickedCellID
-                }
+                
                 
                 guard let valueElement = tableDataModel.valueToValueElements?.first(where: { valueElement in
                     valueElement.id == id
@@ -238,7 +238,8 @@ class TableViewModel: ObservableObject {
                 let newRowID = UUID().uuidString
                 cellModels.append(RowDataModel(rowID: newRowID,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander, expanderTitle: column.title))
+                                               rowType: .tableExpander(tableColumn: column),
+                                               expanderTitle: column.title))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }

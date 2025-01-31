@@ -49,9 +49,9 @@ struct RowDataModel: Equatable, Hashable {
 
 enum RowType: Equatable {
     case row(index: Int)
-    case header
+    case header(tableColumns: [FieldTableColumn])
     case nestedRow(level: Int, index: Int)
-    case tableExpander
+    case tableExpander(tableColumn: FieldTableColumn? = nil)
 }
 
 let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table]
