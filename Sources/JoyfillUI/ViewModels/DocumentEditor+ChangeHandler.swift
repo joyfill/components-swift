@@ -19,8 +19,12 @@ extension DocumentEditor {
         }
         let fieldId = fieldIdentifier.fieldID
         var field = fieldMap[fieldId]!
-        var lastRowOrder = field.rowOrder ?? []
-        guard var elements = field.valueToValueElements else { return }
+        guard var lastRowOrder = field.rowOrder else {
+            return
+        }
+        guard var elements = field.valueToValueElements else {
+            return
+        }
 
         for row in rowIDs {
             guard let index = elements.firstIndex(where: { $0.id == row }) else {
@@ -46,12 +50,16 @@ extension DocumentEditor {
             return [:]
         }
         var targetRows = [TargetRowModel]()
-        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+        guard var lastRowOrder = fieldMap[fieldId]?.rowOrder else {
+            return [:]
+        }
         
         var changes = [Int: ValueElement]()
 
-        rowIDs.forEach { rowID in
-            var element = elements.first(where: { $0.id == rowID })!
+        for rowID in rowIDs {
+            guard var element = elements.first(where: { $0.id == rowID }) else {
+                continue
+            }
             let newRowID = generateObjectId()
             element.id = newRowID
             elements.append(element)
@@ -78,7 +86,9 @@ extension DocumentEditor {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
         }
-        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+        guard var lastRowOrder = fieldMap[fieldId]?.rowOrder else {
+            return
+        }
         let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
 
         guard lastRowIndex != 0 else {
@@ -100,7 +110,9 @@ extension DocumentEditor {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
         }
-        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+        guard var lastRowOrder = fieldMap[fieldId]?.rowOrder else {
+            return
+        }
         let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
 
         guard (lastRowOrder.count - 1) != lastRowIndex else {
@@ -161,7 +173,9 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
     public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> ValueElement? {
-        var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
+        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+            return nil
+        }
 
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
@@ -175,7 +189,7 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
-        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
+        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
         return newRow
     }
 
@@ -191,12 +205,14 @@ extension DocumentEditor {
         for rowId in selectedRows {
             for cellDataModelId in changes.keys {
                 if let change = changes[cellDataModelId] {
-                    guard let index = elements.firstIndex(where: { $0.id == rowId }) else { return }
+                    guard let index = elements.firstIndex(where: { $0.id == rowId }) else {
+                        return
+                    }
                     if var cells = elements[index].cells {
-                        cells[cellDataModelId ?? ""] = change
+                        cells[cellDataModelId] = change
                         elements[index].cells = cells
                     } else {
-                        elements[index].cells = [cellDataModelId ?? "" : change]
+                        elements[index].cells = [cellDataModelId : change]
                     }
                 }
             }
@@ -364,11 +380,14 @@ extension DocumentEditor {
     }
 
     private func changes(fieldData: JoyDocField) -> [String: Any] {
+        guard let value = fieldData.value else {
+            return [:]
+        }
         switch fieldData.type {
         case "chart":
             return chartChanges(fieldData: fieldData)
         default:
-            return ["value": fieldData.value!.dictionary]
+            return ["value": value.dictionary]
         }
     }
 

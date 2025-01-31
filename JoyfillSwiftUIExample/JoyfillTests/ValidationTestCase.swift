@@ -760,7 +760,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
@@ -779,7 +779,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: true)
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: true, isRowOrderNil: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
@@ -798,7 +798,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false)
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false, isRowOrderNil: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
@@ -817,7 +817,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: true, isZeroRows: false, isColumnsZero: false)
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: true, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
@@ -835,7 +835,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: true, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
+            .setRequiredTableField(hideColumn: true, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
             .setTableFieldPosition(hideColumn: true)
         
         let documentEditor = documentEditor(document: document)
@@ -853,7 +853,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
+            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
@@ -871,7 +871,7 @@ final class ValidationTestCase: XCTestCase {
             .setMobileView()
             .setPageFieldInMobileView()
             .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
