@@ -124,7 +124,7 @@ class TableViewModel: ObservableObject {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
     
-    func expendSpecificTable(rowDataModel: RowDataModel, colIndex: Int) {
+    func expendSpecificTable(rowDataModel: RowDataModel, columnID: String) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
@@ -162,7 +162,7 @@ class TableViewModel: ObservableObject {
             var cellModels = [RowDataModel]()
             cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header))
 
-            let clickedCellID = tableDataModel.tableColumns[colIndex].id
+            let clickedCellID = columnID
             let subRowIds = rowDataModel.cells.first { tableCellModel in
                 tableCellModel.data.id == clickedCellID
             }?.data.multiSelectValues ?? []
@@ -181,7 +181,7 @@ class TableViewModel: ObservableObject {
                 }) else {
                     return
                 }
-                //only one level(How much deep is tableColumns -> tablecolumns)
+                //TODO: only one level(How much deep is tableColumns -> tablecolumns)
                 let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: column?.tableColumns ?? [], valueElement)
                 
                 for rowDataModel in rowDataModels {

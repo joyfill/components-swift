@@ -16,7 +16,7 @@ enum TableViewMode {
 struct TableViewCellBuilder: View {
     @ObservedObject var viewModel: TableViewModel
     @Binding var cellModel: TableCellModel
-    var action: () -> Void
+    var action: (_ columnID: String) -> Void
     
     var body: some View {
         switch cellModel.data.type {
@@ -47,7 +47,7 @@ struct TableViewCellBuilder: View {
                 .disabled(cellModel.editMode == .readonly)
         case .table:
             Button(action: {
-                action()
+                action(cellModel.data.id)
             }, label: {
                 Image(systemName: "tablecells")
                     .font(.system(size: 15))

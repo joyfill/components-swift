@@ -126,7 +126,7 @@ struct TableQuickView : View {
                                 Rectangle()
                                     .stroke()
                                     .foregroundColor(Color.tableCellBorderColor)
-                                TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel), action: {})
+                                TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel), action: {columnID in })
                             }
                             .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                         }

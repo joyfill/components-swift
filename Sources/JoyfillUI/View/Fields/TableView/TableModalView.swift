@@ -5,7 +5,7 @@ struct TableRowView: View {
     @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
     var longestBlockText: String
-    var action: () -> Void
+    var action: (_ columnID: String) -> Void
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -308,7 +308,7 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, colIndex: 0)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: "")
                                    rowModel.isExpanded.toggle()
                                }
                        case .tableExpander:
@@ -317,7 +317,7 @@ struct TableModalView : View {
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, colIndex: 0)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: "")
                                    rowModel.isExpanded.toggle()
                                }
                        }
@@ -402,8 +402,8 @@ struct TableModalView : View {
                         ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
                             switch rowCellModels.rowType {
                             case .row, .nestedRow:
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: {
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, colIndex: 0)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in 
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
