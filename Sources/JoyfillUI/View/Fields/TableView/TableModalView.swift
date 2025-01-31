@@ -254,7 +254,7 @@ struct TableModalView : View {
                                    rowModel.isExpanded.toggle()
                                }
                        case .nestedRow(level: let level, index: let index):
-                           //Show this if it has more nested table Else keep empty
+                           //TODO: Show this if it has more nested table Else keep empty
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
@@ -319,6 +319,7 @@ struct TableModalView : View {
                    case .header:
                        Text("#")
                            .frame(width: 40, height: textHeight)
+                           .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                            .border(Color.tableCellBorderColor)
                    case .nestedRow(let level, let nastedRowIndex):
                        Text("\(nastedRowIndex)")
@@ -360,15 +361,15 @@ struct TableModalView : View {
                                 .frame(height: 60)
                             case .header(tableColumns: let tableColumns):
                                 TableColumnHeaderView(viewModel: viewModel,
-                                                      tableColumns: tableColumns,
+                                                      tableColumns: tableColumns ?? [],
                                                       currentSelectedCol: $currentSelectedCol,
                                                       textHeight: $textHeight,
                                                       colorScheme: colorScheme,
                                                       columnHeights: $columnHeights,
                                                       longestBlockText: longestBlockText)
                                     .frame(height: 60)
-                            case .tableExpander:
-                                TableExpanderView(rowDataModel: $rowCellModels)
+                            case .tableExpander(tableColumn: let tableColumn):
+                                TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn)
                                     .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                             }
                         }
@@ -411,10 +412,11 @@ struct ViewOffsetKey: PreferenceKey {
 
 struct TableExpanderView: View {
     @Binding var rowDataModel: RowDataModel
+    var tableColumn: FieldTableColumn?
     
     var body: some View {
         HStack {
-            Text(rowDataModel.expanderTitle ?? "")
+            Text(tableColumn?.title ?? "")
             Spacer()
             
             if rowDataModel.isExpanded {

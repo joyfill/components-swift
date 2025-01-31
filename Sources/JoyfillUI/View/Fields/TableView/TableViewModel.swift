@@ -238,8 +238,7 @@ class TableViewModel: ObservableObject {
                 let newRowID = UUID().uuidString
                 cellModels.append(RowDataModel(rowID: newRowID,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander(tableColumn: column),
-                                               expanderTitle: column.title))
+                                               rowType: .tableExpander(tableColumn: column)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }

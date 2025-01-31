@@ -36,14 +36,11 @@ struct RowDataModel: Equatable, Hashable {
     var filledCellCount: Int {
         cells.filter { $0.data.isCellFilled }.count
     }
-    //RowExpander title(It would be the title of column for Expander)
-    var expanderTitle: String?
     
-    init(rowID: String, cells: [TableCellModel], rowType: RowType, expanderTitle: String? = nil) {
+    init(rowID: String, cells: [TableCellModel], rowType: RowType) {
         self.rowID = rowID
         self.cells = cells
         self.rowType = rowType
-        self.expanderTitle = expanderTitle
     }
 }
 
