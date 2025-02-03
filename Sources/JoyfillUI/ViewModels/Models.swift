@@ -37,6 +37,10 @@ struct RowDataModel: Equatable, Hashable {
         cells.filter { $0.data.isCellFilled }.count
     }
     
+    var hasMoreNestedRows: Bool {
+        cells.contains { $0.data.type == .table }
+    }
+    
     init(rowID: String, cells: [TableCellModel], rowType: RowType) {
         self.rowID = rowID
         self.cells = cells

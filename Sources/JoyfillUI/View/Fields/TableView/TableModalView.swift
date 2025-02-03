@@ -255,13 +255,20 @@ struct TableModalView : View {
                                }
                        case .nestedRow(level: let level, index: let index):
                            //TODO: Show this if it has more nested table Else keep empty
-                           Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
-                               .frame(width: 40, height: 60)
-                               .border(Color.tableCellBorderColor)
-                               .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: "")
-                                   rowModel.isExpanded.toggle()
-                               }
+                           if rowModel.hasMoreNestedRows {
+                               Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                                   .frame(width: 40, height: 60)
+                                   .border(Color.tableCellBorderColor)
+                                   .onTapGesture {
+                                       viewModel.expandTables(rowDataModel: rowModel, nestedTableCount: viewModel.nestedTableCount)
+                                       rowModel.isExpanded.toggle()
+                                   }
+                           } else {
+                               Rectangle()
+                                   .fill(Color.white)
+                                   .frame(width: 40, height: 60)
+                                   .border(Color.tableCellBorderColor)
+                           }
                        case .tableExpander(tableColumn: let column):
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)

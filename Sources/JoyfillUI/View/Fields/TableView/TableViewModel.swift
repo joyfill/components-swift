@@ -191,10 +191,11 @@ class TableViewModel: ObservableObject {
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
-                            fieldTableColumn.id == cellDataModel.id
-                        })!
-                        self.cellDidChange(rowId: newRowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                        //TODO: Handle on Change for Nested tables
+//                        let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+//                            fieldTableColumn.id == cellDataModel.id
+//                        })!
+//                        self.cellDidChange(rowId: newRowID, colIndex: colIndex, cellDataModel: cellDataModel)
                     }
                     subCells.append(cellModel)
                 }
