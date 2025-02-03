@@ -124,7 +124,25 @@ class TableViewModel: ObservableObject {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
     
-    func expendSpecificTable(rowDataModel: RowDataModel, columnID: String) {
+    func findColumnById(_ columnId: String, in columns: [FieldTableColumn]) -> FieldTableColumn? {
+        for column in columns {
+            // If the current column’s _id matches, return it.
+            if column.id == columnId {
+                return column
+            }
+            
+            // If not -> recursively check its tableColumns.
+            if column.type == .table,
+               let subColumns = column.tableColumns {
+                if let found = findColumnById(columnId, in: subColumns) {
+                    return found
+                }
+            }
+        }
+        return nil
+    }
+    
+    func expendSpecificTable(rowDataModel: RowDataModel, columnID: String, level: Int) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
@@ -133,14 +151,25 @@ class TableViewModel: ObservableObject {
             for i in index + 1..<tableDataModel.filteredcellModels.count {
                 let nextRow = tableDataModel.filteredcellModels[i]
                 //Handle closing tableExpander
-                if rowDataModel.rowType == .tableExpander() {
-                    if nextRow.rowType == .tableExpander() {
+                guard let column = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
+                if rowDataModel.rowType == .tableExpander(tableColumn: column, level: level) {
+                    if nextRow.rowType == .tableExpander(tableColumn: column, level: level)  {
                         break
                     }
                     switch nextRow.rowType {
-                    case .header, .nestedRow:
+                    case .header, .nestedRow, .tableExpander:
                         indicesToRemove.append(i)
-                    case .row, .tableExpander:
+                    case .row:
+                        break
+                    }
+                } else if nextRow.rowType == .nestedRow(level: level, index: index) {
+                    if nextRow.rowType == .nestedRow(level: level, index: index) {
+                        break
+                    }
+                    switch nextRow.rowType {
+                    case .header, .nestedRow, .tableExpander:
+                        indicesToRemove.append(i)
+                    case .row:
                         break
                     }
                 } else {
@@ -160,10 +189,9 @@ class TableViewModel: ObservableObject {
             }
         } else {
             var cellModels = [RowDataModel]()
-            let column = tableDataModel.tableColumns.first { tableColumn in
-                tableColumn.id == columnID
-            }
-            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header(tableColumns: column?.tableColumns ?? [])))
+            guard let column = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
+
+            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header(tableColumns: column.tableColumns ?? [])))
 
             let subRowIds = rowDataModel.cells.first { tableCellModel in
                 tableCellModel.data.id == columnID
@@ -175,14 +203,13 @@ class TableViewModel: ObservableObject {
                 
                 var subCells: [TableCellModel] = []
                 
-                
                 guard let valueElement = tableDataModel.valueToValueElements?.first(where: { valueElement in
                     valueElement.id == id
                 }) else {
                     return
                 }
-                //TODO: only one level(How much deep is tableColumns -> tablecolumns)
-                let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: column?.tableColumns ?? [], valueElement)
+                
+                let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: column.tableColumns ?? [], valueElement)
                 
                 for rowDataModel in rowDataModels {
                     let cellModel = TableCellModel(rowID: newRowID,
@@ -202,28 +229,41 @@ class TableViewModel: ObservableObject {
                 
                 cellModels.append(RowDataModel(rowID: newRowID,
                                                cells: subCells,
-                                               rowType: .nestedRow(level: 0, index: index+1)))
+                                               rowType: .nestedRow(level: level + 1, index: index+1)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
     }
     
-    func expandTables(rowDataModel: RowDataModel, nestedTableCount: Int) {
+    func expandTables(rowDataModel: RowDataModel, level: Int) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             var indicesToRemove: [Int] = []
 
             for i in index + 1..<tableDataModel.filteredcellModels.count {
                 let nextRow = tableDataModel.filteredcellModels[i]
-                if nextRow.rowType == .row(index: index + 1) {
-                    break
+                if nextRow.rowType == .nestedRow(level: level, index: index) {
+                    if nextRow.rowType == .nestedRow(level: level, index: index) {
+                        break
+                    }
+                    switch nextRow.rowType {
+                    case .header, .nestedRow, .tableExpander:
+                        indicesToRemove.append(i)
+                    case .row:
+                        break
+                    }
+                } else {
+                    if nextRow.rowType == .row(index: index + 1) {
+                        break
+                    }
+                    switch nextRow.rowType {
+                    case .header, .nestedRow, .tableExpander:
+                        indicesToRemove.append(i)
+                    case .row:
+                        break
+                    }
                 }
-                switch nextRow.rowType {
-                case .header, .nestedRow, .tableExpander:
-                    indicesToRemove.append(i)
-                case .row:
-                    break
-                }
+                
             }
 
             for i in indicesToRemove.reversed() {
@@ -231,18 +271,38 @@ class TableViewModel: ObservableObject {
             }
         } else {
             var cellModels = [RowDataModel]()
-            let columns = tableDataModel.tableColumns.filter { column in
-                column.type == .table
-            }
+
+            let columns = columnsAtNestedLevel(level, from: tableDataModel.tableColumns)
             
             for column in columns {
                 let newRowID = UUID().uuidString
                 cellModels.append(RowDataModel(rowID: newRowID,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander(tableColumn: column)))
+                                               rowType: .tableExpander(tableColumn: column, level: level)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
+    }
+    
+    func columnsAtNestedLevel(_ level: Int, from columns: [FieldTableColumn]) -> [FieldTableColumn] {
+        guard level >= 0 else { return [] }
+        
+        // level=0 just return the columns we have:
+        if level == 0 {
+            return columns.filter { column in
+                column.type == .table
+            }
+        }
+        
+        // Otherwise, Recursive call to gather columns
+        var immediateSubColumns: [FieldTableColumn] = []
+        for col in columns {
+            if col.type == .table, let subCols = col.tableColumns {
+                immediateSubColumns.append(contentsOf: subCols)
+            }
+        }
+        
+        return columnsAtNestedLevel(level - 1, from: immediateSubColumns)
     }
     
     func deleteSelectedRow() {

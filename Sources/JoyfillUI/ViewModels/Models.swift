@@ -52,7 +52,7 @@ enum RowType: Equatable {
     case row(index: Int)
     case header(tableColumns: [FieldTableColumn])
     case nestedRow(level: Int, index: Int)
-    case tableExpander(tableColumn: FieldTableColumn? = nil)
+    case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int)
 }
 
 let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table]

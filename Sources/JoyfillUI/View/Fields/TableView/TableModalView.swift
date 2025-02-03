@@ -250,17 +250,16 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expandTables(rowDataModel: rowModel, nestedTableCount: viewModel.nestedTableCount)
+                                   viewModel.expandTables(rowDataModel: rowModel, level: 0)
                                    rowModel.isExpanded.toggle()
                                }
                        case .nestedRow(level: let level, index: let index):
-                           //TODO: Show this if it has more nested table Else keep empty
                            if rowModel.hasMoreNestedRows {
                                Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                    .frame(width: 40, height: 60)
                                    .border(Color.tableCellBorderColor)
                                    .onTapGesture {
-                                       viewModel.expandTables(rowDataModel: rowModel, nestedTableCount: viewModel.nestedTableCount)
+                                       viewModel.expandTables(rowDataModel: rowModel, level: level)
                                        rowModel.isExpanded.toggle()
                                    }
                            } else {
@@ -269,13 +268,13 @@ struct TableModalView : View {
                                    .frame(width: 40, height: 60)
                                    .border(Color.tableCellBorderColor)
                            }
-                       case .tableExpander(tableColumn: let column):
+                       case .tableExpander(tableColumn: let column, level: let level):
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: column?.id ?? "")
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: column?.id ?? "", level: level)
                                    rowModel.isExpanded.toggle()
                                }
                        }
@@ -360,9 +359,15 @@ struct TableModalView : View {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
                             switch rowCellModels.rowType {
-                            case .row, .nestedRow:
+                            case .row:
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in 
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID)
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: 0)
+                                    rowCellModels.isExpanded.toggle()
+                                })
+                                .frame(height: 60)
+                            case .nestedRow(level: let level, index: let index):
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: level)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
@@ -375,7 +380,7 @@ struct TableModalView : View {
                                                       columnHeights: $columnHeights,
                                                       longestBlockText: longestBlockText)
                                     .frame(height: 60)
-                            case .tableExpander(tableColumn: let tableColumn):
+                            case .tableExpander(tableColumn: let tableColumn, level: let level):
                                 TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn)
                                     .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                             }
