@@ -142,7 +142,7 @@ class TableViewModel: ObservableObject {
         return nil
     }
         
-    func expendSpecificTable(rowDataModel: RowDataModel, columnID: String, level: Int) {
+    func expendSpecificTable(rowDataModel: RowDataModel, columnID: String, level: Int, isOpenedFromTable: Bool) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
@@ -173,8 +173,18 @@ class TableViewModel: ObservableObject {
         } else {
             var cellModels = [RowDataModel]()
             guard let column = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
+            
+            if isOpenedFromTable {
+                //Add tableExpander if opened from direct table
+                cellModels.append(RowDataModel(rowID: UUID().uuidString,
+                                               cells: rowDataModel.cells,
+                                               rowType: .tableExpander(tableColumn: column, level: level),
+                                               isExpanded: true))
+            }
 
-            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header(level: level + 1, tableColumns: column.tableColumns ?? [])))
+            cellModels.append(RowDataModel(rowID: UUID().uuidString,
+                                           cells: [],
+                                           rowType: .header(level: level + 1, tableColumns: column.tableColumns ?? [])))
 
             let subRowIds = rowDataModel.cells.first { tableCellModel in
                 tableCellModel.data.id == columnID

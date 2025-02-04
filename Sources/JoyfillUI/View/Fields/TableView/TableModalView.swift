@@ -276,7 +276,7 @@ struct TableModalView : View {
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: column?.id ?? "", level: level)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: column?.id ?? "", level: level, isOpenedFromTable: false)
                                    rowModel.isExpanded.toggle()
                                }
                        }
@@ -363,13 +363,13 @@ struct TableModalView : View {
                             switch rowCellModels.rowType {
                             case .row:
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in 
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: 0)
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: 0, isOpenedFromTable: true)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
                             case .nestedRow(level: let level, index: let index):
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: level)
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: level, isOpenedFromTable: true)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)

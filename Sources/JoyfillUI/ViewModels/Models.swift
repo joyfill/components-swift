@@ -41,10 +41,11 @@ struct RowDataModel: Equatable, Hashable {
         cells.contains { $0.data.type == .table }
     }
     
-    init(rowID: String, cells: [TableCellModel], rowType: RowType) {
+    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false) {
         self.rowID = rowID
         self.cells = cells
         self.rowType = rowType
+        self.isExpanded = isExpanded
     }
 }
 
