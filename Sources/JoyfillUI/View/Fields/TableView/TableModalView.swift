@@ -467,7 +467,6 @@ struct TableColumnHeaderView: View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(tableColumns.enumerated()), id: \.offset) { index, column in
                 Button(action: {
-                    //TODO: Handle column click for nested tables(May be use id instead of index)
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     HStack {
