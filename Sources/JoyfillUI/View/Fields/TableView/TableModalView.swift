@@ -204,7 +204,8 @@ struct TableModalView : View {
                                               textHeight: $textHeight,
                                               colorScheme: colorScheme,
                                               columnHeights: $columnHeights,
-                                              longestBlockText: longestBlockText)
+                                              longestBlockText: longestBlockText,
+                                              isHeaderNested: false)
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
@@ -218,7 +219,8 @@ struct TableModalView : View {
                                               textHeight: $textHeight,
                                               colorScheme: colorScheme,
                                               columnHeights: $columnHeights,
-                                              longestBlockText: longestBlockText)
+                                              longestBlockText: longestBlockText,
+                                              isHeaderNested: false)
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
@@ -378,7 +380,8 @@ struct TableModalView : View {
                                                       textHeight: $textHeight,
                                                       colorScheme: colorScheme,
                                                       columnHeights: $columnHeights,
-                                                      longestBlockText: longestBlockText)
+                                                      longestBlockText: longestBlockText,
+                                                      isHeaderNested: true)
                                     .frame(height: 60)
                             case .tableExpander(tableColumn: let tableColumn, level: let level):
                                 TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn)
@@ -458,6 +461,7 @@ struct TableColumnHeaderView: View {
     let colorScheme: ColorScheme
     @Binding var columnHeights: [Int: CGFloat]
     let longestBlockText: String
+    let isHeaderNested: Bool
     
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -471,13 +475,14 @@ struct TableColumnHeaderView: View {
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
                         
+                        //TODO: Handle required for nested table columns
                         if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
                             Image(systemName: "asterisk")
                                 .foregroundColor(.red)
                                 .imageScale(.small)
                         }
                         
-                        if ![.image, .block, .date, .progress, .table].contains(column.type) {
+                        if ![.image, .block, .date, .progress, .table].contains(column.type) && !isHeaderNested {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -497,7 +502,7 @@ struct TableColumnHeaderView: View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.rowOrder.count == 0 || isHeaderNested)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
