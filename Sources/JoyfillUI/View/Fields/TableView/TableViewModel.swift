@@ -141,57 +141,40 @@ class TableViewModel: ObservableObject {
         }
         return nil
     }
-    
+        
     func expendSpecificTable(rowDataModel: RowDataModel, columnID: String, level: Int) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
-            var indicesToRemove: [Int] = []
-
+            var indicesToRemoveArray: [Int] = []
+            
             for i in index + 1..<tableDataModel.filteredcellModels.count {
                 let nextRow = tableDataModel.filteredcellModels[i]
-                //Handle closing tableExpander
-                guard let column = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
-                if rowDataModel.rowType == .tableExpander(tableColumn: column, level: level) {
-                    if nextRow.rowType == .tableExpander(tableColumn: column, level: level)  {
-                        break
-                    }
-                    switch nextRow.rowType {
-                    case .header, .nestedRow, .tableExpander:
-                        indicesToRemove.append(i)
-                    case .row:
-                        break
-                    }
-                } else if nextRow.rowType == .nestedRow(level: level, index: index) {
-                    if nextRow.rowType == .nestedRow(level: level, index: index) {
-                        break
-                    }
-                    switch nextRow.rowType {
-                    case .header, .nestedRow, .tableExpander:
-                        indicesToRemove.append(i)
-                    case .row:
-                        break
-                    }
-                } else {
-                    if nextRow.rowType == .row(index: index + 1) {
-                        break
-                    }
-                    switch nextRow.rowType {
-                    case .header, .nestedRow, .tableExpander:
-                        indicesToRemove.append(i)
-                    case .row:
-                        break
-                    }
+                
+                //Stop if find another table expander of same level
+                if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
+                    break
+                }
+                //Stop if find nested row of same level
+                if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .nestedRow, .tableExpander:
+                    indicesToRemoveArray.append(i)
+                case .row:
+                    break
                 }
             }
-            for i in indicesToRemove.reversed() {
+            
+            for i in indicesToRemoveArray.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()
             guard let column = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
 
-            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header(tableColumns: column.tableColumns ?? [])))
+            cellModels.append(RowDataModel(rowID: UUID().uuidString, cells: [], rowType: .header(level: level + 1, tableColumns: column.tableColumns ?? [])))
 
             let subRowIds = rowDataModel.cells.first { tableCellModel in
                 tableCellModel.data.id == columnID
@@ -242,8 +225,13 @@ class TableViewModel: ObservableObject {
 
             for i in index + 1..<tableDataModel.filteredcellModels.count {
                 let nextRow = tableDataModel.filteredcellModels[i]
-                if nextRow.rowType == .nestedRow(level: level, index: index) {
-                    if nextRow.rowType == .nestedRow(level: level, index: index) {
+                if rowDataModel.rowType == .nestedRow(level: level, index: rowDataModel.rowType.index) {
+                    //Stop at same level but next index of current nested row
+                    if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index + 1) {
+                        break
+                    }
+                    //Stop if there is an tableExpander of low level
+                    if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level - 1) {
                         break
                     }
                     switch nextRow.rowType {
@@ -263,7 +251,6 @@ class TableViewModel: ObservableObject {
                         break
                     }
                 }
-                
             }
 
             for i in indicesToRemove.reversed() {

@@ -371,7 +371,7 @@ struct TableModalView : View {
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
-                            case .header(tableColumns: let tableColumns):
+                            case .header(level: let level, tableColumns: let tableColumns):
                                 TableColumnHeaderView(viewModel: viewModel,
                                                       tableColumns: tableColumns ?? [],
                                                       currentSelectedCol: $currentSelectedCol,

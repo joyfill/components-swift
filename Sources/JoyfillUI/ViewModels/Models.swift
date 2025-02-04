@@ -50,9 +50,42 @@ struct RowDataModel: Equatable, Hashable {
 
 enum RowType: Equatable {
     case row(index: Int)
-    case header(tableColumns: [FieldTableColumn])
+    case header(level: Int, tableColumns: [FieldTableColumn])
     case nestedRow(level: Int, index: Int)
     case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int)
+    
+    var level: Int {
+        switch self {
+        case let .row:                      return 0
+        case let .header:                   return 0
+        case let .nestedRow(level, _):                return level
+        case let .tableExpander(_, level):            return level
+        }
+    }
+    
+    var index: Int {
+        switch self {
+        case .nestedRow(_, index: let index): return index
+        case .row(index: let index):
+            return index
+        case .header(level: let level, tableColumns: let tableColumns):
+            return 0
+        case .tableExpander(tableColumn: let tableColumn, level: let level):
+            return 0
+        }
+    }
+    
+    static func == (lhs: RowType, rhs: RowType) -> Bool {
+        switch (lhs, rhs) {
+        case (.row, .row),
+             (.header, .header),
+             (.nestedRow, .nestedRow),
+             (.tableExpander, .tableExpander):
+            return lhs.level == rhs.level
+        default:
+            return false
+        }
+    }
 }
 
 let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table]
