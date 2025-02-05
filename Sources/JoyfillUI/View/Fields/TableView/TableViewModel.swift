@@ -213,7 +213,7 @@ class TableViewModel: ObservableObject {
                                                    editMode: tableDataModel.mode) { cellDataModel in
                         //TODO: Handle on Change for Nested tables
                         let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
-                        self.cellDidChange(rowId: id, colIndex: result?.index ?? 0, cellDataModel: cellDataModel)
+                        self.tableDataModel.valueToValueElements =  self.cellDidChange(rowId: id, colIndex: result?.index ?? 0, cellDataModel: cellDataModel)
                     }
                     subCells.append(cellModel)
                 }
@@ -423,10 +423,10 @@ class TableViewModel: ObservableObject {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
-        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
-        
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) -> [ValueElement]{
         tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+        
+        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
