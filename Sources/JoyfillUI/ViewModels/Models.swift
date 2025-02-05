@@ -270,7 +270,10 @@ struct TableDataModel {
     }
     
     mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
-        var cellModel = cellModels[rowIndex].cells[colIndex]
+        guard let index = cellModels.firstIndex(where: { $0.rowID == rowId }) else {
+            return
+        }
+        var cellModel = cellModels[index].cells[colIndex]
         cellModel.data = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
         if isBulkEdit {

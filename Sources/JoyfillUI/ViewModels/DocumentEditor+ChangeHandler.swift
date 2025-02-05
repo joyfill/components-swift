@@ -205,7 +205,7 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, fieldId: String) {
+    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldId: String) {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return
         }

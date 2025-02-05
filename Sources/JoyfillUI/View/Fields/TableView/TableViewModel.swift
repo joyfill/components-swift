@@ -124,26 +124,25 @@ class TableViewModel: ObservableObject {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
     
-    func findColumnById(_ columnId: String, in columns: [FieldTableColumn]) -> FieldTableColumn? {
-        for column in columns {
-            // If the current column’s _id matches, return it.
+    func findColumnById(_ columnId: String, in columns: [FieldTableColumn]) -> (column: FieldTableColumn, index: Int)? {
+        for (index, column) in columns.enumerated() {
+            // If the current column’s id matches, return it with its index.
             if column.id == columnId {
-                return column
+                return (column, index)
             }
             
             // If not -> recursively check its tableColumns.
             if column.type == .table,
-               let subColumns = column.tableColumns {
-                if let found = findColumnById(columnId, in: subColumns) {
-                    return found
-                }
+               let subColumns = column.tableColumns,
+               let found = findColumnById(columnId, in: subColumns) {
+                return found
             }
         }
         return nil
     }
         
     func expendSpecificTable(rowDataModel: RowDataModel, columnID: String, level: Int, isOpenedFromTable: Bool) {
-        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
             var indicesToRemoveArray: [Int] = []
@@ -169,22 +168,23 @@ class TableViewModel: ObservableObject {
             
             for i in indicesToRemoveArray.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
+                tableDataModel.cellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()
-            guard let column = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
+            guard let result = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
             
             if isOpenedFromTable {
                 //Add tableExpander if opened from direct table
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander(tableColumn: column, level: level),
+                                               rowType: .tableExpander(tableColumn: result.column, level: level),
                                                isExpanded: true))
             }
 
             cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                            cells: [],
-                                           rowType: .header(level: level + 1, tableColumns: column.tableColumns ?? [])))
+                                           rowType: .header(level: level + 1, tableColumns: result.column.tableColumns ?? [])))
 
             let subRowIds = rowDataModel.cells.first { tableCellModel in
                 tableCellModel.data.id == columnID
@@ -202,34 +202,33 @@ class TableViewModel: ObservableObject {
                     return
                 }
                 
-                let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: column.tableColumns ?? [], valueElement)
+                let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: result.column.tableColumns ?? [], valueElement)
                 
-                for rowDataModel in rowDataModels {
-                    let cellModel = TableCellModel(rowID: newRowID,
-                                                   data: rowDataModel,
+                for cellDataModel in cellDataModels {
+                    let cellModel = TableCellModel(rowID: id,
+                                                   data: cellDataModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
                         //TODO: Handle on Change for Nested tables
-//                        let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
-//                            fieldTableColumn.id == cellDataModel.id
-//                        })!
-//                        self.cellDidChange(rowId: newRowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                        let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
+                        self.cellDidChange(rowId: id, colIndex: result?.index ?? 0, cellDataModel: cellDataModel)
                     }
                     subCells.append(cellModel)
                 }
                 
-                cellModels.append(RowDataModel(rowID: newRowID,
+                cellModels.append(RowDataModel(rowID: id,
                                                cells: subCells,
                                                rowType: .nestedRow(level: level + 1, index: index+1)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
     }
     
     func expandTables(rowDataModel: RowDataModel, level: Int) {
-        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             var indicesToRemove: [Int] = []
 
@@ -265,6 +264,7 @@ class TableViewModel: ObservableObject {
 
             for i in indicesToRemove.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
+                tableDataModel.cellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()
@@ -278,6 +278,7 @@ class TableViewModel: ObservableObject {
                                                rowType: .tableExpander(tableColumn: column, level: level)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
     }
     
@@ -423,7 +424,7 @@ class TableViewModel: ObservableObject {
     }
 
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
-        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
+        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
         
         tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
     }
