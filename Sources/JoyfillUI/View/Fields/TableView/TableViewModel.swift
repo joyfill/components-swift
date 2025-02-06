@@ -142,7 +142,7 @@ class TableViewModel: ObservableObject {
     }
         
     func expendSpecificTable(rowDataModel: RowDataModel, columnID: String, level: Int, isOpenedFromTable: Bool) {
-        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
             var indicesToRemoveArray: [Int] = []
@@ -151,8 +151,10 @@ class TableViewModel: ObservableObject {
                 let nextRow = tableDataModel.filteredcellModels[i]
                 
                 //Stop if find another table expander of same level
-                if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
-                    break
+                if !isOpenedFromTable {
+                    if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
+                        break
+                    }
                 }
                 //Stop if find nested row of same level
                 if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
@@ -168,7 +170,6 @@ class TableViewModel: ObservableObject {
             
             for i in indicesToRemoveArray.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
-                tableDataModel.cellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()
@@ -223,12 +224,11 @@ class TableViewModel: ObservableObject {
                                                rowType: .nestedRow(level: level + 1, index: index+1)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
-            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
     }
     
     func expandTables(rowDataModel: RowDataModel, level: Int) {
-        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             var indicesToRemove: [Int] = []
 
@@ -264,7 +264,6 @@ class TableViewModel: ObservableObject {
 
             for i in indicesToRemove.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
-                tableDataModel.cellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()
@@ -278,7 +277,6 @@ class TableViewModel: ObservableObject {
                                                rowType: .tableExpander(tableColumn: column, level: level)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
-            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
     }
     
