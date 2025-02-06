@@ -270,7 +270,7 @@ struct TableModalView : View {
                                    .frame(width: 40, height: 60)
                                    .border(Color.tableCellBorderColor)
                            }
-                       case .tableExpander(tableColumn: let column, level: let level):
+                       case .tableExpander(tableColumn: let column, level: let level, parentID: let parentID):
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
@@ -383,8 +383,8 @@ struct TableModalView : View {
                                                       longestBlockText: longestBlockText,
                                                       isHeaderNested: true)
                                     .frame(height: 60)
-                            case .tableExpander(tableColumn: let tableColumn, level: let level):
-                                TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn)
+                            case .tableExpander(tableColumn: let tableColumn, level: let level, parentID: let parentID):
+                                TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
                                     .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                             }
                         }
@@ -428,6 +428,9 @@ struct ViewOffsetKey: PreferenceKey {
 struct TableExpanderView: View {
     @Binding var rowDataModel: RowDataModel
     var tableColumn: FieldTableColumn?
+    @ObservedObject var viewModel: TableViewModel
+    let level: Int
+    let parentID: (columnID: String, rowID: String)
     
     var body: some View {
         HStack {
@@ -436,7 +439,8 @@ struct TableExpanderView: View {
             
             if rowDataModel.isExpanded {
                 Button(action: {
-                    
+                    let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
+                    viewModel.addNestedRow(columnID: (tableColumn?.id)!, level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
                     Text("Add Row +")
                         .foregroundStyle(.selection)

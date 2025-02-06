@@ -44,7 +44,7 @@ class TableViewModel: ObservableObject {
                     let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     })!
-                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                 }
                 rowCellModels.append(cellModel)
             }
@@ -52,6 +52,28 @@ class TableViewModel: ObservableObject {
             self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: index)), at: index)
         } else {
             self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: self.tableDataModel.cellModels.count)))
+        }
+    }
+    
+    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int) {
+        var rowCellModels = [TableCellModel]()
+        let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, valueElement)
+            for rowDataModel in rowDataModels {
+                let cellModel = TableCellModel(rowID: rowID,
+                                               data: rowDataModel,
+                                               documentEditor: tableDataModel.documentEditor,
+                                               fieldIdentifier: tableDataModel.fieldIdentifier,
+                                               viewMode: .modalView,
+                                               editMode: tableDataModel.mode) { cellDataModel in
+                    let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
+                    self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: result?.index ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
+                }
+                rowCellModels.append(cellModel)
+            }
+        if self.tableDataModel.filteredcellModels.count > (index - 1) {
+            self.tableDataModel.filteredcellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: index)), at: index)
+        } else {
+            self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: self.tableDataModel.filteredcellModels.count)))
         }
     }
     
@@ -93,7 +115,7 @@ class TableViewModel: ObservableObject {
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -179,7 +201,7 @@ class TableViewModel: ObservableObject {
                 //Add tableExpander if opened from direct table
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander(tableColumn: result.column, level: level),
+                                               rowType: .tableExpander(tableColumn: result.column, level: level, parentID: (columnID: columnID, rowID: rowDataModel.rowID)),
                                                isExpanded: true))
             }
 
@@ -212,9 +234,8 @@ class TableViewModel: ObservableObject {
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        //TODO: Handle on Change for Nested tables
                         let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
-                        self.tableDataModel.valueToValueElements =  self.cellDidChange(rowId: id, colIndex: result?.index ?? 0, cellDataModel: cellDataModel)
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: id, colIndex: result?.index ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                     }
                     subCells.append(cellModel)
                 }
@@ -274,7 +295,9 @@ class TableViewModel: ObservableObject {
                 let newRowID = UUID().uuidString
                 cellModels.append(RowDataModel(rowID: newRowID,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander(tableColumn: column, level: level)))
+                                               rowType: .tableExpander(tableColumn: column,
+                                                                       level: level,
+                                                                       parentID: (columnID: column.id ?? "", rowID: rowDataModel.rowID))))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
@@ -384,6 +407,64 @@ class TableViewModel: ObservableObject {
         }
     }
     
+    fileprivate func updateRowOrderForNested(_ startingIndex: Int, _ parentID: (columnID: String, rowID: String), _ id: String, _ result: (column: FieldTableColumn, index: Int)?) {
+        var cellDataModel = tableDataModel.filteredcellModels[startingIndex].cells.first { tableCellModel in
+            tableCellModel.data.id == parentID.columnID
+        }?.data
+        
+        var multiSelectValues = cellDataModel?.multiSelectValues ?? []
+        multiSelectValues.append(id)
+        cellDataModel?.multiSelectValues = multiSelectValues
+        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: parentID.rowID, colIndex: result?.index ?? 0, cellDataModel: cellDataModel!, isNestedCell: true)
+    }
+    
+    fileprivate func updateRowForNested(_ startingIndex: Int, _ level: Int, _ rowData: ValueElement, _ result: (column: FieldTableColumn, index: Int)?) {
+        var atIndex: Int = tableDataModel.filteredcellModels.count
+        loop: for i in (startingIndex + 1)..<tableDataModel.filteredcellModels.count {
+            let nextRow = tableDataModel.filteredcellModels[i]
+            
+            // Stop at .row or .tableExpander
+            switch nextRow.rowType {
+            case .row, .tableExpander:
+                atIndex = i
+                break loop
+            case .nestedRow(level: let nestedLevel, index: let index):
+                if nestedLevel < level + 1 {
+                    atIndex = i
+                    break loop
+                } else {
+                    break
+                }
+            default:
+                break
+            }
+        }
+        self.tableDataModel.valueToValueElements?.append(rowData)
+        addNestedCellModel(rowID: rowData.id!, index: atIndex, valueElement: rowData, columns: result?.column.tableColumns ?? [], level: level + 1)
+    }
+    
+    func addNestedRow(columnID: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
+        let id = generateObjectId()
+        let result = findColumnById(columnID, in: tableDataModel.tableColumns)
+        let cellValues = getCellValuesForNested(columns: result?.column.tableColumns ?? [])
+        
+        updateRowOrderForNested(startingIndex, parentID, id, result)
+        
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, isNested: true) {
+            updateRowForNested(startingIndex, level, rowData, result)
+        }
+    }
+    
+    func getCellValuesForNested(columns: [FieldTableColumn]) -> [String: ValueUnion] {
+        var cellValues: [String: ValueUnion] = [:]
+        for column in columns {
+            if let defaultValue = column.value {
+                cellValues[column.id!] = defaultValue
+            }
+        }
+        return cellValues
+    }
+    
     func getCellValues() -> [String: ValueUnion] {
         var cellValues: [String: ValueUnion] = [:]
         
@@ -421,8 +502,12 @@ class TableViewModel: ObservableObject {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) -> [ValueElement]{
-        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> [ValueElement] {
+        if isNestedCell {
+            tableDataModel.updateFilteredCellModel(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+        } else {
+            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+        }
         
         return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
     }

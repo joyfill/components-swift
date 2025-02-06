@@ -160,7 +160,7 @@ extension DocumentEditor {
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
-    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> ValueElement? {
+    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, isNested: Bool = false) -> ValueElement? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
@@ -173,7 +173,9 @@ extension DocumentEditor {
         elements.append(newRow)
         
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
-        fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
+        if !isNested {
+            fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
+        }
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
         return newRow
@@ -229,6 +231,8 @@ extension DocumentEditor {
             return changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
         case .barcode:
             return changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+        case .table:
+            return changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
         default:
             return []
         }

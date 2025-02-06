@@ -53,14 +53,14 @@ enum RowType: Equatable {
     case row(index: Int)
     case header(level: Int, tableColumns: [FieldTableColumn])
     case nestedRow(level: Int, index: Int)
-    case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int)
+    case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil)
     
     var level: Int {
         switch self {
         case let .row:                      return 0
         case let .header:                   return 0
         case let .nestedRow(level, _):                return level
-        case let .tableExpander(_, level):            return level
+        case let .tableExpander(_, level, _):            return level
         }
     }
     
@@ -71,7 +71,7 @@ enum RowType: Equatable {
             return index
         case .header(level: let level, tableColumns: let tableColumns):
             return 0
-        case .tableExpander(tableColumn: let tableColumn, level: let level):
+        case .tableExpander(tableColumn: let tableColumn, level: let level, _):
             return 0
         }
     }
@@ -270,14 +270,23 @@ struct TableDataModel {
     }
     
     mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
-        guard let index = cellModels.firstIndex(where: { $0.rowID == rowId }) else {
-            return
-        }
-        var cellModel = cellModels[index].cells[colIndex]
+        var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data = cellDataModel
         cellModels[rowIndex].cells[colIndex] = cellModel
         if isBulkEdit {
             cellModels[rowIndex].cells[colIndex].id = UUID()
+        }
+    }
+    
+    mutating func updateFilteredCellModel(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
+        guard let index = filteredcellModels.firstIndex(where: { $0.rowID == rowId }) else {
+            return
+        }
+        var cellModel = filteredcellModels[index].cells[colIndex]
+        cellModel.data = cellDataModel
+        filteredcellModels[index].cells[colIndex] = cellModel
+        if isBulkEdit {
+            filteredcellModels[index].cells[colIndex].id = UUID()
         }
     }
 
