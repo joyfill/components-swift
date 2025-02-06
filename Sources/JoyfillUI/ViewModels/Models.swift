@@ -114,6 +114,8 @@ struct TableDataModel {
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
     var id = UUID()
+    var showResetSelectionAlert: Bool = false
+    private var pendingRowID: String?
     
     var viewMoreText: String {
         rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
@@ -387,10 +389,42 @@ struct TableDataModel {
     }
     
     mutating func toggleSelection(rowID: String) {
-        if selectedRows.contains(rowID) {
-            selectedRows = selectedRows.filter({ $0 != rowID})
+        let currentSelectedRow = self.filteredcellModels.first { rowDataModel in
+            rowDataModel.rowID == rowID
+        }
+        if selectedRows.count > 0 {
+            if currentSelectedRow?.rowType == getRowByID(rowID: selectedRows[0])?.rowType {
+                if selectedRows.contains(rowID) {
+                    selectedRows = selectedRows.filter({ $0 != rowID})
+                } else {
+                    selectedRows.append(rowID)
+                }
+            } else {
+                //show alert
+                pendingRowID = rowID
+                showResetSelectionAlert = true
+            }
         } else {
             selectedRows.append(rowID)
+        }
+    }
+    
+    mutating func confirmResetSelection() {
+        if let newRow = pendingRowID {
+            selectedRows = [newRow]
+        }
+        pendingRowID = nil
+        showResetSelectionAlert = false
+    }
+    
+    mutating  func cancelResetSelection() {
+        pendingRowID = nil
+        showResetSelectionAlert = false
+    }
+    
+    func getRowByID(rowID: String) -> RowDataModel? {
+        return filteredcellModels.first { rowDataModel in
+            rowDataModel.rowID == rowID
         }
     }
     

@@ -87,6 +87,18 @@ struct TableModalView : View {
                 viewModel.tableDataModel.emptySelection()
             }
         }
+        .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
+            Alert(
+                title: Text("Reset Selection"),
+                message: Text("The selected row is of a different table. Do you want to reset the selection and choose the new row?"),
+                primaryButton: .destructive(Text("Yes"), action: {
+                    viewModel.tableDataModel.confirmResetSelection()
+                }),
+                secondaryButton: .cancel(Text("No"), action: {
+                    viewModel.tableDataModel.cancelResetSelection()
+                })
+            )
+        }
     }
     
     func clearFilter() {
