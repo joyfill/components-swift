@@ -327,13 +327,35 @@ class TableViewModel: ObservableObject {
     }
     
     func deleteSelectedRow() {
-        tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        guard !tableDataModel.selectedRows.isEmpty else { return }
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+            return
+        }
+        switch firstSelectedRow.rowType {
+        case .row(index: let index):
+            tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+            for rowID in tableDataModel.selectedRows {
+                if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
+                    deleteRow(at: index, rowID: rowID)
+                }
+            }
+        case .nestedRow(level: let level, index: let index, parentID: let parentID):
+            deleteSelectedNestedRow()
+        default:
+            return
+        }
+        
+        tableDataModel.emptySelection()
+    }
+    
+    func deleteSelectedNestedRow() {
+        //TODO: Handle on change for delete nested row
+//        tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         for rowID in tableDataModel.selectedRows {
-            if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
-                deleteRow(at: index, rowID: rowID)
+            if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
+                deleteNestedRow(at: index, rowID: rowID)
             }
         }
-        tableDataModel.emptySelection()
     }
     
     func duplicateRow() {
@@ -458,6 +480,12 @@ class TableViewModel: ObservableObject {
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
+    }
+    
+    fileprivate func deleteNestedRow(at index: Int, rowID: String) {
+//        tableDataModel.rowOrder.remove(at: index)
+        self.tableDataModel.filteredcellModels.remove(at: index)
+//        tableDataModel.filterRowsIfNeeded()
     }
 
     fileprivate func moveUP(at index: Int, rowID: String) {
