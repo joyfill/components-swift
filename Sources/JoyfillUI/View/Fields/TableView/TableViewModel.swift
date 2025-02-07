@@ -394,16 +394,54 @@ class TableViewModel: ObservableObject {
 
     func moveUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-        moveUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+        
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+            return
+        }
+        switch firstSelectedRow.rowType {
+        case .row(index: let index):
+            tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+            let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+            moveUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+        case .nestedRow(level: let level, index: let index, parentID: let parentID):
+            moveNestedUP()
+        default:
+            return
+        }
+    }
+    
+    func moveNestedUP() {
+        guard !tableDataModel.selectedRows.isEmpty else { return }
+        //TODO: Handle calling on change
+//        tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+        let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
+        moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
 
     func moveDown() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-        moveDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+        
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+            return
+        }
+        switch firstSelectedRow.rowType {
+        case .row(index: let index):
+            tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+            let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+            moveDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+        case .nestedRow(level: let level, index: let index, parentID: let parentID):
+            moveNestedDown()
+        default:
+            return
+        }
+    }
+    
+    func moveNestedDown() {
+        guard !tableDataModel.selectedRows.isEmpty else { return }
+        //TODO: Handle calling on change
+//        tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+        let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
+        moveNestedDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
     
     fileprivate func updateRow(valueElement: ValueElement, at index: Int) {
@@ -428,11 +466,25 @@ class TableViewModel: ObservableObject {
         tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
+    
+    fileprivate func moveNestedUP(at index: Int, rowID: String) {
+//        tableDataModel.rowOrder.swapAt(index, index-1)
+        self.tableDataModel.filteredcellModels.swapAt(index, index-1)
+//        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.emptySelection()
+    }
 
     fileprivate func moveDown(at index: Int, rowID: String) {
         tableDataModel.rowOrder.swapAt(index, index+1)
         self.tableDataModel.cellModels.swapAt(index, index+1)
         tableDataModel.filterRowsIfNeeded()
+        tableDataModel.emptySelection()
+    }
+    
+    fileprivate func moveNestedDown(at index: Int, rowID: String) {
+//        tableDataModel.rowOrder.swapAt(index, index+1)
+        self.tableDataModel.filteredcellModels.swapAt(index, index+1)
+//        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
 

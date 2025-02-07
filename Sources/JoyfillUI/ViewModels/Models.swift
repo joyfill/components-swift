@@ -310,10 +310,12 @@ struct TableDataModel {
     }
     
     var shouldDisableMoveUp: Bool {
+        //TODO: Handle for nested rows
         firstRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
     }
     
     var shouldDisableMoveDown: Bool {
+        //TODO: Handle for nested rows
         lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
     }
     
