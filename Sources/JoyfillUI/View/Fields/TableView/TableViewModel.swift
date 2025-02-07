@@ -55,7 +55,7 @@ class TableViewModel: ObservableObject {
         }
     }
     
-    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int) {
+    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, parentID: (columnID: String, rowID: String)) {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, valueElement)
             for rowDataModel in rowDataModels {
@@ -72,9 +72,9 @@ class TableViewModel: ObservableObject {
             }
         //TODO: Pass parentID
         if self.tableDataModel.filteredcellModels.count > (index - 1) {
-            self.tableDataModel.filteredcellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: index)), at: index)
+            self.tableDataModel.filteredcellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: index, parentID: parentID)), at: index)
         } else {
-            self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: self.tableDataModel.filteredcellModels.count)))
+            self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: self.tableDataModel.filteredcellModels.count, parentID: parentID)))
         }
     }
     
@@ -399,7 +399,7 @@ class TableViewModel: ObservableObject {
         
         for (offset, change) in sortedChanges.enumerated() {
             let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
-            updateRowForNested(startingIndex + 1, firstSelectedRow.rowType.level ?? 0, change.value, result?.column.tableColumns ?? [])
+            updateRowForNested(startingIndex + 1, firstSelectedRow.rowType.level ?? 0, change.value, result?.column.tableColumns ?? [], parentID: firstSelectedRow.rowType.parentID ?? ("", ""))
         }
         
         tableDataModel.emptySelection()
@@ -536,10 +536,10 @@ class TableViewModel: ObservableObject {
         self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: parentID.rowID, colIndex: result?.index ?? 0, cellDataModel: cellDataModel!, isNestedCell: true)
     }
     
-    fileprivate func updateRowForNested(_ atIndex: Int, _ level: Int, _ rowData: ValueElement, _ columns: [FieldTableColumn]) {
+    fileprivate func updateRowForNested(_ atIndex: Int, _ level: Int, _ rowData: ValueElement, _ columns: [FieldTableColumn], parentID: (columnID: String, rowID: String)) {
         //TODO: append or remove or move down or move up
         self.tableDataModel.valueToValueElements?.append(rowData)
-        addNestedCellModel(rowID: rowData.id!, index: atIndex, valueElement: rowData, columns: columns, level: level)
+        addNestedCellModel(rowID: rowData.id!, index: atIndex, valueElement: rowData, columns: columns, level: level, parentID: parentID)
     }
     
     func addNestedRow(columnID: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
@@ -571,7 +571,7 @@ class TableViewModel: ObservableObject {
                     break
                 }
             }
-            updateRowForNested(atIndex, level + 1, rowData, result?.column.tableColumns ?? [])
+            updateRowForNested(atIndex, level + 1, rowData, result?.column.tableColumns ?? [], parentID: parentID)
         }
     }
     
