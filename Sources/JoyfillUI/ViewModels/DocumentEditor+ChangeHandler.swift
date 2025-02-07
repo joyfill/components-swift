@@ -68,6 +68,39 @@ extension DocumentEditor {
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         return changes
     }
+    
+    public func duplicateNestedRows(rowIDs: [String], parentID: (columnID: String, rowID: String), fieldIdentifier: FieldIdentifier, isNested: Bool = false) -> [Int: ValueElement]{
+        let fieldId = fieldIdentifier.fieldID
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            return [:]
+        }
+        var targetRows = [TargetRowModel]()
+        guard let parentIndex = elements.firstIndex(where: { $0.id == parentID.rowID }) else {
+            return [:]
+        }
+        var parentElement = elements[parentIndex]
+        var parentValueArray = parentElement.cells?[parentID.columnID]?.stringArray ?? []
+        
+        var changes = [Int: ValueElement]()
+
+        rowIDs.forEach { rowID in
+            var element = elements.first(where: { $0.id == rowID })!
+            let newRowID = generateObjectId()
+            element.id = newRowID
+            elements.append(element)
+            let lastRowIndex = parentValueArray.firstIndex(of: rowID)!
+            parentValueArray.insert(newRowID, at: lastRowIndex+1)
+            targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
+            changes[lastRowIndex+1] = element
+        }
+        parentElement.cells?[parentID.columnID] = ValueUnion.array(parentValueArray)
+        elements[parentIndex] = parentElement
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        return changes
+    }
 
     /// Moves a specified row up in a table field.
     /// - Parameters:

@@ -70,6 +70,7 @@ class TableViewModel: ObservableObject {
                 }
                 rowCellModels.append(cellModel)
             }
+        //TODO: Pass parentID
         if self.tableDataModel.filteredcellModels.count > (index - 1) {
             self.tableDataModel.filteredcellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: index)), at: index)
         } else {
@@ -163,7 +164,7 @@ class TableViewModel: ObservableObject {
         return nil
     }
         
-    func expendSpecificTable(rowDataModel: RowDataModel, columnID: String, level: Int, isOpenedFromTable: Bool) {
+    func expendSpecificTable(rowDataModel: RowDataModel, parentID: (columnID: String, rowID: String), level: Int, isOpenedFromTable: Bool) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             // Close all the nested rows for a particular row
@@ -195,13 +196,13 @@ class TableViewModel: ObservableObject {
             }
         } else {
             var cellModels = [RowDataModel]()
-            guard let result = findColumnById(columnID, in: tableDataModel.tableColumns) else { return }
+            guard let result = findColumnById(parentID.columnID, in: tableDataModel.tableColumns) else { return }
             
             if isOpenedFromTable {
                 //Add tableExpander if opened from direct table
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander(tableColumn: result.column, level: level, parentID: (columnID: columnID, rowID: rowDataModel.rowID)),
+                                               rowType: .tableExpander(tableColumn: result.column, level: level, parentID: (columnID: parentID.columnID, rowID: rowDataModel.rowID)),
                                                isExpanded: true))
             }
 
@@ -210,7 +211,7 @@ class TableViewModel: ObservableObject {
                                            rowType: .header(level: level + 1, tableColumns: result.column.tableColumns ?? [])))
 
             let subRowIds = rowDataModel.cells.first { tableCellModel in
-                tableCellModel.data.id == columnID
+                tableCellModel.data.id == parentID.columnID
             }?.data.multiSelectValues ?? []
 
             
@@ -242,7 +243,8 @@ class TableViewModel: ObservableObject {
                 
                 cellModels.append(RowDataModel(rowID: id,
                                                cells: subCells,
-                                               rowType: .nestedRow(level: level + 1, index: index+1)))
+                                               rowType: .nestedRow(level: level + 1, index: index+1,
+                                                                   parentID: parentID)))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
@@ -336,12 +338,48 @@ class TableViewModel: ObservableObject {
     
     func duplicateRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let changes = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+            return
+        }
+        switch firstSelectedRow.rowType {
+        case .row(index: let index):
+            guard let changes = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+            
+            let sortedChanges = changes.sorted { $0.key < $1.key }
+            sortedChanges.forEach { (index, value) in
+                updateRow(valueElement: value, at: index)
+            }
+        case .nestedRow(level: let level, index: let index, parentID: let parentID):
+            duplicateNestedRow(firstSelectedRow: firstSelectedRow)
+        default:
+            return
+        }
+        
+        tableDataModel.emptySelection()
+    }
+    
+    func duplicateNestedRow(firstSelectedRow: RowDataModel) {
+        guard !tableDataModel.selectedRows.isEmpty else { return }
+        
+        guard let changes = tableDataModel.documentEditor?.duplicateNestedRows(rowIDs: tableDataModel.selectedRows, parentID: firstSelectedRow.rowType.parentID ?? ("", ""), fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        
+        let result = findColumnById(firstSelectedRow.rowType.parentID?.columnID ?? "", in: tableDataModel.tableColumns)
         
         let sortedChanges = changes.sorted { $0.key < $1.key }
-        sortedChanges.forEach { (index, value) in
-            updateRow(valueElement: value, at: index)
+        
+        let sortedSelectedRows = tableDataModel.selectedRows.sorted { (rowID1, rowID2) in
+            guard let index1 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID1 }),
+                  let index2 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID2 }) else {
+                return false
+            }
+            return index1 < index2
         }
+        
+        for (offset, change) in sortedChanges.enumerated() {
+            let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
+            updateRowForNested(startingIndex + 1, firstSelectedRow.rowType.level ?? 0, change.value, result?.column.tableColumns ?? [])
+        }
+        
         tableDataModel.emptySelection()
     }
 
@@ -418,29 +456,10 @@ class TableViewModel: ObservableObject {
         self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: parentID.rowID, colIndex: result?.index ?? 0, cellDataModel: cellDataModel!, isNestedCell: true)
     }
     
-    fileprivate func updateRowForNested(_ startingIndex: Int, _ level: Int, _ rowData: ValueElement, _ result: (column: FieldTableColumn, index: Int)?) {
-        var atIndex: Int = tableDataModel.filteredcellModels.count
-        loop: for i in (startingIndex + 1)..<tableDataModel.filteredcellModels.count {
-            let nextRow = tableDataModel.filteredcellModels[i]
-            
-            // Stop at .row or .tableExpander
-            switch nextRow.rowType {
-            case .row, .tableExpander:
-                atIndex = i
-                break loop
-            case .nestedRow(level: let nestedLevel, index: let index):
-                if nestedLevel < level + 1 {
-                    atIndex = i
-                    break loop
-                } else {
-                    break
-                }
-            default:
-                break
-            }
-        }
+    fileprivate func updateRowForNested(_ atIndex: Int, _ level: Int, _ rowData: ValueElement, _ columns: [FieldTableColumn]) {
+        //TODO: append or remove or move down or move up
         self.tableDataModel.valueToValueElements?.append(rowData)
-        addNestedCellModel(rowID: rowData.id!, index: atIndex, valueElement: rowData, columns: result?.column.tableColumns ?? [], level: level + 1)
+        addNestedCellModel(rowID: rowData.id!, index: atIndex, valueElement: rowData, columns: columns, level: level)
     }
     
     func addNestedRow(columnID: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
@@ -451,7 +470,28 @@ class TableViewModel: ObservableObject {
         updateRowOrderForNested(startingIndex, parentID, id, result)
         
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, isNested: true) {
-            updateRowForNested(startingIndex, level, rowData, result)
+            //Index where we append new row in tableDataModel.filteredcellModels
+            var atIndex: Int = tableDataModel.filteredcellModels.count
+            loop: for i in (startingIndex + 1)..<tableDataModel.filteredcellModels.count {
+                let nextRow = tableDataModel.filteredcellModels[i]
+                
+                // Stop at .row or .tableExpander
+                switch nextRow.rowType {
+                case .row, .tableExpander:
+                    atIndex = i
+                    break loop
+                case .nestedRow(level: let nestedLevel, index: let index, _):
+                    if nestedLevel < level {
+                        atIndex = i
+                        break loop
+                    } else {
+                        break
+                    }
+                default:
+                    break
+                }
+            }
+            updateRowForNested(atIndex, level + 1, rowData, result?.column.tableColumns ?? [])
         }
     }
     

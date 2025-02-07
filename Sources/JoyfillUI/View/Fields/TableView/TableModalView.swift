@@ -267,7 +267,7 @@ struct TableModalView : View {
                                    viewModel.expandTables(rowDataModel: rowModel, level: 0)
                                    rowModel.isExpanded.toggle()
                                }
-                       case .nestedRow(level: let level, index: let index):
+                       case .nestedRow(level: let level, index: let index, _):
                            if rowModel.hasMoreNestedRows {
                                Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                    .frame(width: 40, height: 60)
@@ -288,7 +288,7 @@ struct TableModalView : View {
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                .border(Color.tableCellBorderColor)
                                .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, columnID: column?.id ?? "", level: level, isOpenedFromTable: false)
+                                   viewModel.expendSpecificTable(rowDataModel: rowModel, parentID: parentID ?? ("", ""), level: level, isOpenedFromTable: false)
                                    rowModel.isExpanded.toggle()
                                }
                        }
@@ -318,7 +318,7 @@ struct TableModalView : View {
                            .fill(Color.white)
                            .frame(width: 40, height: 60)
                            .border(Color.tableCellBorderColor)
-                   case .nestedRow(let level, let index):
+                   case .nestedRow(let level, let index, _):
                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                        Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                            .frame(width: 40, height: 60)
@@ -341,7 +341,7 @@ struct TableModalView : View {
                            .frame(width: 40, height: textHeight)
                            .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                            .border(Color.tableCellBorderColor)
-                   case .nestedRow(let level, let nastedRowIndex):
+                   case .nestedRow(let level, let nastedRowIndex, _):
                        Text("\(nastedRowIndex)")
                            .foregroundColor(.secondary)
                            .font(.caption)
@@ -375,13 +375,13 @@ struct TableModalView : View {
                             switch rowCellModels.rowType {
                             case .row:
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in 
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: 0, isOpenedFromTable: true)
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: rowCellModels.rowID), level: 0, isOpenedFromTable: true)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
-                            case .nestedRow(level: let level, index: let index):
+                            case .nestedRow(level: let level, index: let index, parentID: let parentID):
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, columnID: columnID, level: level, isOpenedFromTable: true)
+                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: parentID?.rowID ?? ""), level: level, isOpenedFromTable: true)
                                     rowCellModels.isExpanded.toggle()
                                 })
                                 .frame(height: 60)
@@ -402,7 +402,8 @@ struct TableModalView : View {
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
+                    //TODO: calculate width acc to tablecolumns
+                    .frame(minWidth: 1500, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)

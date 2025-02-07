@@ -52,21 +52,30 @@ struct RowDataModel: Equatable, Hashable {
 enum RowType: Equatable {
     case row(index: Int)
     case header(level: Int, tableColumns: [FieldTableColumn])
-    case nestedRow(level: Int, index: Int)
+    case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil)
     case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil)
     
     var level: Int {
         switch self {
         case let .row:                      return 0
         case let .header:                   return 0
-        case let .nestedRow(level, _):                return level
+        case let .nestedRow(level, _, _):                return level
         case let .tableExpander(_, level, _):            return level
+        }
+    }
+    
+    var parentID: (columnID: String, rowID: String)? {
+        switch self {
+        case let .nestedRow(_, _, parentID):                return parentID
+        case let .tableExpander(_, _, parentID):            return parentID
+        default:
+            return nil
         }
     }
     
     var index: Int {
         switch self {
-        case .nestedRow(_, index: let index): return index
+        case .nestedRow(_, index: let index, _): return index
         case .row(index: let index):
             return index
         case .header(level: let level, tableColumns: let tableColumns):
