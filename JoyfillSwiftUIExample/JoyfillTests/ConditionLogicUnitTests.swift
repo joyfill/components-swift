@@ -34,6 +34,168 @@ final class ConditionLogicUnitTests: XCTestCase {
         
         XCTAssertEqual(result, true)
     }
+    
+    func testEnterUnKnownCaseType() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let multiFieldID = "678104b387d3004e70120ac6"
+        
+        // Enter unknown condition case type to go in defalut switch case
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: multiFieldID, conditionType: .unKnown, value: .string("677e2bfa9c5249a2acd3644f"))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setMultiSelectField(hidden: false, value: .array(["677e2bfa9c5249a2acd3644f"]), multi: true)
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, false)
+    }
+    
+    func testMultiSelectFieldEqualConditionValue() {
+        //Text Field should show when multi value is equal to this value "677e2bfa9c5249a2acd3644f"
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let multiFieldID = "678104b387d3004e70120ac6"
+        
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: multiFieldID, conditionType: .equals, value: .string("677e2bfa9c5249a2acd3644f"))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setMultiSelectField(hidden: false, value: .array(["677e2bfa9c5249a2acd3644f"]), multi: true)
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testMultiSelectFieldNotEqualConditionValue() {
+        //Text Field should show when multi value is Not euqal to this value"677e2bfa9c5249a2acd3644f"
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let multiFieldID = "678104b387d3004e70120ac6"
+        
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: multiFieldID, conditionType: .notEquals, value: .string("677e2bfa9c5249a2acd3644f"))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setMultiSelectField(hidden: false, value: .array(["677e2bfa152e9f549edf0813"]), multi: true)
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testMultiSelectFieldIsEmptyConditionValue() {
+        //Text Field should show when multi value is empty
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let multiFieldID = "678104b387d3004e70120ac6"
+        
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: multiFieldID, conditionType: .isNull, value: .string("677e2bfa9c5249a2acd3644f"))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setMultiSelectField(hidden: false, value: .array([""]), multi: true)
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testSetPageToNil() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getEmptyConditionsLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals)
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        // Set page to nil
+        let result = documentEditor.shouldShow(page: nil)
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testSetUnknownPageId() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getEmptyConditionsLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals)
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        // Pass different page id ( for pagesForCurrentView function )
+        let result = documentEditor.shouldShow(pageID: "what if i pass unknown page id")
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testSetFieldIDToNil() {
+        //Set FiledID to nil
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        let logicDictionary = getEmptyConditionsLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals)
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        // Set fieldId to nil
+        let result = documentEditor.shouldShow(fieldID: nil)
+        
+        XCTAssertEqual(result, true)
+    }
         
     func testTextFieldShowOnNumber() {
         //Text Field should show when number is 100
@@ -41,6 +203,29 @@ final class ConditionLogicUnitTests: XCTestCase {
         let numberFieldID = "6629fb3df03de10b26270ab3"
         
         let logicDictionary = getLogicDictionary(isShow: true, fieldID: numberFieldID, conditionType: .equals, value: .double(100))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, true)
+    }
+    
+    func testSetConditionFieldToNil() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        // Set fieldID to nil
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: nil, conditionType: .equals, value: .double(100))
         
         let document = JoyDoc()
             .setDocument()
@@ -742,6 +927,38 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false) // Page is hidden now
     }
     
+    func testPageLogicFieldToNil() {
+        let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
+        
+        // Set fieldID to nil
+        let conditionTestModel1 = LogicConditionTest(fieldID: nil,
+                                                     conditionType: .equals,
+                                                     value: .string("Hello"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: nil,
+                                                     conditionType: .equals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              customePageID: page2ID,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setTwoPageField(page1hidden: false, page2hidden: false)
+            .setTextField(hidden: false, value: .string("Hello"))
+            .setDropdownField(hidden: false, value: .string("677e2bfab0d5dce4162c36c1"))
+            .setConditionalLogic(pageID: page2ID, logic: Logic(field: logicDictionary))
+            
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(pageID: page2ID)
+        
+        XCTAssertEqual(result, false) // Page is hidden now
+    }
+    
     func testPageOnORConditionLogic() {
         let page1ID = "6629fab320fca7c8107a6cf6"
         let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
@@ -775,6 +992,72 @@ final class ConditionLogicUnitTests: XCTestCase {
         let result = documentEditor.shouldShow(pageID: page2ID)
         
         XCTAssertEqual(result, false) // Page is hidden now
+    }
+    
+    func testSetPageLogicToNil() {
+        let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
+        
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: textFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("Hello"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setTwoPageField(page1hidden: false, page2hidden: false)
+            .setTextField(hidden: false, value: .null)
+            .setDropdownField(hidden: false, value: .string("677e2bfab0d5dce4162c36c1"))
+             // Set Page logic to nil
+            .setConditionalLogic(pageID: page2ID, logic: nil)
+            
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(pageID: page2ID)
+        
+        XCTAssertEqual(result, true) // Page is hidden now
+    }
+    
+    func testPageIDToNil() {
+        // Set PageID to Nil
+        let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
+        
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: textFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("Hello"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: false,
+                                                              customePageID: page2ID,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .or)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setTwoPageField(page1hidden: false, page2hidden: false)
+            .setTextField(hidden: false, value: .null)
+            .setDropdownField(hidden: false, value: .string("677e2bfab0d5dce4162c36c1"))
+            .setConditionalLogic(pageID: page2ID, logic: Logic(field: logicDictionary))
+            
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(pageID: nil)
+        
+        XCTAssertEqual(result, true) // Page is hidden now
     }
     
     // Fields needs to be refreshed
@@ -816,6 +1099,43 @@ final class ConditionLogicUnitTests: XCTestCase {
         documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
     }
     
+    func testFieldsNeedsToRefreshOnUnknownID() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let dropdownFieldID = "6781040987a55e48b4507a38"
+        let multiSelectFieldID = "678104b387d3004e70120ac6"
+        
+        let conditionTestModel1 = LogicConditionTest(fieldID: dropdownFieldID,
+                                                     conditionType: .equals,
+                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+        let conditionTestModel2 = LogicConditionTest(fieldID: multiSelectFieldID,
+                                                     conditionType: .equals,
+                                                     value: .array(["677e2bfa1ff43cf15d159310"]))
+        
+        let logicDictionary = getTwoConditionsLogicDictionary(isShow: true,
+                                                              logicConditionTests: [conditionTestModel1, conditionTestModel2],
+                                                              evaluationType: .and)
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: true, value: .string("Hello")) // Hidden at first
+            .setDropdownField(hidden: false, value: .string("677e2bfab0d5dce4162c36c1")) // Yes selected
+            .setMultiSelectField(hidden: false, value: .array(["677e2bfa1ff43cf15d159310"]), multi: true) // Yes selected
+            .setFieldPositionToPage(pageId: pageID,
+                                    idAndTypes: [textFieldID : .text, dropdownFieldID : .dropdown, multiSelectFieldID: .multiSelect])
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: textFieldID)
+        
+        XCTAssertEqual(result, true)
+        let fieldIdentifier = FieldIdentifier(fieldID: "unknown field id")
+        let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("677e2bfa152e9f549edf0813"))
+        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+    }
+    
     //Empty conditions
     func getEmptyConditionsLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType) -> [String: Any] {
         [
@@ -825,7 +1145,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         ]
     }
 
-    func getLogicDictionary(isShow: Bool, fieldID: String, conditionType: ConditionType, value: ValueUnion) -> [String: Any] {
+    func getLogicDictionary(isShow: Bool, fieldID: String? = nil, conditionType: ConditionType, value: ValueUnion) -> [String: Any] {
         [
             "action": isShow ? "show" : "hide",
             "eval": "and",
@@ -871,7 +1191,12 @@ final class ConditionLogicUnitTests: XCTestCase {
 }
 
 struct LogicConditionTest {
-    let fieldID: String
+    init(fieldID: String? = nil, conditionType: ConditionType, value: ValueUnion) {
+        self.fieldID = fieldID
+        self.conditionType = conditionType
+        self.value = value
+    }
+    let fieldID: String?
     let conditionType: ConditionType
     let value: ValueUnion
 }
@@ -888,4 +1213,5 @@ enum ConditionType: String {
     case lessThan = "<"
     case isNull = "null="
     case isNotNull = "*="
+    case unKnown = "notCase" // for defalut case
 }

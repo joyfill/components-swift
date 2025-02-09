@@ -41,6 +41,9 @@ struct TableViewCellBuilder: View {
                 .disabled(cellModel.editMode == .readonly)
         case .progress:
             TableProgressView(cellModel: $cellModel, viewModel: viewModel)
+        case .barcode:
+            TableBarcodeView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
         default:
             Text("")
         }

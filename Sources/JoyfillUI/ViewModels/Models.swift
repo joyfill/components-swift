@@ -36,7 +36,7 @@ struct RowDataModel: Equatable, Hashable {
     }
 }
 
-let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress]
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode]
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -119,6 +119,8 @@ struct TableDataModel {
                     return columnNumberString.hasPrefix(model.filterText)
                 case .multiSelect:
                     return column.multiSelectValues?.contains(model.filterText) ?? false
+                case .barcode:
+                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
                 default:
                     break
                 }
@@ -203,6 +205,8 @@ struct TableDataModel {
         case .multiSelect:
             cell?.multiSelectValues = valueUnion?.stringArray
         case .progress:
+            cell?.title = valueUnion?.text ?? ""
+        case .barcode:
             cell?.title = valueUnion?.text ?? ""
         default:
             return nil
@@ -373,7 +377,7 @@ struct CellDataModel: Hashable, Equatable {
     var isCellFilled: Bool {
         guard let type = type else { return false }
         switch type {
-        case .text, .block:
+        case .text, .block, .barcode:
             return title.isEmpty || title != ""
         case .number:
             return number != nil

@@ -74,6 +74,7 @@ struct TableMultiSelectView: View {
                     .padding(.vertical, 2)
             }
         }
+        .accessibilityIdentifier("TableMultiSelectionFieldIdentifier")
         .padding(8)
         .background(selectedOptionColor)
         .cornerRadius(16)
@@ -132,6 +133,7 @@ struct TableMultiSelectSheetView: View {
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                 })
+                .accessibilityIdentifier("TableMultiSelectionFieldApplyIdentifier")
 
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
@@ -243,6 +245,7 @@ struct TableMultiSelection: View {
             .padding(.vertical, 8)
             .background(color)
         })
+        .accessibilityIdentifier("TableMultiSelectOptionsSheetIdentifier")
         .frame(maxWidth: .infinity)
     }
 }
@@ -274,6 +277,7 @@ struct TableRadioView: View {
             .padding(.vertical, 8)
             .background(color)
         })
+        .accessibilityIdentifier("TableSingleSelectOptionsSheetIdentifier")
         .frame(maxWidth: .infinity)
     }
 }

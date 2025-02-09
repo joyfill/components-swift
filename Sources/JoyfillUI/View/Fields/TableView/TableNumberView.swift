@@ -36,10 +36,10 @@ struct TableNumberView: View {
             }
         } else {
             TextField("", text: $number)
+                .accessibilityIdentifier("TabelNumberFieldIdentifier")
                 .padding(.leading, 8)
                 .keyboardType(.decimalPad)
                 .font(.system(size: 15))
-                .accessibilityIdentifier("TabelTextFieldIdentifier")
                 .onChange(of: number) { _ in
                     var cellModelData = cellModel.data
                     if !number.isEmpty, let doubleValue = Double(number) {

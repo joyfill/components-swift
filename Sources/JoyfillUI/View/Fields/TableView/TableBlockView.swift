@@ -24,6 +24,7 @@ struct TableBlockView: View {
             GeometryReader { geometry in
                 ScrollView {
                     Text(cellModel.data.title)
+                        .accessibilityIdentifier("TabelBlockFieldIdentifier")
                         .font(.system(size: 15))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.all, 8)

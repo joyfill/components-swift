@@ -2,7 +2,7 @@ import SwiftUI
 import Joyfill
 import JoyfillModel
 
-func sampleJSONDocument(fileName: String = "Joydocjson") -> JoyDoc {
+func sampleJSONDocument(fileName: String = "TableNewColumns") -> JoyDoc {
     let path = Bundle.main.path(forResource: fileName, ofType: "json")!
     let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
     let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
@@ -52,5 +52,9 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     
     func onUpload(event: JoyfillModel.UploadEvent) {
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
+    }
+    
+    func onCapture(event: JoyfillModel.CaptureEvent) {
+        event.captureHandler(.string("Scan Button Clicked"))
     }
 }

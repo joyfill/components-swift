@@ -42,6 +42,8 @@ struct SearchBar: View {
                             self.model.filterText = stringNumberValue
                         case .multiSelect:
                             self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
+                        case .barcode:
+                            self.model.filterText = cellDataModel.title ?? ""
                         default:
                             break
                         }
@@ -54,6 +56,7 @@ struct SearchBar: View {
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
                     case .number:
                         TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, number: model.filterText)
+                            .accessibilityIdentifier("SearchBarNumberIdentifier")
                             .font(.system(size: 12))
                             .foregroundColor(.black)
                             .padding(.vertical, 4)
@@ -61,9 +64,19 @@ struct SearchBar: View {
                             .background(.white)
                             .cornerRadius(6)
                             .padding(.leading, 8)
-                        
                     case .multiSelect:
                         TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
+                            .accessibilityIdentifier("SearchBarMultiSelectionFieldIdentifier")
+                    case .barcode:
+                        TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
+                            .accessibilityIdentifier("SearchBarCodeFieldIdentifier")
+                            .font(.system(size: 12))
+                            .foregroundColor(.black)
+                            .padding(.vertical, 4)
+                            .frame(height: 25)
+                            .background(.white)
+                            .cornerRadius(6)
+                            .padding(.leading, 8)
                     default:
                         Text("")
                     }
