@@ -25,6 +25,20 @@ class Utility {
             return singleColumnWidth
         }
     }
+    
+    static func getWidthForExpanderRow(columns: [FieldTableColumn]) -> CGFloat {
+        let totalWidth = columns.reduce(0) { accumulator, column in
+            // Get width based on column type and format
+            let columnWidth = Utility.getCellWidth(
+                type: column.type ?? .unknown,
+                format: DateFormatType(rawValue: column.format ?? "") ?? .empty,
+                text: column.title ?? ""
+            )
+            return accumulator + columnWidth
+        }
+        
+        return max(totalWidth, singleColumnWidth * 2)
+    }
         
     private static func measureTextWidth(text: String, font: UIFont) -> CGFloat {
         let constraintSize = CGSize(width: CGFloat.greatestFiniteMagnitude, height: font.lineHeight)

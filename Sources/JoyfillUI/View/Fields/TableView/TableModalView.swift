@@ -2,6 +2,7 @@ import SwiftUI
 import JoyfillModel
 
 struct TableRowView: View {
+    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
     var longestBlockText: String
@@ -188,7 +189,7 @@ struct TableModalView : View {
                 .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 40, height: textHeight)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .cornerRadius(14, corners: [.topLeft])
+                .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
                 
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
@@ -221,7 +222,7 @@ struct TableModalView : View {
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
-                    .cornerRadius(14, corners: [.topRight])
+                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
                     ScrollView([.horizontal], showsIndicators: false) {
@@ -236,7 +237,7 @@ struct TableModalView : View {
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
-                    .cornerRadius(14, corners: [.topRight])
+                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
                 table
@@ -263,15 +264,19 @@ struct TableModalView : View {
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
+                               .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
+                               .cornerRadius(rowModel.isExpanded ? 14 : 0, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
                                .onTapGesture {
                                    viewModel.expandTables(rowDataModel: rowModel, level: 0)
                                    rowModel.isExpanded.toggle()
                                }
-                       case .nestedRow(level: let level, index: let index, _):
+                       case .nestedRow(level: let level, index: let nestedIndex, _):
                            if rowModel.hasMoreNestedRows {
                                Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                    .frame(width: 40, height: 60)
                                    .border(Color.tableCellBorderColor)
+                                   .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
+                                   .cornerRadius(rowModel.isExpanded ? 14 : 0, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
                                    .onTapGesture {
                                        viewModel.expandTables(rowDataModel: rowModel, level: level)
                                        rowModel.isExpanded.toggle()
@@ -282,7 +287,7 @@ struct TableModalView : View {
                                    .frame(width: 40, height: 60)
                                    .border(Color.tableCellBorderColor)
                            }
-                       case .tableExpander(tableColumn: let column, level: let level, parentID: let parentID):
+                       case .tableExpander(tableColumn: let column, level: let level, parentID: let parentID, _):
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
@@ -338,7 +343,7 @@ struct TableModalView : View {
                    switch rowModel.rowType {
                    case .header:
                        Text("#")
-                           .frame(width: 40, height: textHeight)
+                           .frame(width: 40, height: 60)
                            .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                            .border(Color.tableCellBorderColor)
                    case .nestedRow(let level, let nastedRowIndex, _):
@@ -395,7 +400,7 @@ struct TableModalView : View {
                                                       longestBlockText: longestBlockText,
                                                       isHeaderNested: true)
                                     .frame(height: 60)
-                            case .tableExpander(tableColumn: let tableColumn, level: let level, parentID: let parentID):
+                            case .tableExpander(tableColumn: let tableColumn, level: let level, parentID: let parentID, _):
                                 TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
                                     .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                             }
@@ -403,7 +408,7 @@ struct TableModalView : View {
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     //TODO: calculate width acc to tablecolumns
-                    .frame(minWidth: 1500, minHeight: geometry.size.height, alignment: .topLeading)
+                    .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
@@ -465,7 +470,7 @@ struct TableExpanderView: View {
                 }
             }
         }
-        .frame(height: 60)
+        .frame(width: rowDataModel.rowType.width, height: 60)
         .border(Color.tableCellBorderColor)
     }
 }
@@ -508,7 +513,7 @@ struct TableColumnHeaderView: View {
                     .frame(width: Utility.getCellWidth(type: column.type ?? .unknown,
                                                        format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty,
                                                      text: longestBlockText))
-                    .frame(minHeight: textHeight)
+                    .frame(minHeight: 60)
                     .overlay(
                         Rectangle()
                             .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)

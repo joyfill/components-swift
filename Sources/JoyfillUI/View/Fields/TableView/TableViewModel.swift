@@ -202,7 +202,7 @@ class TableViewModel: ObservableObject {
                 //Add tableExpander if opened from direct table
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: rowDataModel.cells,
-                                               rowType: .tableExpander(tableColumn: result.column, level: level, parentID: (columnID: parentID.columnID, rowID: rowDataModel.rowID)),
+                                               rowType: .tableExpander(tableColumn: result.column, level: level, parentID: (columnID: parentID.columnID, rowID: rowDataModel.rowID), rowWidth: Utility.getWidthForExpanderRow(columns: result.column.tableColumns ?? [])),
                                                isExpanded: true))
             }
 
@@ -299,7 +299,8 @@ class TableViewModel: ObservableObject {
                                                cells: rowDataModel.cells,
                                                rowType: .tableExpander(tableColumn: column,
                                                                        level: level,
-                                                                       parentID: (columnID: column.id ?? "", rowID: rowDataModel.rowID))))
+                                                                       parentID: (columnID: column.id ?? "", rowID: rowDataModel.rowID),
+                                                                       rowWidth: Utility.getWidthForExpanderRow(columns: column.tableColumns ?? []))))
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
@@ -561,11 +562,11 @@ class TableViewModel: ObservableObject {
                     atIndex = i
                     break loop
                 case .nestedRow(level: let nestedLevel, index: let index, _):
-                    if nestedLevel < level {
+                    if nestedLevel == level + 1 {
+                        continue
+                    } else {
                         atIndex = i
                         break loop
-                    } else {
-                        break
                     }
                 default:
                     break

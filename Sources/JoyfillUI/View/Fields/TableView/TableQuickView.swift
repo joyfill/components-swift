@@ -36,10 +36,10 @@ struct TableQuickView : View {
                     }
                     .disabled(true)
                     .background(Color.clear)
-                    .cornerRadius(14, corners: [.topRight, .topLeft])
+                    .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
                     table
                         .id(refreshID)
-                        .cornerRadius(14, corners: [.bottomLeft, .bottomRight])
+                        .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
                 .frame(maxHeight:
                         (CGFloat((viewModel.tableDataModel.rowOrder.isEmpty ? 2:  viewModel.tableDataModel.rowOrder.count)) * rowHeight + rowHeight)

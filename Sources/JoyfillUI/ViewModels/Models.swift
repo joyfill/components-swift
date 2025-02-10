@@ -53,21 +53,30 @@ enum RowType: Equatable {
     case row(index: Int)
     case header(level: Int, tableColumns: [FieldTableColumn])
     case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil)
-    case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil)
+    case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil, rowWidth: CGFloat = 0)
     
     var level: Int {
         switch self {
         case let .row:                      return 0
         case let .header:                   return 0
         case let .nestedRow(level, _, _):                return level
-        case let .tableExpander(_, level, _):            return level
+        case let .tableExpander(_, level, _, _):            return level
+        }
+    }
+    
+    var width: CGFloat? {
+        switch self {
+        case .tableExpander(let _, _, _, let rowWidth):
+            return rowWidth
+        default:
+            return nil
         }
     }
     
     var parentID: (columnID: String, rowID: String)? {
         switch self {
         case let .nestedRow(_, _, parentID):                return parentID
-        case let .tableExpander(_, _, parentID):            return parentID
+        case let .tableExpander(_, _, parentID, _):            return parentID
         default:
             return nil
         }
@@ -80,7 +89,7 @@ enum RowType: Equatable {
             return index
         case .header(level: let level, tableColumns: let tableColumns):
             return 0
-        case .tableExpander(tableColumn: let tableColumn, level: let level, _):
+        case .tableExpander(tableColumn: let tableColumn, level: let level, _, _):
             return 0
         }
     }

@@ -9,8 +9,13 @@ import Foundation
 import SwiftUI
 
 extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape( RoundedCorner(radius: radius, corners: corners) )
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner, borderColor: Color, lineWidth: CGFloat = 1) -> some View {
+        self
+            .clipShape( RoundedCorner(radius: radius, corners: corners) )
+            .overlay(
+                RoundedCorner(radius: radius, corners: corners)
+                    .stroke(borderColor, lineWidth: lineWidth)
+            )
     }
 }
 
