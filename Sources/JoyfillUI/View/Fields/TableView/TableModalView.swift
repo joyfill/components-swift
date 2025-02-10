@@ -261,22 +261,41 @@ struct TableModalView : View {
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                        case .row(index: let index):
+                           let corners: UIRectCorner = rowModel.isExpanded ? [.topLeft] : [.topLeft, .bottomLeft]
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
                                .border(Color.tableCellBorderColor)
                                .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
-                               .cornerRadius(rowModel.isExpanded ? 14 : 0, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
+                               .cornerRadius(16, corners: corners, borderColor: Color.tableCellBorderColor)
                                .onTapGesture {
                                    viewModel.expandTables(rowDataModel: rowModel, level: 0)
                                    rowModel.isExpanded.toggle()
                                }
                        case .nestedRow(level: let level, index: let nestedIndex, _):
+                           let isLastRow = (index == viewModel.tableDataModel.filteredcellModels.count - 1)
+
+                           let nextRowLevel = !isLastRow
+                               ? viewModel.tableDataModel.filteredcellModels[index + 1].rowType.level
+                               : nil
+
+                           let useBottomLeftCorner = isLastRow || (nextRowLevel != level)
+
+                           let corners: UIRectCorner = useBottomLeftCorner
+                               ? [.bottomLeft]
+                               : (rowModel.isExpanded ? [.topLeft] : [])
+
+                           let cornerRadius: CGFloat = corners.isEmpty ? 0 : 16
+
+                           let backgroundColor: Color = rowModel.isExpanded
+                           ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                           : Color.white
+                           
                            if rowModel.hasMoreNestedRows {
                                Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                    .frame(width: 40, height: 60)
                                    .border(Color.tableCellBorderColor)
-                                   .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
-                                   .cornerRadius(rowModel.isExpanded ? 14 : 0, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
+                                   .background(backgroundColor)
+                                   .cornerRadius(cornerRadius, corners: corners, borderColor: Color.tableCellBorderColor)
                                    .onTapGesture {
                                        viewModel.expandTables(rowDataModel: rowModel, level: level)
                                        rowModel.isExpanded.toggle()
@@ -286,12 +305,29 @@ struct TableModalView : View {
                                    .fill(Color.white)
                                    .frame(width: 40, height: 60)
                                    .border(Color.tableCellBorderColor)
+                                   .cornerRadius(cornerRadius, corners: corners, borderColor: Color.tableCellBorderColor)
                            }
                        case .tableExpander(tableColumn: let column, level: let level, parentID: let parentID, _):
+                           let isLastRow = (index == viewModel.tableDataModel.filteredcellModels.count - 1)
+                           let nextRow = !isLastRow
+                               ? viewModel.tableDataModel.filteredcellModels[index + 1]
+                               : nil
+
+                           let cornerRadius: CGFloat = rowModel.isExpanded ? 0 : 16
+
+                           let corners: UIRectCorner = (nextRow?.rowType == .tableExpander(level: level))
+                               ? []
+                               : [.bottomLeft]
+
+                           let backgroundColor = (colorScheme == .dark)
+                               ? Color.black.opacity(0.8)
+                               : Color.tableColumnBgColor
+
                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                .frame(width: 40, height: 60)
-                               .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                               .background(backgroundColor)
                                .border(Color.tableCellBorderColor)
+                               .cornerRadius(cornerRadius, corners: corners, borderColor: Color.tableCellBorderColor)
                                .onTapGesture {
                                    viewModel.expendSpecificTable(rowDataModel: rowModel, parentID: parentID ?? ("", ""), level: level, isOpenedFromTable: false)
                                    rowModel.isExpanded.toggle()
