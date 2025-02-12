@@ -63,6 +63,16 @@
               "type": "block"
             },
             {
+              "field": "6629fb2b9a487ce1c1f35f6c",
+              "displayType": "original",
+              "width": 12,
+              "height": 20,
+              "x": 10,
+              "y": 35,
+              "_id": "6629fb2fca14b3e2ef978349",
+              "type": "textarea"
+            },
+            {
               "field": "6629fb1d92a76d06750ca4a1",
               "displayType": "original",
               "width": 12,
@@ -71,16 +81,6 @@
               "y": 35,
               "_id": "6629fb203149d1c34cc6d6f8",
               "type": "text"
-            },
-            {
-              "field": "6629fb2b9a487ce1c1f35f6c",
-              "displayType": "original",
-              "width": 12,
-              "height": 20,
-              "x": 0,
-              "y": 43,
-              "_id": "6629fb2fca14b3e2ef978349",
-              "type": "textarea"
             },
             {
               "field": "6629fb3df03de10b26270ab3",

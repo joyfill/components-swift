@@ -181,8 +181,14 @@ extension DocumentEditor {
 
     private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
-            guard let y1 = fp1.y, let y2 = fp2.y else { return false }
-            return Int(y1) < Int(y2)
+            guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
+                return false
+            }
+            if Int(y1) == Int(y2) {
+                return Int(x1) < Int(x2)
+            } else {
+                return Int(y1) < Int(y2)
+            }
         }
         var uniqueFields = Set<String>()
         var resultFieldPositions = [FieldPosition]()
