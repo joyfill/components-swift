@@ -164,29 +164,12 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
-                    if viewModel.nestedTableCount > 0 {
-                        Spacer()
-                    }
-                    if viewModel.showRowSelector  {
-                        Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: textHeight)
-                            .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
-                            .onTapGesture {
-                                if !viewModel.tableDataModel.allRowSelected {
-                                    viewModel.tableDataModel.selectAllRows()
-                                } else {
-                                    viewModel.tableDataModel.emptySelection()
-                                }
-                            }
-                            .disabled(viewModel.tableDataModel.rowOrder.count == 0)
-                            .accessibilityIdentifier("SelectAllRowSelectorButton")
-                    }
                     Text("#")
                         .frame(width: 40, height: textHeight)
                         .border(Color.tableCellBorderColor)
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 40, height: textHeight)
+                .frame(width: 40)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
@@ -194,7 +177,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 40)
+                            .frame(width: 40)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -211,15 +194,42 @@ struct TableModalView : View {
             VStack(alignment: .leading, spacing: 0) {
                 if #available(iOS 16, *) {
                     ScrollView([.horizontal], showsIndicators: false) {
-                        TableColumnHeaderView(viewModel: viewModel,
-                                              tableColumns: viewModel.tableDataModel.tableColumns,
-                                              currentSelectedCol: $currentSelectedCol,
-                                              textHeight: $textHeight,
-                                              colorScheme: colorScheme,
-                                              columnHeights: $columnHeights,
-                                              longestBlockText: longestBlockText,
-                                              isHeaderNested: false)
+                        HStack(spacing: 0) {
+                            HStack(alignment: .center, spacing: 0) {
+                                if viewModel.nestedTableCount > 0 {
+                                    Spacer()
+                                }
+                                if viewModel.showRowSelector  {
+                                    Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
+                                        .frame(width: 40, height: textHeight)
+                                        .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
+                                        .onTapGesture {
+                                            if !viewModel.tableDataModel.allRowSelected {
+                                                viewModel.tableDataModel.selectAllRows()
+                                            } else {
+                                                viewModel.tableDataModel.emptySelection()
+                                            }
+                                        }
+                                        .disabled(viewModel.tableDataModel.rowOrder.count == 0)
+                                        .accessibilityIdentifier("SelectAllRowSelectorButton")
+                                }
+                            }
+                            .frame(minHeight: 50)
+                            .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 80 : 40) : 0, height: textHeight)
+                            .border(Color.tableCellBorderColor)
+                            .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                             .offset(x: offset.x)
+                            
+                            TableColumnHeaderView(viewModel: viewModel,
+                                                  tableColumns: viewModel.tableDataModel.tableColumns,
+                                                  currentSelectedCol: $currentSelectedCol,
+                                                  textHeight: $textHeight,
+                                                  colorScheme: colorScheme,
+                                                  columnHeights: $columnHeights,
+                                                  longestBlockText: longestBlockText,
+                                                  isHeaderNested: false)
+                            .offset(x: offset.x)
+                        }
                     }
                     .background(Color.tableCellBorderColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
@@ -252,129 +262,6 @@ struct TableModalView : View {
            ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, $rowModel) in
                 let rowArray = rowModel.cells
                HStack(spacing: 0) {
-                   // Expand Button View
-                   if viewModel.nestedTableCount > 0 {
-                       switch rowModel.rowType {
-                       case .header(tableColumns: let columns):
-                           Rectangle()
-                               .fill(Color.white)
-                               .frame(width: 40, height: 60)
-                               .border(Color.tableCellBorderColor)
-                       case .row(index: let index):
-                           let corners: UIRectCorner = rowModel.isExpanded ? [.topLeft] : [.topLeft, .bottomLeft]
-                           Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
-                               .frame(width: 40, height: 60)
-                               .border(Color.tableCellBorderColor)
-                               .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
-                               .cornerRadius(16, corners: corners, borderColor: Color.tableCellBorderColor)
-                               .onTapGesture {
-                                   viewModel.expandTables(rowDataModel: rowModel, level: 0)
-                                   rowModel.isExpanded.toggle()
-                               }
-                       case .nestedRow(level: let level, index: let nestedIndex, _):
-                           let isLastRow = (index == viewModel.tableDataModel.filteredcellModels.count - 1)
-
-                           let nextRowLevel = !isLastRow
-                               ? viewModel.tableDataModel.filteredcellModels[index + 1].rowType.level
-                               : nil
-
-                           let useBottomLeftCorner = isLastRow || (nextRowLevel != level)
-
-                           let corners: UIRectCorner = useBottomLeftCorner
-                               ? [.bottomLeft]
-                               : (rowModel.isExpanded ? [.topLeft] : [])
-
-                           let cornerRadius: CGFloat = corners.isEmpty ? 0 : 16
-
-                           let backgroundColor: Color = rowModel.isExpanded
-                           ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                           : Color.white
-                           
-                           if rowModel.hasMoreNestedRows {
-                               Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
-                                   .frame(width: 40, height: 60)
-                                   .border(Color.tableCellBorderColor)
-                                   .background(backgroundColor)
-                                   .cornerRadius(cornerRadius, corners: corners, borderColor: Color.tableCellBorderColor)
-                                   .onTapGesture {
-                                       viewModel.expandTables(rowDataModel: rowModel, level: level)
-                                       rowModel.isExpanded.toggle()
-                                   }
-                           } else {
-                               Rectangle()
-                                   .fill(Color.white)
-                                   .frame(width: 40, height: 60)
-                                   .border(Color.tableCellBorderColor)
-                                   .cornerRadius(cornerRadius, corners: corners, borderColor: Color.tableCellBorderColor)
-                           }
-                       case .tableExpander(tableColumn: let column, level: let level, parentID: let parentID, _):
-                           let isLastRow = (index == viewModel.tableDataModel.filteredcellModels.count - 1)
-                           let nextRow = !isLastRow
-                               ? viewModel.tableDataModel.filteredcellModels[index + 1]
-                               : nil
-
-                           let cornerRadius: CGFloat = rowModel.isExpanded ? 0 : 16
-
-                           let corners: UIRectCorner = (nextRow?.rowType == .tableExpander(level: level))
-                               ? []
-                               : [.bottomLeft]
-
-                           let backgroundColor = (colorScheme == .dark)
-                               ? Color.black.opacity(0.8)
-                               : Color.tableColumnBgColor
-
-                           Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
-                               .frame(width: 40, height: 60)
-                               .background(backgroundColor)
-                               .border(Color.tableCellBorderColor)
-                               .cornerRadius(cornerRadius, corners: corners, borderColor: Color.tableCellBorderColor)
-                               .onTapGesture {
-                                   viewModel.expendSpecificTable(rowDataModel: rowModel, parentID: parentID ?? ("", ""), level: level, isOpenedFromTable: false)
-                                   rowModel.isExpanded.toggle()
-                               }
-                       }
-                   }
-                   
-                   // Selector Button View
-                   switch rowModel.rowType {
-                   case .row(let index):
-                       if viewModel.showRowSelector {
-                           let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
-                           Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                               .frame(width: 40, height: 60)
-                               .border(Color.tableCellBorderColor)
-                               .onTapGesture {
-                                   viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
-                               }
-                               .accessibilityIdentifier("MyButton")
-                           
-                       } else {
-                           Rectangle()
-                               .fill(Color.white)
-                               .frame(width: 40, height: 60)
-                               .border(Color.tableCellBorderColor)
-                       }
-                   case .header:
-                       Rectangle()
-                           .fill(Color.white)
-                           .frame(width: 40, height: 60)
-                           .border(Color.tableCellBorderColor)
-                   case .nestedRow(let level, let index, _):
-                       let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
-                       Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                           .frame(width: 40, height: 60)
-                           .border(Color.tableCellBorderColor)
-                           .onTapGesture {
-                               viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
-                           }
-                           .accessibilityIdentifier("MyButton")
-                   case .tableExpander:
-                       Spacer()
-                           .frame(width: 40, height: 60)
-                           .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                           .border(Color.tableCellBorderColor)
-                   }
-                   
                    // Indexing View
                    switch rowModel.rowType {
                    case .header:
@@ -389,8 +276,8 @@ struct TableModalView : View {
                            .frame(width: 40, height: 60)
                            .border(Color.tableCellBorderColor)
                            .id("\(index)")
-                   case .row(let index):
-                       Text("\(index)")
+                   case .row(let rowIndex):
+                       Text("\(rowIndex)")
                            .foregroundColor(.secondary)
                            .font(.caption)
                            .frame(width: 40, height: 60)
@@ -412,39 +299,44 @@ struct TableModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                            switch rowCellModels.rowType {
-                            case .row:
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in 
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: rowCellModels.rowID), level: 0, isOpenedFromTable: true)
-                                    rowCellModels.isExpanded.toggle()
-                                })
-                                .frame(height: 60)
-                            case .nestedRow(level: let level, index: let index, parentID: let parentID):
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
-                                    viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: parentID?.rowID ?? ""), level: level, isOpenedFromTable: true)
-                                    rowCellModels.isExpanded.toggle()
-                                })
-                                .frame(height: 60)
-                            case .header(level: let level, tableColumns: let tableColumns):
-                                TableColumnHeaderView(viewModel: viewModel,
-                                                      tableColumns: tableColumns ?? [],
-                                                      currentSelectedCol: $currentSelectedCol,
-                                                      textHeight: $textHeight,
-                                                      colorScheme: colorScheme,
-                                                      columnHeights: $columnHeights,
-                                                      longestBlockText: longestBlockText,
-                                                      isHeaderNested: true)
+                        ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, $rowCellModels) in
+                            HStack(spacing: 0) {
+                                
+                                RowsHeaderView(viewModel: viewModel, rowModel: $rowCellModels, colorScheme: colorScheme, index: index)
+                                
+                                switch rowCellModels.rowType {
+                                case .row:
+                                    TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
+                                        viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: rowCellModels.rowID), level: 0, isOpenedFromTable: true)
+                                        rowCellModels.isExpanded.toggle()
+                                    })
                                     .frame(height: 60)
-                            case .tableExpander(tableColumn: let tableColumn, level: let level, parentID: let parentID, _):
-                                TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
-                                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                                case .nestedRow(level: let level, index: let index, parentID: let parentID):
+                                    TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
+                                        viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: parentID?.rowID ?? ""), level: level, isOpenedFromTable: true)
+                                        rowCellModels.isExpanded.toggle()
+                                    })
+                                    .frame(height: 60)
+                                case .header(level: let level, tableColumns: let tableColumns):
+                                    TableColumnHeaderView(viewModel: viewModel,
+                                                          tableColumns: tableColumns ?? [],
+                                                          currentSelectedCol: $currentSelectedCol,
+                                                          textHeight: $textHeight,
+                                                          colorScheme: colorScheme,
+                                                          columnHeights: $columnHeights,
+                                                          longestBlockText: longestBlockText,
+                                                          isHeaderNested: true)
+                                    .frame(height: 60)
+                                case .tableExpander(tableColumn: let tableColumn, level: let level, parentID: let parentID, _):
+                                    TableExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
+                                        .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                                }
                             }
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     //TODO: calculate width acc to tablecolumns
-                    .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
+                    .frame(minWidth: 1500, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
@@ -489,6 +381,9 @@ struct TableExpanderView: View {
     var body: some View {
         HStack {
             Text(tableColumn?.title ?? "")
+                .multilineTextAlignment(.leading)
+                .darkLightThemeColor()
+            
             Spacer()
             
             if rowDataModel.isExpanded {
@@ -506,6 +401,8 @@ struct TableExpanderView: View {
                 }
             }
         }
+        .padding(.all, 4)
+        .font(.system(size: 15, weight: .bold))
         .frame(width: rowDataModel.rowType.width, height: 60)
         .border(Color.tableCellBorderColor)
     }
@@ -576,5 +473,149 @@ struct TableColumnHeaderView: View {
                 )
             }
         }
+    }
+}
+
+struct RowsHeaderView: View {
+    @ObservedObject var viewModel: TableViewModel
+    @Binding var rowModel: RowDataModel
+    let colorScheme: ColorScheme
+    let index: Int
+    
+    var body: some View {
+        let rowArray = rowModel.cells
+        let isLastRow = index == viewModel.tableDataModel.filteredcellModels.count - 1
+       HStack(spacing: 0) {
+           // Expand Button View
+           if viewModel.nestedTableCount > 0 {
+               switch rowModel.rowType {
+               case .header(level: let level, tableColumns: let columns):
+                   if level == 0 {
+                       Rectangle()
+                           .fill(Color.white)
+                           .frame(width: 40, height: 60)
+                           .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                   } else {
+                       ForEach(0..<2*level , id: \.self) { _ in
+                           Rectangle()
+                               .fill(Color.white)
+                               .frame(width: 40, height: 60)
+                               .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                       }
+                   }
+                   Rectangle()
+                       .fill(Color.white)
+                       .frame(width: 40, height: 60)
+                       .border(Color.tableCellBorderColor)
+               case .row(index: let index):
+                   Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                       .frame(width: 40, height: 60)
+                       .border(Color.tableCellBorderColor)
+                       .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
+                       .onTapGesture {
+                           viewModel.expandTables(rowDataModel: rowModel, level: 0)
+                           rowModel.isExpanded.toggle()
+                       }
+               case .nestedRow(level: let level, index: let nestedIndex, _):
+                   HStack(spacing: 0) {
+                       if level == 0 {
+                           Rectangle()
+                               .fill(Color.white)
+                               .frame(width: 40, height: 60)
+                               .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                       } else {
+                           ForEach(0..<2*level , id: \.self) { _ in
+                               Rectangle()
+                                   .fill(Color.white)
+                                   .frame(width: 40, height: 60)
+                                   .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                           }
+                       }
+                       
+                       if rowModel.hasMoreNestedRows {
+                           Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                               .frame(width: 40, height: 60)
+                               .border(Color.tableCellBorderColor)
+                               .onTapGesture {
+                                   viewModel.expandTables(rowDataModel: rowModel, level: level)
+                                   rowModel.isExpanded.toggle()
+                               }
+                       } else {
+                           Rectangle()
+                               .fill(Color.white)
+                               .frame(width: 40, height: 60)
+                               .border(Color.tableCellBorderColor)
+                       }
+                   }
+               case .tableExpander(tableColumn: let column, level: let level, parentID: let parentID, _):
+                   let backgroundColor = (colorScheme == .dark)
+                   ? Color.black.opacity(0.8)
+                   : Color.tableColumnBgColor
+                   
+                   HStack(spacing: 0){
+                       if level == 0 {
+                           Rectangle()
+                               .fill(Color.white)
+                               .frame(width: 40, height: 60)
+                               .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                       } else {
+                           ForEach(0..<2*level + 1, id: \.self) { _ in
+                               Rectangle()
+                                   .fill(Color.white)
+                                   .frame(width: 40, height: 60)
+                                   .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                                   
+                           }
+                       }
+                       
+                       Image(systemName: rowModel.isExpanded ? "chevron.down.circle" : "chevron.right.circle")
+                           .frame(width: 40, height: 60)
+                           .background(backgroundColor)
+                           .border(Color.tableCellBorderColor)
+                           .onTapGesture {
+                               viewModel.expendSpecificTable(rowDataModel: rowModel, parentID: parentID ?? ("", ""), level: level, isOpenedFromTable: false)
+                               rowModel.isExpanded.toggle()
+                           }
+                   }
+               }
+           }
+           
+           // Selector Button View
+           switch rowModel.rowType {
+           case .row(let index):
+               if viewModel.showRowSelector {
+                   let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
+                   Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
+                       .frame(width: 40, height: 60)
+                       .border(Color.tableCellBorderColor)
+                       .onTapGesture {
+                           viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                       }
+                       .accessibilityIdentifier("MyButton")
+                   
+               } else {
+                   Rectangle()
+                       .fill(Color.white)
+                       .frame(width: 40, height: 60)
+                       .border(Color.tableCellBorderColor)
+               }
+           case .header:
+               Rectangle()
+                   .fill(Color.white)
+                   .frame(width: 40, height: 60)
+                   .border(Color.tableCellBorderColor)
+           case .nestedRow(let level, let index, _):
+               let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
+               Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
+                   .frame(width: 40, height: 60)
+                   .border(Color.tableCellBorderColor)
+                   .onTapGesture {
+                       viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                   }
+                   .accessibilityIdentifier("MyButton")
+           case .tableExpander:
+               EmptyView()
+           }
+       }
     }
 }

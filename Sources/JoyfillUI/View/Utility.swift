@@ -37,7 +37,7 @@ class Utility {
             return accumulator + columnWidth
         }
         
-        return max(totalWidth, singleColumnWidth * 2)
+        return max(totalWidth, singleColumnWidth * 2) + 80
     }
         
     private static func measureTextWidth(text: String, font: UIFont) -> CGFloat {
