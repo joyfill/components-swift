@@ -15,6 +15,7 @@ class FormContainerViewController: UIViewController {
     var document: JoyDoc!
     var currentPage: String? = nil
     var changeHandler = ChangeHandler()
+    var documentEditor: DocumentEditor!
 
     init(document: JoyDoc? = nil, currentPage: String? = nil, changeHandler: ChangeHandler = ChangeHandler()) {
         self.document = document
@@ -22,6 +23,7 @@ class FormContainerViewController: UIViewController {
         self.changeHandler = changeHandler
         super.init(nibName: nil, bundle: nil)
         self.document = document ?? sampleJSONDocument()
+        self.documentEditor = DocumentEditor(document: self.document!, mode: .fill, events: changeHandler, pageID: currentPage)
     }
 
     func sampleJSONDocument() -> JoyDoc {
@@ -37,10 +39,6 @@ class FormContainerViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let vc = UIHostingController(rootView: joyFillView)
-        vc.view.frame = self.view.bounds
-        self.view.addSubview(vc.view)
-        addChild(vc)
         
         let hostingController = UIHostingController(rootView: joyFillView)
         addChild(hostingController)
@@ -61,7 +59,7 @@ class FormContainerViewController: UIViewController {
     @ViewBuilder
     var joyFillView: some View {
         NavigationView {
-            Form(document: documentBinding , mode: .fill, events: changeHandler, pageID: currentPage)
+            Form(documentEditor: self.documentEditor)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
