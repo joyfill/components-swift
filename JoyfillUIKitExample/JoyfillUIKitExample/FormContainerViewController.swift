@@ -41,6 +41,21 @@ class FormContainerViewController: UIViewController {
         vc.view.frame = self.view.bounds
         self.view.addSubview(vc.view)
         addChild(vc)
+        
+        let hostingController = UIHostingController(rootView: joyFillView)
+        addChild(hostingController)
+        view.addSubview(hostingController.view)
+        
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        hostingController.didMove(toParent: self)
     }
 
     @ViewBuilder
@@ -48,6 +63,7 @@ class FormContainerViewController: UIViewController {
         NavigationView {
             Form(document: documentBinding , mode: .fill, events: changeHandler, pageID: currentPage)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 
     var documentBinding: Binding<JoyDoc> {
@@ -73,7 +89,7 @@ class ChangeHandler: FormChangeEvent {
     }
 
     func onUpload(event: UploadEvent) {
-        print(">>>>>>>>onUpload", event.field.fieldID!)
+        print(">>>>>>>>onUpload", event.fieldEvent.fieldID)
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
 }
