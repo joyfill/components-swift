@@ -14,7 +14,7 @@ class RootViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        makeAPICallForSubmission("doc_66cd69dd3cffd3ced34245ad")
+        makeAPICallForSubmission("doc_67aae8855c37e8d41f0abbac")
     }
 
     private func makeAPICallForSubmission(_ identifier: String) {
