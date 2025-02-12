@@ -128,6 +128,7 @@ struct FormView: View {
             TextView(textDataModel: model, eventHandler: self)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .block(let model):
+
             DisplayTextView(displayTextDataModel: model)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .multiSelect(let model):
@@ -137,6 +138,7 @@ struct FormView: View {
             DropdownView(dropdownDataModel: model, eventHandler: self)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .textarea(let model):
+
             MultiLineTextView(multiLineDataModel: model, eventHandler: self)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .date(let model):

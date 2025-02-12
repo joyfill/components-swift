@@ -25,9 +25,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
                                                           
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
 //    
     func testInvalidWebViewWithValidMobileView_resultShouldBeValid() {
@@ -45,9 +45,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
 //    
     func testValidWebViewWithInValidMobileView_resultShouldBeValid() {
@@ -65,9 +65,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     func testValidWebViewWithValidMobileView_resultShouldBeValid() {
@@ -85,9 +85,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Test Case for All fields one by one
@@ -108,9 +108,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid image field - result - valid
@@ -129,9 +129,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Text Field - Result - InValid
@@ -150,9 +150,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb1d92a76d06750ca4a1")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb1d92a76d06750ca4a1")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Text Field - Result - Valid
@@ -171,9 +171,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb1d92a76d06750ca4a1")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb1d92a76d06750ca4a1")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Multiline Field - Result - InValid
@@ -192,9 +192,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb2b9a487ce1c1f35f6c")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb2b9a487ce1c1f35f6c")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Multiline Field - Result - Valid
@@ -213,9 +213,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb2b9a487ce1c1f35f6c")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb2b9a487ce1c1f35f6c")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Number Field - Result - InValid
@@ -234,9 +234,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb3df03de10b26270ab3")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb3df03de10b26270ab3")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Number Field - Result - Valid
@@ -255,9 +255,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb3df03de10b26270ab3")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb3df03de10b26270ab3")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Date Field - Result - InValid
@@ -276,9 +276,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb44c79bb16ce072d233")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb44c79bb16ce072d233")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Date Field - Result - Valid
@@ -297,9 +297,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb44c79bb16ce072d233")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb44c79bb16ce072d233")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Time Field - Result - InValid
@@ -318,9 +318,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb638e230f348d0a8682")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb638e230f348d0a8682")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Time Field - Result - Valid
@@ -339,9 +339,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb638e230f348d0a8682")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb638e230f348d0a8682")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid dateTime Field - Result - InValid
@@ -360,9 +360,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb6ec5d88d3aadf548ca")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb6ec5d88d3aadf548ca")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid dateTime Field - Result - Valid
@@ -381,9 +381,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb6ec5d88d3aadf548ca")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb6ec5d88d3aadf548ca")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Dropdown Field - Result - InValid
@@ -402,9 +402,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb77593e3791638628bb")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb77593e3791638628bb")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Dropdown Field - Result - Valid
@@ -423,9 +423,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb77593e3791638628bb")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb77593e3791638628bb")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Multiselect Field - Result - InValid
@@ -444,9 +444,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb9f4d912053577652b1")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb9f4d912053577652b1")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Multiselect Field - Result - Valid
@@ -465,9 +465,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb9f4d912053577652b1")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fb9f4d912053577652b1")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Single Field - Result - InValid
@@ -486,9 +486,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb2bf4f965b9d04f153")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fbb2bf4f965b9d04f153")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Single Field - Result - Valid
@@ -507,9 +507,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb2bf4f965b9d04f153")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fbb2bf4f965b9d04f153")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Signature Field - Result - InValid
@@ -528,9 +528,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb8cd16c0c4d308a252")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fbb8cd16c0c4d308a252")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Signature Field - Result - Valid
@@ -549,9 +549,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb8cd16c0c4d308a252")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fbb8cd16c0c4d308a252")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Invalid Chart Field - Result - InValid
@@ -570,9 +570,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbd957d928a973b1b42b")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fbd957d928a973b1b42b")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .invalid)
     }
     
     // Valid Chart Field - Result - Valid
@@ -591,9 +591,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 1)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbd957d928a973b1b42b")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 1)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "6629fbd957d928a973b1b42b")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
     }
     
     // Hidden Field Test cases - result always - valid
@@ -615,11 +615,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 2)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "66aa2865da10ac1c7b7acb1d")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations[1].field.id, "66aa29c05db08120464a2875")
+        XCTAssertEqual(validationResult.fieldValidations[1].status, .valid)
     }
     
     func testRequiredHiddenNumberFieldWithValue() {
@@ -640,11 +640,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 2)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "66aa2865da10ac1c7b7acb1d")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations[1].field.id, "66aa29c05db08120464a2875")
+        XCTAssertEqual(validationResult.fieldValidations[1].status, .valid)
    }
     
     // Show Hidden Field Test Cases
@@ -666,11 +666,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
        
         XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 2)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "66aa2865da10ac1c7b7acb1d")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations[1].field.id, "66aa28f805a4900ae643db9c")
+        XCTAssertEqual(validationResult.fieldValidations[1].status, .invalid)
         
    }
     
@@ -692,11 +692,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
        
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 2)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "66aa2865da10ac1c7b7acb1d")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations[1].field.id, "66aa28f805a4900ae643db9c")
+        XCTAssertEqual(validationResult.fieldValidations[1].status, .valid)
         
    }
     
@@ -719,11 +719,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
        
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 2)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "66aa2865da10ac1c7b7acb1d")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations[1].field.id, "66aa28f805a4900ae643db9c")
+        XCTAssertEqual(validationResult.fieldValidations[1].status, .valid)
         
    }
     
@@ -745,140 +745,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
        
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations.count, 2)
+        XCTAssertEqual(validationResult.fieldValidations.first?.field.id, "66aa2865da10ac1c7b7acb1d")
+        XCTAssertEqual(validationResult.fieldValidations.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidations[1].field.id, "66aa28f805a4900ae643db9c")
+        XCTAssertEqual(validationResult.fieldValidations[1].status, .valid)
         
    }
-    
-    func testRequiredTableField() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
-            .setTableFieldPosition(hideColumn: false)
-        
-        let documentEditor = documentEditor(document: document)
-        let validationResult = documentEditor.validate()
-        
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-    }
-    
-    //Zero columns
-    func testRequiredTableFieldZeroColumns() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: true)
-            .setTableFieldPosition(hideColumn: false)
-        
-        let documentEditor = documentEditor(document: document)
-        let validationResult = documentEditor.validate()
-        
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-    }
-    
-    // Zero rows
-    func testRequiredTableFieldZeroRows() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false)
-            .setTableFieldPosition(hideColumn: false)
-        
-        let documentEditor = documentEditor(document: document)
-        let validationResult = documentEditor.validate()
-        
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-    }
-    
-    // table is required , columns are required , cells are empty should be invalid
-    func testRequiredTableFieldEmptyCells() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: true, isZeroRows: false, isColumnsZero: false)
-            .setTableFieldPosition(hideColumn: false)
-        
-        let documentEditor = documentEditor(document: document)
-        let validationResult = documentEditor.validate()
-        
-        XCTAssertEqual(validationResult.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-    }
-    
-    func testRequiredTableFieldIfHidden() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: true, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
-            .setTableFieldPosition(hideColumn: true)
-        
-        let documentEditor = documentEditor(document: document)
-        let validationResult = documentEditor.validate()
-        
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-    }
-    
-    func testNonRequiredTableField() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
-            .setTableFieldPosition(hideColumn: false)
-        
-        let documentEditor = documentEditor(document: document)
-        let validationResult = documentEditor.validate()
-        
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-    }
-    
-    func testRequiredTableFieldNonRequiredColumns() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false)
-            .setTableFieldPosition(hideColumn: false)
-        
-        let documentEditor = documentEditor(document: document)
-        let validationResult = documentEditor.validate()
-        
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-    }
 }

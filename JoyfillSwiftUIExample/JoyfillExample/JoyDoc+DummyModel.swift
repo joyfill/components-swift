@@ -793,19 +793,19 @@ extension JoyDoc {
         ]
         var column1 = FieldTableColumn()
         column1.id = "6628f2e11a2b28119985cfbb"
-        column1.type = .text
+        column1.type = "text"
         column1.title = "Text Column"
         column1.width = 0
         column1.identifier = "field_column_6629fbc70c9e53f683a18007"
         var column2 = FieldTableColumn()
         column2.id = "6628f2e123ca77fa82a2c45e"
-        column2.type = .dropdown
+        column2.type = "dropdown"
         column2.title = "Dropdown Column"
         column2.width = 0
         column2.identifier = "field_column_6629fbc7e2493a155a32c509"
         var column3 = FieldTableColumn()
         column3.id = "663dcdcfcd08ad955955fd95"
-        column3.type = .image
+        column3.type = "image"
         column3.title = "Image Column"
         column3.width = 0
         column3.identifier = ""
@@ -1199,7 +1199,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = .dateOnly
+        fieldPosition.format = "MM/DD/YYYY"
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1215,7 +1215,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = .dateOnly
+        fieldPosition.format = "MM/DD/YYYY"
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1231,7 +1231,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = .timeOnly
+        fieldPosition.format = "hh:mma"
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1247,7 +1247,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = .timeOnly
+        fieldPosition.format = "hh:mma"
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1263,7 +1263,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = .dateTime
+        fieldPosition.format = "MM/DD/YYYY hh:mma"
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self
@@ -1279,7 +1279,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = .dateTime
+        fieldPosition.format = "MM/DD/YYYY hh:mma"
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self
@@ -1476,154 +1476,6 @@ extension JoyDoc {
         field.file = "66a0fdb2acd89d30121053b9"
         var document = self
         document.fields.append(field)
-        return document
-    }
-    
-    func setRequiredTableField(hideColumn: Bool, isTableRequired: Bool, isColumnRequired: Bool, areCellsEmpty: Bool, isZeroRows: Bool, isColumnsZero: Bool) -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "table"
-        field.id = "67612793c4e6a5e6a05e64a3"
-        field.identifier = "field_676127963e76996d780e6c51"
-        field.title = "Table"
-        field.description = ""
-        field.required = isTableRequired
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "6629fab3c0ba3fb775b4a55c"
-        field.rowOrder = [
-            "676127938056dcd158942bad",
-            "67612793f70928da78973744",
-            "67612793a6cd1f9d39c8433b"
-        ]
-        var column1 = FieldTableColumn()
-        column1.id = "676127938fb7c5fd4321a2f4"
-        column1.type = .text
-        column1.title = "Text Column"
-        column1.width = 0
-        column1.identifier = "field_column_6629fbc70c9e53f683a18007"
-        column1.required = isColumnRequired
-        
-        var column2 = FieldTableColumn()
-        column2.id = "67612793b5f860ae8d6a4ae6"
-        column2.type = .dropdown
-        column2.title = "Dropdown Column"
-        column2.width = 0
-        column2.identifier = "field_column_6629fbc7e2493a155a32c509"
-        column2.required = isColumnRequired
-        
-        var column3 = FieldTableColumn()
-        column3.id = "67612793c76286eb2763c366"
-        column3.type = .date
-        column3.title = "Date Column"
-        column3.width = 0
-        column3.identifier = ""
-        column3.value = .double(1712385780000)
-//        column3.required = isColumnRequired
-        
-        if !isColumnsZero {
-            field.tableColumns = [column1,column2,column3]
-        }
-        
-        field.tableColumnOrder = [
-            "676127938fb7c5fd4321a2f4",
-            "67612793b5f860ae8d6a4ae6",
-            "67612793c76286eb2763c366"
-        ]
-        
-        var valueElements1 = ValueElement()
-        valueElements1.id = "676127938056dcd158942bad"
-        valueElements1.deleted = false
-        let cells1: [String: ValueUnion] = [
-            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 1, Column 1"),
-            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
-            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
-        ]
-        
-        let cellsOnHideColumn: [String: ValueUnion] = [
-            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
-            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
-        ]
-        valueElements1.cells = hideColumn ? cellsOnHideColumn : cells1
-
-        var valueElements2 = ValueElement()
-        valueElements2.id = "67612793f70928da78973744"
-        valueElements2.deleted = false
-        let cells2: [String: ValueUnion] = [
-            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
-            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
-            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
-        ]
-        valueElements2.cells = areCellsEmpty ? [:] : cells2
-
-        var valueElements3 = ValueElement()
-        valueElements3.id = "67612793a6cd1f9d39c8433b"
-        valueElements3.deleted = false
-        let cells3: [String: ValueUnion] = [
-            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
-            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
-            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
-        ]
-        valueElements3.cells = cells3
-        
-        // Delete true a row
-        var valueElements4 = ValueElement()
-        valueElements4.id = "67612793a6cd1f9d39c8433c"
-        valueElements4.deleted = true
-        let cells4: [String: ValueUnion] = [
-            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
-            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
-            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
-        ]
-        valueElements4.cells = cells4
-        
-        // Nil cells for a row
-        var valueElements5 = ValueElement()
-        valueElements5.id = "67612793a6cd1f9d39c8433d"
-        valueElements5.deleted = false
-        
-        //For case zero rows
-
-        let value = ValueUnion.valueElementArray([valueElements1, valueElements2, valueElements3, valueElements4, valueElements5])
-        if !isZeroRows {
-            field.value = value
-        }
-        
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
-    func setTableFieldPosition(hideColumn: Bool) -> JoyDoc {
-        var fieldPosition = FieldPosition()
-        fieldPosition.field = "67612793c4e6a5e6a05e64a3"
-        fieldPosition.displayType = "original"
-        fieldPosition.width = 24
-        fieldPosition.height = 24
-        fieldPosition.x = 0
-        fieldPosition.y = 0
-        fieldPosition.id = "6629fbc736d179b9014abae0"
-        fieldPosition.type = .table
-        fieldPosition.titleDisplay = "none"
-        
-        var tableColumn1 = TableColumn()
-        tableColumn1.id = "676127938fb7c5fd4321a2f4"
-        tableColumn1.format = .empty
-        tableColumn1.hidden = hideColumn
-        
-        var tableColumn2 = TableColumn()
-        tableColumn2.id = "67612793b5f860ae8d6a4ae6"
-        tableColumn2.format = .empty
-        tableColumn2.hidden = hideColumn
-        
-        var tableColumn3 = TableColumn()
-        tableColumn3.id = "67612793c76286eb2763c366"
-        tableColumn3.format = .empty
-//        tableColumn3.hidden = hideColumn
-        
-        fieldPosition.tableColumns = [tableColumn1, tableColumn2, tableColumn3]
-        var document = self
-        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1843,217 +1695,5 @@ extension JoyDoc {
         document.fields.append(field)
         return document
     }
-    
-// Conditional logic methods
-    
-    func setConditionalLogicToField(fieldID: String, logic: Logic?) -> JoyDoc {
-        var document = self
-        if let index = document.fields.firstIndex(where: { $0.id == fieldID }) {
-            document.fields[index].logic = logic
-        }
-        return document
-    }
-    
-    func setConditionalLogic(pageID: String, logic: Logic?) -> JoyDoc {
-        var updatedDocument = self
-        if let pageIndex = updatedDocument.files[0].views?[0].pages?.firstIndex(where: { $0.id == pageID }) {
-            updatedDocument.files[0].views?[0].pages?[pageIndex].logic = logic
-        }
-        return updatedDocument
-    }
-    
-    func setNumberField(hidden: Bool, value: ValueUnion) -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "number"
-        field.id = "6629fb3df03de10b26270ab3"
-        field.identifier = "field_6629fb3fabb87e37c9578b8b"
-        field.title = "Number"
-        field.description = ""
-        field.value = value
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "6629fab3c0ba3fb775b4a55c"
-        field.hidden = hidden
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
-    func setTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "text"
-        field.id = "66aa2865da10ac1c7b7acb1d"
-        field.identifier = "field_66aa2520d3285f2fcf8e53b3"
-        field.title = "Text"
-        field.description = ""
-        field.value = value
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "66a0fdb2acd89d30121053b9"
-        field.hidden = hidden
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
-    //Set Dropdown Field
-    func setDropdownField(hidden: Bool, value: ValueUnion) -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "dropdown"
-        field.id = "6781040987a55e48b4507a38"
-        field.identifier = "field_678104b10279a22deca9beb6"
-        field.title = "Dropdown"
-        field.description = ""
-        
-        var option1 = Option()
-        option1.id = "677e2bfab0d5dce4162c36c1"
-        option1.value = "Yes"
-        option1.deleted = false
-        var option2 = Option()
-        option2.id = "677e2bfaf81647d2f6a016a0"
-        option2.value = "No"
-        option2.deleted = false
-        var option3 = Option()
-        option3.id = "677e2bfa0f4ed64ef5055bcf"
-        option3.value = "N/A"
-        option3.deleted = false
-        
-        field.options = [option1, option2, option3]
-        field.value = value
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "66a0fdb2acd89d30121053b9"
-        field.hidden = hidden
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
-    //Set MultiSelect Field
-    func setMultiSelectField(hidden: Bool, value: ValueUnion, multi: Bool) -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "multiSelect"
-        field.id = "678104b387d3004e70120ac6"
-        field.identifier = "field_6781058d099fc0a3107973fb"
-        field.title = "Multiple Choice"
-        field.description = ""
-        
-        var option1 = Option()
-        option1.id = "677e2bfa1ff43cf15d159310"
-        option1.value = "Yes"
-        option1.deleted = false
-        var option2 = Option()
-        option2.id = "677e2bfa9c5249a2acd3644f"
-        option2.value = "No"
-        option2.deleted = false
-        var option3 = Option()
-        option3.id = "677e2bfa152e9f549edf0813"
-        option3.value = "N/A"
-        option3.deleted = false
-        
-        field.options = [option1, option2, option3]
-        field.value = value
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "66a0fdb2acd89d30121053b9"
-        field.hidden = hidden
-        field.multi = multi
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
-    //Set multiline field
-    func setMultilineTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "textarea"
-        field.id = "6629fb2b9a487ce1c1f35f6c"
-        field.identifier = "field_6629fb2feff29e90331e4e8e"
-        field.title = "Multiline Text"
-        field.hidden = hidden
-        field.description = ""
-        field.value = value
-        field.required = false
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "6629fab3c0ba3fb775b4a55c"
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
-    func setTwoPageField(page1hidden: Bool, page2hidden: Bool) -> JoyDoc {
-        var page1 = Page()
-        page1.name = "Page 1"
-        page1.hidden = false
-        page1.width = 816
-        page1.height = 1056
-        page1.cols = 24
-        page1.rowHeight = 8
-        page1.layout = "grid"
-        page1.presentation = "normal"
-        page1.margin = 0
-        page1.padding = 0
-        page1.borderWidth = 0
-        page1.hidden = page1hidden
-        page1.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
-        page1.id = "6629fab320fca7c8107a6cf6"
-        
-        var page2 = Page()
-        page2.name = "Page 2"
-        page2.hidden = false
-        page2.width = 816
-        page2.height = 1056
-        page2.cols = 24
-        page2.rowHeight = 8
-        page2.layout = "grid"
-        page2.presentation = "normal"
-        page2.margin = 0
-        page2.padding = 0
-        page2.borderWidth = 0
-        page2.hidden = page2hidden
-        page2.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
-        page2.id = "66600801dc1d8b4f72f54917"
-        
-        
-        var document = self
-        if var pages = document.files[0].views?[0].pages {
-            pages.append(page1)
-            pages.append(page2)
-            document.files[0].views?[0].pages = pages
-        } else {
-            document.files[0].pages = [page1, page2]
-        }
-        return document
-    }
-    
-    func setFieldPositionToPage(pageId: String, idAndTypes: [String : FieldTypes]) -> JoyDoc {
-        
-        var document = self
-        
-        var fieldsPositions = [FieldPosition]()
-        for idAndType in idAndTypes {
-            var fieldPosition = FieldPosition()
-            fieldPosition.field = idAndType.key
-            fieldPosition.id = UUID().uuidString
-            fieldPosition.type = idAndType.value
-            fieldsPositions.append(fieldPosition)
-        }
-                
-        if var pages = document.files[0].views?[0].pages {
-            let pageIndex = pages.firstIndex { page in
-                page.id == pageId
-            }
-            pages[pageIndex ?? 0].fieldPositions = fieldsPositions
-            
-            document.files[0].views?[0].pages = pages
-        }
-        
-        return document
-    }
+
 }

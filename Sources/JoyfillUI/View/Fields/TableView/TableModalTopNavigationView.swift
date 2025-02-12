@@ -54,7 +54,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                                .disabled(viewModel.tableDataModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
                                 
@@ -67,7 +67,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                                .disabled(viewModel.tableDataModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
@@ -139,7 +139,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                                .disabled(viewModel.tableDataModel.firstRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
@@ -153,7 +153,7 @@ struct TableModalTopNavigationView: View {
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                                .disabled(viewModel.tableDataModel.lastRowSelected)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
@@ -226,7 +226,7 @@ struct TableModalTopNavigationView: View {
 struct EditMultipleRowsSheetView: View {
     let viewModel: TableViewModel
     @Environment(\.presentationMode)  var presentationMode
-    @State var changes = [Int: ValueUnion]()
+    @State var changes = [Int: String]()
 
     init(viewModel: TableViewModel) {
         self.viewModel =  viewModel
@@ -279,10 +279,10 @@ struct EditMultipleRowsSheetView: View {
                     })
                 }
 
-                ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
+                ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
                     let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
-                    var cellModel = TableCellModel(rowID: row,
+                    let cellModel = TableCellModel(rowID: row,
                                                    data: cell,
                                                    documentEditor: viewModel.tableDataModel.documentEditor,
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
@@ -290,24 +290,18 @@ struct EditMultipleRowsSheetView: View {
                                                    editMode: viewModel.tableDataModel.mode)
                     { cellDataModel in
                         switch cell.type {
-                        case .text:
-                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
-                        case .dropdown:
-                            self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
-                        case .date:
-                            self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
-                        case .number:
-                            self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
-                        case .multiSelect:
-                            self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
+                        case "text":
+                            self.changes[colIndex] = cellDataModel.title
+                        case "dropdown":
+                            self.changes[colIndex] = cellDataModel.defaultDropdownSelectedId
                         default:
                             break
                         }
                     }
                     switch cellModel.data.type {
-                    case .text:
+                    case "text":
                         var str = ""
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         let binding = Binding<String>(
@@ -316,12 +310,13 @@ struct EditMultipleRowsSheetView: View {
                             },
                             set: { newValue in
                                 str = newValue
-                                self.changes[colIndex] = ValueUnion.string(newValue) 
+                                self.changes[colIndex] = newValue
                             }
                         )
                         TextField("", text: binding)
                             .font(.system(size: 15))
                             .accessibilityIdentifier("EditRowsTextFieldIdentifier")
+                            .disabled(viewModel.tableDataModel.mode == .readonly)
                             .padding(.horizontal, 10)
                             .frame(height: 40)
                             .overlay(
@@ -329,8 +324,8 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                    case .dropdown:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                    case "dropdown":
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col))
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -339,43 +334,8 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
+                            .disabled(cellModel.editMode == .readonly)
                             .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
-                    case .date:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
-                            .padding(.vertical, 2)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
-                            .accessibilityIdentifier("EditRowsDateFieldIdentifier")
-                    case .number:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
-                            .keyboardType(.decimalPad)
-                            .frame(minHeight: 40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
-                            .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
-                    case .multiSelect:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
-                            .padding(.vertical, 4)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
                     default:
                         Text("")
                     }
