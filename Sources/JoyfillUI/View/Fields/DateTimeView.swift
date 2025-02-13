@@ -11,8 +11,8 @@ struct DateTimeView: View {
         self.dateTimeDataModel = dateTimeDataModel
         self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
-            let dateString = value.dateTime(format: dateTimeDataModel.format ?? "") ?? ""
-            if let date = stringToDate(dateString, format: dateTimeDataModel.format ?? "") {
+            let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty) ?? ""
+                        if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }
@@ -23,7 +23,7 @@ struct DateTimeView: View {
         FieldHeaderView(dateTimeDataModel.fieldHeaderModel)
         Group {
             if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: dateTimeDataModel.format ?? ""))
+                DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: dateTimeDataModel.format ?? .empty))
                     .accessibilityIdentifier("DateIdenitfier")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .labelsHidden()
@@ -56,27 +56,6 @@ struct DateTimeView: View {
             let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: newDateValue)
             eventHandler.onChange(event: event)
             eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
-        }
-    }
-    
-    func stringToDate(_ dateString: String, format: String) -> Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = DateFormatType(rawValue: format)?.dateFormat ?? ""
-        return dateFormatter.date(from: dateString)
-    }
-    
-    func getDateType(format: String) -> DatePickerComponents {
-        switch DateFormatType(rawValue: format) {
-        case .dateOnly:
-            return [.date]
-        case .timeOnly:
-            return [.hourAndMinute]
-        case .dateTime:
-            return [.date, .hourAndMinute]
-        case .none:
-            return [.date, .hourAndMinute]
-        case .some(.empty):
-            return [.date, .hourAndMinute]
         }
     }
 }
