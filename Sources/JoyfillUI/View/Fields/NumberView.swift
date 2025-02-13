@@ -63,7 +63,7 @@ struct NumberView: View {
     private func debounceTextChange(newValue: String) {
         debounceTask?.cancel() // Cancel any ongoing debounce task
         debounceTask = Task {
-            try? await Task.sleep(nanoseconds: Utility.DEBOUNCE_TIME_IN_NANOSECONDS)
+            try? await Task.sleep(nanoseconds: Constants.DEBOUNCE_TIME_IN_NANOSECONDS)
             if !Task.isCancelled {
                 await MainActor.run {
                     updateFieldValue()
@@ -71,4 +71,9 @@ struct NumberView: View {
             }
         }
     }
+}
+
+
+class Constants {
+    static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 1_000_000_000
 }
