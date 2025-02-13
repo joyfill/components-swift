@@ -18,6 +18,10 @@
 		048BFEE32D1A9C6D0011159C /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048BFEE22D1A9C6D0011159C /* JoyfillAPIService */; };
 		048BFEE62D1A9CC50011159C /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048BFEE52D1A9CC50011159C /* JoyfillModel */; };
 		048BFEE82D1A9CD30011159C /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048BFEE72D1A9CD30011159C /* JoyfillModel */; };
+		04FEBD8E2D5DD7D600163AC6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */; };
+		04FEBD8F2D5DD7D600163AC6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */; };
+		04FEBD902D5DD7D600163AC6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */; };
+		04FEBD922D5DD8E300163AC6 /* FirstPageHiddenLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FEBD912D5DD8E300163AC6 /* FirstPageHiddenLogic.swift */; };
 		1307CF0D2BDB7E0700B19FBA /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
@@ -94,6 +98,8 @@
 		04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldLogicTests.swift; sourceTree = "<group>"; };
 		04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldShowPageLogicTests.swift; sourceTree = "<group>"; };
 		04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JoyfillExample.entitlements; sourceTree = "<group>"; };
+		04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FirstPageHidden.json; sourceTree = "<group>"; };
+		04FEBD912D5DD8E300163AC6 /* FirstPageHiddenLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstPageHiddenLogic.swift; sourceTree = "<group>"; };
 		1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Joydocjson.json; sourceTree = "<group>"; };
 		1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+DummyModel.swift"; sourceTree = "<group>"; };
 		1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+Assert.swift"; sourceTree = "<group>"; };
@@ -198,6 +204,7 @@
 				04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */,
 				04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */,
 				1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */,
+				04FEBD912D5DD8E300163AC6 /* FirstPageHiddenLogic.swift */,
 			);
 			path = JoyfillUITests;
 			sourceTree = "<group>";
@@ -256,6 +263,7 @@
 				1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */,
 				048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */,
 				13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */,
+				04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */,
 				1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */,
 				FA529C512BA1D253000200F5 /* Assets.xcassets */,
 				FA529C532BA1D253000200F5 /* JoyfillExample.entitlements */,
@@ -417,6 +425,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1321F1782BECEC9400594112 /* Joydocjson.json in Resources */,
+				04FEBD8E2D5DD7D600163AC6 /* FirstPageHidden.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +434,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1307CF0D2BDB7E0700B19FBA /* Joydocjson.json in Resources */,
+				04FEBD902D5DD7D600163AC6 /* FirstPageHidden.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,6 +443,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
+				04FEBD8F2D5DD7D600163AC6 /* FirstPageHidden.json in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
 			);
@@ -453,6 +464,7 @@
 				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
 				362A560B2BEE2EE600B54C14 /* ImageFieldTests.swift in Sources */,
 				1338AB962BEE38DD0001C203 /* TableFieldTests.swift in Sources */,
+				04FEBD922D5DD8E300163AC6 /* FirstPageHiddenLogic.swift in Sources */,
 				1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */,
 				133EBABB2BF48804009B73AB /* SignatureFieldTests.swift in Sources */,
 				13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */,
