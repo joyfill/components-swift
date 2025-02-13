@@ -33,7 +33,7 @@ public class DocumentEditor: ObservableObject {
         self.document = document
         self.mode = mode
         self.showPageNavigationView = navigation
-        self.currentPageID = ((pageID == nil || pageID!.isEmpty) ? document.pagesForCurrentView.first?.id : pageID) ?? ""
+        self.currentPageID = ""
         self.events = events
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
@@ -68,6 +68,7 @@ public class DocumentEditor: ObservableObject {
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
     }
 
     public func validate() -> Validation {
@@ -86,6 +87,24 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(page: page)
     }
 
+}
+
+fileprivate extension JoyDoc {
+    func firstValidPageID(for pageID: String?, conditionalLogicHandler: ConditionalLogicHandler) -> String {
+        guard let pageID = pageID, !pageID.isEmpty else {
+            return firstValidPageID(conditionalLogicHandler: conditionalLogicHandler) ?? ""
+        }
+        return pageID
+    }
+    
+    func firstValidPageID(conditionalLogicHandler: ConditionalLogicHandler) -> String? {
+        for page in pagesForCurrentView {
+            if conditionalLogicHandler.shouldShow(page: page) {
+                return page.id
+            }
+        }
+        return pagesForCurrentView.first?.id
+    }
 }
 
 extension DocumentEditor {
