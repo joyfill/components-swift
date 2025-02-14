@@ -91,13 +91,26 @@ public class DocumentEditor: ObservableObject {
 
 fileprivate extension JoyDoc {
     func firstValidPageID(for pageID: String?, conditionalLogicHandler: ConditionalLogicHandler) -> String {
-        if pageID == nil ||
-            pageID!.isEmpty ||
-            !(files[0].pageOrder?.contains(pageID!) ?? false) ||
-            !conditionalLogicHandler.shouldShow(pageID: pageID!) {
+        guard let id = pageID else {
             return firstValidPageID(conditionalLogicHandler: conditionalLogicHandler) ?? ""
         }
-        return pageID!
+        
+        if id.isEmpty {
+            return firstValidPageID(conditionalLogicHandler: conditionalLogicHandler) ?? ""
+        }
+        
+        guard let pageOrder = files.first?.pageOrder else {
+            return firstValidPageID(conditionalLogicHandler: conditionalLogicHandler) ?? ""
+        }
+        
+        if !pageOrder.contains(id) {
+            return firstValidPageID(conditionalLogicHandler: conditionalLogicHandler) ?? ""
+        }
+        
+        if !conditionalLogicHandler.shouldShow(pageID: id) {
+            return firstValidPageID(conditionalLogicHandler: conditionalLogicHandler) ?? ""
+        }
+        return id
     }
     
     func firstValidPageID(conditionalLogicHandler: ConditionalLogicHandler) -> String? {
