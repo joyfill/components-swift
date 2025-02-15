@@ -23,6 +23,22 @@ struct TableProgressView: View {
     }
 }
 
+struct CollectionProgressView: View {
+    @Binding var cellModel: TableCellModel
+    @ObservedObject var viewModel: CollectionViewModel
+    let progress: (Int, Int)
+    
+    public init(cellModel: Binding<TableCellModel>, viewModel: CollectionViewModel) {
+        _cellModel = cellModel
+        self.viewModel = viewModel
+        progress = viewModel.getProgress(rowId: cellModel.wrappedValue.rowID)
+    }
+    
+    var body: some View {
+        ProgressCircleView(currentProgress: progress.0, totalProgress: progress.1)
+    }
+}
+
 struct ProgressCircleView: View {
     let currentProgress: Int
     let totalProgress: Int

@@ -308,6 +308,12 @@ extension DocumentEditor {
                                        documentEditor: self,
                                        fieldIdentifier: fieldIdentifier)
             dataModelType = .table(model)
+        case .collection:
+            let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
+                                       mode: fieldEditMode,
+                                       documentEditor: self,
+                                       fieldIdentifier: fieldIdentifier)
+            dataModelType = .collection(model)
         case .image:
             let model = ImageDataModel(fieldIdentifier: fieldIdentifier,
                                        multi: fieldData?.multi,

@@ -153,16 +153,29 @@ struct TableDataModel {
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
-
-        fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
-            let column = fieldData.tableColumns?.first { $0.id == colID }
-            if fieldPositionTableColumns?.first(where: { $0.id == colID })?.hidden == true { return }
-            guard let column = column else { return }
-            let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
-            self.filterModels.append(filterModel)
-            if let columnType = column.type {
-                if supportedColumnTypes.contains(columnType) {
-                    tableColumns.append(column)
+                
+        if fieldData.fieldType == .collection {
+            fieldData.schema?.forEach { key, value in
+                if value.root == true {
+                    self.tableColumns = value.tableColumns ?? []
+                }
+            }
+            
+            for (colIndex, column) in self.tableColumns.enumerated() {
+                let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown)
+                self.filterModels.append(filterModel)
+            }
+        } else {
+            fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
+                let column = fieldData.tableColumns?.first { $0.id == colID }
+                if fieldPositionTableColumns?.first(where: { $0.id == colID })?.hidden == true { return }
+                guard let column = column else { return }
+                let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
+                self.filterModels.append(filterModel)
+                if let columnType = column.type {
+                    if supportedColumnTypes.contains(columnType) {
+                        tableColumns.append(column)
+                    }
                 }
             }
         }

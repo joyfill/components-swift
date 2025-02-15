@@ -1,17 +1,17 @@
 //
-//  SwiftUIView.swift
+//  File.swift
+//  Joyfill
 //
-//
-//  Created by Nand Kishore on 04/03/24.
+//  Created by Vivek on 14/02/25.
 //
 
 import SwiftUI
 import JoyfillModel
 
-struct TableQuickView : View {
+struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
     private let screenWidth = UIScreen.main.bounds.width
-    @ObservedObject private var viewModel: TableViewModel
+    @ObservedObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
@@ -20,7 +20,7 @@ struct TableQuickView : View {
     @State private var refreshID = UUID()
 
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
-        self.viewModel = TableViewModel(tableDataModel: tableDataModel)
+        self.viewModel = CollectionViewModel(tableDataModel: tableDataModel)
         self.tableDataModel = tableDataModel
         self.eventHandler = eventHandler
     }
@@ -37,7 +37,8 @@ struct TableQuickView : View {
                     .disabled(true)
                     .background(Color.clear)
                     .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
-                    table
+                    
+                    collection
                         .id(refreshID)
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
@@ -79,7 +80,7 @@ struct TableQuickView : View {
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: CollectionModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -106,7 +107,7 @@ struct TableQuickView : View {
         }
     }
     
-    var table: some View {
+    var collection: some View {
         VStack(alignment: .leading, spacing: 0) {
             let rows = (viewModel.tableDataModel.rowOrder.prefix(3).count != 0) ? viewModel.tableDataModel.rowOrder.prefix(3) : ["Dummy-rowID"]
             ForEach(rows, id: \.self) { row in
@@ -126,7 +127,7 @@ struct TableQuickView : View {
                                 Rectangle()
                                     .stroke()
                                     .foregroundColor(Color.tableCellBorderColor)
-                                TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
+                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel), action: {columnID in })
                             }
                             .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                         }
