@@ -343,8 +343,8 @@ struct CollectionModalView : View {
                                                           longestBlockText: longestBlockText,
                                                           isHeaderNested: true)
                                     .frame(height: 60)
-                                case .tableExpander(tableColumn: let tableColumn, level: let level, parentID: let parentID, _):
-                                    CollectionExpanderView(rowDataModel: $rowCellModels, tableColumn: tableColumn, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
+                                case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
+                                    CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue?.1, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
                                         .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                 }
                             }
@@ -389,14 +389,15 @@ struct CollectionModalView : View {
 
 struct CollectionExpanderView: View {
     @Binding var rowDataModel: RowDataModel
-    var tableColumn: FieldTableColumn?
+//    var tableColumn: FieldTableColumn?
+    var schemaValue: Schema?
     @ObservedObject var viewModel: CollectionViewModel
     let level: Int
     let parentID: (columnID: String, rowID: String)
     
     var body: some View {
         HStack {
-            Text(tableColumn?.title ?? "")
+            Text(schemaValue?.title ?? "")
                 .multilineTextAlignment(.leading)
                 .darkLightThemeColor()
             
@@ -405,7 +406,7 @@ struct CollectionExpanderView: View {
             if rowDataModel.isExpanded {
                 Button(action: {
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
-                    viewModel.addNestedRow(columnID: (tableColumn?.id)!, level: level, startingIndex: startingIndex, parentID: parentID)
+                    viewModel.addNestedRow(columnID: "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
                     Text("Add Row +")
                         .foregroundStyle(.selection)
@@ -563,7 +564,7 @@ struct ColllectionRowsHeaderView: View {
                                .border(Color.tableCellBorderColor)
                        }
                    }
-               case .tableExpander(tableColumn: let column, level: let level, parentID: let parentID, _):
+               case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                    let backgroundColor = (colorScheme == .dark)
                    ? Color.black.opacity(0.8)
                    : Color.tableColumnBgColor

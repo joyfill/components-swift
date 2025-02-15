@@ -32,7 +32,7 @@ struct RowDataModel: Equatable, Hashable {
     var cells: [TableCellModel]
     let rowType: RowType
     var isExpanded: Bool = false
-    
+    var childrens: [String : Children]
     var filledCellCount: Int {
         cells.filter { $0.data.isCellFilled }.count
     }
@@ -41,11 +41,12 @@ struct RowDataModel: Equatable, Hashable {
         cells.contains { $0.data.type == .table }
     }
     
-    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false) {
+    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, childrens: [String : Children] = [:] ) {
         self.rowID = rowID
         self.cells = cells
         self.rowType = rowType
         self.isExpanded = isExpanded
+        self.childrens = childrens
     }
 }
 
@@ -53,7 +54,7 @@ enum RowType: Equatable {
     case row(index: Int)
     case header(level: Int, tableColumns: [FieldTableColumn])
     case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil)
-    case tableExpander(tableColumn: FieldTableColumn? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil, rowWidth: CGFloat = 0)
+    case tableExpander(schemaValue: (String, Schema)? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil, rowWidth: CGFloat = 0)
     
     var level: Int {
         switch self {
@@ -89,7 +90,7 @@ enum RowType: Equatable {
             return index
         case .header(level: let level, tableColumns: let tableColumns):
             return 0
-        case .tableExpander(tableColumn: let tableColumn, level: let level, _, _):
+        case .tableExpander(schemaValue: let schemaValue, level: let level, _, _):
             return 0
         }
     }
@@ -124,6 +125,8 @@ struct TableDataModel {
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
     var tableColumns = [FieldTableColumn]()
+    var childrens = [String]()
+    var schema: [String : Schema] = [:]
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
@@ -155,9 +158,11 @@ struct TableDataModel {
         self.fieldPositionTableColumns = fieldPosition.tableColumns
                 
         if fieldData.fieldType == .collection {
+            self.schema = fieldData.schema ?? [:]
             fieldData.schema?.forEach { key, value in
                 if value.root == true {
                     self.tableColumns = value.tableColumns ?? []
+                    self.childrens = value.children ?? []
                 }
             }
             
