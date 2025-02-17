@@ -13,7 +13,6 @@ struct CollectionRowView: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var rowDataModel: RowDataModel
     var longestBlockText: String
-    var action: (_ columnID: String) -> Void
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -22,7 +21,7 @@ struct CollectionRowView: View {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel, action: action)
+                    CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                 }
                 .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
                                                       format: cellModel.data.format ?? .empty,
@@ -322,16 +321,10 @@ struct CollectionModalView : View {
                                 
                                 switch rowCellModels.rowType {
                                 case .row:
-                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
-                                        viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: rowCellModels.rowID), level: 0, isOpenedFromTable: true)
-                                        rowCellModels.isExpanded.toggle()
-                                    })
+                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                     .frame(height: 60)
                                 case .nestedRow(level: let level, index: let index, parentID: let parentID):
-                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, action: { columnID in
-                                        viewModel.expendSpecificTable(rowDataModel: rowCellModels, parentID: (columnID: columnID, rowID: parentID?.rowID ?? ""), level: level, isOpenedFromTable: true)
-                                        rowCellModels.isExpanded.toggle()
-                                    })
+                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                     .frame(height: 60)
                                 case .header(level: let level, tableColumns: let tableColumns):
                                     CollectionColumnHeaderView(viewModel: viewModel,
@@ -378,18 +371,8 @@ struct CollectionModalView : View {
     }
 }
 
-//struct ViewOffsetKey: PreferenceKey {
-//    typealias Value = CGPoint
-//    static var defaultValue = CGPoint.zero
-//    static func reduce(value: inout Value, nextValue: () -> Value) {
-//        value.x += nextValue().x
-//        value.y += nextValue().y
-//    }
-//}
-
 struct CollectionExpanderView: View {
     @Binding var rowDataModel: RowDataModel
-//    var tableColumn: FieldTableColumn?
     var schemaValue: Schema?
     @ObservedObject var viewModel: CollectionViewModel
     let level: Int

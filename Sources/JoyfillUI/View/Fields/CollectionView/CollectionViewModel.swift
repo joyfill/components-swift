@@ -210,6 +210,7 @@ class CollectionViewModel: ObservableObject {
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
                                                        editMode: tableDataModel.mode) { cellDataModel in
+                            //TODO: Handle cell change for nested row
     //                        let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
 //                            self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: id, colIndex: 0, cellDataModel: cellDataModel, isNestedCell: true)
                         }
@@ -506,7 +507,6 @@ class CollectionViewModel: ObservableObject {
     
     func addNestedRow(columnID: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
         let id = generateObjectId()
-//        let result = findColumnById(columnID, in: tableDataModel.tableColumns)
         let cellValues = getCellValuesForNested(columns: [])
         
         updateRowOrderForNested(startingIndex, parentID, id)

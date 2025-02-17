@@ -11,7 +11,6 @@ import JoyfillModel
 struct CollectionViewCellBuilder: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var cellModel: TableCellModel
-    var action: (_ columnID: String) -> Void
     
     var body: some View {
         switch cellModel.data.type {
@@ -40,13 +39,6 @@ struct CollectionViewCellBuilder: View {
         case .barcode:
             TableBarcodeView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
-        case .table:
-            Button(action: {
-                action(cellModel.data.id)
-            }, label: {
-                Image(systemName: "tablecells")
-                    .font(.system(size: 15))
-            })
         default:
             Text("")
         }

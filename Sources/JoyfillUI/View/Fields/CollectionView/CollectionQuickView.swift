@@ -127,7 +127,7 @@ struct CollectionQuickView : View {
                                 Rectangle()
                                     .stroke()
                                     .foregroundColor(Color.tableCellBorderColor)
-                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel), action: {columnID in })
+                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
                             }
                             .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                         }
