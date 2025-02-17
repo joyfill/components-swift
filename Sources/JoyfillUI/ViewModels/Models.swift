@@ -38,7 +38,7 @@ struct RowDataModel: Equatable, Hashable {
     }
     
     var hasMoreNestedRows: Bool {
-        cells.contains { $0.data.type == .table }
+        childrens.count > 0
     }
     
     init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, childrens: [String : Children] = [:] ) {

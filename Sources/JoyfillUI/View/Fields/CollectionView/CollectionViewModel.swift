@@ -219,7 +219,9 @@ class CollectionViewModel: ObservableObject {
                     cellModels.append(RowDataModel(rowID: row.id ?? "",
                                                    cells: subCells,
                                                    rowType: .nestedRow(level: level + 1, index: index+1,
-                                                                       parentID: parentID)))
+                                                                       parentID: parentID),
+                                                   childrens: row.childrens ?? [:]
+                                                  ))
                 }
             default:
                 break
