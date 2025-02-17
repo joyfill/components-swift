@@ -66,7 +66,7 @@ class CollectionViewModel: ObservableObject {
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { cellDataModel in
 //                    let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
-                    self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: 0, cellDataModel: cellDataModel, isNestedCell: true)
+                    self.cellDidChange(rowId: rowID, colIndex: 0, cellDataModel: cellDataModel, isNestedCell: true)
                 }
                 rowCellModels.append(cellModel)
             }
@@ -161,6 +161,25 @@ class CollectionViewModel: ObservableObject {
     var rowTitle: String {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
+    
+    func getChildren(forRowId rowId: String, in elements: [ValueElement]) -> [String: Children]? {
+        for element in elements {
+            // If this element matches the rowId, return its children (if any)
+            if element.id == rowId {
+                return element.childrens
+            }
+            // Otherwise, if the element has nested children, search them recursively.
+            if let childrenDict = element.childrens {
+                for (_, child) in childrenDict {
+                    if let nestedElements = child.valueToValueElements,
+                       let found = getChildren(forRowId: rowId, in: nestedElements) {
+                        return found
+                    }
+                }
+            }
+        }
+        return nil
+    }
         
     func expendSpecificTable(rowDataModel: RowDataModel, parentID: (columnID: String, rowID: String), level: Int, isOpenedFromTable: Bool) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
@@ -194,13 +213,14 @@ class CollectionViewModel: ObservableObject {
             }
         } else {
             var cellModels = [RowDataModel]()
-
+            
             switch rowDataModel.rowType {
             case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: [],
                                                rowType: .header(level: level + 1, tableColumns: schemaValue?.1.tableColumns ?? [])))
-                for row in rowDataModel.childrens[schemaValue?.0 ?? ""]?.valueToValueElements ?? [] {
+                let childrens = getChildren(forRowId: parentID?.rowID ?? "", in: tableDataModel.valueToValueElements ?? []) ?? [:]
+                for row in childrens[schemaValue?.0 ?? ""]?.valueToValueElements ?? [] {
                     let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: schemaValue?.1.tableColumns ?? [], row)
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
@@ -210,9 +230,11 @@ class CollectionViewModel: ObservableObject {
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
                                                        editMode: tableDataModel.mode) { cellDataModel in
-                            //TODO: Handle cell change for nested row
-    //                        let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
-//                            self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: id, colIndex: 0, cellDataModel: cellDataModel, isNestedCell: true)
+                            let columnIndex = schemaValue?.1.tableColumns?.firstIndex(where: { column in
+                                column.id == cellDataModel.id
+                            })
+                            self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: row.id ?? "", colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
+                            
                         }
                         subCells.append(cellModel)
                     }
@@ -592,8 +614,7 @@ class CollectionViewModel: ObservableObject {
         } else {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         }
-        
-        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
+        return tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
