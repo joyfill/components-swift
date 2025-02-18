@@ -174,7 +174,7 @@ struct FormView: View {
         }
         .listStyle(PlainListStyle())
         .modifier(KeyboardDismissModifier())
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+//        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
             guard lastFocusedFielsID != newValue else { return }
