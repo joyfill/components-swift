@@ -156,6 +156,7 @@ struct TableModalView : View {
                 } else {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
+                            .frame(width: viewModel.showRowSelector ? 80 : 40)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
