@@ -49,6 +49,14 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    dismissKeyboard()
+                }
+            }
+        }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
             clearFilter()
@@ -268,31 +276,56 @@ struct TableModalView : View {
     var table: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
-                ScrollView([.vertical, .horizontal], showsIndicators: false) {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                            TableRowView(rowDataModel: $rowCellModels)
-                                .frame(height: 60)
+                if #available(iOS 16, *) {
+                    ScrollView([.vertical, .horizontal], showsIndicators: false) {
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
+                                TableRowView(rowDataModel: $rowCellModels)
+                                    .frame(height: 60)
+                            }
+                        }
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
+                        .background( GeometryReader { geo in
+                            Color.clear
+                                .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
+                        })
+                        .onPreferenceChange(ViewOffsetKey.self) { value in
+                            offset = value
                         }
                     }
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
-                    .background( GeometryReader { geo in
-                        Color.clear
-                            .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
-                    })
-                    .onPreferenceChange(ViewOffsetKey.self) { value in
-                        offset = value
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
+                            cellProxy.scrollTo(0, anchor: .leading)
+                        })
+                    }
+                    .gesture(DragGesture().onChanged({ _ in
+                        dismissKeyboard()
+                    }))
+                } else {
+                    ScrollView([.vertical, .horizontal], showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
+                                TableRowView(rowDataModel: $rowCellModels)
+                                    .frame(height: 60)
+                            }
+                        }
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
+                        .background( GeometryReader { geo in
+                            Color.clear
+                                .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
+                        })
+                        .onPreferenceChange(ViewOffsetKey.self) { value in
+                            offset = value
+                        }
+                    }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
+                            cellProxy.scrollTo(0, anchor: .leading)
+                        })
                     }
                 }
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
-                        cellProxy.scrollTo(0, anchor: .leading)
-                    })
-                }
-                .gesture(DragGesture().onChanged({ _ in
-                    dismissKeyboard()
-                }))
             }
         }
     }
