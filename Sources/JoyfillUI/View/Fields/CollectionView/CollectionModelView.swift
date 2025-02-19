@@ -389,7 +389,7 @@ struct CollectionExpanderView: View {
             if rowDataModel.isExpanded {
                 Button(action: {
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
-                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
+                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID, childrenSchemaKey: "")
                 }) {
                     Text("Add Row +")
                         .foregroundStyle(.selection)

@@ -247,15 +247,21 @@ extension DocumentEditor {
                                     cellValues: [String: ValueUnion],
                                     fieldIdentifier: FieldIdentifier,
                                     parentRowId: String? = nil,
-                                    schemaKey: String? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
+                                    schemaKey: String? = nil,
+                                    childrenSchemaKey: String? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
         
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
             newRow.cells = [:]
         }
+
         for (key, value) in cellValues {
             newRow.cells![key] = value
+        }
+        let children = Children(dictionary: [:])
+        if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
+            newRow.childrens = [childrenSchemaKey : children]
         }
         
         if let parentRowId = parentRowId, let nestedKey = schemaKey {

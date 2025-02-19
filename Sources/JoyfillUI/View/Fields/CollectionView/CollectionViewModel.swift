@@ -55,7 +55,7 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
-    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, parentID: (columnID: String, rowID: String), nestedIndex: Int) {
+    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, parentID: (columnID: String, rowID: String), nestedIndex: Int, childrenSchemaKey: String? = nil) {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, valueElement)
             for rowDataModel in rowDataModels {
@@ -73,9 +73,25 @@ class CollectionViewModel: ObservableObject {
                 rowCellModels.append(cellModel)
             }
         if self.tableDataModel.filteredcellModels.count > (index - 1) {
-            self.tableDataModel.filteredcellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: nestedIndex, parentID: parentID)), at: index)
+            let rowType: RowType = .nestedRow(level: level,
+                                              index: nestedIndex,
+                                              parentID: parentID)
+            var childrens: [String : Children] = [:]
+            if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
+                childrens = [childrenSchemaKey : Children()]
+            }
+            let rowDataModel = RowDataModel(rowID: rowID,
+                                            cells: rowCellModels,
+                                            rowType: rowType,
+                                            childrens: childrens)
+            
+            self.tableDataModel.filteredcellModels.insert(rowDataModel, at: index)
         } else {
-            self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: self.tableDataModel.filteredcellModels.count, parentID: parentID)))
+            var childrens: [String : Children] = [:]
+            if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
+                childrens = [childrenSchemaKey : Children()]
+            }
+            self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: self.tableDataModel.filteredcellModels.count, parentID: parentID), childrens: childrens))
         }
     }
     
@@ -512,12 +528,12 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
-    func addNestedRow(schemaKey: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
+    func addNestedRow(schemaKey: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String), childrenSchemaKey: String? = nil) {
         let id = generateObjectId()
         let tableColumns = tableDataModel.schema[schemaKey]?.tableColumns ?? []
         let cellValues = getCellValuesForNested(columns: tableColumns)
                 
-        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, parentRowId: parentID.rowID, schemaKey: schemaKey) {
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, parentRowId: parentID.rowID, schemaKey: schemaKey, childrenSchemaKey: childrenSchemaKey) {
             //Update valueToValueElements
             self.tableDataModel.valueToValueElements = rowData.all
             //Index where we append new row in tableDataModel.filteredcellModels
@@ -543,7 +559,7 @@ class CollectionViewModel: ObservableObject {
                     break
                 }
             }
-            addNestedCellModel(rowID: rowData.inserted.id!, index: atIndex, valueElement: rowData.inserted, columns: tableColumns, level: level + 1, parentID: parentID, nestedIndex: atNestedIndex)
+            addNestedCellModel(rowID: rowData.inserted.id!, index: atIndex, valueElement: rowData.inserted, columns: tableColumns, level: level + 1, parentID: parentID, nestedIndex: atNestedIndex, childrenSchemaKey: childrenSchemaKey)
         }
     }
     
