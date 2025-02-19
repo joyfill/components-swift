@@ -65,8 +65,10 @@ class CollectionViewModel: ObservableObject {
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { cellDataModel in
-//                    let result = self.findColumnById(cellDataModel.id, in: self.tableDataModel.tableColumns)
-                    self.cellDidChange(rowId: rowID, colIndex: 0, cellDataModel: cellDataModel, isNestedCell: true)
+                    let columnIndex = columns.firstIndex(where: { column in
+                        column.id == cellDataModel.id
+                    })
+                    self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                 }
                 rowCellModels.append(cellModel)
             }
@@ -384,7 +386,7 @@ class CollectionViewModel: ObservableObject {
         
         for (offset, change) in sortedChanges.enumerated() {
             let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
-            updateRowForNested(startingIndex + 1, firstSelectedRow.rowType.level ?? 0, change.value, [], parentID: firstSelectedRow.rowType.parentID ?? ("", ""), nestedIndex: startingIndex)
+//            updateRowForNested(startingIndex + 1, firstSelectedRow.rowType.level ?? 0, change.value, [], parentID: firstSelectedRow.rowType.parentID ?? ("", ""), nestedIndex: startingIndex)
         }
         
         tableDataModel.emptySelection()
@@ -510,30 +512,14 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
-    fileprivate func updateRowOrderForNested(_ startingIndex: Int, _ parentID: (columnID: String, rowID: String), _ id: String) {
-        var cellDataModel = tableDataModel.filteredcellModels[startingIndex].cells.first { tableCellModel in
-            tableCellModel.data.id == parentID.columnID
-        }?.data
-        
-        var multiSelectValues = cellDataModel?.multiSelectValues ?? []
-        multiSelectValues.append(id)
-        cellDataModel?.multiSelectValues = multiSelectValues
-        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: parentID.rowID, colIndex: 0, cellDataModel: cellDataModel!, isNestedCell: true)
-    }
-    
-    fileprivate func updateRowForNested(_ atIndex: Int, _ level: Int, _ rowData: ValueElement, _ columns: [FieldTableColumn], parentID: (columnID: String, rowID: String), nestedIndex: Int) {
-        //TODO: append or remove or move down or move up
-        self.tableDataModel.valueToValueElements?.append(rowData)
-        addNestedCellModel(rowID: rowData.id!, index: atIndex, valueElement: rowData, columns: columns, level: level, parentID: parentID, nestedIndex: nestedIndex)
-    }
-    
-    func addNestedRow(columnID: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
+    func addNestedRow(schemaKey: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
         let id = generateObjectId()
-        let cellValues = getCellValuesForNested(columns: [])
-        
-        updateRowOrderForNested(startingIndex, parentID, id)
-        
-        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, isNested: true) {
+        let tableColumns = tableDataModel.schema[schemaKey]?.tableColumns ?? []
+        let cellValues = getCellValuesForNested(columns: tableColumns)
+                
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, parentRowId: parentID.rowID, schemaKey: schemaKey) {
+            //Update valueToValueElements
+            self.tableDataModel.valueToValueElements = rowData.all
             //Index where we append new row in tableDataModel.filteredcellModels
             var atIndex: Int = tableDataModel.filteredcellModels.count
             var atNestedIndex = 0
@@ -557,7 +543,7 @@ class CollectionViewModel: ObservableObject {
                     break
                 }
             }
-            updateRowForNested(atIndex, level + 1, rowData, [], parentID: parentID, nestedIndex: atNestedIndex)
+            addNestedCellModel(rowID: rowData.inserted.id!, index: atIndex, valueElement: rowData.inserted, columns: tableColumns, level: level + 1, parentID: parentID, nestedIndex: atNestedIndex)
         }
     }
     

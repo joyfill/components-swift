@@ -193,7 +193,7 @@ extension DocumentEditor {
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
-    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, isNested: Bool = false) -> ValueElement? {
+    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> ValueElement? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
@@ -206,12 +206,79 @@ extension DocumentEditor {
         elements.append(newRow)
         
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
-        if !isNested {
-            fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
-        }
+        fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
+        
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: (elements.count ?? 1) - 1)])
         return newRow
+    }
+    
+    private func insertNestedRow(in elements: inout [ValueElement],
+                                 targetParentId: String,
+                                 nestedKey: String,
+                                 newRow: ValueElement) -> Bool {
+        for i in 0..<elements.count {
+            // If this element is the target parent:
+            if elements[i].id == targetParentId {
+                var children = elements[i].childrens ?? [:]
+                var nestedElements = children[nestedKey]?.valueToValueElements ?? []
+                nestedElements.append(newRow)
+                children[nestedKey]?.value = ValueUnion.valueElementArray(nestedElements)
+                elements[i].childrens = children
+                return true
+            }
+            // Otherwise, search recursively in this element’s children.
+            if var children = elements[i].childrens {
+                for key in children.keys {
+                    if var nestedElements = children[key]?.valueToValueElements {
+                        if insertNestedRow(in: &nestedElements, targetParentId: targetParentId, nestedKey: nestedKey, newRow: newRow) {
+                            children[key]?.value = ValueUnion.valueElementArray(nestedElements)
+                            elements[i].childrens = children
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
+    
+    public func insertRowWithFilter(id: String,
+                                    cellValues: [String: ValueUnion],
+                                    fieldIdentifier: FieldIdentifier,
+                                    parentRowId: String? = nil,
+                                    schemaKey: String? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
+        var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
+        
+        var newRow = ValueElement(id: id)
+        if newRow.cells == nil {
+            newRow.cells = [:]
+        }
+        for (key, value) in cellValues {
+            newRow.cells![key] = value
+        }
+        
+        if let parentRowId = parentRowId, let nestedKey = schemaKey {
+            // Attempt to insert recursively into the nested structure.
+            let inserted = insertNestedRow(in: &elements, targetParentId: parentRowId, nestedKey: nestedKey, newRow: newRow)
+            if !inserted {
+                // Parent row not found—handle the error as needed.
+                return nil
+            }
+        } else {
+            // Insert as a top-level row.
+            elements.append(newRow)
+            fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
+        }
+        
+        // Update the field's stored value.
+        fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+        
+        // Fire off a change event.
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
+        
+        return (elements, newRow)
     }
 
     /// Performs bulk editing on specified rows in a table field.

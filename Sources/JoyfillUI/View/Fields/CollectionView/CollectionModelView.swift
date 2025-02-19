@@ -337,7 +337,7 @@ struct CollectionModalView : View {
                                                           isHeaderNested: true)
                                     .frame(height: 60)
                                 case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
-                                    CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue?.1, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
+                                    CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
                                         .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                 }
                             }
@@ -373,14 +373,14 @@ struct CollectionModalView : View {
 
 struct CollectionExpanderView: View {
     @Binding var rowDataModel: RowDataModel
-    var schemaValue: Schema?
+    var schemaValue: (String, Schema)?
     @ObservedObject var viewModel: CollectionViewModel
     let level: Int
     let parentID: (columnID: String, rowID: String)
     
     var body: some View {
         HStack {
-            Text(schemaValue?.title ?? "")
+            Text(schemaValue?.1.title ?? "")
                 .multilineTextAlignment(.leading)
                 .darkLightThemeColor()
             
@@ -389,7 +389,7 @@ struct CollectionExpanderView: View {
             if rowDataModel.isExpanded {
                 Button(action: {
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
-                    viewModel.addNestedRow(columnID: "", level: level, startingIndex: startingIndex, parentID: parentID)
+                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
                     Text("Add Row +")
                         .foregroundStyle(.selection)
