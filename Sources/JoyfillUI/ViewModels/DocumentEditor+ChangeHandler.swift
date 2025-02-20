@@ -76,6 +76,7 @@ extension DocumentEditor {
         }
         var targetRows = [TargetRowModel]()
         var changes = [Int: ValueElement]()
+        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         
         for rowId in selectedRowIds {
             if let index = elements.firstIndex(where: { $0.id == rowId }) {
@@ -84,6 +85,8 @@ extension DocumentEditor {
                 elements.insert(duplicate, at: index + 1)
                 targetRows.append(TargetRowModel(id: duplicate.id!, index: index + 1))
                 changes[index + 1] = duplicate
+                let lastRowIndex = lastRowOrder.firstIndex(of: rowId)!
+                lastRowOrder.insert(duplicate.id!, at: lastRowIndex+1)
             } else {
                 if let target = duplicateNestedRow(rowId: rowId, in: &elements, changes: &changes) {
                     targetRows.append(target)
@@ -92,6 +95,7 @@ extension DocumentEditor {
         }
         
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldId]?.rowOrder = lastRowOrder
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         return (changes, elements)
