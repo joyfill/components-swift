@@ -3,7 +3,7 @@ import JoyfillAPIService
 
 struct UserAccessTokenTextFieldView: View {
     @State private var userAccessToken: String = ""
-    @State var showTemplat: Bool = false
+    @State var showTemplate: Bool = false
     
     var body: some View {
         VStack {
@@ -17,13 +17,15 @@ struct UserAccessTokenTextFieldView: View {
                 .cornerRadius(3.0)
                 .padding(10)
             
-            NavigationLink {
-                if !userAccessToken.isEmpty {
-                    LazyView(TemplateListView(userAccessToken: userAccessToken))
-                }
-            } label: {
+            Button(action: {
+                showTemplate = true
+            }, label: {
                 Text("Enter")
                     .foregroundStyle(userAccessToken.isEmpty ? .gray: .blue)
+            })
+            
+            NavigationLink(destination: LazyView(TemplateListView(userAccessToken: userAccessToken)), isActive: $showTemplate) {
+                EmptyView()
             }
         }
         .padding()
