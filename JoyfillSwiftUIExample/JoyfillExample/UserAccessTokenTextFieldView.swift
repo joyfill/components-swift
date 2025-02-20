@@ -23,6 +23,7 @@ struct UserAccessTokenTextFieldView: View {
                 Text("Enter")
                     .foregroundStyle(userAccessToken.isEmpty ? .gray: .blue)
             })
+            .disabled(userAccessToken.isEmpty)
             
             NavigationLink(destination: LazyView(TemplateListView(userAccessToken: userAccessToken)), isActive: $showTemplate) {
                 EmptyView()
