@@ -227,7 +227,12 @@ class CollectionViewModel: ObservableObject {
                                                cells: [],
                                                rowType: .header(level: level + 1, tableColumns: schemaValue?.1.tableColumns ?? [])))
                 let childrens = getChildren(forRowId: parentID?.rowID ?? "", in: tableDataModel.valueToValueElements ?? []) ?? [:]
-                for row in childrens[schemaValue?.0 ?? ""]?.valueToValueElements ?? [] {
+                
+                let valueToValueElements = childrens[schemaValue?.0 ?? ""]?.valueToValueElements?.filter { valueElement in
+                    !(valueElement.deleted ?? false)
+                } ?? []
+                
+                for row in valueToValueElements {
                     let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: schemaValue?.1.tableColumns ?? [], row)
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
@@ -341,8 +346,8 @@ class CollectionViewModel: ObservableObject {
     }
     
     func deleteSelectedNestedRow() {
-        //TODO: Handle on change for delete nested row
-//        tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        self.tableDataModel.valueToValueElements = valueToValueElements
         for rowID in tableDataModel.selectedRows {
             if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
                 deleteNestedRow(at: index, rowID: rowID)
@@ -503,7 +508,6 @@ class CollectionViewModel: ObservableObject {
     fileprivate func deleteNestedRow(at index: Int, rowID: String) {
 //        tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.filteredcellModels.remove(at: index)
-//        tableDataModel.filterRowsIfNeeded()
     }
 
     fileprivate func moveUP(at index: Int, rowID: String) {

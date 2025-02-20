@@ -35,7 +35,53 @@ extension DocumentEditor {
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
+    
+    public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+        guard !rowIDs.isEmpty else { return [] }
+        let fieldId = fieldIdentifier.fieldID
+        var field = fieldMap[fieldId]!
+        var lastRowOrder = field.rowOrder ?? []
+        guard var elements = field.valueToValueElements else { return [] }
+        
+        for row in rowIDs {
+            if let index = elements.firstIndex(where: { $0.id == row }) {
+                var element = elements[index]
+                element.setDeleted()
+                elements[index] = element
+                lastRowOrder.removeAll(where: { $0 == row })
+            } else {
+                _ = deleteRowRecursively(rowId: row, in: &elements)
+            }
+        }
+        fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        fieldMap[fieldId]?.rowOrder = lastRowOrder
+        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
+        return elements
+    }
 
+    private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> Bool {
+        for i in 0..<elements.count {
+            if elements[i].id == rowId {
+                var element = elements[i]
+                element.setDeleted()
+                elements[i] = element
+                return true
+            }
+            if var children = elements[i].childrens {
+                for key in children.keys {
+                    if var nestedElements = children[key]?.valueToValueElements {
+                        if deleteRowRecursively(rowId: rowId, in: &nestedElements) {
+                            children[key]?.value = ValueUnion.valueElementArray(nestedElements)
+                            elements[i].childrens = children
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
+    
     /// Duplicates specified rows in a table field.
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
