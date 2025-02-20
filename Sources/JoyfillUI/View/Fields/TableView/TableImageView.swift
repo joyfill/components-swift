@@ -12,30 +12,58 @@ import JoyfillModel
      public init(cellModel: Binding<TableCellModel>) {
          _cellModel = cellModel
          _showMoreImages = State(wrappedValue: 6)
-     }
+     } 
     
     var body: some View {
-        Button(action: {
-            showMoreImages = Int.random(in: 0...100)
-        }, label: {
-            HStack(spacing: 2) {
-                Image(systemName: "photo")
-                    .grayLightThemeColor()
-                Text(cellModel.data.valueElements.count == 0 ? "" : "+\(cellModel.data.valueElements.count)")
-                    .darkLightThemeColor()
+        if #available(iOS 16, *) {
+            Button(action: {
+                showMoreImages = Int.random(in: 0...100)
+            }, label: {
+                HStack(spacing: 2) {
+                    Image(systemName: "photo")
+                        .grayLightThemeColor()
+                    Text(cellModel.data.valueElements.count == 0 ? "" : "+\(cellModel.data.valueElements.count)")
+                        .darkLightThemeColor()
+                }
+                .font(.system(size: 15))
+            })
+            .accessibilityIdentifier("TableImageIdentifier")
+            .sheet(isPresented: $showMoreImages2) {
+                MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .disabled(cellModel.editMode == .readonly)
             }
-            .font(.system(size: 15))
-        })
-        .accessibilityIdentifier("TableImageIdentifier")
-        .sheet(isPresented: $showMoreImages2) {
-            MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
-                .disabled(cellModel.editMode == .readonly)
+            .onChange(of: showMoreImages) { newValue in
+                showMoreImages2 = true
+            }
+            .onChange(of: cellModel.data.valueElements) { newValue in
+                cellModel.didChange?(cellModel.data)
+            }
         }
-        .onChange(of: showMoreImages) { newValue in
-            showMoreImages2 = true
-        }
-        .onChange(of: cellModel.data.valueElements) { newValue in
-            cellModel.didChange?(cellModel.data)
+        else {
+            Button(action: {
+                showMoreImages = Int.random(in: 0...100)
+            }, label: {
+                HStack(spacing: 2) {
+                    Image(systemName: "photo")
+                        .grayLightThemeColor()
+                    Text(cellModel.data.valueElements.count == 0 ? "" : "+\(cellModel.data.valueElements.count)")
+                        .darkLightThemeColor()
+                }
+                .font(.system(size: 15))
+            })
+            .accessibilityIdentifier("TableImageIdentifier")
+            .fullScreenCover(isPresented: $showMoreImages2) {
+                MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .disabled(cellModel.editMode == .readonly)
+            }
+            .onChange(of: showMoreImages) { newValue in
+                showMoreImages2 = true
+            }
+            .onChange(of: cellModel.data.valueElements) { newValue in
+                cellModel.didChange?(cellModel.data)
+            }
         }
     }
      
