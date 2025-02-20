@@ -55,7 +55,7 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
-    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, parentID: (columnID: String, rowID: String), nestedIndex: Int, childrenSchemaKey: String? = nil) {
+    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, parentID: (columnID: String, rowID: String), nestedIndex: Int, childrens: [String : Children] = [:]) {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, valueElement)
             for rowDataModel in rowDataModels {
@@ -76,10 +76,7 @@ class CollectionViewModel: ObservableObject {
             let rowType: RowType = .nestedRow(level: level,
                                               index: nestedIndex,
                                               parentID: parentID)
-            var childrens: [String : Children] = [:]
-            if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
-                childrens = [childrenSchemaKey : Children()]
-            }
+            
             let rowDataModel = RowDataModel(rowID: rowID,
                                             cells: rowCellModels,
                                             rowType: rowType,
@@ -87,10 +84,6 @@ class CollectionViewModel: ObservableObject {
             
             self.tableDataModel.filteredcellModels.insert(rowDataModel, at: index)
         } else {
-            var childrens: [String : Children] = [:]
-            if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
-                childrens = [childrenSchemaKey : Children()]
-            }
             self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: level, index: self.tableDataModel.filteredcellModels.count, parentID: parentID), childrens: childrens))
         }
     }
@@ -375,7 +368,7 @@ class CollectionViewModel: ObservableObject {
                 updateRow(valueElement: value, at: index)
             }
         case .nestedRow(level: let level, index: let index, parentID: let parentID):
-            duplicateNestedRow(firstSelectedRow: firstSelectedRow)
+            duplicateNestedRow(parentID: parentID, level: level)
         default:
             return
         }
@@ -383,14 +376,26 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.emptySelection()
     }
     
-    func duplicateNestedRow(firstSelectedRow: RowDataModel) {
+    func duplicateNestedRow(parentID: (columnID: String, rowID: String)?, level: Int) {
         guard !tableDataModel.selectedRows.isEmpty else { return }
+        let indexOfCurrentRow = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} )
+        var headerTableColumns: [FieldTableColumn] = []
+        for indexOfCurrentRow in stride(from: indexOfCurrentRow ?? 0, through: 0, by: -1) {
+            switch tableDataModel.filteredcellModels[indexOfCurrentRow].rowType {
+            case .header(level: _, tableColumns: let tableColumns):
+                headerTableColumns = tableColumns
+                break
+            default:
+                continue
+            }
+            break
+        }
         
-        guard let changes = tableDataModel.documentEditor?.duplicateNestedRows(rowIDs: tableDataModel.selectedRows, parentID: firstSelectedRow.rowType.parentID ?? ("", ""), fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         
-//        let result = findColumnById(firstSelectedRow.rowType.parentID?.columnID ?? "", in: tableDataModel.tableColumns)
+        self.tableDataModel.valueToValueElements = result.1
         
-        let sortedChanges = changes.sorted { $0.key < $1.key }
+        let sortedChanges = result.0.sorted { $0.key < $1.key }
         
         let sortedSelectedRows = tableDataModel.selectedRows.sorted { (rowID1, rowID2) in
             guard let index1 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID1 }),
@@ -402,7 +407,11 @@ class CollectionViewModel: ObservableObject {
         
         for (offset, change) in sortedChanges.enumerated() {
             let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
-//            updateRowForNested(startingIndex + 1, firstSelectedRow.rowType.level ?? 0, change.value, [], parentID: firstSelectedRow.rowType.parentID ?? ("", ""), nestedIndex: startingIndex)
+            let atIndex = startingIndex + 1
+            let valueElement = change.value
+            let childrens = change.value.childrens ?? [:]
+            
+            addNestedCellModel(rowID: valueElement.id ?? "", index: atIndex, valueElement: valueElement, columns: headerTableColumns, level: level, parentID: parentID ?? ("",""), nestedIndex: startingIndex + 1, childrens: childrens)
         }
         
         tableDataModel.emptySelection()
@@ -559,7 +568,11 @@ class CollectionViewModel: ObservableObject {
                     break
                 }
             }
-            addNestedCellModel(rowID: rowData.inserted.id!, index: atIndex, valueElement: rowData.inserted, columns: tableColumns, level: level + 1, parentID: parentID, nestedIndex: atNestedIndex, childrenSchemaKey: childrenSchemaKey)
+            var childrens: [String : Children] = [:]
+            if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
+                childrens = [childrenSchemaKey : Children()]
+            }
+            addNestedCellModel(rowID: rowData.inserted.id!, index: atIndex, valueElement: rowData.inserted, columns: tableColumns, level: level + 1, parentID: parentID, nestedIndex: atNestedIndex, childrens: childrens)
         }
     }
     

@@ -69,38 +69,74 @@ extension DocumentEditor {
         return changes
     }
     
-    public func duplicateNestedRows(rowIDs: [String], parentID: (columnID: String, rowID: String), fieldIdentifier: FieldIdentifier, isNested: Bool = false) -> [Int: ValueElement]{
+    public func duplicateNestedRows(selectedRowIds: [String], fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return [:]
+            return ([:],[])
         }
         var targetRows = [TargetRowModel]()
-        guard let parentIndex = elements.firstIndex(where: { $0.id == parentID.rowID }) else {
-            return [:]
-        }
-        var parentElement = elements[parentIndex]
-        var parentValueArray = parentElement.cells?[parentID.columnID]?.stringArray ?? []
-        
         var changes = [Int: ValueElement]()
-
-        rowIDs.forEach { rowID in
-            var element = elements.first(where: { $0.id == rowID })!
-            let newRowID = generateObjectId()
-            element.id = newRowID
-            elements.append(element)
-            let lastRowIndex = parentValueArray.firstIndex(of: rowID)!
-            parentValueArray.insert(newRowID, at: lastRowIndex+1)
-            targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
-            changes[lastRowIndex+1] = element
+        
+        for rowId in selectedRowIds {
+            if let index = elements.firstIndex(where: { $0.id == rowId }) {
+                let original = elements[index]
+                let duplicate = duplicateValueElement(original)
+                elements.insert(duplicate, at: index + 1)
+                targetRows.append(TargetRowModel(id: duplicate.id!, index: index + 1))
+                changes[index + 1] = duplicate
+            } else {
+                if let target = duplicateNestedRow(rowId: rowId, in: &elements, changes: &changes) {
+                    targetRows.append(target)
+                }
+            }
         }
-        parentElement.cells?[parentID.columnID] = ValueUnion.array(parentValueArray)
-        elements[parentIndex] = parentElement
+        
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        return changes
+        return (changes, elements)
     }
+
+    private func duplicateNestedRow(rowId: String, in elements: inout [ValueElement], changes: inout [Int: ValueElement]) -> TargetRowModel? {
+        for i in 0..<elements.count {
+            if elements[i].id == rowId {
+                let duplicate = duplicateValueElement(elements[i])
+                elements.insert(duplicate, at: i + 1)
+                changes[i + 1] = duplicate
+                return TargetRowModel(id: duplicate.id!, index: i + 1)
+            }
+            if var children = elements[i].childrens {
+                for key in children.keys {
+                    if var nestedElements = children[key]?.valueToValueElements {
+                        if let target = duplicateNestedRow(rowId: rowId, in: &nestedElements, changes: &changes) {
+                            children[key]?.value = ValueUnion.valueElementArray(nestedElements)
+                            elements[i].childrens = children
+                            return target
+                        }
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
+    func duplicateValueElement(_ element: ValueElement) -> ValueElement {
+        var duplicate = element
+        duplicate.id = generateObjectId()
+        
+        if var children = duplicate.childrens {
+            for key in children.keys {
+                if let nestedElements = children[key]?.valueToValueElements {
+                    let newNestedElements = nestedElements.map { duplicateValueElement($0) }
+                    children[key]?.value = ValueUnion.valueElementArray(newNestedElements)
+                }
+            }
+            duplicate.childrens = children
+        }
+        
+        return duplicate
+    }
+
 
     /// Moves a specified row up in a table field.
     /// - Parameters:
