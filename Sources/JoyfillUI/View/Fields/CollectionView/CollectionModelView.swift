@@ -574,7 +574,7 @@ struct ColllectionRowsHeaderView: View {
                            .background(backgroundColor)
                            .border(Color.tableCellBorderColor)
                            .onTapGesture {
-                               viewModel.expendSpecificTable(rowDataModel: rowModel, parentID: parentID ?? ("", ""), level: level, isOpenedFromTable: false)
+                               viewModel.expendSpecificTable(rowDataModel: rowModel, parentID: parentID ?? ("", ""), level: level)
                                rowModel.isExpanded.toggle()
                            }
                    }

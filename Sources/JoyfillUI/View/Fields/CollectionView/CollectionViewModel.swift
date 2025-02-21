@@ -188,37 +188,39 @@ class CollectionViewModel: ObservableObject {
         return nil
     }
         
-    func expendSpecificTable(rowDataModel: RowDataModel, parentID: (columnID: String, rowID: String), level: Int, isOpenedFromTable: Bool) {
+    fileprivate func collapseATable(_ index: Int, _ rowDataModel: RowDataModel) {
+        // Close all the nested rows for a particular row
+        var indicesToRemoveArray: [Int] = []
+        
+        for i in index + 1..<tableDataModel.filteredcellModels.count {
+            let nextRow = tableDataModel.filteredcellModels[i]
+            
+            //Stop if find another table expander of same level
+            if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
+                break
+            }
+            //Stop if find nested row of same level
+            if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
+                break
+            }
+            switch nextRow.rowType {
+            case .header, .nestedRow, .tableExpander:
+                indicesToRemoveArray.append(i)
+            case .row:
+                break
+            }
+        }
+        
+        for i in indicesToRemoveArray.reversed() {
+            tableDataModel.filteredcellModels.remove(at: i)
+            tableDataModel.cellModels.remove(at: i)
+        }
+    }
+    
+    func expendSpecificTable(rowDataModel: RowDataModel, parentID: (columnID: String, rowID: String), level: Int) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
-            // Close all the nested rows for a particular row
-            var indicesToRemoveArray: [Int] = []
-            
-            for i in index + 1..<tableDataModel.filteredcellModels.count {
-                let nextRow = tableDataModel.filteredcellModels[i]
-                
-                //Stop if find another table expander of same level
-                if !isOpenedFromTable {
-                    if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
-                        break
-                    }
-                }
-                //Stop if find nested row of same level
-                if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
-                    break
-                }
-                switch nextRow.rowType {
-                case .header, .nestedRow, .tableExpander:
-                    indicesToRemoveArray.append(i)
-                case .row:
-                    break
-                }
-            }
-            
-            for i in indicesToRemoveArray.reversed() {
-                tableDataModel.filteredcellModels.remove(at: i)
-                tableDataModel.cellModels.remove(at: i)
-            }
+            collapseATable(index, rowDataModel)
         } else {
             var cellModels = [RowDataModel]()
             
@@ -267,45 +269,49 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    fileprivate func collapseTables(_ index: Array<RowDataModel>.Index, _ rowDataModel: RowDataModel, _ level: Int) {
+        var indicesToRemove: [Int] = []
+        
+        for i in index + 1..<tableDataModel.filteredcellModels.count {
+            let nextRow = tableDataModel.filteredcellModels[i]
+            if rowDataModel.rowType == .nestedRow(level: level, index: rowDataModel.rowType.index) {
+                //Stop at same level but next index of current nested row
+                if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index + 1) {
+                    break
+                }
+                //Stop if there is an tableExpander of low level
+                if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level - 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .nestedRow, .tableExpander:
+                    indicesToRemove.append(i)
+                case .row:
+                    break
+                }
+            } else {
+                if nextRow.rowType == .row(index: index + 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .nestedRow, .tableExpander:
+                    indicesToRemove.append(i)
+                case .row:
+                    break
+                }
+            }
+        }
+        
+        for i in indicesToRemove.reversed() {
+            tableDataModel.filteredcellModels.remove(at: i)
+            tableDataModel.cellModels.remove(at: i)
+        }
+    }
+    
     func expandTables(rowDataModel: RowDataModel, level: Int) {
         guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
-            var indicesToRemove: [Int] = []
-
-            for i in index + 1..<tableDataModel.filteredcellModels.count {
-                let nextRow = tableDataModel.filteredcellModels[i]
-                if rowDataModel.rowType == .nestedRow(level: level, index: rowDataModel.rowType.index) {
-                    //Stop at same level but next index of current nested row
-                    if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index + 1) {
-                        break
-                    }
-                    //Stop if there is an tableExpander of low level
-                    if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level - 1) {
-                        break
-                    }
-                    switch nextRow.rowType {
-                    case .header, .nestedRow, .tableExpander:
-                        indicesToRemove.append(i)
-                    case .row:
-                        break
-                    }
-                } else {
-                    if nextRow.rowType == .row(index: index + 1) {
-                        break
-                    }
-                    switch nextRow.rowType {
-                    case .header, .nestedRow, .tableExpander:
-                        indicesToRemove.append(i)
-                    case .row:
-                        break
-                    }
-                }
-            }
-
-            for i in indicesToRemove.reversed() {
-                tableDataModel.filteredcellModels.remove(at: i)
-                tableDataModel.cellModels.remove(at: i)
-            }
+            collapseTables(index, rowDataModel, level)
         } else {
             var cellModels = [RowDataModel]()
 
@@ -510,7 +516,10 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func deleteNestedRow(at index: Int, rowID: String) {
-//        tableDataModel.rowOrder.remove(at: index)
+        let currentRow = tableDataModel.filteredcellModels[index]
+        if currentRow.isExpanded {
+            collapseTables(index, currentRow, currentRow.rowType.level)
+        }
         self.tableDataModel.filteredcellModels.remove(at: index)
     }
 
