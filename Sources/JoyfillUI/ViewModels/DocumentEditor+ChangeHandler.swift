@@ -280,6 +280,58 @@ extension DocumentEditor {
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
+    
+    public func moveNestedRowDown(rowID: String, fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+        let fieldId = fieldIdentifier.fieldID
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
+        
+        if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
+            guard topIndex < elements.count - 1 else { return [] }
+            elements.swapAt(topIndex, topIndex + 1)
+            // Update rowOrder for top-level rows.
+            var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+            if let orderIndex = lastRowOrder.firstIndex(of: rowID),
+               orderIndex < lastRowOrder.count - 1 {
+                lastRowOrder.swapAt(orderIndex, orderIndex + 1)
+                fieldMap[fieldId]?.rowOrder = lastRowOrder
+            }
+            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+            let targetRows = [TargetRowModel(id: rowID, index: topIndex + 1)]
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+            moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+            return elements
+        }
+        
+        if moveRowDownRecursively(rowID: rowID, in: &elements) {
+            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        }
+        return elements
+    }
+
+    private func moveRowDownRecursively(rowID: String, in elements: inout [ValueElement]) -> Bool {
+        for i in 0..<elements.count {
+            if elements[i].id == rowID {
+                // If the row is found, ensure it's not the last row in this nested array.
+                guard i < elements.count - 1 else { return false }
+                elements.swapAt(i, i + 1)
+                return true
+            }
+            if var children = elements[i].childrens {
+                for key in children.keys {
+                    if var nestedElements = children[key]?.valueToValueElements {
+                        if moveRowDownRecursively(rowID: rowID, in: &nestedElements) {
+                            children[key]?.value = ValueUnion.valueElementArray(nestedElements)
+                            elements[i].childrens = children
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
+
 
     ///Inserts a new row below a specified row in a table field.
     /// - Parameters:
