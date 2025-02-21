@@ -511,6 +511,10 @@ class CollectionViewModel: ObservableObject {
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
         tableDataModel.rowOrder.remove(at: index)
+        let currentRow = tableDataModel.filteredcellModels[index]
+        if currentRow.isExpanded {
+            collapseTables(index, currentRow, currentRow.rowType.level)
+        }
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
     }
