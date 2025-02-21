@@ -217,6 +217,7 @@ class CollectionViewModel: ObservableObject {
             
             for i in indicesToRemoveArray.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
+                tableDataModel.cellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()
@@ -262,6 +263,7 @@ class CollectionViewModel: ObservableObject {
                 break
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
     }
     
@@ -302,6 +304,7 @@ class CollectionViewModel: ObservableObject {
 
             for i in indicesToRemove.reversed() {
                 tableDataModel.filteredcellModels.remove(at: i)
+                tableDataModel.cellModels.remove(at: i)
             }
         } else {
             var cellModels = [RowDataModel]()
@@ -320,6 +323,7 @@ class CollectionViewModel: ObservableObject {
                 }
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
     }
     

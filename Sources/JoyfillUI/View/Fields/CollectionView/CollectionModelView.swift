@@ -448,8 +448,9 @@ struct CollectionColumnHeaderView: View {
                                                      text: longestBlockText))
                     .frame(minHeight: 60)
                     .overlay(
+                        //TODO: Fix blue border(when select a column for search)
                         Rectangle()
-                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
+                            .stroke(currentSelectedCol != index || isHeaderNested ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
                     )
                     .background(
                         colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor

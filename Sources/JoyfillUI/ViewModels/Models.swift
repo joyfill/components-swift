@@ -95,6 +95,13 @@ enum RowType: Equatable {
         }
     }
     
+    var isRow: Bool {
+        if case .row = self {
+            return true
+        }
+        return false
+    }
+    
     static func == (lhs: RowType, rhs: RowType) -> Bool {
         switch (lhs, rhs) {
         case (.row, .row),
@@ -187,39 +194,73 @@ struct TableDataModel {
         setupColumns()
         filterRowsIfNeeded()
     }
-    
+        
     mutating func filterRowsIfNeeded() {
-        filteredcellModels = cellModels
-        guard !filterModels .noFilterApplied else {
+        guard !filterModels.noFilterApplied else {
+            filteredcellModels = cellModels
             return
         }
+        
+        var newFiltered = [RowDataModel]()
+        var i = 0
+        while i < filteredcellModels.count {
+            let row = filteredcellModels[i]
+            if row.rowType.isRow {
+                let passesFilter = rowMatchesFilter(row, filters: filterModels)
+                if passesFilter {
+                    newFiltered.append(row)
+                    i += 1
+                    // Include all nested rows until the next top-level row.
+                    while i < filteredcellModels.count, !filteredcellModels[i].rowType.isRow {
+                        newFiltered.append(filteredcellModels[i])
+                        i += 1
+                    }
+                } else {
+                    // skip this row and all of its nested rows
+                    i += 1
+                    while i < filteredcellModels.count, !filteredcellModels[i].rowType.isRow {
+                        i += 1
+                    }
+                }
+            } else {
+                i += 1
+            }
+        }
+        
+        filteredcellModels = newFiltered
+    }
 
-        for model in filterModels  {
-            if model.filterText.isEmpty {
+    func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
+        for filter in filters {
+            if filter.filterText.isEmpty {
                 continue
             }
-             let filtred = filteredcellModels.filter { rowArr in
-                 let column = rowArr.cells[model.colIndex].data
-                switch column.type {
-                case .text:
-                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                case .dropdown:
-                    return (column.defaultDropdownSelectedId ?? "") == model.filterText
-                case .number:
-                    let columnNumberString = String(format: "%g", column.number ?? 0)
-                    return columnNumberString.hasPrefix(model.filterText)
-                case .multiSelect:
-                    return column.multiSelectValues?.contains(model.filterText) ?? false
-                case .barcode:
-                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                default:
-                    break
-                }
+            guard row.cells.indices.contains(filter.colIndex) else { continue }
+            let column = row.cells[filter.colIndex].data
+            let match: Bool
+            switch column.type {
+            case .text:
+                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            case .dropdown:
+                match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
+            case .number:
+                let columnNumberString = String(format: "%g", column.number ?? 0)
+                match = columnNumberString.hasPrefix(filter.filterText)
+            case .multiSelect:
+                match = column.multiSelectValues?.contains(filter.filterText) ?? false
+            case .barcode:
+                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            default:
+                match = false
+            }
+            
+            if !match {
                 return false
             }
-           filteredcellModels = filtred
         }
+        return true
     }
+
     
     mutating private func setupColumns() {
         guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
