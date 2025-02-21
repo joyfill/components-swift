@@ -78,9 +78,9 @@ class CollectionViewModel: ObservableObject {
                                             rowType: rowType,
                                             childrens: childrens)
             
-            self.tableDataModel.filteredcellModels.insert(rowDataModel, at: index)
+            self.tableDataModel.cellModels.insert(rowDataModel, at: index)
         } else {
-            self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: rowType.level, index: self.tableDataModel.filteredcellModels.count, parentID: rowType.parentID), childrens: childrens))
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: rowType.level, index: self.tableDataModel.filteredcellModels.count, parentID: rowType.parentID), childrens: childrens))
         }
     }
     
@@ -269,7 +269,7 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
-    fileprivate func collapseTables(_ index: Array<RowDataModel>.Index, _ rowDataModel: RowDataModel, _ level: Int) {
+    fileprivate func collapseTables(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) {
         var indicesToRemove: [Int] = []
         
         for i in index + 1..<tableDataModel.filteredcellModels.count {
@@ -434,7 +434,7 @@ class CollectionViewModel: ObservableObject {
                                    rowType: .row(index: atIndex))
             }
         }
-        
+        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
 
@@ -467,8 +467,7 @@ class CollectionViewModel: ObservableObject {
     
     func moveNestedUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        //TODO: Handle calling on change
-//        tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+        self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
         let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
         moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
@@ -494,7 +493,7 @@ class CollectionViewModel: ObservableObject {
     func moveNestedDown() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         //TODO: Handle calling on change
-//        tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+        tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
         let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
         moveNestedDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
@@ -535,7 +534,15 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func moveNestedUP(at index: Int, rowID: String) {
-//        tableDataModel.rowOrder.swapAt(index, index-1)
+        let currentRow = tableDataModel.filteredcellModels[index]
+        var indicesToAffectArray: [Int] = []
+        //TODO: Handle if the row is expanded
+        if currentRow.isExpanded {
+//            indicesToAffectArray = indicesToAffect(index, currentRow, currentRow.rowType.level)
+//            for i in indicesToAffectArray {
+//                self.tableDataModel.filteredcellModels.swapAt(i, i-1)
+//            }
+        }
         self.tableDataModel.filteredcellModels.swapAt(index, index-1)
 //        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()

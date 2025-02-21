@@ -209,6 +209,55 @@ extension DocumentEditor {
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
+    
+    public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+        let fieldId = fieldIdentifier.fieldID
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
+        
+        if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
+            guard topIndex != 0 else { return [] }
+            elements.swapAt(topIndex, topIndex - 1)
+            // Update rowOrder for top-level rows.
+            var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+            if let orderIndex = lastRowOrder.firstIndex(of: rowID), orderIndex > 0 {
+                lastRowOrder.swapAt(orderIndex, orderIndex - 1)
+                fieldMap[fieldId]?.rowOrder = lastRowOrder
+            }
+            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+            let targetRows = [TargetRowModel(id: rowID, index: topIndex - 1)]
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+            moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+            return elements
+        }
+        
+        if moveRowUpRecursively(rowID: rowID, in: &elements) {
+            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        }
+        return elements
+    }
+
+    private func moveRowUpRecursively(rowID: String, in elements: inout [ValueElement]) -> Bool {
+        for i in 0..<elements.count {
+            if elements[i].id == rowID {
+                elements.swapAt(i, i - 1)
+                return true
+            }
+            // Not found at this level; search recursively in nested children.
+            if var children = elements[i].childrens {
+                for key in children.keys {
+                    if var nestedElements = children[key]?.valueToValueElements {
+                        if moveRowUpRecursively(rowID: rowID, in: &nestedElements) {
+                            children[key]?.value = ValueUnion.valueElementArray(nestedElements)
+                            elements[i].childrens = children
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
 
     /// Moves a specified row down in a table field.
     /// - Parameters:
