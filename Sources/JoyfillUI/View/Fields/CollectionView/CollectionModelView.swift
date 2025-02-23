@@ -509,14 +509,22 @@ struct ColllectionRowsHeaderView: View {
                        .frame(width: 40, height: 60)
                        .border(Color.tableCellBorderColor)
                case .row(index: let index):
-                   Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
-                       .frame(width: 40, height: 60)
-                       .border(Color.tableCellBorderColor)
-                       .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
-                       .onTapGesture {
-                           viewModel.expandTables(rowDataModel: rowModel, level: 0)
-                           rowModel.isExpanded.toggle()
-                       }
+                   if rowModel.hasMoreNestedRows {
+                       Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                           .frame(width: 40, height: 60)
+                           .border(Color.tableCellBorderColor)
+                           .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
+                           .onTapGesture {
+                               viewModel.expandTables(rowDataModel: rowModel, level: 0)
+                               rowModel.isExpanded.toggle()
+                           }
+                   } else {
+                       Rectangle()
+                           .fill(Color.white)
+                           .frame(width: 40, height: 60)
+                           .border(Color.tableCellBorderColor)
+                   }
+                   
                case .nestedRow(level: let level, index: let nestedIndex, _):
                    HStack(spacing: 0) {
                        if level == 0 {

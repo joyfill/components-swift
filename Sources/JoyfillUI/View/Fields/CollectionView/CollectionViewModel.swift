@@ -619,6 +619,7 @@ class CollectionViewModel: ObservableObject {
                                childrens: childrens, rowType: .nestedRow(level: level + 1,
                                                                          index: atNestedIndex,
                                                                          parentID: parentID))
+            self.tableDataModel.filterRowsIfNeeded()
         }
     }
     
