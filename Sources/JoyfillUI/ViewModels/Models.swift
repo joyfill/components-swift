@@ -358,14 +358,14 @@ struct TableDataModel {
     }
     
     mutating func updateFilteredCellModel(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
-        guard let index = filteredcellModels.firstIndex(where: { $0.rowID == rowId }) else {
+        guard let index = cellModels.firstIndex(where: { $0.rowID == rowId }) else {
             return
         }
-        var cellModel = filteredcellModels[index].cells[colIndex]
+        var cellModel = cellModels[index].cells[colIndex]
         cellModel.data = cellDataModel
-        filteredcellModels[index].cells[colIndex] = cellModel
+        cellModels[index].cells[colIndex] = cellModel
         if isBulkEdit {
-            filteredcellModels[index].cells[colIndex].id = UUID()
+            cellModels[index].cells[colIndex].id = UUID()
         }
     }
 
