@@ -190,26 +190,7 @@ class CollectionViewModel: ObservableObject {
         
     fileprivate func collapseATable(_ index: Int, _ rowDataModel: RowDataModel) {
         // Close all the nested rows for a particular row
-        var indicesToRemoveArray: [Int] = []
-        
-        for i in index + 1..<tableDataModel.filteredcellModels.count {
-            let nextRow = tableDataModel.filteredcellModels[i]
-            
-            //Stop if find another table expander of same level
-            if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
-                break
-            }
-            //Stop if find nested row of same level
-            if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
-                break
-            }
-            switch nextRow.rowType {
-            case .header, .nestedRow, .tableExpander:
-                indicesToRemoveArray.append(i)
-            case .row:
-                break
-            }
-        }
+        var indicesToRemoveArray: [Int] = childrensForASpecificRow(index, rowDataModel)
         
         for i in indicesToRemoveArray.reversed() {
             tableDataModel.filteredcellModels.remove(at: i)
@@ -306,6 +287,33 @@ class CollectionViewModel: ObservableObject {
             tableDataModel.filteredcellModels.remove(at: i)
             tableDataModel.cellModels.remove(at: i)
         }
+    }
+    
+    
+    fileprivate func childrensForASpecificRow(_ index: Int, _ rowDataModel: RowDataModel) -> [Int] {
+        // Close all the nested rows for a particular row
+        var indices: [Int] = []
+        
+        for i in index + 1..<tableDataModel.filteredcellModels.count {
+            let nextRow = tableDataModel.filteredcellModels[i]
+            
+            //Stop if find another table expander of same level
+            if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
+                break
+            }
+            //Stop if find nested row of same level
+            if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
+                break
+            }
+            switch nextRow.rowType {
+            case .header, .nestedRow, .tableExpander:
+                indices.append(i)
+            case .row:
+                break
+            }
+        }
+        
+        return indices
     }
     
     func expandTables(rowDataModel: RowDataModel, level: Int) {
@@ -584,35 +592,18 @@ class CollectionViewModel: ObservableObject {
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, parentRowId: parentID.rowID, schemaKey: schemaKey, childrenSchemaKey: childrenSchemaKey) {
             //Update valueToValueElements
             self.tableDataModel.valueToValueElements = rowData.all
+            
             //Index where we append new row in tableDataModel.filteredcellModels
-            var atIndex: Int = tableDataModel.filteredcellModels.count
             var atNestedIndex = 0
-            loop: for i in (startingIndex + 1)..<tableDataModel.filteredcellModels.count {
-                let nextRow = tableDataModel.filteredcellModels[i]
-                
-                // Stop at .row or .tableExpander
-                switch nextRow.rowType {
-                case .row, .tableExpander:
-                    atIndex = i
-                    break loop
-                case .nestedRow(level: let nestedLevel, index: let nestedIndex, _):
-                    atNestedIndex = nestedIndex + 1
-                    if nestedLevel == level + 1 {
-                        continue
-                    } else {
-                        atIndex = i
-                        break loop
-                    }
-                default:
-                    break
-                }
-            }
+            let rowDataModel = tableDataModel.cellModels[startingIndex]
+            var placeAtIndex: Int = childrensForASpecificRow(startingIndex, rowDataModel).count
+            
             var childrens: [String : Children] = [:]
             if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
                 childrens = [childrenSchemaKey : Children()]
             }
             addNestedCellModel(rowID: rowData.inserted.id!,
-                               index: atIndex,
+                               index: placeAtIndex + startingIndex + 1,
                                valueElement: rowData.inserted,
                                columns: tableColumns,
                                level: level + 1,
