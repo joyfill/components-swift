@@ -441,7 +441,10 @@ struct TableDataModel {
                                  multi: column.multi)
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
-        return cellModels[rowIndex].cells[col].data
+        let topLevelCellModelsOnly = cellModels.filter { rowDataModel in
+            rowDataModel.rowType.isRow
+        }
+        return topLevelCellModelsOnly[rowIndex].cells[col].data
     }
     
     

@@ -572,7 +572,7 @@ class CollectionViewModel: ObservableObject {
         let cellValues = getCellValues()
 
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) {
-            updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
+            updateRow(valueElement: rowData, at: tableDataModel.cellModels.count)
         }
     }
     
