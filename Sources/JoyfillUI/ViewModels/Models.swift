@@ -357,7 +357,7 @@ struct TableDataModel {
         }
     }
     
-    mutating func updateFilteredCellModel(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
+    mutating func updateCellModelForNested(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
         guard let index = cellModels.firstIndex(where: { $0.rowID == rowId }) else {
             return
         }

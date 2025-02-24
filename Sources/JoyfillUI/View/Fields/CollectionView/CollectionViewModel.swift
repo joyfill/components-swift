@@ -72,7 +72,7 @@ class CollectionViewModel: ObservableObject {
                 }
                 rowCellModels.append(cellModel)
             }
-        if self.tableDataModel.filteredcellModels.count > (index - 1) {
+        if self.tableDataModel.cellModels.count > (index - 1) {
             let rowDataModel = RowDataModel(rowID: rowID,
                                             cells: rowCellModels,
                                             rowType: rowType,
@@ -80,7 +80,7 @@ class CollectionViewModel: ObservableObject {
             
             self.tableDataModel.cellModels.insert(rowDataModel, at: index)
         } else {
-            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: rowType.level, index: self.tableDataModel.filteredcellModels.count, parentID: rowType.parentID), childrens: childrens))
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: rowType.level, index: self.tableDataModel.cellModels.count, parentID: rowType.parentID), childrens: childrens))
         }
     }
     
@@ -199,7 +199,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func expendSpecificTable(rowDataModel: RowDataModel, parentID: (columnID: String, rowID: String), level: Int) {
-        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             collapseATable(index, rowDataModel)
         } else {
@@ -251,10 +251,18 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func collapseTables(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) {
-        var indicesToRemove: [Int] = []
-        
-        for i in index + 1..<tableDataModel.filteredcellModels.count {
-            let nextRow = tableDataModel.filteredcellModels[i]
+        var indicesToRemove: [Int] = childrensForRows(index, rowDataModel, level)
+                
+        for i in indicesToRemove.reversed() {
+            tableDataModel.filteredcellModels.remove(at: i)
+            tableDataModel.cellModels.remove(at: i)
+        }
+    }
+    
+    func childrensForRows(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) -> [Int] {
+        var indices: [Int] = []
+        for i in index + 1..<tableDataModel.cellModels.count {
+            let nextRow = tableDataModel.cellModels[i]
             if rowDataModel.rowType == .nestedRow(level: level, index: rowDataModel.rowType.index) {
                 //Stop at same level but next index of current nested row
                 if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index + 1) {
@@ -266,7 +274,7 @@ class CollectionViewModel: ObservableObject {
                 }
                 switch nextRow.rowType {
                 case .header, .nestedRow, .tableExpander:
-                    indicesToRemove.append(i)
+                    indices.append(i)
                 case .row:
                     break
                 }
@@ -276,26 +284,21 @@ class CollectionViewModel: ObservableObject {
                 }
                 switch nextRow.rowType {
                 case .header, .nestedRow, .tableExpander:
-                    indicesToRemove.append(i)
+                    indices.append(i)
                 case .row:
                     break
                 }
             }
         }
-        
-        for i in indicesToRemove.reversed() {
-            tableDataModel.filteredcellModels.remove(at: i)
-            tableDataModel.cellModels.remove(at: i)
-        }
+        return indices
     }
-    
     
     fileprivate func childrensForASpecificRow(_ index: Int, _ rowDataModel: RowDataModel) -> [Int] {
         // Close all the nested rows for a particular row
         var indices: [Int] = []
         
-        for i in index + 1..<tableDataModel.filteredcellModels.count {
-            let nextRow = tableDataModel.filteredcellModels[i]
+        for i in index + 1..<tableDataModel.cellModels.count {
+            let nextRow = tableDataModel.cellModels[i]
             
             //Stop if find another table expander of same level
             if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
@@ -317,7 +320,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func expandTables(rowDataModel: RowDataModel, level: Int) {
-        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             collapseTables(index, rowDataModel, level)
         } else {
@@ -343,7 +346,7 @@ class CollectionViewModel: ObservableObject {
     
     func deleteSelectedRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
             return
         }
         switch firstSelectedRow.rowType {
@@ -351,7 +354,7 @@ class CollectionViewModel: ObservableObject {
             tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
             for rowID in tableDataModel.selectedRows {
                 if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
-                    deleteRow(at: index, rowID: rowID)
+                    deleteRow(at: index, rowID: rowID, isNested: false)
                 }
             }
         case .nestedRow(level: let level, index: let index, parentID: let parentID):
@@ -367,25 +370,25 @@ class CollectionViewModel: ObservableObject {
         let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         self.tableDataModel.valueToValueElements = valueToValueElements
         for rowID in tableDataModel.selectedRows {
-            if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
-                deleteNestedRow(at: index, rowID: rowID)
+            if let index = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID }) {
+                deleteRow(at: index, rowID: rowID, isNested: true)
             }
         }
     }
     
     func duplicateRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
             return
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
             duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns)
         case .nestedRow(level: let level, index: let index, parentID: let parentID):
-            let indexOfFirstSelectedRow = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} )
+            let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} )
             var headerTableColumns: [FieldTableColumn] = []
             for indexOfCurrentRow in stride(from: indexOfFirstSelectedRow ?? 0, through: 0, by: -1) {
-                switch tableDataModel.filteredcellModels[indexOfCurrentRow].rowType {
+                switch tableDataModel.cellModels[indexOfCurrentRow].rowType {
                 case .header(level: _, tableColumns: let tableColumns):
                     headerTableColumns = tableColumns
                     break
@@ -412,16 +415,17 @@ class CollectionViewModel: ObservableObject {
         let sortedChanges = result.0.sorted { $0.key < $1.key }
         
         let sortedSelectedRows = tableDataModel.selectedRows.sorted { (rowID1, rowID2) in
-            guard let index1 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID1 }),
-                  let index2 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID2 }) else {
+            guard let index1 = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID1 }),
+                  let index2 = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID2 }) else {
                 return false
             }
             return index1 < index2
         }
         
         for (offset, change) in sortedChanges.enumerated() {
-            let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
-            let atIndex = startingIndex + 1
+            let startingIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
+            let rowDataModel = tableDataModel.cellModels[startingIndex]
+            let atIndex = startingIndex + 1 + childrensForRows(startingIndex, rowDataModel, rowDataModel.rowType.level).count
             let valueElement = change.value
             let childrens = change.value.childrens ?? [:]
             if isNested {
@@ -441,8 +445,9 @@ class CollectionViewModel: ObservableObject {
                                    childrens: childrens,
                                    rowType: .row(index: atIndex))
             }
+            tableDataModel.filterRowsIfNeeded()
         }
-        tableDataModel.filterRowsIfNeeded()
+        
         tableDataModel.emptySelection()
     }
 
@@ -458,7 +463,7 @@ class CollectionViewModel: ObservableObject {
     func moveUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         
-        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
             return
         }
         switch firstSelectedRow.rowType {
@@ -476,14 +481,14 @@ class CollectionViewModel: ObservableObject {
     func moveNestedUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
+        let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
         moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
 
     func moveDown() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         
-        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
             return
         }
         switch firstSelectedRow.rowType {
@@ -516,22 +521,16 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.filterRowsIfNeeded()
     }
     
-    fileprivate func deleteRow(at index: Int, rowID: String) {
-        tableDataModel.rowOrder.remove(at: index)
-        let currentRow = tableDataModel.filteredcellModels[index]
+    fileprivate func deleteRow(at index: Int, rowID: String, isNested: Bool) {
+        if !isNested {
+            tableDataModel.rowOrder.remove(at: index)
+        }
+        let currentRow = tableDataModel.cellModels[index]
         if currentRow.isExpanded {
             collapseTables(index, currentRow, currentRow.rowType.level)
         }
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
-    }
-    
-    fileprivate func deleteNestedRow(at index: Int, rowID: String) {
-        let currentRow = tableDataModel.filteredcellModels[index]
-        if currentRow.isExpanded {
-            collapseTables(index, currentRow, currentRow.rowType.level)
-        }
-        self.tableDataModel.filteredcellModels.remove(at: index)
     }
 
     fileprivate func moveUP(at index: Int, rowID: String) {
@@ -542,7 +541,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func moveNestedUP(at index: Int, rowID: String) {
-        let currentRow = tableDataModel.filteredcellModels[index]
+        let currentRow = tableDataModel.cellModels[index]
         var indicesToAffectArray: [Int] = []
         //TODO: Handle if the row is expanded
         if currentRow.isExpanded {
@@ -564,7 +563,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func moveNestedDown(at index: Int, rowID: String) {
-        let currentRow = tableDataModel.filteredcellModels[index]
+        let currentRow = tableDataModel.cellModels[index]
         var indicesToAffectArray: [Int] = []
         //TODO: Handle if the row is expanded
         if currentRow.isExpanded {
@@ -663,7 +662,7 @@ class CollectionViewModel: ObservableObject {
 
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> [ValueElement] {
         if isNestedCell {
-            tableDataModel.updateFilteredCellModel(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+            tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         } else {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         }
