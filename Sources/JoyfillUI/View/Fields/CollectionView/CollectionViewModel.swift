@@ -516,9 +516,7 @@ class CollectionViewModel: ObservableObject {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-            let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-            moveDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+            moveRowDown()
         case .nestedRow(level: let level, index: let index, parentID: let parentID):
             moveNestedDown()
         default:
@@ -526,11 +524,20 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    func moveRowDown() {
+        tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+        let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { rowDataModel in
+            rowDataModel.rowID == tableDataModel.selectedRows.first!
+        })!
+        let rowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+        tableDataModel.rowOrder.swapAt(rowOrderIndex, rowOrderIndex+1)
+        moveNestedDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+    }
+    
     func moveNestedDown() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        //TODO: Handle calling on change
         self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
+        let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
         moveNestedDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
     
@@ -616,22 +623,24 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
-
-    fileprivate func moveDown(at index: Int, rowID: String) {
-        tableDataModel.rowOrder.swapAt(index, index+1)
-        self.tableDataModel.cellModels.swapAt(index, index+1)
-        tableDataModel.filterRowsIfNeeded()
-        tableDataModel.emptySelection()
-    }
     
     fileprivate func moveNestedDown(at index: Int, rowID: String) {
         let currentRow = tableDataModel.cellModels[index]
-        var indicesToAffectArray: [Int] = []
-        //TODO: Handle if the row is expanded
+        var currentRowIndicesToMove: [Int] = []
+        var lowerRowIndicesToMove: [Int] = []
+        
+        currentRowIndicesToMove = childrensForRows(index, currentRow, currentRow.rowType.level)
+        currentRowIndicesToMove.append(index)
+        
+        let lowerRow = tableDataModel.cellModels[index + currentRowIndicesToMove.count]
+        lowerRowIndicesToMove = childrensForRows(index + currentRowIndicesToMove.count, lowerRow, lowerRow.rowType.level)
+        lowerRowIndicesToMove.append(index + currentRowIndicesToMove.count)
+        
         if currentRow.isExpanded {
-            
+            self.tableDataModel.cellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: currentRowIndicesToMove.sorted())
+        } else {
+            self.tableDataModel.cellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: [index])
         }
-        self.tableDataModel.cellModels.swapAt(index, index+1)
         tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
