@@ -273,8 +273,15 @@ class CollectionViewModel: ObservableObject {
                     break
                 }
                 switch nextRow.rowType {
-                case .header, .nestedRow, .tableExpander:
+                case .header, .tableExpander:
                     indices.append(i)
+                case .nestedRow(level: let nestedLevel, index: _, _):
+                    let level = rowDataModel.rowType.level
+                    if nestedLevel < level {
+                        break
+                    } else {
+                        indices.append(i)
+                    }
                 case .row:
                     break
                 }
@@ -309,8 +316,15 @@ class CollectionViewModel: ObservableObject {
                 break
             }
             switch nextRow.rowType {
-            case .header, .nestedRow, .tableExpander:
+            case .header, .tableExpander:
                 indices.append(i)
+            case .nestedRow(level: let nestedLevel, index: _, _):
+                let level = rowDataModel.rowType.level
+                if nestedLevel < level {
+                    break
+                } else {
+                    indices.append(i)
+                }
             case .row:
                 break
             }
@@ -468,9 +482,7 @@ class CollectionViewModel: ObservableObject {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-            let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-            moveUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+            moveRowUp()
         case .nestedRow(level: let level, index: let index, parentID: let parentID):
             moveNestedUP()
         default:
@@ -478,11 +490,22 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    func moveRowUp() {
+        tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+        let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { rowDataModel in
+            rowDataModel.rowID == tableDataModel.selectedRows.first!
+        })!
+        //update Row order
+        let rowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+        tableDataModel.rowOrder.swapAt(rowOrderIndex, rowOrderIndex-1)
+        moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!, isNested: false)
+    }
+    
     func moveNestedUP() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
         let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
-        moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+        moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!, isNested: true)
     }
 
     func moveDown() {
@@ -532,25 +555,64 @@ class CollectionViewModel: ObservableObject {
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
     }
-
-    fileprivate func moveUP(at index: Int, rowID: String) {
-        tableDataModel.rowOrder.swapAt(index, index-1)
-        self.tableDataModel.cellModels.swapAt(index, index-1)
-        tableDataModel.filterRowsIfNeeded()
-        tableDataModel.emptySelection()
+    
+    func getUpperRowIndex(startingIndex: Int) -> Int {
+        var upperRowIndex = 0
+        for i in stride(from: startingIndex, through: 0, by: -1) {
+            switch tableDataModel.cellModels[i].rowType {
+            case .row:
+                upperRowIndex = i
+                break
+            default:
+                continue
+            }
+            break
+        }
+        return upperRowIndex
     }
     
-    fileprivate func moveNestedUP(at index: Int, rowID: String) {
-        let currentRow = tableDataModel.cellModels[index]
-        var indicesToAffectArray: [Int] = []
-        //TODO: Handle if the row is expanded
-        if currentRow.isExpanded {
-//            indicesToAffectArray = indicesToAffect(index, currentRow, currentRow.rowType.level)
-//            for i in indicesToAffectArray {
-//                self.tableDataModel.filteredcellModels.swapAt(i, i-1)
-//            }
+    func getUpperNestedRowIndex(startingIndex: Int, level: Int) -> Int {
+        var upperRowIndex = 0
+        for i in stride(from: startingIndex, through: 0, by: -1) {
+            switch tableDataModel.cellModels[i].rowType {
+            case .nestedRow(level: let nestedLevel, index: let index, parentID: _):
+                if nestedLevel != level {
+                    continue
+                } else {
+                    upperRowIndex = i
+                    break
+                }
+            default:
+                continue
+            }
+            break
         }
-        self.tableDataModel.cellModels.swapAt(index, index-1)
+        return upperRowIndex
+    }
+    
+    fileprivate func moveNestedUP(at index: Int, rowID: String, isNested: Bool) {
+        let currentRow = tableDataModel.cellModels[index]
+        var currentRowIndicesToMove: [Int] = []
+        var upperRowIndicesToMove: [Int] = []
+        //we need to count the upper row childrens if upper row is aslo expanded
+        var upperRowIndex = 0
+        
+        if isNested {
+            upperRowIndex = getUpperNestedRowIndex(startingIndex: index - 1, level: currentRow.rowType.level)
+        } else {
+            upperRowIndex = getUpperRowIndex(startingIndex: index - 1)
+        }
+        
+        upperRowIndicesToMove = childrensForRows(upperRowIndex, tableDataModel.cellModels[upperRowIndex], tableDataModel.cellModels[upperRowIndex].rowType.level)
+        upperRowIndicesToMove.append(upperRowIndex)
+        
+        if currentRow.isExpanded {
+            currentRowIndicesToMove = childrensForRows(index, currentRow, currentRow.rowType.level)
+            currentRowIndicesToMove.append(index)
+            self.tableDataModel.cellModels.moveItems(from: currentRowIndicesToMove.sorted(), to: upperRowIndicesToMove.sorted())
+        } else {
+            self.tableDataModel.cellModels.moveItems(from: [index], to: upperRowIndicesToMove.sorted())
+        }
         tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
@@ -709,5 +771,42 @@ class CollectionViewModel: ObservableObject {
     
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+    }
+}
+
+extension Array {
+    mutating func moveItems(from sourceIndices: [Int], to destinationIndices: [Int]) {
+        guard !sourceIndices.isEmpty,
+              !destinationIndices.isEmpty,
+              sourceIndices.allSatisfy({ 0 <= $0 && $0 < count }) else {
+            return
+        }
+
+        let sortedSource = sourceIndices.sorted()
+        let elements = sortedSource.map { self[$0] }
+
+        for idx in sortedSource.reversed() {
+            remove(at: idx)
+        }
+
+        let minCount = Swift.min(elements.count, destinationIndices.count)
+
+        for i in 0..<minCount {
+            let dest = destinationIndices[i]
+            let safeDest = dest < count ? dest : count
+            insert(elements[i], at: safeDest)
+        }
+
+        if elements.count > destinationIndices.count {
+
+            var insertionIndex = destinationIndices[minCount - 1]
+            if insertionIndex >= count { insertionIndex = count - 1 }
+
+            for i in minCount..<elements.count {
+                insertionIndex += 1
+                if insertionIndex > count { insertionIndex = count }
+                insert(elements[i], at: insertionIndex)
+            }
+        }
     }
 }
