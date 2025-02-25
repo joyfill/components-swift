@@ -168,6 +168,7 @@ struct TableDataModel {
             self.schema = fieldData.schema ?? [:]
             fieldData.schema?.forEach { key, value in
                 if value.root == true {
+                    //Only top level columns
                     self.tableColumns = value.tableColumns ?? []
                     self.childrens = value.children ?? []
                 }

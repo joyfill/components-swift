@@ -390,6 +390,19 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    fileprivate func getTableColumnsByIndex(_ indexOfFirstSelectedRow: Int) -> [FieldTableColumn] {
+        for indexOfCurrentRow in stride(from: indexOfFirstSelectedRow, through: 0, by: -1) {
+            switch tableDataModel.cellModels[indexOfCurrentRow].rowType {
+            case .header(level: _, tableColumns: let tableColumns):
+                return tableColumns
+                break
+            default:
+                continue
+            }
+        }
+        return []
+    }
+    
     func duplicateRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
@@ -399,18 +412,9 @@ class CollectionViewModel: ObservableObject {
         case .row(index: let index):
             duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns)
         case .nestedRow(level: let level, index: let index, parentID: let parentID):
-            let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} )
-            var headerTableColumns: [FieldTableColumn] = []
-            for indexOfCurrentRow in stride(from: indexOfFirstSelectedRow ?? 0, through: 0, by: -1) {
-                switch tableDataModel.cellModels[indexOfCurrentRow].rowType {
-                case .header(level: _, tableColumns: let tableColumns):
-                    headerTableColumns = tableColumns
-                    break
-                default:
-                    continue
-                }
-                break
-            }
+            let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} ) ?? 0
+            var headerTableColumns: [FieldTableColumn] = getTableColumnsByIndex(indexOfFirstSelectedRow) ?? []
+            
             duplicateNestedRow(parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns)
         default:
             return
@@ -464,14 +468,86 @@ class CollectionViewModel: ObservableObject {
         
         tableDataModel.emptySelection()
     }
-
+    
     func insertBelow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        let cellValues = getCellValues()
-        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
-        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
-        updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
+        
+        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+            return
+        }
+        switch firstSelectedRow.rowType {
+        case .row(index: let index):
+            insertRowBelow()
+        case .nestedRow(level: let level, index: let index, parentID: let parentID):
+            insertNestedBelow()
+        default:
+            return
+        }
+        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
+    }
+    
+    func insertRowBelow(childrenSchemaKey: String? = nil) {
+        let cellValues = getCellValues()
+        guard let result = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        //update row order
+        let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
+        let valueElement = result.0
+        if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
+            tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex)
+        } else {
+            tableDataModel.rowOrder.append(valueElement.id!)
+        }
+        //updateCellModels
+        guard let selecteRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
+            return
+        }
+        let selectedRow = tableDataModel.cellModels[selecteRowIndex]
+        let placeAtIndex = selecteRowIndex + childrensForRows(selecteRowIndex, selectedRow, selectedRow.rowType.level).count + 1
+        var childrens: [String : Children] = [:]
+        if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
+            childrens = [childrenSchemaKey : Children()]
+        }
+        
+        addNestedCellModel(rowID: valueElement.id!,
+                           index: placeAtIndex,
+                           valueElement: valueElement,
+                           columns: tableDataModel.tableColumns,
+                           level: selectedRow.rowType.level,
+                           childrens: childrens,
+                           rowType: .row(index: selecteRowIndex + 1))
+    }
+    
+    func insertNestedBelow(childrenSchemaKey: String? = nil) {
+        guard let selecteRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
+            return
+        }
+        
+        let tableColumns: [FieldTableColumn] = getTableColumnsByIndex(selecteRowIndex) ?? []
+        let cellValues = getCellValuesForNested(columns: tableColumns)
+        
+        guard let rowData = tableDataModel.documentEditor?.insertBelowNestedRow(selectedRowID: tableDataModel.selectedRows[0], cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        self.tableDataModel.valueToValueElements = rowData.all
+        
+        
+        let selectedRow = tableDataModel.cellModels[selecteRowIndex]
+        
+        let placeAtIndex = selecteRowIndex + childrensForRows(selecteRowIndex, selectedRow, selectedRow.rowType.level).count + 1
+        
+        var childrens: [String : Children] = [:]
+        if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
+            childrens = [childrenSchemaKey : Children()]
+        }
+        
+        addNestedCellModel(rowID: rowData.inserted.id!,
+                           index: placeAtIndex,
+                           valueElement: rowData.inserted,
+                           columns: tableColumns,
+                           level: selectedRow.rowType.level,
+                           childrens: childrens,
+                           rowType: .nestedRow(level: selectedRow.rowType.level,
+                                               index: selecteRowIndex + 1,
+                                               parentID: selectedRow.rowType.parentID))
     }
 
     func moveUP() {
@@ -663,7 +739,7 @@ class CollectionViewModel: ObservableObject {
             //Update valueToValueElements
             self.tableDataModel.valueToValueElements = rowData.all
             
-            //Index where we append new row in tableDataModel.filteredcellModels
+            //Index where we append new row in tableDataModel.cellModels
             var atNestedIndex = 0
             let rowDataModel = tableDataModel.cellModels[startingIndex]
             var placeAtIndex: Int = childrensForASpecificRow(startingIndex, rowDataModel).count

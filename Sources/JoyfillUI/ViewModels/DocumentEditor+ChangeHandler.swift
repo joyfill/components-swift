@@ -374,6 +374,78 @@ extension DocumentEditor {
         return (newRow, insertIndex)
     }
     
+    public func insertBelowNestedRow(selectedRowID: String,
+                                     cellValues: [String: ValueUnion],
+                                     fieldIdentifier: FieldIdentifier) -> (all: [ValueElement], inserted: ValueElement)? {
+        let fieldId = fieldIdentifier.fieldID
+        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            return nil
+        }
+
+        let newRowID = generateObjectId()
+        var newRow = ValueElement(id: newRowID)
+        newRow.cells = [:]
+        for (key, value) in cellValues {
+            newRow.cells?[key] = value
+        }
+
+        if let topLevelIndex = fieldMap[fieldId]?.rowOrder?.firstIndex(of: selectedRowID) {
+            var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
+            let insertIndex = topLevelIndex + 1
+            lastRowOrder.insert(newRowID, at: insertIndex)
+            fieldMap[fieldId]?.rowOrder = lastRowOrder
+
+            elements.append(newRow)
+            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
+                                              updateValue: ValueUnion.valueElementArray(elements))
+            addRowOnChange(event: changeEvent,
+                           targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)])
+            return (elements, newRow)
+        }
+
+        if let (insertedRow, insertIndex) = insertBelowNestedRecursively(selectedRowID: selectedRowID,
+                                                                         in: &elements,
+                                                                         newRow: newRow) {
+            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
+                                              updateValue: ValueUnion.valueElementArray(elements))
+            addRowOnChange(event: changeEvent,
+                           targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)])
+            return (elements, insertedRow)
+        }
+
+        return nil
+    }
+
+    private func insertBelowNestedRecursively(selectedRowID: String,
+                                              in elements: inout [ValueElement],
+                                              newRow: ValueElement) -> (ValueElement, Int)? {
+        for i in 0..<elements.count {
+            if elements[i].id == selectedRowID {
+                let insertIndex = i + 1
+                elements.insert(newRow, at: insertIndex)
+                return (newRow, insertIndex)
+            }
+            if var childrenDict = elements[i].childrens {
+                for (key, var child) in childrenDict {
+                    if var nestedElements = child.valueToValueElements {
+                        if let (insertedRow, insertIndex) = insertBelowNestedRecursively(selectedRowID: selectedRowID, in: &nestedElements, newRow: newRow) {
+                            child.value = ValueUnion.valueElementArray(nestedElements)
+                            childrenDict[key] = child
+                            elements[i].childrens = childrenDict
+                            return (insertedRow, insertIndex)
+                        }
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
+    
     /// Inserts a new row with specified cell values in a table field.
     /// - Parameters:
     ///   - id: The String identifier for the new row.
