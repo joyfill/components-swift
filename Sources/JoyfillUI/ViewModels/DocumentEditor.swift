@@ -13,37 +13,33 @@ public class DocumentEditor: ObservableObject {
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = []
     var mutableFiles: [File] = []
-
+    
     public var mode: Mode
     public var showPageNavigationView: Bool
-
+    
     var fieldMap = [String: JoyDocField]() {
         didSet {
             document.fields = allFields
         }
     }
-
+    
     @Published var pageFieldModels = [String: PageModel]()
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
     var events: FormChangeEvent?
-
+    
     private var validationHandler: ValidationHandler!
     private var conditionalLogicHandler: ConditionalLogicHandler!
-
+    
     public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true) {
         self.document = document
         self.mode = mode
         self.showPageNavigationView = navigation
         self.currentPageID = ""
         self.events = events
-        document.fields.forEach { field in
-            guard let fieldID = field.id else { return }
-            self.fieldMap[fieldID] =  field
-        }
-
+        updateFieldMap()
         updateFieldPositionMap()
-
+        
         let fileID = files[0].id!
         for page in document.pagesForCurrentView {
             guard let pageID = page.id else { return }
@@ -60,29 +56,36 @@ public class DocumentEditor: ObservableObject {
         }
     }
     
+    public func updateFieldMap() {
+        document.fields.forEach { field in
+            guard let fieldID = field.id else { return }
+            self.fieldMap[fieldID] =  field
+        }
+    }
+    
     public func updateFieldPositionMap() {
         document.fieldPositionsForCurrentView.forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
         }
     }
-
+    
     public func validate() -> Validation {
         return validationHandler.validate()
     }
-
+    
     public func shouldShow(fieldID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(fieldID: fieldID)
     }
-
+    
     public func shouldShow(pageID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(pageID: pageID)
     }
-
+    
     public func shouldShow(page: Page?) -> Bool {
         return conditionalLogicHandler.shouldShow(page: page)
     }
-
+    
 }
 
 fileprivate extension JoyDoc {
@@ -123,46 +126,46 @@ extension DocumentEditor {
     public var documentID: String? {
         document.id
     }
-
+    
     public var documentIdentifier: String? {
         document.identifier
     }
-
+    
     public var files: [File] {
         document.files
     }
-
+    
     public var pagesForCurrentView: [Page] {
         document.pagesForCurrentView
     }
-
+    
     public func updatefield(field: JoyDocField?) {
         guard let fieldID = field?.id else { return }
         fieldMap[fieldID] = field
     }
-
+    
     public func field(fieldID: String?) -> JoyDocField? {
         guard let fieldID = fieldID else { return nil }
         return fieldMap[fieldID]
     }
-
+    
     public var allFields: [JoyDocField] {
         return fieldMap.map { $1 }
     }
-
+    
     public var allFieldPositions: [FieldPosition] {
         return fieldPositionMap.map { $1 }
     }
-
+    
     public var fieldsCount: Int {
         return fieldMap.count
     }
-
+    
     public func fieldPosition(fieldID: String?) -> FieldPosition? {
         guard let fieldID = fieldID else { return nil }
         return fieldPositionMap[fieldID]
     }
-
+    
     public var firstPage: Page? {
         let pages = document.pagesForCurrentView
         guard pages.count > 1 else {
@@ -170,17 +173,17 @@ extension DocumentEditor {
         }
         return pages.first(where: shouldShow)
     }
-
+    
     public var firstPageId: String? {
         return self.firstPage?.id
     }
-
+    
     public func firstValidPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID && shouldShow(page: currentPage)
         } ?? firstPage
     }
-
+    
     public func firstPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID
@@ -205,11 +208,11 @@ extension DocumentEditor {
             refreshDependent(for: event.fieldIdentifier.fieldID)
         }
     }
-
+    
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
     }
-
+    
     private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
             guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
@@ -224,7 +227,7 @@ extension DocumentEditor {
         var uniqueFields = Set<String>()
         var resultFieldPositions = [FieldPosition]()
         resultFieldPositions.reserveCapacity(sortedFieldPositions.count)
-
+        
         for fp in sortedFieldPositions {
             if let field = fp.field, uniqueFields.insert(field).inserted {
                 resultFieldPositions.append(fp)
@@ -232,7 +235,7 @@ extension DocumentEditor {
         }
         return resultFieldPositions
     }
-
+    
     private func pageIDAndIndex(key: String) -> (String, Int) {
         let components = key.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
         let pageID = components.first.map(String.init) ?? ""
@@ -248,11 +251,11 @@ extension DocumentEditor {
         let dataModelType = getFieldModel(fieldPosition: fieldPosition!, fieldIdentifier: identifier)
         pageFieldModels[pageID]!.fields[index].model = dataModelType
     }
-
+    
     private func valueElements(fieldID: String) -> [ValueElement]? {
         return field(fieldID: fieldID)?.valueToValueElements
     }
-
+    
     func refreshDependent(for fieldID: String) {
         let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
         for fieldId in refreshFields {
@@ -264,9 +267,9 @@ extension DocumentEditor {
         let fieldData = fieldMap[fieldPosition.field!]
         var dataModelType: FieldListModelType = .none
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
-
+        
         var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
-
+        
         switch fieldPosition.type {
         case .text:
             let model = TextDataModel(fieldIdentifier: fieldIdentifier,
@@ -316,7 +319,7 @@ extension DocumentEditor {
                                         number: fieldData?.value?.number,
                                         mode: fieldEditMode,
                                         fieldHeaderModel: fieldHeaderModel)
-          
+            
             dataModelType = .number(model)
         case .chart:
             let model = ChartDataModel(fieldIdentifier: fieldIdentifier,
@@ -384,7 +387,6 @@ extension DocumentEditor {
             return
         }
         
-        // Find the original page in the file’s pages array
         guard let originalPageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) else {
             print("Page with id \(pageID) not found in file.pages.")
             return
@@ -392,35 +394,66 @@ extension DocumentEditor {
         let originalPage = firstFile.pages![originalPageIndex]
         let newPageID = generateObjectId()
         
-        // We update the _id and then duplicate each fieldPosition.
         var duplicatedPage = originalPage
         duplicatedPage.id = newPageID
         
-        // Maintain new field IDs and update fieldPositions accordingly.
+        var fieldMapping: [String: String] = [:]
+        var newFields: [JoyDocField] = []
         var newFieldPositions: [FieldPosition] = []
+        
+        // Phase A: Duplicate the fields and record mapping.
         for var fieldPos in originalPage.fieldPositions ?? [] {
             guard let origFieldID = fieldPos.field else { continue }
-            // Find the original field in document.fields
+            // Look up the original field from the global document.fields array.
             if let origField = document.fields.first(where: { $0.id == origFieldID }) {
-                var newField = origField
+                var duplicateField = origField
                 let newFieldID = generateObjectId()
-                newField.id = newFieldID
-                document.fields.append(newField)
-                // Update the fieldPosition to point to the new field id
+                // Store the mapping: original field id -> new field id
+                fieldMapping[origFieldID] = newFieldID
+                
+                // Update the duplicate field’s id and its FieldIdentifier.
+                duplicateField.id = newFieldID
+                
+                // Append the duplicated field to the new fields array
+                newFields.append(duplicateField)
+                
+                // Update the fieldPosition to reference the new field id.
                 fieldPos.field = newFieldID
                 fieldPos.id = generateObjectId()
                 newFieldPositions.append(fieldPos)
             }
         }
+        
+        // Update the logic conditions in the duplicated fields.
+        // Only update conditions that reference the original page's fields.
+        for i in 0..<newFields.count {
+            // If the duplicated field has logic, update its conditions.
+            if var logic = newFields[i].logic, var conditions = logic.conditions {
+                for j in conditions.indices {
+                    // If this condition is linked to the original page, update to the new page id.
+                    if let origPageID = originalPage.id, conditions[j].page == origPageID {
+                        conditions[j].page = newPageID
+                    }
+                    // If the condition's field reference exists in our mapping,
+                    // then update it with the new field id.
+                    if let origFieldRef = conditions[j].field,
+                       let newFieldRef = fieldMapping[origFieldRef] {
+                        conditions[j].field = newFieldRef
+                    }
+                }
+                logic.conditions = conditions
+                newFields[i].logic = logic
+            }
+        }
+        
+        document.fields = newFields
         duplicatedPage.fieldPositions = newFieldPositions
         
-        // Append the duplicated page to the file’s pages array.
         if firstFile.pages == nil {
             firstFile.pages = []
         }
         firstFile.pages!.append(duplicatedPage)
         
-        // Update the file’s pageOrder: insert the new pageID immediately after the original.
         if var pageOrder = firstFile.pageOrder {
             if let index = pageOrder.firstIndex(of: pageID) {
                 pageOrder.insert(newPageID, at: index + 1)
@@ -431,20 +464,15 @@ extension DocumentEditor {
             self.currentPageOrder = pageOrder
         }
         
-        // Update the document’s files array.
         var files = document.files
         if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
             files[fileIndex] = firstFile
         }
         document.files = files
-        
-        document.fields.forEach { field in
-            guard let fieldID = field.id else { return }
-            self.fieldMap[fieldID] =  field
-        }
-        
+        updateFieldMap()
         updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
         updateFieldPositionMap()
+        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         
         // Notify SwiftUI that the document has changed.
         objectWillChange.send()
