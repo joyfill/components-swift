@@ -11,6 +11,8 @@ import JoyfillModel
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
+    @Published var currentPageOrder: [String] = []
+    var mutableFiles: [File] = []
 
     public var mode: Mode
     public var showPageNavigationView: Bool
@@ -40,35 +42,29 @@ public class DocumentEditor: ObservableObject {
             self.fieldMap[fieldID] =  field
         }
 
-        document.fieldPositionsForCurrentView.forEach { fieldPosition in
-            guard let fieldID = fieldPosition.field else { return }
-            self.fieldPositionMap[fieldID] =  fieldPosition
-        }
+        updateFieldPositionMap()
 
         let fileID = files[0].id!
         for page in document.pagesForCurrentView {
             guard let pageID = page.id else { return }
-            var fieldListModels = [FieldListModel]()
-
-            let fieldPositions = mapWebViewToMobileView(fieldPositions: page.fieldPositions ?? [])
-            for fieldPosition in fieldPositions {
-                let fieldData = fieldMap[fieldPosition.field!]
-                let fieldIdentifier = FieldIdentifier(fieldID: fieldPosition.field!, pageID: pageID, fileID: fileID)
-                var dataModelType: FieldListModelType = .none
-                let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
-
-                var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
-                
-                dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
-                fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
-                let index = fieldListModels.count - 1
-                fieldIndexMap[fieldPosition.field!] = fieldIndexMapValue(pageID: pageID, index: index)
-            }
-            pageFieldModels[pageID] = PageModel(id: pageID, fields: fieldListModels)
+            updatePageFieldModels(page, pageID, fileID)
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
+        
+        self.mutableFiles = document.files
+        // currentPageOrder from the primary file’s pageOrder:
+        if let firstFile = mutableFiles.first {
+            self.currentPageOrder = firstFile.pageOrder ?? []
+        }
+    }
+    
+    public func updateFieldPositionMap() {
+        document.fieldPositionsForCurrentView.forEach { fieldPosition in
+            guard let fieldID = fieldPosition.field else { return }
+            self.fieldPositionMap[fieldID] =  fieldPosition
+        }
     }
 
     public func validate() -> Validation {
@@ -359,5 +355,98 @@ extension DocumentEditor {
             dataModelType = .none
         }
         return dataModelType
+    }
+}
+
+extension DocumentEditor {
+    fileprivate func updatePageFieldModels(_ duplicatedPage: Page, _ newPageID: String, _ fileId: String?) {
+        var fieldListModels = [FieldListModel]()
+        let fieldPositions = mapWebViewToMobileView(fieldPositions: duplicatedPage.fieldPositions ?? [])
+        for fieldPosition in fieldPositions ?? [] {
+            let fieldData = fieldMap[fieldPosition.field!]
+            let fieldIdentifier = FieldIdentifier(fieldID: fieldPosition.field!, pageID: newPageID, fileID: fileId)
+            var dataModelType: FieldListModelType = .none
+            let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+            
+            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+            
+            dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
+            fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
+            let index = fieldListModels.count - 1
+            fieldIndexMap[fieldPosition.field!] = fieldIndexMapValue(pageID: newPageID, index: index)
+        }
+        pageFieldModels[newPageID] = PageModel(id: newPageID, fields: fieldListModels)
+    }
+    
+    func duplicatePage(pageID: String) {
+        guard var firstFile = document.files.first else {
+            print("No file found in document.")
+            return
+        }
+        
+        // Find the original page in the file’s pages array
+        guard let originalPageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) else {
+            print("Page with id \(pageID) not found in file.pages.")
+            return
+        }
+        let originalPage = firstFile.pages![originalPageIndex]
+        let newPageID = generateObjectId()
+        
+        // We update the _id and then duplicate each fieldPosition.
+        var duplicatedPage = originalPage
+        duplicatedPage.id = newPageID
+        
+        // Maintain new field IDs and update fieldPositions accordingly.
+        var newFieldPositions: [FieldPosition] = []
+        for var fieldPos in originalPage.fieldPositions ?? [] {
+            guard let origFieldID = fieldPos.field else { continue }
+            // Find the original field in document.fields
+            if let origField = document.fields.first(where: { $0.id == origFieldID }) {
+                var newField = origField
+                let newFieldID = generateObjectId()
+                newField.id = newFieldID
+                document.fields.append(newField)
+                // Update the fieldPosition to point to the new field id
+                fieldPos.field = newFieldID
+                fieldPos.id = generateObjectId()
+                newFieldPositions.append(fieldPos)
+            }
+        }
+        duplicatedPage.fieldPositions = newFieldPositions
+        
+        // Append the duplicated page to the file’s pages array.
+        if firstFile.pages == nil {
+            firstFile.pages = []
+        }
+        firstFile.pages!.append(duplicatedPage)
+        
+        // Update the file’s pageOrder: insert the new pageID immediately after the original.
+        if var pageOrder = firstFile.pageOrder {
+            if let index = pageOrder.firstIndex(of: pageID) {
+                pageOrder.insert(newPageID, at: index + 1)
+            } else {
+                pageOrder.append(newPageID)
+            }
+            firstFile.pageOrder = pageOrder
+            self.currentPageOrder = pageOrder
+        }
+        
+        // Update the document’s files array.
+        var files = document.files
+        if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
+            files[fileIndex] = firstFile
+        }
+        document.files = files
+        
+        document.fields.forEach { field in
+            guard let fieldID = field.id else { return }
+            self.fieldMap[fieldID] =  field
+        }
+        
+        updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        updateFieldPositionMap()
+        
+        // Notify SwiftUI that the document has changed.
+        objectWillChange.send()
     }
 }
