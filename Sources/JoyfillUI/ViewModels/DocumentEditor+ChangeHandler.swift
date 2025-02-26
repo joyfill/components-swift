@@ -402,4 +402,22 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }
+    
+    func onChangeDuplicatePage(page: Page, fileId: String, fieldId: String, targetRow: Int) {
+        
+        var change = Change(v: 1,
+                            sdk: "swift",
+                            target: "page.create",
+                            _id: documentID!,
+                            identifier: documentIdentifier,
+                            fileId: fileId,
+                            pageId: page.id ?? "",
+                            fieldId: fieldId,
+                            fieldIdentifier: "",
+                            fieldPositionId: "",
+                            change: ["page": page.dictionary, "targetRow": targetRow],
+                            createdOn: Date().timeIntervalSince1970)
+        
+        events?.onChange(changes: [change], document: document)
+    }
 }

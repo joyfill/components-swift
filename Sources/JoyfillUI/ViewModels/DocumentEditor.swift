@@ -381,7 +381,7 @@ extension DocumentEditor {
         pageFieldModels[newPageID] = PageModel(id: newPageID, fields: fieldListModels)
     }
     
-    func duplicatePage(pageID: String) {
+    public func duplicatePage(pageID: String) {
         guard var firstFile = document.files.first else {
             print("No file found in document.")
             return
@@ -474,7 +474,6 @@ extension DocumentEditor {
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         
-        // Notify SwiftUI that the document has changed.
-        objectWillChange.send()
+        //onChangeDuplicatePage(page: duplicatedPage,fileId: document.files[0].id ?? "", fieldId: document.fields.first?.id ?? "", targetRow: (document.files[0].pageOrder?.firstIndex(of: newPageID))!)
     }
 }
