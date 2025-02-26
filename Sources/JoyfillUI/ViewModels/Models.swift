@@ -474,7 +474,6 @@ struct TableDataModel {
     }
     
     var isLastNestedRow: Bool {
-        // Use the first selected row (or last, depending on your requirements)
         guard let selectedRowID = selectedRows.first,
               let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }) else {
             return false
