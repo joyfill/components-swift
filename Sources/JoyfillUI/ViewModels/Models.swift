@@ -58,10 +58,14 @@ enum RowType: Equatable {
     
     var level: Int {
         switch self {
-        case let .row:                      return 0
-        case let .header:                   return 0
-        case let .nestedRow(level, _, _):                return level
-        case let .tableExpander(_, level, _, _):            return level
+        case let .row:
+            return 0
+        case let .header(level, _):
+            return level
+        case let .nestedRow(level, _, _):
+            return level
+        case let .tableExpander(_, level, _, _):
+            return level
         }
     }
     
@@ -374,6 +378,11 @@ struct TableDataModel {
         var indices: [Int] = []
         for i in index + 1..<cellModels.count {
             let nextRow = cellModels[i]
+            
+            if nextRow.rowType.level < rowDataModel.rowType.level {
+                break
+            }
+            
             if rowDataModel.rowType == .nestedRow(level: level, index: rowDataModel.rowType.index) {
                 //Stop at same level but next index of current nested row
                 if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index + 1) {
@@ -425,6 +434,11 @@ struct TableDataModel {
             if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
                 break
             }
+            
+            if nextRow.rowType.level < rowDataModel.rowType.level {
+                break
+            }
+            
             switch nextRow.rowType {
             case .header, .tableExpander:
                 indices.append(i)

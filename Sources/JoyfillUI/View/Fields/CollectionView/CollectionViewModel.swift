@@ -319,9 +319,12 @@ class CollectionViewModel: ObservableObject {
     fileprivate func getTableColumnsByIndex(_ indexOfFirstSelectedRow: Int) -> [FieldTableColumn] {
         for indexOfCurrentRow in stride(from: indexOfFirstSelectedRow, through: 0, by: -1) {
             switch tableDataModel.cellModels[indexOfCurrentRow].rowType {
-            case .header(level: _, tableColumns: let tableColumns):
-                return tableColumns
-                break
+            case .header(level: let level, tableColumns: let tableColumns):
+                if level == tableDataModel.cellModels[indexOfFirstSelectedRow].rowType.level {
+                    return tableColumns
+                } else {
+                    continue
+                }
             default:
                 continue
             }
