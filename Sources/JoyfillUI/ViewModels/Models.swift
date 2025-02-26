@@ -369,6 +369,79 @@ struct TableDataModel {
             cellModels[index].cells[colIndex].id = UUID()
         }
     }
+    
+    func childrensForRows(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) -> [Int] {
+        var indices: [Int] = []
+        for i in index + 1..<cellModels.count {
+            let nextRow = cellModels[i]
+            if rowDataModel.rowType == .nestedRow(level: level, index: rowDataModel.rowType.index) {
+                //Stop at same level but next index of current nested row
+                if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index + 1) {
+                    break
+                }
+                //Stop if there is an tableExpander of low level
+                if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level - 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .tableExpander:
+                    indices.append(i)
+                case .nestedRow(level: let nestedLevel, index: _, _):
+                    let level = rowDataModel.rowType.level
+                    if nestedLevel < level {
+                        break
+                    } else {
+                        indices.append(i)
+                    }
+                case .row:
+                    break
+                }
+            } else {
+                if nextRow.rowType == .row(index: index + 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .nestedRow, .tableExpander:
+                    indices.append(i)
+                case .row:
+                    break
+                }
+            }
+        }
+        return indices
+    }
+    
+    func childrensForASpecificRow(_ index: Int, _ rowDataModel: RowDataModel) -> [Int] {
+        var indices: [Int] = []
+        
+        for i in index + 1..<cellModels.count {
+            let nextRow = cellModels[i]
+            
+            //Stop if find another table expander of same level
+            if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
+                break
+            }
+            //Stop if find nested row of same level
+            if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
+                break
+            }
+            switch nextRow.rowType {
+            case .header, .tableExpander:
+                indices.append(i)
+            case .nestedRow(level: let nestedLevel, index: _, _):
+                let level = rowDataModel.rowType.level
+                if nestedLevel < level {
+                    break
+                } else {
+                    indices.append(i)
+                }
+            case .row:
+                break
+            }
+        }
+        
+        return indices
+    }
 
     var lastRowSelected: Bool {
         return !selectedRows.isEmpty && selectedRows.last! == rowOrder.last!
@@ -378,14 +451,62 @@ struct TableDataModel {
         return !selectedRows.isEmpty && selectedRows.first! == rowOrder.first!
     }
     
+    var firstNestedRowSelected: Bool {
+        return !selectedRows.isEmpty && isFirstNestedRow
+    }
+    
+    var isFirstNestedRow: Bool {
+        guard let selectedRowID = selectedRows.first, let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }), index > 0 else {
+            return false
+        }
+        
+        let previousRow = cellModels[index - 1]
+        switch previousRow.rowType {
+        case .header(level: _, tableColumns: _):
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var lastNestedRowSelected: Bool {
+        return !selectedRows.isEmpty && isLastNestedRow
+    }
+    
+    var isLastNestedRow: Bool {
+        // Use the first selected row (or last, depending on your requirements)
+        guard let selectedRowID = selectedRows.first,
+              let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }) else {
+            return false
+        }
+        
+        let selectedRow = cellModels[index]
+        let childrenIndices = childrensForRows(index, selectedRow, selectedRow.rowType.level)
+        
+        // The next row after the current block is at:
+        let nextIndex = index + childrenIndices.count + 1
+        
+        // If there's no next row, then this is the last row.
+        guard nextIndex < cellModels.count else {
+            return true
+        }
+        
+        let nextRow = cellModels[nextIndex]
+        
+        switch nextRow.rowType {
+        case .nestedRow(level: let nestedLevel, index: let index, parentID: _):
+            return !(nestedLevel == selectedRow.rowType.level)
+        default:
+            return true
+        }
+    }
+    
     var shouldDisableMoveUp: Bool {
-        //TODO: Handle for nested rows
-        firstRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
+        firstRowSelected || !filterModels.noFilterApplied || sortModel.order != .none || firstNestedRowSelected
     }
     
     var shouldDisableMoveDown: Bool {
-        //TODO: Handle for nested rows
-        lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
+        lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none || lastNestedRowSelected
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
