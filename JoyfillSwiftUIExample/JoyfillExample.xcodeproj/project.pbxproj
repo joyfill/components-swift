@@ -17,6 +17,7 @@
 		048BFEE02D1A980B0011159C /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048BFEDF2D1A980B0011159C /* JoyfillAPIService */; };
 		048BFEE32D1A9C6D0011159C /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048BFEE22D1A9C6D0011159C /* JoyfillAPIService */; };
 		04E6BB872D6F0CA900668DE2 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 04E6BB862D6F0CA900668DE2 /* JoyfillModel */; };
+		04E6BB8E2D6F11CB00668DE2 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 04E6BB8D2D6F11CB00668DE2 /* JoyfillModel */; };
 		04FEBD8E2D5DD7D600163AC6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */; };
 		04FEBD8F2D5DD7D600163AC6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */; };
 		04FEBD902D5DD7D600163AC6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */; };
@@ -138,6 +139,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04E6BB8E2D6F11CB00668DE2 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -298,6 +300,7 @@
 			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
+				04E6BB8D2D6F11CB00668DE2 /* JoyfillModel */,
 			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
@@ -880,6 +883,11 @@
 			productName = JoyfillAPIService;
 		};
 		04E6BB862D6F0CA900668DE2 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04E6BB852D6F0CA900668DE2 /* XCRemoteSwiftPackageReference "JoyfillModel" */;
+			productName = JoyfillModel;
+		};
+		04E6BB8D2D6F11CB00668DE2 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 04E6BB852D6F0CA900668DE2 /* XCRemoteSwiftPackageReference "JoyfillModel" */;
 			productName = JoyfillModel;
