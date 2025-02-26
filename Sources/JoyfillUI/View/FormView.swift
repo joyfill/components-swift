@@ -257,6 +257,7 @@ struct PageDuplicateListView: View {
                                         HStack {
                                             Image(systemName: currentPageID == pageID ? "checkmark.circle.fill" : "circle")
                                             Text(page.name ?? "")
+                                                .multilineTextAlignment(.leading)
                                                 .darkLightThemeColor()
                                         }
                                     })
@@ -270,7 +271,7 @@ struct PageDuplicateListView: View {
                                         Image(systemName: "document.on.document")
                                             .foregroundStyle(.blue)
                                     })
-                                    .accessibilityIdentifier("PageSelectionIdentifier")
+                                    .accessibilityIdentifier("PageDuplicateIdentifier")
                                 }
                             }
                             .padding(.horizontal, 16)
