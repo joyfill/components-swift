@@ -344,8 +344,7 @@ struct CollectionModalView : View {
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
-                    //TODO: calculate width acc to tablecolumns
-                    .frame(minWidth: 1500, minHeight: geometry.size.height, alignment: .topLeading)
+                    .frame(minWidth: viewModel.collectionWidth, minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)

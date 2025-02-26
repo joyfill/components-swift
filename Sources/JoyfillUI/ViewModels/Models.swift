@@ -36,17 +36,19 @@ struct RowDataModel: Equatable, Hashable {
     var filledCellCount: Int {
         cells.filter { $0.data.isCellFilled }.count
     }
+    var rowWidth: CGFloat
     
     var hasMoreNestedRows: Bool {
         childrens.count > 0
     }
     
-    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, childrens: [String : Children] = [:] ) {
+    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, childrens: [String : Children] = [:], rowWidth: CGFloat = 0 ) {
         self.rowID = rowID
         self.cells = cells
         self.rowType = rowType
         self.isExpanded = isExpanded
         self.childrens = childrens
+        self.rowWidth = rowWidth
     }
 }
 

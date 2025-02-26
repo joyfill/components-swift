@@ -15,6 +15,7 @@ class CollectionViewModel: ObservableObject {
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
     @Published var nestedTableCount: Int = 0
+    @Published var collectionWidth: CGFloat = 0.0
     private var requiredColumnIds: [String] = []
 
     @Published var uuid = UUID()
@@ -25,10 +26,21 @@ class CollectionViewModel: ObservableObject {
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
         self.nestedTableCount = tableDataModel.childrens.count
         setupCellModels()
+        updateCollectionWidth()
         self.tableDataModel.filterRowsIfNeeded()
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .map { $0.id! }
+    }
+    
+    func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
+        return Utility.getWidthForExpanderRow(columns: tableColumns) + Utility.getTotalTableScrollWidth(level: level)
+    }
+    
+    func updateCollectionWidth() {
+        collectionWidth = tableDataModel.cellModels
+            .map { $0.rowWidth }
+            .max() ?? 0
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
@@ -49,9 +61,9 @@ class CollectionViewModel: ObservableObject {
                 rowCellModels.append(cellModel)
             }
         if self.tableDataModel.cellModels.count > (index - 1) {
-            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: index)), at: index)
+            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: index), rowWidth: rowWidth(tableDataModel.tableColumns, 0)), at: index)
         } else {
-            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: self.tableDataModel.cellModels.count)))
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: self.tableDataModel.cellModels.count), rowWidth: rowWidth(tableDataModel.tableColumns, 0)))
         }
     }
     
@@ -76,11 +88,11 @@ class CollectionViewModel: ObservableObject {
             let rowDataModel = RowDataModel(rowID: rowID,
                                             cells: rowCellModels,
                                             rowType: rowType,
-                                            childrens: childrens)
+                                            childrens: childrens, rowWidth: rowWidth(columns, level))
             
             self.tableDataModel.cellModels.insert(rowDataModel, at: index)
         } else {
-            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: rowType.level, index: self.tableDataModel.cellModels.count, parentID: rowType.parentID), childrens: childrens))
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .nestedRow(level: rowType.level, index: self.tableDataModel.cellModels.count, parentID: rowType.parentID), childrens: childrens, rowWidth: rowWidth(columns, level)))
         }
     }
     
@@ -129,7 +141,7 @@ class CollectionViewModel: ObservableObject {
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count), childrens: childrens))
+            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count), childrens: childrens, rowWidth: rowWidth(tableDataModel.tableColumns, 0)))
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
@@ -209,7 +221,7 @@ class CollectionViewModel: ObservableObject {
             case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: [],
-                                               rowType: .header(level: level + 1, tableColumns: schemaValue?.1.tableColumns ?? [])))
+                                               rowType: .header(level: level + 1, tableColumns: schemaValue?.1.tableColumns ?? []), rowWidth: rowWidth(schemaValue?.1.tableColumns ?? [], level + 1)))
                 let childrens = getChildren(forRowId: parentID?.rowID ?? "", in: tableDataModel.valueToValueElements ?? []) ?? [:]
                 
                 let valueToValueElements = childrens[schemaValue?.0 ?? ""]?.valueToValueElements?.filter { valueElement in
@@ -239,7 +251,8 @@ class CollectionViewModel: ObservableObject {
                                                    cells: subCells,
                                                    rowType: .nestedRow(level: level + 1, index: index+1,
                                                                        parentID: parentID),
-                                                   childrens: row.childrens ?? [:]
+                                                   childrens: row.childrens ?? [:],
+                                                   rowWidth: rowWidth(schemaValue?.1.tableColumns ?? [], level + 1)
                                                   ))
                 }
             default:
@@ -248,6 +261,7 @@ class CollectionViewModel: ObservableObject {
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
+        updateCollectionWidth()
     }
     
     fileprivate func collapseTables(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) {
@@ -275,13 +289,15 @@ class CollectionViewModel: ObservableObject {
                                                                            level: level,
                                                                            parentID: (columnID: "", rowID: rowDataModel.rowID),
                                                                            rowWidth: Utility.getWidthForExpanderRow(columns: schemaValue.tableColumns ?? [])),
-                                                   childrens: [id : children]
+                                                   childrens: [id : children],
+                                                   rowWidth: rowWidth(schemaValue.tableColumns ?? [], level)
                                                   ))
                 }
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
+        updateCollectionWidth()
     }
     
     func deleteSelectedRow() {

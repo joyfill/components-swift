@@ -39,6 +39,16 @@ class Utility {
         
         return max(totalWidth, singleColumnWidth * 2) + 80
     }
+    
+    static func getTotalTableScrollWidth(level: Int) -> CGFloat {
+        var width: CGFloat = 0
+        if level != 0 {
+            for _ in 0..<(2 * level) {
+                width += 40
+            }
+        }
+        return width
+    }
         
     private static func measureTextWidth(text: String, font: UIFont) -> CGFloat {
         let constraintSize = CGSize(width: CGFloat.greatestFiniteMagnitude, height: font.lineHeight)
