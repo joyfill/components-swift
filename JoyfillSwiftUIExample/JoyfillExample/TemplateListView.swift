@@ -9,80 +9,138 @@ import JoyfillModel
 
 public struct TemplateListView: View {
     @State var documents: [Document] = []
-    @State var templates: [Document] = []
-    @State var fetchSubmissions = true
+    @State var templates: [Document]
+    @State var fetchSubmissions = false
     @State var createSubmission = false
     @State var showNewSubmission = false
     private var apiService: APIService
     @State var document: JoyDoc?
-
-    init(userAccessToken: String) {
+    @State private var currentTemplatePage: Int = 1
+    @State private var isLoadingMoreTemplates: Bool = false
+    @State private var hasMoreTemplates: Bool = true
+    @State private var searchText: String = ""
+    
+    init(userAccessToken: String, result: ([Document],[Document])) {
         self.apiService = APIService(accessToken: userAccessToken,
                                      baseURL: "https://api-joy.joyfill.io/v1")
+        self.templates = result.0
     }
-
+    
     private var changeManager: ChangeManager {
         ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
     }
-
+    
+    private var filteredTemplates: [Document] {
+        if searchText.isEmpty {
+            return templates
+        } else {
+            return templates.filter { template in
+                template.name.lowercased().contains(searchText.lowercased())
+            }
+        }
+    }
+    
     public var body: some View {
-            if fetchSubmissions || createSubmission {
-                ProgressView()
-                    .onAppear {
-                        if fetchSubmissions {
-                            fetchData()
-                        }
+        if createSubmission == false {
+            TemplateSearchView(searchText: $searchText)
+        }
+        
+        if fetchSubmissions || createSubmission {
+            ProgressView()
+                .onAppear {
+                    if fetchSubmissions {
+                        fetchData()
                     }
-            } else {
-                List {
-                    Text("Templates List")
-                        .font(.title.bold())
-                    ForEach(templates) { template in
-                        VStack(alignment: .trailing) {
-                            NavigationLink {
-                                DocumentSubmissionsListView(apiService: apiService, documents: allDocuments(for: template.identifier),
-                                                            title: String(template.identifier.suffix(8)))
-                            } label: {
-                                HStack {
-                                    Image(systemName: "doc")
-                                        .padding(5)
-                                    Text(template.name)
+                }
+        } else {
+            List {
+                Section(header: Text("Templates")
+                    .font(.title.bold())) {
+                        ForEach(filteredTemplates) { template in
+                            VStack(alignment: .trailing) {
+                                NavigationLink {
+                                    DocumentSubmissionsListView(apiService: apiService, identifier: template.identifier,
+                                                                title: String(template.identifier.suffix(8)))
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "doc")
+                                            .padding(5)
+                                        Text(template.name)
+                                    }
+                                }
+                                
+                                if showNewSubmission {
+                                    NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
+                                }
+                                
+                                Button(action: {
+                                    createDocumentSubmission(identifier: template.identifier, completion: { _ in })
+                                }, label: {
+                                    Text("Fill New +")
+                                })
+                                .buttonStyle(.borderedProminent)
+                            }
+                            .onAppear {
+                                if template == templates.last {
+                                    loadMoreTemplates()
                                 }
                             }
-
-                            if showNewSubmission {
-                                NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
-                            }
-                            Button(action: {
-                                createDocumentSubmission(identifier: template.identifier, completion: { _ in })
-                            }, label: {
-                                Text("Fill New +")
-                            })
-                            .buttonStyle(.borderedProminent)
                         }
+                        .padding(20)
+                        .border(Color.gray, width: 2)
+                        .cornerRadius(2)
                     }
-                    .padding(20)
-                    .border(Color.gray, width: 2)
-                    .cornerRadius(2)
+                    .refreshable {
+                        fetchSubmissions = true
+                    }
+            }
+            
+            if isLoadingMoreTemplates {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
                 }
-                .refreshable {
-                    fetchSubmissions = true
+                .padding()
+            }
+        }
+    }
+    
+    private func showImagePicker(uploadHandler: ([String]) -> Void) {
+        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    }
+    
+    private func loadMoreTemplates() {
+        guard !isLoadingMoreTemplates, hasMoreTemplates else { return }
+        isLoadingMoreTemplates = true
+        let nextPage = currentTemplatePage + 1
+        
+        apiService.fetchTemplates(page: nextPage, limit: 10) { result in
+            DispatchQueue.main.async {
+                isLoadingMoreTemplates = false
+                switch result {
+                case .success(let newTemplates):
+                    if newTemplates.isEmpty {
+                        hasMoreTemplates = false
+                    } else {
+                        templates.append(contentsOf: newTemplates)
+                        currentTemplatePage = nextPage
+                    }
+                case .failure(let error):
+                    print("Error loading more templates: \(error.localizedDescription)")
                 }
             }
         }
-
-    private func showImagePicker(uploadHandler: ([String]) -> Void) {
-        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
     }
 }
 
 extension TemplateListView {
-
     func fetchData() {
-        fetchTemplates() { 
-            fetchDocuments() {
-
+        if templates.count <= 0 {
+            fetchTemplates() {                 
             }
+        } else {
+            fetchSubmissions =  false
         }
     }
     
@@ -94,22 +152,7 @@ extension TemplateListView {
         documentsWithSourceAsTemplate.forEach { document in
             documentsWithSourceAsDoc = documents.filter {  $0.source?.contains(document.id) ?? false }
         }
-       return documentsWithSourceAsDoc + documentsWithSourceAsTemplate
-    }
-    
-    private func fetchDocuments(completion: @escaping (() -> Void)) {
-        apiService.fetchDocuments() { result in
-            DispatchQueue.main.async {
-                self.fetchSubmissions = false
-                switch result {
-                case .success(let documents):
-                    self.documents = documents
-                    completion()
-                case .failure(let error):
-                    print("Error fetching documents: \(error.localizedDescription)")
-                }
-            }
-        }
+        return documentsWithSourceAsDoc + documentsWithSourceAsTemplate
     }
     
     private func fetchTemplates(completion:  @escaping () -> Void) {
@@ -132,17 +175,13 @@ extension TemplateListView {
                 case .success(let jsonRes):
                     let dictionary = (jsonRes as! [String: Any])
                     self.document = JoyDoc(dictionary: dictionary)
-                    fetchDocuments() {
-                        self.createSubmission = false
-                        showNewSubmission = true
-                    }
+                    self.createSubmission = false
+                    showNewSubmission = true
                     break
                 case .failure(let error):
                     print("Error creating submission: \(error.localizedDescription)")
                 }
             }
-
-
         }
     }
 }
