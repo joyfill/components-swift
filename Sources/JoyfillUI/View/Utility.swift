@@ -37,7 +37,7 @@ class Utility {
             return accumulator + columnWidth
         }
         
-        return max(totalWidth, singleColumnWidth * 2) + 80
+        return max(totalWidth, singleColumnWidth * 2) + 120
     }
     
     static func getTotalTableScrollWidth(level: Int) -> CGFloat {
