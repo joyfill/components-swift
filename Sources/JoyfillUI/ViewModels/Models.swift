@@ -618,7 +618,7 @@ struct TableDataModel {
             rowDataModel.rowID == rowID
         }
         if selectedRows.count > 0 {
-            if currentSelectedRow?.rowType == getRowByID(rowID: selectedRows[0])?.rowType {
+            if currentSelectedRow?.rowType.parentID?.rowID == getRowByID(rowID: selectedRows[0])?.rowType.parentID?.rowID {
                 if selectedRows.contains(rowID) {
                     selectedRows = selectedRows.filter({ $0 != rowID})
                 } else {
