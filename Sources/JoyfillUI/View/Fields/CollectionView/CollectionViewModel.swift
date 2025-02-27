@@ -204,10 +204,17 @@ class CollectionViewModel: ObservableObject {
         // Close all the nested rows for a particular row
         var indicesToRemoveArray: [Int] = tableDataModel.childrensForASpecificRow(index, rowDataModel)
         
+        var rowIDsToRemove: Set<String> = []
+        for i in indicesToRemoveArray {
+            rowIDsToRemove.insert(tableDataModel.cellModels[i].rowID)
+        }
+
         for i in indicesToRemoveArray.reversed() {
             tableDataModel.filteredcellModels.remove(at: i)
             tableDataModel.cellModels.remove(at: i)
         }
+        //Remove selections for the rows that are removed(Closed) from the table.
+        tableDataModel.selectedRows.removeAll(where: { rowIDsToRemove.contains($0) })
     }
     
     func expendSpecificTable(rowDataModel: RowDataModel, parentID: (columnID: String, rowID: String), level: Int) {
@@ -266,11 +273,18 @@ class CollectionViewModel: ObservableObject {
     
     fileprivate func collapseTables(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) {
         var indicesToRemove: [Int] = tableDataModel.childrensForRows(index, rowDataModel, level)
-                
+           
+        var rowIDsToRemove: Set<String> = []
+        for i in indicesToRemove {
+            rowIDsToRemove.insert(tableDataModel.cellModels[i].rowID)
+        }
+        
         for i in indicesToRemove.reversed() {
             tableDataModel.filteredcellModels.remove(at: i)
             tableDataModel.cellModels.remove(at: i)
         }
+        //Remove selections for the rows that are removed from the table.
+        tableDataModel.selectedRows.removeAll(where: { rowIDsToRemove.contains($0) })
     }
             
     func expandTables(rowDataModel: RowDataModel, level: Int) {
