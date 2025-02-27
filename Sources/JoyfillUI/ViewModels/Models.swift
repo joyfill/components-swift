@@ -496,6 +496,12 @@ struct TableDataModel {
         }
         
         let selectedRow = cellModels[index]
+        switch selectedRow.rowType {
+        case .row(index: let index):
+            return false
+        default:
+            break
+        }
         let childrenIndices = childrensForRows(index, selectedRow, selectedRow.rowType.level)
         
         // The next row after the current block is at:
