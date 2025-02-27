@@ -30,13 +30,98 @@ struct RowDataModel: Equatable, Hashable {
 
     let rowID: String
     var cells: [TableCellModel]
-    
+    let rowType: RowType
+    var isExpanded: Bool = false
+    var childrens: [String : Children]
     var filledCellCount: Int {
         cells.filter { $0.data.isCellFilled }.count
     }
+    var rowWidth: CGFloat
+    
+    var hasMoreNestedRows: Bool {
+        childrens.count > 0
+    }
+    
+    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, childrens: [String : Children] = [:], rowWidth: CGFloat = 0 ) {
+        self.rowID = rowID
+        self.cells = cells
+        self.rowType = rowType
+        self.isExpanded = isExpanded
+        self.childrens = childrens
+        self.rowWidth = rowWidth
+    }
 }
 
-let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode]
+enum RowType: Equatable {
+    case row(index: Int)
+    case header(level: Int, tableColumns: [FieldTableColumn])
+    case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil)
+    case tableExpander(schemaValue: (String, Schema)? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil, rowWidth: CGFloat = 0)
+    
+    var level: Int {
+        switch self {
+        case let .row:
+            return 0
+        case let .header(level, _):
+            return level
+        case let .nestedRow(level, _, _):
+            return level
+        case let .tableExpander(_, level, _, _):
+            return level
+        }
+    }
+    
+    var width: CGFloat? {
+        switch self {
+        case .tableExpander(let _, _, _, let rowWidth):
+            return rowWidth
+        default:
+            return nil
+        }
+    }
+    
+    var parentID: (columnID: String, rowID: String)? {
+        switch self {
+        case let .nestedRow(_, _, parentID):                return parentID
+        case let .tableExpander(_, _, parentID, _):            return parentID
+        default:
+            return nil
+        }
+    }
+    
+    var index: Int {
+        switch self {
+        case .nestedRow(_, index: let index, _): return index
+        case .row(index: let index):
+            return index
+        case .header(level: let level, tableColumns: let tableColumns):
+            return 0
+        case .tableExpander(schemaValue: let schemaValue, level: let level, _, _):
+            return 0
+        }
+    }
+    
+    var isRow: Bool {
+        if case .row = self {
+            return true
+        }
+        return false
+    }
+    
+    static func == (lhs: RowType, rhs: RowType) -> Bool {
+        switch (lhs, rhs) {
+        case (.row, .row),
+             (.header, .header),
+             (.nestedRow, .nestedRow),
+             (.tableExpander, .tableExpander):
+            return lhs.level == rhs.level
+        default:
+            return false
+        }
+    }
+}
+
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table]
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -53,6 +138,8 @@ struct TableDataModel {
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
     var tableColumns = [FieldTableColumn]()
+    var childrens = [String]()
+    var schema: [String : Schema] = [:]
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
@@ -61,6 +148,8 @@ struct TableDataModel {
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
     var id = UUID()
+    var showResetSelectionAlert: Bool = false
+    private var pendingRowID: String?
     
     var viewMoreText: String {
         rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
@@ -80,55 +169,105 @@ struct TableDataModel {
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
-
-        fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
-            let column = fieldData.tableColumns?.first { $0.id == colID }
-            if fieldPositionTableColumns?.first(where: { $0.id == colID })?.hidden == true { return }
-            guard let column = column else { return }
-            let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
-            self.filterModels.append(filterModel)
-            if let columnType = column.type {
-                if supportedColumnTypes.contains(columnType) {
-                    tableColumns.append(column)
+                
+        if fieldData.fieldType == .collection {
+            self.schema = fieldData.schema ?? [:]
+            fieldData.schema?.forEach { key, value in
+                if value.root == true {
+                    //Only top level columns
+                    self.tableColumns = value.tableColumns ?? []
+                    self.childrens = value.children ?? []
+                }
+            }
+            
+            for (colIndex, column) in self.tableColumns.enumerated() {
+                let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown)
+                self.filterModels.append(filterModel)
+            }
+        } else {
+            fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
+                let column = fieldData.tableColumns?.first { $0.id == colID }
+                if fieldPositionTableColumns?.first(where: { $0.id == colID })?.hidden == true { return }
+                guard let column = column else { return }
+                let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
+                self.filterModels.append(filterModel)
+                if let columnType = column.type {
+                    if supportedColumnTypes.contains(columnType) {
+                        tableColumns.append(column)
+                    }
                 }
             }
         }
         setupColumns()
         filterRowsIfNeeded()
     }
-    
+        
     mutating func filterRowsIfNeeded() {
-        filteredcellModels = cellModels
-        guard !filterModels .noFilterApplied else {
+        guard !filterModels.noFilterApplied else {
+            filteredcellModels = cellModels
             return
         }
+        
+        var newFiltered = [RowDataModel]()
+        var i = 0
+        while i < filteredcellModels.count {
+            let row = filteredcellModels[i]
+            if row.rowType.isRow {
+                let passesFilter = rowMatchesFilter(row, filters: filterModels)
+                if passesFilter {
+                    newFiltered.append(row)
+                    i += 1
+                    // Include all nested rows until the next top-level row.
+                    while i < filteredcellModels.count, !filteredcellModels[i].rowType.isRow {
+                        newFiltered.append(filteredcellModels[i])
+                        i += 1
+                    }
+                } else {
+                    // skip this row and all of its nested rows
+                    i += 1
+                    while i < filteredcellModels.count, !filteredcellModels[i].rowType.isRow {
+                        i += 1
+                    }
+                }
+            } else {
+                i += 1
+            }
+        }
+        
+        filteredcellModels = newFiltered
+    }
 
-        for model in filterModels  {
-            if model.filterText.isEmpty {
+    func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
+        for filter in filters {
+            if filter.filterText.isEmpty {
                 continue
             }
-             let filtred = filteredcellModels.filter { rowArr in
-                 let column = rowArr.cells[model.colIndex].data
-                switch column.type {
-                case .text:
-                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                case .dropdown:
-                    return (column.defaultDropdownSelectedId ?? "") == model.filterText
-                case .number:
-                    let columnNumberString = String(format: "%g", column.number ?? 0)
-                    return columnNumberString.hasPrefix(model.filterText)
-                case .multiSelect:
-                    return column.multiSelectValues?.contains(model.filterText) ?? false
-                case .barcode:
-                    return (column.title ?? "").localizedCaseInsensitiveContains(model.filterText)
-                default:
-                    break
-                }
+            guard row.cells.indices.contains(filter.colIndex) else { continue }
+            let column = row.cells[filter.colIndex].data
+            let match: Bool
+            switch column.type {
+            case .text:
+                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            case .dropdown:
+                match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
+            case .number:
+                let columnNumberString = String(format: "%g", column.number ?? 0)
+                match = columnNumberString.hasPrefix(filter.filterText)
+            case .multiSelect:
+                match = column.multiSelectValues?.contains(filter.filterText) ?? false
+            case .barcode:
+                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            default:
+                match = false
+            }
+            
+            if !match {
                 return false
             }
-           filteredcellModels = filtred
         }
+        return true
     }
+
     
     mutating private func setupColumns() {
         guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
@@ -208,6 +347,8 @@ struct TableDataModel {
             cell?.title = valueUnion?.text ?? ""
         case .barcode:
             cell?.title = valueUnion?.text ?? ""
+        case .table:
+            cell?.multiSelectValues = valueUnion?.stringArray
         default:
             return nil
         }
@@ -222,6 +363,101 @@ struct TableDataModel {
             cellModels[rowIndex].cells[colIndex].id = UUID()
         }
     }
+    
+    mutating func updateCellModelForNested(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
+        guard let index = cellModels.firstIndex(where: { $0.rowID == rowId }) else {
+            return
+        }
+        var cellModel = cellModels[index].cells[colIndex]
+        cellModel.data = cellDataModel
+        cellModels[index].cells[colIndex] = cellModel
+        if isBulkEdit {
+            cellModels[index].cells[colIndex].id = UUID()
+        }
+    }
+    
+    func childrensForRows(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) -> [Int] {
+        var indices: [Int] = []
+        for i in index + 1..<cellModels.count {
+            let nextRow = cellModels[i]
+            
+            if nextRow.rowType.level < rowDataModel.rowType.level {
+                break
+            }
+            
+            if rowDataModel.rowType == .nestedRow(level: level, index: rowDataModel.rowType.index) {
+                //Stop at same level but next index of current nested row
+                if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index + 1) {
+                    break
+                }
+                //Stop if there is an tableExpander of low level
+                if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level - 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .tableExpander:
+                    indices.append(i)
+                case .nestedRow(level: let nestedLevel, index: _, _):
+                    let level = rowDataModel.rowType.level
+                    if nestedLevel < level {
+                        break
+                    } else {
+                        indices.append(i)
+                    }
+                case .row:
+                    break
+                }
+            } else {
+                if nextRow.rowType == .row(index: index + 1) {
+                    break
+                }
+                switch nextRow.rowType {
+                case .header, .nestedRow, .tableExpander:
+                    indices.append(i)
+                case .row:
+                    break
+                }
+            }
+        }
+        return indices
+    }
+    
+    func childrensForASpecificRow(_ index: Int, _ rowDataModel: RowDataModel) -> [Int] {
+        var indices: [Int] = []
+        
+        for i in index + 1..<cellModels.count {
+            let nextRow = cellModels[i]
+            
+            //Stop if find another table expander of same level
+            if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
+                break
+            }
+            //Stop if find nested row of same level
+            if nextRow.rowType == .nestedRow(level: rowDataModel.rowType.level, index: rowDataModel.rowType.index) {
+                break
+            }
+            
+            if nextRow.rowType.level < rowDataModel.rowType.level {
+                break
+            }
+            
+            switch nextRow.rowType {
+            case .header, .tableExpander:
+                indices.append(i)
+            case .nestedRow(level: let nestedLevel, index: _, _):
+                let level = rowDataModel.rowType.level
+                if nestedLevel < level {
+                    break
+                } else {
+                    indices.append(i)
+                }
+            case .row:
+                break
+            }
+        }
+        
+        return indices
+    }
 
     var lastRowSelected: Bool {
         return !selectedRows.isEmpty && selectedRows.last! == rowOrder.last!
@@ -231,12 +467,67 @@ struct TableDataModel {
         return !selectedRows.isEmpty && selectedRows.first! == rowOrder.first!
     }
     
+    var firstNestedRowSelected: Bool {
+        return !selectedRows.isEmpty && isFirstNestedRow
+    }
+    
+    var isFirstNestedRow: Bool {
+        guard let selectedRowID = selectedRows.first, let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }), index > 0 else {
+            return false
+        }
+        
+        let previousRow = cellModels[index - 1]
+        switch previousRow.rowType {
+        case .header(level: _, tableColumns: _):
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var lastNestedRowSelected: Bool {
+        return !selectedRows.isEmpty && isLastNestedRow
+    }
+    
+    var isLastNestedRow: Bool {
+        guard let selectedRowID = selectedRows.first,
+              let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }) else {
+            return false
+        }
+        
+        let selectedRow = cellModels[index]
+        switch selectedRow.rowType {
+        case .row(index: let index):
+            return false
+        default:
+            break
+        }
+        let childrenIndices = childrensForRows(index, selectedRow, selectedRow.rowType.level)
+        
+        // The next row after the current block is at:
+        let nextIndex = index + childrenIndices.count + 1
+        
+        // If there's no next row, then this is the last row.
+        guard nextIndex < cellModels.count else {
+            return true
+        }
+        
+        let nextRow = cellModels[nextIndex]
+        
+        switch nextRow.rowType {
+        case .nestedRow(level: let nestedLevel, index: let index, parentID: _):
+            return !(nestedLevel == selectedRow.rowType.level)
+        default:
+            return true
+        }
+    }
+    
     var shouldDisableMoveUp: Bool {
-        firstRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
+        firstRowSelected || !filterModels.noFilterApplied || sortModel.order != .none || firstNestedRowSelected
     }
     
     var shouldDisableMoveDown: Bool {
-        lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none
+        lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none || lastNestedRowSelected
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
@@ -293,7 +584,10 @@ struct TableDataModel {
                                  multi: column.multi)
         }
         let rowIndex = rowOrder.firstIndex(of: row)!
-        return cellModels[rowIndex].cells[col].data
+        let topLevelCellModelsOnly = cellModels.filter { rowDataModel in
+            rowDataModel.rowType.isRow
+        }
+        return topLevelCellModelsOnly[rowIndex].cells[col].data
     }
     
     
@@ -320,10 +614,42 @@ struct TableDataModel {
     }
     
     mutating func toggleSelection(rowID: String) {
-        if selectedRows.contains(rowID) {
-            selectedRows = selectedRows.filter({ $0 != rowID})
+        let currentSelectedRow = self.filteredcellModels.first { rowDataModel in
+            rowDataModel.rowID == rowID
+        }
+        if selectedRows.count > 0 {
+            if currentSelectedRow?.rowType == getRowByID(rowID: selectedRows[0])?.rowType {
+                if selectedRows.contains(rowID) {
+                    selectedRows = selectedRows.filter({ $0 != rowID})
+                } else {
+                    selectedRows.append(rowID)
+                }
+            } else {
+                //show alert
+                pendingRowID = rowID
+                showResetSelectionAlert = true
+            }
         } else {
             selectedRows.append(rowID)
+        }
+    }
+    
+    mutating func confirmResetSelection() {
+        if let newRow = pendingRowID {
+            selectedRows = [newRow]
+        }
+        pendingRowID = nil
+        showResetSelectionAlert = false
+    }
+    
+    mutating  func cancelResetSelection() {
+        pendingRowID = nil
+        showResetSelectionAlert = false
+    }
+    
+    func getRowByID(rowID: String) -> RowDataModel? {
+        return filteredcellModels.first { rowDataModel in
+            rowDataModel.rowID == rowID
         }
     }
     
@@ -389,7 +715,8 @@ struct CellDataModel: Hashable, Equatable {
             return date != nil
         case .image:
             return valueElements != nil || valueElements != []
-        case .progress, .unknown:
+        case .progress, .unknown, .table:
+            // TODO: Handle it for nested table
             return false
         }
     }
