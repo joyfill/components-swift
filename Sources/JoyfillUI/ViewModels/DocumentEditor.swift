@@ -401,41 +401,29 @@ extension DocumentEditor {
         var newFields: [JoyDocField] = []
         var newFieldPositions: [FieldPosition] = []
         
-        // Phase A: Duplicate the fields and record mapping.
         for var fieldPos in originalPage.fieldPositions ?? [] {
             guard let origFieldID = fieldPos.field else { continue }
-            // Look up the original field from the global document.fields array.
             if let origField = document.fields.first(where: { $0.id == origFieldID }) {
                 var duplicateField = origField
                 let newFieldID = generateObjectId()
-                // Store the mapping: original field id -> new field id
                 fieldMapping[origFieldID] = newFieldID
                 
-                // Update the duplicate field’s id and its FieldIdentifier.
                 duplicateField.id = newFieldID
                 
-                // Append the duplicated field to the new fields array
                 newFields.append(duplicateField)
                 
-                // Update the fieldPosition to reference the new field id.
                 fieldPos.field = newFieldID
                 fieldPos.id = generateObjectId()
                 newFieldPositions.append(fieldPos)
             }
         }
         
-        // Update the logic conditions in the duplicated fields.
-        // Only update conditions that reference the original page's fields.
         for i in 0..<newFields.count {
-            // If the duplicated field has logic, update its conditions.
             if var logic = newFields[i].logic, var conditions = logic.conditions {
                 for j in conditions.indices {
-                    // If this condition is linked to the original page, update to the new page id.
                     if let origPageID = originalPage.id, conditions[j].page == origPageID {
                         conditions[j].page = newPageID
                     }
-                    // If the condition's field reference exists in our mapping,
-                    // then update it with the new field id.
                     if let origFieldRef = conditions[j].field,
                        let newFieldRef = fieldMapping[origFieldRef] {
                         conditions[j].field = newFieldRef
@@ -474,6 +462,10 @@ extension DocumentEditor {
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         
-        //onChangeDuplicatePage(page: duplicatedPage,fileId: document.files[0].id ?? "", fieldId: document.fields.first?.id ?? "", targetRow: (document.files[0].pageOrder?.firstIndex(of: newPageID))!)
+//        if let views = document.files[0].views, !views.isEmpty {
+//            onChangeDuplicatePage(view: views[0].id ?? "", page: duplicatedPage,fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!)
+//        }else {
+//            onChangeDuplicatePage(view: "", page: duplicatedPage, fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!)
+//        }
     }
 }

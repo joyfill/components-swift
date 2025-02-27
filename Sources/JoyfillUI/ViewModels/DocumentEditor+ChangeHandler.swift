@@ -403,21 +403,19 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
     }
     
-    func onChangeDuplicatePage(page: Page, fileId: String, fieldId: String, targetRow: Int) {
+    func onChangeDuplicatePage(view: String, page: Page, fields: [JoyDocField], fileId: String, targetIndex: Int) {
         
         var change = Change(v: 1,
                             sdk: "swift",
+                            view: view,
                             target: "page.create",
-                            _id: documentID!,
-                            identifier: documentIdentifier,
                             fileId: fileId,
-                            pageId: page.id ?? "",
-                            fieldId: fieldId,
-                            fieldIdentifier: "",
-                            fieldPositionId: "",
-                            change: ["page": page.dictionary, "targetRow": targetRow],
+                            change: [
+                                "page": page.dictionary,
+                                "fields": fields.map{$0.dictionary},
+                                "targetIndex": targetIndex
+                            ],
                             createdOn: Date().timeIntervalSince1970)
-        
         events?.onChange(changes: [change], document: document)
     }
 }
