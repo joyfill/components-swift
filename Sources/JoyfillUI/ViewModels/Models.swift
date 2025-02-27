@@ -654,7 +654,7 @@ struct TableDataModel {
     }
     
     mutating func selectAllRows() {
-        selectedRows = filteredcellModels.compactMap { $0.cells.first?.rowID }
+        selectedRows = filteredcellModels.filter { $0.rowType.isRow }.compactMap { $0.rowID }
     }
     
     mutating func emptySelection() {
@@ -662,7 +662,8 @@ struct TableDataModel {
     }
     
     var allRowSelected: Bool {
-        !selectedRows.isEmpty && selectedRows.count == filteredcellModels.count
+        let validRows = filteredcellModels.filter { $0.rowType.isRow }.compactMap { $0.rowID }
+        return !selectedRows.isEmpty && Set(selectedRows) == Set(validRows)
     }
     
     func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
