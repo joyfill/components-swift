@@ -376,7 +376,8 @@ extension DocumentEditor {
     
     public func insertBelowNestedRow(selectedRowID: String,
                                      cellValues: [String: ValueUnion],
-                                     fieldIdentifier: FieldIdentifier) -> (all: [ValueElement], inserted: ValueElement)? {
+                                     fieldIdentifier: FieldIdentifier,
+                                     childrenKeys: [String]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return nil
@@ -388,6 +389,14 @@ extension DocumentEditor {
         for (key, value) in cellValues {
             newRow.cells?[key] = value
         }
+        let children = Children(dictionary: [:])
+        var childrens: [String: Children] = [:]
+        if let childrenKeys = childrenKeys, !childrenKeys.isEmpty {
+            for childrenSchemaKey in childrenKeys {
+                childrens[childrenSchemaKey] = children
+            }
+        }
+        newRow.childrens = childrens
 
         if let topLevelIndex = fieldMap[fieldId]?.rowOrder?.firstIndex(of: selectedRowID) {
             var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
@@ -507,7 +516,7 @@ extension DocumentEditor {
                                     fieldIdentifier: FieldIdentifier,
                                     parentRowId: String? = nil,
                                     schemaKey: String? = nil,
-                                    childrenSchemaKey: String? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
+                                    childrenKeys: [String]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
         
         var newRow = ValueElement(id: id)
@@ -519,10 +528,13 @@ extension DocumentEditor {
             newRow.cells![key] = value
         }
         let children = Children(dictionary: [:])
-        if let childrenSchemaKey = childrenSchemaKey, !childrenSchemaKey.isEmpty {
-            newRow.childrens = [childrenSchemaKey : children]
+        var childrens: [String: Children] = [:]
+        if let childrenKeys = childrenKeys, !childrenKeys.isEmpty {
+            for childrenSchemaKey in childrenKeys {
+                childrens[childrenSchemaKey] = children
+            }
         }
-        
+        newRow.childrens = childrens
         if let parentRowId = parentRowId, let nestedKey = schemaKey {
             // Attempt to insert recursively into the nested structure.
             let inserted = insertNestedRow(in: &elements, targetParentId: parentRowId, nestedKey: nestedKey, newRow: newRow)

@@ -55,7 +55,7 @@ struct RowDataModel: Equatable, Hashable {
 enum RowType: Equatable {
     case row(index: Int)
     case header(level: Int, tableColumns: [FieldTableColumn])
-    case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil)
+    case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil, parentSchemaKey: String = "")
     case tableExpander(schemaValue: (String, Schema)? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil, rowWidth: CGFloat = 0)
     
     var level: Int {
@@ -64,10 +64,19 @@ enum RowType: Equatable {
             return 0
         case let .header(level, _):
             return level
-        case let .nestedRow(level, _, _):
+        case let .nestedRow(level, _, _,_):
             return level
         case let .tableExpander(_, level, _, _):
             return level
+        }
+    }
+    
+    var parentSchemaKey: String {
+        switch self {
+        case .nestedRow(_, _, _, let parentSchemaKey):
+            return parentSchemaKey
+        default:
+            return ""
         }
     }
     
@@ -82,7 +91,7 @@ enum RowType: Equatable {
     
     var parentID: (columnID: String, rowID: String)? {
         switch self {
-        case let .nestedRow(_, _, parentID):                return parentID
+        case let .nestedRow(_, _, parentID, _):                return parentID
         case let .tableExpander(_, _, parentID, _):            return parentID
         default:
             return nil
@@ -91,7 +100,7 @@ enum RowType: Equatable {
     
     var index: Int {
         switch self {
-        case .nestedRow(_, index: let index, _): return index
+        case .nestedRow(_, index: let index, _, _): return index
         case .row(index: let index):
             return index
         case .header(level: let level, tableColumns: let tableColumns):
@@ -397,7 +406,7 @@ struct TableDataModel {
                 switch nextRow.rowType {
                 case .header, .tableExpander:
                     indices.append(i)
-                case .nestedRow(level: let nestedLevel, index: _, _):
+                case .nestedRow(level: let nestedLevel, index: _, _, _):
                     let level = rowDataModel.rowType.level
                     if nestedLevel < level {
                         break
@@ -444,7 +453,7 @@ struct TableDataModel {
             switch nextRow.rowType {
             case .header, .tableExpander:
                 indices.append(i)
-            case .nestedRow(level: let nestedLevel, index: _, _):
+            case .nestedRow(level: let nestedLevel, index: _, _, _):
                 let level = rowDataModel.rowType.level
                 if nestedLevel < level {
                     break
@@ -515,7 +524,7 @@ struct TableDataModel {
         let nextRow = cellModels[nextIndex]
         
         switch nextRow.rowType {
-        case .nestedRow(level: let nestedLevel, index: let index, parentID: _):
+        case .nestedRow(level: let nestedLevel, index: let index, parentID: _, _):
             return !(nestedLevel == selectedRow.rowType.level)
         default:
             return true

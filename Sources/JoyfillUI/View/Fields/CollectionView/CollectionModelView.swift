@@ -256,7 +256,7 @@ struct CollectionModalView : View {
                            .frame(width: 40, height: 60)
                            .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                            .border(Color.tableCellBorderColor)
-                   case .nestedRow(let level, let nastedRowIndex, _):
+                   case .nestedRow(let level, let nastedRowIndex, _, _):
                        Text("\(nastedRowIndex)")
                            .foregroundColor(.secondary)
                            .font(.caption)
@@ -295,7 +295,7 @@ struct CollectionModalView : View {
                                 case .row:
                                     CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                     .frame(height: 60)
-                                case .nestedRow(level: let level, index: let index, parentID: let parentID):
+                                case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
                                     CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                     .frame(height: 60)
                                 case .header(level: let level, tableColumns: let tableColumns):
@@ -360,7 +360,7 @@ struct CollectionExpanderView: View {
             if rowDataModel.isExpanded {
                 Button(action: {
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
-                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID, childrenSchemaKey: "")
+                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
                     Text("Add Row +")
                         .foregroundStyle(.selection)
@@ -496,7 +496,7 @@ struct ColllectionRowsHeaderView: View {
                             .border(Color.tableCellBorderColor)
                     }
                     
-                case .nestedRow(level: let level, index: let nestedIndex, _):
+                case .nestedRow(level: let level, index: let nestedIndex, _, _):
                     HStack(spacing: 0) {
                         if level == 0 {
                             Rectangle()
@@ -584,7 +584,7 @@ struct ColllectionRowsHeaderView: View {
                     .fill(Color.white)
                     .frame(width: 40, height: 60)
                     .border(Color.tableCellBorderColor)
-            case .nestedRow(let level, let index, _):
+            case .nestedRow(let level, let index, _, _):
                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                 Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                     .frame(width: 40, height: 60)
@@ -604,7 +604,7 @@ struct ColllectionRowsHeaderView: View {
                     .frame(width: 40, height: 60)
                     .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
-            case .nestedRow(let level, let nastedRowIndex, _):
+            case .nestedRow(let level, let nastedRowIndex, _, _):
                 Text("\(nastedRowIndex)")
                     .foregroundColor(.secondary)
                     .font(.caption)
