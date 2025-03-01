@@ -172,7 +172,7 @@ struct TableModalView : View {
                 .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .cornerRadius(14, corners: [.topLeft])
+                .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
                 
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
@@ -185,6 +185,7 @@ struct TableModalView : View {
                 } else {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
+                            .frame(width: viewModel.showRowSelector ? 80 : 40)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -198,7 +199,7 @@ struct TableModalView : View {
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
-                    .cornerRadius(14, corners: [.topRight])
+                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
                     ScrollView([.horizontal], showsIndicators: false) {
@@ -206,7 +207,7 @@ struct TableModalView : View {
                             .offset(x: offset.x)
                     }
                     .background(Color.tableCellBorderColor)
-                    .cornerRadius(14, corners: [.topRight])
+                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
                 
@@ -347,4 +348,3 @@ struct ViewOffsetKey: PreferenceKey {
         value.y += nextValue().y
     }
 }
-
