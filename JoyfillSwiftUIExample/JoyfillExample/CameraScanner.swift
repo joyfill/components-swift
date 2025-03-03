@@ -1,11 +1,3 @@
-//
-//  CameraScanner.swift
-//  ScanningDataCamera
-//
-//  Created by Runhua Huang on 2022/6/8.
-//
-// Current Issue:
-//   1. When view been presented, the ugly animation.
 
 import SwiftUI
 

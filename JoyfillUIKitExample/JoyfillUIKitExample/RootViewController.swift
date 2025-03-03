@@ -10,11 +10,12 @@ import JoyfillModel
 import JoyfillAPIService
 
 class RootViewController: UIViewController {
-    private let apiService: APIService = APIService()
+    private var apiService: APIService!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        makeAPICallForSubmission("doc_66cd69dd3cffd3ced34245ad")
+        apiService = APIService(accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk", baseURL: "https://api-joy.joyfill.io/v1")
+        makeAPICallForSubmission("doc_67aae8855c37e8d41f0abbac")
     }
 
     private func makeAPICallForSubmission(_ identifier: String) {

@@ -12,7 +12,7 @@ struct DateTimeView: View {
         self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
             let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty) ?? ""
-            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
+                        if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }

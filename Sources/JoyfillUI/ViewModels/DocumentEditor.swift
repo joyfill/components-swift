@@ -33,7 +33,7 @@ public class DocumentEditor: ObservableObject {
         self.document = document
         self.mode = mode
         self.showPageNavigationView = navigation
-        self.currentPageID = ((pageID == nil || pageID!.isEmpty) ? document.pagesForCurrentView.first?.id : pageID) ?? ""
+        self.currentPageID = ""
         self.events = events
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
@@ -68,14 +68,11 @@ public class DocumentEditor: ObservableObject {
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
     }
 
     public func validate() -> Validation {
         return validationHandler.validate()
-    }
-    
-    public func validateTableField(fieldID: String) -> FieldValidity {
-        return validationHandler.validateTableField(id: fieldID)
     }
 
     public func shouldShow(fieldID: String?) -> Bool {
@@ -90,6 +87,24 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(page: page)
     }
 
+}
+
+fileprivate extension JoyDoc {
+    func firstValidPageID(for pageID: String?, conditionalLogicHandler: ConditionalLogicHandler) -> String {
+        guard let pageID = pageID, !pageID.isEmpty else {
+            return firstValidPageID(conditionalLogicHandler: conditionalLogicHandler) ?? ""
+        }
+        return pageID
+    }
+    
+    func firstValidPageID(conditionalLogicHandler: ConditionalLogicHandler) -> String? {
+        for page in pagesForCurrentView {
+            if conditionalLogicHandler.shouldShow(page: page) {
+                return page.id
+            }
+        }
+        return pagesForCurrentView.first?.id
+    }
 }
 
 extension DocumentEditor {
@@ -162,7 +177,7 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
+    func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
@@ -185,8 +200,14 @@ extension DocumentEditor {
 
     private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
-            guard let y1 = fp1.y, let y2 = fp2.y else { return false }
-            return Int(y1) < Int(y2)
+            guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
+                return false
+            }
+            if Int(y1) == Int(y2) {
+                return Int(x1) < Int(x2)
+            } else {
+                return Int(y1) < Int(y2)
+            }
         }
         var uniqueFields = Set<String>()
         var resultFieldPositions = [FieldPosition]()

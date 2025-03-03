@@ -1,10 +1,3 @@
-//
-//  CameraScanner.swift
-//  ScanningDataCamera
-//
-//  Created by Runhua Huang on 2022/6/8.
-//
-
 import SwiftUI
 import UIKit
 import VisionKit

@@ -85,6 +85,7 @@
           "_id": "67691971a4c41137665f362a",
           "deleted": false,
           "cells": {
+            "676137715cb7a772624dd5ab": "First row",
             "67691971e689df0b1208de63": 2,
             "67692e13fa282a51845f4f14": "First row",
             "676919715e36fed325f2f048": 1712255400000,
@@ -95,6 +96,7 @@
           "_id": "67691971e3f0e90c473f6db1",
           "deleted": false,
           "cells": {
+            "676137715cb7a772624dd5ab": "Second row",
             "67691971e689df0b1208de63": 22,
             "67692e13fa282a51845f4f14": "Second row",
             "676919715e36fed325f2f048": 1713984174769,
@@ -106,6 +108,7 @@
           "_id": "676919712bdb40e9d61b59a6",
           "deleted": false,
           "cells": {
+            "676137715cb7a772624dd5ab": "Third row",
             "67691971e689df0b1208de63": 200,
             "67692e13fa282a51845f4f14": "112",
             "676919715e36fed325f2f048": 1712385780000,
@@ -202,9 +205,19 @@
             }
           ],
           "multi": true
+        },
+        {
+          "_id": "676137715cb7a772624dd5ab",
+          "type": "barcode",
+          "title": "Barcode Column",
+          "width": 0,
+          "identifier": "field_column_67614abb9a8f5bc9668cc889",
+          "required": true,
+          "value": "Default value"
         }
       ],
       "tableColumnOrder": [
+        "676137715cb7a772624dd5ab",
         "676919715e36fed325f2f048",
         "67692e13fa282a51845f4f14",
         "67691971e689df0b1208de63",

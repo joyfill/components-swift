@@ -31,6 +31,7 @@ struct TableBarcodeView: View {
         } else {
             HStack(spacing: 0) {
                 TextEditor(text: $text)
+                    .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                     .font(.system(size: 15))
                     .onChange(of: text) { newText in
                         var cellModelData = cellModel.data
@@ -41,6 +42,7 @@ struct TableBarcodeView: View {
                     
                 
                 Image(systemName: "barcode.viewfinder")
+                    .accessibilityIdentifier("TableScanButtonIdentifier")
                     .onTapGesture {
                         uploadAction()
                     }
