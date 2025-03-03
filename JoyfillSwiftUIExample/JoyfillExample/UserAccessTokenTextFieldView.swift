@@ -2,38 +2,91 @@ import SwiftUI
 import Joyfill
 import JoyfillModel
 import JoyfillAPIService
+import JoyfillModel
 
 struct UserAccessTokenTextFieldView: View {
     @State private var userAccessToken: String = ""
-    @State var showTemplat: Bool = false
+    @State var showTemplate: Bool = false
+    @State private var warningMessage: String? = nil
+    @State var templateAndDocuments: ([Document], [Document]) = ([], [])
+    @State var apiService: APIService? = nil
+    @State private var isFetching: Bool = false
+    var isAlreadyToken: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Enter your access token here:")
-                .font(.headline)
-                .padding(.leading, 10)
-            
-            TextEditor(text: $userAccessToken)
-                .frame(height: 200)
-                .padding(10)
-                .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
-            
-            NavigationLink {
-                if !userAccessToken.isEmpty {
-                    LazyView(TemplateListView(userAccessToken: userAccessToken))
+        if isAlreadyToken {
+            NavigationLink(
+                destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
+                                                       result: templateAndDocuments, isAlreadyToken: true)),
+                isActive: isAlreadyToken ? Binding.constant(true) : $showTemplate
+            ) {
+                EmptyView()
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Enter your access token here:")
+                    .font(.headline)
+                    .padding(.leading, 10)
+                
+                if let warning = warningMessage {
+                    Text(warning)
+                        .foregroundColor(.red)
+                        .padding()
                 }
-            } label: {
-                Spacer()
-                Text("Enter")
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(userAccessToken.isEmpty ? .gray: .blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                Spacer()
+                
+                TextEditor(text: $userAccessToken)
+                    .frame(height: 200)
+                    .padding(10)
+                    .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+                
+                Button(action: {
+                    isFetching = true
+                    self.apiService = APIService(accessToken: userAccessToken,
+                                                 baseURL: "https://api-joy.joyfill.io/v1")
+                    fetchTemplates {
+                        if warningMessage != nil || !(warningMessage?.isEmpty ?? false) {
+                            isFetching = false
+                        }
+                    }
+                }, label: {
+                    Spacer()
+                    Text(isFetching ? "Entering..." : "Enter")
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(userAccessToken.isEmpty ? .gray: .blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                    Spacer()
+                })
+                .disabled(userAccessToken.isEmpty || isFetching)
+                
+                NavigationLink(
+                    destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
+                                                           result: templateAndDocuments, isAlreadyToken: false)),
+                    isActive: $showTemplate
+                ) {
+                    EmptyView()
+                }
+            }
+            .padding()
+        }
+    }
+                
+    private func fetchTemplates(page: Int = 1, limit: Int = 10, completion: @escaping () -> Void) {
+        apiService?.fetchTemplates(page: page, limit: limit) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let templates):
+                    self.templateAndDocuments.0 = templates
+                    warningMessage = nil
+                    showTemplate = true
+                    isFetching = false
+                case .failure(let error):
+                    warningMessage = "Invalid token: \(error.localizedDescription)"
+                }
+                completion()
             }
         }
-        .padding()
     }
 }
 

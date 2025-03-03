@@ -127,7 +127,6 @@ struct TableModalTopNavigationView: View {
                                         .frame(height: 27)
                                 }
                                 .padding(.horizontal, 16)
-                                .padding(.top, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
 
                                 Button(action: {
@@ -141,7 +140,6 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
                                 .padding(.horizontal, 16)
-                                .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
 
                                 Button(action: {
@@ -155,7 +153,6 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
                                 .padding(.horizontal, 16)
-                                .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
                             }
@@ -169,7 +166,6 @@ struct TableModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.top, 16)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
 
                             Button(action: {
@@ -194,10 +190,10 @@ struct TableModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
-                            .padding(.bottom, 10)
                             .accessibilityIdentifier("TableDuplicateRowIdentifier")
                             Spacer()
                         }
+                        .padding(.top, 12)
                     }
                 }
             }
