@@ -19,10 +19,18 @@ public struct TemplateListView: View {
     @State private var isLoadingMoreTemplates: Bool = false
     @State private var hasMoreTemplates: Bool = true
     @State private var searchText: String = ""
+    var isAlreadyToken: Bool
     
-    init(userAccessToken: String, result: ([Document],[Document])) {
-        self.apiService = APIService(accessToken: userAccessToken,
-                                     baseURL: "https://api-joy.joyfill.io/v1")
+    init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool) {
+        self.isAlreadyToken = isAlreadyToken
+        if isAlreadyToken {
+            self.apiService = APIService(accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk",
+                                         baseURL: "https://api-joy.joyfill.io/v1")
+        } else {
+            self.apiService = APIService(accessToken: userAccessToken,
+                                         baseURL: "https://api-joy.joyfill.io/v1")
+        }
+        
         self.templates = result.0
     }
     
@@ -41,69 +49,68 @@ public struct TemplateListView: View {
     }
     
     public var body: some View {
-        if createSubmission == false {
+        VStack {
             TemplateSearchView(searchText: $searchText)
-        }
-        
-        if fetchSubmissions || createSubmission {
-            ProgressView()
-                .onAppear {
-                    if fetchSubmissions {
+            
+            if filteredTemplates.isEmpty {
+                ProgressView()
+                    .onAppear {
                         fetchData()
                     }
-                }
-        } else {
-            List {
-                Section(header: Text("Templates")
-                    .font(.title.bold())) {
-                        ForEach(filteredTemplates) { template in
-                            VStack(alignment: .trailing) {
-                                NavigationLink {
-                                    DocumentSubmissionsListView(apiService: apiService, identifier: template.identifier,
-                                                                title: String(template.identifier.suffix(8)))
-                                } label: {
-                                    HStack {
-                                        Image(systemName: "doc")
-                                            .padding(5)
-                                        Text(template.name)
+            } else {
+                List {
+                    Section(header: Text("Templates")
+                        .font(.title.bold())) {
+                            ForEach(filteredTemplates) { template in
+                                VStack(alignment: .trailing) {
+                                    NavigationLink {
+                                        DocumentSubmissionsListView(apiService: apiService, identifier: template.identifier,
+                                                                    title: String(template.identifier.suffix(8)))
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "doc")
+                                                .padding(5)
+                                            Text(template.name)
+                                        }
+                                    }
+                                    
+                                    if showNewSubmission {
+                                        NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
+                                    }
+                                    
+                                    Button(action: {
+                                        createDocumentSubmission(identifier: template.identifier, completion: { _ in })
+                                    }, label: {
+                                        Text("Fill New +")
+                                    })
+                                    .buttonStyle(.borderedProminent)
+                                }
+                                .onAppear {
+                                    if template == templates.last {
+                                        loadMoreTemplates()
                                     }
                                 }
-                                
-                                if showNewSubmission {
-                                    NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
-                                }
-                                
-                                Button(action: {
-                                    createDocumentSubmission(identifier: template.identifier, completion: { _ in })
-                                }, label: {
-                                    Text("Fill New +")
-                                })
-                                .buttonStyle(.borderedProminent)
                             }
-                            .onAppear {
-                                if template == templates.last {
-                                    loadMoreTemplates()
-                                }
-                            }
+                            .padding(20)
+                            .border(Color.gray, width: 2)
+                            .cornerRadius(2)
                         }
-                        .padding(20)
-                        .border(Color.gray, width: 2)
-                        .cornerRadius(2)
-                    }
-                    .refreshable {
-                        fetchSubmissions = true
-                    }
-            }
-            
-            if isLoadingMoreTemplates {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
+                        .refreshable {
+                            fetchSubmissions = true
+                        }
                 }
-                .padding()
+                
+                if isLoadingMoreTemplates {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .padding()
+                }
             }
         }
+        .navigationBarBackButtonHidden(isAlreadyToken)
     }
     
     private func showImagePicker(uploadHandler: ([String]) -> Void) {

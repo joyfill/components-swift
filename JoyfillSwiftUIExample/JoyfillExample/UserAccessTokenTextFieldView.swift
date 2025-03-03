@@ -8,50 +8,61 @@ struct UserAccessTokenTextFieldView: View {
     @State private var warningMessage: String? = nil
     @State var templateAndDocuments: ([Document], [Document]) = ([], [])
     @State var apiService: APIService? = nil
-    @State private var isFetching: Bool = false  
+    @State private var isFetching: Bool = false
+    var isAlreadyToken: Bool
     
     var body: some View {
-        VStack {
-            Text("Enter your access token here:")
-                .bold()
-            
-            if let warning = warningMessage {
-                Text(warning)
-                    .foregroundColor(.red)
-                    .padding()
-            }
-            
-            TextEditor(text: $userAccessToken)
-                .textFieldStyle(.roundedBorder)
-                .frame(height: 200)
-                .border(Color.black)
-                .cornerRadius(3.0)
-                .padding(10)
-            
-            Button(action: {
-                isFetching = true
-                self.apiService = APIService(accessToken: userAccessToken,
-                                             baseURL: "https://api-joy.joyfill.io/v1")
-                fetchTemplates {
-                    if warningMessage != nil || !(warningMessage?.isEmpty ?? false) {
-                        isFetching = false
-                    }
-                }
-            }, label: {
-                Text(isFetching ? "Entering..." : "Enter")
-                    .foregroundStyle(userAccessToken.isEmpty ? .gray : .blue)
-            })
-            .disabled(userAccessToken.isEmpty || isFetching)
-            
+        if isAlreadyToken {
             NavigationLink(
                 destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
-                                                       result: templateAndDocuments)),
-                isActive: $showTemplate
+                                                       result: templateAndDocuments, isAlreadyToken: true)),
+                isActive: isAlreadyToken ? Binding.constant(true) : $showTemplate
             ) {
                 EmptyView()
             }
+        } else {
+            VStack {
+                Text("Enter your access token here:")
+                    .bold()
+                
+                if let warning = warningMessage {
+                    Text(warning)
+                        .foregroundColor(.red)
+                        .padding()
+                }
+                
+                TextEditor(text: $userAccessToken)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(height: 200)
+                    .border(Color.black)
+                    .cornerRadius(3.0)
+                    .padding(10)
+                
+                Button(action: {
+                    isFetching = true
+                    self.apiService = APIService(accessToken: userAccessToken,
+                                                 baseURL: "https://api-joy.joyfill.io/v1")
+                    fetchTemplates {
+                        if warningMessage != nil || !(warningMessage?.isEmpty ?? false) {
+                            isFetching = false
+                        }
+                    }
+                }, label: {
+                    Text(isFetching ? "Entering..." : "Enter")
+                        .foregroundStyle(userAccessToken.isEmpty ? .gray : .blue)
+                })
+                .disabled(userAccessToken.isEmpty || isFetching)
+                
+                NavigationLink(
+                    destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
+                                                           result: templateAndDocuments, isAlreadyToken: false)),
+                    isActive: $showTemplate
+                ) {
+                    EmptyView()
+                }
+            }
+            .padding()
         }
-        .padding()
     }
     
     private func fetchTemplates(page: Int = 1, limit: Int = 10, completion: @escaping () -> Void) {
