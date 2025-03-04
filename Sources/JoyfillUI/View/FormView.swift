@@ -268,7 +268,7 @@ struct PageDuplicateListView: View {
                                     Button(action: {
                                         documentEditor.duplicatePage(pageID: pageID)
                                     }, label: {
-                                        Image(systemName: "document.on.document")
+                                        Image(systemName: "doc.on.doc")
                                             .foregroundStyle(.blue)
                                     })
                                     .accessibilityIdentifier("PageDuplicateIdentifier")
