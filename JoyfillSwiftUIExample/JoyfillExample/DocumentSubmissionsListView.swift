@@ -91,7 +91,7 @@ struct DocumentSubmissionsListView: View {
     private func fetchLocalDocument() {
         isloading = true
         DispatchQueue.global().async {
-            self.document = sampleJSONDocument(fileName: "3000-fields")
+            self.document = sampleJSONDocument(fileName: "Joydocjson")
             DispatchQueue.main.async {
                 showDocumentDetails = true
                 isloading = false
