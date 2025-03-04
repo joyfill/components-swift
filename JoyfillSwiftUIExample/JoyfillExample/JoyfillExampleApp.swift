@@ -45,6 +45,7 @@ struct JoyfillExampleApp: App {
                 NavigationView {
                     VStack {
                         UserAccessTokenTextFieldView(isAlreadyToken: false)
+//                        UserAccessTokenTextFieldView(isAlreadyToken: true)
                         UserJsonTextFieldView()
                     }
                 }

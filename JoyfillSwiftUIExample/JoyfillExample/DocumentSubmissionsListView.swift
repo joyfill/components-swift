@@ -13,7 +13,7 @@ struct DocumentSubmissionsListView: View {
     @State var documents: [Document] = []
     @State var document: JoyDoc?
     @State private var showDocumentDetails = false
-    @State private var isloading = false
+    @State private var isloading = true
     @State private var showCameraScannerView = false
     @State private var scanResults: String = ""
     @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
