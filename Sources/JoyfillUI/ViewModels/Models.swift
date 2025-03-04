@@ -30,7 +30,7 @@ struct RowDataModel: Equatable, Hashable {
 
     let rowID: String
     var cells: [TableCellModel]
-    let rowType: RowType
+    var rowType: RowType
     var isExpanded: Bool = false
     var childrens: [String : Children]
     var filledCellCount: Int {

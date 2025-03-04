@@ -151,7 +151,7 @@ class CollectionViewModel: ObservableObject {
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count), childrens: childrens, rowWidth: rowWidth(tableDataModel.tableColumns, 0)))
+            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count + 1), childrens: childrens, rowWidth: rowWidth(tableDataModel.tableColumns, 0)))
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
@@ -245,7 +245,7 @@ class CollectionViewModel: ObservableObject {
                     !(valueElement.deleted ?? false)
                 } ?? []
                 
-                for row in valueToValueElements {
+                for (nestedIndex,row) in valueToValueElements.enumerated() {
                     let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: schemaValue?.1.tableColumns ?? [], row)
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
@@ -266,7 +266,7 @@ class CollectionViewModel: ObservableObject {
                     
                     cellModels.append(RowDataModel(rowID: row.id ?? "",
                                                    cells: subCells,
-                                                   rowType: .nestedRow(level: level + 1, index: index+1,
+                                                   rowType: .nestedRow(level: level + 1, index: nestedIndex+1,
                                                                        parentID: parentID, parentSchemaKey: schemaValue?.0 ?? ""),
                                                    childrens: row.childrens ?? [:],
                                                    rowWidth: rowWidth(schemaValue?.1.tableColumns ?? [], level + 1)
@@ -422,12 +422,12 @@ class CollectionViewModel: ObservableObject {
                                    columns: tableColumns,
                                    level: level,
                                    childrens: childrens,
-                                   rowType: .nestedRow(level: level,index: startingIndex + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey))
+                                   rowType: .nestedRow(level: level,index: rowDataModel.rowType.index + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey))
             } else {
                 //update row order
                 let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
                 if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
-                    tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex)
+                    tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
                 } else {
                     tableDataModel.rowOrder.append(valueElement.id!)
                 }
@@ -438,12 +438,57 @@ class CollectionViewModel: ObservableObject {
                                    columns: tableColumns,
                                    level: level,
                                    childrens: childrens,
-                                   rowType: .row(index: atIndex))
+                                   rowType: .row(index: rowDataModel.rowType.index + 1))
             }
             tableDataModel.filterRowsIfNeeded()
         }
         
+        let rowDataModel = tableDataModel.cellModels.first(where: { $0.rowID == sortedSelectedRows[0] })!
+        reIndexingRows(rowDataModel: rowDataModel)
         tableDataModel.emptySelection()
+    }
+            
+    func reIndexingRows(rowDataModel: RowDataModel) {
+        // find upperMost item of this level
+        var startingIndex = 0
+        guard let currentIndex = tableDataModel.cellModels.firstIndex(of: rowDataModel) else {
+            return
+        }
+        for i in stride(from: currentIndex, through: 0, by: -1) {
+            let model = tableDataModel.cellModels[i]
+            
+            if model.rowType.level < rowDataModel.rowType.level {
+                break
+            }
+            if model.rowType.level > rowDataModel.rowType.level {
+                continue
+            }
+            startingIndex = i
+        }
+        
+        var currentRowIndex = 1
+        for i in startingIndex..<tableDataModel.cellModels.count {
+            var model = tableDataModel.cellModels[i]
+            //Stop if find another level of rows
+            if model.rowType.level < rowDataModel.rowType.level {
+                break
+            }
+            if model.rowType.level > rowDataModel.rowType.level {
+                continue
+            }
+            switch model.rowType {
+            case .row(index: let rowIndex):
+                model.rowType = .row(index: currentRowIndex)
+                currentRowIndex += 1
+            case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
+                model.rowType = .nestedRow(level: level, index: currentRowIndex, parentID: parentID, parentSchemaKey: parentSchemaKey)
+                currentRowIndex += 1
+            default:
+                break
+            }
+            tableDataModel.cellModels[i] = model
+        }
+        tableDataModel.filterRowsIfNeeded()
     }
     
     func insertBelow() {
@@ -471,7 +516,7 @@ class CollectionViewModel: ObservableObject {
         let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
         let valueElement = result.inserted
         if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
-            tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex)
+            tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
         } else {
             tableDataModel.rowOrder.append(valueElement.id!)
         }
@@ -489,6 +534,8 @@ class CollectionViewModel: ObservableObject {
                            level: selectedRow.rowType.level,
                            childrens: getChildrensBy(rootSchemaKey),
                            rowType: .row(index: selecteRowIndex + 1))
+        
+        reIndexingRows(rowDataModel: tableDataModel.cellModels[selecteRowIndex])
     }
     
     func insertNestedBelow() {
@@ -515,6 +562,8 @@ class CollectionViewModel: ObservableObject {
                            rowType: .nestedRow(level: selectedRow.rowType.level,
                                                index: selecteRowIndex + 1,
                                                parentID: selectedRow.rowType.parentID, parentSchemaKey: selectedRow.rowType.parentSchemaKey))
+        
+        reIndexingRows(rowDataModel: tableDataModel.cellModels[selecteRowIndex])
     }
 
     func moveUP() {
@@ -531,6 +580,7 @@ class CollectionViewModel: ObservableObject {
         default:
             return
         }
+        reIndexingRows(rowDataModel: firstSelectedRow)
     }
     
     func moveRowUp() {
@@ -565,6 +615,7 @@ class CollectionViewModel: ObservableObject {
         default:
             return
         }
+        reIndexingRows(rowDataModel: firstSelectedRow)
     }
     
     func moveRowDown() {
@@ -745,9 +796,12 @@ class CollectionViewModel: ObservableObject {
                                level: level + 1,
                                childrens: getChildrensBy(schemaKey),
                                rowType: .nestedRow(level: level + 1,
-                                                   index: atNestedIndex,
+                                                   index: 1,
                                                    parentID: parentID,
                                                    parentSchemaKey: schemaKey))
+            
+            let rowDataModelForIndexing = tableDataModel.cellModels[startingIndex + 2]
+            reIndexingRows(rowDataModel: rowDataModelForIndexing)
             self.tableDataModel.filterRowsIfNeeded()
         }
     }
