@@ -11,8 +11,7 @@ import JoyfillModel
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
-    @Published var currentPageOrder: [String] = []
-    var mutableFiles: [File] = []
+    @Published var currentPageOrder: [String] = [] 
     
     public var mode: Mode
     public var showPageNavigationView: Bool
@@ -48,12 +47,8 @@ public class DocumentEditor: ObservableObject {
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
-        
-        self.mutableFiles = document.files
-        // currentPageOrder from the primary file’s pageOrder:
-        if let firstFile = mutableFiles.first {
-            self.currentPageOrder = firstFile.pageOrder ?? []
-        }
+         
+        self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
     public func updateFieldMap() {
@@ -381,6 +376,38 @@ extension DocumentEditor {
         pageFieldModels[newPageID] = PageModel(id: newPageID, fields: fieldListModels)
     }
     
+    fileprivate func addFieldAndFieldPositionForWeb(_ originalPage: Page, _ fieldMapping: inout [String : String], _ newFields: inout [JoyDocField], _ newFieldPositions: inout [FieldPosition], _ newPageID: String) {
+        for var fieldPos in originalPage.fieldPositions ?? [] {
+            guard let origFieldID = fieldPos.field else { continue }
+            if let origField = field(fieldID: origFieldID) {
+                var duplicateField = origField
+                let newFieldID = generateObjectId()
+                fieldMapping[origFieldID] = newFieldID
+                
+                duplicateField.id = newFieldID
+                newFields.append(duplicateField)
+                fieldPos.field = newFieldID
+                newFieldPositions.append(fieldPos)
+            }
+        }
+        // apply conditional logic here
+        for i in 0..<newFields.count {
+            if var logic = newFields[i].logic, var conditions = logic.conditions {
+                for j in conditions.indices {
+                    if let origPageID = originalPage.id, conditions[j].page == origPageID {
+                        conditions[j].page = newPageID
+                    }
+                    if let origFieldRef = conditions[j].field,
+                       let newFieldRef = fieldMapping[origFieldRef] {
+                        conditions[j].field = newFieldRef
+                    }
+                }
+                logic.conditions = conditions
+                newFields[i].logic = logic
+            }
+        }
+    }
+    
     public func duplicatePage(pageID: String) {
         guard var firstFile = document.files.first else {
             print("No file found in document.")
@@ -401,38 +428,7 @@ extension DocumentEditor {
         var newFields: [JoyDocField] = []
         var newFieldPositions: [FieldPosition] = []
         
-        for var fieldPos in originalPage.fieldPositions ?? [] {
-            guard let origFieldID = fieldPos.field else { continue }
-            if let origField = document.fields.first(where: { $0.id == origFieldID }) {
-                var duplicateField = origField
-                let newFieldID = generateObjectId()
-                fieldMapping[origFieldID] = newFieldID
-                
-                duplicateField.id = newFieldID
-                
-                newFields.append(duplicateField)
-                
-                fieldPos.field = newFieldID
-                fieldPos.id = generateObjectId()
-                newFieldPositions.append(fieldPos)
-            }
-        }
-        
-        for i in 0..<newFields.count {
-            if var logic = newFields[i].logic, var conditions = logic.conditions {
-                for j in conditions.indices {
-                    if let origPageID = originalPage.id, conditions[j].page == origPageID {
-                        conditions[j].page = newPageID
-                    }
-                    if let origFieldRef = conditions[j].field,
-                       let newFieldRef = fieldMapping[origFieldRef] {
-                        conditions[j].field = newFieldRef
-                    }
-                }
-                logic.conditions = conditions
-                newFields[i].logic = logic
-            }
-        }
+        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
         
         document.fields = newFields
         duplicatedPage.fieldPositions = newFieldPositions
@@ -452,6 +448,75 @@ extension DocumentEditor {
             self.currentPageOrder = pageOrder
         }
         
+        // duplicate views page
+        if let altViews = firstFile.views, !altViews.isEmpty {
+            var altView = altViews[0]
+            if let originalAlternatePageIndex = altView.pages?.firstIndex(where: { $0.id == pageID }) {
+                var originalAltPage = altView.pages![originalAlternatePageIndex]
+                originalAltPage.id = duplicatedPage.id
+                
+                var alternateFieldMapping: [String: String] = [:]
+                var alternateNewFields: [JoyDocField] = []
+                var alternateNewFieldPositions: [FieldPosition] = []
+                
+                for var fieldPos in originalAltPage.fieldPositions ?? [] {
+                    guard let origFieldID = fieldPos.field else { continue }
+                    if let newField = fieldMapping[origFieldID] {
+                        fieldPos.field = newField
+                    }else {
+                        if let origField = field(fieldID: origFieldID) {
+                            var duplicateField = origField
+                            let newFieldID = generateObjectId()
+                            alternateFieldMapping[origFieldID] = newFieldID
+                            
+                            duplicateField.id = newFieldID
+                            alternateNewFields.append(duplicateField)
+                            fieldPos.field = newFieldID
+                        }
+                    }
+                    alternateNewFieldPositions.append(fieldPos)
+                }
+                // apply conditional logic here
+                for i in 0..<alternateNewFields.count {
+                    if var logic = alternateNewFields[i].logic, var conditions = logic.conditions {
+                        for j in conditions.indices {
+                            if let origPageID = originalAltPage.id, conditions[j].page == origPageID {
+                                conditions[j].page = newPageID
+                            }
+                            if let origFieldRef = conditions[j].field,
+                               let newFieldRef = alternateFieldMapping[origFieldRef] {
+                                conditions[j].field = newFieldRef
+                            }
+                        }
+                        logic.conditions = conditions
+                        alternateNewFields[i].logic = logic
+                    }
+                }
+                
+                originalAltPage.fieldPositions = alternateNewFieldPositions
+                newFields.append(contentsOf: alternateNewFields)
+                document.fields = newFields
+                if altView.pages == nil {
+                    altView.pages = [originalAltPage]
+                } else {
+                    altView.pages!.append(originalAltPage)
+                }
+                
+                if var altPageOrder = altView.pageOrder {
+                    if let idx = altPageOrder.firstIndex(of: pageID) {
+                        altPageOrder.insert(newPageID, at: idx + 1)
+                    } else {
+                        altPageOrder.append(newPageID)
+                    }
+                    altView.pageOrder = altPageOrder
+                } else {
+                    altView.pageOrder = [newPageID]
+                }
+                // Save the updated alternate view back into the file.
+                firstFile.views![0] = altView
+            }
+        }
+        
         var files = document.files
         if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
             files[fileIndex] = firstFile
@@ -459,13 +524,18 @@ extension DocumentEditor {
         document.files = files
         updateFieldMap()
         updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        if let views = document.files[0].views, !views.isEmpty {
+            if let page = views[0].pages?.first(where: { $0.id == newPageID }) {
+                updatePageFieldModels(page, newPageID, firstFile.id ?? "")
+            }
+        }
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         
-//        if let views = document.files[0].views, !views.isEmpty {
-//            onChangeDuplicatePage(view: views[0].id ?? "", page: duplicatedPage,fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!)
-//        }else {
-//            onChangeDuplicatePage(view: "", page: duplicatedPage, fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!)
-//        }
+        if let views = document.files[0].views, !views.isEmpty {
+            onChangeDuplicatePage(view: views[0], viewId: views[0].id ?? "", page: duplicatedPage,fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!, newFields: newFields, viewPage: (document.files[0].views?[0].pages?.first(where: { $0.id == newPageID }))!)
+        }else {
+            onChangeDuplicatePage(viewId: "", page: duplicatedPage, fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!, newFields: newFields)
+        }
     }
 }
