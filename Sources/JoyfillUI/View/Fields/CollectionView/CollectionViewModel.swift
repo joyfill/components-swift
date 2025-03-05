@@ -635,16 +635,6 @@ class CollectionViewModel: ObservableObject {
         moveNestedDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
     
-    fileprivate func updateRow(valueElement: ValueElement, at index: Int) {
-        if tableDataModel.rowOrder.count > (index - 1) {
-            tableDataModel.rowOrder.insert(valueElement.id!, at: index)
-        } else {
-            tableDataModel.rowOrder.append(valueElement.id!)
-        }
-        addCellModel(rowID: valueElement.id!, index: index, valueElement: valueElement)
-        tableDataModel.filterRowsIfNeeded()
-    }
-    
     fileprivate func deleteRow(at index: Int, rowID: String, isNested: Bool) {
         if !isNested {
             tableDataModel.rowOrder.remove(at: index)
