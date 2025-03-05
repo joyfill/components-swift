@@ -38,8 +38,11 @@ public class DocumentEditor: ObservableObject {
         self.events = events
         updateFieldMap()
         updateFieldPositionMap()
+         
+        guard let firstFile = files.first, let fileID = firstFile.id else {
+            return
+        }
         
-        let fileID = files[0].id!
         for page in document.pagesForCurrentView {
             guard let pageID = page.id else { return }
             updatePageFieldModels(page, pageID, fileID)
