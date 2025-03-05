@@ -390,7 +390,7 @@ struct CollectionColumnHeaderView: View {
     let isHeaderNested: Bool
     
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
+        HStack(alignment: .top, spacing: 1) {
             ForEach(Array(tableColumns.enumerated()), id: \.offset) { index, column in
                 Button(action: {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
@@ -419,7 +419,6 @@ struct CollectionColumnHeaderView: View {
                                                      text: longestBlockText))
                     .frame(minHeight: 60)
                     .overlay(
-                        //TODO: Fix blue border(when select a column for search)
                         Rectangle()
                             .stroke(currentSelectedCol != index || isHeaderNested ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
                     )
@@ -445,6 +444,7 @@ struct CollectionColumnHeaderView: View {
                 )
             }
         }
+        .padding(.vertical, 1)
     }
 }
 
