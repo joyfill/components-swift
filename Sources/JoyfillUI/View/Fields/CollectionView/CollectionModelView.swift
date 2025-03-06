@@ -88,12 +88,6 @@ struct CollectionModalView : View {
                 }
             }
         }
-        .onChange(of: viewModel.tableDataModel.rowOrder) { _ in
-            if viewModel.tableDataModel.rowOrder.isEmpty {
-                currentSelectedCol = Int.min
-                viewModel.tableDataModel.emptySelection()
-            }
-        }
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(
                 title: Text("Reset Selection"),
@@ -221,7 +215,7 @@ struct CollectionModalView : View {
             if viewModel.showRowSelector  {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
                     .frame(width: 40, height: textHeight)
-                    .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
+                    .foregroundColor(viewModel.tableDataModel.cellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
                         if !viewModel.tableDataModel.allRowSelected {
                             viewModel.tableDataModel.selectAllRows()
@@ -229,7 +223,7 @@ struct CollectionModalView : View {
                             viewModel.tableDataModel.emptySelection()
                         }
                     }
-                    .disabled(viewModel.tableDataModel.rowOrder.count == 0)
+                    .disabled(viewModel.tableDataModel.cellModels.count == 0)
                     .accessibilityIdentifier("SelectAllRowSelectorButton")
             }
             
@@ -427,7 +421,7 @@ struct CollectionColumnHeaderView: View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.rowOrder.count == 0 || isHeaderNested)
+                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.cellModels.count == 0 || isHeaderNested)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in

@@ -18,13 +18,13 @@ struct CollectionQuickView : View {
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
     @State private var refreshID = UUID()
-
+    
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
         self.viewModel = CollectionViewModel(tableDataModel: tableDataModel)
         self.tableDataModel = tableDataModel
         self.eventHandler = eventHandler
     }
-        
+    
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(tableDataModel.fieldHeaderModel)
@@ -43,8 +43,8 @@ struct CollectionQuickView : View {
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
                 .frame(maxHeight:
-                        (CGFloat((viewModel.tableDataModel.rowOrder.isEmpty ? 2:  viewModel.tableDataModel.rowOrder.count)) * rowHeight + rowHeight)
-                       )
+                        (CGFloat((viewModel.tableDataModel.cellModels.isEmpty ? 2:  viewModel.tableDataModel.cellModels.count)) * rowHeight + rowHeight)
+                )
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -109,28 +109,26 @@ struct CollectionQuickView : View {
     
     var collection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            let rows = (viewModel.tableDataModel.rowOrder.prefix(3).count != 0) ? viewModel.tableDataModel.rowOrder.prefix(3) : ["Dummy-rowID"]
-            ForEach(rows, id: \.self) { row in
+            let rowsDataModels = viewModel.getThreeRowsForQuickView()
+            ForEach(rowsDataModels, id: \.self) { rowDataModel in
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
-                        // Cell
-                        let cell = viewModel.tableDataModel.getQuickFieldTableColumn(row: row, col: index)
-                        if let cell = cell {
-                            let cellModel = TableCellModel(rowID: row,
-                                                           data: cell,
-                                                           documentEditor: viewModel.tableDataModel.documentEditor,
-                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                           viewMode: .quickView,
-                                                           editMode: viewModel.tableDataModel.mode,
-                                                           didChange: nil)
-                            ZStack {
-                                Rectangle()
-                                    .stroke()
-                                    .foregroundColor(Color.tableCellBorderColor)
-                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
-                            }
-                            .frame(width: (screenWidth / 3) - 8, height: rowHeight)
+                        let cell = rowDataModel.cells[index]
+                        
+                        let cellModel = TableCellModel(rowID: cell.rowID,
+                                                       data: cell.data,
+                                                       documentEditor: viewModel.tableDataModel.documentEditor,
+                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                       viewMode: .quickView,
+                                                       editMode: viewModel.tableDataModel.mode,
+                                                       didChange: nil)
+                        ZStack {
+                            Rectangle()
+                                .stroke()
+                                .foregroundColor(Color.tableCellBorderColor)
+                            CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
                         }
+                        .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                     }
                 }
             }

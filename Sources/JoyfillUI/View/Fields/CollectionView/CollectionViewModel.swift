@@ -39,6 +39,10 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    func getThreeRowsForQuickView() -> [RowDataModel] {
+        return Array(tableDataModel.cellModels.filter { $0.rowType.isRow }.prefix(3))
+    }
+    
     func getTableColumnsForSelectedRows() -> [FieldTableColumn] {
         guard !tableDataModel.selectedRows.isEmpty else { return [] }
         
@@ -148,7 +152,8 @@ class CollectionViewModel: ObservableObject {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
         let rowToChildrenMap = setupRowsChildrens()
-        tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
+        tableDataModel.valueToValueElements?.forEach { valueElement in
+            let rowID = valueElement.id!
             var rowCellModels = [TableCellModel]()
             let childrens = rowToChildrenMap[rowID] ?? [:]
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
@@ -177,10 +182,9 @@ class CollectionViewModel: ObservableObject {
         }
 
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
         let tableColumns = tableDataModel.tableColumns
         var rowToCellMap = [String: [CellDataModel]]()
-        for row in sortedRows {
+        for row in nonDeletedRows {
             let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
             rowToCellMap[row.id!] = cellRowModel
         }
@@ -193,9 +197,8 @@ class CollectionViewModel: ObservableObject {
         }
 
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
         var rowToChildrenMap = [String: [String : Children]]()
-        for row in sortedRows {
+        for row in nonDeletedRows {
             rowToChildrenMap[row.id!] = row.childrens
         }
         return rowToChildrenMap
@@ -439,12 +442,12 @@ class CollectionViewModel: ObservableObject {
                                    rowType: .nestedRow(level: level,index: rowDataModel.rowType.index + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey))
             } else {
                 //update row order
-                let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
-                if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
-                    tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
-                } else {
-                    tableDataModel.rowOrder.append(valueElement.id!)
-                }
+//                let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
+//                if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
+//                    tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
+//                } else {
+//                    tableDataModel.rowOrder.append(valueElement.id!)
+//                }
                 
                 addNestedCellModel(rowID: valueElement.id ?? "",
                                    index: atIndex,
@@ -527,13 +530,13 @@ class CollectionViewModel: ObservableObject {
         let cellValues = getCellValues()
         guard let result = tableDataModel.documentEditor?.insertBelowNestedRow(selectedRowID: tableDataModel.selectedRows[0], cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, childrenKeys: tableDataModel.schema[rootSchemaKey]?.children) else { return }
         //update row order
-        let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
+//        let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
         let valueElement = result.inserted
-        if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
-            tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
-        } else {
-            tableDataModel.rowOrder.append(valueElement.id!)
-        }
+//        if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
+//            tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
+//        } else {
+//            tableDataModel.rowOrder.append(valueElement.id!)
+//        }
         //updateCellModels
         guard let selecteRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
             return
@@ -603,8 +606,8 @@ class CollectionViewModel: ObservableObject {
             rowDataModel.rowID == tableDataModel.selectedRows.first!
         })!
         //update Row order
-        let rowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-        tableDataModel.rowOrder.swapAt(rowOrderIndex, rowOrderIndex-1)
+//        let rowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+//        tableDataModel.rowOrder.swapAt(rowOrderIndex, rowOrderIndex-1)
         moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!, isNested: false)
     }
     
@@ -637,8 +640,8 @@ class CollectionViewModel: ObservableObject {
         let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { rowDataModel in
             rowDataModel.rowID == tableDataModel.selectedRows.first!
         })!
-        let rowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-        tableDataModel.rowOrder.swapAt(rowOrderIndex, rowOrderIndex+1)
+//        let rowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
+//        tableDataModel.rowOrder.swapAt(rowOrderIndex, rowOrderIndex+1)
         moveNestedDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
     }
     
@@ -650,9 +653,9 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func deleteRow(at index: Int, rowID: String, isNested: Bool) {
-        if !isNested {
-            tableDataModel.rowOrder.remove(at: index)
-        }
+//        if !isNested {
+//            tableDataModel.rowOrder.remove(at: index)
+//        }
         let currentRow = tableDataModel.cellModels[index]
         if currentRow.isExpanded {
             collapseTables(index, currentRow, currentRow.rowType.level)
@@ -760,11 +763,11 @@ class CollectionViewModel: ObservableObject {
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, schemaKey: rootSchemaKey, childrenKeys: tableDataModel.schema[rootSchemaKey]?.children) {
             let index = tableDataModel.cellModels.count
             let valueElement = rowData.inserted
-            if tableDataModel.rowOrder.count > (index - 1) {
-                tableDataModel.rowOrder.insert(valueElement.id!, at: index)
-            } else {
-                tableDataModel.rowOrder.append(valueElement.id!)
-            }
+//            if tableDataModel.rowOrder.count > (index - 1) {
+//                tableDataModel.rowOrder.insert(valueElement.id!, at: index)
+//            } else {
+//                tableDataModel.rowOrder.append(valueElement.id!)
+//            }
             
             
             let rowIndex = tableDataModel.cellModels.filter({$0.rowType.isRow}).count + 1
@@ -858,11 +861,8 @@ class CollectionViewModel: ObservableObject {
     }
 
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> [ValueElement] {
-        if isNestedCell {
-            tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
-        } else {
-            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
-        }
+        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+        
         return tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
     }
 
@@ -874,7 +874,7 @@ class CollectionViewModel: ObservableObject {
         }
         tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         for rowId in tableDataModel.selectedRows {
-            let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
+            let rowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
@@ -897,7 +897,7 @@ class CollectionViewModel: ObservableObject {
                     break
                 }
                 
-                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
+                tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
             }
         }
         tableDataModel.filterRowsIfNeeded()

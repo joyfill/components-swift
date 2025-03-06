@@ -469,11 +469,13 @@ struct TableDataModel {
     }
 
     var lastRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.last! == rowOrder.last!
+        let cellModels = self.cellModels.filter({ $0.rowType.isRow })
+        return !selectedRows.isEmpty && selectedRows.last! == cellModels.last?.rowID
     }
     
     var firstRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.first! == rowOrder.first!
+        let cellModels = self.cellModels.filter({ $0.rowType.isRow })
+        return !selectedRows.isEmpty && selectedRows.first! == cellModels.first?.rowID
     }
     
     var firstNestedRowSelected: Bool {
