@@ -554,6 +554,11 @@ struct TableDataModel {
         dummyCell?.selectedOptionText = selectedOptionText
         return dummyCell
     }
+    
+    func getDummyNestedCell(col: Int, selectedOptionText: String = "", rowID: String) -> CellDataModel? {
+        let selectedRow = cellModels.first(where: { $0.rowID == rowID })
+        return selectedRow?.cells[col].data
+    }
 
     func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
         let rowIndex = filteredcellModels.firstIndex(where: { rowDataModel in

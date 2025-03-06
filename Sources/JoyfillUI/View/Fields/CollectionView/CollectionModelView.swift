@@ -58,7 +58,7 @@ struct CollectionModalView : View {
                 viewModel: viewModel,
                 onEditTap: { showEditMultipleRowsSheetView = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                CollectionEditMultipleRowsSheetView(viewModel: viewModel)
+                CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {

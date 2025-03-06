@@ -39,6 +39,20 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    func getTableColumnsForSelectedRows() -> [FieldTableColumn] {
+        guard !tableDataModel.selectedRows.isEmpty else { return [] }
+        
+        let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} ) ?? 0
+        
+        let tableColumns = getTableColumnsByIndex(indexOfFirstSelectedRow)
+        if tableColumns.count > 0 {
+            return tableColumns
+        } else {
+            return tableDataModel.tableColumns
+        }
+        
+    }
+    
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
         return Utility.getWidthForExpanderRow(columns: tableColumns) + Utility.getTotalTableScrollWidth(level: level)
     }
