@@ -17,12 +17,12 @@ struct ImageView: View {
     
     private let imageDataModel: ImageDataModel
     let eventHandler: FieldChangeEvents
-
+    
     public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
         self.imageDataModel = imageDataModel
     }
-        
+    
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(imageDataModel.fieldHeaderModel)
@@ -102,8 +102,8 @@ struct ImageView: View {
                            , isActive: $showMoreImages) {
                 EmptyView()
             }
-            .frame(width: 0, height: 0)
-            .hidden()
+                           .frame(width: 0, height: 0)
+                           .hidden()
         }
         .onAppear {
             if !hasAppeared {
@@ -131,7 +131,7 @@ struct ImageView: View {
             })
         }
     }
-
+    
     func uploadAction() {
         let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier) { urls in
             for imageURL in urls {
@@ -169,12 +169,24 @@ struct MoreImageView: View {
     
     var uploadAction: () -> Void
     var isUploadHidden: Bool
-
+    
     var body: some View {
         VStack(alignment: .leading) {
-            Text("More Images")
-                .fontWeight(.bold)
-
+            HStack {
+                Text("More Images")
+                    .fontWeight(.bold)
+                Spacer()
+                if #available(iOS 16, *) {  }
+                else {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Image(systemName: "xmark.circle")
+                            .imageScale(.large)
+                    })
+                }
+            }
+            
             if !isUploadHidden {
                 UploadDeleteView(imagesArray: $images, selectedImagesIndex: $selectedImagesIndex,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
             }
@@ -204,11 +216,11 @@ struct MoreImageView: View {
         .overlay(content: {
             if showToast {
                 VStack {
-                       Spacer()
-                       ToastMessageView(message: "Image is already uploaded", duration: 2.0, isPresented: $showToast)
-                           .padding(.top, 50)
-                           .opacity(showToast ? 1.0 : 0.0)
-                   }
+                    Spacer()
+                    ToastMessageView(message: "Image is already uploaded", duration: 2.0, isPresented: $showToast)
+                        .padding(.top, 50)
+                        .opacity(showToast ? 1.0 : 0.0)
+                }
             }
         })
         .onChange(of: valueElements) { newValue in
@@ -242,7 +254,7 @@ struct MoreImageView: View {
             self.images.append(image)
         })
     }
-
+    
     func deleteSelectedImages() {
         let sortedDescending = selectedImagesIndex.sorted(by: >)
         for index in sortedDescending {
@@ -340,23 +352,18 @@ struct ImageGridView:View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
-                        .overlay(content: {
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        }
+                        .overlay(alignment: .topTrailing) {
                             if !primaryDisplayOnly {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                    .background(
-                                        Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
-                                            .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .white)
-                                            .offset(
-                                                x: 60,
-                                                y: -60
-                                            )
-                                    )
-                            } else {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
+                                    .padding(.top, 12)
+                                    .padding(.trailing, 12)
                             }
-                        })
+                        }
                         .onTapGesture {
                             handleImageSelection(image)
                         }
@@ -417,7 +424,7 @@ struct ToastMessageView: View {
     let message: String
     let duration: TimeInterval
     @Binding var isPresented: Bool
-
+    
     var body: some View {
         VStack {
             Text(message)

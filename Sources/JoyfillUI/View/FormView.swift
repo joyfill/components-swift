@@ -102,6 +102,7 @@ struct PageView: View {
 enum FieldListModelType {
     case text(TextDataModel)
     case table(TableDataModel)
+    case collection(TableDataModel)
     case chart(ChartDataModel)
     case date(DateTimeDataModel)
     case block(DisplayTextDataModel)
@@ -157,6 +158,8 @@ struct FormView: View {
                 .disabled(listModel.fieldEditMode == .readonly)
         case .table(let model):
             TableQuickView(tableDataModel: model, eventHandler: self)
+        case .collection(let model):
+            CollectionQuickView(tableDataModel: model, eventHandler: self)
         case .image(let model):
             ImageView(imageDataModel: model, eventHandler: self)
         case .none:
@@ -174,7 +177,6 @@ struct FormView: View {
         }
         .listStyle(PlainListStyle())
         .modifier(KeyboardDismissModifier())
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
             guard lastFocusedFielsID != newValue else { return }

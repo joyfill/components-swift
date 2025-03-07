@@ -31,7 +31,7 @@ class TableViewModel: ObservableObject {
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
-        var rowCellModels = [TableCellModel]()        
+        var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
@@ -43,14 +43,14 @@ class TableViewModel: ObservableObject {
                     let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     })!
-                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                 }
                 rowCellModels.append(cellModel)
             }
         if self.tableDataModel.cellModels.count > (index - 1) {
-            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels), at: index)
+            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: index)), at: index)
         } else {
-            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
+            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: self.tableDataModel.cellModels.count)))
         }
     }
     
@@ -92,12 +92,12 @@ class TableViewModel: ObservableObject {
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels))
+            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count)))
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
@@ -243,10 +243,14 @@ class TableViewModel: ObservableObject {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel) {
-        tableDataModel.documentEditor?.cellDidChange(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID)
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> [ValueElement] {
+        if isNestedCell {
+            tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+        } else {
+            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+        }
         
-        tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {

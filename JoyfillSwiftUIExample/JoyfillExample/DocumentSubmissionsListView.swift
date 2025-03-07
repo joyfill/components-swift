@@ -13,41 +13,57 @@ struct DocumentSubmissionsListView: View {
     @State var documents: [Document] = []
     @State var document: JoyDoc?
     @State private var showDocumentDetails = false
-    @State private var isloading = false
+    @State private var isloading = true
     @State private var showCameraScannerView = false
     @State private var scanResults: String = ""
     @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
-
+    @State var fetchSubmissions = true
+    @State var identifier: String
+    @State private var currentDocumentPage: Int = 1
+    @State private var isLoadingMoreDocuments: Bool = false
+    @State private var hasMoreDocuments: Bool = true
+    
     let title: String
     private let apiService: APIService
-
-    init(apiService: APIService, documents: [Document], title: String) {
+    
+    init(apiService: APIService, identifier: String, title: String) {
         self.apiService = apiService
-        self.documents = documents
         self.title = title
+        self.identifier = identifier
     }
-
+    
     var body: some View {
         if isloading {
             ProgressView()
+                .onAppear {
+                    if fetchSubmissions {
+                        fetchData()
+                    }
+                }
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
                     NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
                 }
-                Text("Document List")
-                    .padding()
-                    .font(.title.bold())
-                List(documents) { submission in
-                    Button(action: {
-                        fetchDocument(submission)
-//                        fetchLocalDocument()
-                    }) {
-                        HStack {
-                            Image(systemName: "doc")
-                            Text(submission.name)
+                List {
+                    Section(header: Text("Documents")
+                        .font(.title.bold())) {
+                            ForEach(documents) { submission in
+                                Button(action: {
+                                    fetchDocument(submission)
+                                }) {
+                                    HStack {
+                                        Image(systemName: "doc")
+                                        Text(submission.name)
+                                    }
+                                }
+                                .onAppear {
+                                    if submission == documents.last && documents.count >= 20 {
+                                        loadMoreDocuments()
+                                    }
+                                }
+                            }
                         }
-                    }
                 }
             }
             .navigationTitle(title)
@@ -63,28 +79,37 @@ struct DocumentSubmissionsListView: View {
                 } else {
                     // Fallback on earlier versions
                 }
+                
+                if isLoadingMoreDocuments {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .padding()
+                }
             }
         }
     }
-
+    
     private var pageID: String {
         return ""
     }
-
+    
     private var changeManager: ChangeManager {
         ChangeManager(apiService: apiService, showImagePicker: showImagePicker, showScan: showScan)
     }
-
+    
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
         uploadHandler(["https://example.com/sample-image"])
     }
-
+    
     private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
         currentCaptureHandler = captureHandler
         showCameraScannerView = true
         presentCameraScannerView()
     }
-
+    
     private func fetchLocalDocument() {
         isloading = true
         DispatchQueue.global().async {
@@ -95,7 +120,7 @@ struct DocumentSubmissionsListView: View {
             }
         }
     }
-
+    
     private func fetchDocument(_ submission: Document) {
         isloading = true
         apiService.fetchJoyDoc(identifier: submission.identifier) { result in
@@ -117,7 +142,7 @@ struct DocumentSubmissionsListView: View {
             }
         }
     }
-
+    
     func presentCameraScannerView() {
         guard let topVC = UIViewController.topViewController() else {
             print("No top view controller found.")
@@ -125,25 +150,68 @@ struct DocumentSubmissionsListView: View {
         }
         let hostingController: UIHostingController<AnyView>
         if #available(iOS 16.0, *) {
-                let swiftUIView = CameraScanner(
-                    startScanning: $showCameraScannerView,
-                    scanResult: $scanResults,
-                    onSave: { result in
-                        if let currentCaptureHandler = currentCaptureHandler {
-                            currentCaptureHandler(.string(result))
-                        }
+            let swiftUIView = CameraScanner(
+                startScanning: $showCameraScannerView,
+                scanResult: $scanResults,
+                onSave: { result in
+                    if let currentCaptureHandler = currentCaptureHandler {
+                        currentCaptureHandler(.string(result))
                     }
-                )
-                hostingController = UIHostingController(rootView: AnyView(swiftUIView))
-            } else {
-                // Fallback on earlier versions
-                let fallbackView = Text("Camera scanner is not available on this version.")
-                    .padding()
-                    .multilineTextAlignment(.center)
-                hostingController = UIHostingController(rootView: AnyView(fallbackView))
-            }
-
+                }
+            )
+            hostingController = UIHostingController(rootView: AnyView(swiftUIView))
+        } else {
+            // Fallback on earlier versions
+            let fallbackView = Text("Camera scanner is not available on this version.")
+                .padding()
+                .multilineTextAlignment(.center)
+            hostingController = UIHostingController(rootView: AnyView(fallbackView))
+        }
+        
         topVC.present(hostingController, animated: true, completion: nil)
+    }
+    
+    private func fetchDocuments(identifier: String, completion: @escaping (() -> Void)) {
+        apiService.fetchDocuments(identifier: identifier, page: 1, limit: 20) { result in
+            DispatchQueue.main.async {
+                self.fetchSubmissions = false
+                self.isloading = false
+                switch result {
+                case .success(let documents):
+                    self.documents = documents
+                    completion()
+                case .failure(let error):
+                    print("Error fetching documents: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func fetchData() {
+        fetchDocuments(identifier: identifier){}
+    }
+    
+    private func loadMoreDocuments() {
+        guard !isLoadingMoreDocuments, hasMoreDocuments else { return }
+        isLoadingMoreDocuments = true
+        let nextPage = currentDocumentPage + 1
+        
+        apiService.fetchDocuments(identifier: identifier, page: nextPage, limit: 20) { result in
+            DispatchQueue.main.async {
+                isLoadingMoreDocuments = false
+                switch result {
+                case .success(let newDocuments):
+                    if newDocuments.isEmpty {
+                        hasMoreDocuments = false
+                    } else {
+                        documents.append(contentsOf: newDocuments)
+                        currentDocumentPage = nextPage
+                    }
+                case .failure(let error):
+                    print("Error loading more templates: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 }
 

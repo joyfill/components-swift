@@ -1,8 +1,15 @@
+//
+//  File.swift
+//  Joyfill
+//
+//  Created by Vivek on 14/02/25.
+//
+
 import SwiftUI
 import JoyfillModel
 
-struct TableModalTopNavigationView: View {
-    @ObservedObject var viewModel: TableViewModel
+struct CollectionModalTopNavigationView: View {
+    @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
     
     @State private var showingPopover = false
@@ -127,6 +134,7 @@ struct TableModalTopNavigationView: View {
                                         .frame(height: 27)
                                 }
                                 .padding(.horizontal, 16)
+                                .padding(.top, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
 
                                 Button(action: {
@@ -140,6 +148,7 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
                                 .padding(.horizontal, 16)
+                                .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveUpRowIdentifier")
 
                                 Button(action: {
@@ -153,6 +162,7 @@ struct TableModalTopNavigationView: View {
                                 }
                                 .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
                                 .padding(.horizontal, 16)
+                                .padding(.top, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
                             }
@@ -166,6 +176,7 @@ struct TableModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
+                            .padding(.top, 16)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
 
                             Button(action: {
@@ -190,10 +201,10 @@ struct TableModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
                             .accessibilityIdentifier("TableDuplicateRowIdentifier")
                             Spacer()
                         }
-                        .padding(.top, 12)
                     }
                 }
             }
@@ -219,13 +230,15 @@ struct TableModalTopNavigationView: View {
     }
 }
 
-struct EditMultipleRowsSheetView: View {
-    let viewModel: TableViewModel
+struct CollectionEditMultipleRowsSheetView: View {
+    let viewModel: CollectionViewModel
+    let tableColumns: [FieldTableColumn]
     @Environment(\.presentationMode)  var presentationMode
     @State var changes = [Int: ValueUnion]()
 
-    init(viewModel: TableViewModel) {
+    init(viewModel: CollectionViewModel, tableColumns: [FieldTableColumn]) {
         self.viewModel =  viewModel
+        self.tableColumns = tableColumns
     }
 
     var body: some View {
@@ -275,9 +288,9 @@ struct EditMultipleRowsSheetView: View {
                     })
                 }
 
-                ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
+                ForEach(Array(tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let row = viewModel.tableDataModel.selectedRows.first!
-                    let cell = viewModel.tableDataModel.getDummyCell(col: colIndex)!
+                    let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, rowID: row)!
                     var cellModel = TableCellModel(rowID: row,
                                                    data: cell,
                                                    documentEditor: viewModel.tableDataModel.documentEditor,
@@ -302,10 +315,10 @@ struct EditMultipleRowsSheetView: View {
                             break
                         }
                     }
-                    switch cellModel.data.type {
+                    switch col.type {
                     case .text:
                         var str = ""
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                        Text(col.title)
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         let binding = Binding<String>(
@@ -314,7 +327,7 @@ struct EditMultipleRowsSheetView: View {
                             },
                             set: { newValue in
                                 str = newValue
-                                self.changes[colIndex] = ValueUnion.string(newValue) 
+                                self.changes[colIndex] = ValueUnion.string(newValue)
                             }
                         )
                         TextField("", text: binding)
@@ -328,7 +341,7 @@ struct EditMultipleRowsSheetView: View {
                             )
                             .cornerRadius(10)
                     case .dropdown:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                        Text(col.title)
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -339,7 +352,7 @@ struct EditMultipleRowsSheetView: View {
                             .cornerRadius(10)
                             .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                     case .date:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                        Text(col.title)
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -351,7 +364,7 @@ struct EditMultipleRowsSheetView: View {
                             .cornerRadius(10)
                             .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                     case .number:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                        Text(col.title)
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -364,7 +377,7 @@ struct EditMultipleRowsSheetView: View {
                             .cornerRadius(10)
                             .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                     case .multiSelect:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                        Text(col.title)
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
@@ -376,7 +389,7 @@ struct EditMultipleRowsSheetView: View {
                             .cornerRadius(10)
                             .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                     case .barcode:
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                        Text(col.title)
                             .font(.headline.bold())
                             .padding(.bottom, -8)
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -386,7 +399,6 @@ struct EditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                            .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
                     default:
                         Text("")
                     }
@@ -397,3 +409,4 @@ struct EditMultipleRowsSheetView: View {
         }
     }
 }
+
