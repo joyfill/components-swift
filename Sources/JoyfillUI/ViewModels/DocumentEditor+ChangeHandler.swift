@@ -375,7 +375,10 @@ extension DocumentEditor {
     public func insertBelowNestedRow(selectedRowID: String,
                                      cellValues: [String: ValueUnion],
                                      fieldIdentifier: FieldIdentifier,
-                                     childrenKeys: [String]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
+                                     childrenKeys: [String]? = nil,
+                                     rootSchemaKey: String,
+                                     nestedKey: String,
+                                     parentRowId: String) -> (all: [ValueElement], inserted: ValueElement)? {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return nil
@@ -403,8 +406,12 @@ extension DocumentEditor {
 
             let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
                                               updateValue: ValueUnion.valueElementArray(elements))
-            addRowOnChange(event: changeEvent,
-                           targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)])
+            var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+            addNestedRowOnChange(event: changeEvent,
+                                 targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)],
+                                 valueElements: [newRow],
+                                 parentPath: parentPath,
+                                 schemaKey: nestedKey)
             return (elements, insertedRow)
         }
 
