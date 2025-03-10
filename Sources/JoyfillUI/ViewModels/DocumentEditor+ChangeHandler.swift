@@ -221,47 +221,49 @@ extension DocumentEditor {
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
     
-    public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+    public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
+        var parentPath: String = ""
+        var targetRows: [TargetRowModel] = []
         
         if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
             guard topIndex != 0 else { return [] }
             elements.swapAt(topIndex, topIndex - 1)
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-            let targetRows = [TargetRowModel(id: rowID, index: topIndex - 1)]
-            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-            moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-            return elements
+            targetRows = [TargetRowModel(id: rowID, index: topIndex - 1)]
+        } else if let (success, newIndex) = moveRowUpRecursively(rowID: rowID, in: &elements) {
+            if success {
+                fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+                targetRows = [TargetRowModel(id: rowID, index: newIndex)]
+            }
         }
-        
-        if moveRowUpRecursively(rowID: rowID, in: &elements) {
-            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-        }
+        parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        moveNestedRowOnChange(event: changeEvent, targetRowIndexes: targetRows, parentPath: parentPath, schemaId: nestedKey)
         return elements
     }
 
-    private func moveRowUpRecursively(rowID: String, in elements: inout [ValueElement]) -> Bool {
+    private func moveRowUpRecursively(rowID: String, in elements: inout [ValueElement]) -> (Bool, Int)? {
         for i in 0..<elements.count {
             if elements[i].id == rowID {
                 elements.swapAt(i, i - 1)
-                return true
+                return (true, i - 1)
             }
             // Not found at this level; search recursively in nested children.
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if moveRowUpRecursively(rowID: rowID, in: &nestedElements) {
+                        if let result = moveRowUpRecursively(rowID: rowID, in: &nestedElements) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return true
+                            return result
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
 
     /// Moves a specified row down in a table field.
@@ -816,6 +818,33 @@ extension DocumentEditor {
                                 fieldIdentifier: field.identifier!,
                                 fieldPositionId: fieldPosition.id!,
                                 change: [
+                                    "rowId": targetRow.id,
+                                    "targetRowIndex": targetRow.index,
+                                ],
+                                createdOn: Date().timeIntervalSince1970)
+            changes.append(change)
+        }
+        events?.onChange(changes: changes, document: document)
+    }
+    
+    private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {
+        var changes = [Change]()
+        let field = field(fieldID: event.fieldIdentifier.fieldID)!
+        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        for targetRow in targetRowIndexes {
+            var change = Change(v: 1,
+                                sdk: "swift",
+                                target: "field.value.rowMove",
+                                _id: documentID!,
+                                identifier: documentIdentifier,
+                                fileId: event.fieldIdentifier.fileID!,
+                                pageId: event.fieldIdentifier.pageID!,
+                                fieldId: event.fieldIdentifier.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
+                                change: [
+                                    "parentPath": parentPath,
+                                    "schemaId": schemaId,
                                     "rowId": targetRow.id,
                                     "targetRowIndex": targetRow.index,
                                 ],

@@ -608,29 +608,22 @@ class CollectionViewModel: ObservableObject {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            moveRowUp()
-        case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
-            moveNestedUP()
+            moveNestedUP(parentRowId: "", nestedKey: rootSchemaKey)
+        case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
+            moveNestedUP(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey)
         default:
             return
         }
         reIndexingRows(rowDataModel: firstSelectedRow)
     }
     
-    func moveRowUp() {
-        tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { rowDataModel in
-            rowDataModel.rowID == tableDataModel.selectedRows.first!
-        })!
-        //update Row order
-//        let rowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-//        tableDataModel.rowOrder.swapAt(rowOrderIndex, rowOrderIndex-1)
-        moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!, isNested: false)
-    }
-    
-    func moveNestedUP() {
+    func moveNestedUP(parentRowId: String, nestedKey: String) {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
+        self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: tableDataModel.selectedRows.first!,
+                                                                                                  fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                                                  rootSchemaKey: rootSchemaKey,
+                                                                                                  nestedKey: nestedKey,
+                                                                                                  parentRowId: parentRowId)
         let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
         moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!, isNested: true)
     }
