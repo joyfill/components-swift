@@ -760,7 +760,12 @@ class CollectionViewModel: ObservableObject {
         let id = generateObjectId()
         let cellValues = getCellValues()
         
-        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, schemaKey: rootSchemaKey, childrenKeys: tableDataModel.schema[rootSchemaKey]?.children) {
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
+                                                                            cellValues: cellValues,
+                                                                            fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                            schemaKey: rootSchemaKey,
+                                                                            childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
+                                                                            rootSchemaKey: rootSchemaKey) {
             let index = tableDataModel.cellModels.count
             let valueElement = rowData.inserted
 //            if tableDataModel.rowOrder.count > (index - 1) {
@@ -787,7 +792,13 @@ class CollectionViewModel: ObservableObject {
         let tableColumns = tableDataModel.schema[schemaKey]?.tableColumns ?? []
         let cellValues = getCellValuesForNested(columns: tableColumns)
                 
-        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, parentRowId: parentID.rowID, schemaKey: schemaKey, childrenKeys: tableDataModel.schema[schemaKey]?.children) {
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
+                                                                            cellValues: cellValues,
+                                                                            fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                            parentRowId: parentID.rowID,
+                                                                            schemaKey: schemaKey,
+                                                                            childrenKeys: tableDataModel.schema[schemaKey]?.children,
+                                                                            rootSchemaKey: rootSchemaKey) {
             //Update valueToValueElements
             self.tableDataModel.valueToValueElements = rowData.all
             

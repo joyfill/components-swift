@@ -525,14 +525,37 @@ extension DocumentEditor {
         return false
     }
     
+    private func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
+        for (parentKey,elements) in child {
+            guard !elements.isEmpty else { continue }
+            for i in 0..<elements.count {
+                if elements[i].id == targetParentId {
+                    return "\(i).\(parentKey)." + "0.\(nestedKey)"
+                }
+                
+                if let children = elements[i].childrens {
+                    for (key, child) in children {
+                        if let nestedElements = child.valueToValueElements,
+                           let subPath = computeParentPath(targetParentId: targetParentId, nestedKey: nestedKey, in: [key : nestedElements]) {
+                            return "\(i).\(parentKey)." + subPath
+                        }
+                    }
+                }
+            }
+            return nil
+        }
+        return nil
+    }
+    
     public func insertRowWithFilter(id: String,
                                     cellValues: [String: ValueUnion],
                                     fieldIdentifier: FieldIdentifier,
                                     parentRowId: String? = nil,
                                     schemaKey: String? = nil,
-                                    childrenKeys: [String]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
+                                    childrenKeys: [String]? = nil,
+                                    rootSchemaKey: String) -> (all: [ValueElement], inserted: ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
-        
+        var parentPath = ""
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
             newRow.cells = [:]
@@ -556,6 +579,7 @@ extension DocumentEditor {
                 // Parent row not found—handle the error as needed.
                 return nil
             }
+            parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         } else {
             // Insert as a top-level row.
             elements.append(newRow)
@@ -567,7 +591,8 @@ extension DocumentEditor {
         
         // Fire off a change event.
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
-        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
+        
+        addNestedRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)],valueElement: newRow, parentPath: parentPath, schemaKey: schemaKey ?? "")
         
         return (elements, newRow)
     }
@@ -721,6 +746,29 @@ extension DocumentEditor {
 
         events?.onChange(changes: changes, document: document)
     }
+    
+    private func addNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], valueElement: ValueElement, parentPath: String, schemaKey: String) {
+        var changes = [Change]()
+        let field = field(fieldID: event.fieldIdentifier.fieldID)!
+        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        for targetRow in targetRowIndexes {
+            var change = Change(v: 1,
+                                sdk: "swift",
+                                target: "field.value.rowCreate",
+                                _id: documentID!,
+                                identifier: documentIdentifier,
+                                fileId: event.fieldIdentifier.fileID!,
+                                pageId: event.fieldIdentifier.pageID!,
+                                fieldId: event.fieldIdentifier.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
+                                change: addNestedRowChanges(valueElement: valueElement, targetRow: targetRow, parentPath: parentPath, schemaId: schemaKey),
+                                createdOn: Date().timeIntervalSince1970)
+            changes.append(change)
+        }
+
+        events?.onChange(changes: changes, document: document)
+    }
 
     private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String]) {
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldIdentifier.fieldID]?.value)
@@ -817,6 +865,14 @@ extension DocumentEditor {
             valueElement.id == targetRow.id
         })
         var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
+        valueDict["targetRowIndex"] = targetRow.index
+        return valueDict
+    }
+    
+    private func addNestedRowChanges(valueElement: ValueElement, targetRow: TargetRowModel, parentPath: String, schemaId: String) -> [String: Any] {
+        var valueDict: [String: Any] = ["row": valueElement.anyDictionary]
+        valueDict["parentPath"] = parentPath
+        valueDict["schemaId"] = schemaId // The ID of the associated schema.
         valueDict["targetRowIndex"] = targetRow.index
         return valueDict
     }
