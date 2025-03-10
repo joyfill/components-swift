@@ -290,48 +290,50 @@ extension DocumentEditor {
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
     
-    public func moveNestedRowDown(rowID: String, fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+    public func moveNestedRowDown(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
+        var parentPath: String = ""
+        var targetRows: [TargetRowModel] = []
         
         if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
             guard topIndex < elements.count - 1 else { return [] }
             elements.swapAt(topIndex, topIndex + 1)
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-            let targetRows = [TargetRowModel(id: rowID, index: topIndex + 1)]
-            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-            moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-            return elements
+            targetRows = [TargetRowModel(id: rowID, index: topIndex + 1)]
+        } else if let (success, newIndex) = moveRowDownRecursively(rowID: rowID, in: &elements) {
+            if success {
+                fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+                targetRows = [TargetRowModel(id: rowID, index: newIndex)]
+            }
         }
-        
-        if moveRowDownRecursively(rowID: rowID, in: &elements) {
-            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-        }
+        parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        moveNestedRowOnChange(event: changeEvent, targetRowIndexes: targetRows, parentPath: parentPath, schemaId: nestedKey)
         return elements
     }
 
-    private func moveRowDownRecursively(rowID: String, in elements: inout [ValueElement]) -> Bool {
+    private func moveRowDownRecursively(rowID: String, in elements: inout [ValueElement]) -> (Bool, Int)? {
         for i in 0..<elements.count {
             if elements[i].id == rowID {
                 // If the row is found, ensure it's not the last row in this nested array.
-                guard i < elements.count - 1 else { return false }
+                guard i < elements.count - 1 else { return nil }
                 elements.swapAt(i, i + 1)
-                return true
+                return (true, i + 1)
             }
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if moveRowDownRecursively(rowID: rowID, in: &nestedElements) {
+                        if let result = moveRowDownRecursively(rowID: rowID, in: &nestedElements) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return true
+                            return result
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
 
 
