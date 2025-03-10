@@ -40,7 +40,7 @@ extension DocumentEditor {
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
     
-    public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+    public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
         guard !rowIDs.isEmpty else { return [] }
         let fieldId = fieldIdentifier.fieldID
         var field = fieldMap[fieldId]!
@@ -57,6 +57,8 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
+        var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
         return elements
     }
 
@@ -770,6 +772,32 @@ extension DocumentEditor {
         }
         events?.onChange(changes: changes, document: document)
 //        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
+    }
+    
+    private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String) {
+        let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldIdentifier.fieldID]?.value)
+        let targetRowIndexes = rowIDs.map { TargetRowModel.init(id: $0, index: 0)}
+        var changes = [Change]()
+        let field = field(fieldID: event.fieldIdentifier.fieldID)!
+        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        for targetRow in targetRowIndexes {
+            var change = Change(v: 1,
+                                sdk: "swift",
+                                target: "field.value.rowDelete",
+                                _id: documentID!,
+                                identifier: documentIdentifier,
+                                fileId: event.fieldIdentifier.fileID!,
+                                pageId: event.fieldIdentifier.pageID!,
+                                fieldId: event.fieldIdentifier.fieldID,
+                                fieldIdentifier: field.identifier!,
+                                fieldPositionId: fieldPosition.id!,
+                                change: ["parentPath": parentPath,
+                                         "schemaId": schemaId,
+                                         "rowId": targetRow.id],
+                                createdOn: Date().timeIntervalSince1970)
+            changes.append(change)
+        }
+        events?.onChange(changes: changes, document: document)
     }
 
     private func moveRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {

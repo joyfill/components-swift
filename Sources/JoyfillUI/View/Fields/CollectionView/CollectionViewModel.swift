@@ -344,16 +344,34 @@ class CollectionViewModel: ObservableObject {
     
     func deleteSelectedRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
- 
-        let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        
+        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
+            return
+        }
+        switch firstSelectedRow.rowType {
+        case .row(index: let index):
+            deleteSelectedNestedRow(parentRowId: "", nestedKey: rootSchemaKey)
+        case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
+            deleteSelectedNestedRow(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey)
+        default:
+            return
+        }
+        
+        tableDataModel.emptySelection()
+    }
+    
+    func deleteSelectedNestedRow(parentRowId: String, nestedKey: String) {
+        let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: tableDataModel.selectedRows,
+                                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                                   rootSchemaKey: rootSchemaKey,
+                                                                                   nestedKey: nestedKey,
+                                                                                   parentRowId: parentRowId)
         self.tableDataModel.valueToValueElements = valueToValueElements
         for rowID in tableDataModel.selectedRows {
             if let index = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID }) {
                 deleteRow(at: index, rowID: rowID, isNested: true)
             }
         }
-        
-        tableDataModel.emptySelection()
     }
     
     fileprivate func getTableColumnsByIndex(_ indexOfFirstSelectedRow: Int) -> [FieldTableColumn] {
