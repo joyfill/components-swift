@@ -153,6 +153,7 @@ class CollectionViewModel: ObservableObject {
         let rowDataMap = setupRows()
         let rowToChildrenMap = setupRowsChildrens()
         tableDataModel.valueToValueElements?.forEach { valueElement in
+            if valueElement.deleted ?? false { return }
             let rowID = valueElement.id!
             var rowCellModels = [TableCellModel]()
             let childrens = rowToChildrenMap[rowID] ?? [:]
@@ -343,27 +344,7 @@ class CollectionViewModel: ObservableObject {
     
     func deleteSelectedRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == tableDataModel.selectedRows.first! }) else {
-            return
-        }
-        switch firstSelectedRow.rowType {
-        case .row(index: let index):
-            tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-            for rowID in tableDataModel.selectedRows {
-                if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
-                    deleteRow(at: index, rowID: rowID, isNested: false)
-                }
-            }
-        case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
-            deleteSelectedNestedRow()
-        default:
-            return
-        }
-        
-        tableDataModel.emptySelection()
-    }
-    
-    func deleteSelectedNestedRow() {
+ 
         let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         self.tableDataModel.valueToValueElements = valueToValueElements
         for rowID in tableDataModel.selectedRows {
@@ -371,6 +352,8 @@ class CollectionViewModel: ObservableObject {
                 deleteRow(at: index, rowID: rowID, isNested: true)
             }
         }
+        
+        tableDataModel.emptySelection()
     }
     
     fileprivate func getTableColumnsByIndex(_ indexOfFirstSelectedRow: Int) -> [FieldTableColumn] {
@@ -657,9 +640,6 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func deleteRow(at index: Int, rowID: String, isNested: Bool) {
-//        if !isNested {
-//            tableDataModel.rowOrder.remove(at: index)
-//        }
         let currentRow = tableDataModel.cellModels[index]
         if currentRow.isExpanded {
             collapseTables(index, currentRow, currentRow.rowType.level)

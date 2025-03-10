@@ -44,7 +44,6 @@ extension DocumentEditor {
         guard !rowIDs.isEmpty else { return [] }
         let fieldId = fieldIdentifier.fieldID
         var field = fieldMap[fieldId]!
-        var lastRowOrder = field.rowOrder ?? []
         guard var elements = field.valueToValueElements else { return [] }
         
         for row in rowIDs {
@@ -52,13 +51,11 @@ extension DocumentEditor {
                 var element = elements[index]
                 element.setDeleted()
                 elements[index] = element
-                lastRowOrder.removeAll(where: { $0 == row })
             } else {
                 _ = deleteRowRecursively(rowId: row, in: &elements)
             }
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        fieldMap[fieldId]?.rowOrder = lastRowOrder
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
         return elements
     }
@@ -130,7 +127,6 @@ extension DocumentEditor {
         }
         var targetRows = [TargetRowModel]()
         var changes = [Int: ValueElement]()
-        var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         
         for rowId in selectedRowIds {
             if let index = elements.firstIndex(where: { $0.id == rowId }) {
@@ -139,8 +135,6 @@ extension DocumentEditor {
                 elements.insert(duplicate, at: index + 1)
                 targetRows.append(TargetRowModel(id: duplicate.id!, index: index + 1))
                 changes[index + 1] = duplicate
-                let lastRowIndex = lastRowOrder.firstIndex(of: rowId)!
-                lastRowOrder.insert(duplicate.id!, at: lastRowIndex+1)
             } else {
                 if let target = duplicateNestedRow(rowId: rowId, in: &elements, changes: &changes) {
                     targetRows.append(target)
@@ -149,7 +143,6 @@ extension DocumentEditor {
         }
         
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        fieldMap[fieldId]?.rowOrder = lastRowOrder
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         
@@ -233,12 +226,6 @@ extension DocumentEditor {
         if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
             guard topIndex != 0 else { return [] }
             elements.swapAt(topIndex, topIndex - 1)
-            // Update rowOrder for top-level rows.
-            var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
-            if let orderIndex = lastRowOrder.firstIndex(of: rowID), orderIndex > 0 {
-                lastRowOrder.swapAt(orderIndex, orderIndex - 1)
-                fieldMap[fieldId]?.rowOrder = lastRowOrder
-            }
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
             let targetRows = [TargetRowModel(id: rowID, index: topIndex - 1)]
             let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
@@ -306,13 +293,6 @@ extension DocumentEditor {
         if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
             guard topIndex < elements.count - 1 else { return [] }
             elements.swapAt(topIndex, topIndex + 1)
-            // Update rowOrder for top-level rows.
-            var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
-            if let orderIndex = lastRowOrder.firstIndex(of: rowID),
-               orderIndex < lastRowOrder.count - 1 {
-                lastRowOrder.swapAt(orderIndex, orderIndex + 1)
-                fieldMap[fieldId]?.rowOrder = lastRowOrder
-            }
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
             let targetRows = [TargetRowModel(id: rowID, index: topIndex + 1)]
             let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
@@ -415,22 +395,6 @@ extension DocumentEditor {
             }
         }
         newRow.childrens = childrens
-
-        if let topLevelIndex = fieldMap[fieldId]?.rowOrder?.firstIndex(of: selectedRowID) {
-            var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
-            let insertIndex = topLevelIndex + 1
-            lastRowOrder.insert(newRowID, at: insertIndex)
-            fieldMap[fieldId]?.rowOrder = lastRowOrder
-
-            elements.append(newRow)
-            fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-
-            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
-                                              updateValue: ValueUnion.valueElementArray(elements))
-            addRowOnChange(event: changeEvent,
-                           targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)])
-            return (elements, newRow)
-        }
 
         if let (insertedRow, insertIndex) = insertBelowNestedRecursively(selectedRowID: selectedRowID,
                                                                          in: &elements,
@@ -589,7 +553,6 @@ extension DocumentEditor {
         } else {
             // Insert as a top-level row.
             elements.append(newRow)
-            fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         }
         
         // Update the field's stored value.
