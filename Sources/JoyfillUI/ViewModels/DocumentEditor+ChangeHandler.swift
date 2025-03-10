@@ -123,7 +123,7 @@ extension DocumentEditor {
         return changes
     }
     
-    public func duplicateNestedRows(selectedRowIds: [String], fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
+    public func duplicateNestedRows(selectedRowIds: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return ([:],[])
@@ -151,7 +151,13 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
-        addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        
+        addNestedRowOnChange(event: changeEvent,
+                             targetRowIndexes: targetRows,
+                             valueElements: Array(changes.values),
+                             parentPath: parentPath,
+                             schemaKey: nestedKey)
         return (changes, elements)
     }
 
@@ -592,7 +598,7 @@ extension DocumentEditor {
         // Fire off a change event.
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         
-        addNestedRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)],valueElement: newRow, parentPath: parentPath, schemaKey: schemaKey ?? "")
+        addNestedRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)], valueElements: [newRow], parentPath: parentPath, schemaKey: schemaKey ?? "")
         
         return (elements, newRow)
     }
@@ -747,11 +753,12 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
-    private func addNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], valueElement: ValueElement, parentPath: String, schemaKey: String) {
+    private func addNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], valueElements: [ValueElement], parentPath: String, schemaKey: String) {
         var changes = [Change]()
         let field = field(fieldID: event.fieldIdentifier.fieldID)!
         let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
         for targetRow in targetRowIndexes {
+            let valueElement = valueElements.first(where: { $0.id == targetRow.id })!
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowCreate",

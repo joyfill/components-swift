@@ -396,12 +396,12 @@ class CollectionViewModel: ObservableObject {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns)
-        case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
+            duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey)
+        case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
             let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} ) ?? 0
             var headerTableColumns: [FieldTableColumn] = getTableColumnsByIndex(indexOfFirstSelectedRow) ?? []
             
-            duplicateNestedRow(parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns)
+            duplicateNestedRow(parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey)
         default:
             return
         }
@@ -409,10 +409,14 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.emptySelection()
     }
     
-    func duplicateNestedRow(parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn]) {
+    func duplicateNestedRow(parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String) {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         
-        guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: tableDataModel.selectedRows,
+                                                                              fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                              rootSchemaKey: rootSchemaKey,
+                                                                              nestedKey: parentSchemaKey,
+                                                                              parentRowId: parentID?.rowID ?? "") else { return }
         
         self.tableDataModel.valueToValueElements = result.1
         
