@@ -4,6 +4,7 @@ struct TableNumberView: View {
     @State private var number: String = ""
     @FocusState private var isTextFieldFocused: Bool
     @Binding var cellModel: TableCellModel
+    @State private var debounceTask: Task<Void, Never>?
     
     private let numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -41,17 +42,23 @@ struct TableNumberView: View {
                 .keyboardType(.decimalPad)
                 .font(.system(size: 15))
                 .onChange(of: number) { _ in
-                    var cellModelData = cellModel.data
-                    if !number.isEmpty, let doubleValue = Double(number) {
-                        cellModelData.number = doubleValue
-                    } else {
-                        cellModelData.number = nil
+                    Utility.debounceTextChange(debounceTask: &debounceTask) {
+                        updateFieldValue()
                     }
-                    cellModel.data = cellModelData
-                    cellModel.didChange?(cellModelData)
                 }
                 .focused($isTextFieldFocused)
         }
+    }
+    
+    func updateFieldValue() {
+        var cellModelData = cellModel.data
+        if !number.isEmpty, let doubleValue = Double(number) {
+            cellModelData.number = doubleValue
+        } else {
+            cellModelData.number = nil
+        }
+        cellModel.data = cellModelData
+        cellModel.didChange?(cellModelData)
     }
 }
 

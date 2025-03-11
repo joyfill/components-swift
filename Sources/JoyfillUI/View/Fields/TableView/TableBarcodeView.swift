@@ -12,6 +12,7 @@ struct TableBarcodeView: View {
     @Binding var cellModel: TableCellModel
     @State var text: String = ""
     private var isUsedForBulkEdit: Bool
+    @State private var debounceTask: Task<Void, Never>?
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil) {
         _cellModel = cellModel
@@ -33,13 +34,11 @@ struct TableBarcodeView: View {
                 TextEditor(text: $text)
                     .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                     .font(.system(size: 15))
-                    .onChange(of: text) { newText in
-                        var cellModelData = cellModel.data
-                        cellModelData.title = newText
-                        cellModel.data = cellModelData
-                        cellModel.didChange?(cellModelData)
+                    .onChange(of: text) { newValue in
+                        Utility.debounceTextChange(debounceTask: &debounceTask) {
+                            updateFieldValue(newText: newValue)
+                        }
                     }
-                    
                 
                 Image(systemName: "barcode.viewfinder")
                     .accessibilityIdentifier("TableScanButtonIdentifier")
@@ -49,6 +48,13 @@ struct TableBarcodeView: View {
                     .padding(.trailing, 12)
             }
         }
+    }
+    
+    func updateFieldValue(newText: String) {
+        var cellModelData = cellModel.data
+        cellModelData.title = newText
+        cellModel.data = cellModelData
+        cellModel.didChange?(cellModelData)
     }
     
     func uploadAction() {

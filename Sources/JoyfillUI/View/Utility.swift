@@ -79,5 +79,20 @@ class Utility {
         dateFormatter.dateFormat = format.dateFormat
         return dateFormatter.date(from: dateString)
     }
+    
+    static func debounceTextChange(
+        debounceTask: inout Task<Void, Never>?,
+        updateFieldValue: @escaping () -> Void
+    ) {
+        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask = Task {
+            try? await Task.sleep(nanoseconds: DEBOUNCE_TIME_IN_NANOSECONDS)
+            if !Task.isCancelled {
+                await MainActor.run {
+                    updateFieldValue()
+                }
+            }
+        }
+    }
 }
 
