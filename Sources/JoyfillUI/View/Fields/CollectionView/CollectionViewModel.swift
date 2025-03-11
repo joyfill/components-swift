@@ -875,7 +875,14 @@ class CollectionViewModel: ObservableObject {
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> [ValueElement] {
         tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
-        return tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
+        let currentRowModel = tableDataModel.cellModels.first(where: { $0.rowID == rowId })
+        
+        return tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
+                                                                  cellDataModel: cellDataModel,
+                                                                  fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                  rootSchemaKey: rootSchemaKey,
+                                                                  nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
+                                                                  parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "") ?? []
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {

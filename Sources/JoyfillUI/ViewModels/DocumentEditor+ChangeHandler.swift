@@ -638,31 +638,50 @@ extension DocumentEditor {
         }
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldId: String) -> [ValueElement] {
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
+        let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
         }
-        
+        var newCell: ValueUnion?
         switch cellDataModel.type {
         case .text:
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""))
+            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .dropdown:
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""))
+            newCell = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .image:
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []))
+            newCell = ValueUnion.valueElementArray(cellDataModel.valueElements ?? [])
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .date:
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double))
+            newCell = cellDataModel.date.map(ValueUnion.double)
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .number:
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double))
+            newCell = cellDataModel.number.map(ValueUnion.double)
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .multiSelect:
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array))
+            newCell = cellDataModel.multiSelectValues.map(ValueUnion.array)
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .barcode:
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""))
+            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         default:
             return []
         }
                 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        let cells = [
+            cellDataModel.id: newCell?.dictionary!
+        ]
+        let row: [String : Any] = [
+            "_id" : rowId,
+            "cells" : cells
+        ]
+        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        handleRowCellOnChange(event: changeEvent, currentField: fieldMap[fieldId]!, row: row, parentPath: parentPath, schemaId: nestedKey)
         
         return elements
     }
@@ -854,6 +873,28 @@ extension DocumentEditor {
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
+    }
+    
+    private func handleRowCellOnChange(event: FieldChangeData, currentField: JoyDocField, row: [String: Any], parentPath: String, schemaId: String) {
+        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        var change = Change(v: 1,
+                            sdk: "swift",
+                            target: "field.value.rowUpdate",
+                            _id: documentID!,
+                            identifier: documentIdentifier,
+                            fileId: event.fieldIdentifier.fileID!,
+                            pageId: event.fieldIdentifier.pageID!,
+                            fieldId: event.fieldIdentifier.fieldID,
+                            fieldIdentifier: currentField.identifier!,
+                            fieldPositionId: fieldPosition.id!,
+                            change: [
+                                "parentPath": parentPath,
+                                "schemaId": schemaId,
+                                "rowId": row["_id"]!,
+                                "row": row // Row object with only changed cell
+                            ],
+                            createdOn: Date().timeIntervalSince1970)
+        events?.onChange(changes: [change], document: document)
     }
 
     private func handleFieldsOnChange(event: FieldChangeData, currentField: JoyDocField) {
