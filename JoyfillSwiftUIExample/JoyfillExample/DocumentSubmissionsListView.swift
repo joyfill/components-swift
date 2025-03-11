@@ -101,7 +101,7 @@ struct DocumentSubmissionsListView: View {
     }
     
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
-        uploadHandler(["https://example.com/sample-image"])
+        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
     }
     
     private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
