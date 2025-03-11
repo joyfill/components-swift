@@ -886,15 +886,17 @@ class CollectionViewModel: ObservableObject {
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
+        let tableColumns = getTableColumnsForSelectedRows()
         var columnIDChanges = [String: ValueUnion]()
         changes.forEach { (colIndex: Int, value: ValueUnion) in
-            guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+            guard let cellDataModelId = tableColumns[colIndex].id else { return }
             columnIDChanges[cellDataModelId] = value
         }
-        tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        tableDataModel.valueToValueElements =  tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
-            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
+            tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 
