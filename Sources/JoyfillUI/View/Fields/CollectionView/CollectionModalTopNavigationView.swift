@@ -231,19 +231,81 @@ struct CollectionModalTopNavigationView: View {
 }
 
 struct CollectionEditMultipleRowsSheetView: View {
-    let viewModel: CollectionViewModel
+    @ObservedObject var viewModel: CollectionViewModel
     let tableColumns: [FieldTableColumn]
-    @Environment(\.presentationMode)  var presentationMode
+    @Environment(\.presentationMode) var presentationMode
     @State var changes = [Int: ValueUnion]()
 
     init(viewModel: CollectionViewModel, tableColumns: [FieldTableColumn]) {
-        self.viewModel =  viewModel
+        self.viewModel = viewModel
         self.tableColumns = tableColumns
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if viewModel.tableDataModel.selectedRows.count == 1 {
+                    HStack(alignment: .top) {
+                        Button(action: {
+                            viewModel.selectUpperRow()
+                        }, label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
+                                    .frame(width: 27, height: 27)
+                                
+                                Image(systemName: "chevron.left")
+                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                            }
+                        })
+                        .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            viewModel.selectBelowRow()
+                        }, label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
+                                    .frame(width: 27, height: 27)
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                            }
+                        })
+                        .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                        
+                        Button(action: {
+                            viewModel.insertBelowFromBulkEdit()
+                        }, label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(.blue, lineWidth: 1)
+                                    .frame(width: 27, height: 27)
+                                
+                                Image(systemName: "plus")
+                                    .foregroundStyle(.blue)
+                            }
+                        })
+                        
+                        Button(action: {
+                            presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                    .frame(width: 27, height: 27)
+                                
+                                Image(systemName: "xmark")
+                                    .resizable()
+                                    .frame(width: 10, height: 10)
+                                    .darkLightThemeColor()
+                            }
+                        })
+                    }
+                }
+                
                 HStack(alignment: .top) {
                     if let title = viewModel.tableDataModel.title {
                         VStack(alignment: .leading) {
@@ -272,135 +334,138 @@ struct CollectionEditMultipleRowsSheetView: View {
                     })
                     .accessibilityIdentifier("ApplyAllButtonIdentifier")
 
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                .frame(width: 27, height: 27)
-
-                            Image(systemName: "xmark")
-                                .resizable()
-                                .frame(width: 10, height: 10)
-                                .darkLightThemeColor()
-                        }
-                    })
+                    if viewModel.tableDataModel.selectedRows.count != 1 {
+                        Button(action: {
+                            presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                    .frame(width: 27, height: 27)
+                                
+                                Image(systemName: "xmark")
+                                    .resizable()
+                                    .frame(width: 10, height: 10)
+                                    .darkLightThemeColor()
+                            }
+                        })
+                    }
                 }
 
                 ForEach(Array(tableColumns.enumerated()), id: \.offset) { colIndex, col in
-                    let row = viewModel.tableDataModel.selectedRows.first!
-                    let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, rowID: row)!
-                    var cellModel = TableCellModel(rowID: row,
-                                                   data: cell,
-                                                   documentEditor: viewModel.tableDataModel.documentEditor,
-                                                   fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                   viewMode: .modalView,
-                                                   editMode: viewModel.tableDataModel.mode)
-                    { cellDataModel in
-                        switch cell.type {
-                        case .text:
-                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
-                        case .dropdown:
-                            self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
-                        case .date:
-                            self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
-                        case .number:
-                            self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
-                        case .multiSelect:
-                            self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
-                        case .barcode:
-                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
-                        default:
-                            break
-                        }
-                    }
-                    switch col.type {
-                    case .text:
-                        var str = ""
-                        Text(col.title)
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        let binding = Binding<String>(
-                            get: {
-                                str
-                            },
-                            set: { newValue in
-                                str = newValue
-                                self.changes[colIndex] = ValueUnion.string(newValue)
+                    if let row = viewModel.tableDataModel.selectedRows.first {
+                        let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, rowID: row)!
+                        var cellModel = TableCellModel(rowID: row,
+                                                       data: cell,
+                                                       documentEditor: viewModel.tableDataModel.documentEditor,
+                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                       viewMode: .modalView,
+                                                       editMode: viewModel.tableDataModel.mode)
+                        { cellDataModel in
+                            switch cell.type {
+                            case .text:
+                                self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                            case .dropdown:
+                                self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
+                            case .date:
+                                self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
+                            case .number:
+                                self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
+                            case .multiSelect:
+                                self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
+                            case .barcode:
+                                self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                            default:
+                                break
                             }
-                        )
-                        TextField("", text: binding)
-                            .font(.system(size: 15))
-                            .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                            .padding(.horizontal, 10)
-                            .frame(height: 40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        }
+                        switch col.type {
+                        case .text:
+                            var str = ""
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            let binding = Binding<String>(
+                                get: {
+                                    str
+                                },
+                                set: { newValue in
+                                    str = newValue
+                                    self.changes[colIndex] = ValueUnion.string(newValue)
+                                }
                             )
-                            .cornerRadius(10)
-                    case .dropdown:
-                        Text(col.title)
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
-                            .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
-                    case .date:
-                        Text(col.title)
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
-                            .padding(.vertical, 2)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
-                            .accessibilityIdentifier("EditRowsDateFieldIdentifier")
-                    case .number:
-                        Text(col.title)
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
-                            .keyboardType(.decimalPad)
-                            .frame(minHeight: 40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
-                            .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
-                    case .multiSelect:
-                        Text(col.title)
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
-                            .padding(.vertical, 4)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
-                            .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
-                    case .barcode:
-                        Text(col.title)
-                            .font(.headline.bold())
-                            .padding(.bottom, -8)
-                        TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
-                            .frame(minHeight: 40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                            .cornerRadius(10)
-                    default:
-                        Text("")
+                            TextField("", text: binding)
+                                .font(.system(size: 15))
+                                .accessibilityIdentifier("EditRowsTextFieldIdentifier")
+                                .padding(.horizontal, 10)
+                                .frame(height: 40)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                        case .dropdown:
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                        case .date:
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                .padding(.vertical, 2)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsDateFieldIdentifier")
+                        case .number:
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                .keyboardType(.decimalPad)
+                                .frame(minHeight: 40)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
+                        case .multiSelect:
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
+                                .padding(.vertical, 4)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
+                        case .barcode:
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                .frame(minHeight: 40)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                        default:
+                            Text("")
+                        }
                     }
                 }
                 Spacer()
