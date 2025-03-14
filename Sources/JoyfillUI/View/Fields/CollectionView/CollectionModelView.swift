@@ -237,44 +237,7 @@ struct CollectionModalView : View {
         .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
         .offset(x: offset.x)
     }
-    
-    var rowsHeader: some View {
-        LazyVStack(alignment: .leading, spacing: 0) {
-           ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, $rowModel) in
-                let rowArray = rowModel.cells
-               HStack(spacing: 0) {
-                   // Indexing View
-                   switch rowModel.rowType {
-                   case .header:
-                       Text("#")
-                           .frame(width: 40, height: 60)
-                           .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                           .border(Color.tableCellBorderColor)
-                   case .nestedRow(let level, let nastedRowIndex, _, _):
-                       Text("\(nastedRowIndex)")
-                           .foregroundColor(.secondary)
-                           .font(.caption)
-                           .frame(width: 40, height: 60)
-                           .border(Color.tableCellBorderColor)
-                           .id("\(index)")
-                   case .row(let rowIndex):
-                       Text("\(rowIndex)")
-                           .foregroundColor(.secondary)
-                           .font(.caption)
-                           .frame(width: 40, height: 60)
-                           .border(Color.tableCellBorderColor)
-                           .id("\(index)")
-                   case .tableExpander:
-                       Spacer()
-                           .frame(width: 40, height: 60)
-                           .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                           .border(Color.tableCellBorderColor)
-                   }
-               }
-            }
-        }
-    }
-    
+        
     var collection: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
