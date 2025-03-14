@@ -420,52 +420,34 @@ struct ColllectionRowsHeaderView: View {
                 switch rowModel.rowType {
                 case .header(level: let level, tableColumns: let columns):
                     if level == 0 {
-                        Rectangle()
-                            .fill(Color.white)
-                            .frame(width: 40, height: 60)
-                            .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                        EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                     } else {
                         ForEach(0..<2*level , id: \.self) { _ in
-                            Rectangle()
-                                .fill(Color.white)
-                                .frame(width: 40, height: 60)
-                                .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                            EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                         }
                     }
-                    Rectangle()
-                        .fill(Color.white)
-                        .frame(width: 40, height: 60)
-                        .border(Color.tableCellBorderColor)
+                    EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                 case .row(index: let index):
                     if rowModel.hasMoreNestedRows {
                         Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                             .frame(width: 40, height: 60)
                             .border(Color.tableCellBorderColor)
-                            .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : .white)
+                            .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
                             .onTapGesture {
                                 viewModel.expandTables(rowDataModel: rowModel, level: 0)
                                 rowModel.isExpanded.toggle()
                             }
                     } else {
-                        Rectangle()
-                            .fill(Color.white)
-                            .frame(width: 40, height: 60)
-                            .border(Color.tableCellBorderColor)
+                        EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                     }
                     
                 case .nestedRow(level: let level, index: let nestedIndex, _, _):
                     HStack(spacing: 0) {
                         if level == 0 {
-                            Rectangle()
-                                .fill(Color.white)
-                                .frame(width: 40, height: 60)
-                                .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                            EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                         } else {
                             ForEach(0..<2*level , id: \.self) { _ in
-                                Rectangle()
-                                    .fill(Color.white)
-                                    .frame(width: 40, height: 60)
-                                    .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                                EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                             }
                         }
                         
@@ -478,10 +460,7 @@ struct ColllectionRowsHeaderView: View {
                                     rowModel.isExpanded.toggle()
                                 }
                         } else {
-                            Rectangle()
-                                .fill(Color.white)
-                                .frame(width: 40, height: 60)
-                                .border(Color.tableCellBorderColor)
+                            EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                         }
                     }
                 case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
@@ -491,16 +470,10 @@ struct ColllectionRowsHeaderView: View {
                     
                     HStack(spacing: 0){
                         if level == 0 {
-                            Rectangle()
-                                .fill(Color.white)
-                                .frame(width: 40, height: 60)
-                                .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                            EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                         } else {
                             ForEach(0..<2*level + 1, id: \.self) { _ in
-                                Rectangle()
-                                    .fill(Color.white)
-                                    .frame(width: 40, height: 60)
-                                    .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+                                EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                                 
                             }
                         }
@@ -531,16 +504,10 @@ struct ColllectionRowsHeaderView: View {
                         .accessibilityIdentifier("MyButton")
                     
                 } else {
-                    Rectangle()
-                        .fill(Color.white)
-                        .frame(width: 40, height: 60)
-                        .border(Color.tableCellBorderColor)
+                    EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                 }
             case .header:
-                Rectangle()
-                    .fill(Color.white)
-                    .frame(width: 40, height: 60)
-                    .border(Color.tableCellBorderColor)
+                EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
             case .nestedRow(let level, let index, _, _):
                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                 Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
@@ -582,3 +549,29 @@ struct ColllectionRowsHeaderView: View {
     }
 }
 
+struct EmptyRectangleView: View {
+    let colorScheme: ColorScheme
+    let width: CGFloat
+    let height: CGFloat
+    let isLastRow: Bool
+
+    var body: some View {
+        Rectangle()
+            .fill(colorScheme == .dark ? Color.black.opacity(0.8) : .white)
+            .frame(width: width, height: height)
+            .verticalBorder(color: Color.tableCellBorderColor, includeBottom: isLastRow)
+    }
+}
+
+struct EmptyRectangleWithBorders: View {
+    let colorScheme: ColorScheme
+    let width: CGFloat
+    let height: CGFloat
+
+    var body: some View {
+        Rectangle()
+            .fill(colorScheme == .dark ? Color.black.opacity(0.8) : .white)
+            .frame(width: width, height: height)
+            .border(Color.tableCellBorderColor)
+    }
+}
