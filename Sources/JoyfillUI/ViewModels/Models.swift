@@ -184,7 +184,7 @@ struct TableDataModel {
             fieldData.schema?.forEach { key, value in
                 if value.root == true {
                     //Only top level columns
-                    self.tableColumns = value.tableColumns ?? []
+                    self.tableColumns = filterTableColumns(tableColumns: value.tableColumns ?? [])
                     self.childrens = value.children ?? []
                 }
             }
@@ -209,6 +209,18 @@ struct TableDataModel {
         }
         setupColumns()
         filterRowsIfNeeded()
+    }
+    
+    func filterTableColumns(tableColumns: [FieldTableColumn]) -> [FieldTableColumn] {
+        // filter TableColumns Based On Supported TableColumn And Hidden property
+        var finalTableColumns: [FieldTableColumn] = []
+        for column in tableColumns {
+            //TODO: Handle hidden property also here
+            if let columnType = column.type, supportedColumnTypes.contains(columnType) {
+                finalTableColumns.append(column)
+            }
+        }
+        return finalTableColumns
     }
         
     mutating func filterRowsIfNeeded() {
