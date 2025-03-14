@@ -310,7 +310,7 @@ struct CollectionModalView : View {
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(minWidth: viewModel.collectionWidth, minHeight: geometry.size.height, alignment: .topLeading)
+                    .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
                     .background( GeometryReader { geo in
                         Color.clear
                             .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
