@@ -93,6 +93,23 @@ struct UserAccessTokenTextFieldView: View {
 struct UserJsonTextFieldView: View {
     @State private var jsonString: String = ""
     @State private var errorMessage: String? = nil
+    @State var showCameraScannerView: Bool = false
+    @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
+    @State var scanResults: String = ""
+    
+    private var changeManager: ChangeManager {
+        ChangeManager(apiService: APIService(accessToken: "", baseURL: ""), showImagePicker: showImagePicker, showScan: showScan)
+    }
+    
+    private func showImagePicker(uploadHandler: ([String]) -> Void) {
+        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    }
+    
+    private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
+        currentCaptureHandler = captureHandler
+        showCameraScannerView = true
+        presentCameraScannerView()
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -130,6 +147,34 @@ struct UserJsonTextFieldView: View {
         .padding()
     }
     
+    func presentCameraScannerView() {
+        guard let topVC = UIViewController.topViewController() else {
+            print("No top view controller found.")
+            return
+        }
+        let hostingController: UIHostingController<AnyView>
+        if #available(iOS 16.0, *) {
+            let swiftUIView = CameraScanner(
+                startScanning: $showCameraScannerView,
+                scanResult: $scanResults,
+                onSave: { result in
+                    if let currentCaptureHandler = currentCaptureHandler {
+                        currentCaptureHandler(.string(result))
+                    }
+                }
+            )
+            hostingController = UIHostingController(rootView: AnyView(swiftUIView))
+        } else {
+            // Fallback on earlier versions
+            let fallbackView = Text("Camera scanner is not available on this version.")
+                .padding()
+                .multilineTextAlignment(.center)
+            hostingController = UIHostingController(rootView: AnyView(fallbackView))
+        }
+        
+        topVC.present(hostingController, animated: true, completion: nil)
+    }
+    
     func validateJSON() {
         guard !jsonString.isEmpty else {
             errorMessage = nil
@@ -158,6 +203,7 @@ struct UserJsonTextFieldView: View {
             let documentEditor = DocumentEditor(
                 document: JoyDoc(dictionary: dictionary),
                 mode: .fill,
+                events: changeManager,
                 pageID: "",
                 navigation: true
             )
