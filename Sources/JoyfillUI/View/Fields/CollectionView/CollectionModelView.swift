@@ -347,7 +347,7 @@ struct CollectionColumnHeaderView: View {
     let isHeaderNested: Bool
     
     var body: some View {
-        HStack(alignment: .top, spacing: 1) {
+        HStack(alignment: .top, spacing: 0) {
             ForEach(Array(tableColumns.enumerated()), id: \.offset) { index, column in
                 Button(action: {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
