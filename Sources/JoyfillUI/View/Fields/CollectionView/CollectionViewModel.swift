@@ -678,16 +678,16 @@ class CollectionViewModel: ObservableObject {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            moveNestedUP(parentRowId: "", nestedKey: rootSchemaKey)
+            moveNestedUP(parentRowId: "", nestedKey: rootSchemaKey, isNested: false)
         case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            moveNestedUP(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey)
+            moveNestedUP(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey, isNested: true)
         default:
             return
         }
         reIndexingRows(rowDataModel: firstSelectedRow)
     }
     
-    func moveNestedUP(parentRowId: String, nestedKey: String) {
+    func moveNestedUP(parentRowId: String, nestedKey: String, isNested: Bool) {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: tableDataModel.selectedRows.first!,
                                                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -695,7 +695,7 @@ class CollectionViewModel: ObservableObject {
                                                                                                   nestedKey: nestedKey,
                                                                                                   parentRowId: parentRowId)
         let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first! })!
-        moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!, isNested: true)
+        moveNestedUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!, isNested: isNested)
     }
 
     func moveDown() {
