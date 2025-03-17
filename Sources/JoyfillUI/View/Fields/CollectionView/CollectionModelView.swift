@@ -320,13 +320,14 @@ struct CollectionExpanderView: View {
                     viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
                     Text("Add Row +")
-                        .foregroundStyle(.selection)
+                        .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
                         .font(.system(size: 14))
                         .frame(height: 27)
                         .padding(.horizontal, 16)
                         .overlay(RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
+                .disabled(viewModel.tableDataModel.mode == .readonly)
             }
         }
         .padding(.all, 4)

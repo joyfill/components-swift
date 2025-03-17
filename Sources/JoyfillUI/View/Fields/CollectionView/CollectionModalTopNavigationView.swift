@@ -28,7 +28,7 @@ struct CollectionModalTopNavigationView: View {
                     showingPopover = true
                 }) {
                     Text("More ^")
-                        .foregroundStyle(.selection)
+                        .foregroundStyle(.blue)
                         .font(.system(size: 14))
                         .frame(width: 80, height: 27)
                         .overlay(RoundedRectangle(cornerRadius: 6)
@@ -44,7 +44,7 @@ struct CollectionModalTopNavigationView: View {
                                     viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(.blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -57,7 +57,7 @@ struct CollectionModalTopNavigationView: View {
                                     viewModel.moveUP()
                                 }) {
                                     Text("Move Up")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -70,7 +70,7 @@ struct CollectionModalTopNavigationView: View {
                                     viewModel.moveDown()
                                 }) {
                                     Text("Move Down")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -85,7 +85,7 @@ struct CollectionModalTopNavigationView: View {
                                 onEditTap?()
                             }) {
                                 Text("Edit \(rowTitle)")
-                                    .foregroundStyle(.selection)
+                                    .foregroundStyle(.blue)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
                             }
@@ -110,7 +110,7 @@ struct CollectionModalTopNavigationView: View {
                                 viewModel.duplicateRow()
                             }) {
                                 Text("Duplicate \(rowTitle)")
-                                    .foregroundStyle(.selection)
+                                    .foregroundStyle(.blue)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
                             }
@@ -129,7 +129,7 @@ struct CollectionModalTopNavigationView: View {
                                     viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(.blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -142,7 +142,7 @@ struct CollectionModalTopNavigationView: View {
                                     viewModel.moveUP()
                                 }) {
                                     Text("Move Up")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -156,7 +156,7 @@ struct CollectionModalTopNavigationView: View {
                                     viewModel.moveDown()
                                 }) {
                                     Text("Move Down")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -171,7 +171,7 @@ struct CollectionModalTopNavigationView: View {
                                 onEditTap?()
                             }) {
                                 Text("Edit \(rowTitle)")
-                                    .foregroundStyle(.selection)
+                                    .foregroundStyle(.blue)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
                             }
@@ -196,7 +196,7 @@ struct CollectionModalTopNavigationView: View {
                                 showingPopover = false
                             }) {
                                 Text("Duplicate \(rowTitle)")
-                                    .foregroundStyle(.selection)
+                                    .foregroundStyle(.blue)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
                             }
@@ -213,7 +213,7 @@ struct CollectionModalTopNavigationView: View {
                 viewModel.addRow()
             }) {
                 Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
-                    .foregroundStyle(.selection)
+                    .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
                     .font(.system(size: 14))
                     .frame(height: 27)
                     .padding(.horizontal, 16)
