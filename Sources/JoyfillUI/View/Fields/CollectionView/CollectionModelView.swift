@@ -384,6 +384,7 @@ struct CollectionColumnHeaderView: View {
                         colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
                     )
                 })
+                .zIndex(currentSelectedCol == index ? 1 : 0)
                 .accessibilityIdentifier("ColumnButtonIdentifier")
                 .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.cellModels.count == 0 || isHeaderNested)
                 .fixedSize(horizontal: false, vertical: true)
