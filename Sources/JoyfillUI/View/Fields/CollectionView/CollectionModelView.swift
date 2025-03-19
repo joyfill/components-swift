@@ -232,7 +232,7 @@ struct CollectionModalView : View {
                 .border(Color.tableCellBorderColor)
         }
         .frame(minHeight: 50)
-        .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 0, height: textHeight)
+        .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 80, height: textHeight)
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
         .offset(x: offset.x)
@@ -505,20 +505,22 @@ struct ColllectionRowsHeaderView: View {
                         }
                         .accessibilityIdentifier("MyButton")
                     
-                } else {
-                    EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                 }
             case .header:
-                EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
+                if viewModel.showRowSelector {
+                    EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
+                }
             case .nestedRow(let level, let index, _, _):
-                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
-                Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                    .frame(width: 40, height: 60)
-                    .border(Color.tableCellBorderColor)
-                    .onTapGesture {
-                        viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
-                    }
-                    .accessibilityIdentifier("MyButton")
+                if viewModel.showRowSelector {
+                    let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
+                    Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
+                        .frame(width: 40, height: 60)
+                        .border(Color.tableCellBorderColor)
+                        .onTapGesture {
+                            viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                        }
+                        .accessibilityIdentifier("MyButton")
+                }
             case .tableExpander:
                 EmptyView()
             }
