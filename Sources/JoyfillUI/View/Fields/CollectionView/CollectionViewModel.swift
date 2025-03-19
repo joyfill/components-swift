@@ -118,7 +118,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns) + Utility.getTotalTableScrollWidth(level: level)
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func updateCollectionWidth() {
@@ -398,7 +398,7 @@ class CollectionViewModel: ObservableObject {
                                                    rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                            level: level,
                                                                            parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns)),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
                                                    childrens: [id : children],
                                                    rowWidth: rowWidth(filteredTableColumns, level)
                                                   ))
