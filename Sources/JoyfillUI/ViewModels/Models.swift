@@ -498,11 +498,16 @@ struct TableDataModel {
         guard let selectedRowID = selectedRows.first, let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }), index > 0 else {
             return false
         }
-        
+        let currentRow = cellModels[index]
         let previousRow = cellModels[index - 1]
         switch previousRow.rowType {
-        case .header(level: _, tableColumns: _):
-            return true
+        case .header(level: let level, tableColumns: _):
+            if level == currentRow.rowType.level {
+                return true
+            } else {
+                return false
+            }
+            
         default:
             return false
         }
