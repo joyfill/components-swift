@@ -26,7 +26,7 @@ class Utility {
         }
     }
     
-    static func getWidthForExpanderRow(columns: [FieldTableColumn]) -> CGFloat {
+    static func getWidthForExpanderRow(columns: [FieldTableColumn], showSelector: Bool) -> CGFloat {
         let totalWidth = columns.reduce(0) { accumulator, column in
             // Get width based on column type and format
             let columnWidth = Utility.getCellWidth(
@@ -36,8 +36,9 @@ class Utility {
             )
             return accumulator + columnWidth
         }
-        
-        return max(totalWidth, singleColumnWidth * 2) + 120
+        let widthForTwoEmptyBox: CGFloat = 80
+        let widthForThirdEmptyBox: CGFloat = showSelector ? 40 : 0
+        return max(totalWidth, singleColumnWidth * 2) + widthForTwoEmptyBox + widthForThirdEmptyBox
     }
     
     static func getTotalTableScrollWidth(level: Int) -> CGFloat {
