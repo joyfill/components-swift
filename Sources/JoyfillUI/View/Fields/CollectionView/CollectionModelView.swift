@@ -319,22 +319,20 @@ struct CollectionExpanderView: View {
     
     var body: some View {
         HStack {
-            if rowDataModel.isExpanded {
-                Button(action: {
-                    let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
-                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
-                }) {
-                    Text("Add Row +")
-                        .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
-                        .font(.system(size: 14))
-                        .frame(height: 27)
-                        .padding(.horizontal, 16)
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.buttonBorderColor, lineWidth: 1))
-                }
-                .disabled(viewModel.tableDataModel.mode == .readonly)
+            Button(action: {
+                let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
+                viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
+            }) {
+                Text("Add Row +")
+                    .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
+                    .font(.system(size: 14))
+                    .frame(height: 27)
+                    .padding(.horizontal, 16)
+                    .overlay(RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.buttonBorderColor, lineWidth: 1))
             }
-
+            .disabled(viewModel.tableDataModel.mode == .readonly)
+            
             GeometryReader { geometry in
                 ScrollView {
                     Text(schemaValue?.1.title ?? "")
@@ -344,7 +342,7 @@ struct CollectionExpanderView: View {
                         .frame(maxHeight: .infinity, alignment: .center)
                 }
             }
-
+            
             Spacer()
         }
         .padding(.horizontal, 8)
@@ -487,7 +485,7 @@ struct ColllectionRowsHeaderView: View {
                     if level == 0 {
                         EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                     } else {
-                        ForEach(0..<2*level , id: \.self) { _ in
+                        ForEach(0..<2*level - level, id: \.self) { _ in
                             EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                         }
                     }
@@ -511,7 +509,7 @@ struct ColllectionRowsHeaderView: View {
                         if level == 0 {
                             EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                         } else {
-                            ForEach(0..<2*level , id: \.self) { _ in
+                            ForEach(0..<2*level - level, id: \.self) { _ in
                                 EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                             }
                         }
@@ -537,20 +535,11 @@ struct ColllectionRowsHeaderView: View {
                         if level == 0 {
                             EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                         } else {
-                            ForEach(0..<2*level + 1, id: \.self) { _ in
+                            ForEach(0..<2*level + 1 - level, id: \.self) { _ in
                                 EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                                 
                             }
                         }
-                        
-                        Image(systemName: rowModel.isExpanded ? "chevron.down.circle" : "chevron.right.circle")
-                            .frame(width: 40, height: 60)
-                            .background(backgroundColor)
-                            .border(Color.tableCellBorderColor)
-                            .onTapGesture {
-                                viewModel.expendSpecificTable(rowDataModel: rowModel, parentID: parentID ?? ("", ""), level: level)
-                                rowModel.isExpanded.toggle()
-                            }
                     }
                 }
             }

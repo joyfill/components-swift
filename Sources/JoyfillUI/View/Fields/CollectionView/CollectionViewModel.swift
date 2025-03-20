@@ -393,19 +393,25 @@ class CollectionViewModel: ObservableObject {
                 if let schemaValue = tableDataModel.schema[id] {
                     let schemaTablecolumns = schemaValue.tableColumns ?? []
                     let filteredTableColumns = tableDataModel.filterTableColumns(tableColumns: schemaTablecolumns)
-                    cellModels.append(RowDataModel(rowID: newRowID,
-                                                   cells: rowDataModel.cells,
-                                                   rowType: .tableExpander(schemaValue: (id, schemaValue),
-                                                                           level: level,
-                                                                           parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
-                                                   childrens: [id : children],
-                                                   rowWidth: rowWidth(filteredTableColumns, level)
-                                                  ))
+                    var rowDataModel = RowDataModel(rowID: newRowID,
+                                                    cells: rowDataModel.cells,
+                                                    rowType: .tableExpander(schemaValue: (id, schemaValue),
+                                                                            level: level,
+                                                                            parentID: (columnID: "", rowID: rowDataModel.rowID),
+                                                                            rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
+                                                    childrens: [id : children],
+                                                    rowWidth: rowWidth(filteredTableColumns, level)
+                                                   )
+                    rowDataModel.isExpanded = false
+                    cellModels.append(rowDataModel)
+                                        
                 }
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
+            for cellModel in cellModels {
+                expendSpecificTable(rowDataModel: cellModel, parentID: (columnID: "", rowID: cellModel.rowID), level: level)
+            }
         }
         updateCollectionWidth()
     }
