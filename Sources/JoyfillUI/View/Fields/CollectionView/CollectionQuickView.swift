@@ -56,7 +56,7 @@ struct CollectionQuickView : View {
                 eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
-                    Text("Table View")
+                    Text("Collection View")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.blue)
                     
