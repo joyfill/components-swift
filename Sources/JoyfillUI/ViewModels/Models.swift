@@ -159,7 +159,7 @@ struct TableDataModel {
     var sortModel = SortModel()
     var id = UUID()
     var showResetSelectionAlert: Bool = false
-    private var pendingRowID: String?
+    private var pendingRowID: [String]?
     
     var viewMoreText: String {
         rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
@@ -652,7 +652,7 @@ struct TableDataModel {
             rowDataModel.rowID == rowID
         }
         if selectedRows.count > 0 {
-            if currentSelectedRow?.rowType.parentID?.rowID == getRowByID(rowID: selectedRows[0])?.rowType.parentID?.rowID {
+            if currentSelectedRow?.rowType.parentSchemaKey == getRowByID(rowID: selectedRows[0])?.rowType.parentSchemaKey {
                 if selectedRows.contains(rowID) {
                     selectedRows = selectedRows.filter({ $0 != rowID})
                 } else {
@@ -660,7 +660,7 @@ struct TableDataModel {
                 }
             } else {
                 //show alert
-                pendingRowID = rowID
+                pendingRowID = [rowID]
                 showResetSelectionAlert = true
             }
         } else {
@@ -670,7 +670,7 @@ struct TableDataModel {
     
     mutating func confirmResetSelection() {
         if let newRow = pendingRowID {
-            selectedRows = [newRow]
+            selectedRows = newRow
         }
         pendingRowID = nil
         showResetSelectionAlert = false
@@ -691,6 +691,56 @@ struct TableDataModel {
         selectedRows = filteredcellModels.filter { $0.rowType.isRow }.compactMap { $0.rowID }
     }
     
+    mutating func selectAllNestedRows(rowID: String) {
+        // call toggleSelection(rowID: String)
+        let nestedRows = getAllNestedRowsForRow(rowID: rowID)
+        if selectedRows.count > 0 {
+            if getRowByID(rowID: nestedRows.first ?? "")?.rowType.parentSchemaKey == getRowByID(rowID: selectedRows[0])?.rowType.parentSchemaKey {
+                selectedRows = nestedRows
+            } else {
+                pendingRowID = nestedRows
+                showResetSelectionAlert = true
+            }
+        } else {
+            selectedRows = nestedRows
+        }
+    }
+    
+    func getAllNestedRowsForRow(rowID: String) -> [String] {
+        var indices: [String] = []
+        if let rowDataModel = getRowByID(rowID: rowID) {
+            let index = cellModels.firstIndex(of: rowDataModel)!
+            
+            for i in index..<cellModels.count {
+                let nextRow = cellModels[i]
+                if nextRow.rowType.isRow {
+                    break
+                }
+                
+                switch nextRow.rowType {
+                case .header, .tableExpander:
+                    break
+                case .nestedRow(level: let nestedLevel, index: _, _, _):
+                    let level = rowDataModel.rowType.level
+                    if nestedLevel != level {
+                        break
+                    } else {
+                        if indices.count > 0 {
+                            if nextRow.rowType.parentSchemaKey == getRowByID(rowID: indices[0])?.rowType.parentSchemaKey  {
+                                indices.append(nextRow.rowID)
+                            }
+                        } else {
+                            indices.append(nextRow.rowID)
+                        }
+                    }
+                case .row:
+                    break
+                }
+            }
+        }
+        return indices
+    }
+    
     mutating func emptySelection() {
         selectedRows = []
     }
@@ -698,6 +748,13 @@ struct TableDataModel {
     var allRowSelected: Bool {
         let validRows = filteredcellModels.filter { $0.rowType.isRow }.compactMap { $0.rowID }
         return !selectedRows.isEmpty && Set(selectedRows) == Set(validRows)
+    }
+
+    
+    func allNestedRowSelected(rowID: String) -> Bool {
+        let nestedRows = getAllNestedRowsForRow(rowID: rowID)
+        
+        return Set(nestedRows) == Set(selectedRows)
     }
     
     func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {

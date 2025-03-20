@@ -224,7 +224,7 @@ struct CollectionModalView : View {
                 Spacer()
             }
             if viewModel.showRowSelector  {
-                Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
+                Image(systemName: viewModel.tableDataModel.allRowSelected ? "inset.filled.square" : "square")
                     .frame(width: 40, height: textHeight)
                     .foregroundColor(viewModel.tableDataModel.cellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
@@ -560,7 +560,17 @@ struct ColllectionRowsHeaderView: View {
                 }
             case .header:
                 if viewModel.showRowSelector {
-                    EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
+                    Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "inset.filled.square" : "square")
+                        .frame(width: 40, height: 60)
+                        .foregroundColor(viewModel.tableDataModel.cellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
+                        .onTapGesture {
+                            if !viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) {
+                                viewModel.tableDataModel.selectAllNestedRows(rowID: rowModel.rowID)
+                            } else {
+                                viewModel.tableDataModel.emptySelection()
+                            }
+                        }
+                        .disabled(viewModel.tableDataModel.cellModels.count == 0)
                 }
             case .nestedRow(let level, let index, _, _):
                 if viewModel.showRowSelector {
