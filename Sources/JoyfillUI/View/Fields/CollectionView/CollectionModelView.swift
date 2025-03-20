@@ -421,16 +421,16 @@ struct CollectionColumnHeaderView: View {
                             .darkLightThemeColor()
                         
                         //TODO: Handle required for nested table columns
-                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-                            Image(systemName: "asterisk")
-                                .foregroundColor(.red)
-                                .imageScale(.small)
-                        }
+//                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+//                            Image(systemName: "asterisk")
+//                                .foregroundColor(.red)
+//                                .imageScale(.small)
+//                        }
                         
-                        if ![.image, .block, .date, .progress, .table].contains(column.type) && !isHeaderNested {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
-                        }
+//                        if ![.image, .block, .date, .progress, .table].contains(column.type) && !isHeaderNested {
+//                            Image(systemName: "line.3.horizontal.decrease.circle")
+//                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
+//                        }
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
