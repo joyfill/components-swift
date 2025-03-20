@@ -448,7 +448,8 @@ struct CollectionColumnHeaderView: View {
                 })
                 .zIndex(currentSelectedCol == index ? 1 : 0)
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.cellModels.count == 0 || isHeaderNested)
+//                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.cellModels.count == 0 || isHeaderNested)
+                .disabled(true)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
