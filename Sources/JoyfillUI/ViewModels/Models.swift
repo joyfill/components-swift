@@ -131,6 +131,7 @@ enum RowType: Equatable {
 }
 
 let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table]
+let collectionSupportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .barcode]
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -216,7 +217,7 @@ struct TableDataModel {
         var finalTableColumns: [FieldTableColumn] = []
         for column in tableColumns {
             //TODO: Handle hidden property also here
-            if let columnType = column.type, supportedColumnTypes.contains(columnType) {
+            if let columnType = column.type, collectionSupportedColumnTypes.contains(columnType) {
                 finalTableColumns.append(column)
             }
         }
