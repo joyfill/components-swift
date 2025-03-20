@@ -17,7 +17,7 @@ class CollectionViewModel: ObservableObject {
     @Published var nestedTableCount: Int = 0
     @Published var collectionWidth: CGFloat = 0.0
     private var requiredColumnIds: [String] = []
-    private var rootSchemaKey: String = ""
+    var rootSchemaKey: String = ""
 
     @Published var uuid = UUID()
     

@@ -209,19 +209,6 @@ struct CollectionModalTopNavigationView: View {
                 }
             }
 
-            Button(action: {
-                viewModel.addRow()
-            }) {
-                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
-                    .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
-                    .font(.system(size: 14))
-                    .frame(height: 27)
-                    .padding(.horizontal, 16)
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.buttonBorderColor, lineWidth: 1))
-            }
-            .disabled(viewModel.tableDataModel.mode == .readonly)
-            .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
 

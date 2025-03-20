@@ -163,41 +163,52 @@ struct CollectionModalView : View {
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
+                let rootSchema = viewModel.tableDataModel.schema[viewModel.rootSchemaKey]
+                
                 if #available(iOS 16, *) {
                     ScrollView([.horizontal], showsIndicators: false) {
-                        HStack(spacing: 0) {
-                            rowSelectorHeader
+                        VStack(spacing: 0) {
+                            RootTitleRowView(viewModel: viewModel, textHeight: $textHeight, colorScheme: colorScheme, rootSchema: rootSchema)
+                                .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
+                                .offset(x: offset.x)
                             
-                            CollectionColumnHeaderView(viewModel: viewModel,
-                                                  tableColumns: viewModel.tableDataModel.tableColumns,
-                                                  currentSelectedCol: $currentSelectedCol,
-                                                  textHeight: $textHeight,
-                                                  colorScheme: colorScheme,
-                                                  columnHeights: $columnHeights,
-                                                  longestBlockText: longestBlockText,
-                                                  isHeaderNested: false)
-                            .offset(x: offset.x)
+                            HStack(spacing: 0) {
+                                rowSelectorHeader
+                                
+                                CollectionColumnHeaderView(viewModel: viewModel,
+                                                           tableColumns: viewModel.tableDataModel.tableColumns,
+                                                           currentSelectedCol: $currentSelectedCol,
+                                                           textHeight: $textHeight,
+                                                           colorScheme: colorScheme,
+                                                           columnHeights: $columnHeights,
+                                                           longestBlockText: longestBlockText,
+                                                           isHeaderNested: false)
+                                .offset(x: offset.x)
+                            }
                         }
                     }
-                    .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
                     ScrollView([.horizontal], showsIndicators: false) {
-                        HStack(spacing: 0) {
-                            rowSelectorHeader
+                        VStack(spacing: 0) {
+                            RootTitleRowView(viewModel: viewModel, textHeight: $textHeight, colorScheme: colorScheme, rootSchema: rootSchema)
+                                .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
+                                .offset(x: offset.x)
                             
-                            CollectionColumnHeaderView(viewModel: viewModel,
-                                                       tableColumns: viewModel.tableDataModel.tableColumns,
-                                                       currentSelectedCol: $currentSelectedCol,
-                                                       textHeight: $textHeight,
-                                                       colorScheme: colorScheme,
-                                                       columnHeights: $columnHeights,
-                                                       longestBlockText: longestBlockText,
-                                                       isHeaderNested: false)
-                            .offset(x: offset.x)
+                            HStack(spacing: 0) {
+                                rowSelectorHeader
+                                CollectionColumnHeaderView(viewModel: viewModel,
+                                                           tableColumns: viewModel.tableDataModel.tableColumns,
+                                                           currentSelectedCol: $currentSelectedCol,
+                                                           textHeight: $textHeight,
+                                                           colorScheme: colorScheme,
+                                                           columnHeights: $columnHeights,
+                                                           longestBlockText: longestBlockText,
+                                                           isHeaderNested: false)
+                                .offset(x: offset.x)
+                            }
                         }
                     }
-                    .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
                 collection
@@ -308,12 +319,6 @@ struct CollectionExpanderView: View {
     
     var body: some View {
         HStack {
-            Text(schemaValue?.1.title ?? "")
-                .multilineTextAlignment(.leading)
-                .darkLightThemeColor()
-            
-            Spacer()
-            
             if rowDataModel.isExpanded {
                 Button(action: {
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
@@ -329,11 +334,68 @@ struct CollectionExpanderView: View {
                 }
                 .disabled(viewModel.tableDataModel.mode == .readonly)
             }
+
+            GeometryReader { geometry in
+                ScrollView {
+                    Text(schemaValue?.1.title ?? "")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.all, 8)
+                        .frame(minHeight: geometry.size.height)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                }
+            }
+
+            Spacer()
         }
-        .padding(.all, 4)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
         .font(.system(size: 15, weight: .bold))
         .frame(width: rowDataModel.rowType.width, height: 60)
         .border(Color.tableCellBorderColor)
+    }
+}
+
+struct RootTitleRowView: View {
+    @ObservedObject var viewModel: CollectionViewModel
+    @Binding var textHeight: CGFloat
+    let colorScheme: ColorScheme
+    let rootSchema: Schema?
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: {
+                viewModel.addRow()
+            }) {
+                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
+                    .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
+                    .font(.system(size: 14))
+                    .frame(height: 27)
+                    .padding(.horizontal, 16)
+                    .overlay(RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.buttonBorderColor, lineWidth: 1))
+            }
+            .disabled(viewModel.tableDataModel.mode == .readonly)
+            .accessibilityIdentifier("TableAddRowIdentifier")
+            
+            GeometryReader { geometry in
+                ScrollView {
+                    Text(rootSchema?.title ?? "")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.all, 8)
+                        .frame(minHeight: geometry.size.height)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(minHeight: 50)
+        .frame(height: 60)
+        .font(.system(size: 15, weight: .bold))
+        .border(Color.tableCellBorderColor)
+        .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
     }
 }
 
