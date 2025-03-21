@@ -39,6 +39,9 @@ struct CollectionViewCellBuilder: View {
         case .barcode:
             TableBarcodeView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
+        case .signature:
+            TableSignatureView(cellModel: $cellModel)
+                .disabled(cellModel.editMode == .readonly)
         default:
             Text("")
         }

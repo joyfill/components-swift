@@ -711,6 +711,9 @@ extension DocumentEditor {
         case .barcode:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
             recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+        case .signature:
+            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         default:
             return []
         }
