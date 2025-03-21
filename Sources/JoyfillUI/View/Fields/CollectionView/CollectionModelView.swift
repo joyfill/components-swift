@@ -323,7 +323,7 @@ struct CollectionExpanderView: View {
                 let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
                 viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
             }) {
-                Text("Add Row +")
+                Text("+ Row")
                     .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
                     .font(.system(size: 14))
                     .frame(height: 27)
@@ -364,7 +364,7 @@ struct RootTitleRowView: View {
             Button(action: {
                 viewModel.addRow()
             }) {
-                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
+                Text("+ Row")
                     .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
                     .font(.system(size: 14))
                     .frame(height: 27)
