@@ -570,7 +570,7 @@ struct ColllectionRowsHeaderView: View {
                                 viewModel.tableDataModel.emptySelection()
                             }
                         }
-                        .disabled(viewModel.tableDataModel.cellModels.count == 0)
+                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
                 }
             case .nestedRow(let level, let index, _, _):
                 if viewModel.showRowSelector {

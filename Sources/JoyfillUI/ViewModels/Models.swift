@@ -754,7 +754,7 @@ struct TableDataModel {
     func allNestedRowSelected(rowID: String) -> Bool {
         let nestedRows = getAllNestedRowsForRow(rowID: rowID)
         
-        return Set(nestedRows) == Set(selectedRows)
+        return !selectedRows.isEmpty && Set(nestedRows) == Set(selectedRows)
     }
     
     func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
