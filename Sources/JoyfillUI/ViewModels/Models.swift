@@ -644,25 +644,34 @@ struct TableDataModel {
     }
     
     mutating func toggleSelection(rowID: String) {
-        let currentSelectedRow = self.filteredcellModels.first { rowDataModel in
-            rowDataModel.rowID == rowID
+        guard let currentRow = filteredcellModels.first(where: { $0.rowID == rowID }) else {
+            return
         }
-        if selectedRows.count > 0 {
-            if currentSelectedRow?.rowType.parentSchemaKey == getRowByID(rowID: selectedRows[0])?.rowType.parentSchemaKey {
-                if selectedRows.contains(rowID) {
-                    selectedRows = selectedRows.filter({ $0 != rowID})
-                } else {
-                    selectedRows.append(rowID)
-                }
-            } else {
-                //show alert
-                pendingRowID = [rowID]
-                showResetSelectionAlert = true
-            }
+        
+        // If no rows are selected yet, simply add the rowID.
+        guard let firstSelectedRowID = selectedRows.first, let firstSelectedRow = getRowByID(rowID: firstSelectedRowID) else {
+            selectedRows.append(rowID)
+            return
+        }
+        
+        // Check if the current row has the same parentID and parentSchemaKey as the first selected row.
+        let sameParent = currentRow.rowType.parentID?.rowID == firstSelectedRow.rowType.parentID?.rowID
+        let sameSchema = currentRow.rowType.parentSchemaKey == firstSelectedRow.rowType.parentSchemaKey
+        
+        guard sameParent, sameSchema else {
+            // Show alert
+            pendingRowID = [rowID]
+            showResetSelectionAlert = true
+            return
+        }
+        
+        if let index = selectedRows.firstIndex(of: rowID) {
+            selectedRows.remove(at: index)
         } else {
             selectedRows.append(rowID)
         }
     }
+
     
     mutating func confirmResetSelection() {
         if let newRow = pendingRowID {
@@ -684,22 +693,38 @@ struct TableDataModel {
     }
     
     mutating func selectAllRows() {
-        selectedRows = filteredcellModels.filter { $0.rowType.isRow }.compactMap { $0.rowID }
+        let rows = filteredcellModels.filter { $0.rowType.isRow }.compactMap { $0.rowID }
+        selectAllRows(rows: rows)
     }
     
-    mutating func selectAllNestedRows(rowID: String) {
-        // call toggleSelection(rowID: String)
-        let nestedRows = getAllNestedRowsForRow(rowID: rowID)
-        if selectedRows.count > 0 {
-            if getRowByID(rowID: nestedRows.first ?? "")?.rowType.parentSchemaKey == getRowByID(rowID: selectedRows[0])?.rowType.parentSchemaKey {
-                selectedRows = nestedRows
-            } else {
-                pendingRowID = nestedRows
-                showResetSelectionAlert = true
-            }
-        } else {
-            selectedRows = nestedRows
+    mutating func selectAllRows(rows: [String]) {
+        // If no rows are currently selected, simply select all nested rows.
+        guard let firstSelectedRowID = selectedRows.first,
+              let selectedRow = getRowByID(rowID: firstSelectedRowID) else {
+            selectedRows = rows
+            return
         }
+        
+        guard let firstNestedRowID = rows.first,
+              let nestedRow = getRowByID(rowID: firstNestedRowID) else {
+            selectedRows = rows
+            return
+        }
+        
+        let sameParent = nestedRow.rowType.parentID?.rowID == selectedRow.rowType.parentID?.rowID
+        let sameSchema = nestedRow.rowType.parentSchemaKey == selectedRow.rowType.parentSchemaKey
+        
+        if sameParent && sameSchema {
+            selectedRows = rows
+        } else {
+            pendingRowID = rows
+            showResetSelectionAlert = true
+        }
+    }
+        
+    mutating func selectAllNestedRows(rowID: String) {
+        let nestedRows = getAllNestedRowsForRow(rowID: rowID)
+        selectAllRows(rows: nestedRows)
     }
     
     func getAllNestedRowsForRow(rowID: String) -> [String] {
@@ -713,6 +738,10 @@ struct TableDataModel {
                     break
                 }
                 
+                if nextRow.rowType.level < rowDataModel.rowType.level {
+                    break
+                }
+                
                 switch nextRow.rowType {
                 case .header, .tableExpander:
                     break
@@ -722,8 +751,10 @@ struct TableDataModel {
                         break
                     } else {
                         if indices.count > 0 {
-                            if nextRow.rowType.parentSchemaKey == getRowByID(rowID: indices[0])?.rowType.parentSchemaKey  {
-                                indices.append(nextRow.rowID)
+                            if nextRow.rowType.parentID?.rowID == getRowByID(rowID: indices[0])?.rowType.parentID?.rowID {
+                                if nextRow.rowType.parentSchemaKey == getRowByID(rowID: indices[0])?.rowType.parentSchemaKey  {
+                                    indices.append(nextRow.rowID)
+                                }
                             }
                         } else {
                             indices.append(nextRow.rowID)
