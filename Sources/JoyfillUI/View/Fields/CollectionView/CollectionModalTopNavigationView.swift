@@ -300,9 +300,11 @@ struct CollectionEditMultipleRowsSheetView: View {
                         VStack(alignment: .leading) {
                             Text("\(title)")
                                 .font(.headline.bold())
-                            Text("\(viewModel.rowTitle) selected")
-                                .font(.caption).bold()
-                                .foregroundStyle(.blue)
+                            if viewModel.tableDataModel.selectedRows.count > 1 {
+                                Text("\(viewModel.rowTitle) selected")
+                                    .font(.caption).bold()
+                                    .foregroundStyle(.blue)
+                            }
                         }
                     }
 
