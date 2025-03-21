@@ -17,7 +17,7 @@ class CollectionViewModel: ObservableObject {
     @Published var nestedTableCount: Int = 0
     @Published var collectionWidth: CGFloat = 0.0
     private var requiredColumnIds: [String] = []
-    private var rootSchemaKey: String = ""
+    var rootSchemaKey: String = ""
 
     @Published var uuid = UUID()
     
@@ -387,25 +387,40 @@ class CollectionViewModel: ObservableObject {
             collapseTables(index, rowDataModel, level)
         } else {
             var cellModels = [RowDataModel]()
-
-            for (id, children) in rowDataModel.childrens {
+            let parentSchemaKey = rowDataModel.rowType.isRow ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey
+            let parentRowID = rowDataModel.rowType.parentID?.rowID
+            let parentCellModel = cellModels.first(where: { $0.rowID == parentRowID })
+            let ids = tableDataModel.schema[parentSchemaKey]?.children ?? []
+            
+            for id in ids {
+                var childrens: [String: Children] = [:]
+                if let children = parentCellModel?.childrens[id] {
+                    childrens = [id : children]
+                }
+                
                 let newRowID = UUID().uuidString
                 if let schemaValue = tableDataModel.schema[id] {
                     let schemaTablecolumns = schemaValue.tableColumns ?? []
                     let filteredTableColumns = tableDataModel.filterTableColumns(tableColumns: schemaTablecolumns)
-                    cellModels.append(RowDataModel(rowID: newRowID,
-                                                   cells: rowDataModel.cells,
-                                                   rowType: .tableExpander(schemaValue: (id, schemaValue),
-                                                                           level: level,
-                                                                           parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
-                                                   childrens: [id : children],
-                                                   rowWidth: rowWidth(filteredTableColumns, level)
-                                                  ))
+                    var rowDataModel = RowDataModel(rowID: newRowID,
+                                                    cells: rowDataModel.cells,
+                                                    rowType: .tableExpander(schemaValue: (id, schemaValue),
+                                                                            level: level,
+                                                                            parentID: (columnID: "", rowID: rowDataModel.rowID),
+                                                                            rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
+                                                    childrens: childrens,
+                                                    rowWidth: rowWidth(filteredTableColumns, level)
+                                                   )
+                    rowDataModel.isExpanded = false
+                    cellModels.append(rowDataModel)
+                                        
                 }
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
+            for cellModel in cellModels {
+                expendSpecificTable(rowDataModel: cellModel, parentID: (columnID: "", rowID: cellModel.rowID), level: level)
+            }
         }
         updateCollectionWidth()
     }
@@ -838,6 +853,7 @@ class CollectionViewModel: ObservableObject {
                                                                             childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
                                                                             rootSchemaKey: rootSchemaKey) {
             let index = tableDataModel.cellModels.count
+            tableDataModel.valueToValueElements = rowData.all
             let valueElement = rowData.inserted
 //            if tableDataModel.rowOrder.count > (index - 1) {
 //                tableDataModel.rowOrder.insert(valueElement.id!, at: index)

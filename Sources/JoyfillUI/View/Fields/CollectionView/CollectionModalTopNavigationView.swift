@@ -103,20 +103,21 @@ struct CollectionModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
                             
-                            Button(action: {
-                                showingPopover = false
-                                viewModel.duplicateRow()
-                            }) {
-                                Text("Duplicate \(rowTitle)")
-                                    .foregroundStyle(.blue)
-                                    .font(.system(size: 14))
-                                    .frame(height: 27)
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 10)
-                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
+//                            Button(action: {
+//                                showingPopover = false
+//                                viewModel.duplicateRow()
+//                            }) {
+//                                Text("Duplicate \(rowTitle)")
+//                                    .foregroundStyle(.blue)
+//                                    .font(.system(size: 14))
+//                                    .frame(height: 27)
+//                            }
+//                            .padding(.horizontal, 16)
+//                            .padding(.bottom, 10)
+//                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
                         }
                         .frame(width: 180)
                         .presentationCompactAdaptation(.popover)
@@ -189,39 +190,27 @@ struct CollectionModalTopNavigationView: View {
                                     .frame(height: 27)
                             }
                             .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
 
-                            Button(action: {
-                                viewModel.duplicateRow()
-                                showingPopover = false
-                            }) {
-                                Text("Duplicate \(rowTitle)")
-                                    .foregroundStyle(.blue)
-                                    .font(.system(size: 14))
-                                    .frame(height: 27)
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 10)
-                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
+//                            Button(action: {
+//                                viewModel.duplicateRow()
+//                                showingPopover = false
+//                            }) {
+//                                Text("Duplicate \(rowTitle)")
+//                                    .foregroundStyle(.blue)
+//                                    .font(.system(size: 14))
+//                                    .frame(height: 27)
+//                            }
+//                            .padding(.horizontal, 16)
+//                            .padding(.bottom, 10)
+//                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
                             Spacer()
                         }
                     }
                 }
             }
 
-            Button(action: {
-                viewModel.addRow()
-            }) {
-                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
-                    .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
-                    .font(.system(size: 14))
-                    .frame(height: 27)
-                    .padding(.horizontal, 16)
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.buttonBorderColor, lineWidth: 1))
-            }
-            .disabled(viewModel.tableDataModel.mode == .readonly)
-            .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
 
@@ -311,9 +300,11 @@ struct CollectionEditMultipleRowsSheetView: View {
                         VStack(alignment: .leading) {
                             Text("\(title)")
                                 .font(.headline.bold())
-                            Text("\(viewModel.rowTitle) selected")
-                                .font(.caption).bold()
-                                .foregroundStyle(.blue)
+                            if viewModel.tableDataModel.selectedRows.count > 1 {
+                                Text("\(viewModel.rowTitle) selected")
+                                    .font(.caption).bold()
+                                    .foregroundStyle(.blue)
+                            }
                         }
                     }
 
@@ -364,17 +355,42 @@ struct CollectionEditMultipleRowsSheetView: View {
                         { cellDataModel in
                             switch cell.type {
                             case .text:
-                                self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                if !cellDataModel.title.isEmpty {
+                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                } else {
+                                    self.changes.removeValue(forKey: colIndex)
+                                }
                             case .dropdown:
-                                self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
+                                if let dropdownSelectedId = cellDataModel.defaultDropdownSelectedId, !dropdownSelectedId.isEmpty {
+                                    self.changes[colIndex] = ValueUnion.string(dropdownSelectedId)
+                                } else {
+                                    self.changes.removeValue(forKey: colIndex)
+                                }
                             case .date:
-                                self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
+                                if let date = cellDataModel.date {
+                                    self.changes[colIndex] = ValueUnion.double(date)
+                                } else {
+                                    self.changes.removeValue(forKey: colIndex)
+                                }
                             case .number:
-                                self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
+                                if let number = cellDataModel.number {
+                                    self.changes[colIndex] = ValueUnion.double(number)
+                                } else {
+                                    self.changes.removeValue(forKey: colIndex)
+                                }
                             case .multiSelect:
-                                self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
+                                if let multiSelectValues = cellDataModel.multiSelectValues, !multiSelectValues.isEmpty {
+                                    self.changes[colIndex] = ValueUnion.array(multiSelectValues)
+                                } else {
+                                    self.changes.removeValue(forKey: colIndex)
+                                }
                             case .barcode:
-                                self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                if !cellDataModel.title.isEmpty {
+                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                } else {
+                                    self.changes.removeValue(forKey: colIndex)
+                                }
+                                
                             default:
                                 break
                             }
@@ -391,7 +407,11 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 },
                                 set: { newValue in
                                     str = newValue
-                                    self.changes[colIndex] = ValueUnion.string(newValue)
+                                    if !newValue.isEmpty {
+                                        self.changes[colIndex] = ValueUnion.string(newValue)
+                                    } else {
+                                        self.changes.removeValue(forKey: colIndex)
+                                    }
                                 }
                             )
                             TextField("", text: binding)

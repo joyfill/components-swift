@@ -486,6 +486,9 @@ extension DocumentEditor {
             // If this element is the target parent:
             if elements[i].id == targetParentId {
                 var children = elements[i].childrens ?? [:]
+                if children.isEmpty {
+                    children = [nestedKey : Children(dictionary: [:])]
+                }
                 var nestedElements = children[nestedKey]?.valueToValueElements ?? []
                 nestedElements.append(newRow)
                 children[nestedKey]?.value = ValueUnion.valueElementArray(nestedElements)

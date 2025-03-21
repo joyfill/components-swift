@@ -44,7 +44,7 @@ class Utility {
     static func getTotalTableScrollWidth(level: Int) -> CGFloat {
         var width: CGFloat = 0
         if level != 0 {
-            for _ in 0..<(2 * level) {
+            for _ in 0..<(2 * level - level) {
                 width += 40
             }
         }
