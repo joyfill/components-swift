@@ -126,8 +126,9 @@ enum RowType: Equatable {
     }
 }
 
-let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table]
-let collectionSupportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .barcode]
+let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table, .signature]
+let collectionSupportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .barcode, .signature]
+
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -367,6 +368,8 @@ struct TableDataModel {
             cell?.title = valueUnion?.text ?? ""
         case .table:
             cell?.multiSelectValues = valueUnion?.stringArray
+        case .signature:
+            cell?.title = valueUnion?.text ?? ""
         default:
             return nil
         }
@@ -822,7 +825,7 @@ struct CellDataModel: Hashable, Equatable {
     var isCellFilled: Bool {
         guard let type = type else { return false }
         switch type {
-        case .text, .block, .barcode:
+        case .text, .block, .barcode, .signature:
             return title.isEmpty || title != ""
         case .number:
             return number != nil

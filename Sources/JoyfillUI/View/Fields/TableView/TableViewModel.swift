@@ -235,6 +235,8 @@ class TableViewModel: ObservableObject {
                     cellValues[columnId] = ValueUnion.array([change])
                 case .barcode:
                     cellValues[columnId] = ValueUnion.string(change)
+                case .signature:
+                    cellValues[columnId] = ValueUnion.string(change)
                 default:
                     break
                 }
