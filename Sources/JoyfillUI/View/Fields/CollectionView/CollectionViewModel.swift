@@ -387,8 +387,17 @@ class CollectionViewModel: ObservableObject {
             collapseTables(index, rowDataModel, level)
         } else {
             var cellModels = [RowDataModel]()
-
-            for (id, children) in rowDataModel.childrens {
+            let parentSchemaKey = rowDataModel.rowType.isRow ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey
+            let parentRowID = rowDataModel.rowType.parentID?.rowID
+            let parentCellModel = cellModels.first(where: { $0.rowID == parentRowID })
+            let ids = tableDataModel.schema[parentSchemaKey]?.children ?? []
+            
+            for id in ids {
+                var childrens: [String: Children] = [:]
+                if let children = parentCellModel?.childrens[id] {
+                    childrens = [id : children]
+                }
+                
                 let newRowID = UUID().uuidString
                 if let schemaValue = tableDataModel.schema[id] {
                     let schemaTablecolumns = schemaValue.tableColumns ?? []
@@ -399,7 +408,7 @@ class CollectionViewModel: ObservableObject {
                                                                             level: level,
                                                                             parentID: (columnID: "", rowID: rowDataModel.rowID),
                                                                             rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
-                                                    childrens: [id : children],
+                                                    childrens: childrens,
                                                     rowWidth: rowWidth(filteredTableColumns, level)
                                                    )
                     rowDataModel.isExpanded = false
@@ -844,6 +853,7 @@ class CollectionViewModel: ObservableObject {
                                                                             childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
                                                                             rootSchemaKey: rootSchemaKey) {
             let index = tableDataModel.cellModels.count
+            tableDataModel.valueToValueElements = rowData.all
             let valueElement = rowData.inserted
 //            if tableDataModel.rowOrder.count > (index - 1) {
 //                tableDataModel.rowOrder.insert(valueElement.id!, at: index)

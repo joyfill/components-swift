@@ -38,10 +38,6 @@ struct RowDataModel: Equatable, Hashable {
     }
     var rowWidth: CGFloat
     
-    var hasMoreNestedRows: Bool {
-        childrens.count > 0
-    }
-    
     init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, childrens: [String : Children] = [:], rowWidth: CGFloat = 0 ) {
         self.rowID = rowID
         self.cells = cells

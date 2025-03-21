@@ -491,20 +491,22 @@ struct ColllectionRowsHeaderView: View {
                     }
                     EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                 case .row(index: let index):
-                    if rowModel.hasMoreNestedRows {
-                        Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
-                            .frame(width: 40, height: 60)
-                            .border(Color.tableCellBorderColor)
-                            .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
-                            .onTapGesture {
-                                viewModel.expandTables(rowDataModel: rowModel, level: 0)
-                                rowModel.isExpanded.toggle()
-                            }
+                    if let childrens = viewModel.tableDataModel.schema[viewModel.rootSchemaKey]?.children {
+                        if !childrens.isEmpty {
+                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                                .frame(width: 40, height: 60)
+                                .border(Color.tableCellBorderColor)
+                                .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
+                                .onTapGesture {
+                                    viewModel.expandTables(rowDataModel: rowModel, level: 0)
+                                    rowModel.isExpanded.toggle()
+                                }
+                        }
                     } else {
                         EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                     }
                     
-                case .nestedRow(level: let level, index: let nestedIndex, _, _):
+                case .nestedRow(level: let level, index: let nestedIndex, _, parentSchemaKey: let parentSchemaKey):
                     HStack(spacing: 0) {
                         if level == 0 {
                             EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
@@ -513,17 +515,18 @@ struct ColllectionRowsHeaderView: View {
                                 EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                             }
                         }
-                        
-                        if rowModel.hasMoreNestedRows {
-                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
-                                .frame(width: 40, height: 60)
-                                .border(Color.tableCellBorderColor)
-                                .onTapGesture {
-                                    viewModel.expandTables(rowDataModel: rowModel, level: level)
-                                    rowModel.isExpanded.toggle()
-                                }
-                        } else {
-                            EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
+                        if let childrens = viewModel.tableDataModel.schema[parentSchemaKey]?.children {
+                            if !childrens.isEmpty {
+                                Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                                    .frame(width: 40, height: 60)
+                                    .border(Color.tableCellBorderColor)
+                                    .onTapGesture {
+                                        viewModel.expandTables(rowDataModel: rowModel, level: level)
+                                        rowModel.isExpanded.toggle()
+                                    }
+                            } else {
+                                EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
+                            }
                         }
                     }
                 case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
