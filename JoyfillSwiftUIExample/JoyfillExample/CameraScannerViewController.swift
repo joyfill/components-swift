@@ -16,7 +16,7 @@ struct CameraScannerViewController: UIViewControllerRepresentable {
         let viewController = DataScannerViewController(
             recognizedDataTypes: [
                 .text(),
-                .barcode(symbologies: [.qr])
+                .barcode()
             ],
             qualityLevel: .fast,
             recognizesMultipleItems: false,
