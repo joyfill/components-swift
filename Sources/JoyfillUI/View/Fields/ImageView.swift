@@ -337,38 +337,44 @@ struct UploadDeleteView: View {
     }
 }
 
-struct ImageGridView:View {
+struct ImageGridView: View {
     var primaryDisplayOnly: Bool
     @Binding var images: [UIImage]
     @Binding var selectedImagesIndex: Set<Int>
-    let screenWidth = UIScreen.main.bounds.width
-    let screenHeight = UIScreen.main.bounds.height
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                ForEach(Array(images.enumerated()), id: \.offset) { (index, image) in
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                        }
-                        .overlay(alignment: .topTrailing) {
-                            if !primaryDisplayOnly {
-                                Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
-                                    .padding(.top, 12)
-                                    .padding(.trailing, 12)
+        GeometryReader { geometry in
+            let sheetWidth = geometry.size.width
+            ScrollView {
+                LazyVGrid(columns: [
+                    GridItem(.flexible(), spacing: 8),
+                    GridItem(.flexible(), spacing: 8)
+                ], spacing: 8) {
+                    ForEach(Array(images.enumerated()), id: \.offset) { (index, image) in
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            // Here, use sheetWidth instead of screenWidth.
+                            .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             }
-                        }
-                        .onTapGesture {
-                            handleImageSelection(image)
-                        }
-                        .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
+                            .overlay(alignment: .topTrailing) {
+                                if !primaryDisplayOnly {
+                                    Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
+                                        .padding(.top, 12)
+                                        .padding(.trailing, 12)
+                                }
+                            }
+                            .onTapGesture {
+                                handleImageSelection(image)
+                            }
+                            .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
+                    }
                 }
+                .padding(8)
             }
         }
     }
