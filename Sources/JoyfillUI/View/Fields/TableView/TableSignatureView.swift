@@ -49,8 +49,6 @@ struct TableSignatureView: View {
                 DispatchQueue.main.async {
                     self.signatureImage = image
                 }
-            } else {
-                print("\(String(describing: cellModel.data.title))")
             }
         }
     }
