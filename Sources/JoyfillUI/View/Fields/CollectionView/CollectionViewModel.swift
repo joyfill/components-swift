@@ -1015,7 +1015,6 @@ class CollectionViewModel: ObservableObject {
             }
         }
         tableDataModel.filterRowsIfNeeded()
-        tableDataModel.emptySelection()
     }
     
     func sendEventsIfNeeded() {

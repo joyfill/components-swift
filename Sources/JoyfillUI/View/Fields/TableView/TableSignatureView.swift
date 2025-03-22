@@ -7,6 +7,14 @@ struct TableSignatureView: View {
     @State private var savedLines: [Line] = []
     @State private var signatureImage: UIImage?
     @State private var showCanvasSignatureView: Bool = false
+    @State var title: String = ""
+    
+    init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
+        _cellModel = cellModel
+        if !isUsedForBulkEdit {
+            _title = State(initialValue: cellModel.wrappedValue.data.title ?? "")
+        }
+    }
     
     var body: some View {
         Button(action: {
@@ -14,7 +22,7 @@ struct TableSignatureView: View {
             showCanvasSignatureView = true
         }, label: {
             Image(systemName: "signature")
-                .foregroundColor((cellModel.data.title.isEmpty || cellModel.data.title == nil) ? .gray : .black)
+                .foregroundColor((title.isEmpty || title == nil) ? .gray : .black)
         })
         .accessibilityIdentifier("TableSignatureOpenSheetButton")
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
@@ -25,22 +33,22 @@ struct TableSignatureView: View {
         .onChange(of: signatureImage) { newImage in
             if let newImage = newImage, let data = newImage.pngData() {
                 let base64String = data.base64EncodedString()
+                title = "data:image/png;base64,\(base64String)"
                 cellModel.data.title = "data:image/png;base64,\(base64String)"
             } else {
                 cellModel.data.title = ""
+                title = ""
             }
             cellModel.didChange?(cellModel.data)
         }
     }
     
     func loadImageFromURL() {
-        APIService.loadImage(from: cellModel.data.title ?? "") { imageData in
+        APIService.loadImage(from: title) { imageData in
             if let imageData = imageData, let image = UIImage(data: imageData) {
                 DispatchQueue.main.async {
                     self.signatureImage = image
                 }
-            } else {
-                print("\(String(describing: cellModel.data.title))")
             }
         }
     }
