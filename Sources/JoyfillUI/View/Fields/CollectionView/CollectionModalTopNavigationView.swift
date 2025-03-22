@@ -504,12 +504,6 @@ struct CollectionEditMultipleRowsSheetView: View {
                         case .image:
                             let bindingCellModel = Binding<TableCellModel>(
                                 get: {
-//                                    if viewModel.tableDataModel.selectedRows.count == 1 {
-//                                        return cellModel
-//                                    } else {
-//                                        cellModel.data.valueElements = []
-//                                        return cellModel
-//                                    }
                                     return cellModel
                                 },
                                 set: { newValue in
@@ -522,7 +516,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .padding(.bottom, -8)
                             HStack {
                                 Spacer()
-                                TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: true)
+                                TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 4)
                                 Spacer()
                             }
@@ -536,12 +530,6 @@ struct CollectionEditMultipleRowsSheetView: View {
                         case .signature:
                             let bindingCellModel = Binding<TableCellModel>(
                                 get: {
-//                                    if viewModel.tableDataModel.selectedRows.count == 1 {
-//                                        return cellModel
-//                                    } else {
-//                                        cellModel.data.title = ""
-//                                        return cellModel
-//                                    }
                                     return cellModel
                                 },
                                 set: { newValue in
@@ -553,7 +541,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .padding(.bottom, -8)
                             HStack {
                                 Spacer()
-                                TableSignatureView(cellModel: bindingCellModel)
+                                TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
                                 Spacer()
                             }
                             .frame(minHeight: 40)
