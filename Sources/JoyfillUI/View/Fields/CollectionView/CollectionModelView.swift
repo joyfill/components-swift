@@ -410,13 +410,23 @@ struct CollectionColumnHeaderView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(tableColumns.enumerated()), id: \.offset) { index, column in
-                Button(action: {
-                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
-                }, label: {
+//                Button(action: {
+////                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
+//                }, label: {
                     HStack {
-                        Text(column.title)
-                            .multilineTextAlignment(.leading)
-                            .darkLightThemeColor()
+//                        Text(column.title)
+//                            .multilineTextAlignment(.leading)
+                            
+                        GeometryReader { geometry in
+                            ScrollView {
+                                Text(column.title)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.all, 8)
+                                    .frame(minHeight: geometry.size.height)
+                                    .frame(maxHeight: .infinity, alignment: .center)
+                                    .darkLightThemeColor()
+                            }
+                        }
                         
                         //TODO: Handle required for nested table columns
 //                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
@@ -443,11 +453,11 @@ struct CollectionColumnHeaderView: View {
                     .background(
                         colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
                     )
-                })
+//                })
                 .zIndex(currentSelectedCol == index ? 1 : 0)
                 .accessibilityIdentifier("ColumnButtonIdentifier")
 //                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.cellModels.count == 0 || isHeaderNested)
-                .disabled(true)
+//                .disabled(true)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
