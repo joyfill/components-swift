@@ -465,7 +465,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 set: { newValue in
                                     str = newValue
                                     if isUsedForBulkEdit {
-                                        if !newValue.isEmpty {
+                                        if !str.isEmpty {
                                             self.changes[colIndex] = ValueUnion.string(newValue)
                                         } else {
                                             self.changes.removeValue(forKey: colIndex)
