@@ -600,6 +600,17 @@ struct CollectionEditMultipleRowsSheetView: View {
                                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                 )
                                 .cornerRadius(10)
+                        case .block:
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            TableBlockView(cellModel: Binding.constant(cellModel))
+                                .frame(minHeight: 40)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
                         default:
                             Text("")
                         }
