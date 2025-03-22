@@ -8,11 +8,13 @@ import JoyfillModel
      @State var showMoreImages2: Bool = false
      @State var showToast: Bool = false
      @Binding var cellModel: TableCellModel
+     private var isUsedForBulkEdit = false
 
-     public init(cellModel: Binding<TableCellModel>) {
+     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
          _cellModel = cellModel
          _showMoreImages = State(wrappedValue: 6)
-     } 
+         self.isUsedForBulkEdit = isUsedForBulkEdit
+     }
     
     var body: some View {
         if #available(iOS 16, *) {
@@ -30,7 +32,7 @@ import JoyfillModel
             .accessibilityIdentifier("TableImageIdentifier")
             .sheet(isPresented: $showMoreImages2) {
                 MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
-                    .frame(width: UIScreen.main.bounds.width)
+                    .frame(width: isUsedForBulkEdit ? nil : UIScreen.main.bounds.width)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
@@ -55,7 +57,7 @@ import JoyfillModel
             .accessibilityIdentifier("TableImageIdentifier")
             .fullScreenCover(isPresented: $showMoreImages2) {
                 MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
-                    .frame(width: UIScreen.main.bounds.width)
+                    .frame(width: isUsedForBulkEdit ? nil : UIScreen.main.bounds.width)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in

@@ -1003,6 +1003,8 @@ class CollectionViewModel: ObservableObject {
                     cellDataModel.multiSelectValues = change.stringArray
                 case .barcode:
                     cellDataModel.title = change.text ?? ""
+                case .image:
+                    cellDataModel.valueElements = change.valueElements ?? []
                 default:
                     break
                 }
