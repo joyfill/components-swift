@@ -396,7 +396,13 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 } else {
                                     self.changes.removeValue(forKey: colIndex)
                                 }
-                                
+                            case .signature:
+                                if !cellDataModel.title.isEmpty {
+                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
+                                } else {
+                                    self.changes.removeValue(forKey: colIndex)
+                                }
+ 
                             default:
                                 break
                             }
@@ -494,6 +500,30 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 Spacer()
                                 TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: true)
                                     .padding(.vertical, 4)
+                                Spacer()
+                            }
+                            .frame(minHeight: 40)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                            .cornerRadius(10)
+                            
+                        case .signature:
+                            let bindingCellModel = Binding<TableCellModel>(
+                                get: {
+                                    cellModel
+                                },
+                                set: { newValue in
+                                    cellModel = newValue
+                                }
+                            )
+                            Text(col.title)
+                                .font(.headline.bold())
+                                .padding(.bottom, -8)
+                            HStack {
+                                Spacer()
+                                TableSignatureView(cellModel: bindingCellModel)
                                 Spacer()
                             }
                             .frame(minHeight: 40)
