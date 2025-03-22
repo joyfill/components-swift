@@ -224,6 +224,8 @@ struct CollectionEditMultipleRowsSheetView: View {
     let tableColumns: [FieldTableColumn]
     @Environment(\.presentationMode) var presentationMode
     @State var changes = [Int: ValueUnion]()
+    @State private var viewID = UUID() // Unique ID for the view
+    @State private var debounceTask: Task<Void, Never>?
 
     init(viewModel: CollectionViewModel, tableColumns: [FieldTableColumn]) {
         self.viewModel = viewModel
@@ -237,6 +239,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                     HStack(alignment: .top) {
                         Button(action: {
                             viewModel.selectUpperRow()
+                            changes = [:]
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
@@ -253,6 +256,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         
                         Button(action: {
                             viewModel.selectBelowRow()
+                            changes = [:]
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
@@ -310,22 +314,23 @@ struct CollectionEditMultipleRowsSheetView: View {
 
                     Spacer()
 
-                    Button(action: {
-                        viewModel.bulkEdit(changes: changes)
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Text("Apply All")
-                            .darkLightThemeColor()
-                            .font(.system(size: 14))
-                            .frame(width: 88, height: 27)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
-                    })
-                    .accessibilityIdentifier("ApplyAllButtonIdentifier")
-
                     if viewModel.tableDataModel.selectedRows.count != 1 {
+                        Button(action: {
+                            viewModel.bulkEdit(changes: changes)
+                            viewModel.tableDataModel.emptySelection()
+                            presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            Text("Apply All")
+                                .darkLightThemeColor()
+                                .font(.system(size: 14))
+                                .frame(width: 88, height: 27)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                        })
+                        .accessibilityIdentifier("ApplyAllButtonIdentifier")
+                        
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
@@ -406,10 +411,16 @@ struct CollectionEditMultipleRowsSheetView: View {
                             default:
                                 break
                             }
+                            
+                            if viewModel.tableDataModel.selectedRows.count == 1 {
+                                viewModel.bulkEdit(changes: changes)
+                            }
                         }
+
+                        let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
                         switch col.type {
                         case .text:
-                            var str = ""
+                            var str = viewModel.tableDataModel.selectedRows.count == 1 ? cellModel.data.title : ""
                             Text(col.title)
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
@@ -423,6 +434,12 @@ struct CollectionEditMultipleRowsSheetView: View {
                                         self.changes[colIndex] = ValueUnion.string(newValue)
                                     } else {
                                         self.changes.removeValue(forKey: colIndex)
+                                    }
+                                    
+                                    Utility.debounceTextChange(debounceTask: &debounceTask) {
+                                        if viewModel.tableDataModel.selectedRows.count == 1 {
+                                            viewModel.bulkEdit(changes: changes)
+                                        }
                                     }
                                 }
                             )
@@ -440,7 +457,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             Text(col.title)
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
-                            TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
                                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -451,7 +468,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             Text(col.title)
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
-                            TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .padding(.vertical, 2)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
@@ -463,7 +480,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             Text(col.title)
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
-                            TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .keyboardType(.decimalPad)
                                 .frame(minHeight: 40)
                                 .overlay(
@@ -476,7 +493,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             Text(col.title)
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
-                            TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
+                            TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
                                 .padding(.vertical, 4)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
@@ -487,12 +504,19 @@ struct CollectionEditMultipleRowsSheetView: View {
                         case .image:
                             let bindingCellModel = Binding<TableCellModel>(
                                 get: {
-                                    cellModel
+//                                    if viewModel.tableDataModel.selectedRows.count == 1 {
+//                                        return cellModel
+//                                    } else {
+//                                        cellModel.data.valueElements = []
+//                                        return cellModel
+//                                    }
+                                    return cellModel
                                 },
                                 set: { newValue in
                                     cellModel = newValue
                                 }
                             )
+                            
                             Text(col.title)
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
@@ -512,7 +536,13 @@ struct CollectionEditMultipleRowsSheetView: View {
                         case .signature:
                             let bindingCellModel = Binding<TableCellModel>(
                                 get: {
-                                    cellModel
+//                                    if viewModel.tableDataModel.selectedRows.count == 1 {
+//                                        return cellModel
+//                                    } else {
+//                                        cellModel.data.title = ""
+//                                        return cellModel
+//                                    }
+                                    return cellModel
                                 },
                                 set: { newValue in
                                     cellModel = newValue
@@ -537,7 +567,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             Text(col.title)
                                 .font(.headline.bold())
                                 .padding(.bottom, -8)
-                            TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                            TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .frame(minHeight: 40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
@@ -553,6 +583,9 @@ struct CollectionEditMultipleRowsSheetView: View {
             }
             .padding(.all, 16)
         }
+        .id(viewID)
+        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
+            viewID = UUID()
+        }
     }
 }
-

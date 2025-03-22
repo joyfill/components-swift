@@ -39,6 +39,10 @@ import JoyfillModel
                 showMoreImages2 = true
             }
             .onChange(of: cellModel.data.valueElements) { newValue in
+                let valueElements = newValue
+                var data = cellModel.data
+                data.valueElements = valueElements
+                cellModel.data = data
                 cellModel.didChange?(cellModel.data)
             }
         }
