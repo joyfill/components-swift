@@ -178,30 +178,6 @@ class CollectionViewModel: ObservableObject {
             .map { $0.rowWidth }
             .max() ?? 0
     }
-
-    func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
-        var rowCellModels = [TableCellModel]()
-        let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
-            for rowDataModel in rowDataModels {
-                let cellModel = TableCellModel(rowID: rowID,
-                                               data: rowDataModel,
-                                               documentEditor: tableDataModel.documentEditor,
-                                               fieldIdentifier: tableDataModel.fieldIdentifier,
-                                               viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { cellDataModel in
-                    let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
-                        fieldTableColumn.id == cellDataModel.id
-                    })!
-                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
-                }
-                rowCellModels.append(cellModel)
-            }
-        if self.tableDataModel.cellModels.count > (index - 1) {
-            self.tableDataModel.cellModels.insert(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: index), rowWidth: rowWidth(tableDataModel.tableColumns, 0)), at: index)
-        } else {
-            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: self.tableDataModel.cellModels.count), rowWidth: rowWidth(tableDataModel.tableColumns, 0)))
-        }
-    }
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, childrens: [String : Children] = [:], rowType: RowType) {
         var rowCellModels = [TableCellModel]()
