@@ -23,8 +23,8 @@ struct CollectionRowView: View {
                         .foregroundColor(Color.tableCellBorderColor)
                     CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                 }
-                .frame(minWidth: cellModel.cellWidth,
-                       maxWidth: cellModel.cellWidth,
+                .frame(minWidth: viewModel.cellWidthMap[cellModel.data.id],
+                       maxWidth: viewModel.cellWidthMap[cellModel.data.id],
                        minHeight: 50,
                        maxHeight: .infinity)
             }
@@ -416,9 +416,7 @@ struct CollectionColumnHeaderView: View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: column.type ?? .unknown,
-                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty,
-                                                       text: viewModel.blockLongestTextMap[column.id!] ?? ""))
+                    .frame(width: viewModel.cellWidthMap[column.id ?? ""])
                     .frame(height: 60)
                     .overlay(
                         Rectangle()

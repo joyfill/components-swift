@@ -17,6 +17,7 @@ class CollectionViewModel: ObservableObject {
     @Published var nestedTableCount: Int = 0
     @Published var collectionWidth: CGFloat = 0.0
     @Published var blockLongestTextMap: [String: String] = [:]
+    @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
     private var requiredColumnIds: [String] = []
     var rootSchemaKey: String = ""
 
@@ -27,7 +28,7 @@ class CollectionViewModel: ObservableObject {
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
         self.nestedTableCount = tableDataModel.childrens.count
-        blockColumnLongestTextMap()
+        cellWidthMapping()
         setupCellModels()
         updateCollectionWidth()
         self.tableDataModel.filterRowsIfNeeded()
@@ -40,29 +41,7 @@ class CollectionViewModel: ObservableObject {
             }
         }
     }
-    
-    func blockColumnLongestTextMap() {
-        var blockColumnIds = Set<String>()
         
-        for (_, schema) in tableDataModel.schema {
-            if let tableColumns = schema.tableColumns {
-                for column in tableColumns {
-                    if column.type == .block, let id = column.id {
-                        blockColumnIds.insert(id)
-                    }
-                }
-            }
-        }
-
-        guard let rootValueElements = tableDataModel.valueToValueElements else { return }
-        
-        // For each collected block column, find the longest text across all levels.
-        for blockColumnId in blockColumnIds {
-            let longestText = getLongestBlockTextRecursive(columnID: blockColumnId, valueElements: rootValueElements)
-            blockLongestTextMap[blockColumnId] = longestText
-        }
-    }
-    
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String { 
         var longestText = ""
         
@@ -89,6 +68,30 @@ class CollectionViewModel: ObservableObject {
         }
         
         return longestText
+    }
+    
+    func cellWidthMapping() {
+        var widthMap = [String: CGFloat]()
+        
+        var allColumns = [FieldTableColumn]()
+        allColumns.append(contentsOf: tableDataModel.tableColumns)
+        for (_, schema) in tableDataModel.schema {
+            let schemaColumns = tableDataModel.filterTableColumns(tableColumns: schema.tableColumns ?? [])
+            allColumns.append(contentsOf: schemaColumns)
+        }
+        
+        for column in allColumns {
+            guard let colID = column.id else { continue }
+            var longestTextForWidth = ""
+            if column.type == .block {
+                if let rootValueElements = tableDataModel.valueToValueElements {
+                    longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
+                }
+            }
+            //TODO: format should came from field position
+            let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: longestTextForWidth)
+            cellWidthMap[colID] = width
+        }
     }
     
     func selectUpperRow() {
@@ -183,20 +186,12 @@ class CollectionViewModel: ObservableObject {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, valueElement)
             for rowDataModel in rowDataModels {
-                var longestBlockText = ""
-                if rowDataModel.type == .block {
-                    longestBlockText = blockLongestTextMap[rowDataModel.id] ?? ""
-                }
-                
-                let cellWidth =  Utility.getCellWidth(type: rowDataModel.type ?? .unknown,
-                                                      format: rowDataModel.format ?? .empty,
-                                                      text: longestBlockText)
                 let cellModel = TableCellModel(rowID: rowID,
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode, cellWidth: cellWidth) { cellDataModel in
+                                               editMode: tableDataModel.mode) { cellDataModel in
                     let columnIndex = columns.firstIndex(where: { column in
                         column.id == cellDataModel.id
                     })
@@ -256,20 +251,13 @@ class CollectionViewModel: ObservableObject {
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
-                    var longestBlockText = ""
-                    if columnModel.type == .block {
-                        longestBlockText = blockLongestTextMap[columnModel.id] ?? ""
-                    }
                     
-                    let cellWidth =  Utility.getCellWidth(type: columnModel.type ?? .unknown,
-                                                          format: columnModel.format ?? .empty,
-                                                          text: longestBlockText)
                     let cellModel = TableCellModel(rowID: rowID,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode, cellWidth: cellWidth) { cellDataModel in
+                                                   editMode: tableDataModel.mode) { cellDataModel in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
@@ -375,20 +363,12 @@ class CollectionViewModel: ObservableObject {
                     let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: filteredTableColumns, row)
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
-                        var longestBlockText = ""
-                        if cellDataModel.type == .block {
-                            longestBlockText = blockLongestTextMap[cellDataModel.id] ?? ""
-                        }
-                        
-                        let cellWidth =  Utility.getCellWidth(type: cellDataModel.type ?? .unknown,
-                                                              format: cellDataModel.format ?? .empty,
-                                                              text: longestBlockText)
                         let cellModel = TableCellModel(rowID: row.id ?? "",
                                                        data: cellDataModel,
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
-                                                       editMode: tableDataModel.mode, cellWidth: cellWidth) { cellDataModel in
+                                                       editMode: tableDataModel.mode) { cellDataModel in
                             let columnIndex = filteredTableColumns.firstIndex(where: { column in
                                 column.id == cellDataModel.id
                             })
