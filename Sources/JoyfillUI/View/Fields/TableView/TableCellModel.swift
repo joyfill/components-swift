@@ -24,5 +24,6 @@ struct TableCellModel: Identifiable, Equatable, Hashable {
     var fieldIdentifier: FieldIdentifier
     let viewMode: TableViewMode
     let editMode: Mode
+    var cellWidth: CGFloat? = 200
     let didChange: ((_ cell: CellDataModel) -> Void)?
 }
