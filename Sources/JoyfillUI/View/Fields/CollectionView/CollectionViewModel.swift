@@ -46,7 +46,6 @@ class CollectionViewModel: ObservableObject {
         var longestText = ""
         
         for valueElement in valueElements {
-            // Check the current level's cell for the block column
             if let cell = valueElement.cells?.first(where: { $0.key == columnID })?.value,
                let text = cell.text {
                 if text.count > longestText.count {
@@ -54,7 +53,6 @@ class CollectionViewModel: ObservableObject {
                 }
             }
             
-            // Recursively check any nested value elements in the children
             if let childrenDict = valueElement.childrens {
                 for (_, child) in childrenDict {
                     if let nestedValueElements = child.valueToValueElements {
@@ -91,6 +89,17 @@ class CollectionViewModel: ObservableObject {
             //TODO: format should came from field position
             let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: longestTextForWidth)
             cellWidthMap[colID] = width
+        }
+    }
+    
+    func updateCellWidthMap(tableColumns: [FieldTableColumn], columnID: String) {
+        if let column = tableColumns.first(where: { $0.id == columnID }) {
+            var longestTextForWidth = ""
+            if let rootValueElements = tableDataModel.valueToValueElements {
+                longestTextForWidth = getLongestBlockTextRecursive(columnID: columnID, valueElements: rootValueElements)
+            }
+            let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: longestTextForWidth)
+            cellWidthMap[columnID] = width
         }
     }
     
@@ -186,6 +195,10 @@ class CollectionViewModel: ObservableObject {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, valueElement)
             for rowDataModel in rowDataModels {
+                if rowDataModel.type == .block {
+                    updateCellWidthMap(tableColumns: columns, columnID: rowDataModel.id)
+                }
+                
                 let cellModel = TableCellModel(rowID: rowID,
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
