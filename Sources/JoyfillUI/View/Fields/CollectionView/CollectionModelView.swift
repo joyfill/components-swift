@@ -571,14 +571,12 @@ struct ColllectionRowsHeaderView: View {
                     .font(.caption)
                     .frame(width: 40, height: 60)
                     .border(Color.tableCellBorderColor)
-                    .id("\(index)")
             case .row(let rowIndex):
                 Text("\(rowIndex)")
                     .foregroundColor(.secondary)
                     .font(.caption)
                     .frame(width: 40, height: 60)
                     .border(Color.tableCellBorderColor)
-                    .id("\(index)")
             case .tableExpander:
                 EmptyView()
             }
