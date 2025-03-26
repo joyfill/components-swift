@@ -209,9 +209,9 @@ extension DocumentEditor {
     
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
-    }
-    
-    private func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+    }   
+
+    public func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
             guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
                 return false
