@@ -79,13 +79,15 @@ struct PagesView: View {
                 }
             }
 
-            let pageBinding = Binding(
-                get: {
-                    pageFieldModels[documentEditor.currentPageID] ?? pageFieldModels.first!.value
-                }, set: {
-                    pageFieldModels[documentEditor.currentPageID] = $0
-                })
-            PageView(page: pageBinding, documentEditor: documentEditor)
+            if let firstPage = pageFieldModels.first?.value ?? pageFieldModels[documentEditor.currentPageID] {
+                let pageBinding = Binding(
+                    get: { pageFieldModels[documentEditor.currentPageID] ?? firstPage },
+                    set: { pageFieldModels[documentEditor.currentPageID] = $0 }
+                )
+                PageView(page: pageBinding, documentEditor: documentEditor)
+            } else {
+                Text("No pages available") 
+            }
         }
     }
 }
