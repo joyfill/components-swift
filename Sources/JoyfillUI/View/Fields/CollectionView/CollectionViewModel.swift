@@ -71,25 +71,28 @@ class CollectionViewModel: ObservableObject {
     func cellWidthMapping() {
         var widthMap = [String: CGFloat]()
         
-        var allColumns = [FieldTableColumn]()
-        allColumns.append(contentsOf: tableDataModel.tableColumns)
-        for (_, schema) in tableDataModel.schema {
-            let schemaColumns = tableDataModel.filterTableColumns(tableColumns: schema.tableColumns ?? [])
-            allColumns.append(contentsOf: schemaColumns)
-        }
-        
-        for column in allColumns {
-            guard let colID = column.id else { continue }
-            var longestTextForWidth = ""
-            if column.type == .block {
-                if let rootValueElements = tableDataModel.valueToValueElements {
-                    longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
+        for (key, schema) in tableDataModel.schema {
+            let tableColumns = tableDataModel.filterTableColumns(key: key)
+
+            for column in tableColumns {
+                guard let colID = column.id else { continue }
+                var longestTextForWidth = ""
+                if column.type == .block {
+                    if let rootValueElements = tableDataModel.valueToValueElements {
+                        longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
+                    }
                 }
+               
+                let format = getDateFormatFromFieldPosition(key: key, columnID: colID)
+                let width = Utility.getCellWidth(type: column.type ?? .unknown, format: format ?? .empty , text: longestTextForWidth)
+                cellWidthMap[colID] = width
             }
-            //TODO: format should came from field position
-            let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: longestTextForWidth)
-            cellWidthMap[colID] = width
         }
+    }
+    
+    func getDateFormatFromFieldPosition(key: String, columnID: String) -> DateFormatType? {
+        let schema = tableDataModel.fieldPositionSchema[key]
+        return schema?.tableColumns?.first(where: { $0.id == columnID })?.format
     }
     
     func updateCellWidthMap(tableColumns: [FieldTableColumn], columnID: String) {
@@ -360,7 +363,7 @@ class CollectionViewModel: ObservableObject {
             switch rowDataModel.rowType {
             case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                 let schemaTableColumns = schemaValue?.1.tableColumns ?? []
-                let filteredTableColumns = tableDataModel.filterTableColumns(tableColumns: schemaTableColumns)
+                let filteredTableColumns = tableDataModel.filterTableColumns(key: schemaValue?.0 ?? "")
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: [],
                                                rowType: .header(level: level + 1,
@@ -446,7 +449,7 @@ class CollectionViewModel: ObservableObject {
                 let newRowID = UUID().uuidString
                 if let schemaValue = tableDataModel.schema[id] {
                     let schemaTablecolumns = schemaValue.tableColumns ?? []
-                    let filteredTableColumns = tableDataModel.filterTableColumns(tableColumns: schemaTablecolumns)
+                    let filteredTableColumns = tableDataModel.filterTableColumns(key: id)
                     var rowDataModel = RowDataModel(rowID: newRowID,
                                                     cells: rowDataModel.cells,
                                                     rowType: .tableExpander(schemaValue: (id, schemaValue),
@@ -922,7 +925,7 @@ class CollectionViewModel: ObservableObject {
     func addNestedRow(schemaKey: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
         let id = generateObjectId()
         let schemaTableColumns = tableDataModel.schema[schemaKey]?.tableColumns ?? []
-        let filteredTableColumns = tableDataModel.filterTableColumns(tableColumns: schemaTableColumns)
+        let filteredTableColumns = tableDataModel.filterTableColumns(key: schemaKey)
         let cellValues = getCellValuesForNested(columns: filteredTableColumns)
                 
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,

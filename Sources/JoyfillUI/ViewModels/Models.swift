@@ -147,6 +147,7 @@ struct TableDataModel {
     var tableColumns = [FieldTableColumn]()
     var childrens = [String]()
     var schema: [String : Schema] = [:]
+    var fieldPositionSchema: [String : FieldPositionSchema] = [:]
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
@@ -179,10 +180,11 @@ struct TableDataModel {
                 
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
+            self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
                 if value.root == true {
                     //Only top level columns
-                    self.tableColumns = filterTableColumns(tableColumns: value.tableColumns ?? [])
+                    self.tableColumns = filterTableColumns(key: key)
                     self.childrens = value.children ?? []
                 }
             }
@@ -209,16 +211,21 @@ struct TableDataModel {
         filterRowsIfNeeded()
     }
     
-    func filterTableColumns(tableColumns: [FieldTableColumn]) -> [FieldTableColumn] {
+    func filterTableColumns(key: String) -> [FieldTableColumn] {
         // filter TableColumns Based On Supported TableColumn And Hidden property
-        var finalTableColumns: [FieldTableColumn] = []
-        for column in tableColumns {
-            //TODO: Handle hidden property also here
-            if let columnType = column.type, collectionSupportedColumnTypes.contains(columnType) {
-                finalTableColumns.append(column)
+        guard let columns = schema[key]?.tableColumns else { return [] }
+
+        return columns.filter { column in
+            guard let columnType = column.type,
+                  collectionSupportedColumnTypes.contains(columnType) else {
+                return false
             }
+
+            let fieldPositionColumns = fieldPositionSchema[key]?.tableColumns
+            let isHidden = fieldPositionColumns?.first(where: { $0.id == column.id })?.hidden ?? false
+
+            return !isHidden
         }
-        return finalTableColumns
     }
         
     mutating func filterRowsIfNeeded() {
