@@ -274,7 +274,7 @@ class CollectionViewModel: ObservableObject {
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -442,7 +442,10 @@ class CollectionViewModel: ObservableObject {
             
             
             for id in ids {
-                if let shouldShow = tableDataModel.documentEditor?.shouldShow(fullSchema: tableDataModel.schema, schemaID: id, valueElement: tableDataModel.valueToValueElements?.first(where: { $0.id == rowDataModel.rowID })), shouldShow {
+                let targetValueElement = getValueElementByRowID(rowDataModel.rowID, from: tableDataModel.valueToValueElements ?? [])
+                if let shouldShow = tableDataModel.documentEditor?.shouldShow(fullSchema: tableDataModel.schema,
+                                                                              schemaID: id,
+                                                                              valueElement: targetValueElement), shouldShow {
                     var childrens: [String: Children] = [:]
                     if let children = parentCellModel?.childrens[id] {
                         childrens = [id : children]
@@ -474,6 +477,22 @@ class CollectionViewModel: ObservableObject {
             }
         }
         updateCollectionWidth()
+    }
+    
+    func getValueElementByRowID(_ rowID: String, from valueElements: [ValueElement]) -> ValueElement? {
+        //Target valueElement which used by condtional logic
+        for element in valueElements {
+            if element.id == rowID {
+                return element
+            } else if let childrens = element.childrens {
+                for children in childrens.values {
+                    if let found = getValueElementByRowID(rowID, from: children.valueToValueElements ?? []) {
+                        return found
+                    }
+                }
+            }
+        }
+        return nil
     }
     
     func deleteSelectedRow() {
