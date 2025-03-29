@@ -48,7 +48,21 @@ class ConditionalLogicHandler {
     func shouldShow(page: Page?) -> Bool {
         guard let page = page else { return true }
         let model = conditionalLogicModel(page: page)
-        return shouldShowItem(model: model, lastHiddenState: page.hidden)
+        let lastHiddenState = page.hidden
+        guard let model = model, model.itemCount > 1 else {
+            return !(lastHiddenState ?? false)
+        }
+        return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
+    }
+    
+    func shouldShow(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> Bool {
+        guard let fullSchema = fullSchema else { return true }
+        let model = conditionalLogicModel(fullSchema: fullSchema, schemaID: schemaID, valueElement: valueElement)
+        let lastHiddenState = fullSchema[schemaID]?.hidden
+        guard let model = model else {
+            return !(lastHiddenState ?? false)
+        }
+        return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
 
     private func conditionalLogicModel(page: Page?) -> ConditionalLogicModel? {
@@ -64,6 +78,40 @@ class ConditionalLogicHandler {
         let logicModel = LogicModel(id: logic.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
         let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: page.hidden, itemCount: documentEditor.pagesForCurrentView.count)
         return conditionModel
+    }
+    
+    private func conditionalLogicModel(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> ConditionalLogicModel? {
+        guard let fullSchema = fullSchema else { return nil }
+        guard let schema = fullSchema[schemaID] else { return nil }
+        guard let logic = schema.logic else { return nil }
+        guard let conditions = logic.schemaConditions else { return nil }
+        
+
+        let conditionModels = conditions.compactMap { condition ->  ConditionModel? in
+            //here we dont have the field we have column id and parent schema key
+            //from these we need to extract the cell value
+            guard let columnID = condition.columnID else { return nil }
+            guard let parentSchemaKey = condition.schema else { return nil }
+            let cellType = fullSchema[parentSchemaKey]?.tableColumns?.first(where: { $0.id == columnID })?.type
+            
+            //here we need the value associated with the column id
+            let cellValue = getCellValue(for: columnID, valueElement: valueElement)
+            //here we need to pass the cell value and cell type , condition and condition value
+            return ConditionModel(fieldValue: cellValue, fieldType: cellType?.toFieldType ?? .unknown, condition: condition.condition, value: condition.value)
+        }
+        let logicModel = LogicModel(id: logic.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
+        let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: schema.hidden, itemCount: 0)
+        return conditionModel
+    }
+    
+    private func getCellValue(for columnID: String, valueElement: ValueElement?) -> ValueUnion? {
+        guard let valueElement = valueElement else { return nil }
+        
+        if let cell = valueElement.cells?.first(where: { $0.key == columnID })?.value {
+            return cell
+        }
+        
+        return nil
     }
 
     private func conditionalLogicModel(field: JoyDocField?) -> ConditionalLogicModel? {
@@ -93,8 +141,8 @@ class ConditionalLogicHandler {
         return fields.flatMap(conditionalLogicModel)
     }
 
-    private func shouldShowItem(model: ConditionalLogicModel?, lastHiddenState: Bool?) -> Bool {
-        guard let model = model, model.itemCount > 1, let logic = model.logic else {
+    private func shouldShowItem(model: ConditionalLogicModel, lastHiddenState: Bool?) -> Bool {
+        guard let logic = model.logic else {
             return !(lastHiddenState ?? false)
         }
 
@@ -226,6 +274,16 @@ class ConditionalLogicHandler {
         guard let fieldID = fieldID else { return true }
         guard let field = documentEditor.field(fieldID: fieldID) else { return true }
         let model = conditionalLogicModel(field: field)
-        return shouldShowItem(model: model, lastHiddenState: field.hidden)
+        let lastHiddenState = field.hidden
+        guard let model = model, model.itemCount > 1 else {
+            return !(lastHiddenState ?? false)
+        }
+        return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
+    }
+}
+
+extension ColumnTypes {
+    var toFieldType: FieldTypes {
+        FieldTypes(rawValue: self.rawValue) ?? .unknown
     }
 }

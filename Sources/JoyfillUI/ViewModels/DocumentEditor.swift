@@ -86,6 +86,10 @@ public class DocumentEditor: ObservableObject {
     public func shouldShow(page: Page?) -> Bool {
         return conditionalLogicHandler.shouldShow(page: page)
     }
+    
+    public func shouldShow(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> Bool {
+        return conditionalLogicHandler.shouldShow(fullSchema: fullSchema, schemaID: schemaID, valueElement: valueElement)
+    }
 
 }
 
@@ -193,7 +197,7 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
+   public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
