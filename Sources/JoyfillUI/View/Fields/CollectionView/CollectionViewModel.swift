@@ -185,7 +185,15 @@ class CollectionViewModel: ObservableObject {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector) + Utility.getTotalTableScrollWidth(level: level)
+        var longestBlockText = ""
+        for column in tableColumns {
+            if column.type == .block {
+                if let rootValueElements = tableDataModel.valueToValueElements {
+                    longestBlockText = getLongestBlockTextRecursive(columnID: column.id ?? "", valueElements: rootValueElements)
+                }
+            }
+        }
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, text: longestBlockText) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func updateCollectionWidth() {
@@ -229,6 +237,7 @@ class CollectionViewModel: ObservableObject {
                                                                childrens: childrens,
                                                                rowWidth: rowWidth(columns, level)))
         }
+        updateCollectionWidth()
     }
     
     func getProgress(rowId: String) -> (Int, Int) {
@@ -460,7 +469,7 @@ class CollectionViewModel: ObservableObject {
                                                         rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                 level: level,
                                                                                 parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
+                                                                                rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
                                                         childrens: childrens,
                                                         rowWidth: rowWidth(filteredTableColumns, level)
                         )
