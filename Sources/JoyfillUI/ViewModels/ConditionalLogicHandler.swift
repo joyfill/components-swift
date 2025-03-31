@@ -8,10 +8,34 @@
 import Foundation
 import JoyfillModel
 
+
+
+// 1. Cache strcture build
+// 2. Cache build in init
+//   2.1 Wrte a function to check if schema needs to be shown
+// 3. Call new API
+// 4. Write logic to update the cache
+//     on each cell change document editor will Check if needs to update the cache
+//      if yes call the 2.1 to check if schema needs to be shown
+//      update the cache
+
+
+struct RowSchemaID: Hashable {
+    let rowID: String
+    let schemaID: String
+}
+
+struct CollectionSchemaLogic {
+    var showSchemaMap = [RowSchemaID: Bool]()   // RowSchemaID : Bool
+}
+
 class ConditionalLogicHandler {
     weak var documentEditor: DocumentEditor!
     private var showFieldMap = [String: Bool]()
     private var fieldConditionalDependencyMap = [String: Set<String>]()
+
+    private var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
+
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
@@ -54,7 +78,11 @@ class ConditionalLogicHandler {
         }
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
-    
+
+    func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
+        return showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID] ?? true
+    }
+
     func shouldShow(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> Bool {
         guard let fullSchema = fullSchema else { return true }
         let model = conditionalLogicModel(fullSchema: fullSchema, schemaID: schemaID, valueElement: valueElement)
