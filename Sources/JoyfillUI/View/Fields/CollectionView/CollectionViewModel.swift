@@ -451,10 +451,8 @@ class CollectionViewModel: ObservableObject {
             
             
             for id in ids {
-                let targetValueElement = getValueElementByRowID(rowDataModel.rowID, from: tableDataModel.valueToValueElements ?? [])
-                if let shouldShow = tableDataModel.documentEditor?.shouldShow(fullSchema: tableDataModel.schema,
-                                                                              schemaID: id,
-                                                                              valueElement: targetValueElement), shouldShow {
+                let rowSchemaID = RowSchemaID(rowID: rowDataModel.rowID, schemaID: id)
+                if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShow {
                     var childrens: [String: Children] = [:]
                     if let children = parentCellModel?.childrens[id] {
                         childrens = [id : children]

@@ -87,8 +87,8 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(page: page)
     }
     
-    public func shouldShow(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> Bool {
-        return conditionalLogicHandler.shouldShow(fullSchema: fullSchema, schemaID: schemaID, valueElement: valueElement)
+    public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
+        return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
     }
 
 }

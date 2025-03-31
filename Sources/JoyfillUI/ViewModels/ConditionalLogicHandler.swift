@@ -20,12 +20,12 @@ import JoyfillModel
 //      update the cache
 
 
-struct RowSchemaID: Hashable {
+public struct RowSchemaID: Hashable {
     let rowID: String
     let schemaID: String
 }
 
-struct CollectionSchemaLogic {
+public struct CollectionSchemaLogic {
     var showSchemaMap = [RowSchemaID: Bool]()   // RowSchemaID : Bool
 }
 
@@ -34,14 +34,53 @@ class ConditionalLogicHandler {
     private var showFieldMap = [String: Bool]()
     private var fieldConditionalDependencyMap = [String: Set<String>]()
 
-    private var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
+    var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
 
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
             showFieldMap[field.id!] = self.shouldShowLocal(fieldID: field.id!)
+            if field.fieldType == .collection {
+                buildCollectionSchemaMap(field: field)
+            }
         }
+    }
+    
+    func buildCollectionSchemaMap(field: JoyDocField) {
+        let schema = field.schema ?? [:]
+        let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
+        let showSchemaMap = buildSchemaMap(valueElements: field.valueToValueElements ?? [], schema: schema, key: rootSchemaKey)
+        let collectionSchemaLogic = CollectionSchemaLogic(showSchemaMap: showSchemaMap)
+        showCollectionSchemaMap[field.id!] = collectionSchemaLogic
+        print(showCollectionSchemaMap)
+    }
+    
+    func buildSchemaMap(valueElements: [ValueElement], schema: [String: Schema], key: String) -> [RowSchemaID: Bool] {
+        var map = [RowSchemaID: Bool]()
+
+        for element in valueElements {
+            guard let rowID = element.id else { continue }
+            
+            if let childrens = element.childrens, childrens.count > 0 {
+                childrens.forEach { (childSchemaID, child) in
+                    let key = RowSchemaID(rowID: rowID, schemaID: childSchemaID)
+                    map[key] = shouldShow(fullSchema: schema, schemaID: childSchemaID, valueElement: element)
+
+                    if let nested = child.valueToValueElements {
+                        let childMap = buildSchemaMap(valueElements: nested, schema: schema, key: childSchemaID)
+                        map.merge(childMap) { (_, new) in new }
+                    }
+                }
+            } else {
+                for schemaID in schema[key]?.children ?? [] {
+                    let key = RowSchemaID(rowID: rowID, schemaID: schemaID)
+                    map[key] = shouldShow(fullSchema: schema, schemaID: schemaID, valueElement: element)
+                }
+            }
+        }
+
+        return map
     }
 
     public func shouldShow(fieldID: String?) -> Bool {
@@ -83,7 +122,7 @@ class ConditionalLogicHandler {
         return showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID] ?? true
     }
 
-    func shouldShow(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> Bool {
+    private func shouldShow(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> Bool {
         guard let fullSchema = fullSchema else { return true }
         let model = conditionalLogicModel(fullSchema: fullSchema, schemaID: schemaID, valueElement: valueElement)
         let lastHiddenState = fullSchema[schemaID]?.hidden
