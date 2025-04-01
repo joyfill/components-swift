@@ -396,6 +396,25 @@ class ConditionalLogicHandler {
             }
         }
     }
+    
+    func updateShowCollectionSchemaMap(collectionFieldID: String, rowID: String) {
+        var collectionLogic = showCollectionSchemaMap[collectionFieldID] ?? CollectionSchemaLogic()
+        
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let valueElement = documentEditor.getValueElementByRowID(rowID, from: field.valueToValueElements ?? []) else { return }
+        
+        for (childSchemaID, child) in valueElement.childrens ?? [:] {
+            let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: childSchemaID)
+            let shouldBeShown = shouldShow(
+                fullSchema: field.schema,
+                schemaID: childSchemaID,
+                valueElement: valueElement
+            )
+            collectionLogic.showSchemaMap[rowSchemaID] = shouldBeShown
+        }
+        
+        showCollectionSchemaMap[collectionFieldID] = collectionLogic
+    }
 }
 
 extension ColumnTypes {

@@ -237,6 +237,7 @@ class CollectionViewModel: ObservableObject {
                                                                childrens: childrens,
                                                                rowWidth: rowWidth(columns, level)))
         }
+        tableDataModel.documentEditor?.updateShowCollectionSchemaMap(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
         updateCollectionWidth()
     }
     
