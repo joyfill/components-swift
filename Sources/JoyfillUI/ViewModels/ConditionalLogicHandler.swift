@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Vishnu Dutt on 05/12/24.
 //
@@ -34,15 +34,36 @@ class ConditionalLogicHandler {
     private var showFieldMap = [String: Bool]()
     private var fieldConditionalDependencyMap = [String: Set<String>]()
 
-    var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
-
+    private var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
+    private var columnDependencyMap = [String: Set<String>]()  // columnID: Set of dependent schemaIDs
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
             showFieldMap[field.id!] = self.shouldShowLocal(fieldID: field.id!)
             if field.fieldType == .collection {
+                buildDependencyMap(field: field)
                 buildCollectionSchemaMap(field: field)
+            }
+        }
+    }
+    
+    private func buildDependencyMap(field: JoyDocField) {
+        guard let schema = field.schema else { return }
+        
+        columnDependencyMap.removeAll()
+        
+        for (schemaID, schemaDetails) in schema {
+            if let logic = schemaDetails.logic,
+               let conditions = logic.schemaConditions {
+                
+                for condition in conditions {
+                    guard let columnID = condition.columnID else { continue }
+                    
+                    var dependentSchemas = columnDependencyMap[columnID] ?? Set<String>()
+                    dependentSchemas.insert(schemaID)
+                    columnDependencyMap[columnID] = dependentSchemas
+                }
             }
         }
     }
@@ -346,6 +367,34 @@ class ConditionalLogicHandler {
             return !(lastHiddenState ?? false)
         }
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
+    }
+
+    func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String) -> Bool {
+        guard let affectedSchemas = columnDependencyMap[columnID] else { return false }
+        
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let valueElement = documentEditor.getValueElementByRowID(rowID, from: field.valueToValueElements ?? []) else { return false }
+        
+        var needsRefresh = false
+        
+        for schemaID in affectedSchemas {
+            let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: schemaID)
+            
+            let newShouldShow = shouldShow(
+                fullSchema: field.schema,
+                schemaID: schemaID,
+                valueElement: valueElement
+            )
+            
+            let current = showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID]
+            
+            if current != newShouldShow {
+                showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID] = newShouldShow
+                needsRefresh = true
+            }
+        }
+        
+        return needsRefresh
     }
 }
 

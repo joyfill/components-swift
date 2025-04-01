@@ -486,22 +486,6 @@ class CollectionViewModel: ObservableObject {
         updateCollectionWidth()
     }
     
-    func getValueElementByRowID(_ rowID: String, from valueElements: [ValueElement]) -> ValueElement? {
-        //Target valueElement which used by condtional logic
-        for element in valueElements {
-            if element.id == rowID {
-                return element
-            } else if let childrens = element.childrens {
-                for children in childrens.values {
-                    if let found = getValueElementByRowID(rowID, from: children.valueToValueElements ?? []) {
-                        return found
-                    }
-                }
-            }
-        }
-        return nil
-    }
-    
     func deleteSelectedRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
         
@@ -1042,13 +1026,29 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.cellModels.first(where: { $0.rowID == rowId })
-        
-        return tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
+                
+        let valueElememts = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                   rootSchemaKey: rootSchemaKey,
                                                                   nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
                                                                   parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "") ?? []
+        if let tableNeedsToRefresh = tableDataModel.documentEditor?.updateCollectionMap(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId), tableNeedsToRefresh {
+            refreshCollectionSchema(rowID: rowId)
+        }
+        
+        return valueElememts
+    }
+    
+    func refreshCollectionSchema(rowID: String) {
+        //Close and open the nested table to refresh
+        if var rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID }) {
+            if rowDataModel.isExpanded {
+                expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
+                rowDataModel.isExpanded.toggle()
+                expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
+            }
+        }
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {

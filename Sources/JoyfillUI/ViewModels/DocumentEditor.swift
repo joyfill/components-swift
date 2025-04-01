@@ -197,7 +197,11 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-   public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
+    func updateCollectionMap(collectionFieldID: String, columnID: String, rowID: String) -> Bool {
+        return conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID)
+    }
+    
+    public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
@@ -212,6 +216,22 @@ extension DocumentEditor {
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
         }
+    }
+    
+    func getValueElementByRowID(_ rowID: String, from valueElements: [ValueElement]) -> ValueElement? {
+        //Target valueElement which used by condtional logic
+        for element in valueElements {
+            if element.id == rowID {
+                return element
+            } else if let childrens = element.childrens {
+                for children in childrens.values {
+                    if let found = getValueElementByRowID(rowID, from: children.valueToValueElements ?? []) {
+                        return found
+                    }
+                }
+            }
+        }
+        return nil
     }
 
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
