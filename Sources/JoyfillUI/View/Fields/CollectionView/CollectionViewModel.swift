@@ -1033,9 +1033,8 @@ class CollectionViewModel: ObservableObject {
                                                                   rootSchemaKey: rootSchemaKey,
                                                                   nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
                                                                   parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "") ?? []
-        if let tableNeedsToRefresh = tableDataModel.documentEditor?.updateCollectionMap(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId), tableNeedsToRefresh {
-            refreshCollectionSchema(rowID: rowId)
-        }
+        tableDataModel.documentEditor?.updateSchemaVisibility(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
+        refreshCollectionSchema(rowID: rowId)
         
         return valueElememts
     }

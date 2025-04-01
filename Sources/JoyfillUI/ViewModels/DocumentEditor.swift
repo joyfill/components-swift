@@ -197,8 +197,8 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateCollectionMap(collectionFieldID: String, columnID: String, rowID: String) -> Bool {
-        return conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID)
+    func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String) {
+        conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID)
     }
     
     public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {

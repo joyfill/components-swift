@@ -29,14 +29,18 @@ public struct CollectionSchemaLogic {
     var showSchemaMap = [RowSchemaID: Bool]()   // RowSchemaID : Bool
 }
 
+public struct CollectionDependency {
+    var columnDependencyMap = [String: Set<String>]() // columnID: Set of SchemaIDs
+}
+
 class ConditionalLogicHandler {
     weak var documentEditor: DocumentEditor!
     private var showFieldMap = [String: Bool]()
     private var fieldConditionalDependencyMap = [String: Set<String>]()
 
     private var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
-    private var columnDependencyMap = [String: Set<String>]()  // columnID: Set of dependent schemaIDs
-
+    private var collectionDependencyMap = [String: CollectionDependency]() // CollectionFieldID : CollectionDependency
+    
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
@@ -49,9 +53,9 @@ class ConditionalLogicHandler {
     }
     
     private func buildDependencyMap(field: JoyDocField) {
-        guard let schema = field.schema else { return }
+        guard let schema = field.schema, let fieldID = field.id else { return }
         
-        columnDependencyMap.removeAll()
+        var dependencyLogic = CollectionDependency()
         
         for (schemaID, schemaDetails) in schema {
             if let logic = schemaDetails.logic,
@@ -60,12 +64,14 @@ class ConditionalLogicHandler {
                 for condition in conditions {
                     guard let columnID = condition.columnID else { continue }
                     
-                    var dependentSchemas = columnDependencyMap[columnID] ?? Set<String>()
+                    var dependentSchemas = dependencyLogic.columnDependencyMap[columnID] ?? Set<String>()
                     dependentSchemas.insert(schemaID)
-                    columnDependencyMap[columnID] = dependentSchemas
+                    dependencyLogic.columnDependencyMap[columnID] = dependentSchemas
                 }
             }
         }
+        
+        collectionDependencyMap[fieldID] = dependencyLogic
     }
     
     func buildCollectionSchemaMap(field: JoyDocField) {
@@ -74,7 +80,6 @@ class ConditionalLogicHandler {
         let showSchemaMap = buildSchemaMap(valueElements: field.valueToValueElements ?? [], schema: schema, key: rootSchemaKey)
         let collectionSchemaLogic = CollectionSchemaLogic(showSchemaMap: showSchemaMap)
         showCollectionSchemaMap[field.id!] = collectionSchemaLogic
-        print(showCollectionSchemaMap)
     }
     
     func buildSchemaMap(valueElements: [ValueElement], schema: [String: Schema], key: String) -> [RowSchemaID: Bool] {
@@ -369,32 +374,27 @@ class ConditionalLogicHandler {
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
 
-    func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String) -> Bool {
-        guard let affectedSchemas = columnDependencyMap[columnID] else { return false }
+    func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String) {
+        guard let dependencyLogic = collectionDependencyMap[collectionFieldID], let affectedSchemas = dependencyLogic.columnDependencyMap[columnID] else { return }
         
         guard let field = documentEditor.field(fieldID: collectionFieldID),
-              let valueElement = documentEditor.getValueElementByRowID(rowID, from: field.valueToValueElements ?? []) else { return false }
-        
-        var needsRefresh = false
-        
+              let valueElement = documentEditor.getValueElementByRowID(rowID, from: field.valueToValueElements ?? []) else { return }
+                
         for schemaID in affectedSchemas {
             let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: schemaID)
             
-            let newShouldShow = shouldShow(
+            let newhiddenState = shouldShow(
                 fullSchema: field.schema,
                 schemaID: schemaID,
                 valueElement: valueElement
             )
             
-            let current = showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID]
+            let lastHiddenState = showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID]
             
-            if current != newShouldShow {
-                showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID] = newShouldShow
-                needsRefresh = true
+            if lastHiddenState != newhiddenState {
+                showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID] = newhiddenState
             }
         }
-        
-        return needsRefresh
     }
 }
 
