@@ -197,12 +197,16 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String) {
+    func updateSchemaVisibilityOnCellChange(collectionFieldID: String, columnID: String, rowID: String) {
         conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID)
     }
     
-    func updateShowCollectionSchemaMap(collectionFieldID: String, rowID: String) {
+    func updateSchemaVisibilityOnNewRow(collectionFieldID: String, rowID: String) {
         conditionalLogicHandler.updateShowCollectionSchemaMap(collectionFieldID: collectionFieldID, rowID: rowID)
+    }
+    
+    func shouldRefreshSchema(for collectionFieldID: String, columnID: String) -> Bool {
+       return conditionalLogicHandler.shouldRefreshSchema(for: collectionFieldID, columnID: columnID)
     }
     
     public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {

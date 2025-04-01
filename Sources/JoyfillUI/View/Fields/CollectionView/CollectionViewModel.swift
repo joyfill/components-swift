@@ -237,7 +237,7 @@ class CollectionViewModel: ObservableObject {
                                                                childrens: childrens,
                                                                rowWidth: rowWidth(columns, level)))
         }
-        tableDataModel.documentEditor?.updateShowCollectionSchemaMap(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
         updateCollectionWidth()
     }
     
@@ -1034,8 +1034,10 @@ class CollectionViewModel: ObservableObject {
                                                                   rootSchemaKey: rootSchemaKey,
                                                                   nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
                                                                   parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "") ?? []
-        tableDataModel.documentEditor?.updateSchemaVisibility(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
-        refreshCollectionSchema(rowID: rowId)
+        tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
+        if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
+            refreshCollectionSchema(rowID: rowId)
+        }
         
         return valueElememts
     }
@@ -1089,6 +1091,11 @@ class CollectionViewModel: ObservableObject {
                 }
                 
                 tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
+                
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
+                if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
+                    refreshCollectionSchema(rowID: rowId)
+                }
             }
         }
         tableDataModel.filterRowsIfNeeded()

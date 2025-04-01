@@ -144,7 +144,7 @@ class ConditionalLogicHandler {
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
 
-    func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
+    public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID] ?? true
     }
 
@@ -414,6 +414,10 @@ class ConditionalLogicHandler {
         }
         
         showCollectionSchemaMap[collectionFieldID] = collectionLogic
+    }
+    
+    func shouldRefreshSchema(for collectionFieldID: String, columnID: String) -> Bool {
+        return collectionDependencyMap[collectionFieldID]?.columnDependencyMap.keys.contains(columnID) ?? false
     }
 }
 
