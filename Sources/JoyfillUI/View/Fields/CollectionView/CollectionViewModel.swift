@@ -185,7 +185,15 @@ class CollectionViewModel: ObservableObject {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector) + Utility.getTotalTableScrollWidth(level: level)
+        var longestBlockText = ""
+        for column in tableColumns {
+            if column.type == .block {
+                if let rootValueElements = tableDataModel.valueToValueElements {
+                    longestBlockText = getLongestBlockTextRecursive(columnID: column.id ?? "", valueElements: rootValueElements)
+                }
+            }
+        }
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, text: longestBlockText) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func updateCollectionWidth() {
@@ -229,6 +237,8 @@ class CollectionViewModel: ObservableObject {
                                                                childrens: childrens,
                                                                rowWidth: rowWidth(columns, level)))
         }
+        tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        updateCollectionWidth()
     }
     
     func getProgress(rowId: String) -> (Int, Int) {
@@ -274,7 +284,7 @@ class CollectionViewModel: ObservableObject {
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -433,6 +443,7 @@ class CollectionViewModel: ObservableObject {
         guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             collapseTables(index, rowDataModel, level)
+            tableDataModel.cellModels[index].isExpanded.toggle()
         } else {
             var cellModels = [RowDataModel]()
             let parentSchemaKey = rowDataModel.rowType.isRow ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey
@@ -440,28 +451,32 @@ class CollectionViewModel: ObservableObject {
             let parentCellModel = cellModels.first(where: { $0.rowID == parentRowID })
             let ids = tableDataModel.schema[parentSchemaKey]?.children ?? []
             
+            
             for id in ids {
-                var childrens: [String: Children] = [:]
-                if let children = parentCellModel?.childrens[id] {
-                    childrens = [id : children]
-                }
-                
-                let newRowID = UUID().uuidString
-                if let schemaValue = tableDataModel.schema[id] {
-                    let schemaTablecolumns = schemaValue.tableColumns ?? []
-                    let filteredTableColumns = tableDataModel.filterTableColumns(key: id)
-                    var rowDataModel = RowDataModel(rowID: newRowID,
-                                                    cells: rowDataModel.cells,
-                                                    rowType: .tableExpander(schemaValue: (id, schemaValue),
-                                                                            level: level,
-                                                                            parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                            rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
-                                                    childrens: childrens,
-                                                    rowWidth: rowWidth(filteredTableColumns, level)
-                                                   )
-                    rowDataModel.isExpanded = false
-                    cellModels.append(rowDataModel)
-                                        
+                let rowSchemaID = RowSchemaID(rowID: rowDataModel.rowID, schemaID: id)
+                if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShow {
+                    var childrens: [String: Children] = [:]
+                    if let children = parentCellModel?.childrens[id] {
+                        childrens = [id : children]
+                    }
+                    
+                    let newRowID = UUID().uuidString
+                    if let schemaValue = tableDataModel.schema[id] {
+                        let schemaTablecolumns = schemaValue.tableColumns ?? []
+                        let filteredTableColumns = tableDataModel.filterTableColumns(key: id)
+                        var rowDataModel = RowDataModel(rowID: newRowID,
+                                                        cells: rowDataModel.cells,
+                                                        rowType: .tableExpander(schemaValue: (id, schemaValue),
+                                                                                level: level,
+                                                                                parentID: (columnID: "", rowID: rowDataModel.rowID),
+                                                                                rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
+                                                        childrens: childrens,
+                                                        rowWidth: rowWidth(filteredTableColumns, level)
+                        )
+                        rowDataModel.isExpanded = false
+                        cellModels.append(rowDataModel)
+                        
+                    }
                 }
             }
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
@@ -469,7 +484,9 @@ class CollectionViewModel: ObservableObject {
             for cellModel in cellModels {
                 expendSpecificTable(rowDataModel: cellModel, parentID: (columnID: "", rowID: cellModel.rowID), level: level)
             }
+            tableDataModel.cellModels[index].isExpanded.toggle()
         }
+        tableDataModel.filterRowsIfNeeded()
         updateCollectionWidth()
     }
     
@@ -1013,13 +1030,38 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.cellModels.first(where: { $0.rowID == rowId })
-        
-        return tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
+                
+        let valueElememts = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                   rootSchemaKey: rootSchemaKey,
                                                                   nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
                                                                   parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "") ?? []
+        tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
+        if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
+            refreshCollectionSchema(rowID: rowId)
+        }
+        
+        return valueElememts
+    }
+    
+    func refreshCollectionSchema(rowID: String) {
+        //Close and open the nested table to refresh
+        guard let index = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID }) else {
+            return
+        }
+        
+        var rowDataModel = tableDataModel.cellModels[index]
+        
+        if rowDataModel.isExpanded {
+            expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
+            rowDataModel.isExpanded = false
+            expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
+            rowDataModel.isExpanded = true
+            
+            tableDataModel.cellModels[index] = rowDataModel
+        }
+        tableDataModel.filterRowsIfNeeded()
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
@@ -1060,6 +1102,11 @@ class CollectionViewModel: ObservableObject {
                 }
                 
                 tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
+                
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
+                if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
+                    refreshCollectionSchema(rowID: rowId)
+                }
             }
         }
         tableDataModel.filterRowsIfNeeded()

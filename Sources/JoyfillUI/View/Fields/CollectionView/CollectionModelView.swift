@@ -469,7 +469,6 @@ struct ColllectionRowsHeaderView: View {
                                 .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
                                 .onTapGesture {
                                     viewModel.expandTables(rowDataModel: rowModel, level: 0)
-                                    rowModel.isExpanded.toggle()
                                 }
                         }
                     } else {
@@ -492,7 +491,6 @@ struct ColllectionRowsHeaderView: View {
                                     .border(Color.tableCellBorderColor)
                                     .onTapGesture {
                                         viewModel.expandTables(rowDataModel: rowModel, level: level)
-                                        rowModel.isExpanded.toggle()
                                     }
                             } else {
                                 EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
