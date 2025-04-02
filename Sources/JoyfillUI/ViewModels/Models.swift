@@ -319,7 +319,42 @@ struct TableDataModel {
         }
     }
     
+    func getDateFormatFromFieldPosition(key: String, columnID: String) -> DateFormatType? {
+        let schema = fieldPositionSchema[key]
+        return schema?.tableColumns?.first(where: { $0.id == columnID })?.format
+    }
     
+    func buildAllCellsForNestedRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String) -> [CellDataModel] {
+        var cells: [CellDataModel] = []
+        for columnData in tableColumns {
+            let optionsLocal = columnData.options?.map { option in
+                OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+            }
+            let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
+            let defaultDropdownSelectedId = valueUnion?.dropdownValue
+            var dateFormat: DateFormatType = .empty
+            if columnData.type == .date {
+                dateFormat = getDateFormatFromFieldPosition(key: schemaKey, columnID: columnData.id ?? "") ?? .empty
+            }
+            let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
+            let columnDataLocal = CellDataModel(id: columnData.id!,
+                                                defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
+                                                options: optionsLocal,
+                                                valueElements: columnData.images ?? [],
+                                                type: columnData.type,
+                                                title: columnData.title,
+                                                number: columnData.number,
+                                                selectedOptionText: selectedOptionText,
+                                                date: columnData.date,
+                                                format: dateFormat,
+                                                multiSelectValues: columnData.multiSelectValues,
+                                                multi: columnData.multi)
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
+                cells.append(cell)
+            }
+        }
+        return cells
+    }
 
     func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
         var cells: [CellDataModel] = []

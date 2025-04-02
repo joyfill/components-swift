@@ -25,6 +25,11 @@ class CollectionViewModel: ObservableObject {
     
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
+        self.tableDataModel.schema.forEach { key, value in
+            if value.root == true {
+                self.rootSchemaKey = key
+            }
+        }
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
         self.nestedTableCount = tableDataModel.childrens.count
@@ -35,11 +40,7 @@ class CollectionViewModel: ObservableObject {
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .map { $0.id! }
-        self.tableDataModel.schema.forEach { key, value in
-            if value.root == true {
-                self.rootSchemaKey = key
-            }
-        }
+        
     }
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String { 
@@ -83,16 +84,11 @@ class CollectionViewModel: ObservableObject {
                     }
                 }
                
-                let format = getDateFormatFromFieldPosition(key: key, columnID: colID)
+                let format = tableDataModel.getDateFormatFromFieldPosition(key: key, columnID: colID)
                 let width = Utility.getCellWidth(type: column.type ?? .unknown, format: format ?? .empty , text: longestTextForWidth)
                 cellWidthMap[colID] = width
             }
         }
-    }
-    
-    func getDateFormatFromFieldPosition(key: String, columnID: String) -> DateFormatType? {
-        let schema = tableDataModel.fieldPositionSchema[key]
-        return schema?.tableColumns?.first(where: { $0.id == columnID })?.format
     }
     
     func updateCellWidthMap(tableColumns: [FieldTableColumn], columnID: String) {
@@ -202,9 +198,9 @@ class CollectionViewModel: ObservableObject {
             .max() ?? 0
     }
     
-    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, childrens: [String : Children] = [:], rowType: RowType) {
+    func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, childrens: [String : Children] = [:], rowType: RowType, schemaKey: String) {
         var rowCellModels = [TableCellModel]()
-        let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, valueElement)
+        let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
                 if rowDataModel.type == .block {
                     updateCellWidthMap(tableColumns: columns, columnID: rowDataModel.id)
@@ -304,7 +300,7 @@ class CollectionViewModel: ObservableObject {
         let tableColumns = tableDataModel.tableColumns
         var rowToCellMap = [String: [CellDataModel]]()
         for row in nonDeletedRows {
-            let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
+            let cellRowModel = tableDataModel.buildAllCellsForNestedRow(tableColumns: tableColumns, row, schemaKey: rootSchemaKey)
             rowToCellMap[row.id!] = cellRowModel
         }
         return rowToCellMap
@@ -386,7 +382,7 @@ class CollectionViewModel: ObservableObject {
                 } ?? []
                 
                 for (nestedIndex,row) in valueToValueElements.enumerated() {
-                    let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: filteredTableColumns, row)
+                    let cellDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: filteredTableColumns, row, schemaKey: schemaValue?.0 ?? "")
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
                         let cellModel = TableCellModel(rowID: row.id ?? "",
@@ -548,7 +544,7 @@ class CollectionViewModel: ObservableObject {
             duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey)
         case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
             let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows.first!} ) ?? 0
-            var headerTableColumns: [FieldTableColumn] = getTableColumnsByIndex(indexOfFirstSelectedRow) ?? []
+            var headerTableColumns: [FieldTableColumn] = tableDataModel.schema[parentSchemaKey]?.tableColumns ?? []
             
             duplicateNestedRow(parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey)
         default:
@@ -592,7 +588,8 @@ class CollectionViewModel: ObservableObject {
                                    columns: tableColumns,
                                    level: level,
                                    childrens: childrens,
-                                   rowType: .nestedRow(level: level,index: rowDataModel.rowType.index + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey))
+                                   rowType: .nestedRow(level: level,index: rowDataModel.rowType.index + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey),
+                                   schemaKey: parentSchemaKey)
             } else {
                 //update row order
 //                let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
@@ -608,7 +605,8 @@ class CollectionViewModel: ObservableObject {
                                    columns: tableColumns,
                                    level: level,
                                    childrens: childrens,
-                                   rowType: .row(index: rowDataModel.rowType.index + 1))
+                                   rowType: .row(index: rowDataModel.rowType.index + 1),
+                                   schemaKey: parentSchemaKey)
             }
             tableDataModel.filterRowsIfNeeded()
         }
@@ -709,7 +707,8 @@ class CollectionViewModel: ObservableObject {
                            columns: tableDataModel.tableColumns,
                            level: selectedRow.rowType.level,
                            childrens: getChildrensBy(rootSchemaKey),
-                           rowType: .row(index: selecteRowIndex + 1))
+                           rowType: .row(index: selecteRowIndex + 1),
+                           schemaKey: rootSchemaKey)
         
         reIndexingRows(rowDataModel: tableDataModel.cellModels[selecteRowIndex])
         return valueElement.id!
@@ -720,7 +719,7 @@ class CollectionViewModel: ObservableObject {
             return nil
         }
         
-        let tableColumns: [FieldTableColumn] = getTableColumnsByIndex(selecteRowIndex) ?? []
+        let tableColumns: [FieldTableColumn] = tableDataModel.schema[nestedKey]?.tableColumns ?? []
         let cellValues = getCellValuesForNested(columns: tableColumns)
         let selectedRow = tableDataModel.cellModels[selecteRowIndex]
         
@@ -744,7 +743,8 @@ class CollectionViewModel: ObservableObject {
                            childrens: getChildrensBy(selectedRow.rowType.parentSchemaKey),
                            rowType: .nestedRow(level: selectedRow.rowType.level,
                                                index: selecteRowIndex + 1,
-                                               parentID: selectedRow.rowType.parentID, parentSchemaKey: selectedRow.rowType.parentSchemaKey))
+                                               parentID: selectedRow.rowType.parentID, parentSchemaKey: selectedRow.rowType.parentSchemaKey),
+                           schemaKey: nestedKey)
         
         reIndexingRows(rowDataModel: tableDataModel.cellModels[selecteRowIndex])
         return rowData.inserted.id!
@@ -934,7 +934,8 @@ class CollectionViewModel: ObservableObject {
                                columns: tableDataModel.tableColumns,
                                level: 0,
                                childrens: getChildrensBy(rootSchemaKey),
-                               rowType: .row(index: rowIndex))
+                               rowType: .row(index: rowIndex),
+                               schemaKey: rootSchemaKey)
             self.tableDataModel.filterRowsIfNeeded()
         }
     }
@@ -969,7 +970,8 @@ class CollectionViewModel: ObservableObject {
                                rowType: .nestedRow(level: level + 1,
                                                    index: 1,
                                                    parentID: parentID,
-                                                   parentSchemaKey: schemaKey))
+                                                   parentSchemaKey: schemaKey),
+                               schemaKey: schemaKey)
             
             let rowDataModelForIndexing = tableDataModel.cellModels[startingIndex + 2]
             reIndexingRows(rowDataModel: rowDataModelForIndexing)
