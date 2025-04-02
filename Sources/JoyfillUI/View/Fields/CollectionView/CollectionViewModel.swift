@@ -591,14 +591,6 @@ class CollectionViewModel: ObservableObject {
                                    rowType: .nestedRow(level: level,index: rowDataModel.rowType.index + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey),
                                    schemaKey: parentSchemaKey)
             } else {
-                //update row order
-//                let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
-//                if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
-//                    tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
-//                } else {
-//                    tableDataModel.rowOrder.append(valueElement.id!)
-//                }
-                
                 addNestedCellModel(rowID: valueElement.id ?? "",
                                    index: atIndex,
                                    valueElement: valueElement,
@@ -686,14 +678,7 @@ class CollectionViewModel: ObservableObject {
                                                                                rootSchemaKey: rootSchemaKey,
                                                                                nestedKey: rootSchemaKey,
                                                                                parentRowId: "") else { return nil }
-        //update row order
-//        let lastRowOrderIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
         let valueElement = result.inserted
-//        if tableDataModel.rowOrder.count > (lastRowOrderIndex - 1) {
-//            tableDataModel.rowOrder.insert(valueElement.id!, at: lastRowOrderIndex + 1)
-//        } else {
-//            tableDataModel.rowOrder.append(valueElement.id!)
-//        }
         //updateCellModels
         guard let selecteRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
             return nil
@@ -920,13 +905,7 @@ class CollectionViewModel: ObservableObject {
             let index = tableDataModel.cellModels.count
             tableDataModel.valueToValueElements = rowData.all
             let valueElement = rowData.inserted
-//            if tableDataModel.rowOrder.count > (index - 1) {
-//                tableDataModel.rowOrder.insert(valueElement.id!, at: index)
-//            } else {
-//                tableDataModel.rowOrder.append(valueElement.id!)
-//            }
-            
-            
+
             let rowIndex = tableDataModel.cellModels.filter({$0.rowType.isRow}).count + 1
             addNestedCellModel(rowID: valueElement.id!,
                                index: index,
