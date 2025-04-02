@@ -443,6 +443,7 @@ class CollectionViewModel: ObservableObject {
         guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             collapseTables(index, rowDataModel, level)
+            tableDataModel.cellModels[index].isExpanded.toggle()
         } else {
             var cellModels = [RowDataModel]()
             let parentSchemaKey = rowDataModel.rowType.isRow ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey
@@ -483,7 +484,9 @@ class CollectionViewModel: ObservableObject {
             for cellModel in cellModels {
                 expendSpecificTable(rowDataModel: cellModel, parentID: (columnID: "", rowID: cellModel.rowID), level: level)
             }
+            tableDataModel.cellModels[index].isExpanded.toggle()
         }
+        tableDataModel.filterRowsIfNeeded()
         updateCollectionWidth()
     }
     
@@ -1044,13 +1047,21 @@ class CollectionViewModel: ObservableObject {
     
     func refreshCollectionSchema(rowID: String) {
         //Close and open the nested table to refresh
-        if var rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID }) {
-            if rowDataModel.isExpanded {
-                expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
-                rowDataModel.isExpanded.toggle()
-                expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
-            }
+        guard let index = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID }) else {
+            return
         }
+        
+        var rowDataModel = tableDataModel.cellModels[index]
+        
+        if rowDataModel.isExpanded {
+            expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
+            rowDataModel.isExpanded = false
+            expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
+            rowDataModel.isExpanded = true
+            
+            tableDataModel.cellModels[index] = rowDataModel
+        }
+        tableDataModel.filterRowsIfNeeded()
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
