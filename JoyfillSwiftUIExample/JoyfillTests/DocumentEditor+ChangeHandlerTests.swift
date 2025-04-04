@@ -921,3 +921,283 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertEqual(row?[0].cells?["67612793c76286eb2763c366"]?.number, 1712385780000)
     }
 }
+// MARK: - Collection (Nested Table) Tests
+extension DocumentEditorChangeHandlerTests {
+    
+    func testDeleteNestedCollectionItem() {
+        // Setup: use a document that has a nested collection in one of its rows.
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615" // a parent row that contains nested rows
+        let nestedKey = "67ddc5c9910a394a1324bfbe" // key under which nested rows are stored
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+        let documentEditor = self.documentEditor(document: document)
+        
+        // Fetch the parent element and its nested children.
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let parentElement = field.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let children = parentElement.childrens?[nestedKey],
+              let initialNestedRows = children.valueToValueElements else {
+            XCTFail("Nested rows not found in parent")
+            return
+        }
+        
+        // Delete one nested row (for example, the last one).
+        let rowToDelete = initialNestedRows.last!.id!
+        _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                              rootSchemaKey: collectionFieldID,
+                                              nestedKey: nestedKey,
+                                              parentRowId: parentRowId)
+        
+        // Fetch the parent's nested rows again.
+        guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let updatedChildren = updatedParent.childrens?[nestedKey],
+              let updatedNestedRows = updatedChildren.valueToValueElements else {
+            XCTFail("Updated nested rows not found")
+            return
+        }
+        
+        XCTAssertEqual(updatedNestedRows.filter { !($0.deleted ?? false) }.count, initialNestedRows.count - 1)
+    }
+    
+    func testDuplicateNestedCollectionItem() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+        let documentEditor = self.documentEditor(document: document)
+        
+        // Get the parent's nested rows.
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let parentElement = field.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let children = parentElement.childrens?[nestedKey],
+              let initialNestedRows = children.valueToValueElements else {
+            XCTFail("Nested rows not found in parent")
+            return
+        }
+        
+        // Duplicate the first nested row.
+        let nestedRowIdToDuplicate = initialNestedRows.first!.id!
+        _ = documentEditor.duplicateNestedRows(selectedRowIds: [nestedRowIdToDuplicate],
+                                                 fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                                 rootSchemaKey: collectionFieldID,
+                                                 nestedKey: nestedKey,
+                                                 parentRowId: parentRowId)
+        
+        // Check that the count increased by one.
+        guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let updatedChildren = updatedParent.childrens?[nestedKey],
+              let updatedNestedRows = updatedChildren.valueToValueElements else {
+            XCTFail("Updated nested rows not found")
+            return
+        }
+        
+        XCTAssertEqual(updatedNestedRows.count, initialNestedRows.count + 1)
+    }
+    
+    func testMoveNestedCollectionItemUp() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+        let documentEditor = self.documentEditor(document: document)
+        
+        // Get the nested rows from the parent.
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let parentElement = field.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let children = parentElement.childrens?[nestedKey],
+              let nestedRows = children.valueToValueElements,
+              nestedRows.count >= 2 else {
+            XCTFail("Not enough nested rows for move up test")
+            return
+        }
+        
+        // Move the last nested row up.
+        let rowIdToMove = nestedRows.last!.id!
+        _ = documentEditor.moveNestedRowUp(rowID: rowIdToMove,
+                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                             rootSchemaKey: collectionFieldID,
+                                             nestedKey: nestedKey,
+                                             parentRowId: parentRowId)
+        
+        // Fetch updated nested rows.
+        guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let updatedChildren = updatedParent.childrens?[nestedKey],
+              let updatedNestedRows = updatedChildren.valueToValueElements else {
+            XCTFail("Updated nested rows not found")
+            return
+        }
+        
+        // Verify that the moved row is no longer the last.
+        XCTAssertFalse(updatedNestedRows.last!.id == rowIdToMove)
+    }
+    
+    func testMoveNestedCollectionItemDown() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+        let documentEditor = self.documentEditor(document: document)
+        
+        // Get the parent's nested rows.
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let parentElement = field.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let children = parentElement.childrens?[nestedKey],
+              let nestedRows = children.valueToValueElements,
+              nestedRows.count >= 2 else {
+            XCTFail("Not enough nested rows for move down test")
+            return
+        }
+        
+        // Move the first nested row down.
+        let rowIdToMove = nestedRows.first!.id!
+        _ = documentEditor.moveNestedRowDown(rowID: rowIdToMove,
+                                               fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                               rootSchemaKey: collectionFieldID,
+                                               nestedKey: nestedKey,
+                                               parentRowId: parentRowId)
+        
+        // Fetch updated nested rows.
+        guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let updatedChildren = updatedParent.childrens?[nestedKey],
+              let updatedNestedRows = updatedChildren.valueToValueElements else {
+            XCTFail("Updated nested rows not found")
+            return
+        }
+        
+        // Verify that the moved row is no longer the first.
+        XCTAssertFalse(updatedNestedRows.first!.id == rowIdToMove)
+    }
+    
+    func testInsertBelowNestedCollectionItem() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+        let documentEditor = self.documentEditor(document: document)
+        
+        // Get the parent's nested rows before insertion.
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let parentElement = field.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let children = parentElement.childrens?[nestedKey],
+              let initialNestedRows = children.valueToValueElements else {
+            XCTFail("Nested rows not found")
+            return
+        }
+        
+        // Insert a new nested row below the first nested row.
+        let cellValues: [String: ValueUnion] = ["dummyKey": .string("New Nested Item")]
+        guard let insertResult = documentEditor.insertBelowNestedRow(selectedRowID: initialNestedRows.first!.id!,
+                                                                       cellValues: cellValues,
+                                                                       fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                                                       childrenKeys: [nestedKey],
+                                                                       rootSchemaKey: collectionFieldID,
+                                                                       nestedKey: nestedKey,
+                                                                       parentRowId: parentRowId) else {
+            XCTFail("Insertion failed")
+            return
+        }
+        
+        // Verify that the nested rows count increased by one.
+        guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let updatedChildren = updatedParent.childrens?[nestedKey],
+              let updatedNestedRows = updatedChildren.valueToValueElements else {
+            XCTFail("Updated nested rows not found")
+            return
+        }
+        
+        XCTAssertEqual(updatedNestedRows.count, initialNestedRows.count + 1)
+        
+        // Verify that the new nested row is inserted immediately after the selected one.
+        if let firstIndex = updatedNestedRows.firstIndex(where: { $0.id == initialNestedRows.first!.id }),
+           let newIndex = updatedNestedRows.firstIndex(where: { $0.cells?["dummyKey"] == .string("New Nested Item") }) {
+            XCTAssertEqual(newIndex, firstIndex + 1)
+        } else {
+            XCTFail("New nested item not found in expected position")
+        }
+    }
+    
+    func testBulkEditNestedCollection() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+        let documentEditor = self.documentEditor(document: document)
+        
+        // Get the parent's nested rows.
+        guard let field = documentEditor.field(fieldID: collectionFieldID),
+              let parentElement = field.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let children = parentElement.childrens?[nestedKey],
+              let initialNestedRows = children.valueToValueElements else {
+            XCTFail("Nested rows not found")
+            return
+        }
+        
+        // Bulk edit: update a specific cell for all nested rows.
+        let changes: [String: ValueUnion] = ["67ddc5adbb96a9b9f9ff1480": .string("Updated Nested")]
+        let nestedRowIds = initialNestedRows.map { $0.id! }
+        _ = documentEditor.bulkEditForNested(changes: changes,
+                                               selectedRows: nestedRowIds,
+                                               fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID))
+        
+        // Fetch the nested rows again.
+        guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
+              let updatedChildren = updatedParent.childrens?[nestedKey],
+              let updatedNestedRows = updatedChildren.valueToValueElements else {
+            XCTFail("Updated nested rows not found")
+            return
+        }
+        
+        for row in updatedNestedRows {
+            XCTAssertEqual(row.cells?["67ddc5adbb96a9b9f9ff1480"], .string("Updated Nested"))
+        }
+    }
+}

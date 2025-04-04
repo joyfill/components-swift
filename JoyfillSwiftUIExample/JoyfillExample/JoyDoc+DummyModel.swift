@@ -17,6 +17,202 @@ extension JoyDoc {
         return document
     }
     
+    func setCollectionFieldPosition() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "67ddc52d35de157f6d7ebb63" // Collection field id
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 10
+        fieldPosition.x = 0
+        fieldPosition.y = 50
+        fieldPosition.id = "67ddc52d35de157f6d7ebb63_pos" // Unique id for the field position
+        fieldPosition.type = .collection  // Ensure your FieldPositionType enum supports .collection; otherwise, use .table
+        
+        var document = self
+        // Append the new field position to the first page of the first view of the first file.
+        if document.files.count > 0,
+           let _ = document.files[0].views,
+           let _ = document.files[0].views?[0].pages {
+            document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        }
+        return document
+    }
+        
+    func setCollectionField() -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = "67ddc52d35de157f6d7ebb63" // Reference id
+        field.identifier = "field_67ddc530213a11e84876b001" // Reference identifier
+        field.title = "Collection"
+        field.description = ""
+        
+        // Build the collection rows using our model initializers.
+        let collectionValue: [ValueElement] = [
+            // First row
+            ValueElement(dictionary: [
+                "_id": "67ddc5327e6841a074d9240b",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "Grok ",
+                    "67ddc2ndblock9f9ff1480": "hi yfgbfr"
+                ],
+                "children": [String: Any]()
+            ]),
+            // Second row with nested children
+            ValueElement(dictionary: [
+                "_id": "67ddc537b7c2fce05d0c8615",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "First",
+                    "67ddc4db157f14f67da0616a": "joyfill"
+                ],
+                "children": [
+                    "67ddc5c9910a394a1324bfbe": [
+                        "value": [
+                            ValueElement(dictionary: [
+                                "_id": "67ddd18bc3a74e6b350987f9",
+                                "cells": [
+                                    "67ddc61edce16f8b9f8dbf4b": "Grok "
+                                ],
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd191ab6a428ea69c77ad",
+                                "cells": [
+                                    "67ddc61edce16f8b9f8dbf4b": "First "
+                                ],
+                                "children": [
+                                    "67ddc5f5c2477e8457956fb4": [
+                                        "value": [
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a5e6d0d62d55a7aaad",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ]),
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a656a259a9b6ab1263",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ]),
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a779642224075bf23c",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ])
+                                        ]
+                                    ]
+                                ]
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd193eae737b64c24851a",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ])
+                        ]
+                    ],
+                    "67ddcf4f622984fb4518cbc2": [
+                        "value": [
+                            ValueElement(dictionary: [
+                                "_id": "67ddd1994c086e45784edb76",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd19f8577eb22eee2c57d",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd1a03789211ac5f657e3",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ])
+                        ]
+                    ]
+                ]
+            ]),
+            // Third row
+            ValueElement(dictionary: [
+                "_id": "67ddc538123468491bc1d6ac",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "First "
+                ],
+                "children": [String: Any]()
+            ]),
+            // Fourth row
+            ValueElement(dictionary: [
+                "_id": "67ddc53924f0bd68beb066ca",
+                "cells": [
+                    "67ddc4db157f14f67da0616a": "joyfill"
+                ],
+                "children": [String: Any]()
+            ])
+        ]
+        
+        // Assign the collection value using the model representation.
+        field.value = .valueElementArray(collectionValue)
+        
+        // Build the schema using our model; it is constructed as a dictionary and converted
+        // into the expected Schema type.
+        let collectionSchema: [String: Any] = [
+            "collectionSchemaId": [
+                "title": "Main Collection",
+                "root": true,
+                "children": [
+                    "67ddc5c9910a394a1324bfbe",
+                    "67ddcf4f622984fb4518cbc2"
+                ],
+                "tableColumns": [
+                    [
+                        "_id": "67ddc4db157f14f67da0616a",
+                        "type": "text",
+                        "title": "Text Column",
+                        "identifier": "field_column_67ddc4e0457002b72007e321",
+                        "value": "Text Column: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                    ],
+                    [
+                        "_id": "67ddc4db898e2fb0ad3a8d19",
+                        "type": "dropdown",
+                        "title": "Dropdown Column",
+                        "options": [
+                            [
+                                "_id": "67ddc4dbde8b8bfe6322da24",
+                                "value": "Yes",
+                                "deleted": false
+                            ],
+                            [
+                                "_id": "67ddc4db94dba485b1642a23",
+                                "value": "No",
+                                "deleted": false
+                            ],
+                            [
+                                "_id": "67ddc4db3bc809de86ac85d0",
+                                "value": "N/A",
+                                "deleted": false
+                            ]
+                        ],
+                        "identifier": "field_column_67ddc4e093c80641691e8afe",
+                        "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                    ]
+                ]
+            ]
+        ]
+        
+        if let schemaDict = collectionSchema["collectionSchemaId"] as? [String: Any] {
+            field.schema = ["collectionSchemaId": Schema(dictionary: schemaDict)]
+        } else {
+            field.schema = [:]
+        }
+        
+        field.required = false
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
     func setFile() -> JoyDoc {
         var file = File()
         file.id = "6629fab3c0ba3fb775b4a55c"
