@@ -54,7 +54,8 @@ extension JoyDoc {
                 "cells": [
                     "67ddc5adbb96a9b9f9ff1480": "Grok ",
                     "67ddc2ndblock9f9ff1480": "hi yfgbfr",
-                    "67ddc4db157f14f67da0616a": ""
+                    "67ddc4db157f14f67da0616a": "joyfill",
+                    "67ddc59c4aba2df34a6dd1c4": ValueUnion.double(300)
                 ],
                 "children": [String: Any]()
             ]),
@@ -190,6 +191,13 @@ extension JoyDoc {
                             ],
                             "identifier": "field_column_67ddc4e093c80641691e8afe",
                             "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        ],
+                        [
+                            "_id": "67ddc59c4aba2df34a6dd1c4",
+                            "type": "number",
+                            "title": "Number Column",
+                            "deleted": false,
+                            "width": 0
                         ]
                     ]
                 ],
@@ -2485,7 +2493,7 @@ extension JoyDoc {
     
     func setConditionalLogicInCollectionField(schemaKey: String, logic: Logic?) -> JoyDoc {
         var document = self
-        if let collectionFieldIndex = document.fields.firstIndex(where: { $0.type == "collection" && $0.identifier == "field_67ddc530213a11e84876b001" }) {
+        if let collectionFieldIndex = document.fields.firstIndex(where: { $0.type == "collection" }) {
             if var schemaDict = document.fields[collectionFieldIndex].schema {
                 if var targetSchema = schemaDict[schemaKey] {
                     var dict = targetSchema.dictionary
