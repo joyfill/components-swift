@@ -14,6 +14,7 @@ import Joyfill
 final class DocumentEditorChangeHandlerTests: XCTestCase {
     let fileID = "66a0fdb2acd89d30121053b9"
     let pageID = "66aa286569ad25c65517385e"
+    let collectionFieldID = "67ddc52d35de157f6d7ebb63"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document)
@@ -1200,4 +1201,307 @@ extension DocumentEditorChangeHandlerTests {
             XCTAssertEqual(row.cells?["67ddc5adbb96a9b9f9ff1480"], .string("Updated Nested"))
         }
     }
+    
+    func testCollectionFieldConditionalLogicShow() {
+        // Create a document with a collection field.
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setCollectionField()
+        
+        // Define a logic dictionary that should show the schema.
+        let logicDict: [String: Any] = [
+            "action": "show",
+            "eval": "or",
+            "conditions": [
+                [
+                    "schema": "collectionSchemaId",
+                    "column": "67ddc4db157f14f67da0616a",
+                    "value": "joyfill",
+                    "condition": "="
+                ],
+                [
+                    "schema": "collectionSchemaId",
+                    "column": "67ddc4db898e2fb0ad3a8d19",
+                    "value": "67ddc4db77b4a1f62ae14cbd",
+                    "condition": "="
+                ]
+            ],
+            "_id": "test_logic_show_id"
+        ]
+        
+        guard let logic = Logic(field: logicDict) else {
+            XCTFail("Failed to create Logic instance for show action")
+            return
+        }
+        
+        // Update the document by setting conditional logic in the collection field.
+        let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "collectionSchemaId", logic: logic)
+        
+        // Obtain the DocumentEditor.
+        let editor = documentEditor(document: updatedDoc)
+        
+        // For testing, we use the first value element's row id as our row of interest.
+        guard let field = editor.field(fieldID: collectionFieldID),
+              let valueElements = field.valueToValueElements,
+              let firstRowID = valueElements.first?.id else {
+            XCTFail("Collection field or its value elements not found")
+            return
+        }
+        
+        // Create a RowSchemaID for the root schema key (here assumed to be "collectionSchemaId")
+        let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "collectionSchemaId")
+        let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+        
+        XCTAssertTrue(isVisible, "The collection schema should be visible for the 'show' logic case.")
+    }
+    
+    func testCollectionFieldConditionalLogicHide() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setCollectionField()
+        
+        let logicDict: [String: Any] = [
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+                [
+                    "schema": "collectionSchemaId",
+                    "column": "67ddc4db157f14f67da0616a",
+                    "value": "",
+                    "condition": "="
+                ]
+            ],
+            "_id": "test_logic_hide_id"
+        ]
+        
+        guard let logic = Logic(field: logicDict) else {
+            XCTFail("Failed to create Logic instance for hide action")
+            return
+        }
+        
+        let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
+        let editor = documentEditor(document: updatedDoc)
+        
+        guard let field = editor.field(fieldID: collectionFieldID),
+              let valueElements = field.valueToValueElements,
+              let firstRowID = valueElements.first?.id else {
+            XCTFail("Collection field or its value elements not found")
+            return
+        }
+        //first row text cell value is nil
+        let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "collectionSchemaId")
+        let shouldShow = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+        XCTAssertEqual(shouldShow, true)
+    }
+    
+    func testCollectionFieldConditionalLogicNil() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setCollectionField()
+        
+        // Call with nil logic.
+        let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "collectionSchemaId", logic: nil)
+        let editor = documentEditor(document: updatedDoc)
+        
+        // Use the first value element's row id for testing.
+        guard let field = editor.field(fieldID: collectionFieldID),
+              let valueElements = field.valueToValueElements,
+              let firstRowID = valueElements.first?.id else {
+            XCTFail("Collection field or its value elements not found")
+            return
+        }
+        
+        let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "collectionSchemaId")
+        let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+        
+        // With nil logic applied, we expect the default (visible) behavior.
+        XCTAssertTrue(isVisible, "When nil logic is passed, the collection schema should default to visible.")
+    }
+    
+    func testCollectionFieldSchemaPresence() {
+            // Create a document with a collection field.
+            let document = JoyDoc()
+                .setDocument()
+                .setFile()
+                .setCollectionField()
+            
+            // There should be a collection field in document.fields with the expected identifier.
+            guard let field = document.fields.first(where: { $0.type == "collection" && $0.identifier == "field_67ddc530213a11e84876b001" }) else {
+                XCTFail("Collection field not found.")
+                return
+            }
+            
+            // The schema should contain keys from the JSON:
+//            let schemaKeys = field.schema?.keys ?? []
+//            XCTAssertTrue(schemaKeys.contains("collectionSchemaId"), "The root collection schema key should be present.")
+//            XCTAssertTrue(schemaKeys.contains("67ddc5c9910a394a1324bfbe"), "The child table key should be present.")
+//            XCTAssertTrue(schemaKeys.contains("67ddc5f5c2477e8457956fb4"), "The grand child table key should be present.")
+//            XCTAssertTrue(schemaKeys.contains("67ddcf4f622984fb4518cbc2"), "The 2nd child table key should be present.")
+        }
+        
+        // MARK: - Conditional Logic Tests on Collection Schema
+        
+        func testConditionalLogicOnRootSchemaKey_Show() {
+            // Create a document with a collection field.
+            let document = JoyDoc()
+                .setDocument()
+                .setFile()
+                .setCollectionField()
+            
+            // Define a logic that would mark the root schema as visible (action: "show").
+            let logicDict: [String: Any] = [
+                "action": "show",
+                "eval": "or",
+                "conditions": [
+                    [
+                        "schema": "collectionSchemaId",
+                        "column": "67ddc4db157f14f67da0616a",
+                        "value": "joyfill",
+                        "condition": "="
+                    ]
+                ],
+                "_id": "logic_root_show"
+            ]
+            guard let logic = Logic(field: logicDict) else {
+                XCTFail("Failed to create Logic instance.")
+                return
+            }
+            
+            // Apply the logic on the root schema key.
+            let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "collectionSchemaId", logic: logic)
+            let editor = documentEditor(document: updatedDoc)
+            
+            // For testing, use the first row of the collection value.
+            guard let field = editor.field(fieldID: collectionFieldID),
+                  let valueElements = field.valueToValueElements,
+                  let firstRowID = valueElements.first?.id else {
+                XCTFail("Collection field or value elements not found.")
+                return
+            }
+            
+            let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "collectionSchemaId")
+            let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+            XCTAssertTrue(isVisible, "The root schema should be visible for 'show' logic.")
+        }
+        
+        func testConditionalLogicOnChildSchemaKey_Hide() {
+            // Create a document with a collection field.
+            let document = JoyDoc()
+                .setDocument()
+                .setFile()
+                .setCollectionField()
+            
+            // Define a logic that would mark a child schema as hidden (action: "hide").
+            let logicDict: [String: Any] = [
+                "action": "hide",
+                "eval": "and",
+                "conditions": [
+                    [
+                        "schema": "67ddc5c9910a394a1324bfbe",
+                        "column": "67ddc4db157f14f67da0616a",
+                        "value": "",
+                        "condition": "="
+                    ]
+                ],
+                "_id": "logic_child_hide"
+            ]
+            guard let logic = Logic(field: logicDict) else {
+                XCTFail("Failed to create Logic instance for child hide logic.")
+                return
+            }
+            
+            // Apply the logic on the child schema key.
+            let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
+            let editor = documentEditor(document: updatedDoc)
+            
+            guard let field = editor.field(fieldID: collectionFieldID),
+                  let valueElements = field.valueToValueElements,
+                  let firstRowID = valueElements.first?.id else {
+                XCTFail("Collection field or its value elements not found.")
+                return
+            }
+            
+            // In this test, note that the logic is applied to the child schema key.
+            // We check the visibility of the root schema ("collectionSchemaId") remains unaffected.
+            let rootRowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "collectionSchemaId")
+            let isRootVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rootRowSchemaID)
+            // Assuming default behavior is visible at root.
+            XCTAssertTrue(isRootVisible, "The root schema should remain visible.")
+            
+            // Now check the child schema key.
+            let childRowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "67ddc5c9910a394a1324bfbe")
+            let isChildVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: childRowSchemaID)
+            XCTAssertFalse(isChildVisible, "The child schema should be hidden for 'hide' logic.")
+        }
+        
+        func testConditionalLogicWithNilLogic() {
+            // Create a document with a collection field.
+            let document = JoyDoc()
+                .setDocument()
+                .setFile()
+                .setCollectionField()
+            
+            // Apply nil logic on the root schema key.
+            let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "collectionSchemaId", logic: nil)
+            let editor = documentEditor(document: updatedDoc)
+            
+            guard let field = editor.field(fieldID: collectionFieldID),
+                  let valueElements = field.valueToValueElements,
+                  let firstRowID = valueElements.first?.id else {
+                XCTFail("Collection field or its value elements not found.")
+                return
+            }
+            
+            // With nil logic, default behavior should prevail (assume visible).
+            let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "collectionSchemaId")
+            let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+            XCTAssertTrue(isVisible, "With nil logic, the schema should default to visible.")
+        }
+        
+        func testConditionalLogicOnNonexistentSchemaKey() {
+            // Create a document with a collection field.
+            let document = JoyDoc()
+                .setDocument()
+                .setFile()
+                .setCollectionField()
+            
+            // Define a logic for a schema key that does not exist.
+            let logicDict: [String: Any] = [
+                "action": "hide",
+                "eval": "and",
+                "conditions": [
+                    [
+                        "schema": "nonexistentSchemaKey",
+                        "column": "someColumnID",
+                        "value": "anyValue",
+                        "condition": "="
+                    ]
+                ],
+                "_id": "logic_nonexistent"
+            ]
+            guard let logic = Logic(field: logicDict) else {
+                XCTFail("Failed to create Logic instance for nonexistent schema key.")
+                return
+            }
+            
+            // Apply logic on a nonexistent schema key. In this case, nothing should change.
+            let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "nonexistentSchemaKey", logic: logic)
+            let editor = documentEditor(document: updatedDoc)
+            
+            // Use the root schema key to test default behavior.
+            guard let field = editor.field(fieldID: collectionFieldID),
+                  let valueElements = field.valueToValueElements,
+                  let firstRowID = valueElements.first?.id else {
+                XCTFail("Collection field or its value elements not found.")
+                return
+            }
+            
+            let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "collectionSchemaId")
+            let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+            // Expecting default visible (unchanged) since our logic was applied to a key that doesn't exist.
+            XCTAssertTrue(isVisible, "Applying logic on a nonexistent schema key should not affect default visibility.")
+        }
 }

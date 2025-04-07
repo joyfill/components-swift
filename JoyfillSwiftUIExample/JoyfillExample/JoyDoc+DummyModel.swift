@@ -53,7 +53,8 @@ extension JoyDoc {
                 "_id": "67ddc5327e6841a074d9240b",
                 "cells": [
                     "67ddc5adbb96a9b9f9ff1480": "Grok ",
-                    "67ddc2ndblock9f9ff1480": "hi yfgbfr"
+                    "67ddc2ndblock9f9ff1480": "hi yfgbfr",
+                    "67ddc4db157f14f67da0616a": ""
                 ],
                 "children": [String: Any]()
             ]),
@@ -150,57 +151,282 @@ extension JoyDoc {
         // Assign the collection value using the model representation.
         field.value = .valueElementArray(collectionValue)
         
-        // Build the schema using our model; it is constructed as a dictionary and converted
-        // into the expected Schema type.
         let collectionSchema: [String: Any] = [
-            "collectionSchemaId": [
-                "title": "Main Collection",
-                "root": true,
-                "children": [
-                    "67ddc5c9910a394a1324bfbe",
-                    "67ddcf4f622984fb4518cbc2"
-                ],
-                "tableColumns": [
-                    [
-                        "_id": "67ddc4db157f14f67da0616a",
-                        "type": "text",
-                        "title": "Text Column",
-                        "identifier": "field_column_67ddc4e0457002b72007e321",
-                        "value": "Text Column: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                "collectionSchemaId": [
+                    "title": "Main Collection",
+                    "root": true,
+                    "children": [
+                        "67ddc5c9910a394a1324bfbe",
+                        "67ddcf4f622984fb4518cbc2"
                     ],
-                    [
-                        "_id": "67ddc4db898e2fb0ad3a8d19",
-                        "type": "dropdown",
-                        "title": "Dropdown Column",
-                        "options": [
-                            [
-                                "_id": "67ddc4dbde8b8bfe6322da24",
-                                "value": "Yes",
-                                "deleted": false
+                    "tableColumns": [
+                        [
+                            "_id": "67ddc4db157f14f67da0616a",
+                            "type": "text",
+                            "title": "Text Column",
+                            "identifier": "field_column_67ddc4e0457002b72007e321",
+                            "value": "Text Column: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        ],
+                        [
+                            "_id": "67ddc4db898e2fb0ad3a8d19",
+                            "type": "dropdown",
+                            "title": "Dropdown Column",
+                            "options": [
+                                [
+                                    "_id": "67ddc4dbde8b8bfe6322da24",
+                                    "value": "Yes",
+                                    "deleted": false
+                                ],
+                                [
+                                    "_id": "67ddc4db94dba485b1642a23",
+                                    "value": "No",
+                                    "deleted": false
+                                ],
+                                [
+                                    "_id": "67ddc4db3bc809de86ac85d0",
+                                    "value": "N/A",
+                                    "deleted": false
+                                ]
                             ],
-                            [
-                                "_id": "67ddc4db94dba485b1642a23",
-                                "value": "No",
-                                "deleted": false
+                            "identifier": "field_column_67ddc4e093c80641691e8afe",
+                            "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        ]
+                    ]
+                ],
+                "67ddc5c9910a394a1324bfbe": [
+                    "title": "Child Table Title",
+                    "children": [
+                        "67ddc5f5c2477e8457956fb4"
+                    ],
+                    "tableColumns": [
+                        [
+                            "_id": "67ddc5c9cb21736a10919b22",
+                            "type": "text",
+                            "title": "Text Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddc609791020b851791f0d",
+                            "type": "dropdown",
+                            "title": "Dropdown Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddc609599f3ba9fb2f7b2e",
+                                    "value": "Yes",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc6091d62cd644f1ccdbb",
+                                    "value": "No",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc609a9f8e1a573852153",
+                                    "value": "N/A",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ]
                             ],
-                            [
-                                "_id": "67ddc4db3bc809de86ac85d0",
-                                "value": "N/A",
-                                "deleted": false
+                            "optionOrder": [
+                                "67ddc609599f3ba9fb2f7b2e",
+                                "67ddc6091d62cd644f1ccdbb",
+                                "67ddc609a9f8e1a573852153"
                             ]
                         ],
-                        "identifier": "field_column_67ddc4e093c80641691e8afe",
-                        "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        [
+                            "_id": "67ddc60c4f70b8ef5c7a5e3d",
+                            "type": "multiSelect",
+                            "title": "Multiselect Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddc60c79c89a55825ffb0b",
+                                    "value": "Option 1",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": "#f0f0f0"
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc60c27eb845be497ec8f",
+                                    "value": "Option 2",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": "#f0f0f0"
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc60cbab030d3bf6f260e",
+                                    "value": "Option 3",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": "#f0f0f0"
+                                    ]
+                                ]
+                            ],
+                            "optionOrder": [
+                                "67ddc60c79c89a55825ffb0b",
+                                "67ddc60c27eb845be497ec8f",
+                                "67ddc60cbab030d3bf6f260e"
+                            ]
+                        ],
+                        [
+                            "_id": "67ddc60e1a015ed76fc404fc",
+                            "type": "image",
+                            "title": "Image Column",
+                            "deleted": false,
+                            "width": 0,
+                            "maxImageWidth": 190,
+                            "maxImageHeight": 120
+                        ],
+                        [
+                            "_id": "67ddc6136fbc59b8d02d2723",
+                            "type": "number",
+                            "title": "Number Column",
+                            "deleted": false,
+                            "width": 0
+                        ],
+                        [
+                            "_id": "67ddc618ef820f6b8cbc9879",
+                            "type": "date",
+                            "title": "Date Column",
+                            "deleted": false,
+                            "width": 0
+                        ],
+                        [
+                            "_id": "67ddc61edce16f8b9f8dbf4b",
+                            "type": "block",
+                            "title": "Label Column",
+                            "width": 0,
+                            "deleted": false,
+                            "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from XGrok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        ],
+                        [
+                            "_id": "67ddc2ndblock9f9ff1480",
+                            "type": "block",
+                            "title": "Label Column2323",
+                            "width": 0,
+                            "deleted": false,
+                            "value": "ourehwbfuvyberfhvbeurfbvouwofvyicjhgbvretlweuygficewnfr ru vheoriuhv eiuhv hv iurhtoeurhvduhgvh ev viuehdofuvgweorygh97645268673495234 52345 234 523453 4576 4568745678. 6786"
+                        ],
+                        [
+                            "_id": "67ddc5b323b5b9fc08f3f824",
+                            "type": "barcode",
+                            "title": "Barcode Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddc5b5e2f8843d6d5f6771",
+                            "type": "signature",
+                            "title": "Signature Column",
+                            "width": 0,
+                            "deleted": false
+                        ]
+                    ]
+                ],
+                "67ddc5f5c2477e8457956fb4": [
+                    "title": "Grand Child Table Title",
+                    "children": [],
+                    "tableColumns": [
+                        [
+                            "_id": "67ddc5f5107180be0f5befd6",
+                            "type": "text",
+                            "title": "Text Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddd16604dc88ca60898821",
+                            "type": "dropdown",
+                            "title": "Dropdown Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddd1664a80f93bf1584051",
+                                    "value": "Yes",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddd1665198425a6554f362",
+                                    "value": "No",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddd1664e6d82d74191f5b9",
+                                    "value": "N/A",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ]
+                            ],
+                            "optionOrder": [
+                                "67ddd1664a80f93bf1584051",
+                                "67ddd1665198425a6554f362",
+                                "67ddd1664e6d82d74191f5b9"
+                            ]
+                        ],
+                        [
+                            "_id": "67ddd16991439221b58a7148",
+                            "type": "date",
+                            "title": "Date 3rd Column",
+                            "deleted": false,
+                            "width": 0,
+                            "maxImageWidth": 190,
+                            "maxImageHeight": 120
+                        ]
+                    ]
+                ],
+                "67ddcf4f622984fb4518cbc2": [
+                    "title": "2nd Child Table Title: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X.",
+                    "children": [],
+                    "tableColumns": [
+                        [
+                            "_id": "67ddcf4fa46f548aaade239d",
+                            "type": "text",
+                            "title": "Text Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddd17186d63f89705763d9",
+                            "type": "barcode",
+                            "title": "Barcode Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddd174efad8934d569ff8c",
+                            "type": "signature",
+                            "title": "Signature Column",
+                            "width": 0,
+                            "deleted": false
+                        ]
                     ]
                 ]
             ]
-        ]
         
-        if let schemaDict = collectionSchema["collectionSchemaId"] as? [String: Any] {
-            field.schema = ["collectionSchemaId": Schema(dictionary: schemaDict)]
-        } else {
-            field.schema = [:]
-        }
+        field.schema = collectionSchema.mapValues { Schema(dictionary: $0 as! [String: Any]) }
         
         field.required = false
         field.tipTitle = ""
@@ -2254,6 +2480,22 @@ extension JoyDoc {
             document.files[0].views?[0].pages = pages
         }
         
+        return document
+    }
+    
+    func setConditionalLogicInCollectionField(schemaKey: String, logic: Logic?) -> JoyDoc {
+        var document = self
+        if let collectionFieldIndex = document.fields.firstIndex(where: { $0.type == "collection" && $0.identifier == "field_67ddc530213a11e84876b001" }) {
+            if var schemaDict = document.fields[collectionFieldIndex].schema {
+                if var targetSchema = schemaDict[schemaKey] {
+                    var dict = targetSchema.dictionary
+                    dict["logic"] = logic?.dictionary
+                    targetSchema = Schema(dictionary: dict)
+                    schemaDict[schemaKey] = targetSchema
+                }
+                document.fields[collectionFieldIndex].schema = schemaDict
+            }
+        }
         return document
     }
 }
