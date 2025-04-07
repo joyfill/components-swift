@@ -1601,4 +1601,163 @@ extension DocumentEditorChangeHandlerTests {
         
         XCTAssertEqual(isVisible, false)
     }
+    
+    func testCollectionConditionalLogicContainsOperator() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        let logicDict: [String: Any] = [
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+                [
+                    "schema": "collectionSchemaId",
+                    "column": "67ddc4db157f14f67da0616a",
+                    "value": "joy",
+                    "condition": "?="
+                ]
+            ],
+            "_id": "test_logic_contains"
+        ]
+
+        guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
+        let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
+        let editor = DocumentEditor(document: updatedDoc)
+
+        guard let field = editor.field(fieldID: collectionFieldID),
+              let valueElements = field.valueToValueElements,
+              let firstRowID = valueElements.first?.id else {
+            XCTFail("Collection field or its value elements not found")
+            return
+        }
+
+        let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "67ddc5c9910a394a1324bfbe")
+        let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+        XCTAssertEqual(isVisible, false)
+    }
+    
+    func testCollectionConditionalLogicLessThanOperator() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        let logicDict: [String: Any] = [
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+                [
+                    "schema": "collectionSchemaId",
+                    "column": "67ddc59c4aba2df34a6dd1c4",
+                    "value": ValueUnion.double(500),
+                    "condition": "<"
+                ]
+            ],
+            "_id": "test_logic_less_than"
+        ]
+
+        guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
+        let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
+        let editor = DocumentEditor(document: updatedDoc)
+
+        guard let field = editor.field(fieldID: collectionFieldID),
+              let valueElements = field.valueToValueElements,
+              let firstRowID = valueElements.first?.id else {
+            XCTFail("Collection field or its value elements not found")
+            return
+        }
+
+        let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "67ddc5c9910a394a1324bfbe")
+        let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+        XCTAssertEqual(isVisible, false)
+    }
+    
+    func testCollectionConditionalLogicIsNullOperator() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        let logicDict: [String: Any] = [
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+                [
+                    "schema": "collectionSchemaId",
+                    "column": "67ddc5981816e52ad55b71e6",
+                    "condition": "null="
+                ]
+            ],
+            "_id": "test_logic_is_null"
+        ]
+
+        guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
+        let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
+        let editor = DocumentEditor(document: updatedDoc)
+
+        guard let field = editor.field(fieldID: collectionFieldID),
+              let valueElements = field.valueToValueElements,
+              let firstRowID = valueElements.first?.id else {
+            XCTFail("Collection field or its value elements not found")
+            return
+        }
+
+        let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "67ddc5c9910a394a1324bfbe")
+        let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+        XCTAssertEqual(isVisible, false)
+    }
+    
+    func testCollectionConditionalLogicIsNotNullOperator() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        let logicDict: [String: Any] = [
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+                [
+                    "schema": "collectionSchemaId",
+                    "column": "67ddc59c4aba2df34a6dd1c4",
+                    "condition": "*="
+                ]
+            ],
+            "_id": "test_logic_is_not_null"
+        ]
+
+        guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
+        let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
+        let editor = DocumentEditor(document: updatedDoc)
+
+        guard let field = editor.field(fieldID: collectionFieldID),
+              let valueElements = field.valueToValueElements,
+              let firstRowID = valueElements.first?.id else {
+            XCTFail("Collection field or its value elements not found")
+            return
+        }
+
+        let rowSchemaID = RowSchemaID(rowID: firstRowID, schemaID: "67ddc5c9910a394a1324bfbe")
+        let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+        
+        XCTAssertEqual(isVisible, false)
+    }
 }

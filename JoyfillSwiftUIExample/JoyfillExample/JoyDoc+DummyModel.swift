@@ -198,6 +198,36 @@ extension JoyDoc {
                             "title": "Number Column",
                             "deleted": false,
                             "width": 0
+                        ],
+                        [
+                            "_id": "67ddc5981816e52ad55b71e6",
+                            "type": "multiSelect",
+                            "title": "Multiselect Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddc59812e6c0eff62bab58",
+                                    "value": "Option 1",
+                                    "deleted": false
+                                ],
+                                [
+                                    "_id": "67ddc598fc5c30cacb3459ec",
+                                    "value": "Option 2",
+                                    "deleted": false
+                                
+                                ],
+                                [
+                                    "_id": "67ddc598e4f75aaead71e431",
+                                    "value": "Option 3",
+                                    "deleted": false
+                                ]
+                            ],
+                            "optionOrder": [
+                                "67ddc59812e6c0eff62bab58",
+                                "67ddc598fc5c30cacb3459ec",
+                                "67ddc598e4f75aaead71e431"
+                            ]
                         ]
                     ]
                 ],
