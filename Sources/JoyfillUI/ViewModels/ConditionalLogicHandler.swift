@@ -21,16 +21,21 @@ import JoyfillModel
 
 
 public struct RowSchemaID: Hashable {
-    let rowID: String
-    let schemaID: String
+    public let rowID: String
+    public let schemaID: String
+    
+    public init(rowID: String, schemaID: String) {
+        self.rowID = rowID
+        self.schemaID = schemaID
+    }
 }
 
 public struct CollectionSchemaLogic {
-    var showSchemaMap = [RowSchemaID: Bool]()   // RowSchemaID : Bool
+    public var showSchemaMap = [RowSchemaID: Bool]()   // RowSchemaID : Bool
 }
 
 public struct CollectionDependency {
-    var columnDependencyMap = [String: Set<String>]() // columnID: Set of SchemaIDs
+    public var columnDependencyMap = [String: Set<String>]() // columnID: Set of SchemaIDs
 }
 
 class ConditionalLogicHandler {
