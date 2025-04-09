@@ -208,6 +208,11 @@ class CollectionViewModel: ObservableObject {
             return false
         }
 
+        // Check required columns have at least one value across non-deleted rows
+        if !isRequiredColumnsValid(schemaID: schemaID, valueElements: nonDeletedRows) {
+            return false
+        }
+
         // Validate all child schemas for each non-deleted row
         for valueElement in nonDeletedRows {
             if !isAllSchemaValid(for: valueElement.id ?? "", parentSchemaID: schemaID) {
@@ -218,9 +223,51 @@ class CollectionViewModel: ObservableObject {
         return true
     }
     
+    private func isRequiredColumnsValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
+        let validColumns = tableDataModel.filterTableColumns(key: schemaID)
+        let requiredColumns = validColumns.filter({ $0.required == true })
+
+        for requiredColumn in requiredColumns {
+            let columnID = requiredColumn.id ?? ""
+            let allRowsHaveValue = valueElements.allSatisfy { valueElement in
+                if let cell = valueElement.cells?[columnID] {
+                    switch requiredColumn.type {
+                    case .text, .dropdown, .barcode, .signature, .block:
+                        return !(cell.text?.isEmpty ?? true)
+                    case .number:
+                        return cell.number != nil
+                    case .date:
+                        return cell.number != nil
+                    case .multiSelect:
+                        return !(cell.stringArray?.isEmpty ?? true)
+                    case .image:
+                        return !(cell.valueElements?.isEmpty ?? true)
+                    default:
+                        return false
+                    }
+                }
+                return false
+            }
+
+            if !allRowsHaveValue {
+                return false
+            }
+        }
+
+        return true
+    }
+    
     func isAllSchemaValid(for rowID: String, parentSchemaID: String) -> Bool {
         var childsvalidities: [Bool] = []
         let schema = tableDataModel.schema[parentSchemaID]
+        //check the all required columns are filled
+        if let valueElement = tableDataModel.documentEditor?.getValueElementByRowID(rowID, from: tableDataModel.valueToValueElements ?? []) {
+            if !isRequiredColumnsValid(schemaID: parentSchemaID, valueElements: [valueElement]) {
+                return false
+            }
+        }
+        
+        // Check required columns have at least one value across non-deleted rows
         for id in schema?.children ?? [] {
             //IF a child is hiiden its valid
             var valueElements = tableDataModel.valueToValueElements ?? []

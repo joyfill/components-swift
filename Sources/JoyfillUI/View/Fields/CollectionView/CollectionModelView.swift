@@ -319,6 +319,17 @@ struct CollectionExpanderView: View {
                             .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
             }
+            let rowID = parentID.rowID
+            let children = viewModel.getChildren(forRowId: rowID, in: viewModel.tableDataModel.valueToValueElements ?? [])
+        
+            let schemaID = schemaValue?.0 ?? ""
+            let childValueElements = children?[schemaID]?.valueToValueElements
+            
+            if !viewModel.isOnlySchemaValid(schemaID: schemaValue?.0 ?? "", valueElements: childValueElements ?? []) {
+                Image(systemName: "asterisk")
+                    .foregroundColor(.red)
+                    .imageScale(.small)
+            }
             
             ScrollView {
                 Text(schemaValue?.1.title ?? "")
@@ -358,6 +369,12 @@ struct RootTitleRowView: View {
                             .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
                 .accessibilityIdentifier("TableAddRowIdentifier")
+            }
+            
+            if !viewModel.isOnlySchemaValid(schemaID: viewModel.rootSchemaKey, valueElements: viewModel.tableDataModel.valueToValueElements ?? []) {
+                Image(systemName: "asterisk")
+                    .foregroundColor(.red)
+                    .imageScale(.small)
             }
             
             ScrollView {
@@ -405,11 +422,11 @@ struct CollectionColumnHeaderView: View {
                         }
                         
                         //TODO: Handle required for nested table columns
-//                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-//                            Image(systemName: "asterisk")
-//                                .foregroundColor(.red)
-//                                .imageScale(.small)
-//                        }
+                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+                            Image(systemName: "asterisk")
+                                .foregroundColor(.red)
+                                .imageScale(.small)
+                        }
                         
 //                        if ![.image, .block, .date, .progress, .table].contains(column.type) && !isHeaderNested {
 //                            Image(systemName: "line.3.horizontal.decrease.circle")
@@ -565,18 +582,34 @@ struct ColllectionRowsHeaderView: View {
                     .frame(width: 40, height: 60)
                     .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
-            case .nestedRow(let level, let nastedRowIndex, _, _):
-                Text("\(nastedRowIndex)")
-                    .foregroundColor(.secondary)
-                    .font(.caption)
-                    .frame(width: 40, height: 60)
-                    .border(Color.tableCellBorderColor)
+            case .nestedRow(let level, let nastedRowIndex, let parentID, let parentSchemaKey):
+                if !viewModel.isAllSchemaValid(for: rowModel.rowID, parentSchemaID: parentSchemaKey) {
+                    Image(systemName: "asterisk")
+                        .foregroundColor(.red)
+                        .imageScale(.small)
+                        .frame(width: 40, height: 60)
+                        .border(Color.tableCellBorderColor)
+                } else {
+                    Text("\(nastedRowIndex)")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                        .frame(width: 40, height: 60)
+                        .border(Color.tableCellBorderColor)
+                }
             case .row(let rowIndex):
-                Text("\(rowIndex)")
-                    .foregroundColor(.secondary)
-                    .font(.caption)
-                    .frame(width: 40, height: 60)
-                    .border(Color.tableCellBorderColor)
+                if  !viewModel.isAllSchemaValid(for: rowModel.rowID, parentSchemaID: viewModel.rootSchemaKey) {
+                    Image(systemName: "asterisk")
+                        .foregroundColor(.red)
+                        .imageScale(.small)
+                        .frame(width: 40, height: 60)
+                        .border(Color.tableCellBorderColor)
+                } else {
+                    Text("\(rowIndex)")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                        .frame(width: 40, height: 60)
+                        .border(Color.tableCellBorderColor)
+                }
             case .tableExpander:
                 EmptyView()
             }
