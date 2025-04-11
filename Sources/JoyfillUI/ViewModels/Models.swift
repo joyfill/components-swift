@@ -868,7 +868,7 @@ struct CellDataModel: Hashable, Equatable {
         guard let type = type else { return false }
         switch type {
         case .text, .block, .barcode, .signature:
-            return title.isEmpty || title != ""
+            return !title.isEmpty || title != ""
         case .number:
             return number != nil
         case .dropdown:
