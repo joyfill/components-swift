@@ -552,6 +552,7 @@ struct ColllectionRowsHeaderView: View {
                     Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "circle.square.fill" : "square")
                         .frame(width: 40, height: 60)
                         .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 ? Color.gray.opacity(0.4) : nil)
+                        .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             if !viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) {
                                 viewModel.tableDataModel.selectAllNestedRows(rowID: rowModel.rowID)
