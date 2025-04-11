@@ -17,16 +17,17 @@ struct CollectionRowView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                }
-                .frame(minWidth: viewModel.cellWidthMap[cellModel.data.id],
-                       maxWidth: viewModel.cellWidthMap[cellModel.data.id],
-                       minHeight: 50,
-                       maxHeight: .infinity)
+                CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+                    .frame(
+                        minWidth: viewModel.cellWidthMap[cellModel.data.id],
+                        maxWidth: viewModel.cellWidthMap[cellModel.data.id],
+                        minHeight: 50,
+                        maxHeight: .infinity
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1)
+                    )
             }
         }
     }
