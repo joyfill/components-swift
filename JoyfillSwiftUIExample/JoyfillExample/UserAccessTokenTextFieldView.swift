@@ -11,7 +11,6 @@ struct UserAccessTokenTextFieldView: View {
     @State var templateAndDocuments: ([Document], [Document]) = ([], [])
     @State var apiService: APIService? = nil
     @State private var isFetching: Bool = false
-    @State private var isAnimating: Bool = false
     var isAlreadyToken: Bool
     
     var body: some View {
@@ -24,115 +23,65 @@ struct UserAccessTokenTextFieldView: View {
                 EmptyView()
             }
         } else {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Header Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Welcome to Joyfill")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.primary)
-                        
-                        Text("Enter your access token to get started")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.bottom, 10)
-                    
-                    // Token Input Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Access Token")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        
-                        TextEditor(text: $userAccessToken)
-                            .frame(height: 150)
-                            .padding(12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(.systemBackground))
-                                    .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                    }
-                    
-                    // Warning Message
-                    if let warning = warningMessage {
-                        HStack {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(.red)
-                            Text(warning)
-                                .foregroundColor(.red)
-                                .font(.subheadline)
-                        }
-                        .padding(.vertical, 8)
-                        .transition(.opacity)
-                    }
-                    
-                    // Submit Button
-                    Button(action: {
-                        withAnimation {
-                            isFetching = true
-                            self.apiService = APIService(accessToken: userAccessToken,
-                                                         baseURL: "https://api-joy.joyfill.io/v1")
-                            fetchTemplates {
-                                if warningMessage != nil || !(warningMessage?.isEmpty ?? false) {
-                                    isFetching = false
-                                }
-                            }
-                        }
-                    }) {
-                        HStack {
-                            if isFetching {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.8)
-                            } else {
-                                Image(systemName: "arrow.right.circle.fill")
-                                    .font(.system(size: 18))
-                            }
-                            Text(isFetching ? "Verifying..." : "Continue")
-                                .font(.headline)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            userAccessToken.isEmpty ? Color.gray.opacity(0.5) :
-                                isFetching ? Color.blue.opacity(0.8) : Color.blue
-                        )
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .shadow(color: Color.blue.opacity(0.3), radius: 5, x: 0, y: 2)
-                    }
-                    .disabled(userAccessToken.isEmpty || isFetching)
-                    .scaleEffect(isAnimating ? 0.95 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isAnimating)
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Enter your access token here:")
+                    .font(.headline)
+                    .padding(.leading, 10)
+                
+                if let warning = warningMessage {
+                    Text(warning)
+                        .foregroundColor(.red)
                 }
-                .padding(24)
-            }
-            .background(Color(.systemGroupedBackground))
-            .navigationBarHidden(true)
+                
+                TextEditor(text: $userAccessToken)
+                    .frame(height: 200)
+                    .padding(10)
+                    .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+                
+                Button(action: {
+                    isFetching = true
+                    self.apiService = APIService(accessToken: userAccessToken,
+                                                 baseURL: "https://api-joy.joyfill.io/v1")
+                    fetchTemplates {
+                        if warningMessage != nil || !(warningMessage?.isEmpty ?? false) {
+                            isFetching = false
+                        }
+                    }
+                }, label: {
+                    Spacer()
+                    Text(isFetching ? "Entering..." : "Enter")
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(userAccessToken.isEmpty ? .gray: .blue)
+                        .cornerRadius(8)
+                    Spacer()
+                })
+                .disabled(userAccessToken.isEmpty || isFetching)
+                
+                NavigationLink(
+                    destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
+                                                           result: templateAndDocuments, isAlreadyToken: false)),
+                    isActive: $showTemplate
+                ) {
+                    EmptyView()
+                        .padding()
+                }
+            }.padding()
         }
     }
-                
+                    
     private func fetchTemplates(page: Int = 1, limit: Int = 10, completion: @escaping () -> Void) {
         apiService?.fetchTemplates(page: page, limit: limit) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let templates):
-                    withAnimation {
-                        self.templateAndDocuments.0 = templates
-                        warningMessage = nil
-                        showTemplate = true
-                        isFetching = false
-                    }
+                    self.templateAndDocuments.0 = templates
+                    warningMessage = nil
+                    showTemplate = true
+                    isFetching = false
                 case .failure(let error):
-                    withAnimation {
-                        warningMessage = "Invalid token: \(error.localizedDescription)"
-                        isFetching = false
-                    }
+                    warningMessage = "Invalid token: \(error.localizedDescription)"
                 }
                 completion()
             }
@@ -146,7 +95,7 @@ struct UserJsonTextFieldView: View {
     @State var showCameraScannerView: Bool = false
     @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
     @State var scanResults: String = ""
-    @State private var isAnimating: Bool = false
+    @State private var isFetching: Bool = false
     
     private var changeManager: ChangeManager {
         ChangeManager(apiService: APIService(accessToken: "", baseURL: ""), showImagePicker: showImagePicker, showScan: showScan)
@@ -163,80 +112,40 @@ struct UserJsonTextFieldView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Header Section
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("JSON Form Editor")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.primary)
-                    
-                    Text("Enter your JSON to create a form")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Enter your JSON here:")
+                .font(.headline)
+                .padding(.leading, 10)
+            
+            TextEditor(text: $jsonString)
+                .frame(height: 200)
+                .padding(10)
+                .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+                .onChange(of: jsonString) { _ in
+                    validateJSON()
                 }
-                .padding(.bottom, 10)
-                
-                // JSON Input Section
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("JSON Input")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    TextEditor(text: $jsonString)
-                        .frame(height: 200)
-                        .padding(12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(.systemBackground))
-                                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
-                        .onChange(of: jsonString) { _ in
-                            validateJSON()
-                        }
-                }
-                
-                // Error Message
-                if let error = errorMessage {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.red)
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.subheadline)
-                    }
-                    .padding(.vertical, 8)
-                    .transition(.opacity)
-                }
-                
-                // See Form Button
-                NavigationLink(destination: LazyView(destinationView())) {
-                    HStack {
-                        Image(systemName: "doc.text.fill")
-                            .font(.system(size: 18))
-                        Text("See Form")
-                            .font(.headline)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        jsonString.isEmpty || errorMessage != nil ? Color.gray.opacity(0.5) : Color.blue
-                    )
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                    .shadow(color: Color.blue.opacity(0.3), radius: 5, x: 0, y: 2)
-                }
-                .disabled(jsonString.isEmpty || errorMessage != nil)
-                .scaleEffect(isAnimating ? 0.95 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isAnimating)
+            
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .font(.footnote)
+                    .padding(.leading, 10)
             }
-            .padding(24)
+            
+            NavigationLink(destination: LazyView(destinationView())) {
+                Spacer()
+                Text("See Form")
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(jsonString.isEmpty || errorMessage != nil ? Color.gray : Color.blue)
+                    .cornerRadius(8)
+                Spacer()
+            }
+            .disabled(jsonString.isEmpty || errorMessage != nil)
+            
         }
-        .background(Color(.systemGroupedBackground))
+        .padding()
     }
     
     func presentCameraScannerView() {
@@ -277,17 +186,7 @@ struct UserJsonTextFieldView: View {
             return
         }
         do {
-            let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]
-            guard let dict = dictionary else {
-                errorMessage = "Invalid JSON format"
-                return
-            }
-            // Check if the JSON has the required structure
-            guard let files = dict["files"] as? [[String: Any]], !files.isEmpty,
-                  let views = files[0]["views"] as? [[String: Any]], !views.isEmpty else {
-                errorMessage = "JSON must contain 'files' array with at least one file containing 'views'"
-                return
-            }
+            _ = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]
             errorMessage = nil
         } catch {
             errorMessage = "Invalid JSON format"
