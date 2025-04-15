@@ -269,6 +269,11 @@ class CollectionViewModel: ObservableObject {
         
         // Check required columns have at least one value across non-deleted rows
         for id in schema?.children ?? [] {
+            let childSchema = tableDataModel.schema[id]
+            guard let required = childSchema?.required, required else {
+                childsvalidities.append(true)
+                continue
+            }
             //IF a child is hiiden its valid
             var valueElements = tableDataModel.valueToValueElements ?? []
             let schemaID = id
