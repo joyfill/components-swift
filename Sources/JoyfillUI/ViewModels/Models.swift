@@ -616,9 +616,18 @@ struct TableDataModel {
         return dummyCell
     }
     
-    func getDummyNestedCell(col: Int, selectedOptionText: String = "", rowID: String) -> CellDataModel? {
+    func getDummyNestedCell(col: Int, isBulkEdit: Bool, rowID: String) -> CellDataModel? {
         let selectedRow = cellModels.first(where: { $0.rowID == rowID })
-        return selectedRow?.cells[col].data
+        var cell = selectedRow?.cells[col].data
+        if isBulkEdit {
+            cell?.title = ""
+            cell?.defaultDropdownSelectedId = nil
+            cell?.valueElements = []
+            cell?.number = nil
+            cell?.date = nil
+            cell?.multiSelectValues = nil
+        }
+        return cell
     }
 
     func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
@@ -868,7 +877,7 @@ struct CellDataModel: Hashable, Equatable {
         guard let type = type else { return false }
         switch type {
         case .text, .block, .barcode, .signature:
-            return title.isEmpty || title != ""
+            return !title.isEmpty || title != ""
         case .number:
             return number != nil
         case .dropdown:
@@ -878,7 +887,7 @@ struct CellDataModel: Hashable, Equatable {
         case .date:
             return date != nil
         case .image:
-            return valueElements != nil || valueElements != []
+            return valueElements.count > 0
         case .progress, .unknown, .table:
             // TODO: Handle it for nested table
             return false

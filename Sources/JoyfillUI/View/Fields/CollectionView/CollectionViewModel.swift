@@ -180,6 +180,132 @@ class CollectionViewModel: ObservableObject {
         
     }
     
+    func isOnlySchemaValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
+        guard let schema = tableDataModel.schema[schemaID],
+              let required = schema.required,
+              required else {
+            return true
+        }
+        
+        // Check if there's at least one non-deleted row
+        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
+        if nonDeletedRows.isEmpty {
+            return false
+        }
+        return true
+    }
+    
+    func isSchemaValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
+        guard let schema = tableDataModel.schema[schemaID],
+              let required = schema.required,
+              required else {
+            return true
+        }
+
+        // Check if there's at least one non-deleted row
+        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
+        if nonDeletedRows.isEmpty {
+            return false
+        }
+
+        // Check required columns have at least one value across non-deleted rows
+        if !isRequiredColumnsValid(schemaID: schemaID, valueElements: nonDeletedRows) {
+            return false
+        }
+
+        // Validate all child schemas for each non-deleted row
+        for valueElement in nonDeletedRows {
+            if !isAllSchemaValid(for: valueElement.id ?? "", parentSchemaID: schemaID) {
+                return false
+            }
+        }
+
+        return true
+    }
+    
+    private func isRequiredColumnsValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
+        let validColumns = tableDataModel.filterTableColumns(key: schemaID)
+        let requiredColumns = validColumns.filter({ $0.required == true })
+
+        for requiredColumn in requiredColumns {
+            let columnID = requiredColumn.id ?? ""
+            let allRowsHaveValue = valueElements.allSatisfy { valueElement in
+                if let cell = valueElement.cells?[columnID] {
+                    switch requiredColumn.type {
+                    case .text, .dropdown, .barcode, .signature, .block:
+                        return !(cell.text?.isEmpty ?? true)
+                    case .number:
+                        return cell.number != nil
+                    case .date:
+                        return cell.number != nil
+                    case .multiSelect:
+                        return !(cell.stringArray?.isEmpty ?? true)
+                    case .image:
+                        return !(cell.valueElements?.isEmpty ?? true)
+                    default:
+                        return false
+                    }
+                }
+                return false
+            }
+
+            if !allRowsHaveValue {
+                return false
+            }
+        }
+
+        return true
+    }
+    
+    func isAllSchemaValid(for rowID: String, parentSchemaID: String) -> Bool {
+        var childsvalidities: [Bool] = []
+        let schema = tableDataModel.schema[parentSchemaID]
+        //check the all required columns are filled
+        if let valueElement = tableDataModel.documentEditor?.getValueElementByRowID(rowID, from: tableDataModel.valueToValueElements ?? []) {
+            if !isRequiredColumnsValid(schemaID: parentSchemaID, valueElements: [valueElement]) {
+                return false
+            }
+        }
+        
+        // Check required columns have at least one value across non-deleted rows
+        for id in schema?.children ?? [] {
+            let childSchema = tableDataModel.schema[id]
+            guard let required = childSchema?.required, required else {
+                childsvalidities.append(true)
+                continue
+            }
+            //IF a child is hiiden its valid
+            var valueElements = tableDataModel.valueToValueElements ?? []
+            let schemaID = id
+            
+            let shouldShow = shouldShowSchema(rowID: rowID, schemaID: schemaID)
+            if !shouldShow {
+                childsvalidities.append(true)
+                continue
+            }
+            
+            guard let children = getChildren(forRowId: rowID, in: valueElements) else {
+                return false
+            }
+            
+            guard let childValueElements = children[schemaID]?.valueToValueElements else {
+                return false
+            }
+            valueElements = childValueElements
+            
+            childsvalidities.append(isSchemaValid(schemaID: schemaID, valueElements: valueElements))
+        }
+        return childsvalidities.allSatisfy{ $0 }
+    }
+    
+    func shouldShowSchema(rowID: String, schemaID: String) -> Bool {
+        let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: schemaID)
+        if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID) {
+            return shouldShow
+        }
+        return true
+    }
+    
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
         var longestBlockText = ""
         for column in tableColumns {
