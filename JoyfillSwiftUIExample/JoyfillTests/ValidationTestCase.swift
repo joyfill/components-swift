@@ -881,4 +881,22 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
     }
+    
+    func testRequiredCollectionField() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired()
+            .setCollectionFieldPosition()
+        
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+        
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67ddc52d35de157f6d7ebb63")
+    }
 }
