@@ -119,230 +119,146 @@ class ValidationHandler {
     }
 
     func validateCollectionField(id: String) -> FieldValidity {
-        let field = documentEditor.field(fieldID: id)!
-        let schema = field.schema
-        let fieldPosition = documentEditor.fieldPosition(fieldID: id)!
+        guard let field = documentEditor.field(fieldID: id),
+              let schema = field.schema else {
+            return FieldValidity(field: JoyDocField(), status: .valid)
+        }
+
         var isCollectionValid = true
         let rows = field.valueToValueElements ?? []
-        
-        // Get root schema and its columns
-        let rootSchema = schema?.first(where: { (key: String, value: Schema) in
-            value.root == true
-        })?.value
-        let columns = rootSchema?.tableColumns ?? []
-        
-        var rowValidities = [RowValidity]()
-        var columnValidities = [ColumnValidity]()
-        
-        // Filter non-deleted rows
         let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
-        
-        // Validate each row
+
+        var rowValidities: [RowValidity] = []
+        var columnValidities: [ColumnValidity] = []
+        var childrenValidities: [FieldValidity] = []
+
+        // Identify root schema and columns
+        guard let rootSchema = schema.first(where: { $0.value.root == true })?.value else {
+            return FieldValidity(field: field, status: .valid)
+        }
+        let columns = rootSchema.tableColumns ?? []
+
+        // Validate each row's cells
         for row in nonDeletedRows {
-            var cellValidities = [CellValidity]()
-            guard let cells = row.cells else { continue }
-            
-            // Validate each cell in the row
+            var cellValidities: [CellValidity] = []
+
             for column in columns {
                 guard let columnID = column.id else { continue }
-                let isRequired = column.required ?? false
-                
-                if !isRequired {
-                    let cellValidity = CellValidity(status: .valid, row: row, column: column)
-                    cellValidities.append(cellValidity)
-                    continue
-                }
-                
-                if let cellValue = cells[columnID], !cellValue.isEmpty {
-                    let cellValidity = CellValidity(status: .valid, row: row, column: column)
-                    cellValidities.append(cellValidity)
-                } else {
-                    let cellValidity = CellValidity(status: .invalid, row: row, column: column)
-                    cellValidities.append(cellValidity)
+                let required = column.required ?? false
+                let cellValue = row.cells?[columnID]
+
+                if required && (cellValue?.isEmpty ?? true) {
+                    cellValidities.append(CellValidity(status: .invalid, row: row, column: column, reasons: ["Required value is missing"]))
                     isCollectionValid = false
+                } else {
+                    cellValidities.append(CellValidity(status: .valid, row: row, column: column))
                 }
             }
-            
-            // Add row validity
+
             let rowStatus: ValidationStatus = cellValidities.allSatisfy { $0.status == .valid } ? .valid : .invalid
             rowValidities.append(RowValidity(status: rowStatus, cellValidities: cellValidities))
         }
-        
-        // Validate each column
-        for (index, column) in columns.enumerated() {
-            var cellValidities = [CellValidity]()
+
+        // Validate columns
+        for column in columns {
+            guard let columnID = column.id else { continue }
+            var cellValidities: [CellValidity] = []
+
             for rowValidity in rowValidities {
-                cellValidities.append(rowValidity.cellValidities[index])
+                if let cell = rowValidity.cellValidities.first(where: { $0.column.id == columnID }) {
+                    cellValidities.append(cell)
+                }
             }
-            
+
             let columnStatus: ValidationStatus = cellValidities.allSatisfy { $0.status == .valid } ? .valid : .invalid
             columnValidities.append(ColumnValidity(status: columnStatus, cellValidities: cellValidities))
         }
-        
-        // Validate nested schemas
-        if let schema = field.schema {
-            for (schemaID, schemaValue) in schema {
-                if schemaValue.root == true {
-                    // Check if schema is visible for each row
-                    let isSchemaVisible = nonDeletedRows.allSatisfy { row in
-                        documentEditor.shouldShowSchema(for: id, rowSchemaID: RowSchemaID(rowID: row.id ?? "", schemaID: schemaID))
-                    }
-                    
-                    // If schema is visible and required, check for at least one row
-                    if isSchemaVisible && schemaValue.required == true && nonDeletedRows.isEmpty {
-                        isCollectionValid = false
-                    }
-                    
-                    // Validate child schemas
-                    if let children = schemaValue.children {
-                        for childID in children {
-                            if let childSchema = field.schema?[childID] {
-                                // Check each row individually for child schema visibility and requirements
-                                for row in nonDeletedRows {
-                                    let isChildVisible = documentEditor.shouldShowSchema(for: id, rowSchemaID: RowSchemaID(rowID: row.id ?? "", schemaID: childID))
-                                    
-                                    // If child schema is visible and required, check for at least one row
-                                    if isChildVisible && childSchema.required == true {
-                                        let childRows = row.childrens?[childID]?.valueToValueElements ?? []
-                                        if childRows.isEmpty {
-                                            isCollectionValid = false
-                                            break
-                                        }
-                                        
-                                        // Recursively validate child rows and their nested schemas
-                                        if !validateNestedRows(rows: childRows, schema: childSchema, fieldID: id) {
-                                            isCollectionValid = false
-                                            break
-                                        }
-                                    }
+
+        // Validate nested children schemas recursively
+        for (schemaID, schemaValue) in schema where schemaValue.root == true {
+            if let children = schemaValue.children {
+                for childID in children {
+                    if let childSchema = schema[childID] {
+                        for row in nonDeletedRows {
+                            let isChildVisible = documentEditor.shouldShowSchema(for: id, rowSchemaID: RowSchemaID(rowID: row.id ?? "", schemaID: childID))
+                            if isChildVisible && childSchema.required == true {
+                                let childRows = row.childrens?[childID]?.valueToValueElements ?? []
+                                if childRows.isEmpty {
+                                    isCollectionValid = false
+                                    continue
                                 }
+
+                                // Recurse into children validation
+                                let nestedValidity = validateCollectionFieldChild(fieldID: id, rows: childRows, schema: childSchema)
+                                if nestedValidity.status == .invalid {
+                                    isCollectionValid = false
+                                }
+                                childrenValidities.append(nestedValidity)
                             }
                         }
                     }
                 }
             }
         }
-        
-        let fieldStatus: ValidationStatus = isCollectionValid ? .valid : .invalid
-        return FieldValidity(field: field, status: fieldStatus, rowValidities: rowValidities, columnValidities: columnValidities)
+
+        let status: ValidationStatus = isCollectionValid ? .valid : .invalid
+        return FieldValidity(field: field, status: status, children: childrenValidities, rowValidities: rowValidities, columnValidities: columnValidities)
     }
     
-    private func validateNestedRows(rows: [ValueElement], schema: Schema, fieldID: String) -> Bool {
+    private func validateCollectionFieldChild(fieldID: String, rows: [ValueElement], schema: Schema) -> FieldValidity {
         var isValid = true
-        
-        // Filter non-deleted rows
         let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
-        
-        // Get columns from schema
         let columns = schema.tableColumns ?? []
-        
-        // Validate each row's cells
+
+        var rowValidities: [RowValidity] = []
+        var columnValidities: [ColumnValidity] = []
+
         for row in nonDeletedRows {
-            guard let cells = row.cells else { continue }
-            
-            // Validate cells for current schema
+            var cellValidities: [CellValidity] = []
+
             for column in columns {
                 guard let columnID = column.id else { continue }
-                let isRequired = column.required ?? false
-                
-                if !isRequired {
-                    continue
-                }
-                
-                if let cellValue = cells[columnID], !cellValue.isEmpty {
-                    continue
-                } else {
+                let required = column.required ?? false
+                let cellValue = row.cells?[columnID]
+
+                if required && (cellValue?.isEmpty ?? true) {
+                    cellValidities.append(CellValidity(status: .invalid, row: row, column: column, reasons: ["Required value is missing"]))
                     isValid = false
-                    break
+                } else {
+                    cellValidities.append(CellValidity(status: .valid, row: row, column: column))
                 }
             }
-            
-            if !isValid {
-                break
-            }
-            
-            // Recursively validate child schemas
+
+            let rowStatus: ValidationStatus = cellValidities.allSatisfy { $0.status == .valid } ? .valid : .invalid
+            rowValidities.append(RowValidity(status: rowStatus, cellValidities: cellValidities))
+
             if let children = schema.children {
                 for childID in children {
                     if let childSchema = documentEditor.field(fieldID: fieldID)?.schema?[childID] {
                         let isChildVisible = documentEditor.shouldShowSchema(for: fieldID, rowSchemaID: RowSchemaID(rowID: row.id ?? "", schemaID: childID))
-                        
                         if isChildVisible && childSchema.required == true {
                             let childRows = row.childrens?[childID]?.valueToValueElements ?? []
                             if childRows.isEmpty {
                                 isValid = false
-                                break
+                                continue
                             }
-                            
-                            // Recursively validate deeper nested rows
-                            if !validateNestedRows(rows: childRows, schema: childSchema, fieldID: fieldID) {
+                            let nested = validateCollectionFieldChild(fieldID: fieldID, rows: childRows, schema: childSchema)
+                            if nested.status == .invalid {
                                 isValid = false
-                                break
                             }
                         }
                     }
                 }
             }
         }
-        
-        return isValid
-    }
 
-    private func validateSchema(schemaID: String, schema: Schema, rows: [ValueElement], fieldID: String) -> SchemaValidity {
-        var isSchemaValid = true
-        var columnValidities: [ColumnValidity] = []
-        
-        // Filter non-deleted rows
-        let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
-        
-        // Check if schema is required and has at least one row
-        if schema.required == true && nonDeletedRows.isEmpty {
-            isSchemaValid = false
+        for column in columns {
+            guard let columnID = column.id else { continue }
+            let cellValidities = rowValidities.compactMap { $0.cellValidities.first(where: { $0.column.id == columnID }) }
+            let colStatus: ValidationStatus = cellValidities.allSatisfy { $0.status == .valid } ? .valid : .invalid
+            columnValidities.append(ColumnValidity(status: colStatus, cellValidities: cellValidities))
         }
-        
-        // Validate each column in the schema
-        if let columns = schema.tableColumns {
-            for column in columns {
-                var cellValidities: [CellValidity] = []
-                let isRequired = column.required ?? false
-                
-                for row in nonDeletedRows {
-                    guard let cells = row.cells,
-                          let columnID = column.id else { continue }
-                    
-                    if !isRequired {
-                        let cellValidity = CellValidity(status: .valid, row: row, column: column)
-                        cellValidities.append(cellValidity)
-                        continue
-                    }
-                    
-                    if let cellValue = cells[columnID], !cellValue.isEmpty {
-                        let cellValidity = CellValidity(status: .valid, row: row, column: column)
-                        cellValidities.append(cellValidity)
-                    } else {
-                        let cellValidity = CellValidity(status: .invalid, row: row, column: column)
-                        cellValidities.append(cellValidity)
-                        isSchemaValid = false
-                    }
-                }
-                
-                let columnStatus: ValidationStatus = cellValidities.allSatisfy { $0.status == .valid } ? .valid : .invalid
-                columnValidities.append(ColumnValidity(status: columnStatus, cellValidities: cellValidities))
-            }
-        }
-        
-        // Validate child schemas
-        if let children = schema.children {
-            for childID in children {
-                if let childSchema = documentEditor.field(fieldID: fieldID)?.schema?[childID] {
-                    let childValidity = validateSchema(schemaID: childID, schema: childSchema, rows: rows, fieldID: fieldID)
-                    if childValidity.status == .invalid {
-                        isSchemaValid = false
-                    }
-                }
-            }
-        }
-        
-        return SchemaValidity(schemaID: schemaID, status: isSchemaValid ? .valid : .invalid, columnValidities: columnValidities)
+
+        return FieldValidity(field: documentEditor.field(fieldID: fieldID)!, status: isValid ? .valid : .invalid, rowValidities: rowValidities, columnValidities: columnValidities)
     }
 }
