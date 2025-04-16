@@ -16,7 +16,10 @@ struct CollectionRowView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
+            let columns = viewModel.tableDataModel.schema[rowDataModel.rowType.isRow ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey]?.tableColumns ?? []
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+                let column = columns.first(where: { $0.id == cellModel.data.id })
+                
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(
                         minWidth: viewModel.cellWidthMap[cellModel.data.id],
@@ -25,8 +28,17 @@ struct CollectionRowView: View {
                         maxHeight: .infinity
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 0)
-                            .stroke(Color.tableCellBorderColor, lineWidth: 1)
+                        ZStack {
+                            // Outer border
+                            RoundedRectangle(cornerRadius: 0)
+                                .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+                            
+                            if let required = column?.required, required, !cellModel.data.isCellFilled {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .inset(by: 2)
+                                    .stroke(Color.red, lineWidth: 0.5)
+                            }
+                        }
                     )
             }
         }
@@ -423,11 +435,11 @@ struct CollectionColumnHeaderView: View {
                         }
                         
                         //TODO: Handle required for nested table columns
-                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-                            Image(systemName: "asterisk")
-                                .foregroundColor(.red)
-                                .imageScale(.small)
-                        }
+//                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+//                            Image(systemName: "asterisk")
+//                                .foregroundColor(.red)
+//                                .imageScale(.small)
+//                        }
                         
 //                        if ![.image, .block, .date, .progress, .table].contains(column.type) && !isHeaderNested {
 //                            Image(systemName: "line.3.horizontal.decrease.circle")
