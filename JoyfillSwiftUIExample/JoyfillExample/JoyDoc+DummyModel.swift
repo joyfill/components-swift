@@ -2977,4 +2977,75 @@ extension JoyDoc {
         document.fields.append(field)
         return document
     }
+    
+    func setCollectionFieldRequired(
+        isFieldRequired: Bool = true,
+        isSchemaRequired: Bool = true,
+        includeNestedRows: Bool = true,
+        omitRequiredValues: Bool = false
+    ) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = "67ddc52d35de157f6d7ebb63"
+        field.identifier = "field_67ddc530213a11e84876b001"
+        field.title = "Collection"
+        field.required = isFieldRequired
+        field.file = "6629fab3c0ba3fb775b4a55c"
+
+        // Top-level row setup
+        var topRow = ValueElement()
+        topRow.id = "row_1"
+        topRow.deleted = false
+        topRow.cells = [
+            "col_text_1": omitRequiredValues ? ValueUnion.string("") : ValueUnion.string("Top-level value")
+        ]
+
+        if includeNestedRows {
+            let nestedChildRow = ValueElement(dictionary: [
+                "_id": "nested_row_1",
+                "cells": omitRequiredValues ? [:] : ["nested_col_1": "Nested value"],
+                "children": [String: Any]()
+            ])
+            topRow.childrens = [
+                "child_schema_1": Children(dictionary: ["value": [nestedChildRow]])
+            ]
+        }
+
+        field.value = .valueElementArray([topRow])
+
+        // Schema definition
+        let schemaDict: [String: Any] = [
+            "main_schema": [
+                "title": "Root Schema",
+                "root": true,
+                "children": ["child_schema_1"],
+                "tableColumns": [
+                    [
+                        "_id": "col_text_1",
+                        "type": "text",
+                        "title": "Text Column",
+                        "required": true
+                    ]
+                ]
+            ],
+            "child_schema_1": [
+                "title": "Child Schema",
+                "required": true,
+                "tableColumns": [
+                    [
+                        "_id": "nested_col_1",
+                        "type": "text",
+                        "title": "Nested Column",
+                        "required": true
+                    ]
+                ]
+            ]
+        ]
+
+        field.schema = schemaDict.mapValues { Schema(dictionary: $0 as! [String: Any]) }
+
+        var document = self
+        document.fields.append(field)
+        return document
+    }
 }
