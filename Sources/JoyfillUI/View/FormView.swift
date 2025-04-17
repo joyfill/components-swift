@@ -266,14 +266,15 @@ struct PageDuplicateListView: View {
                                     .accessibilityIdentifier("PageSelectionIdentifier")
                                     
                                     Spacer()
-                                    
-                                    Button(action: {
-                                        documentEditor.duplicatePage(pageID: pageID)
-                                    }, label: {
-                                        Image(systemName: "doc.on.doc")
-                                            .foregroundStyle(.blue)
-                                    })
-                                    .accessibilityIdentifier("PageDuplicateIdentifier")
+                                    if documentEditor.isPageDuplicateEnabled {
+                                        Button(action: {
+                                            documentEditor.duplicatePage(pageID: pageID)
+                                        }, label: {
+                                            Image(systemName: "doc.on.doc")
+                                                .foregroundStyle(.blue)
+                                        })
+                                        .accessibilityIdentifier("PageDuplicateIdentifier")
+                                    }
                                 }
                             }
                             .padding(.horizontal, 16)

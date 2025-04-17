@@ -14,6 +14,7 @@ public class DocumentEditor: ObservableObject {
     @Published var currentPageOrder: [String] = [] 
     
     public var mode: Mode
+    public var isPageDuplicateEnabled: Bool
     public var showPageNavigationView: Bool
     
     var fieldMap = [String: JoyDocField]() {
@@ -30,9 +31,10 @@ public class DocumentEditor: ObservableObject {
     private var validationHandler: ValidationHandler!
     private var conditionalLogicHandler: ConditionalLogicHandler!
     
-    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true) {
+    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false) {
         self.document = document
         self.mode = mode
+        self.isPageDuplicateEnabled = isPageDuplicateEnabled
         self.showPageNavigationView = navigation
         self.currentPageID = ""
         self.events = events
