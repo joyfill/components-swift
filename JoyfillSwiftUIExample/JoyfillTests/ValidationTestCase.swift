@@ -880,5 +880,47 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
+
+        // Test Case for duplicate the page
+    func testPageDuplication() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+        
+        let originalPageID = "6629fab320fca7c8107a6cf6"
+        let fieldCount = document.fields.count * 2
+        let documentEditor = documentEditor(document: document)
+        documentEditor.duplicatePage(pageID: originalPageID)
+        
+        let firstFile = documentEditor.document.files.first
+        let pageOrder = firstFile?.pageOrder
+          
+        // Ensure the original page id exists.
+        guard let originalIndex = pageOrder?.firstIndex(of: originalPageID) else {
+            XCTFail("Original page id not found in pageOrder.")
+            return
+        }
+        XCTAssertTrue(documentEditor.document.files[0].pages!.count > 1, "Document should have more than one page.")
+        XCTAssertTrue(pageOrder!.count > originalIndex + 1, "Duplicated page id should appear after the original.")
+        let duplicatedPageID = pageOrder?[originalIndex + 1]
+        XCTAssertNotEqual(duplicatedPageID, originalPageID, "Duplicated page id must differ from original.")
+        XCTAssertNotNil(firstFile?.pages?.first(where: { $0.id == originalPageID }), "Original page not found in pages array.")
+        XCTAssertNotNil(firstFile?.pages?.first(where: { $0.id == duplicatedPageID }), "Duplicated page not found in pages array.")
+        let originalPage = firstFile?.pages?.first(where: { $0.id == originalPageID })
+        let duplicatedPage = firstFile?.pages?.first(where: { $0.id == duplicatedPageID })
+        let origFieldPositions = originalPage?.fieldPositions ?? []
+        let dupFieldPositions = duplicatedPage?.fieldPositions ?? []
+        XCTAssertEqual(origFieldPositions.count, dupFieldPositions.count, "Field positions count should match.")
+        for (index, dupFieldPos) in dupFieldPositions.enumerated() {
+            if index < origFieldPositions.count {
+                let origFieldPos = origFieldPositions[index]
+                XCTAssertNotEqual(dupFieldPos.field, origFieldPos.field, "Duplicated field id should differ from original field id.")
+            }
+        }
+        
+        XCTAssertEqual(documentEditor.document.fields.count, fieldCount, "Fields count can not match.")
     }
 }

@@ -57,7 +57,7 @@ struct PagesView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            if documentEditor.showPageNavigationView && pageFieldModels.count > 1 {
+            if documentEditor.showPageNavigationView {
                 Button(action: {
                     isSheetPresented = true
                 }, label: {
@@ -79,13 +79,15 @@ struct PagesView: View {
                 }
             }
 
-            let pageBinding = Binding(
-                get: {
-                    pageFieldModels[documentEditor.currentPageID] ?? pageFieldModels.first!.value
-                }, set: {
-                    pageFieldModels[documentEditor.currentPageID] = $0
-                })
-            PageView(page: pageBinding, documentEditor: documentEditor)
+            if let firstPage = pageFieldModels.first?.value ?? pageFieldModels[documentEditor.currentPageID] {
+                let pageBinding = Binding(
+                    get: { pageFieldModels[documentEditor.currentPageID] ?? firstPage },
+                    set: { pageFieldModels[documentEditor.currentPageID] = $0 }
+                )
+                PageView(page: pageBinding, documentEditor: documentEditor)
+            } else {
+                Text("No pages available") 
+            }
         }
     }
 }
@@ -230,7 +232,7 @@ struct PageDuplicateListView: View {
     @Binding var currentPageID: String
     let pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
-    let documentEditor: DocumentEditor
+    @State var documentEditor: DocumentEditor
     @Binding var pageFieldModels: [String: PageModel]
 
     var body: some View {
@@ -248,24 +250,38 @@ struct PageDuplicateListView: View {
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
             ScrollView {
-                ForEach(pageOrder ?? [], id: \.self) { pageID in
+                ForEach(documentEditor.currentPageOrder ?? [], id: \.self) { pageID in
                     if documentEditor.shouldShow(pageID: pageID) {
                         if let page = documentEditor.firstPageFor(currentPageID: pageID) {
                             VStack(alignment: .leading) {
-                                Button(action: {
-                                    currentPageID = pageID ?? ""
-                                    presentationMode.wrappedValue.dismiss()
-                                }, label: {
-                                    HStack {
-                                        Image(systemName: currentPageID == pageID ? "checkmark.circle.fill" : "circle")
-                                        Text(page.name ?? "")
-                                            .darkLightThemeColor()
+                                HStack {
+                                    Button(action: {
+                                        currentPageID = pageID ?? ""
+                                        presentationMode.wrappedValue.dismiss()
+                                    }, label: {
+                                        HStack {
+                                            Image(systemName: currentPageID == pageID ? "checkmark.circle.fill" : "circle")
+                                            Text(page.name ?? "")
+                                                .multilineTextAlignment(.leading)
+                                                .darkLightThemeColor()
+                                        }
+                                    })
+                                    .accessibilityIdentifier("PageSelectionIdentifier")
+                                    
+                                    Spacer()
+                                    if documentEditor.isPageDuplicateEnabled {
+                                        Button(action: {
+                                            documentEditor.duplicatePage(pageID: pageID)
+                                        }, label: {
+                                            Image(systemName: "doc.on.doc")
+                                                .foregroundStyle(.blue)
+                                        })
+                                        .accessibilityIdentifier("PageDuplicateIdentifier")
                                     }
-                                })
-                                .accessibilityIdentifier("PageSelectionIdentifier")
-                                Divider()
+                                }
                             }
                             .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                         }
                     }
                 }
@@ -279,13 +295,4 @@ struct PageDuplicateListView: View {
         }
         .padding(.all, 16)
     }
-    
-    func duplicatePage() {
-         // TODO: Append new page in pages
-         // TODO: Append new page ID in pageOrder
-         // TODO: Append new field Data in field data array
- //        guard var firstPage = pages.first else { return }
- //        firstPage.id = UUID().uuidString
- //        pages.append(firstPage)
-     }
 }

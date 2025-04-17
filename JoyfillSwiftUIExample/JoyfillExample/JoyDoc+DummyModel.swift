@@ -2060,4 +2060,54 @@ extension JoyDoc {
         
         return document
     }
+
+    // set field position
+    func setPageWithFieldPosition() -> JoyDoc {
+        let position1 = FieldPosition(dictionary: [
+            "field": "6629fad980958bff0608cd4a",
+            "displayType": "original",
+            "width": 4,
+            "height": 8,
+            "x": 1,
+            "y": 0,
+            "titleDisplay": "inline",
+            "_id": "generatedID1",
+            "type": "text"
+        ])
+        let position2 = FieldPosition(dictionary: [
+            "field": "6629fb1d92a76d06750ca4a1",
+            "displayType": "original",
+            "width": 4,
+            "height": 8,
+            "x": 1,
+            "y": 8,
+            "_id": "generatedID2",
+            "type": "text"
+        ])
+        
+            var page = Page()
+            page.name = "Page 1"
+            page.hidden = false
+            page.width = 816
+            page.height = 1056
+            page.cols = 24
+            page.rowHeight = 8
+            page.layout = "grid"
+            page.presentation = "normal"
+            page.margin = 0
+            page.padding = 0
+            page.borderWidth = 0
+            page.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
+            page.id = "6629fab320fca7c8107a6cf6"
+            page.fieldPositions = [position1, position2]
+            var document = self
+            if var pages = document.files[0].pages {
+                pages.append(page)
+                document.files[0].pages = pages
+            } else {
+                document.files[0].pages = [page]
+            }
+            return document
+        }
+
 }
