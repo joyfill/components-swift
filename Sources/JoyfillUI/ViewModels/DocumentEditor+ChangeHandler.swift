@@ -1058,4 +1058,53 @@ extension DocumentEditor {
         }
         return false
     }
+    
+    func onChangeDuplicatePage(view: ModelView? = nil,viewId: String, page: Page, fields: [JoyDocField], fileId: String, targetIndex: Int, newFields: [JoyDocField], viewPage: Page? = nil) {
+        var newFieldsArray: [Change] = []
+        
+        if newFields.count > 0 {
+            for field in newFields {
+                newFieldsArray.append(
+                    Change(v: 1,
+                           sdk: "swift",
+                           id: documentID!,
+                           identifier: documentIdentifier!,
+                           target: "field.create",
+                           fileId: fileId,
+                           change: field.dictionary,
+                           createdOn: Date().timeIntervalSince1970)
+                )
+            }
+        }
+        
+        if !viewId.isEmpty {
+            newFieldsArray.append(Change(v: 1,
+                                         sdk: "swift",
+                                         id: documentID!,
+                                         identifier: documentIdentifier!,
+                                         target: "page.create",
+                                         fileId: fileId,
+                                         viewType: "mobile",
+                                         viewId: viewId,
+                                         change: [
+                                            "page": viewPage!.dictionary,
+                                            "targetIndex": targetIndex
+                                         ],
+                                         createdOn: Date().timeIntervalSince1970)
+            )
+        }
+        newFieldsArray.append(Change(v: 1,
+                                     sdk: "swift",
+                                     id: documentID!,
+                                     identifier: documentIdentifier!,
+                                     target: "page.create",
+                                     fileId: fileId,
+                                     change: [
+                                        "page": page.dictionary,
+                                        "targetIndex": targetIndex
+                                     ],
+                                     createdOn: Date().timeIntervalSince1970)
+        )
+        events?.onChange(changes: newFieldsArray, document: document)
+    }
 }
