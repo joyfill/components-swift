@@ -147,6 +147,7 @@ struct TableDataModel {
     var tableColumns = [FieldTableColumn]()
     var childrens = [String]()
     var schema: [String : Schema] = [:]
+    var fieldPositionSchema: [String : FieldPositionSchema] = [:]
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
@@ -179,10 +180,11 @@ struct TableDataModel {
                 
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
+            self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
                 if value.root == true {
                     //Only top level columns
-                    self.tableColumns = filterTableColumns(tableColumns: value.tableColumns ?? [])
+                    self.tableColumns = filterTableColumns(key: key)
                     self.childrens = value.children ?? []
                 }
             }
@@ -209,16 +211,21 @@ struct TableDataModel {
         filterRowsIfNeeded()
     }
     
-    func filterTableColumns(tableColumns: [FieldTableColumn]) -> [FieldTableColumn] {
+    func filterTableColumns(key: String) -> [FieldTableColumn] {
         // filter TableColumns Based On Supported TableColumn And Hidden property
-        var finalTableColumns: [FieldTableColumn] = []
-        for column in tableColumns {
-            //TODO: Handle hidden property also here
-            if let columnType = column.type, collectionSupportedColumnTypes.contains(columnType) {
-                finalTableColumns.append(column)
+        guard let columns = schema[key]?.tableColumns else { return [] }
+
+        return columns.filter { column in
+            guard let columnType = column.type,
+                  collectionSupportedColumnTypes.contains(columnType) else {
+                return false
             }
+
+            let fieldPositionColumns = fieldPositionSchema[key]?.tableColumns
+            let isHidden = fieldPositionColumns?.first(where: { $0.id == column.id })?.hidden ?? false
+
+            return !isHidden
         }
-        return finalTableColumns
     }
         
     mutating func filterRowsIfNeeded() {
@@ -312,7 +319,42 @@ struct TableDataModel {
         }
     }
     
+    func getDateFormatFromFieldPosition(key: String, columnID: String) -> DateFormatType? {
+        let schema = fieldPositionSchema[key]
+        return schema?.tableColumns?.first(where: { $0.id == columnID })?.format
+    }
     
+    func buildAllCellsForNestedRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String) -> [CellDataModel] {
+        var cells: [CellDataModel] = []
+        for columnData in tableColumns {
+            let optionsLocal = columnData.options?.map { option in
+                OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+            }
+            let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
+            let defaultDropdownSelectedId = valueUnion?.dropdownValue
+            var dateFormat: DateFormatType = .empty
+            if columnData.type == .date {
+                dateFormat = getDateFormatFromFieldPosition(key: schemaKey, columnID: columnData.id ?? "") ?? .empty
+            }
+            let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
+            let columnDataLocal = CellDataModel(id: columnData.id!,
+                                                defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
+                                                options: optionsLocal,
+                                                valueElements: columnData.images ?? [],
+                                                type: columnData.type,
+                                                title: columnData.title,
+                                                number: columnData.number,
+                                                selectedOptionText: selectedOptionText,
+                                                date: columnData.date,
+                                                format: dateFormat,
+                                                multiSelectValues: columnData.multiSelectValues,
+                                                multi: columnData.multi)
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
+                cells.append(cell)
+            }
+        }
+        return cells
+    }
 
     func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
         var cells: [CellDataModel] = []
@@ -574,9 +616,18 @@ struct TableDataModel {
         return dummyCell
     }
     
-    func getDummyNestedCell(col: Int, selectedOptionText: String = "", rowID: String) -> CellDataModel? {
+    func getDummyNestedCell(col: Int, isBulkEdit: Bool, rowID: String) -> CellDataModel? {
         let selectedRow = cellModels.first(where: { $0.rowID == rowID })
-        return selectedRow?.cells[col].data
+        var cell = selectedRow?.cells[col].data
+        if isBulkEdit {
+            cell?.title = ""
+            cell?.defaultDropdownSelectedId = nil
+            cell?.valueElements = []
+            cell?.number = nil
+            cell?.date = nil
+            cell?.multiSelectValues = nil
+        }
+        return cell
     }
 
     func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
@@ -826,7 +877,7 @@ struct CellDataModel: Hashable, Equatable {
         guard let type = type else { return false }
         switch type {
         case .text, .block, .barcode, .signature:
-            return title.isEmpty || title != ""
+            return !title.isEmpty || title != ""
         case .number:
             return number != nil
         case .dropdown:
@@ -836,7 +887,7 @@ struct CellDataModel: Hashable, Equatable {
         case .date:
             return date != nil
         case .image:
-            return valueElements != nil || valueElements != []
+            return valueElements.count > 0
         case .progress, .unknown, .table:
             // TODO: Handle it for nested table
             return false

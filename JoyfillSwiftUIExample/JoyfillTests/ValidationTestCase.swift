@@ -923,4 +923,193 @@ final class ValidationTestCase: XCTestCase {
         
         XCTAssertEqual(documentEditor.document.fields.count, fieldCount, "Fields count can not match.")
     }
+    
+}
+
+extension ValidationTestCase {
+    func testRequiredCollectionField() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired()
+            .setCollectionFieldPosition()
+        
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+        
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67ddc52d35de157f6d7ebb63")
+    }
+    
+    func testCollectionField_AllValid_ShouldBeValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: false
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .valid)
+        XCTAssertEqual(result.fieldValidities.first?.status, .valid)
+    }
+    
+    func testCollectionField_MissingRequiredTopLevelValue_ShouldBeInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+        XCTAssertEqual(result.fieldValidities.first?.status, .invalid)
+    }
+    
+    func testCollectionField_NoNestedRowsButRequiredSchema_ShouldBeInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: false,
+                omitRequiredValues: false
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+        XCTAssertEqual(result.fieldValidities.first?.status, .invalid)
+    }
+    
+    func testCollectionField_NotRequired_ShouldBeValidEvenIfEmpty() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: false,
+                isSchemaRequired: false,
+                includeNestedRows: false,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .valid)
+        XCTAssertEqual(result.fieldValidities.first?.status, .valid)
+    }
+
+    func testCollectionField_FieldRequired_SchemaNotRequiredWithValues_ShouldBeValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .valid)
+    }
+
+    func testCollectionField_FieldAndSchemaRequired_WithoutValues_ShouldBeInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: true)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+    }
+
+    func testCollectionField_FieldRequired_MissingChildCell_ShouldBeInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+    }
+
+    func testCollectionField_FieldAndSchemaRequired_CompleteData_ShouldBeValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .valid)
+    }
+
+    func testCollectionField_ChildDataMissingRequiredColumn_ShouldBeInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+    }
 }

@@ -231,6 +231,20 @@ struct CollectionEditMultipleRowsSheetView: View {
         self.viewModel = viewModel
         self.tableColumns = tableColumns
     }
+    
+    @ViewBuilder
+    private func fieldTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
+        HStack {
+            if let required = col.required, required, !isCellFilled {
+                Image(systemName: "asterisk")
+                    .foregroundColor(.red)
+                    .imageScale(.small)
+            }
+            Text(col.title)
+                .font(.headline.bold())
+        }
+        .padding(.bottom, -8)
+    }
 
     var body: some View {
         ScrollView {
@@ -350,8 +364,8 @@ struct CollectionEditMultipleRowsSheetView: View {
 
                 ForEach(Array(tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     if let row = viewModel.tableDataModel.selectedRows.first {
-                        let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, rowID: row)!
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
+                        let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row)!
                         var cellModel = TableCellModel(rowID: row,
                                                        data: cell,
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
@@ -451,16 +465,45 @@ struct CollectionEditMultipleRowsSheetView: View {
                             }
                         }
 
-                        
+                        var isFilledBasedOnChange: Bool {
+                            guard isUsedForBulkEdit, let changeValue = changes[colIndex] else {
+                                return false
+                            }
+
+                            switch changeValue {
+                            case .string(let str):
+                                return !str.isEmpty
+                            case .double:
+                                return true
+                            case .int:
+                                return true
+                            case .bool:
+                                return true
+                            case .array(let arr):
+                                return !arr.isEmpty
+                            case .valueElementArray(let arr):
+                                return !arr.isEmpty
+                            case .null:
+                                return false
+                            default:
+                                return false
+                            }
+                        }
+
+                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
+
                         switch col.type {
                         case .text:
-                            var str = viewModel.tableDataModel.selectedRows.count == 1 ? cellModel.data.title : ""
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            var str = !isUsedForBulkEdit ? cellModel.data.title : ""
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             let binding = Binding<String>(
                                 get: {
-                                    str
+                                    if isUsedForBulkEdit {
+                                        if case .string(let changedStr) = changes[colIndex] { return changedStr }
+                                        return ""
+                                    } else {
+                                        return str
+                                    }
                                 },
                                 set: { newValue in
                                     str = newValue
@@ -492,9 +535,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 )
                                 .cornerRadius(10)
                         case .dropdown:
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
@@ -503,9 +544,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .cornerRadius(10)
                                 .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                         case .date:
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .padding(.vertical, 2)
                                 .overlay(
@@ -515,9 +554,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .cornerRadius(10)
                                 .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                         case .number:
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .keyboardType(.decimalPad)
                                 .frame(minHeight: 40)
@@ -528,9 +565,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .cornerRadius(10)
                                 .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                         case .multiSelect:
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
                                 .padding(.vertical, 4)
                                 .overlay(
@@ -548,10 +583,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                     cellModel = newValue
                                 }
                             )
-                            
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             HStack {
                                 Spacer()
                                 TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
@@ -574,9 +606,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                     cellModel = newValue
                                 }
                             )
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             HStack {
                                 Spacer()
                                 TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
@@ -590,9 +620,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             .cornerRadius(10)
                             
                         case .barcode:
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .frame(minHeight: 40)
                                 .overlay(
@@ -601,9 +629,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 )
                                 .cornerRadius(10)
                         case .block:
-                            Text(col.title)
-                                .font(.headline.bold())
-                                .padding(.bottom, -8)
+                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableBlockView(cellModel: Binding.constant(cellModel))
                                 .frame(minHeight: 40)
                                 .overlay(

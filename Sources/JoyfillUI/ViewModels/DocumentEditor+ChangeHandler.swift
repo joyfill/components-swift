@@ -489,6 +489,10 @@ extension DocumentEditor {
                 if children.isEmpty {
                     children = [nestedKey : Children(dictionary: [:])]
                 }
+                
+                if children[nestedKey] == nil {
+                    children[nestedKey] = Children(dictionary: [:])
+                }
                 var nestedElements = children[nestedKey]?.valueToValueElements ?? []
                 nestedElements.append(newRow)
                 children[nestedKey]?.value = ValueUnion.valueElementArray(nestedElements)

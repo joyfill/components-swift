@@ -31,7 +31,6 @@ struct UserAccessTokenTextFieldView: View {
                 if let warning = warningMessage {
                     Text(warning)
                         .foregroundColor(.red)
-                        .padding()
                 }
                 
                 TextEditor(text: $userAccessToken)
@@ -51,10 +50,10 @@ struct UserAccessTokenTextFieldView: View {
                 }, label: {
                     Spacer()
                     Text(isFetching ? "Entering..." : "Enter")
+                        .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(userAccessToken.isEmpty ? .gray: .blue)
-                        .foregroundColor(.white)
                         .cornerRadius(8)
                     Spacer()
                 })
@@ -66,12 +65,12 @@ struct UserAccessTokenTextFieldView: View {
                     isActive: $showTemplate
                 ) {
                     EmptyView()
+                        .padding()
                 }
-            }
-            .padding()
+            }.padding()
         }
     }
-                
+                    
     private func fetchTemplates(page: Int = 1, limit: Int = 10, completion: @escaping () -> Void) {
         apiService?.fetchTemplates(page: page, limit: limit) { result in
             DispatchQueue.main.async {
@@ -96,6 +95,7 @@ struct UserJsonTextFieldView: View {
     @State var showCameraScannerView: Bool = false
     @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
     @State var scanResults: String = ""
+    @State private var isFetching: Bool = false
     
     private var changeManager: ChangeManager {
         ChangeManager(apiService: APIService(accessToken: "", baseURL: ""), showImagePicker: showImagePicker, showScan: showScan)
@@ -135,14 +135,15 @@ struct UserJsonTextFieldView: View {
             NavigationLink(destination: LazyView(destinationView())) {
                 Spacer()
                 Text("See Form")
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(jsonString.isEmpty || errorMessage != nil ? Color.gray : Color.blue)
-                    .foregroundColor(.white)
                     .cornerRadius(8)
                 Spacer()
             }
             .disabled(jsonString.isEmpty || errorMessage != nil)
+            
         }
         .padding()
     }
@@ -177,7 +178,7 @@ struct UserJsonTextFieldView: View {
     
     func validateJSON() {
         guard !jsonString.isEmpty else {
-            errorMessage = nil
+            errorMessage = "Please enter a JSON object"
             return
         }
         guard let jsonData = jsonString.data(using: .utf8) else {

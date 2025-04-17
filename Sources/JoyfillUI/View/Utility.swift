@@ -26,13 +26,13 @@ class Utility {
         }
     }
     
-    static func getWidthForExpanderRow(columns: [FieldTableColumn], showSelector: Bool) -> CGFloat {
+    static func getWidthForExpanderRow(columns: [FieldTableColumn], showSelector: Bool, text: String) -> CGFloat {
         let totalWidth = columns.reduce(0) { accumulator, column in
             // Get width based on column type and format
             let columnWidth = Utility.getCellWidth(
                 type: column.type ?? .unknown,
                 format: DateFormatType(rawValue: column.format ?? "") ?? .empty,
-                text: column.title ?? ""
+                text: text
             )
             return accumulator + columnWidth
         }
