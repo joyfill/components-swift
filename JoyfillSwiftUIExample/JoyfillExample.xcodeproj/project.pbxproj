@@ -54,6 +54,15 @@
 		36CE14262DB10C8900799B25 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE14252DB10C8900799B25 /* JoyfillModel */; };
 		36CE142B2DB10CC700799B25 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE142A2DB10CC700799B25 /* JoyfillModel */; };
 		36CE142E2DB10D5900799B25 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE142D2DB10D5900799B25 /* JoyfillAPIService */; };
+		36CE14392DB630B500799B25 /* Examples in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE14382DB630B500799B25 /* Examples */; };
+		36CE143B2DB630B500799B25 /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE143A2DB630B500799B25 /* JoyfillFormulas */; };
+		36CE143D2DB630B500799B25 /* FormulaRunner in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE143C2DB630B500799B25 /* FormulaRunner */; };
+		36CE14402DB630FA00799B25 /* Examples in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE143F2DB630FA00799B25 /* Examples */; };
+		36CE14422DB630FA00799B25 /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE14412DB630FA00799B25 /* JoyfillFormulas */; };
+		36CE14442DB630FA00799B25 /* FormulaRunner in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE14432DB630FA00799B25 /* FormulaRunner */; };
+		36CE14472DB637E900799B25 /* Examples in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE14462DB637E900799B25 /* Examples */; };
+		36CE14492DB637E900799B25 /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE14482DB637E900799B25 /* JoyfillFormulas */; };
+		36CE144B2DB637E900799B25 /* FormulaRunner in Frameworks */ = {isa = PBXBuildFile; productRef = 36CE144A2DB637E900799B25 /* FormulaRunner */; };
 		36CFA0532CE2068300B7DE34 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA0522CE2068300B7DE34 /* JoyfillModel */; };
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
 		9ED065BB2D771E7900F68075 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 9ED065BA2D771E7900F68075 /* JoyfillAPIService */; };
@@ -160,12 +169,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				048149FA2CDA8F8E0061FBDC /* JoyfillModel in Frameworks */,
+				36CE14472DB637E900799B25 /* Examples in Frameworks */,
 				36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */,
 				1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */,
+				36CE143B2DB630B500799B25 /* JoyfillFormulas in Frameworks */,
 				048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */,
+				36CE14392DB630B500799B25 /* Examples in Frameworks */,
 				362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */,
 				36CFA0532CE2068300B7DE34 /* JoyfillModel in Frameworks */,
+				36CE14492DB637E900799B25 /* JoyfillFormulas in Frameworks */,
 				364300F02C510C4200BA870F /* JoyfillModel in Frameworks */,
+				36CE14442DB630FA00799B25 /* FormulaRunner in Frameworks */,
 				048BFEE02D1A980B0011159C /* JoyfillAPIService in Frameworks */,
 				36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */,
 				FA1FEAF12BA4C34800ABD018 /* Joyfill in Frameworks */,
@@ -175,11 +189,14 @@
 				360BC7F62C3E88E500735516 /* JoyfillAPIService in Frameworks */,
 				04FEBD982D5E0A4300163AC6 /* JoyfillModel in Frameworks */,
 				FA28C96E2BB4456300A2D65C /* JoyfillAPIService in Frameworks */,
+				36CE14422DB630FA00799B25 /* JoyfillFormulas in Frameworks */,
 				364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */,
 				3661908A2BF239BD006ED7CF /* JoyfillModel in Frameworks */,
 				9ED065BE2D771EA000F68075 /* JoyfillModel in Frameworks */,
+				36CE143D2DB630B500799B25 /* FormulaRunner in Frameworks */,
 				FA28C95F2BB18F1600A2D65C /* JoyfillAPIService in Frameworks */,
 				FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */,
+				36CE144B2DB637E900799B25 /* FormulaRunner in Frameworks */,
 				36CE142E2DB10D5900799B25 /* JoyfillAPIService in Frameworks */,
 				FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */,
 				363AEF702C510DF00082359B /* JoyfillAPIService in Frameworks */,
@@ -187,6 +204,7 @@
 				360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */,
 				1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */,
 				36CE14262DB10C8900799B25 /* JoyfillModel in Frameworks */,
+				36CE14402DB630FA00799B25 /* Examples in Frameworks */,
 				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
 				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
 				E2B5F75C2D75A4630057FD85 /* JoyfillAPIService in Frameworks */,
@@ -381,6 +399,15 @@
 				9ED065BD2D771EA000F68075 /* JoyfillModel */,
 				36CE14252DB10C8900799B25 /* JoyfillModel */,
 				36CE142D2DB10D5900799B25 /* JoyfillAPIService */,
+				36CE14382DB630B500799B25 /* Examples */,
+				36CE143A2DB630B500799B25 /* JoyfillFormulas */,
+				36CE143C2DB630B500799B25 /* FormulaRunner */,
+				36CE143F2DB630FA00799B25 /* Examples */,
+				36CE14412DB630FA00799B25 /* JoyfillFormulas */,
+				36CE14432DB630FA00799B25 /* FormulaRunner */,
+				36CE14462DB637E900799B25 /* Examples */,
+				36CE14482DB637E900799B25 /* JoyfillFormulas */,
+				36CE144A2DB637E900799B25 /* FormulaRunner */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -422,6 +449,7 @@
 				132493782BA570F9002C6ADC /* XCLocalSwiftPackageReference ".." */,
 				36CE14242DB10C8900799B25 /* XCRemoteSwiftPackageReference "JoyfillModel" */,
 				36CE142C2DB10D5900799B25 /* XCRemoteSwiftPackageReference "JoyfillAPIService" */,
+				36CE14452DB637E900799B25 /* XCLocalSwiftPackageReference "../../Swift-Formulas" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -856,6 +884,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
 		};
+		36CE14452DB637E900799B25 /* XCLocalSwiftPackageReference "../../Swift-Formulas" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../Swift-Formulas";
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -956,6 +988,42 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 36CE142C2DB10D5900799B25 /* XCRemoteSwiftPackageReference "JoyfillAPIService" */;
 			productName = JoyfillAPIService;
+		};
+		36CE14382DB630B500799B25 /* Examples */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Examples;
+		};
+		36CE143A2DB630B500799B25 /* JoyfillFormulas */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillFormulas;
+		};
+		36CE143C2DB630B500799B25 /* FormulaRunner */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FormulaRunner;
+		};
+		36CE143F2DB630FA00799B25 /* Examples */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Examples;
+		};
+		36CE14412DB630FA00799B25 /* JoyfillFormulas */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillFormulas;
+		};
+		36CE14432DB630FA00799B25 /* FormulaRunner */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FormulaRunner;
+		};
+		36CE14462DB637E900799B25 /* Examples */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Examples;
+		};
+		36CE14482DB637E900799B25 /* JoyfillFormulas */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillFormulas;
+		};
+		36CE144A2DB637E900799B25 /* FormulaRunner */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FormulaRunner;
 		};
 		36CFA0522CE2068300B7DE34 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;

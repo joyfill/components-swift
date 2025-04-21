@@ -15,6 +15,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/joyfill/JoyfillModel", exact: "2.0.3"),
+        .package(path: "../Swift-Formulas"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -23,6 +24,7 @@ let package = Package(
             name: "Joyfill",
             dependencies: [
                 "JoyfillModel",
+                "JoyfillFormulas",
             ]
         ),
         .testTarget(
