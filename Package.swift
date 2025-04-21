@@ -24,7 +24,7 @@ let package = Package(
             name: "Joyfill",
             dependencies: [
                 "JoyfillModel",
-                .product(name: "JoyfillFormulas", package: "swift-formulas")
+                .product(name: "JoyfillFormulas", package: "Swift-Formulas"),
             ]
         ),
         .testTarget(

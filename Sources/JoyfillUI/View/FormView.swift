@@ -1,5 +1,6 @@
 import SwiftUI
 import JoyfillModel
+import JoyfillFormulas
 
 public struct Form: View {
     let documentEditor: DocumentEditor
