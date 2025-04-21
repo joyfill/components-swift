@@ -19,7 +19,8 @@ struct LiveViewTest: View {
             .setDocument()
             .setFile()
             .setPageField()
-            .setNumberFieldWithFormula(identifier: "num1", formula: "{num2} * 2")
+            .setNumberFieldWithFormula(identifier: "num1", formula: "{num3} + {num2}")
+            .setNumberFieldWithFormula(identifier: "num3", value: .double(500))
             .setNumberFieldWithFormula(identifier: "num2", value: .double(133))
         self.documentEditor = DocumentEditor(document: document, mode: .fill, events: nil, navigation: true, isPageDuplicateEnabled: true)
     }

@@ -2,7 +2,7 @@ import SwiftUI
 import JoyfillModel
 
 struct NumberView: View {
-    @State var number: String = ""
+    @State private var number: String = ""
     @State private var debounceTask: Task<Void, Never>?
     private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
@@ -11,16 +11,19 @@ struct NumberView: View {
     public init(numberDataModel: NumberDataModel, eventHandler: FieldChangeEvents) {
         self.numberDataModel = numberDataModel
         self.eventHandler = eventHandler
-        if let number = numberDataModel.number {
-            let formatter = NumberFormatter()
-            formatter.minimumFractionDigits = 0
-            formatter.maximumFractionDigits = 10
-            formatter.numberStyle = .decimal
-            formatter.usesGroupingSeparator = false
-
-            let formattedNumberString = formatter.string(from: NSNumber(value: number)) ?? ""
-            _number = State(initialValue: formattedNumberString)
-        }
+        // Initialization in init doesn't automatically update when model changes
+    }
+    
+    private var formattedNumber: String {
+        guard let number = numberDataModel.number else { return "" }
+        
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 10
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        
+        return formatter.string(from: NSNumber(value: number)) ?? ""
     }
     
     var body: some View {
@@ -46,7 +49,14 @@ struct NumberView: View {
                     }
                 }
                 .onChange(of: number, perform: debounceTextChange)
+                .onAppear {
+                    // Update number state whenever the view appears with new model data
+                    if number != formattedNumber {
+                        number = formattedNumber
+                    }
+                }
         }
+        .id(numberDataModel.number) // Force view recreation when model changes
     }
     
     private func updateFieldValue() {
