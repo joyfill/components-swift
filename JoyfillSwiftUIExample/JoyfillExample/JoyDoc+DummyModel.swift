@@ -741,17 +741,26 @@ extension JoyDoc {
         document.fields.append(field)
         return document
     }
+
+    // Add a numner filed with field data and field position with formula
+
+    func setNumberFieldWithFormula(identifier: String = "field_6629fb3fabb87e37c9578b8b", formula: String? = nil, id: String = UUID().uuidString, value: ValueUnion = .double(98789)) -> JoyDoc {
+        return self
+        .setNumberFieldData(identifier: identifier, formula: formula, id: id, value: value)
+        .setNumberPosition(id: id)
+    }
     
-    func setNumberField() -> JoyDoc {
+    func setNumberFieldData(identifier: String = "field_6629fb3fabb87e37c9578b8b", formula: String? = nil, id: String = "6629fb3df03de10b26270ab3", value: ValueUnion = .double(98789)) -> JoyDoc {
         var field = JoyDocField()
         field.type = "number"
-        field.id = "6629fb3df03de10b26270ab3"
-        field.identifier = "field_6629fb3fabb87e37c9578b8b"
+        field.id = id
+        field.identifier = identifier
         field.title = "Number"
         field.description = ""
-        field.value = .double(98789)
+        field.value = value
         field.required = false
         field.tipTitle = ""
+        field.formula = formula
         field.tipDescription = ""
         field.tipVisible = false
         field.file = "6629fab3c0ba3fb775b4a55c"
@@ -1621,9 +1630,9 @@ extension JoyDoc {
         return document
     }
 
-    func setNumberPosition() -> JoyDoc {
+    func setNumberPosition(id: String = "6629fb3df03de10b26270ab3") -> JoyDoc {
         var fieldPosition = FieldPosition()
-        fieldPosition.field = "6629fb3df03de10b26270ab3"
+        fieldPosition.field = id
         fieldPosition.displayType = "original"
         fieldPosition.width = 12
         fieldPosition.height = 8

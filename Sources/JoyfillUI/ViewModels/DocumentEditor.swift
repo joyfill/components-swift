@@ -18,11 +18,13 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
     }
     
     public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
-       guard let field = allFields.first(where: { $0.identifier == identifier }) else {
+       guard var field = allFields.first(where: { $0.identifier == identifier }) else {
            return
        }
         guard let fieldID = field.id else { return }
+        field.value = .double(Double(value.number ?? 0.0))
         fieldMap[fieldID] = field
+        refreshField(fieldId: fieldID)
     }
     
     private(set) public var document: JoyDoc
@@ -55,7 +57,6 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
         self.showPageNavigationView = navigation
         self.currentPageID = ""
         self.events = events
-        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         updateFieldMap()
         updateFieldPositionMap()
 
@@ -70,7 +71,7 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
-         
+        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
@@ -239,6 +240,9 @@ extension DocumentEditor {
             updatefield(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
+            if let identifier = field.identifier {
+                JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
+            }
         }
     }
     
