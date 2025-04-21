@@ -2,10 +2,17 @@ import Foundation
 import JoyfillModel
 import JoyfillFormulas
 
+/// Protocol that provides access to JoyDoc data without direct dependency
+public protocol JoyDocProvider {
+    func field(for identifier: String) -> JoyDocField?
+    func allFormulsFields() -> [JoyDocField]
+    func updateValue(for identifier: String, value: ValueUnion)
+}
+
 /// Application-level implementation of EvaluationContext that resolves references against a JoyDoc
 /// This implementation handles the requirements outlined in the Reference Resolution PRD.
 public class JoyfillDocContext: EvaluationContext {
-    private let joyDoc: JoyDoc
+    private let docProvider: JoyDocProvider
     private var temporaryVariables: [String: FormulaValue] = [:]
     
     // Properties for formula dependencies
@@ -15,13 +22,14 @@ public class JoyfillDocContext: EvaluationContext {
     private let parser = Parser()
     private let evaluator = Evaluator()
     
-    /// Initialize with a JoyDoc instance
-    /// - Parameter joyDoc: The JoyDoc to resolve references against
-    public init(joyDoc: JoyDoc) {
-        self.joyDoc = joyDoc
+    /// Initialize with a JoyDocProvider instance
+    /// - Parameter docProvider: The provider to resolve references against
+    public init(docProvider: JoyDocProvider) {
+        self.docProvider = docProvider
         buildDependencyGraph()
+        evaluateAllFormulas()
     }
-    
+
     /// Resolve a reference string against the JoyDoc
     /// - Parameter name: Reference string (e.g., "{fieldIdentifier}" or "{fieldName.index.columnName}")
     /// - Returns: Result containing the resolved FormulaValue or an error
@@ -57,7 +65,7 @@ public class JoyfillDocContext: EvaluationContext {
     ///   - value: Variable value
     /// - Returns: A new context with the variable added
     public func contextByAdding(variable name: String, value: FormulaValue) -> EvaluationContext {
-        let newContext = JoyfillDocContext(joyDoc: self.joyDoc)
+        let newContext = JoyfillDocContext(docProvider: self.docProvider)
         
         // Copy existing temp variables
         newContext.temporaryVariables = self.temporaryVariables
@@ -85,9 +93,9 @@ public class JoyfillDocContext: EvaluationContext {
     }
     
     private func resolveSimpleFieldReference(_ identifier: String) -> Result<FormulaValue, FormulaError> {
-        // Search the JoyDoc fields for a matching identifier
-        guard let field = joyDoc.fields.first(where: { $0.identifier == identifier }) else {
-            return .failure(.invalidReference("Field with identifier '\(identifier)' not found in JoyDoc"))
+        // Search the fields for a matching identifier
+        guard let field = docProvider.field(for: identifier) else {
+            return .failure(.invalidReference("Field with identifier '\(identifier)' not found"))
         }
         
         // Check if it's a formula field
@@ -138,8 +146,8 @@ public class JoyfillDocContext: EvaluationContext {
         // Starting point is usually a field identifier
         let fieldIdentifier = pathComponents[0]
         
-        guard let field = joyDoc.fields.first(where: { $0.identifier == fieldIdentifier }) else {
-            return .failure(.invalidReference("Field with identifier '\(fieldIdentifier)' not found in JoyDoc"))
+        guard let field = docProvider.field(for: fieldIdentifier) else {
+            return .failure(.invalidReference("Field with identifier '\(fieldIdentifier)' not found"))
         }
         
         // If we're dealing with a collection/table field
@@ -280,7 +288,7 @@ public class JoyfillDocContext: EvaluationContext {
     /// Builds a dependency graph for formula fields
     private func buildDependencyGraph() {
         // Get all formula fields
-        let formulaFields = joyDoc.fields.filter { $0.formula != nil }
+        let formulaFields = docProvider.allFormulsFields()
         
         for field in formulaFields {
             if let identifier = field.identifier, let formula = field.formula {
@@ -493,5 +501,321 @@ public class JoyfillDocContext: EvaluationContext {
     @discardableResult
     public func invalidateCacheForModifiedFields(_ joyDocIdentifiers: [String]) -> Int {
         return invalidateCache(forFieldIdentifiers: joyDocIdentifiers)
+    }
+    
+    /// Updates all formula fields that depend on the specified field
+    /// - Parameter identifier: The identifier of the field that was updated
+    /// - Returns: The number of fields that were updated
+    @discardableResult
+    public func updateDependentFormulas(forFieldIdentifier identifier: String) -> Int {
+        // First invalidate the cache for the changed field
+        invalidateCache(for: identifier)
+        
+        // Find all fields that depend on this field
+        let dependentFields = findDependentFields(for: identifier)
+        
+        // If no dependent fields, return early
+        if dependentFields.isEmpty {
+            return 0
+        }
+        
+        // Sort dependent fields to ensure proper evaluation order
+        let sortedDependentFields = topologicalSortFieldIdentifiers(Array(dependentFields))
+        
+        var updatedCount = 0
+        
+        // Evaluate each dependent field
+        for fieldId in sortedDependentFields {
+            if let field = docProvider.field(for: fieldId), let formula = field.formula {
+                // Parse and evaluate the formula
+                let parseResult = parser.parse(formula: formula)
+                
+                switch parseResult {
+                case .success(let ast):
+                    let result = evaluator.evaluate(node: ast, context: self)
+                    
+                    if case .success(let value) = result {
+                        // Cache the result
+                        formulaCache[fieldId] = value
+                        
+                        // Update the field value in the document
+                        updateFieldWithFormulaResult(identifier: fieldId, value: value)
+                        updatedCount += 1
+                    }
+                    
+                case .failure(let error):
+                    print("Error evaluating formula for field \(fieldId): \(error)")
+                }
+            }
+        }
+        
+        return updatedCount
+    }
+    
+    /// Updates all formula fields that depend on the specified fields
+    /// - Parameter identifiers: The identifiers of the fields that were updated
+    /// - Returns: The number of fields that were updated
+    @discardableResult
+    public func updateDependentFormulas(forFieldIdentifiers identifiers: [String]) -> Int {
+        // Collect all dependent fields for all identifiers
+        var allDependentFields = Set<String>()
+        
+        for identifier in identifiers {
+            // Invalidate cache for the current field
+            invalidateCache(for: identifier)
+            
+            // Add its dependents to the set
+            allDependentFields.formUnion(findDependentFields(for: identifier))
+        }
+        
+        // If no dependent fields, return early
+        if allDependentFields.isEmpty {
+            return 0
+        }
+        
+        // Sort dependent fields to ensure proper evaluation order
+        let sortedDependentFields = topologicalSortFieldIdentifiers(Array(allDependentFields))
+        
+        var updatedCount = 0
+        
+        // Evaluate each dependent field
+        for fieldId in sortedDependentFields {
+            if let field = docProvider.field(for: fieldId), let formula = field.formula {
+                // Parse and evaluate the formula
+                let parseResult = parser.parse(formula: formula)
+                
+                switch parseResult {
+                case .success(let ast):
+                    let result = evaluator.evaluate(node: ast, context: self)
+                    
+                    if case .success(let value) = result {
+                        // Cache the result
+                        formulaCache[fieldId] = value
+                        
+                        // Update the field value in the document
+                        updateFieldWithFormulaResult(identifier: fieldId, value: value)
+                        updatedCount += 1
+                    }
+                    
+                case .failure(let error):
+                    print("Error evaluating formula for field \(fieldId): \(error)")
+                }
+            }
+        }
+        
+        return updatedCount
+    }
+    
+    /// Performs a topological sort on field identifiers based on their dependencies
+    /// - Parameter identifiers: Array of field identifiers to sort
+    /// - Returns: Sorted array of identifiers
+    private func topologicalSortFieldIdentifiers(_ identifiers: [String]) -> [String] {
+        var result: [String] = []
+        var visited: Set<String> = []
+        var temporaryMarks: Set<String> = []
+        
+        // Helper function for depth-first search
+        func visit(_ identifier: String) {
+            // Skip if already visited
+            if visited.contains(identifier) {
+                return
+            }
+            
+            // Check for circular dependency
+            if temporaryMarks.contains(identifier) {
+                // Handle circular dependency by skipping
+                print("Warning: Circular dependency detected for field \(identifier)")
+                return
+            }
+            
+            // Mark node as temporary visited
+            temporaryMarks.insert(identifier)
+            
+            // Visit all dependencies first
+            if let dependencies = dependencyGraph[identifier] {
+                for dependency in dependencies {
+                    if identifiers.contains(dependency) {
+                        visit(dependency)
+                    }
+                }
+            }
+            
+            // Mark as visited and add to result
+            temporaryMarks.remove(identifier)
+            visited.insert(identifier)
+            result.append(identifier)
+        }
+        
+        // Perform topological sort
+        for identifier in identifiers {
+            if !visited.contains(identifier) {
+                visit(identifier)
+            }
+        }
+        
+        return result
+    }
+    
+    /// Evaluates all formula fields and updates their values
+    private func evaluateAllFormulas() {
+        // Get all formula fields
+        let formulaFields = docProvider.allFormulsFields()
+        
+        // Create a topologically sorted list of fields based on dependencies
+        let sortedFields = topologicalSortFormulaFields(formulaFields)
+        
+        // Evaluate each field in dependency order
+        for field in sortedFields {
+            if let identifier = field.identifier, let formula = field.formula {
+                // Evaluate the formula
+                let parseResult = parser.parse(formula: formula)
+                
+                switch parseResult {
+                case .success(let ast):
+                    let result = evaluator.evaluate(node: ast, context: self)
+                    
+                    if case .success(let value) = result {
+                        // Cache the result
+                        formulaCache[identifier] = value
+                        
+                        // Update the field's value in the document
+                        updateFieldWithFormulaResult(identifier: identifier, value: value)
+                    }
+                    
+                case .failure(let error):
+                    print("Error evaluating formula for field \(identifier): \(error)")
+                }
+            }
+        }
+    }
+    
+    /// Creates a topologically sorted list of formula fields based on their dependencies
+    /// - Parameter fields: The list of formula fields to sort
+    /// - Returns: A list of fields ordered so that dependencies are evaluated before dependent fields
+    private func topologicalSortFormulaFields(_ fields: [JoyDocField]) -> [JoyDocField] {
+        var result: [JoyDocField] = []
+        var visited: Set<String> = []
+        var temporaryMarks: Set<String> = []
+        
+        // Create a map of identifiers to fields for easy lookup
+        var fieldMap: [String: JoyDocField] = [:]
+        for field in fields {
+            if let identifier = field.identifier {
+                fieldMap[identifier] = field
+            }
+        }
+        
+        // Helper function for depth-first search
+        func visit(_ identifier: String) {
+            // Skip if already visited
+            if visited.contains(identifier) {
+                return
+            }
+            
+            // Check for circular dependency
+            if temporaryMarks.contains(identifier) {
+                // Handle circular dependency by skipping
+                print("Warning: Circular dependency detected for field \(identifier)")
+                return
+            }
+            
+            // Mark node as temporary visited
+            temporaryMarks.insert(identifier)
+            
+            // Visit all dependencies first
+            if let dependencies = dependencyGraph[identifier] {
+                for dependency in dependencies {
+                    visit(dependency)
+                }
+            }
+            
+            // Mark as visited and add to result
+            temporaryMarks.remove(identifier)
+            visited.insert(identifier)
+            
+            // Add the field to the result if it exists
+            if let field = fieldMap[identifier] {
+                result.append(field)
+            }
+        }
+        
+        // Perform topological sort
+        for field in fields {
+            if let identifier = field.identifier, !visited.contains(identifier) {
+                visit(identifier)
+            }
+        }
+        
+        return result
+    }
+    
+    /// Updates a field's value based on a formula evaluation result
+    /// - Parameters:
+    ///   - identifier: The field identifier
+    ///   - value: The formula result value
+    private func updateFieldWithFormulaResult(identifier: String, value: FormulaValue) {
+        // Convert FormulaValue to ValueUnion
+        let valueUnion = convertFormulaValueToValueUnion(value)
+        
+        // Update the field value in the document
+        docProvider.updateValue(for: identifier, value: valueUnion)
+    }
+    
+    /// Converts a FormulaValue to a ValueUnion
+    /// - Parameter value: The FormulaValue to convert
+    /// - Returns: A ValueUnion representation of the value
+    private func convertFormulaValueToValueUnion(_ value: FormulaValue) -> ValueUnion {
+        switch value {
+        case .number(let number):
+            // Check if it's an integer
+            if number.truncatingRemainder(dividingBy: 1) == 0 && number <= Double(Int64.max) && number >= Double(Int64.min) {
+                return .int(Int64(number))
+            } else {
+                return .double(number)
+            }
+        case .string(let string):
+            return .string(string)
+        case .boolean(let bool):
+            return .bool(bool)
+        case .array(let array):
+            // Handle array of different types
+            if array.allSatisfy({ if case .string(_) = $0 { return true } else { return false } }) {
+                let strings = array.compactMap { 
+                    if case .string(let str) = $0 { return str } else { return nil }
+                }
+                return .array(strings)
+            } else {
+                // For mixed arrays, convert to value elements
+                let elements = array.map { formulaValue -> ValueElement in
+                    if case .dictionary(let dict) = formulaValue {
+                        // Convert dictionary to cells
+                        var cells: [String: ValueUnion] = [:]
+                        for (key, value) in dict {
+                            cells[key] = convertFormulaValueToValueUnion(value)
+                        }
+                        return ValueElement(dictionary: cells)
+                    } else {
+                        // For non-dictionary values, create a simple element
+                        return ValueElement(dictionary: ["value": convertFormulaValueToValueUnion(formulaValue)])
+                    }
+                }
+                return .valueElementArray(elements)
+            }
+        case .dictionary(let dict):
+            var result: [String: ValueUnion] = [:]
+            for (key, value) in dict {
+                result[key] = convertFormulaValueToValueUnion(value)
+            }
+            return .dictionary(result)
+        case .null:
+            return .null
+        case .date(let date):
+            // Convert Date to string in ISO8601 format
+            let formatter = ISO8601DateFormatter()
+            return .string(formatter.string(from: date))
+        case .error:
+            // For error values, return null
+            return .null
+        }
     }
 } 

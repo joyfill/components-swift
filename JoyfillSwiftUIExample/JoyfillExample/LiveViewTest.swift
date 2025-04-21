@@ -23,6 +23,8 @@ struct LiveViewTest: View {
             .setTextField()
             .setNumberPosition()
             .setNumberField()
+            .setNumberPosition()
+            .setNumberField()
         self.documentEditor = DocumentEditor(document: document, mode: .fill, events: nil, navigation: true, isPageDuplicateEnabled: true)
     }
 

@@ -8,7 +8,23 @@
 import Foundation
 import JoyfillModel
 
-public class DocumentEditor: ObservableObject {
+public class DocumentEditor: ObservableObject, JoyDocProvider {
+    public func field(for identifier: String) -> JoyfillModel.JoyDocField? {
+        return allFields.first(where: { $0.identifier == identifier })
+    }
+    
+    public func allFormulsFields() -> [JoyfillModel.JoyDocField] {
+        allFields.filter { $0.formula != nil }
+    }
+    
+    public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
+       guard let field = allFields.first(where: { $0.identifier == identifier }) else {
+           return
+       }
+        guard let fieldID = field.id else { return }
+        fieldMap[fieldID] = field
+    }
+    
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = [] 
@@ -30,7 +46,8 @@ public class DocumentEditor: ObservableObject {
     
     private var validationHandler: ValidationHandler!
     private var conditionalLogicHandler: ConditionalLogicHandler!
-    
+    private var JoyfillDocContext: JoyfillDocContext!
+
     public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false) {
         self.document = document
         self.mode = mode
@@ -38,9 +55,10 @@ public class DocumentEditor: ObservableObject {
         self.showPageNavigationView = navigation
         self.currentPageID = ""
         self.events = events
+        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         updateFieldMap()
         updateFieldPositionMap()
-         
+
         guard let firstFile = files.first, let fileID = firstFile.id else {
             return
         }

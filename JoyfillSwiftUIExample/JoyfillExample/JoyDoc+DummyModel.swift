@@ -1620,7 +1620,7 @@ extension JoyDoc {
         document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
-    
+
     func setNumberPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb3df03de10b26270ab3"

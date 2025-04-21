@@ -33,28 +33,28 @@ struct JoyfillExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            LiveViewTest()
-            if joyfillUITestsMode {
-                NavigationView {
-                    UITestFormContainerView(documentEditor: documentEditor)
-                }
-                .navigationViewStyle(StackNavigationViewStyle())
-                Text(appState.changeResult)
-                    .accessibilityIdentifier("resultfield")
-                    .frame(height: 10)
-            } else {
-                NavigationView {
-                    ScrollView {
-                        VStack {
-                            UserAccessTokenTextFieldView(isAlreadyToken: true)
-//                          UserAccessTokenTextFieldView(isAlreadyToken: true)
-                            UserJsonTextFieldView()
-                        }
-                    }
-                    .modifier(KeyboardDismissModifier())
-                }
-                .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
-            }
+            LiveViewTest()
+//            if joyfillUITestsMode {
+//                NavigationView {
+//                    UITestFormContainerView(documentEditor: documentEditor)
+//                }
+//                .navigationViewStyle(StackNavigationViewStyle())
+//                Text(appState.changeResult)
+//                    .accessibilityIdentifier("resultfield")
+//                    .frame(height: 10)
+//            } else {
+//                NavigationView {
+//                    ScrollView {
+//                        VStack {
+//                            UserAccessTokenTextFieldView(isAlreadyToken: true)
+////                          UserAccessTokenTextFieldView(isAlreadyToken: true)
+//                            UserJsonTextFieldView()
+//                        }
+//                    }
+//                    .modifier(KeyboardDismissModifier())
+//                }
+//                .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
+//            }
         }
     }
     
