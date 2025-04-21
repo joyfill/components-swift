@@ -53,4 +53,8 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     func onUpload(event: JoyfillModel.UploadEvent) {
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
+    
+    func onCapture(event: JoyfillModel.CaptureEvent) {
+        event.captureHandler(.string("Scan Button Clicked"))
+    }
 }

@@ -86,6 +86,9 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(page: page)
     }
     
+    public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
+        return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+    }
 }
 
 fileprivate extension JoyDoc {
@@ -192,7 +195,19 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
+    func updateSchemaVisibilityOnCellChange(collectionFieldID: String, columnID: String, rowID: String) {
+        conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID)
+    }
+    
+    func updateSchemaVisibilityOnNewRow(collectionFieldID: String, rowID: String) {
+        conditionalLogicHandler.updateShowCollectionSchemaMap(collectionFieldID: collectionFieldID, rowID: rowID)
+    }
+    
+    func shouldRefreshSchema(for collectionFieldID: String, columnID: String) -> Bool {
+       return conditionalLogicHandler.shouldRefreshSchema(for: collectionFieldID, columnID: columnID)
+    }
+    
+    public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {
@@ -209,6 +224,22 @@ extension DocumentEditor {
         }
     }
     
+    func getValueElementByRowID(_ rowID: String, from valueElements: [ValueElement]) -> ValueElement? {
+        //Target valueElement which used by condtional logic
+        for element in valueElements {
+            if element.id == rowID {
+                return element
+            } else if let childrens = element.childrens {
+                for children in childrens.values {
+                    if let found = getValueElementByRowID(rowID, from: children.valueToValueElements ?? []) {
+                        return found
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
     }   
@@ -344,6 +375,12 @@ extension DocumentEditor {
                                        documentEditor: self,
                                        fieldIdentifier: fieldIdentifier)
             dataModelType = .table(model)
+        case .collection:
+            let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
+                                       mode: fieldEditMode,
+                                       documentEditor: self,
+                                       fieldIdentifier: fieldIdentifier)
+            dataModelType = .collection(model)
         case .image:
             let model = ImageDataModel(fieldIdentifier: fieldIdentifier,
                                        multi: fieldData?.multi,

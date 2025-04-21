@@ -17,6 +17,466 @@ extension JoyDoc {
         return document
     }
     
+    func setCollectionFieldPosition() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "67ddc52d35de157f6d7ebb63" // Collection field id
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 10
+        fieldPosition.x = 0
+        fieldPosition.y = 50
+        fieldPosition.id = "67ddc52d35de157f6d7ebb63_pos" // Unique id for the field position
+        fieldPosition.type = .collection  // Ensure your FieldPositionType enum supports .collection; otherwise, use .table
+        
+        var document = self
+        // Append the new field position to the first page of the first view of the first file.
+        if document.files.count > 0,
+           let _ = document.files[0].views,
+           let _ = document.files[0].views?[0].pages {
+            document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+        }
+        return document
+    }
+        
+    func setCollectionField() -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = "67ddc52d35de157f6d7ebb63" // Reference id
+        field.identifier = "field_67ddc530213a11e84876b001" // Reference identifier
+        field.title = "Collection"
+        field.description = ""
+        
+        // Build the collection rows using our model initializers.
+        let collectionValue: [ValueElement] = [
+            // First row
+            ValueElement(dictionary: [
+                "_id": "67ddc5327e6841a074d9240b",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "Grok ",
+                    "67ddc2ndblock9f9ff1480": "hi yfgbfr",
+                    "67ddc4db157f14f67da0616a": "joyfill",
+                    "67ddc59c4aba2df34a6dd1c4": ValueUnion.double(300)
+                ],
+                "children": [String: Any]()
+            ]),
+            // Second row with nested children
+            ValueElement(dictionary: [
+                "_id": "67ddc537b7c2fce05d0c8615",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "First",
+                    "67ddc4db157f14f67da0616a": "joyfill"
+                ],
+                "children": [
+                    "67ddc5c9910a394a1324bfbe": [
+                        "value": [
+                            ValueElement(dictionary: [
+                                "_id": "67ddd18bc3a74e6b350987f9",
+                                "cells": [
+                                    "67ddc61edce16f8b9f8dbf4b": "Grok "
+                                ],
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd191ab6a428ea69c77ad",
+                                "cells": [
+                                    "67ddc61edce16f8b9f8dbf4b": "First "
+                                ],
+                                "children": [
+                                    "67ddc5f5c2477e8457956fb4": [
+                                        "value": [
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a5e6d0d62d55a7aaad",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ]),
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a656a259a9b6ab1263",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ]),
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a779642224075bf23c",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ])
+                                        ]
+                                    ]
+                                ]
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd193eae737b64c24851a",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ])
+                        ]
+                    ],
+                    "67ddcf4f622984fb4518cbc2": [
+                        "value": [
+                            ValueElement(dictionary: [
+                                "_id": "67ddd1994c086e45784edb76",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd19f8577eb22eee2c57d",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd1a03789211ac5f657e3",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ])
+                        ]
+                    ]
+                ]
+            ]),
+            // Third row
+            ValueElement(dictionary: [
+                "_id": "67ddc538123468491bc1d6ac",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "First "
+                ],
+                "children": [String: Any]()
+            ]),
+            // Fourth row
+            ValueElement(dictionary: [
+                "_id": "67ddc53924f0bd68beb066ca",
+                "cells": [
+                    "67ddc4db157f14f67da0616a": "joyfill"
+                ],
+                "children": [String: Any]()
+            ])
+        ]
+        
+        // Assign the collection value using the model representation.
+        field.value = .valueElementArray(collectionValue)
+        
+        let collectionSchema: [String: Any] = [
+                "collectionSchemaId": [
+                    "title": "Main Collection",
+                    "root": true,
+                    "children": [
+                        "67ddc5c9910a394a1324bfbe",
+                        "67ddcf4f622984fb4518cbc2"
+                    ],
+                    "tableColumns": [
+                        [
+                            "_id": "67ddc4db157f14f67da0616a",
+                            "type": "text",
+                            "title": "Text Column",
+                            "identifier": "field_column_67ddc4e0457002b72007e321",
+                            "value": "Text Column: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        ],
+                        [
+                            "_id": "67ddc4db898e2fb0ad3a8d19",
+                            "type": "dropdown",
+                            "title": "Dropdown Column",
+                            "options": [
+                                [
+                                    "_id": "67ddc4dbde8b8bfe6322da24",
+                                    "value": "Yes",
+                                    "deleted": false
+                                ],
+                                [
+                                    "_id": "67ddc4db94dba485b1642a23",
+                                    "value": "No",
+                                    "deleted": false
+                                ],
+                                [
+                                    "_id": "67ddc4db3bc809de86ac85d0",
+                                    "value": "N/A",
+                                    "deleted": false
+                                ]
+                            ],
+                            "identifier": "field_column_67ddc4e093c80641691e8afe",
+                            "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        ],
+                        [
+                            "_id": "67ddc59c4aba2df34a6dd1c4",
+                            "type": "number",
+                            "title": "Number Column",
+                            "deleted": false,
+                            "width": 0
+                        ],
+                        [
+                            "_id": "67ddc5981816e52ad55b71e6",
+                            "type": "multiSelect",
+                            "title": "Multiselect Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddc59812e6c0eff62bab58",
+                                    "value": "Option 1",
+                                    "deleted": false
+                                ],
+                                [
+                                    "_id": "67ddc598fc5c30cacb3459ec",
+                                    "value": "Option 2",
+                                    "deleted": false
+                                
+                                ],
+                                [
+                                    "_id": "67ddc598e4f75aaead71e431",
+                                    "value": "Option 3",
+                                    "deleted": false
+                                ]
+                            ],
+                            "optionOrder": [
+                                "67ddc59812e6c0eff62bab58",
+                                "67ddc598fc5c30cacb3459ec",
+                                "67ddc598e4f75aaead71e431"
+                            ]
+                        ]
+                    ]
+                ],
+                "67ddc5c9910a394a1324bfbe": [
+                    "title": "Child Table Title",
+                    "children": [
+                        "67ddc5f5c2477e8457956fb4"
+                    ],
+                    "tableColumns": [
+                        [
+                            "_id": "67ddc5c9cb21736a10919b22",
+                            "type": "text",
+                            "title": "Text Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddc609791020b851791f0d",
+                            "type": "dropdown",
+                            "title": "Dropdown Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddc609599f3ba9fb2f7b2e",
+                                    "value": "Yes",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc6091d62cd644f1ccdbb",
+                                    "value": "No",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc609a9f8e1a573852153",
+                                    "value": "N/A",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ]
+                            ],
+                            "optionOrder": [
+                                "67ddc609599f3ba9fb2f7b2e",
+                                "67ddc6091d62cd644f1ccdbb",
+                                "67ddc609a9f8e1a573852153"
+                            ]
+                        ],
+                        [
+                            "_id": "67ddc60c4f70b8ef5c7a5e3d",
+                            "type": "multiSelect",
+                            "title": "Multiselect Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddc60c79c89a55825ffb0b",
+                                    "value": "Option 1",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": "#f0f0f0"
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc60c27eb845be497ec8f",
+                                    "value": "Option 2",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": "#f0f0f0"
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddc60cbab030d3bf6f260e",
+                                    "value": "Option 3",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": "#f0f0f0"
+                                    ]
+                                ]
+                            ],
+                            "optionOrder": [
+                                "67ddc60c79c89a55825ffb0b",
+                                "67ddc60c27eb845be497ec8f",
+                                "67ddc60cbab030d3bf6f260e"
+                            ]
+                        ],
+                        [
+                            "_id": "67ddc60e1a015ed76fc404fc",
+                            "type": "image",
+                            "title": "Image Column",
+                            "deleted": false,
+                            "width": 0,
+                            "maxImageWidth": 190,
+                            "maxImageHeight": 120
+                        ],
+                        [
+                            "_id": "67ddc6136fbc59b8d02d2723",
+                            "type": "number",
+                            "title": "Number Column",
+                            "deleted": false,
+                            "width": 0
+                        ],
+                        [
+                            "_id": "67ddc618ef820f6b8cbc9879",
+                            "type": "date",
+                            "title": "Date Column",
+                            "deleted": false,
+                            "width": 0
+                        ],
+                        [
+                            "_id": "67ddc61edce16f8b9f8dbf4b",
+                            "type": "block",
+                            "title": "Label Column",
+                            "width": 0,
+                            "deleted": false,
+                            "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from XGrok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                        ],
+                        [
+                            "_id": "67ddc2ndblock9f9ff1480",
+                            "type": "block",
+                            "title": "Label Column2323",
+                            "width": 0,
+                            "deleted": false,
+                            "value": "ourehwbfuvyberfhvbeurfbvouwofvyicjhgbvretlweuygficewnfr ru vheoriuhv eiuhv hv iurhtoeurhvduhgvh ev viuehdofuvgweorygh97645268673495234 52345 234 523453 4576 4568745678. 6786"
+                        ],
+                        [
+                            "_id": "67ddc5b323b5b9fc08f3f824",
+                            "type": "barcode",
+                            "title": "Barcode Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddc5b5e2f8843d6d5f6771",
+                            "type": "signature",
+                            "title": "Signature Column",
+                            "width": 0,
+                            "deleted": false
+                        ]
+                    ]
+                ],
+                "67ddc5f5c2477e8457956fb4": [
+                    "title": "Grand Child Table Title",
+                    "children": [],
+                    "tableColumns": [
+                        [
+                            "_id": "67ddc5f5107180be0f5befd6",
+                            "type": "text",
+                            "title": "Text Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddd16604dc88ca60898821",
+                            "type": "dropdown",
+                            "title": "Dropdown Column",
+                            "deleted": false,
+                            "width": 0,
+                            "options": [
+                                [
+                                    "_id": "67ddd1664a80f93bf1584051",
+                                    "value": "Yes",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddd1665198425a6554f362",
+                                    "value": "No",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ],
+                                [
+                                    "_id": "67ddd1664e6d82d74191f5b9",
+                                    "value": "N/A",
+                                    "deleted": false,
+                                    "styles": [
+                                        "backgroundColor": NSNull()
+                                    ]
+                                ]
+                            ],
+                            "optionOrder": [
+                                "67ddd1664a80f93bf1584051",
+                                "67ddd1665198425a6554f362",
+                                "67ddd1664e6d82d74191f5b9"
+                            ]
+                        ],
+                        [
+                            "_id": "67ddd16991439221b58a7148",
+                            "type": "date",
+                            "title": "Date 3rd Column",
+                            "deleted": false,
+                            "width": 0,
+                            "maxImageWidth": 190,
+                            "maxImageHeight": 120
+                        ]
+                    ]
+                ],
+                "67ddcf4f622984fb4518cbc2": [
+                    "title": "2nd Child Table Title: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X.",
+                    "children": [],
+                    "tableColumns": [
+                        [
+                            "_id": "67ddcf4fa46f548aaade239d",
+                            "type": "text",
+                            "title": "Text Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddd17186d63f89705763d9",
+                            "type": "barcode",
+                            "title": "Barcode Column",
+                            "width": 0,
+                            "deleted": false
+                        ],
+                        [
+                            "_id": "67ddd174efad8934d569ff8c",
+                            "type": "signature",
+                            "title": "Signature Column",
+                            "width": 0,
+                            "deleted": false
+                        ]
+                    ]
+                ]
+            ]
+        
+        field.schema = collectionSchema.mapValues { Schema(dictionary: $0 as! [String: Any]) }
+        
+        field.required = false
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
     func setFile() -> JoyDoc {
         var file = File()
         file.id = "6629fab3c0ba3fb775b4a55c"
@@ -793,19 +1253,19 @@ extension JoyDoc {
         ]
         var column1 = FieldTableColumn()
         column1.id = "6628f2e11a2b28119985cfbb"
-        column1.type = "text"
+        column1.type = .text
         column1.title = "Text Column"
         column1.width = 0
         column1.identifier = "field_column_6629fbc70c9e53f683a18007"
         var column2 = FieldTableColumn()
         column2.id = "6628f2e123ca77fa82a2c45e"
-        column2.type = "dropdown"
+        column2.type = .dropdown
         column2.title = "Dropdown Column"
         column2.width = 0
         column2.identifier = "field_column_6629fbc7e2493a155a32c509"
         var column3 = FieldTableColumn()
         column3.id = "663dcdcfcd08ad955955fd95"
-        column3.type = "image"
+        column3.type = .image
         column3.title = "Image Column"
         column3.width = 0
         column3.identifier = ""
@@ -1199,7 +1659,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = "MM/DD/YYYY"
+        fieldPosition.format = .dateOnly
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1215,7 +1675,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = "MM/DD/YYYY"
+        fieldPosition.format = .dateOnly
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1231,7 +1691,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = "hh:mma"
+        fieldPosition.format = .timeOnly
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1247,7 +1707,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = "hh:mma"
+        fieldPosition.format = .timeOnly
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1263,7 +1723,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = "MM/DD/YYYY hh:mma"
+        fieldPosition.format = .dateTime
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self
@@ -1279,7 +1739,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = "MM/DD/YYYY hh:mma"
+        fieldPosition.format = .dateTime
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self
@@ -1476,6 +1936,158 @@ extension JoyDoc {
         field.file = "66a0fdb2acd89d30121053b9"
         var document = self
         document.fields.append(field)
+        return document
+    }
+    
+    func setRequiredTableField(hideColumn: Bool, isTableRequired: Bool, isColumnRequired: Bool, areCellsEmpty: Bool, isZeroRows: Bool, isColumnsZero: Bool, isRowOrderNil: Bool) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "table"
+        field.id = "67612793c4e6a5e6a05e64a3"
+        field.identifier = "field_676127963e76996d780e6c51"
+        field.title = "Table"
+        field.description = ""
+        field.required = isTableRequired
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        if !isRowOrderNil {
+            field.rowOrder = [
+                "676127938056dcd158942bad",
+                "67612793f70928da78973744",
+                "67612793a6cd1f9d39c8433b",
+                "67612793a6cd1f9d39c8433c",
+                "67612793a6cd1f9d39c8433d"
+            ]
+        }
+        var column1 = FieldTableColumn()
+        column1.id = "676127938fb7c5fd4321a2f4"
+        column1.type = .text
+        column1.title = "Text Column"
+        column1.width = 0
+        column1.identifier = "field_column_6629fbc70c9e53f683a18007"
+        column1.required = isColumnRequired
+        
+        var column2 = FieldTableColumn()
+        column2.id = "67612793b5f860ae8d6a4ae6"
+        column2.type = .dropdown
+        column2.title = "Dropdown Column"
+        column2.width = 0
+        column2.identifier = "field_column_6629fbc7e2493a155a32c509"
+        column2.required = isColumnRequired
+        
+        var column3 = FieldTableColumn()
+        column3.id = "67612793c76286eb2763c366"
+        column3.type = .date
+        column3.title = "Date Column"
+        column3.width = 0
+        column3.identifier = ""
+        column3.value = .double(1712385780000)
+//        column3.required = isColumnRequired
+        
+        if !isColumnsZero {
+            field.tableColumns = [column1,column2,column3]
+        }
+        
+        field.tableColumnOrder = [
+            "676127938fb7c5fd4321a2f4",
+            "67612793b5f860ae8d6a4ae6",
+            "67612793c76286eb2763c366"
+        ]
+        
+        var valueElements1 = ValueElement()
+        valueElements1.id = "676127938056dcd158942bad"
+        valueElements1.deleted = false
+        let cells1: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 1, Column 1"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        
+        let cellsOnHideColumn: [String: ValueUnion] = [
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements1.cells = hideColumn ? cellsOnHideColumn : cells1
+
+        var valueElements2 = ValueElement()
+        valueElements2.id = "67612793f70928da78973744"
+        valueElements2.deleted = false
+        let cells2: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements2.cells = areCellsEmpty ? [:] : cells2
+
+        var valueElements3 = ValueElement()
+        valueElements3.id = "67612793a6cd1f9d39c8433b"
+        valueElements3.deleted = false
+        let cells3: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements3.cells = cells3
+        
+        // Delete true a row
+        var valueElements4 = ValueElement()
+        valueElements4.id = "67612793a6cd1f9d39c8433c"
+        valueElements4.deleted = true
+        let cells4: [String: ValueUnion] = [
+            "676127938fb7c5fd4321a2f4": ValueUnion.string("Value for Row 2, Column 2"),
+            "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
+            "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
+        ]
+        valueElements4.cells = cells4
+        
+        // Nil cells for a row
+        var valueElements5 = ValueElement()
+        valueElements5.id = "67612793a6cd1f9d39c8433d"
+        valueElements5.deleted = false
+        
+        //For case zero rows
+
+        let value = ValueUnion.valueElementArray([valueElements1, valueElements2, valueElements3, valueElements4, valueElements5])
+        if !isZeroRows {
+            field.value = value
+        }
+        
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    func setTableFieldPosition(hideColumn: Bool) -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "67612793c4e6a5e6a05e64a3"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 24
+        fieldPosition.height = 24
+        fieldPosition.x = 0
+        fieldPosition.y = 0
+        fieldPosition.id = "6629fbc736d179b9014abae0"
+        fieldPosition.type = .table
+        fieldPosition.titleDisplay = "none"
+        
+        var tableColumn1 = TableColumn()
+        tableColumn1.id = "676127938fb7c5fd4321a2f4"
+        tableColumn1.format = .empty
+        tableColumn1.hidden = hideColumn
+        
+        var tableColumn2 = TableColumn()
+        tableColumn2.id = "67612793b5f860ae8d6a4ae6"
+        tableColumn2.format = .empty
+        tableColumn2.hidden = hideColumn
+        
+        var tableColumn3 = TableColumn()
+        tableColumn3.id = "67612793c76286eb2763c366"
+        tableColumn3.format = .empty
+//        tableColumn3.hidden = hideColumn
+        
+        fieldPosition.tableColumns = [tableColumn1, tableColumn2, tableColumn3]
+        var document = self
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
     
@@ -1696,6 +2308,747 @@ extension JoyDoc {
         return document
     }
     
+// Conditional logic methods
+    
+    func setConditionalLogicToField(fieldID: String, logic: Logic?) -> JoyDoc {
+        var document = self
+        if let index = document.fields.firstIndex(where: { $0.id == fieldID }) {
+            document.fields[index].logic = logic
+        }
+        return document
+    }
+    
+    func setConditionalLogic(pageID: String, logic: Logic?) -> JoyDoc {
+        var updatedDocument = self
+        if let pageIndex = updatedDocument.files[0].views?[0].pages?.firstIndex(where: { $0.id == pageID }) {
+            updatedDocument.files[0].views?[0].pages?[pageIndex].logic = logic
+        }
+        return updatedDocument
+    }
+    
+    func setNumberField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "number"
+        field.id = "6629fb3df03de10b26270ab3"
+        field.identifier = "field_6629fb3fabb87e37c9578b8b"
+        field.title = "Number"
+        field.description = ""
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    func setTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "text"
+        field.id = "66aa2865da10ac1c7b7acb1d"
+        field.identifier = "field_66aa2520d3285f2fcf8e53b3"
+        field.title = "Text"
+        field.description = ""
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "66a0fdb2acd89d30121053b9"
+        field.hidden = hidden
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    //Set Dropdown Field
+    func setDropdownField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "dropdown"
+        field.id = "6781040987a55e48b4507a38"
+        field.identifier = "field_678104b10279a22deca9beb6"
+        field.title = "Dropdown"
+        field.description = ""
+        
+        var option1 = Option()
+        option1.id = "677e2bfab0d5dce4162c36c1"
+        option1.value = "Yes"
+        option1.deleted = false
+        var option2 = Option()
+        option2.id = "677e2bfaf81647d2f6a016a0"
+        option2.value = "No"
+        option2.deleted = false
+        var option3 = Option()
+        option3.id = "677e2bfa0f4ed64ef5055bcf"
+        option3.value = "N/A"
+        option3.deleted = false
+        
+        field.options = [option1, option2, option3]
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "66a0fdb2acd89d30121053b9"
+        field.hidden = hidden
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    //Set MultiSelect Field
+    func setMultiSelectField(hidden: Bool, value: ValueUnion, multi: Bool) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "multiSelect"
+        field.id = "678104b387d3004e70120ac6"
+        field.identifier = "field_6781058d099fc0a3107973fb"
+        field.title = "Multiple Choice"
+        field.description = ""
+        
+        var option1 = Option()
+        option1.id = "677e2bfa1ff43cf15d159310"
+        option1.value = "Yes"
+        option1.deleted = false
+        var option2 = Option()
+        option2.id = "677e2bfa9c5249a2acd3644f"
+        option2.value = "No"
+        option2.deleted = false
+        var option3 = Option()
+        option3.id = "677e2bfa152e9f549edf0813"
+        option3.value = "N/A"
+        option3.deleted = false
+        
+        field.options = [option1, option2, option3]
+        field.value = value
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "66a0fdb2acd89d30121053b9"
+        field.hidden = hidden
+        field.multi = multi
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    //Set multiline field
+    func setMultilineTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "textarea"
+        field.id = "6629fb2b9a487ce1c1f35f6c"
+        field.identifier = "field_6629fb2feff29e90331e4e8e"
+        field.title = "Multiline Text"
+        field.hidden = hidden
+        field.description = ""
+        field.value = value
+        field.required = false
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    func setTwoPageField(page1hidden: Bool, page2hidden: Bool) -> JoyDoc {
+        var page1 = Page()
+        page1.name = "Page 1"
+        page1.hidden = false
+        page1.width = 816
+        page1.height = 1056
+        page1.cols = 24
+        page1.rowHeight = 8
+        page1.layout = "grid"
+        page1.presentation = "normal"
+        page1.margin = 0
+        page1.padding = 0
+        page1.borderWidth = 0
+        page1.hidden = page1hidden
+        page1.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
+        page1.id = "6629fab320fca7c8107a6cf6"
+        
+        var page2 = Page()
+        page2.name = "Page 2"
+        page2.hidden = false
+        page2.width = 816
+        page2.height = 1056
+        page2.cols = 24
+        page2.rowHeight = 8
+        page2.layout = "grid"
+        page2.presentation = "normal"
+        page2.margin = 0
+        page2.padding = 0
+        page2.borderWidth = 0
+        page2.hidden = page2hidden
+        page2.backgroundImage = "https://s3.amazonaws.com/docspace.production.documents/5cca363a20d5f31fe3d7d6a2/pdfTemplates/614892aeb47c0f58db8ebd0a/page1631330091520-2f189ce0-1631330091522.png"
+        page2.id = "66600801dc1d8b4f72f54917"
+        
+        
+        var document = self
+        if var pages = document.files[0].views?[0].pages {
+            pages.append(page1)
+            pages.append(page2)
+            document.files[0].views?[0].pages = pages
+        } else {
+            document.files[0].pages = [page1, page2]
+        }
+        return document
+    }
+    
+    func setFieldPositionToPage(pageId: String, idAndTypes: [String : FieldTypes]) -> JoyDoc {
+        
+        var document = self
+        
+        var fieldsPositions = [FieldPosition]()
+        for idAndType in idAndTypes {
+            var fieldPosition = FieldPosition()
+            fieldPosition.field = idAndType.key
+            fieldPosition.id = UUID().uuidString
+            fieldPosition.type = idAndType.value
+            fieldsPositions.append(fieldPosition)
+        }
+                
+        if var pages = document.files[0].views?[0].pages {
+            let pageIndex = pages.firstIndex { page in
+                page.id == pageId
+            }
+            pages[pageIndex ?? 0].fieldPositions = fieldsPositions
+            
+            document.files[0].views?[0].pages = pages
+        }
+        
+        return document
+    }
+    
+    func setConditionalLogicInCollectionField(schemaKey: String, logic: Logic?) -> JoyDoc {
+        var document = self
+        if let collectionFieldIndex = document.fields.firstIndex(where: { $0.type == "collection" }) {
+            if var schemaDict = document.fields[collectionFieldIndex].schema {
+                if var targetSchema = schemaDict[schemaKey] {
+                    var dict = targetSchema.dictionary
+                    dict["logic"] = logic?.dictionary
+                    targetSchema = Schema(dictionary: dict)
+                    schemaDict[schemaKey] = targetSchema
+                }
+                document.fields[collectionFieldIndex].schema = schemaDict
+            }
+        }
+        return document
+    }
+    
+    func setCollectionFieldRequired() -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = "67ddc52d35de157f6d7ebb63" // Reference id
+        field.identifier = "field_67ddc530213a11e84876b001" // Reference identifier
+        field.title = "Collection"
+        field.description = ""
+        
+        // Build the collection rows using our model initializers.
+        let collectionValue: [ValueElement] = [
+            // First row
+            ValueElement(dictionary: [
+                "_id": "67ddc5327e6841a074d9240b",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "Grok ",
+                    "67ddc2ndblock9f9ff1480": "hi yfgbfr",
+                    "67ddc4db157f14f67da0616a": "joyfill",
+                    "67ddc59c4aba2df34a6dd1c4": ValueUnion.double(300)
+                ],
+                "children": [String: Any]()
+            ]),
+            // Second row with nested children
+            ValueElement(dictionary: [
+                "_id": "67ddc537b7c2fce05d0c8615",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "First",
+                    "67ddc4db157f14f67da0616a": "joyfill"
+                ],
+                "children": [
+                    "67ddc5c9910a394a1324bfbe": [
+                        "value": [
+                            ValueElement(dictionary: [
+                                "_id": "67ddd18bc3a74e6b350987f9",
+                                "cells": [
+                                    "67ddc61edce16f8b9f8dbf4b": "Grok "
+                                ],
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd191ab6a428ea69c77ad",
+                                "cells": [
+                                    "67ddc61edce16f8b9f8dbf4b": "First "
+                                ],
+                                "children": [
+                                    "67ddc5f5c2477e8457956fb4": [
+                                        "value": [
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a5e6d0d62d55a7aaad",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ]),
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a656a259a9b6ab1263",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ]),
+                                            ValueElement(dictionary: [
+                                                "_id": "67ddd1a779642224075bf23c",
+                                                "cells": [String: Any](),
+                                                "children": [String: Any]()
+                                            ])
+                                        ]
+                                    ]
+                                ]
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd193eae737b64c24851a",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ])
+                        ]
+                    ],
+                    "67ddcf4f622984fb4518cbc2": [
+                        "value": [
+                            ValueElement(dictionary: [
+                                "_id": "67ddd1994c086e45784edb76",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd19f8577eb22eee2c57d",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ]),
+                            ValueElement(dictionary: [
+                                "_id": "67ddd1a03789211ac5f657e3",
+                                "cells": [String: Any](),
+                                "children": [String: Any]()
+                            ])
+                        ]
+                    ]
+                ]
+            ]),
+            // Third row
+            ValueElement(dictionary: [
+                "_id": "67ddc538123468491bc1d6ac",
+                "cells": [
+                    "67ddc5adbb96a9b9f9ff1480": "First "
+                ],
+                "children": [String: Any]()
+            ]),
+            // Fourth row
+            ValueElement(dictionary: [
+                "_id": "67ddc53924f0bd68beb066ca",
+                "cells": [
+                    "67ddc4db157f14f67da0616a": "joyfill"
+                ],
+                "children": [String: Any]()
+            ])
+        ]
+        
+        // Assign the collection value using the model representation.
+        field.value = .valueElementArray(collectionValue)
+        
+        let collectionSchema: [String: Any] = [
+            "collectionSchemaId": [
+                "title": "Main Collection",
+                "root": true,
+                "children": [
+                    "67ddc5c9910a394a1324bfbe",
+                    "67ddcf4f622984fb4518cbc2"
+                ],
+                "tableColumns": [
+                    [
+                        "_id": "67ddc4db157f14f67da0616a",
+                        "type": "text",
+                        "title": "Text Column",
+                        "identifier": "field_column_67ddc4e0457002b72007e321",
+                        "value": "Text Column: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X",
+                        "required": true
+                    ],
+                    [
+                        "_id": "67ddc4db898e2fb0ad3a8d19",
+                        "type": "dropdown",
+                        "title": "Dropdown Column",
+                        "options": [
+                            [
+                                "_id": "67ddc4dbde8b8bfe6322da24",
+                                "value": "Yes",
+                                "deleted": false
+                            ],
+                            [
+                                "_id": "67ddc4db94dba485b1642a23",
+                                "value": "No",
+                                "deleted": false
+                            ],
+                            [
+                                "_id": "67ddc4db3bc809de86ac85d0",
+                                "value": "N/A",
+                                "deleted": false
+                            ]
+                        ],
+                        "identifier": "field_column_67ddc4e093c80641691e8afe",
+                        "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                    ],
+                    [
+                        "_id": "67ddc59c4aba2df34a6dd1c4",
+                        "type": "number",
+                        "title": "Number Column",
+                        "deleted": false,
+                        "width": 0
+                    ],
+                    [
+                        "_id": "67ddc5981816e52ad55b71e6",
+                        "type": "multiSelect",
+                        "title": "Multiselect Column",
+                        "deleted": false,
+                        "width": 0,
+                        "options": [
+                            [
+                                "_id": "67ddc59812e6c0eff62bab58",
+                                "value": "Option 1",
+                                "deleted": false
+                            ],
+                            [
+                                "_id": "67ddc598fc5c30cacb3459ec",
+                                "value": "Option 2",
+                                "deleted": false
+                                
+                            ],
+                            [
+                                "_id": "67ddc598e4f75aaead71e431",
+                                "value": "Option 3",
+                                "deleted": false
+                            ]
+                        ],
+                        "optionOrder": [
+                            "67ddc59812e6c0eff62bab58",
+                            "67ddc598fc5c30cacb3459ec",
+                            "67ddc598e4f75aaead71e431"
+                        ]
+                    ]
+                ]
+            ],
+            "67ddc5c9910a394a1324bfbe": [
+                "title": "Child Table Title",
+                "children": [
+                    "67ddc5f5c2477e8457956fb4"
+                ],
+                "required": true,
+                "tableColumns": [
+                    [
+                        "_id": "67ddc5c9cb21736a10919b22",
+                        "type": "text",
+                        "title": "Text Column",
+                        "width": 0,
+                        "deleted": false
+                    ],
+                    [
+                        "_id": "67ddc609791020b851791f0d",
+                        "type": "dropdown",
+                        "title": "Dropdown Column",
+                        "deleted": false,
+                        "width": 0,
+                        "options": [
+                            [
+                                "_id": "67ddc609599f3ba9fb2f7b2e",
+                                "value": "Yes",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": NSNull()
+                                ]
+                            ],
+                            [
+                                "_id": "67ddc6091d62cd644f1ccdbb",
+                                "value": "No",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": NSNull()
+                                ]
+                            ],
+                            [
+                                "_id": "67ddc609a9f8e1a573852153",
+                                "value": "N/A",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": NSNull()
+                                ]
+                            ]
+                        ],
+                        "optionOrder": [
+                            "67ddc609599f3ba9fb2f7b2e",
+                            "67ddc6091d62cd644f1ccdbb",
+                            "67ddc609a9f8e1a573852153"
+                        ]
+                    ],
+                    [
+                        "_id": "67ddc60c4f70b8ef5c7a5e3d",
+                        "type": "multiSelect",
+                        "title": "Multiselect Column",
+                        "deleted": false,
+                        "width": 0,
+                        "options": [
+                            [
+                                "_id": "67ddc60c79c89a55825ffb0b",
+                                "value": "Option 1",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": "#f0f0f0"
+                                ]
+                            ],
+                            [
+                                "_id": "67ddc60c27eb845be497ec8f",
+                                "value": "Option 2",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": "#f0f0f0"
+                                ]
+                            ],
+                            [
+                                "_id": "67ddc60cbab030d3bf6f260e",
+                                "value": "Option 3",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": "#f0f0f0"
+                                ]
+                            ]
+                        ],
+                        "optionOrder": [
+                            "67ddc60c79c89a55825ffb0b",
+                            "67ddc60c27eb845be497ec8f",
+                            "67ddc60cbab030d3bf6f260e"
+                        ]
+                    ],
+                    [
+                        "_id": "67ddc60e1a015ed76fc404fc",
+                        "type": "image",
+                        "title": "Image Column",
+                        "deleted": false,
+                        "width": 0,
+                        "maxImageWidth": 190,
+                        "maxImageHeight": 120
+                    ],
+                    [
+                        "_id": "67ddc6136fbc59b8d02d2723",
+                        "type": "number",
+                        "title": "Number Column",
+                        "deleted": false,
+                        "width": 0
+                    ],
+                    [
+                        "_id": "67ddc618ef820f6b8cbc9879",
+                        "type": "date",
+                        "title": "Date Column",
+                        "deleted": false,
+                        "width": 0
+                    ],
+                    [
+                        "_id": "67ddc61edce16f8b9f8dbf4b",
+                        "type": "block",
+                        "title": "Label Column",
+                        "width": 0,
+                        "deleted": false,
+                        "value": "Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from XGrok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X"
+                    ],
+                    [
+                        "_id": "67ddc2ndblock9f9ff1480",
+                        "type": "block",
+                        "title": "Label Column2323",
+                        "width": 0,
+                        "deleted": false,
+                        "value": "ourehwbfuvyberfhvbeurfbvouwofvyicjhgbvretlweuygficewnfr ru vheoriuhv eiuhv hv iurhtoeurhvduhgvh ev viuehdofuvgweorygh97645268673495234 52345 234 523453 4576 4568745678. 6786"
+                    ],
+                    [
+                        "_id": "67ddc5b323b5b9fc08f3f824",
+                        "type": "barcode",
+                        "title": "Barcode Column",
+                        "width": 0,
+                        "deleted": false
+                    ],
+                    [
+                        "_id": "67ddc5b5e2f8843d6d5f6771",
+                        "type": "signature",
+                        "title": "Signature Column",
+                        "width": 0,
+                        "deleted": false
+                    ]
+                ]
+            ],
+            "67ddc5f5c2477e8457956fb4": [
+                "title": "Grand Child Table Title",
+                "children": [],
+                "tableColumns": [
+                    [
+                        "_id": "67ddc5f5107180be0f5befd6",
+                        "type": "text",
+                        "title": "Text Column",
+                        "width": 0,
+                        "deleted": false
+                    ],
+                    [
+                        "_id": "67ddd16604dc88ca60898821",
+                        "type": "dropdown",
+                        "title": "Dropdown Column",
+                        "deleted": false,
+                        "width": 0,
+                        "options": [
+                            [
+                                "_id": "67ddd1664a80f93bf1584051",
+                                "value": "Yes",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": NSNull()
+                                ]
+                            ],
+                            [
+                                "_id": "67ddd1665198425a6554f362",
+                                "value": "No",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": NSNull()
+                                ]
+                            ],
+                            [
+                                "_id": "67ddd1664e6d82d74191f5b9",
+                                "value": "N/A",
+                                "deleted": false,
+                                "styles": [
+                                    "backgroundColor": NSNull()
+                                ]
+                            ]
+                        ],
+                        "optionOrder": [
+                            "67ddd1664a80f93bf1584051",
+                            "67ddd1665198425a6554f362",
+                            "67ddd1664e6d82d74191f5b9"
+                        ]
+                    ],
+                    [
+                        "_id": "67ddd16991439221b58a7148",
+                        "type": "date",
+                        "title": "Date 3rd Column",
+                        "deleted": false,
+                        "width": 0,
+                        "maxImageWidth": 190,
+                        "maxImageHeight": 120
+                    ]
+                ]
+            ],
+            "67ddcf4f622984fb4518cbc2": [
+                "title": "2nd Child Table Title: Grok is xAI’s flagship large language model, envisioned as a witty, rebellious AI assistant with real-time knowledge from X.",
+                "children": [],
+                "tableColumns": [
+                    [
+                        "_id": "67ddcf4fa46f548aaade239d",
+                        "type": "text",
+                        "title": "Text Column",
+                        "width": 0,
+                        "deleted": false
+                    ],
+                    [
+                        "_id": "67ddd17186d63f89705763d9",
+                        "type": "barcode",
+                        "title": "Barcode Column",
+                        "width": 0,
+                        "deleted": false
+                    ],
+                    [
+                        "_id": "67ddd174efad8934d569ff8c",
+                        "type": "signature",
+                        "title": "Signature Column",
+                        "width": 0,
+                        "deleted": false
+                    ]
+                ]
+            ]
+        ]
+        
+        field.schema = collectionSchema.mapValues { Schema(dictionary: $0 as! [String: Any]) }
+        
+        field.required = true
+        field.tipTitle = ""
+        field.tipDescription = ""
+        field.tipVisible = false
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+    
+    func setCollectionFieldRequired(
+        isFieldRequired: Bool = true,
+        isSchemaRequired: Bool = true,
+        includeNestedRows: Bool = true,
+        omitRequiredValues: Bool = false
+    ) -> JoyDoc {
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = "67ddc52d35de157f6d7ebb63"
+        field.identifier = "field_67ddc530213a11e84876b001"
+        field.title = "Collection"
+        field.required = isFieldRequired
+        field.file = "6629fab3c0ba3fb775b4a55c"
+
+        // Top-level row setup
+        var topRow = ValueElement()
+        topRow.id = "row_1"
+        topRow.deleted = false
+        topRow.cells = [
+            "col_text_1": omitRequiredValues ? ValueUnion.string("") : ValueUnion.string("Top-level value")
+        ]
+
+        if includeNestedRows {
+            let nestedChildRow = ValueElement(dictionary: [
+                "_id": "nested_row_1",
+                "cells": omitRequiredValues ? [:] : ["nested_col_1": "Nested value"],
+                "children": [String: Any]()
+            ])
+            topRow.childrens = [
+                "child_schema_1": Children(dictionary: ["value": [nestedChildRow]])
+            ]
+        }
+
+        field.value = .valueElementArray([topRow])
+
+        // Schema definition
+        let schemaDict: [String: Any] = [
+            "main_schema": [
+                "title": "Root Schema",
+                "root": true,
+                "children": ["child_schema_1"],
+                "tableColumns": [
+                    [
+                        "_id": "col_text_1",
+                        "type": "text",
+                        "title": "Text Column",
+                        "required": true
+                    ]
+                ]
+            ],
+            "child_schema_1": [
+                "title": "Child Schema",
+                "required": true,
+                "tableColumns": [
+                    [
+                        "_id": "nested_col_1",
+                        "type": "text",
+                        "title": "Nested Column",
+                        "required": true
+                    ]
+                ]
+            ]
+        ]
+
+        field.schema = schemaDict.mapValues { Schema(dictionary: $0 as! [String: Any]) }
+
+        var document = self
+        document.fields.append(field)
+        return document
+    }
+
     // set field position
     func setPageWithFieldPosition() -> JoyDoc {
         let position1 = FieldPosition(dictionary: [

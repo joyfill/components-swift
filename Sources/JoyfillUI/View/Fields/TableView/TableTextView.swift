@@ -10,6 +10,7 @@ import SwiftUI
 struct TableTextView: View {
     @FocusState private var isTextFieldFocused: Bool
     @Binding var cellModel: TableCellModel
+    @State private var debounceTask: Task<Void, Never>?
 
     public init(cellModel: Binding<TableCellModel>) {
         _cellModel = cellModel
@@ -24,10 +25,16 @@ struct TableTextView: View {
             TextEditor(text: $cellModel.data.title)
                 .font(.system(size: 15))
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
-                .onChange(of: cellModel.data.title) { newText in
-                    cellModel.didChange?(cellModel.data)
+                .onChange(of: cellModel.data.title) { _ in
+                    Utility.debounceTextChange(debounceTask: &debounceTask) {
+                        updateFieldValue()
+                    }
                 }
                 .focused($isTextFieldFocused)
         }
+    }
+    
+    func updateFieldValue() {
+        cellModel.didChange?(cellModel.data)
     }
 }

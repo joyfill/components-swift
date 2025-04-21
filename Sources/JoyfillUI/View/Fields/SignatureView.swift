@@ -7,7 +7,8 @@ struct SignatureView: View {
     @State private var savedLines: [Line] = []
     @State var signatureURL: String = ""
     @State private var showCanvasSignatureView: Bool = false
-
+    @State var isEditable: Bool = true
+    
     @State var hasAppeared: Bool = false
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
 
@@ -50,7 +51,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, isEditable: $isEditable), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -142,6 +143,7 @@ struct CanvasSignatureView: View {
     @Binding var lines: [Line]
     @Binding var savedLines: [Line]
     @Binding var signatureImage: UIImage?
+    @Binding var isEditable: Bool
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     
@@ -149,60 +151,98 @@ struct CanvasSignatureView: View {
         VStack(alignment: .leading) {
             Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                 .fontWeight(.bold)
+                .padding(.top, 12)
             
-            CanvasView(lines: $lines)
-                .frame(height: 150)
-                .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-            
-            HStack {
-                Spacer()
-                Button(action: {
-                    self.lines = []
-                }, label: {
-                    Text("Clear")
-                        .darkLightThemeColor()
-                        .frame(width: screenWidth * 0.3,height: 40)
+            if isEditable {
+                CanvasView(lines: $lines)
+                    .frame(height: 150)
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    )
+            } else {
+                if let signatureImage = signatureImage {
+                    ZStack(alignment: .bottomTrailing) {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            .frame(height: 150)
+                            .overlay {
+                                Image(uiImage: signatureImage)
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                        
+                        Button(action: {
+                            isEditable = true
+                        }, label: {
+                            HStack {
+                                Text("Edit")
+                                    .darkLightThemeColor()
+                                Image(systemName: "pencil")
+                                    .foregroundStyle(.black)
+                            }
+                            .frame(width: 80,height: 30)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                        })
+                        .padding(.all, 10)
+                    }
+                } else {
+                    CanvasView(lines: $lines)
+                        .frame(height: 150)
                         .cornerRadius(10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
-                })
-                .accessibilityIdentifier("ClearSignatureIdentifier")
-                
-                Button(action: {
-                    guard !lines.isEmpty else {
-                        savedLines = []
-                        signatureImage = nil
-                        presentationMode.wrappedValue.dismiss()
-                        return
-                    }
-                    signatureImage = CanvasView(lines: $lines)
-                        .frame(width: screenWidth, height: 220)
-                        .snapshot()
-                    savedLines = lines
-                    presentationMode.wrappedValue.dismiss()
-                }, label: {
-                    Text("Save")
-                        .frame(minWidth: 100, maxWidth: .infinity)
-                })
-                .buttonStyle(.borderedProminent)
-                .accessibilityIdentifier("SaveSignatureIdentifier")
-                Spacer()
+                }
             }
-            .padding(.top, 10)
+            
+            if isEditable || signatureImage == nil {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        lines.removeAll()
+                    }, label: {
+                        Text("Clear")
+                            .darkLightThemeColor()
+                            .frame(width: screenWidth * 0.3,height: 40)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
+                    })
+                    .accessibilityIdentifier("ClearSignatureIdentifier")
+                    
+                    Button(action: {
+                        guard !lines.isEmpty else {
+                            savedLines = []
+                            signatureImage = nil
+                            presentationMode.wrappedValue.dismiss()
+                            return
+                        }
+                        signatureImage = CanvasView(lines: $lines)
+                            .frame(width: screenWidth, height: 220)
+                            .snapshot()
+                        savedLines = lines
+                        presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Text("Save")
+                            .frame(minWidth: 100, maxWidth: .infinity)
+                    })
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("SaveSignatureIdentifier")
+                    Spacer()
+                }
+                .padding(.top, 10)
+            }
             Spacer()
         }
         .padding(.horizontal, 16.0)
-        .onAppear {
-            if lines.isEmpty {
-                lines = savedLines
-            }
-        }
     }
 }
 extension View {

@@ -1,20 +1,15 @@
 //
-//  SwiftUIView.swift
+//  File.swift
+//  Joyfill
 //
-//
-//  Created by Nand Kishore on 06/03/24.
+//  Created by Vivek on 14/02/25.
 //
 
 import SwiftUI
 import JoyfillModel
 
-enum TableViewMode {
-    case quickView
-    case modalView
-}
-
-struct TableViewCellBuilder: View {
-    @ObservedObject var viewModel: TableViewModel
+struct CollectionViewCellBuilder: View {
+    @ObservedObject var viewModel: CollectionViewModel
     @Binding var cellModel: TableCellModel
     
     var body: some View {
@@ -40,7 +35,7 @@ struct TableViewCellBuilder: View {
             TableMultiSelectView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case .progress:
-            TableProgressView(cellModel: $cellModel, viewModel: viewModel)
+            CollectionProgressView(cellModel: $cellModel, viewModel: viewModel)
         case .barcode:
             TableBarcodeView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)

@@ -1,23 +1,23 @@
 //
 //  File.swift
-//  
+//  Joyfill
 //
-//  Created by Vishnu Dutt on 11/12/24.
+//  Created by Vivek on 14/02/25.
 //
 
 import SwiftUI
 import JoyfillModel
 
-struct SearchBar: View {
+struct CollectionSearchBar: View {
     @Binding var model: FilterModel
     @Binding var sortModel: SortModel
     @Binding var selectedColumnIndex: Int
 
-    let viewModel: TableViewModel
+    let viewModel: CollectionViewModel
 
     var body: some View {
         HStack {
-            if !viewModel.tableDataModel.rowOrder.isEmpty, selectedColumnIndex != Int.min {
+            if !viewModel.tableDataModel.cellModels.isEmpty, selectedColumnIndex != Int.min {
                 let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
@@ -69,7 +69,6 @@ struct SearchBar: View {
                             .accessibilityIdentifier("SearchBarMultiSelectionFieldIdentifier")
                     case .barcode:
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
-                            .accessibilityIdentifier("SearchBarCodeFieldIdentifier")
                             .font(.system(size: 12))
                             .foregroundColor(.black)
                             .padding(.vertical, 4)
@@ -140,3 +139,4 @@ struct SearchBar: View {
         }
     }
 }
+

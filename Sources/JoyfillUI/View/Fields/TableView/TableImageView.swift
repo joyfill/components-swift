@@ -8,11 +8,17 @@ import JoyfillModel
      @State var showMoreImages2: Bool = false
      @State var showToast: Bool = false
      @Binding var cellModel: TableCellModel
+     private var isUsedForBulkEdit = false
+     @State var valueElements: [ValueElement] = []
 
-     public init(cellModel: Binding<TableCellModel>) {
+     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
          _cellModel = cellModel
          _showMoreImages = State(wrappedValue: 6)
-     } 
+         self.isUsedForBulkEdit = isUsedForBulkEdit
+         if !isUsedForBulkEdit {
+             _valueElements = State(initialValue: cellModel.wrappedValue.data.valueElements)
+         }
+     }
     
     var body: some View {
         if #available(iOS 16, *) {
@@ -22,21 +28,24 @@ import JoyfillModel
                 HStack(spacing: 2) {
                     Image(systemName: "photo")
                         .grayLightThemeColor()
-                    Text(cellModel.data.valueElements.count == 0 ? "" : "+\(cellModel.data.valueElements.count)")
+                    Text(valueElements.count == 0 ? "" : "+\(valueElements.count)")
                         .darkLightThemeColor()
                 }
                 .font(.system(size: 15))
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .sheet(isPresented: $showMoreImages2) {
-                MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
-                    .frame(width: UIScreen.main.bounds.width)
+                MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
                 showMoreImages2 = true
             }
-            .onChange(of: cellModel.data.valueElements) { newValue in
+            .onChange(of: valueElements) { newValue in
+                let valueElements = newValue
+                var data = cellModel.data
+                data.valueElements = valueElements
+                cellModel.data = data
                 cellModel.didChange?(cellModel.data)
             }
         }
@@ -47,21 +56,24 @@ import JoyfillModel
                 HStack(spacing: 2) {
                     Image(systemName: "photo")
                         .grayLightThemeColor()
-                    Text(cellModel.data.valueElements.count == 0 ? "" : "+\(cellModel.data.valueElements.count)")
+                    Text(valueElements.count == 0 ? "" : "+\(valueElements.count)")
                         .darkLightThemeColor()
                 }
                 .font(.system(size: 15))
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .fullScreenCover(isPresented: $showMoreImages2) {
-                MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
-                    .frame(width: UIScreen.main.bounds.width)
+                MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
                 showMoreImages2 = true
             }
-            .onChange(of: cellModel.data.valueElements) { newValue in
+            .onChange(of: valueElements) { newValue in
+                let valueElements = newValue
+                var data = cellModel.data
+                data.valueElements = valueElements
+                cellModel.data = data
                 cellModel.didChange?(cellModel.data)
             }
         }
@@ -76,6 +88,7 @@ import JoyfillModel
                      }
                      return false
                  } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
+                 self.valueElements.append(valueElement)
                  cellModel.data.valueElements.append(valueElement)
              }
              cellModel.didChange?(cellModel.data)
