@@ -33,6 +33,7 @@ struct JoyfillExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
+//            LiveViewTest()
             if joyfillUITestsMode {
                 NavigationView {
                     UITestFormContainerView(documentEditor: documentEditor)
