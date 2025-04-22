@@ -256,31 +256,7 @@ struct CollectionModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.element.wrappedValue.rowID) { (index, $rowCellModels) in
-                            HStack(spacing: 0) {
-                                
-                                ColllectionRowsHeaderView(viewModel: viewModel, rowModel: $rowCellModels, colorScheme: colorScheme, index: index)
-                                
-                                switch rowCellModels.rowType {
-                                case .row:
-                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
-                                    .frame(height: 60)
-                                case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
-                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
-                                    .frame(height: 60)
-                                case .header(level: let level, tableColumns: let tableColumns):
-                                    CollectionColumnHeaderView(viewModel: viewModel,
-                                                          tableColumns: tableColumns ?? [],
-                                                          currentSelectedCol: $currentSelectedCol,
-                                                          colorScheme: colorScheme,
-                                                          isHeaderNested: true)
-                                    .frame(height: 60)
-                                case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
-                                    CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
-                                        .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                                }
-                            }
-                        }
+                        CollectionRowsView(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, longestBlockText: longestBlockText, colorScheme: colorScheme)
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
@@ -468,7 +444,7 @@ struct CollectionColumnHeaderView: View {
     }
 }
 
-struct ColllectionRowsHeaderView: View {
+struct CollectionRowsHeaderView: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var rowModel: RowDataModel
     let colorScheme: ColorScheme
@@ -655,5 +631,43 @@ struct EmptyRectangleWithBorders: View {
             .fill(colorScheme == .dark ? Color.black.opacity(0.8) : .white)
             .frame(width: width, height: height)
             .border(Color.tableCellBorderColor)
+    }
+}
+struct CollectionRowsView: View {
+    @ObservedObject var viewModel: CollectionViewModel
+    @Binding var currentSelectedCol: Int
+    let longestBlockText: String
+    let colorScheme: ColorScheme
+    
+    var body: some View {
+        ForEach(viewModel.tableDataModel.filteredcellModels.indices, id: \.self) { index in
+            if viewModel.tableDataModel.filteredcellModels.indices.contains(index) {
+                let rowBinding = $viewModel.tableDataModel.filteredcellModels[index]
+                let rowModel = viewModel.tableDataModel.filteredcellModels[index]
+                
+                HStack(spacing: 0) {
+                    CollectionRowsHeaderView(viewModel: viewModel, rowModel: rowBinding, colorScheme: colorScheme, index: index)
+                    
+                    switch rowModel.rowType {
+                    case .row:
+                        CollectionRowView(viewModel: viewModel, rowDataModel: rowBinding, longestBlockText: longestBlockText)
+                            .frame(height: 60)
+                    case .nestedRow(_, _, _, _):
+                        CollectionRowView(viewModel: viewModel, rowDataModel: rowBinding, longestBlockText: longestBlockText)
+                            .frame(height: 60)
+                    case .header(_, let tableColumns):
+                        CollectionColumnHeaderView(viewModel: viewModel,
+                                                   tableColumns: tableColumns ?? [],
+                                                   currentSelectedCol: $currentSelectedCol,
+                                                   colorScheme: colorScheme,
+                                                   isHeaderNested: true)
+                        .frame(height: 60)
+                    case .tableExpander(let schemaValue, let level, let parentID, _):
+                        CollectionExpanderView(rowDataModel: rowBinding, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("", ""))
+                            .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                    }
+                }
+            }
+        }
     }
 }
