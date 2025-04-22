@@ -22,7 +22,7 @@ struct LiveViewTest: View {
             .addNumberField(identifier: "num3", value: 500)
             .addNumberField(identifier: "num4", value: 133)
 
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: nil, navigation: true, isPageDuplicateEnabled: true)
+        self.documentEditor = DocumentEditor(document: document)
     }
 
     var body: some View {
