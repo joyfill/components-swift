@@ -102,5 +102,20 @@ extension JoyDoc {
                        id: id, 
                        value: .string(value))
     }
+    
+    /// Adds a date field to the document
+    func addDateField(identifier: String = "field_6629fb3fabb87e37c9578b8b",
+                    formula: String? = nil,
+                    id: String = UUID().uuidString,
+                    date: Date = Date()) -> JoyDoc {
+        // Convert Date to timestamp (milliseconds since epoch)
+        let timestamp = date.timeIntervalSince1970 * 1000
+        
+        return addField(type: .date,
+                       identifier: identifier,
+                       formula: formula,
+                       id: id,
+                       value: .double(timestamp))
+    }
 
 }

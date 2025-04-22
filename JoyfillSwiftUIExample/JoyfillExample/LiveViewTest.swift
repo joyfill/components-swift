@@ -22,6 +22,8 @@ struct LiveViewTest: View {
             .addNumberField(identifier: "num3", value: 500)
             .addNumberField(identifier: "num4", value: 133)
             .addTextField(identifier: "text1", formula: "if({num4} > 3, \"yes\", \"no\")", value: "Hello, World!")
+            .addDateField(identifier: "due_date", formula: "", date: Date())
+
 
         self.documentEditor = DocumentEditor(document: document)
     }
