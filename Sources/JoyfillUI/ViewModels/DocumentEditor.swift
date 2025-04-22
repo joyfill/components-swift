@@ -18,11 +18,12 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
     }
     
     public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
+        print("updateValue called >>>>>>>", value)
        guard var field = allFields.first(where: { $0.identifier == identifier }) else {
            return
        }
         guard let fieldID = field.id else { return }
-        field.value = .double(Double(value.number ?? 0.0))
+        field.value = value
         fieldMap[fieldID] = field
         refreshField(fieldId: fieldID)
     }
