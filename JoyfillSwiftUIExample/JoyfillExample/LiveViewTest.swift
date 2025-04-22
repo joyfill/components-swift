@@ -29,7 +29,9 @@ struct LiveViewTest: View {
     }
 
     var body: some View {
-        Form(documentEditor: documentEditor)
+        NavigationView {
+            Form(documentEditor: documentEditor)
+        }
     }
 }
 
