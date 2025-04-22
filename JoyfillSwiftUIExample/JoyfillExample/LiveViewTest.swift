@@ -15,13 +15,12 @@ struct LiveViewTest: View {
     let documentEditor: DocumentEditor
 
     init() {
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setPageField()
-            .setNumberFieldWithFormula(identifier: "num1", formula: "{num3} + {num2}")
-            .setNumberFieldWithFormula(identifier: "num3", value: .double(500))
-            .setNumberFieldWithFormula(identifier: "num2", value: .double(133))
+        let document = JoyDoc
+            .addDocument()
+            .addNumberField(identifier: "num1", formula: "{num3} + {num2}")
+            .addNumberField(identifier: "num2", formula: "{num4} + 5")
+            .addNumberField(identifier: "num3", value: 500)
+            .addNumberField(identifier: "num4", value: 133)
 
         self.documentEditor = DocumentEditor(document: document, mode: .fill, events: nil, navigation: true, isPageDuplicateEnabled: true)
     }

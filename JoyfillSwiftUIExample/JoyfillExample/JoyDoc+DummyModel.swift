@@ -2,6 +2,14 @@ import Foundation
 import JoyfillModel
 
 extension JoyDoc {
+
+    static func addDocument() -> JoyDoc {
+        return JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageField()
+    }
+
     func setDocument() -> JoyDoc {
         var document = self
         document.id = "6629fc6367b3a40644096182"
@@ -744,9 +752,9 @@ extension JoyDoc {
 
     // Add a numner filed with field data and field position with formula
 
-    func setNumberFieldWithFormula(identifier: String = "field_6629fb3fabb87e37c9578b8b", formula: String? = nil, id: String = UUID().uuidString, value: ValueUnion = .double(98789)) -> JoyDoc {
+    func addNumberField(identifier: String = "field_6629fb3fabb87e37c9578b8b", formula: String? = nil, id: String = UUID().uuidString, value: Double = 98789) -> JoyDoc {
         return self
-        .setNumberFieldData(identifier: identifier, formula: formula, id: id, value: value)
+            .setNumberFieldData(identifier: identifier, formula: formula, id: id, value: .double(value))
         .setNumberPosition(id: id)
     }
     
@@ -755,7 +763,7 @@ extension JoyDoc {
         field.type = "number"
         field.id = id
         field.identifier = identifier
-        field.title = "Number"
+        field.title = identifier
         field.description = ""
         field.value = value
         field.required = false
