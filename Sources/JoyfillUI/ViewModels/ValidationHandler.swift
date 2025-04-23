@@ -205,7 +205,7 @@ class ValidationHandler {
         }
 
         let status: ValidationStatus = isCollectionValid ? .valid : .invalid
-        return FieldValidity(field: field, status: status, children: childrenValidities, rowValidities: rowValidities, columnValidities: columnValidities)
+        return FieldValidity(field: field, status: status)
     }
     
     private func validateCollectionFieldChild(fieldID: String, rows: [ValueElement], schema: Schema) -> FieldValidity {
