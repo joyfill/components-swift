@@ -378,7 +378,7 @@ struct RootTitleRowView: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .frame(minHeight: 50)
-        .frame(width: Utility.getWidthForExpanderRow(columns: viewModel.tableDataModel.tableColumns, showSelector: viewModel.showRowSelector, text: ""), height: 60)
+        .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0), height: 60)
         .font(.system(size: 15, weight: .bold))
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
