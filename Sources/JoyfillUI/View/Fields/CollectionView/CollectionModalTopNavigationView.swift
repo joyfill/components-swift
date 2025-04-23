@@ -650,5 +650,8 @@ struct CollectionEditMultipleRowsSheetView: View {
         .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
             viewID = UUID()
         }
+        .simultaneousGesture(DragGesture().onChanged({ _ in
+            dismissKeyboard()
+        }))
     }
 }

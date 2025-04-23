@@ -273,15 +273,11 @@ struct CollectionModalView : View {
                         cellProxy.scrollTo(0, anchor: .leading)
                     })
                 }
-                .gesture(DragGesture().onChanged({ _ in
+                .simultaneousGesture(DragGesture().onChanged({ _ in
                     dismissKeyboard()
                 }))
             }
         }
-    }
-
-    private func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
@@ -669,5 +665,11 @@ struct CollectionRowsView: View {
                 }
             }
         }
+    }
+}
+
+extension View {
+    func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
