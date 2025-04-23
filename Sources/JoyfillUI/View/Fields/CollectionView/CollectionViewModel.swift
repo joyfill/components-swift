@@ -984,7 +984,6 @@ class CollectionViewModel: ObservableObject {
             self.tableDataModel.cellModels.moveItems(from: [index], to: upperRowIndicesToMove.sorted())
         }
         tableDataModel.filterRowsIfNeeded()
-        tableDataModel.emptySelection()
     }
     
     fileprivate func moveNestedDown(at index: Int, rowID: String) {
@@ -1005,7 +1004,6 @@ class CollectionViewModel: ObservableObject {
             self.tableDataModel.cellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: [index])
         }
         tableDataModel.filterRowsIfNeeded()
-        tableDataModel.emptySelection()
     }
 
     fileprivate func getChildrensBy(_ schemaKey: String) -> [String : Children] {
