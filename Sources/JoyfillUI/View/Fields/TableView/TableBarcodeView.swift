@@ -12,7 +12,6 @@ struct TableBarcodeView: View {
     @Binding var cellModel: TableCellModel
     @State var text: String = ""
     private var isUsedForBulkEdit: Bool
-    @State private var debounceTask: Task<Void, Never>?
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil) {
         _cellModel = cellModel
@@ -35,9 +34,7 @@ struct TableBarcodeView: View {
                     .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                     .font(.system(size: 15))
                     .onChange(of: text) { newValue in
-                        Utility.debounceTextChange(debounceTask: &debounceTask) {
-                            updateFieldValue(newText: newValue)
-                        }
+                        updateFieldValue(newText: newValue)
                     }
                 
                 Image(systemName: "barcode.viewfinder")
