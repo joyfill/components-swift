@@ -6,7 +6,9 @@ import JoyfillFormulas
 public protocol JoyDocProvider {
     func field(for identifier: String) -> JoyDocField?
     func allFormulsFields() -> [JoyDocField]
+    func formula(with id: String) -> Formula?
     func updateValue(for identifier: String, value: ValueUnion)
+    func setFieldHidden(_ hidden: Bool, for identifier: String)
 }
 
 /// Application-level implementation of EvaluationContext that resolves references against a JoyDoc
@@ -92,6 +94,30 @@ public class JoyfillDocContext: EvaluationContext {
         return temporaryVariables[key]
     }
     
+    /// Gets the applied formula for a field, if it exists
+    private func getFormulaForField(_ field: JoyDocField) -> (formulaString: String, key: String)? {
+        // Check if this field has any applied formulas
+        guard let appliedFormulas = field.formulas, !appliedFormulas.isEmpty else {
+            return nil
+        }
+        
+        // Get the first applied formula (we assume one formula per field for now)
+        let appliedFormula = appliedFormulas[0]
+        
+        // Get the formula ID and key
+        guard let formulaId = appliedFormula.formula, let key = appliedFormula.key else {
+            return nil
+        }
+        
+        // Look up the actual formula by ID
+        guard let formula = docProvider.formula(with: formulaId) else {
+            return nil
+        }
+        
+        // Return the formula string and the target key
+        return (formulaString: formula.formula ?? "", key: key)
+    }
+    
     private func resolveSimpleFieldReference(_ identifier: String) -> Result<FormulaValue, FormulaError> {
         // Search the fields for a matching identifier
         guard let field = docProvider.field(for: identifier) else {
@@ -99,7 +125,7 @@ public class JoyfillDocContext: EvaluationContext {
         }
         
         // Check if it's a formula field
-        if let formula = field.formula {
+        if let formulaInfo = getFormulaForField(field) {
             // Check for cached value
             if let cachedValue = formulaCache[identifier] {
                 return .success(cachedValue)
@@ -114,7 +140,7 @@ public class JoyfillDocContext: EvaluationContext {
             evaluationInProgress.insert(identifier)
             
             // Evaluate the formula
-            let parseResult = parser.parse(formula: formula)
+            let parseResult = parser.parse(formula: formulaInfo.formulaString)
             
             switch parseResult {
             case .success(let ast):
@@ -291,9 +317,9 @@ public class JoyfillDocContext: EvaluationContext {
         let formulaFields = docProvider.allFormulsFields()
         
         for field in formulaFields {
-            if let identifier = field.identifier, let formula = field.formula {
+            if let identifier = field.identifier, let formulaInfo = getFormulaForField(field) {
                 // Extract references from the formula
-                let dependencies = extractReferences(from: formula)
+                let dependencies = extractReferences(from: formulaInfo.formulaString)
                 dependencyGraph[identifier] = Set(dependencies)
             }
         }
@@ -526,9 +552,9 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each dependent field
         for fieldId in sortedDependentFields {
-            if let field = docProvider.field(for: fieldId), let formula = field.formula {
+            if let field = docProvider.field(for: fieldId), let formulaInfo = getFormulaForField(field) {
                 // Parse and evaluate the formula
-                let parseResult = parser.parse(formula: formula)
+                let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
                 switch parseResult {
                 case .success(let ast):
@@ -539,7 +565,7 @@ public class JoyfillDocContext: EvaluationContext {
                         formulaCache[fieldId] = value
                         
                         // Update the field value in the document
-                        updateFieldWithFormulaResult(identifier: fieldId, value: value)
+                        updateFieldWithFormulaResult(identifier: fieldId, value: value, key: formulaInfo.key)
                         updatedCount += 1
                     }
                     
@@ -580,9 +606,9 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each dependent field
         for fieldId in sortedDependentFields {
-            if let field = docProvider.field(for: fieldId), let formula = field.formula {
+            if let field = docProvider.field(for: fieldId), let formulaInfo = getFormulaForField(field) {
                 // Parse and evaluate the formula
-                let parseResult = parser.parse(formula: formula)
+                let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
                 switch parseResult {
                 case .success(let ast):
@@ -593,7 +619,7 @@ public class JoyfillDocContext: EvaluationContext {
                         formulaCache[fieldId] = value
                         
                         // Update the field value in the document
-                        updateFieldWithFormulaResult(identifier: fieldId, value: value)
+                        updateFieldWithFormulaResult(identifier: fieldId, value: value, key: formulaInfo.key)
                         updatedCount += 1
                     }
                     
@@ -666,9 +692,9 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each field in dependency order
         for field in sortedFields {
-            if let identifier = field.identifier, let formula = field.formula {
+            if let identifier = field.identifier, let formulaInfo = getFormulaForField(field) {
                 // Evaluate the formula
-                let parseResult = parser.parse(formula: formula)
+                let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
                 switch parseResult {
                 case .success(let ast):
@@ -679,7 +705,7 @@ public class JoyfillDocContext: EvaluationContext {
                         formulaCache[identifier] = value
                         
                         // Update the field's value in the document
-                        updateFieldWithFormulaResult(identifier: identifier, value: value)
+                        updateFieldWithFormulaResult(identifier: identifier, value: value, key: formulaInfo.key)
                     }
                     
                 case .failure(let error):
@@ -753,12 +779,22 @@ public class JoyfillDocContext: EvaluationContext {
     /// - Parameters:
     ///   - identifier: The field identifier
     ///   - value: The formula result value
-    private func updateFieldWithFormulaResult(identifier: String, value: FormulaValue) {
+    ///   - key: The field property to update (e.g., "value", "hidden", etc.)
+    private func updateFieldWithFormulaResult(identifier: String, value: FormulaValue, key: String = "value") {
         // Convert FormulaValue to ValueUnion
         let valueUnion = convertFormulaValueToValueUnion(value)
         
         // Update the field value in the document
-        docProvider.updateValue(for: identifier, value: valueUnion)
+        // Note: Currently this only handles the "value" property
+        // In the future, this would need to be extended to handle other properties like "hidden", "valid", etc.
+        if key == "value" {
+            docProvider.updateValue(for: identifier, value: valueUnion)
+        } else if (key == "hidden") {
+            docProvider.setFieldHidden(value.boolValue, for: identifier)
+        } else {
+            // TODO: Handle other field properties like hidden, valid, etc.
+            print("Warning: Updating field property '\(key)' not implemented yet")
+        }
     }
     
     /// Converts a FormulaValue to a ValueUnion

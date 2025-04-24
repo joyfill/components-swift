@@ -40,7 +40,7 @@ public struct CollectionDependency {
 
 class ConditionalLogicHandler {
     weak var documentEditor: DocumentEditor!
-    private var showFieldMap = [String: Bool]()
+    var showFieldMap = [String: Bool]()
     private var fieldConditionalDependencyMap = [String: Set<String>]()
 
     private var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
