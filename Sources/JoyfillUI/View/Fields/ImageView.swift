@@ -12,6 +12,8 @@ struct ImageView: View {
     
     @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State var showToast: Bool = false
+    @State var isMultiEnabled: Bool
+    @State var images: [UIImage] = []
     
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -21,6 +23,7 @@ struct ImageView: View {
     public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
         self.imageDataModel = imageDataModel
+        self.isMultiEnabled = imageDataModel.multi ?? true
     }
     
     var body: some View {
@@ -94,8 +97,9 @@ struct ImageView: View {
             }
             
             NavigationLink(destination:
-                            MoreImageView(valueElements: $valueElements,
-                                          isMultiEnabled: imageDataModel.multi ?? true,
+                            MoreImageView(images: $images,
+                                          valueElements: $valueElements,
+                                          isMultiEnabled: isMultiEnabled,
                                           showToast: $showToast,
                                           uploadAction: uploadAction,
                                           isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
@@ -137,6 +141,16 @@ struct ImageView: View {
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
+                    guard let image = image else {
+                        showProgressView = false
+                        return
+                    }
+                    
+                    if isMultiEnabled == false ?? true {
+                        images = []
+                        valueElements = []
+                    }
+                    
                     let valueElement = valueElements.first { valueElement in
                         if valueElement.url == imageURL {
                             return true
@@ -146,7 +160,6 @@ struct ImageView: View {
                     self.imageDictionary[valueElement] = image
                     valueElements.append(valueElement)
                     showProgressView = false
-                    guard let image = image else { return }
                     // valueElements upade
                     self.uiImagesArray.append(image)
                 })
@@ -158,7 +171,7 @@ struct ImageView: View {
 struct MoreImageView: View {
     @Environment(\.presentationMode) private var presentationMode
     
-    @State var images: [UIImage] = []
+    @Binding var images: [UIImage]
     @State var selectedImagesIndex: Set<Int> = Set()
     @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
@@ -286,10 +299,6 @@ struct UploadDeleteView: View {
     
     var uploadButton: some View {
         Button(action: {
-            if isMultiEnabled == false ?? true {
-                imagesArray = []
-                valueElements = []
-            }
             uploadAction()
         }, label: {
             HStack(spacing: 8) {
