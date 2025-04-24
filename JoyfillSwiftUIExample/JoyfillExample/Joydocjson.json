@@ -188,6 +188,16 @@
               "primaryDisplayOnly": true,
               "_id": "6629fbddabbd2a54f548bb95",
               "type": "chart"
+            },
+            {
+              "field": "6629fab36e8925135f0cdd4fdddd",
+              "displayType": "original",
+              "width": 9,
+              "height": 23,
+              "x": 0,
+              "y": 180,
+              "_id": "6629fab82ddb5cdd73a2f27f",
+              "type": "image"
             }
           ],
           "metadata": {},
@@ -2647,6 +2657,28 @@
             "metadata": {},
             "hidden": true,
             "file": "66a0fdb2acd89d30121053b9"
+        },
+        {
+          "type": "image",
+          "_id": "6629fab36e8925135f0cdd4fdddd",
+          "identifier": "field_6629fab87c5c8ff831b8d223dddd",
+          "title": "Image",
+          "description": "",
+          "value": [
+            {
+              "_id": "6629fad9a6d0c81c8c217fc5dddd",
+              "url": "https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw",
+              "fileName": "6629fad945f22ce76d678f37-1714027225742.png",
+              "filePath": "6628f1034892618fc118503b/documents/template_6629fab38559d3017b0308b0"
+            }
+          ],
+          "required": false,
+          "tipTitle": "",
+          "tipDescription": "",
+          "tipVisible": false,
+          "metadata": {},
+          "multi": false,
+          "file": "6629fab3c0ba3fb775b4a55c"
         }
   ],
   "deleted": false
