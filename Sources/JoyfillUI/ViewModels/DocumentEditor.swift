@@ -26,7 +26,7 @@ public class DocumentEditor: ObservableObject {
     @Published var pageFieldModels = [String: PageModel]()
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
-    var events: FormChangeEvent?
+    public var events: FormChangeEvent?
     
     private var validationHandler: ValidationHandler!
     private var conditionalLogicHandler: ConditionalLogicHandler!

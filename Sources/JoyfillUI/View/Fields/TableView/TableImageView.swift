@@ -10,6 +10,7 @@ import JoyfillModel
      @Binding var cellModel: TableCellModel
      private var isUsedForBulkEdit = false
      @State var valueElements: [ValueElement] = []
+     @State var images: [UIImage] = []
 
      public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
          _cellModel = cellModel
@@ -35,7 +36,7 @@ import JoyfillModel
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .sheet(isPresented: $showMoreImages2) {
-                MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
@@ -63,7 +64,7 @@ import JoyfillModel
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .fullScreenCover(isPresented: $showMoreImages2) {
-                MoreImageView(valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
