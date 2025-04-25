@@ -8,6 +8,7 @@ import JoyfillModel
      @State var showMoreImages2: Bool = false
      @State var showToast: Bool = false
      @Binding var cellModel: TableCellModel
+     @State var images: [UIImage] = []
 
      public init(cellModel: Binding<TableCellModel>) {
          _cellModel = cellModel
@@ -29,7 +30,7 @@ import JoyfillModel
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .sheet(isPresented: $showMoreImages2) {
-                MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .frame(width: UIScreen.main.bounds.width)
                     .disabled(cellModel.editMode == .readonly)
             }
@@ -54,7 +55,7 @@ import JoyfillModel
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .fullScreenCover(isPresented: $showMoreImages2) {
-                MoreImageView(valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $cellModel.data.valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .frame(width: UIScreen.main.bounds.width)
                     .disabled(cellModel.editMode == .readonly)
             }
