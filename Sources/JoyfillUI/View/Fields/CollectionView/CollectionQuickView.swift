@@ -77,7 +77,7 @@ struct CollectionQuickView : View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
-            .accessibilityIdentifier("TableDetailViewIdentifier")
+            .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
             NavigationLink(destination: CollectionModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {

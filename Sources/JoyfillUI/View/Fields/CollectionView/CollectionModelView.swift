@@ -303,6 +303,7 @@ struct CollectionExpanderView: View {
                         .overlay(RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
+                .accessibilityIdentifier("collectionSchemaAddRowButton")
             }
             let rowID = parentID.rowID
             let children = viewModel.getChildren(forRowId: rowID, in: viewModel.tableDataModel.valueToValueElements ?? [])
@@ -472,6 +473,7 @@ struct CollectionRowsHeaderView: View {
                                 .onTapGesture {
                                     viewModel.expandTables(rowDataModel: rowModel, level: 0)
                                 }
+                                .accessibilityIdentifier("CollectionExpandCollapseButton\(index)")
                         }
                     } else {
                         EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
