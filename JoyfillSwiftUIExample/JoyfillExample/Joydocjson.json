@@ -2858,13 +2858,10 @@
                 },
                 "6805b7c24343d7bcba916934": {
                     "title": "Child Table: It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                    "required": true,
                     "children": [],
-                    "hidden": true,
                     "tableColumns": [
                         {
                             "_id": "6805b7c2dae7987557c0b602",
-                            "required": true,
                             "type": "text",
                             "title": "Text Column: It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                             "width": 0,
@@ -2872,7 +2869,6 @@
                         },
                         {
                             "_id": "6805b7cd4d3e63602cbc0790",
-                            "required": true,
                             "type": "dropdown",
                             "title": "Dropdown Column",
                             "deleted": false,
@@ -2921,7 +2917,6 @@
                         },
                         {
                             "_id": "6805b7d26f17f6a05edeee14",
-                            "required": true,
                             "type": "multiSelect",
                             "title": "Multiselect Column",
                             "deleted": false,
@@ -2979,8 +2974,7 @@
                     ]
                 }
             },
-            "identifier": "field_6805b6924b94f31dc8889981",
-            "required": true
+            "identifier": "field_6805b6924b94f31dc8889981"
         }
   ],
   "deleted": false

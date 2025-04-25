@@ -85,6 +85,29 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
         XCTAssertEqual("6805b6443944fc0166ba80a0", firstCellDropdownValue)
     }
-
     
+    func expandRow(number: Int) {
+        let expandButton = app.images["CollectionExpandCollapseButton\(number)"]
+        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        expandButton.tap()
+    }
+    
+    func tapSchemaAddRowButton(number: Int) {
+        let buttons = app.buttons.matching(identifier: "collectionSchemaAddRowButton")
+        XCTAssertTrue(buttons.count > 0)
+        buttons.element(boundBy: number).tap()
+    }
+
+    func testExpandFirstRow() {
+        //Expand the first row and add row and edit the text field
+        goToCollectionDetailField()
+        //expand both rows
+        expandRow(number: 1)
+        expandRow(number: 2)
+        
+        //Tap on add row
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 1)
+        
+    }
 }
