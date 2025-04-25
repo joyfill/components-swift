@@ -864,7 +864,7 @@
 			repositoryURL = "https://github.com/joyfill/JoyfillModel";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.3;
+				minimumVersion = 2.0.4;
 			};
 		};
 		36CE142C2DB10D5900799B25 /* XCRemoteSwiftPackageReference "JoyfillAPIService" */ = {
