@@ -92,9 +92,10 @@ extension JoyDoc {
                   formulaRef: String? = nil,
                   formulaKey: String = "value",
                   id: String = UUID().uuidString, 
-                  value: ValueUnion) -> JoyDoc {
+                  value: ValueUnion,
+                  label: String? = nil) -> JoyDoc {
         var doc = self
-            .setFieldData(type: type, identifier: identifier, id: id, value: value)
+            .setFieldData(type: type, identifier: identifier, id: id, value: value, label: label)
             .setFieldPosition(type: type, id: id)
         
         // Apply formula if provided
@@ -109,12 +110,13 @@ extension JoyDoc {
     func setFieldData(type: FieldTypes,
                      identifier: String = "field_6629fb3fabb87e37c9578b8b", 
                      id: String = UUID().uuidString,
-                     value: ValueUnion) -> JoyDoc {
+                     value: ValueUnion,
+                     label: String? = nil) -> JoyDoc {
         var field = JoyDocField()
         field.type = type.rawValue
         field.id = id
         field.identifier = identifier
-        field.title = identifier
+        field.title = label ?? identifier
         field.description = ""
         field.value = value
         field.required = false
@@ -157,13 +159,15 @@ extension JoyDoc {
                       formulaRef: String? = nil, 
                       formulaKey: String = "value",
                       id: String = UUID().uuidString, 
-                      value: Double = 98789) -> JoyDoc {
+                      value: Double = 98789,
+                      label: String? = nil) -> JoyDoc {
         return addField(type: .number, 
                        identifier: identifier, 
                        formulaRef: formulaRef, 
                        formulaKey: formulaKey,
                        id: id, 
-                       value: .double(value))
+                       value: .double(value),
+                       label: label)
     }
     
     /// Adds a text field to the document
@@ -171,13 +175,15 @@ extension JoyDoc {
                     formulaRef: String? = nil, 
                     formulaKey: String = "value",
                     id: String = UUID().uuidString, 
-                    value: String = "Sample Text") -> JoyDoc {
+                    value: String = "Sample Text",
+                    label: String? = nil) -> JoyDoc {
         return addField(type: .text, 
                        identifier: identifier, 
                        formulaRef: formulaRef, 
                        formulaKey: formulaKey,
                        id: id, 
-                       value: .string(value))
+                       value: .string(value),
+                       label: label)
     }
     
     /// Adds a date field to the document
@@ -185,16 +191,18 @@ extension JoyDoc {
                     formulaRef: String? = nil,
                     formulaKey: String = "value",
                     id: String = UUID().uuidString,
-                    date: Date = Date()) -> JoyDoc {
+                    value: Date? = nil,
+                    label: String? = nil) -> JoyDoc {
         // Convert Date to timestamp (milliseconds since epoch)
-        let timestamp = date.timeIntervalSince1970 * 1000
+        let timestamp = value?.timeIntervalSince1970 ?? 0
         
         return addField(type: .date,
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
                        id: id,
-                       value: .double(timestamp))
+                       value: value != nil ? .double(timestamp * 1000) : .null,
+                       label: label)
     }
     
     /// Adds a textarea field to the document
@@ -396,6 +404,71 @@ extension JoyDoc {
         // Set multi flag for multiple images
         if let index = doc.fields.firstIndex(where: { $0.id == id }) {
             doc.fields[index].multi = allowMultiple
+        }
+        
+        return doc
+    }
+    
+    /// Adds a checkbox field to the document
+    func addCheckboxField(identifier: String = "checkbox1",
+                        formulaRef: String? = nil,
+                        formulaKey: String = "value",
+                        id: String = UUID().uuidString,
+                        value: Bool = false,
+                        label: String? = nil) -> JoyDoc {
+        return addField(type: .multiSelect,
+                       identifier: identifier,
+                       formulaRef: formulaRef,
+                       formulaKey: formulaKey,
+                       id: id,
+                       value: .bool(value),
+                       label: label)
+    }
+    
+    /// Adds an option field to the document
+    func addOptionField(identifier: String = "option1",
+                      formulaRef: String? = nil,
+                      formulaKey: String = "value",
+                      id: String = UUID().uuidString,
+                      value: String = "",
+                      options: [String] = [],
+                      multiselect: Bool = false,
+                      label: String? = nil) -> JoyDoc {
+        var doc: JoyDoc
+        
+        if multiselect {
+            let selectedValues = value.isEmpty ? [] : [value]
+            doc = addField(type: .multiSelect,
+                          identifier: identifier,
+                          formulaRef: formulaRef,
+                          formulaKey: formulaKey,
+                          id: id,
+                          value: .array(selectedValues),
+                          label: label)
+        } else {
+            doc = addField(type: .dropdown,
+                          identifier: identifier,
+                          formulaRef: formulaRef,
+                          formulaKey: formulaKey,
+                          id: id,
+                          value: .string(value),
+                          label: label)
+        }
+        
+        // Add options to the field
+        if !options.isEmpty, let index = doc.fields.firstIndex(where: { $0.id == id }) {
+            let fieldOptions = options.map { option -> Option in
+                var opt = Option()
+                opt.id = UUID().uuidString
+                opt.value = option
+                return opt
+            }
+            
+            doc.fields[index].options = fieldOptions
+            
+            if multiselect {
+                doc.fields[index].multi = true
+            }
         }
         
         return doc
