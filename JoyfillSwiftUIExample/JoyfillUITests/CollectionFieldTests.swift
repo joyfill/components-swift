@@ -91,6 +91,34 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].tap()
     }
     
+    func selectAllNestedRows() {
+        app.images.matching(identifier: "selectAllNestedRows")
+            .element.tap()
+    }
+    
+    func addThreeNestedRows(parentRowNumber: Int) {
+        goToCollectionDetailField()
+        expandRow(number: parentRowNumber)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("Hello ji")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("Namaste ji")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123456789")
+    }
+    
     func testCollectionFieldTextFields() {
         goToCollectionDetailField()
                     
@@ -427,26 +455,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
        
     func testMoveUpOnNestedRow() {
-        goToCollectionDetailField()
-        expandRow(number: 1)
-        tapSchemaAddRowButton(number: 0)
-        tapSchemaAddRowButton(number: 0)
-        tapSchemaAddRowButton(number: 0)
-        
-        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("", firstNestedTextField.value as! String)
-        firstNestedTextField.tap()
-        firstNestedTextField.typeText("Hello ji")
-        
-        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
-        XCTAssertEqual("", secNestedTextField.value as! String)
-        secNestedTextField.tap()
-        secNestedTextField.typeText("Namaste ji")
-        
-        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
-        XCTAssertEqual("", thirdNestedTextField.value as! String)
-        thirdNestedTextField.tap()
-        thirdNestedTextField.typeText("123456789")
+        addThreeNestedRows(parentRowNumber: 1)
         
         selectNestedRow(number: 2)
         tapOnMoreButton()
@@ -474,26 +483,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func testMoveDownOnNestedRow() {
-        goToCollectionDetailField()
-        expandRow(number: 1)
-        tapSchemaAddRowButton(number: 0)
-        tapSchemaAddRowButton(number: 0)
-        tapSchemaAddRowButton(number: 0)
-        
-        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("", firstNestedTextField.value as! String)
-        firstNestedTextField.tap()
-        firstNestedTextField.typeText("Hello ji")
-        
-        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
-        XCTAssertEqual("", secNestedTextField.value as! String)
-        secNestedTextField.tap()
-        secNestedTextField.typeText("Namaste ji")
-        
-        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
-        XCTAssertEqual("", thirdNestedTextField.value as! String)
-        thirdNestedTextField.tap()
-        thirdNestedTextField.typeText("123456789")
+        addThreeNestedRows(parentRowNumber: 1)
         
         selectNestedRow(number: 2)
         tapOnMoreButton()
@@ -520,4 +510,41 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "Namaste ji")
     }
     
+    func testDeleteAllOnNestedRow() {
+        addThreeNestedRows(parentRowNumber: 1)
+        
+        selectAllNestedRows()
+        tapOnMoreButton()
+        
+        deleteRowButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowDelete", fieldTarget)
+        
+        goBack()
+        sleep(2)
+        
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.filter({ $0.deleted ?? false }).count, 3)
+
+    }
+    
+    func testDeleteOnNestedRow() {
+        addThreeNestedRows(parentRowNumber: 1)
+        
+        selectNestedRow(number: 1)
+        tapOnMoreButton()
+        
+        deleteRowButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowDelete", fieldTarget)
+        
+        goBack()
+        sleep(2)
+        
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.filter({ $0.deleted ?? false }).count, 1)
+
+    }
 }

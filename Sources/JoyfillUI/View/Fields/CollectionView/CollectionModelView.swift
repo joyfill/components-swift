@@ -547,6 +547,7 @@ struct CollectionRowsHeaderView: View {
                             }
                         }
                         .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
+                        .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):
                 if viewModel.showRowSelector {
