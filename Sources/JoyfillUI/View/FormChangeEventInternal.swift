@@ -11,6 +11,12 @@ public struct FieldChangeData {
     public var fieldIdentifier: FieldIdentifier
     public var updateValue: ValueUnion?
     public var chartData: ChartData?
+
+    public init(fieldIdentifier: FieldIdentifier, updateValue: ValueUnion? = nil, chartData: ChartData? = nil) {
+        self.fieldIdentifier = fieldIdentifier
+        self.updateValue = updateValue
+        self.chartData = chartData
+    }
 }
 
 public struct ChartData {
