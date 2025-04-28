@@ -109,5 +109,59 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapSchemaAddRowButton(number: 0)
         tapSchemaAddRowButton(number: 1)
         
+        //Assert on added rows
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowCreate", fieldTarget)
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+            XCTAssertNotNil(newRow["_id"])
+            XCTAssertEqual(1, lastIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+    }
+    
+    func testExpandAndCloseRow() {
+        goToCollectionDetailField()
+        //expand both rows
+        expandRow(number: 1)
+        expandRow(number: 2)
+        expandRow(number: 1)
+        expandRow(number: 2)
+    }
+    
+    func testExpandAndAddRowAndEditFirstCellCloseAndCheckVAlue() {
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        
+        tapSchemaAddRowButton(number: 0)
+        var newRowID = ""
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+            XCTAssertNotNil(newRow["_id"])
+            newRowID = newRow["_id"] as! String
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", firstTableTextField.value as! String)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("Hello ji")
+        goBack()
+        sleep(2)
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        do {
+            let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text)
+            XCTAssertEqual("Hello ji", firstCellTextValue)
+        } catch {
+            XCTFail("Failed to unwrap cell text values: \(error)")
+        }
     }
 }
