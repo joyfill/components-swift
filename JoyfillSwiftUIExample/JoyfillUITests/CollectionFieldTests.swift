@@ -358,4 +358,166 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(inserRowBelowButton().exists, false)
     }
     
+    func testInsertBelow() {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        tapOnMoreButton()
+        
+        inserRowBelowButton().tap()
+        
+        goBack()
+        sleep(2)
+        
+        XCTAssertEqual(onChangeResultValue().valueElements?.count, 3)
+        XCTAssertNotNil(onChangeResultValue().valueElements?[2].id)
+        
+        goToCollectionDetailField()
+        
+        selectRow(number: 2)
+        tapOnMoreButton()
+        XCTAssertEqual(moveUpButton().isEnabled, true)
+        XCTAssertEqual(moveDownButton().isEnabled, true)
+    }
+    
+    func testMoveUpRow() {
+        goToCollectionDetailField()
+        selectRow(number: 2)
+        tapOnMoreButton()
+        moveUpButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            XCTAssertEqual(0, rowIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        goBack()
+        sleep(2)
+        XCTAssertEqual(onChangeResultValue().valueElements?.count , 2)
+        XCTAssertEqual(onChangeResultValue().valueElements?[0].cells?["6805b644fd938fd8ed7fe2e1"]?.text , "His")
+        
+    }
+    
+    func testMoveDownRow() {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        tapOnMoreButton()
+        moveDownButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            XCTAssertEqual(1, rowIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        goBack()
+        sleep(2)
+        XCTAssertEqual(onChangeResultValue().valueElements?.count , 2)
+        XCTAssertEqual(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text, "Hello")
+    }
+       
+    func testMoveUpOnNestedRow() {
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("Hello ji")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("Namaste ji")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123456789")
+        
+        selectNestedRow(number: 2)
+        tapOnMoreButton()
+        
+        moveUpButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            XCTAssertEqual(0, rowIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        goBack()
+        sleep(2)
+        
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Namaste ji")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "Hello ji")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "123456789")
+    }
+    
+    func testMoveDownOnNestedRow() {
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("Hello ji")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("Namaste ji")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123456789")
+        
+        selectNestedRow(number: 2)
+        tapOnMoreButton()
+        
+        moveDownButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            XCTAssertEqual(2, rowIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        goBack()
+        sleep(2)
+        
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Hello ji")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "123456789")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "Namaste ji")
+    }
+    
 }
