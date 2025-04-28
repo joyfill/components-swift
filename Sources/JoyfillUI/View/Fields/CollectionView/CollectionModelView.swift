@@ -530,7 +530,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                         }
-                        .accessibilityIdentifier("MyButton")
+                        .accessibilityIdentifier("selectRowItem\(index)")
                     
                 }
             case .header:
@@ -557,7 +557,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                         }
-                        .accessibilityIdentifier("MyButton")
+                        .accessibilityIdentifier("selectNestedRowItem\(index)")
                 }
             case .tableExpander:
                 EmptyView()

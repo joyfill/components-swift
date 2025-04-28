@@ -45,6 +45,52 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         buttons.element(boundBy: number).tap()
     }
     
+    fileprivate func selectAllMultiSlectOptions(_ app: XCUIApplication) {
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+    }
+    
+    func moveUpButton() -> XCUIElement {
+        return app.buttons["TableMoveUpRowIdentifier"]
+    }
+    
+    func moveDownButton() -> XCUIElement {
+        return app.buttons["TableMoveDownRowIdentifier"]
+    }
+    func inserRowBelowButton() -> XCUIElement {
+        return app.buttons["TableInsertRowIdentifier"]
+    }
+    
+    func editRowsButton() -> XCUIElement {
+        return app.buttons["TableEditRowsIdentifier"]
+    }
+    
+    func deleteRowButton() -> XCUIElement {
+        return app.buttons["TableDeleteRowIdentifier"]
+    }
+    
+    func selectRow(number: Int) {
+        //select the row with number as index
+        app.images.matching(identifier: "selectRowItem\(number)")
+            .element.tap()
+    }
+    
+    func selectNestedRow(number: Int) {
+        app.images.matching(identifier: "selectNestedRowItem\(number)")
+            .element.tap()
+    }
+    
+    fileprivate func tapOnMoreButton() {
+        //tap more icon
+        app.buttons["TableMoreButtonIdentifier"].tap()
+    }
+    
     func testCollectionFieldTextFields() {
         goToCollectionDetailField()
                     
@@ -163,17 +209,6 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
     }
     
-    fileprivate func selectAllMultiSlectOptions(_ app: XCUIApplication) {
-        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-        XCTAssertGreaterThan(optionsButtons.count, 0)
-        let firstOptionButton = optionsButtons.element(boundBy: 0)
-        firstOptionButton.tap()
-        let secOptionButton = optionsButtons.element(boundBy: 1)
-        secOptionButton.tap()
-        let thirdOptionButton = optionsButtons.element(boundBy: 2)
-        thirdOptionButton.tap()
-    }
-    
     func testCollectionFieldMultiSlect() {
         goToCollectionDetailField()
         
@@ -276,6 +311,51 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         } catch {
             XCTFail("Failed to unwrap cell date value: \(error)")
         }
+    }
+        
+    func testMoveUpState() {
+        goToCollectionDetailField()
+        //select 1st row
+        selectRow(number: 1)
+        
+        tapOnMoreButton()
+        
+        XCTAssertEqual(moveUpButton().isEnabled, false)
+        
+        XCTAssertEqual(moveDownButton().isEnabled, true)
+    }
+    
+    func testMoveDownState() {
+        goToCollectionDetailField()
+        //select last row
+        selectRow(number: 2)
+        
+        tapOnMoreButton()
+                
+        XCTAssertEqual(moveUpButton().isEnabled, true)
+        
+        XCTAssertEqual(moveDownButton().isEnabled, false)
+    }
+    
+    func testMoveUpAndMoveDownButtonAvailableOrNot() {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        tapOnMoreButton()
+        
+        XCTAssertEqual(moveUpButton().exists, true)
+        XCTAssertEqual(moveDownButton().exists, true)
+        XCTAssertEqual(inserRowBelowButton().exists, true)
+    }
+    
+    func testMoveUpAndMoveDownButtonAvailableOrNotOnMultipleRows() {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        selectRow(number: 2)
+        tapOnMoreButton()
+        
+        XCTAssertEqual(moveUpButton().exists, false)
+        XCTAssertEqual(moveDownButton().exists, false)
+        XCTAssertEqual(inserRowBelowButton().exists, false)
     }
     
 }
