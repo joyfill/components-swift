@@ -33,6 +33,18 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapOnSecondTableView.tap()
     }
     
+    func expandRow(number: Int) {
+        let expandButton = app.images["CollectionExpandCollapseButton\(number)"]
+        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        expandButton.tap()
+    }
+    
+    func tapSchemaAddRowButton(number: Int) {
+        let buttons = app.buttons.matching(identifier: "collectionSchemaAddRowButton")
+        XCTAssertTrue(buttons.count > 0)
+        buttons.element(boundBy: number).tap()
+    }
+    
     func testCollectionFieldTextFields() {
         goToCollectionDetailField()
                     
@@ -85,18 +97,6 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
         XCTAssertEqual("6805b6443944fc0166ba80a0", firstCellDropdownValue)
     }
-    
-    func expandRow(number: Int) {
-        let expandButton = app.images["CollectionExpandCollapseButton\(number)"]
-        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
-        expandButton.tap()
-    }
-    
-    func tapSchemaAddRowButton(number: Int) {
-        let buttons = app.buttons.matching(identifier: "collectionSchemaAddRowButton")
-        XCTAssertTrue(buttons.count > 0)
-        buttons.element(boundBy: number).tap()
-    }
 
     func testExpandFirstRow() {
         //Expand the first row and add row and edit the text field
@@ -138,12 +138,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         expandRow(number: 1)
         
         tapSchemaAddRowButton(number: 0)
-        var newRowID = ""
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
             let newRow = try XCTUnwrap(value["row"] as? [String: Any])
             XCTAssertNotNil(newRow["_id"])
-            newRowID = newRow["_id"] as! String
         } catch {
             XCTFail("Unexpected error: \(error).")
         }
@@ -164,4 +162,120 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             XCTFail("Failed to unwrap cell text values: \(error)")
         }
     }
+    
+    fileprivate func selectAllMultiSlectOptions(_ app: XCUIApplication) {
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+    }
+    
+    func testCollectionFieldMultiSlect() {
+        goToCollectionDetailField()
+        
+        let app = XCUIApplication()
+        let element4 = app.windows.children(matching: .other).element
+        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        element.swipeLeft()
+        
+        let multiSelectionButtons = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertGreaterThan(multiSelectionButtons.count, 0)
+        let firstButton = multiSelectionButtons.element(boundBy: 0)
+        firstButton.tap()
+        
+        selectAllMultiSlectOptions(app)
+
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        element.swipeRight()
+        goBack()
+        sleep(2)
+        do {
+            let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
+            XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue)
+        } catch {
+            XCTFail("Failed to unwrap cell text values: \(error)")
+        }
+    }
+    
+    func testCollectionFieldImage() {
+        goToCollectionDetailField()
+        
+        let app = XCUIApplication()
+        let element4 = app.windows.children(matching: .other).element
+        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        element.swipeLeft()
+        
+        let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
+        XCTAssertGreaterThan(imageButtons.count, 0)
+        let firstButton = imageButtons.element(boundBy: 0)
+        firstButton.tap()
+        
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+
+        element.swipeDown()
+        goBack()
+        sleep(2)
+        do {
+            let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
+            XCTAssertEqual(3, firstCellMultiSelectValue.count)
+        } catch {
+            XCTFail("Failed to unwrap cell text values: \(error)")
+        }
+    }
+    
+    func testCollectionFieldNumber() {
+        goToCollectionDetailField()
+        
+        let app = XCUIApplication()
+        let element4 = app.windows.children(matching: .other).element
+        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        element.swipeLeft()
+        
+        let firstCollectionNumberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("", firstCollectionNumberField.value as! String)
+        firstCollectionNumberField.tap()
+        firstCollectionNumberField.typeText("1234567890123456")
+        
+        goBack()
+        sleep(2)
+        do {
+            let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
+            XCTAssertEqual(1234567890123456, firstCellMultiSelectValue)
+        } catch {
+            XCTFail("Failed to unwrap cell text values: \(error)")
+        }
+    }
+    
+    func testCollectionFieldDate() {
+        goToCollectionDetailField()
+        
+        let app = XCUIApplication()
+        let element4 = app.windows.children(matching: .other).element
+        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        element.swipeLeft()
+        
+        let firstCollectionDateField = app.images.matching(identifier: "CalendarImageIdentifier").element(boundBy: 0)
+        firstCollectionDateField.tap()
+        
+        let datePickers = app.datePickers
+        XCTAssertTrue(datePickers.element.exists)
+        
+        element.swipeRight()
+        goBack()
+        sleep(2)
+        
+        do {
+            let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b77fc568df7b031590dc"]?.number)
+            XCTAssertNotNil(firstCellDateValue)
+        } catch {
+            XCTFail("Failed to unwrap cell date value: \(error)")
+        }
+    }
+    
 }
