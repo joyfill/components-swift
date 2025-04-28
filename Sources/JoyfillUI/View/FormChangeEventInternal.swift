@@ -8,18 +8,18 @@
 import JoyfillModel
 
 public struct FieldChangeData {
-    var fieldIdentifier: FieldIdentifier
-    var updateValue: ValueUnion?
-    var chartData: ChartData?
+    public var fieldIdentifier: FieldIdentifier
+    public var updateValue: ValueUnion?
+    public var chartData: ChartData?
 }
 
-struct ChartData {
-    var xTitle: String?
-    var yTitle: String?
-    var xMax: Double?
-    var xMin: Double?
-    var yMax: Double?
-    var yMin: Double?
+public struct ChartData {
+    public var xTitle: String?
+    public var yTitle: String?
+    public var xMax: Double?
+    public var xMin: Double?
+    public var yMax: Double?
+    public var yMin: Double?
 }
 
 protocol FieldChangeEvents {
