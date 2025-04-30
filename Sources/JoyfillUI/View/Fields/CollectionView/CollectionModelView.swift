@@ -571,7 +571,7 @@ struct CollectionRowsHeaderView: View {
                     .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
             case .nestedRow(let level, let nastedRowIndex, let parentID, let parentSchemaKey):
-                if !viewModel.isAllSchemaValid(for: rowModel.rowID, parentSchemaID: parentSchemaKey) {
+                if !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: parentSchemaKey) {
                     Image(systemName: "asterisk")
                         .foregroundColor(.red)
                         .imageScale(.small)
@@ -585,7 +585,7 @@ struct CollectionRowsHeaderView: View {
                         .border(Color.tableCellBorderColor)
                 }
             case .row(let rowIndex):
-                if  !viewModel.isAllSchemaValid(for: rowModel.rowID, parentSchemaID: viewModel.rootSchemaKey) {
+                if  !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: viewModel.rootSchemaKey) {
                     Image(systemName: "asterisk")
                         .foregroundColor(.red)
                         .imageScale(.small)

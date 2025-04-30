@@ -194,35 +194,7 @@ class CollectionViewModel: ObservableObject {
         }
         return true
     }
-    
-    func isSchemaValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
-        guard let schema = tableDataModel.schema[schemaID],
-              let required = schema.required,
-              required else {
-            return true
-        }
-
-        // Check if there's at least one non-deleted row
-        let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        if nonDeletedRows.isEmpty {
-            return false
-        }
-
-        // Check required columns have at least one value across non-deleted rows
-        if !isRequiredColumnsValid(schemaID: schemaID, valueElements: nonDeletedRows) {
-            return false
-        }
-
-        // Validate all child schemas for each non-deleted row
-        for valueElement in nonDeletedRows {
-            if !isAllSchemaValid(for: valueElement.id ?? "", parentSchemaID: schemaID) {
-                return false
-            }
-        }
-
-        return true
-    }
-    
+        
     private func isRequiredColumnsValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
         let validColumns = tableDataModel.filterTableColumns(key: schemaID)
         let requiredColumns = validColumns.filter({ $0.required == true })
@@ -257,7 +229,7 @@ class CollectionViewModel: ObservableObject {
         return true
     }
     
-    func isAllSchemaValid(for rowID: String, parentSchemaID: String) -> Bool {
+    func isRowValid(for rowID: String, parentSchemaID: String) -> Bool {
         var childsvalidities: [Bool] = []
         let schema = tableDataModel.schema[parentSchemaID]
         //check the all required columns are filled
@@ -270,30 +242,28 @@ class CollectionViewModel: ObservableObject {
         // Check required columns have at least one value across non-deleted rows
         for id in schema?.children ?? [] {
             let childSchema = tableDataModel.schema[id]
-            guard let required = childSchema?.required, required else {
-                childsvalidities.append(true)
-                continue
-            }
-            //IF a child is hiiden its valid
             var valueElements = tableDataModel.valueToValueElements ?? []
             let schemaID = id
-            
+            //IF a child is hiiden its valid
             let shouldShow = shouldShowSchema(rowID: rowID, schemaID: schemaID)
             if !shouldShow {
                 childsvalidities.append(true)
                 continue
             }
-            
-            guard let children = getChildren(forRowId: rowID, in: valueElements) else {
+            let children = getChildren(forRowId: rowID, in: valueElements) ?? [:]
+            let childValueElements = children[schemaID]?.valueToValueElements ?? []
+            if isOnlySchemaValid(schemaID: schemaID, valueElements: childValueElements ?? []) {
+                //IF schema is valid then we need to check its nested rows is valid or not
+                let nonDeletedRows = childValueElements.filter { !($0.deleted ?? false) } ?? []
+                for row in nonDeletedRows {
+                    if !isRowValid(for: row.id ?? "", parentSchemaID: schemaID) {
+                        childsvalidities.append(false)
+                    }
+                }
+            } else {
+                //IF schema id not valid means parent row is invalid just return(It doesnt have any row)
                 return false
             }
-            
-            guard let childValueElements = children[schemaID]?.valueToValueElements else {
-                return false
-            }
-            valueElements = childValueElements
-            
-            childsvalidities.append(isSchemaValid(schemaID: schemaID, valueElements: valueElements))
         }
         return childsvalidities.allSatisfy{ $0 }
     }
