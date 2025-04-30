@@ -180,6 +180,19 @@ class CollectionViewModel: ObservableObject {
         
     }
     
+    func isRootSchemaValid() -> Bool {
+        if tableDataModel.fieldRequired {
+            let rows = tableDataModel.valueToValueElements ?? []
+            let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
+            if nonDeletedRows.isEmpty {
+                return false
+            }
+            return true
+        } else {
+            return true
+        }
+    }
+    
     func isOnlySchemaValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
         guard let schema = tableDataModel.schema[schemaID],
               let required = schema.required,

@@ -357,7 +357,7 @@ struct RootTitleRowView: View {
                 .accessibilityIdentifier("TableAddRowIdentifier")
             }
             
-            if !viewModel.isOnlySchemaValid(schemaID: viewModel.rootSchemaKey, valueElements: viewModel.tableDataModel.valueToValueElements ?? []) {
+            if !viewModel.isRootSchemaValid() {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
