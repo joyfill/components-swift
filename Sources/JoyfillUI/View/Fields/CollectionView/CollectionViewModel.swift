@@ -775,6 +775,7 @@ class CollectionViewModel: ObservableObject {
                                                                                nestedKey: rootSchemaKey,
                                                                                parentRowId: "") else { return nil }
         let valueElement = result.inserted
+        self.tableDataModel.valueToValueElements = result.all
         //updateCellModels
         guard let selecteRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
             return nil
