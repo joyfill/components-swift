@@ -36,7 +36,7 @@ struct CollectionRowView: View {
                             if let required = column?.required, required, !cellModel.data.isCellFilled {
                                 RoundedRectangle(cornerRadius: 8)
                                     .inset(by: 2)
-                                    .stroke(Color.red, lineWidth: 0.5)
+                                    .stroke(colorScheme == .dark ? Color.pink : Color.red, lineWidth: colorScheme == .dark ? 1 : 0.5)
                             }
                         }
                     )
