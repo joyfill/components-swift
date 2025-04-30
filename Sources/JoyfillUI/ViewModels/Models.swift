@@ -142,6 +142,7 @@ struct TableDataModel {
     let documentEditor: DocumentEditor?
     let fieldIdentifier: FieldIdentifier
     let title: String?
+    var fieldRequired: Bool = false
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
     var tableColumns = [FieldTableColumn]()
@@ -188,7 +189,7 @@ struct TableDataModel {
                     self.childrens = value.children ?? []
                 }
             }
-            
+            self.fieldRequired = fieldData.required ?? false
             for (colIndex, column) in self.tableColumns.enumerated() {
                 let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown)
                 self.filterModels.append(filterModel)
