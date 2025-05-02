@@ -8,6 +8,8 @@ import SwiftUI
 import JoyfillModel
 import JoyfillAPIService
 import Joyfill
+import UIKit
+import ObjectiveC
 
 struct DocumentSubmissionsListView: View {
     @State var documents: [Document] = []
@@ -19,6 +21,7 @@ struct DocumentSubmissionsListView: View {
     @State private var currentDocumentPage: Int = 1
     @State private var isLoadingMoreDocuments: Bool = false
     @State private var hasMoreDocuments: Bool = true
+    @State private var currentUploadHandler: (([String]) -> Void)?
     
     let title: String
     private let apiService: APIService
@@ -81,11 +84,86 @@ struct DocumentSubmissionsListView: View {
     }
     
     private var changeManager: ChangeManager {
-        ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
+        return ChangeManager(
+            apiService: apiService,
+            showImagePicker: {  handler in
+                self.currentUploadHandler = handler
+                self.showPickerOptions()
+            }
+        )
     }
     
-    private func showImagePicker(uploadHandler: ([String]) -> Void) {
-        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    private func showPickerOptions() {
+        let alert = UIAlertController(title: "Select Image Source", message: nil, preferredStyle: .actionSheet)
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            alert.addAction(UIAlertAction(title: "Camera", style: .default) { _ in
+                self.presentImagePicker(sourceType: .camera)
+            })
+        }
+        
+        alert.addAction(UIAlertAction(title: "Photo Library", style: .default) {  _ in
+            self.presentImagePicker(sourceType: .photoLibrary)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        // Present the alert
+        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+    }
+    
+    private func presentImagePicker(sourceType: UIImagePickerController.SourceType) {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.sourceType = sourceType
+        imagePickerController.allowsEditing = true
+        
+        let coordinator = ImagePickerCoordinator(uploadHandler: { urls in
+            self.currentUploadHandler?(urls)
+        })
+        imagePickerController.delegate = coordinator
+        
+        // Store coordinator as associated object to prevent it from being deallocated
+        objc_setAssociatedObject(imagePickerController, "coordinator", coordinator, .OBJC_ASSOCIATION_RETAIN)
+        
+        UIApplication.shared.windows.first?.rootViewController?.present(imagePickerController, animated: true)
+    }
+    
+    class ImagePickerCoordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let uploadHandler: ([String]) -> Void
+        
+        init(uploadHandler: @escaping ([String]) -> Void) {
+            self.uploadHandler = uploadHandler
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            picker.dismiss(animated: true)
+            
+            if let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
+                // Save image to temporary directory and get URL
+                if let imageUrl = saveImageToTemporaryDirectory(image) {
+                    uploadHandler([imageUrl.absoluteString])
+                }
+            }
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
+        }
+        
+        private func saveImageToTemporaryDirectory(_ image: UIImage) -> URL? {
+            guard let imageData = image.jpegData(compressionQuality: 0.8) else { return nil }
+            
+            let fileName = UUID().uuidString + ".jpg"
+            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            
+            do {
+                try imageData.write(to: fileURL)
+                return fileURL
+            } catch {
+                print("Error saving image: \(error.localizedDescription)")
+                return nil
+            }
+        }
     }
     
     private func fetchLocalDocument() {
