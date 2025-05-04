@@ -252,7 +252,6 @@ struct CollectionModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        CollectionRowsView(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, longestBlockText: longestBlockText, colorScheme: colorScheme)
                         ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.element.wrappedValue.rowID) { (index, $rowCellModels) in
                             HStack(spacing: 0) {
                                 CollectionRowsHeaderView(viewModel: viewModel, rowModel: $rowCellModels, colorScheme: colorScheme, index: index)
