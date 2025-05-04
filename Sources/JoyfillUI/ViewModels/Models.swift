@@ -153,7 +153,19 @@ struct TableDataModel {
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
-    var filteredcellModels = [RowDataModel]()
+    var filteredcellModels1 = [RowDataModel]()
+
+    var filteredcellModels: [RowDataModel] {
+        get {
+            print("📥 get filteredcellModels → count = \(filteredcellModels1.count)")
+            return filteredcellModels1
+        }
+        set {
+            print("📤 set filteredcellModels → new count = \(newValue.count)")
+            filteredcellModels1 = newValue
+        }
+    }
+
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
     var id = UUID()
@@ -333,10 +345,10 @@ struct TableDataModel {
             }
             let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
-            var dateFormat: DateFormatType = .empty
-            if columnData.type == .date {
-                dateFormat = getDateFormatFromFieldPosition(key: schemaKey, columnID: columnData.id ?? "") ?? .empty
-            }
+//            var dateFormat: DateFormatType = .empty
+//            if columnData.type == .date {
+//                dateFormat = getDateFormatFromFieldPosition(key: schemaKey, columnID: columnData.id ?? "") ?? .empty
+//            }
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
             let columnDataLocal = CellDataModel(id: columnData.id!,
                                                 defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
@@ -347,7 +359,7 @@ struct TableDataModel {
                                                 number: columnData.number,
                                                 selectedOptionText: selectedOptionText,
                                                 date: columnData.date,
-                                                format: dateFormat,
+                                                format: DateFormatType(rawValue: columnData.format ?? ""),
                                                 multiSelectValues: columnData.multiSelectValues,
                                                 multi: columnData.multi)
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {

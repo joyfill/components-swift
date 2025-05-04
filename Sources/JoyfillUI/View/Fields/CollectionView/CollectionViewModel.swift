@@ -84,8 +84,8 @@ class CollectionViewModel: ObservableObject {
                     }
                 }
                
-                let format = tableDataModel.getDateFormatFromFieldPosition(key: key, columnID: colID)
-                let width = Utility.getCellWidth(type: column.type ?? .unknown, format: format ?? .empty , text: longestTextForWidth)
+//                let format = tableDataModel.getDateFormatFromFieldPosition(key: key, columnID: colID)
+                let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: longestTextForWidth)
                 cellWidthMap[colID] = width
             }
         }
