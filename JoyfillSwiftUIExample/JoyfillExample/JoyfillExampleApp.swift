@@ -43,10 +43,11 @@ struct JoyfillExampleApp: App {
                     .frame(height: 10)
             } else {
                 NavigationView {
-                    UserAccessTokenTextFieldView(isAlreadyToken: false)
+                    UserAccessTokenTextFieldView(isAlreadyToken: true)
                 }
                 .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
             }
+            ImageReplacementTest()
         }
     }
     
