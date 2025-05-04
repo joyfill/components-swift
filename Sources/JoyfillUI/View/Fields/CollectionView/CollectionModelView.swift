@@ -86,11 +86,11 @@ struct CollectionModalView : View {
             viewModel.tableDataModel.emptySelection()
         }
         .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
-            for model in viewModel.tableDataModel.filteredcellModels {
-                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
-                    viewModel.tableDataModel.cellModels[index] = model
-                }
-            }
+//            for model in viewModel.tableDataModel.filteredcellModels {
+//                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
+//                    viewModel.tableDataModel.cellModels[index] = model
+//                }
+//            }
         }
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(
