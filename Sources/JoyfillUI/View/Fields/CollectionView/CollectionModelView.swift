@@ -69,10 +69,6 @@ struct CollectionModalView : View {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-            if currentSelectedCol != Int.min {
-                CollectionSearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
-                EmptyView()
-            }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
@@ -257,6 +253,31 @@ struct CollectionModalView : View {
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         CollectionRowsView(viewModel: viewModel, currentSelectedCol: $currentSelectedCol, longestBlockText: longestBlockText, colorScheme: colorScheme)
+                        ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.element.wrappedValue.rowID) { (index, $rowCellModels) in
+                            HStack(spacing: 0) {
+                                CollectionRowsHeaderView(viewModel: viewModel, rowModel: $rowCellModels, colorScheme: colorScheme, index: index)
+
+                                switch rowCellModels.rowType {
+                                case .row:
+                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                                        .frame(height: 60)
+                                case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
+                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                                        .frame(height: 60)
+                                case .header(level: let level, tableColumns: let tableColumns):
+                                    CollectionColumnHeaderView(viewModel: viewModel,
+                                                               tableColumns: tableColumns ?? [],
+                                                               currentSelectedCol: $currentSelectedCol,
+                                                               colorScheme: colorScheme,
+                                                               isHeaderNested: true)
+                                    .frame(height: 60)
+                                case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
+                                    CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
+                                        .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                                }
+                            }
+                        }
+
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
@@ -706,22 +727,4 @@ fileprivate extension Array {
     }
 }
 
- extension Array {
-    subscript(v index: Index) -> Element {
-        get {
-            guard indices.contains(index) else {
-                print("⚠️  Array safe subscript out of range: index \(index), count \(count)")
-                fatalError("")
-            }
-            print("✅  Array safe subscript ok: index \(index), count \(count)")
-            return self[index]
-        }
-        set {
-            if !indices.contains(index) {
-                fatalError("⚠️  Array safe subscript out of range: index \(index), count \(count)")
-            }
-            self[index] = newValue
-        }
-    }
-}
 
