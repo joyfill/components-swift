@@ -210,7 +210,7 @@ struct CollectionModalView : View {
                 }
 
                 collection
-//                    .coordinateSpace(name: "scroll")
+                    .coordinateSpace(name: "scroll")
             }
         }
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
