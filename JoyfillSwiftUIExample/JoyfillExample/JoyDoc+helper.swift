@@ -393,7 +393,7 @@ extension JoyDoc {
                      formulaKey: String = "value",
                      id: String = UUID().uuidString,
                      imageUrl: String = "",
-                     allowMultiple: Bool = false) -> JoyDoc {
+                     allowMultiple: Bool = true) -> JoyDoc {
         var doc = addField(type: .image,
                           identifier: identifier,
                           formulaRef: formulaRef,
