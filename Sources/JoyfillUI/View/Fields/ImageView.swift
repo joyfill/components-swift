@@ -17,24 +17,13 @@ struct ImageView: View {
     
     @StateObject var imageViewModel = ImageFieldViewModel()
     
-    @State var imageDataModel: ImageDataModel!
+    private let imageDataModel: ImageDataModel
     let eventHandler: FieldChangeEvents
-
-    @Binding var listModel: FieldListModel
-
-    public init(listModel: Binding<FieldListModel>, eventHandler: FieldChangeEvents) {
+    
+    public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
-        _listModel = listModel
-        switch listModel.wrappedValue.model {
-        case .image(let dataMode):
-            self.isMultiEnabled = dataMode.multi ?? true
-            _imageDataModel = State(initialValue: dataMode)
-            _valueElements = State(initialValue: dataMode.valueElements ?? [])
-        default:
-            self.imageDataModel = nil
-            self.isMultiEnabled = true
-            break
-        }
+        self.imageDataModel = imageDataModel
+        self.isMultiEnabled = imageDataModel.multi ?? true
     }
     
     var body: some View {
@@ -123,7 +112,6 @@ struct ImageView: View {
         .onAppear {
             if !hasAppeared {
                 self.valueElements = imageDataModel.valueElements ?? []
-                fetchImages()
                 hasAppeared = true
             }
         }
@@ -132,16 +120,6 @@ struct ImageView: View {
             let newImageValue = ValueUnion.valueElementArray(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
             eventHandler.onChange(event: fieldEvent)
-        }
-        .onChange(of: listModel) { newValue in
-            switch newValue.model {
-            case .image(let dataModel):
-                imageDataModel = dataModel
-                self.valueElements = dataModel.valueElements ?? []
-                fetchImages()
-                default : break
-            }
-
         }
     }
     
