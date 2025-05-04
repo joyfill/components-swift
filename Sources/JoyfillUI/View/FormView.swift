@@ -101,39 +101,7 @@ struct PageView: View {
     }
 }
 
-enum FieldListModelType: Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        switch (lhs, rhs) {
-        case (.text(let lhs), .text(let rhs)):
-            return lhs.text == rhs.text
-        case (.table(let lhs), .table(let rhs)):
-            return lhs.cellModels == rhs.cellModels
-        case (.chart(let lhs), .chart(let rhs)):
-            return lhs.valueElements == rhs.valueElements
-        case (.date(let lhs), .date(let rhs)):
-            return lhs.value == rhs.value
-        case (.block(let lhs), .block(let rhs)):
-            return lhs.displayText == rhs.displayText
-        case (.dropdown(let lhs), .dropdown(let rhs)):
-            return lhs.dropdownValue == rhs.dropdownValue
-        case (.image(let lhs), .image(let rhs)):
-            return lhs.valueElements == rhs.valueElements
-        case (.textarea(let lhs), .textarea(let rhs)):
-            return lhs.multilineText == rhs.multilineText
-        case (.multiSelect(let lhs), .multiSelect(let rhs)):
-            return lhs.multiSelector == rhs.multiSelector
-        case (.number(let lhs), .number(let rhs)):
-            return lhs.number == rhs.number
-        case (.richText(let lhs), .richText(let rhs)):
-            return lhs.text == rhs.text
-        case (.signature(let lhs), .signature(let rhs)):
-            return lhs.signatureURL == rhs.signatureURL
-        case (.none, .none):
-            return true
-        default:
-            return false
-        }
-    }
+enum FieldListModelType {
     case text(TextDataModel)
     case table(TableDataModel)
     case chart(ChartDataModel)
@@ -156,8 +124,7 @@ struct FormView: View {
     let documentEditor: DocumentEditor
 
     @ViewBuilder
-    fileprivate func fieldView(listModelBinding: Binding<FieldListModel>) -> some View {
-        let listModel = listModelBinding.wrappedValue
+    fileprivate func fieldView(listModel: FieldListModel) -> some View {
         switch listModel.model {
         case .text(let model):
             TextView(textDataModel: model, eventHandler: self)
@@ -193,16 +160,16 @@ struct FormView: View {
         case .table(let model):
             TableQuickView(tableDataModel: model, eventHandler: self)
         case .image(let model):
-            ImageView(listModel: listModelBinding, eventHandler: self)
+            ImageView(imageDataModel: model, eventHandler: self)
         case .none:
             EmptyView()
         }
     }
 
     var body: some View {
-        List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
+        List(listModels, id: \.fieldIdentifier.fieldID) { listModel in
             if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
-                fieldView(listModelBinding: $listModel)
+                fieldView(listModel: listModel)
                     .listRowSeparator(.hidden)
                     .buttonStyle(.borderless)
             }
