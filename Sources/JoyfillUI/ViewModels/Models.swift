@@ -13,7 +13,7 @@ struct PageModel {
     var fields: [FieldListModel]
 }
 
-struct FieldListModel: Equatable {
+struct FieldListModel {
     let fieldIdentifier: FieldIdentifier
     let fieldEditMode: Mode
     var model: FieldListModelType
