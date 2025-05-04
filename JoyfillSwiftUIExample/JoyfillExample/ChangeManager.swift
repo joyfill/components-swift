@@ -46,9 +46,9 @@ class ChangeManager {
 
 extension ChangeManager: FormChangeEvent {
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
-//        print(">>>>>>>>onChange", changes.first!.fieldId)
-//        let changeLogs = ["changelogs": changes.map { $0.dictionary }]
-//        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
+        print(">>>>>>>>onChange", changes.first!.fieldId)
+        let changeLogs = ["changelogs": changes.map { $0.dictionary }]
+        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
     }
 
     func onFocus(event: FieldIdentifier) {
@@ -65,7 +65,7 @@ extension ChangeManager: FormChangeEvent {
     }
     
     func onCapture(event: CaptureEvent) {
-//        print(">>>>>>>>onCapture", event.fieldEvent.fieldID)
-//        showScan(event.captureHandler)
+        print(">>>>>>>>onCapture", event.fieldEvent.fieldID)
+        showScan(event.captureHandler)
     }
 }
