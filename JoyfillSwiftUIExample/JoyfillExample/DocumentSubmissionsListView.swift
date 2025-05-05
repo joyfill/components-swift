@@ -45,7 +45,7 @@ struct DocumentSubmissionsListView: View {
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
-                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID), isActive: $showDocumentDetails)
+                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
                 }
                 List {
                     Section(header: Text("Documents")
