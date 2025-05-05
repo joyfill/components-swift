@@ -441,7 +441,7 @@ struct CollectionColumnHeaderView: View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-//                    .frame(width: viewModel.cellWidthMap[column.id ?? ""])
+                    .frame(width: viewModel.cellWidthMap[column.id ?? ""])
                     .frame(height: 60)
                     .overlay(
                         Rectangle()
