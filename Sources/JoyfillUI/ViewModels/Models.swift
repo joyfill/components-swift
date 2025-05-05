@@ -153,19 +153,7 @@ struct TableDataModel {
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
-    var filteredcellModels1 = [RowDataModel]()
-
-    var filteredcellModels: [RowDataModel] {
-        get {
-            print("📥 get filteredcellModels → count = \(filteredcellModels1.count)")
-            return filteredcellModels1
-        }
-        set {
-            print("📤 set filteredcellModels → new count = \(newValue.count)")
-            filteredcellModels1 = newValue
-        }
-    }
-
+    var filteredcellModels = [RowDataModel]()
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
     var id = UUID()

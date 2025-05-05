@@ -651,79 +651,10 @@ struct EmptyRectangleWithBorders: View {
             .border(Color.tableCellBorderColor)
     }
 }
-struct CollectionRowsView: View {
-    @ObservedObject var viewModel: CollectionViewModel
-    @Binding var currentSelectedCol: Int
-    let longestBlockText: String
-    let colorScheme: ColorScheme
-
-    var body: some View {
-        ForEach(Array(zip(viewModel.tableDataModel.filteredcellModels.indices, $viewModel.tableDataModel.filteredcellModels)), id: \.0) { index, $rowDataModel in
-            HStack(spacing: 0) {
-                CollectionRowsHeaderView(
-                    viewModel: viewModel,
-                    rowModel: $rowDataModel,
-                    colorScheme: colorScheme,
-                    index: index
-                )
-
-                switch rowDataModel.rowType {
-                case .row, .nestedRow:
-                    CollectionRowView(
-                        viewModel: viewModel,
-                        rowDataModel: $rowDataModel,
-                        longestBlockText: longestBlockText
-                    )
-                    .frame(height: 60)
-
-                case .header(_, let tableColumns):
-                    CollectionColumnHeaderView(
-                        viewModel: viewModel,
-                        tableColumns: tableColumns ?? [],
-                        currentSelectedCol: $currentSelectedCol,
-                        colorScheme: colorScheme,
-                        isHeaderNested: true
-                    )
-                    .frame(height: 60)
-
-                case .tableExpander(let schemaValue, let level, let parentID, _):
-                    CollectionExpanderView(
-                        rowDataModel: $rowDataModel,
-                        schemaValue: schemaValue,
-                        viewModel: viewModel,
-                        level: level,
-                        parentID: parentID ?? ("", "")
-                    )
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                }
-            }
-        }
-    }
-}
 
 extension View {
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
-
-fileprivate extension Array {
-    subscript(safe index: Index) -> Element {
-        get {
-            guard indices.contains(index) else {
-                print("⚠️  Array safe subscript out of range: index \(index), count \(count)")
-                fatalError("")
-            }
-            print("✅  Array safe subscript ok: index \(index), count \(count)")
-            return self[index]
-        }
-        set {
-//            guard let newValue = newValue, indices.contains(index) else {
-//                fatalError("")
-//            }
-            self[index] = newValue
-        }
-    }
-}
-
 
