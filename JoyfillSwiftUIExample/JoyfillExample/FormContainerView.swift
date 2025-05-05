@@ -9,10 +9,10 @@ import JoyfillModel
 
 struct FormContainerView: View {
     let documentEditor: DocumentEditor
-    let changeManager: TestChnageMnager
+    let changeManager: TestChangeManager
 
     init(document: JoyDoc, pageID: String) {
-        let changeManager = TestChnageMnager()
+        let changeManager = TestChangeManager()
         self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true)
         self.changeManager = changeManager
         self.changeManager.documentEditor = documentEditor
@@ -25,7 +25,7 @@ struct FormContainerView: View {
     }
 }
 
-class TestChnageMnager: FormChangeEvent {
+class TestChangeManager: FormChangeEvent {
     var documentEditor: DocumentEditor?
     let imagePicker = ImagePicker()
 
@@ -43,11 +43,10 @@ class TestChnageMnager: FormChangeEvent {
 
     func onUpload(event: UploadEvent) {
         imagePicker.showPickerOptions { urls in
-            let imageURL = urls.first!
-            event.uploadHandler([imageURL])
-            let newURL = "https://app.joyfill.io/static/img/joyfill_logo_w.png"
+            event.uploadHandler(urls)
+            let newURLs = ["https://app.joyfill.io/static/img/joyfill_logo_w.png","https://picsum.photos/id/0/5000/3333", "https://picsum.photos/id/4/5000/3333","https://picsum.photos/id/10/2500/1667","https://picsum.photos/id/14/2500/1667","https://picsum.photos/id/15/2500/1667","https://picsum.photos/id/19/2500/1667", "https://picsum.photos/id/27/3264/1836"]
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.documentEditor?.replaceImageURL(newURL: newURL, url: imageURL, fieldIdentifier: event.fieldEvent)
+                self.documentEditor?.replaceImageURLs(newURLs: newURLs, oldURLs: urls, fieldIdentifier: event.fieldEvent)
             }
         }
     }
@@ -69,5 +68,40 @@ extension DocumentEditor {
         let changeData = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: newImageValue)
         onChange(event: changeData)
     }
+    
+    public func replaceImageURLs(
+        newURLs: [String],
+        oldURLs: [String],
+        fieldIdentifier: FieldIdentifier
+    ) {
+        // 1) Safely grab the field and its existing images
+        guard let field = field(fieldID: fieldIdentifier.fieldID),
+              let existingImages = field.value?.valueElements else {
+            return
+        }
 
+        // 2) Map each element to either a single new one or itself
+        let updatedImages: [ValueElement] = existingImages.map { element in
+            if let oldIndex = oldURLs.firstIndex(of: element.url ?? ""),
+               oldIndex < newURLs.count
+            {
+                // Replace with exactly one new URL at the same position
+                return ValueElement(
+                    id: JoyfillModel.generateObjectId(),
+                    url: newURLs[oldIndex]
+                )
+            } else {
+                // Keep the original element
+                return element
+            }
+        }
+
+        // 3) Persist back and fire your change event
+        let newValue = ValueUnion.valueElementArray(updatedImages)
+        let changeData = FieldChangeData(
+            fieldIdentifier: fieldIdentifier,
+            updateValue: newValue
+        )
+        onChange(event: changeData)
+    }
 }
