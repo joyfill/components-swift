@@ -11,7 +11,7 @@ class ChangeManager {
     let showScan: (@escaping (ValueUnion) -> Void) -> Void
     private let showImagePicker:  (@escaping ([String]) -> Void) -> Void
 
-    init(apiService: APIService, showImagePicker:  @escaping(@escaping ([String]) -> Void) -> Void) {
+    init(apiService: APIService, showImagePicker:  @escaping(@escaping ([String]) -> Void) -> Void, showScan: @escaping (@escaping (ValueUnion) -> Void) -> Void) {
         self.showImagePicker = showImagePicker
         self.showScan = showScan
         self.apiService = apiService

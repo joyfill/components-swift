@@ -53,10 +53,11 @@
 		E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */; };
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
+		E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */; };
+		E2A683F02DC8F60300385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683EF2DC8F60300385FE1 /* JoyfillModel */; };
+		E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */; };
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
-		E2C9BB272D8F2AAF006A9047 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2C9BB262D8F2AAF006A9047 /* JoyfillModel */; };
-		E2C9BB292D8F2ABC006A9047 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2C9BB282D8F2ABC006A9047 /* JoyfillModel */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
 		FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAED2BA4C1F300ABD018 /* Joyfill */; };
@@ -127,6 +128,7 @@
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
+		E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSearchView.swift; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
 		FA28C9682BB4356000A2D65C /* SaveButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonView.swift; sourceTree = "<group>"; };
@@ -145,7 +147,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E2C9BB292D8F2ABC006A9047 /* JoyfillModel in Frameworks */,
+				E2A683F02DC8F60300385FE1 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,7 +186,7 @@
 				360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */,
 				1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */,
 				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
-				E2C9BB272D8F2AAF006A9047 /* JoyfillModel in Frameworks */,
+				E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */,
 				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
 				36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */,
 			);
@@ -268,6 +270,7 @@
 				FA28C96A2BB4359600A2D65C /* ChangeManager.swift */,
 				E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */,
 				E27C87E22D394387008EA35C /* CameraScanner.swift */,
+				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
 				E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */,
 				04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */,
 				FA28C9682BB4356000A2D65C /* SaveButtonView.swift */,
@@ -309,7 +312,7 @@
 			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
-				E2C9BB282D8F2ABC006A9047 /* JoyfillModel */,
+				E2A683EF2DC8F60300385FE1 /* JoyfillModel */,
 			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
@@ -375,7 +378,7 @@
 				36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */,
 				36C6F4C42CEF4CEC001765CF /* JoyfillModel */,
 				E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */,
-				E2C9BB262D8F2AAF006A9047 /* JoyfillModel */,
+				E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -416,7 +419,7 @@
 			packageReferences = (
 				132493782BA570F9002C6ADC /* XCLocalSwiftPackageReference ".." */,
 				E2B5F75D2D75E5F30057FD85 /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */,
-				E2C9BB252D8F2AAF006A9047 /* XCRemoteSwiftPackageReference "JoyfillModel" */,
+				E2A683EC2DC8F5FC00385FE1 /* XCLocalSwiftPackageReference "../../JoyfillModel" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -502,6 +505,7 @@
 				13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */,
 				E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */,
 				13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */,
+				E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */,
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,
 				E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */,
 				FA28C9672BB4345C00A2D65C /* FormContainerView.swift in Sources */,
@@ -536,7 +540,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -558,7 +562,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -582,7 +586,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -605,7 +609,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -753,7 +757,7 @@
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
@@ -795,7 +799,7 @@
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
@@ -872,22 +876,15 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
 		};
+		E2A683EC2DC8F5FC00385FE1 /* XCLocalSwiftPackageReference "../../JoyfillModel" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../JoyfillModel;
+		};
 		E2B5F75D2D75E5F30057FD85 /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../JoyfillAPIService;
 		};
 /* End XCLocalSwiftPackageReference section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		E2C9BB252D8F2AAF006A9047 /* XCRemoteSwiftPackageReference "JoyfillModel" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/joyfill/JoyfillModel.git";
-			requirement = {
-				branch = "nested-table-column";
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		048149F92CDA8F8E0061FBDC /* JoyfillModel */ = {
@@ -954,19 +951,18 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillAPIService;
 		};
+		E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
+		E2A683EF2DC8F60300385FE1 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2A683EC2DC8F5FC00385FE1 /* XCLocalSwiftPackageReference "../../JoyfillModel" */;
+			productName = JoyfillModel;
+		};
 		E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillAPIService;
-		};
-		E2C9BB262D8F2AAF006A9047 /* JoyfillModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2C9BB252D8F2AAF006A9047 /* XCRemoteSwiftPackageReference "JoyfillModel" */;
-			productName = JoyfillModel;
-		};
-		E2C9BB282D8F2ABC006A9047 /* JoyfillModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2C9BB252D8F2AAF006A9047 /* XCRemoteSwiftPackageReference "JoyfillModel" */;
-			productName = JoyfillModel;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -28,6 +28,10 @@ struct FormContainerTestView: View {
 }
 
 class TestChangeManager: FormChangeEvent {
+    func onCapture(event: JoyfillModel.CaptureEvent) {
+        print(">>>>>>>>onCapture")
+    }
+    
     var documentEditor: DocumentEditor?
     let imagePicker = ImagePicker()
 

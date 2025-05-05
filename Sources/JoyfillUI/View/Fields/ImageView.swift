@@ -400,7 +400,7 @@ struct ImageGridView: View {
                             // Background placeholder with loader
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.gray.opacity(0.1))
-                                .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
+                                .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
                                 .overlay {
                                     if image.size == .zero {
                                         ProgressView()
