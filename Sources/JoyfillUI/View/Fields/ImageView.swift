@@ -239,6 +239,7 @@ struct MoreImageView: View {
         }
         .onDisappear {
             images = []
+            imageDictionary.removeAll()
         }
         .onChange(of: valueElements) { newValue in
             loadImages(from: newValue)
@@ -256,49 +257,58 @@ struct MoreImageView: View {
     }
     
     private func loadImages(from elements: [ValueElement]) {
-        // Initialize or resize images array
-        if images.count != elements.count {
-            images = Array(repeating: UIImage(), count: elements.count)
-        }
+        // Initialize images array with placeholders
+        images = Array(repeating: UIImage(), count: elements.count)
         
         // Process each element
         for (index, element) in elements.enumerated() {
-            if let cached = imageDictionary[element.id ?? ""] {
-                // If URL hasn't changed, use cached image
+            guard let elementId = element.id else { continue }
+            
+            // Check cache using element ID
+            if let cached = imageDictionary[elementId] {
+                // Use cached image if URL matches
                 if cached.0.url == element.url {
                     images[index] = cached.1
                     continue
                 }
                 // URL changed, need to reload
-                imageDictionary.removeValue(forKey: element.id ?? "")
+                imageDictionary.removeValue(forKey: elementId)
             }
             
             // Load new or changed image
             imageViewModel.loadSingleURL(imageURL: element.url ?? "") { image in
                 guard let image = image else { return }
                 
-                // Only update if the element is still at the same index
-                if index < self.valueElements.count && self.valueElements[index].id == element.id {
-                    self.imageDictionary[element.id ?? ""] = (element, image)
-                    if images.count == 0 {
-                        self.images.append(image)
-                    } else {
+                // Only update if the element still exists
+                if index < self.valueElements.count {
+                    self.imageDictionary[elementId] = (element, image)
+                    if index < self.images.count {
                         self.images[index] = image
+                    } else {
+                        self.images.append(image)
                     }
                 }
             }
         }
         
         // Clean up cached images that are no longer needed
-        let newElementIds = Set(elements.map { $0.id })
-        imageDictionary = imageDictionary.filter { newElementIds.contains($0.key) }
+        let currentElementIds = Set(elements.compactMap { $0.id })
+        imageDictionary = imageDictionary.filter { currentElementIds.contains($0.key) }
     }
     
     func deleteSelectedImages() {
         let sortedDescending = selectedImagesIndex.sorted(by: >)
         for index in sortedDescending {
-            valueElements.remove(at: index)
-            images.remove(at: index)
+            if index < valueElements.count {
+                // Remove from cache using element ID
+                if let elementId = valueElements[index].id {
+                    imageDictionary.removeValue(forKey: elementId)
+                }
+                valueElements.remove(at: index)
+                if index < images.count {
+                    images.remove(at: index)
+                }
+            }
         }
         selectedImagesIndex.removeAll()
     }
@@ -413,22 +423,18 @@ struct ImageGridView: View {
                             }
                     }
                     .onTapGesture {
-                        handleImageSelection(image)
+                        if !primaryDisplayOnly {
+                            if selectedImagesIndex.contains(index) {
+                                selectedImagesIndex.remove(index)
+                            } else {
+                                selectedImagesIndex.insert(index)
+                            }
+                        }
                     }
                     .transition(.opacity)
                     .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                 }
             }
-        }
-    }
-    
-    private func handleImageSelection(_ image: UIImage) {
-        guard !primaryDisplayOnly else { return }
-        let index = images.firstIndex(of: image)!
-        if selectedImagesIndex.contains(index) {
-            selectedImagesIndex.remove(index)
-        } else {
-            selectedImagesIndex.insert(index)
         }
     }
 }
