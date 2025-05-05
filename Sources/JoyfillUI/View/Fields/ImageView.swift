@@ -198,7 +198,7 @@ struct MoreImageView: View {
     @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
     @State var showProgressView: Bool = false
-    @State var imageDictionary: [ValueElement: UIImage] = [:]
+    @State var imageDictionary: [String: (ValueElement, UIImage)] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -234,19 +234,14 @@ struct MoreImageView: View {
         }
         .padding(.horizontal, 16.0)
         .padding(.vertical, 16)
-        .onAppear{
-            self.imageDictionary = [:]
-            for valueElement in valueElements {
-                imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
-                    showProgressView = false
-                    guard let image = image else { return }
-                    self.images.append(image)
-                    self.imageDictionary[valueElement] = image
-                })
-            }
+        .onAppear {
+            loadImages(from: valueElements)
         }
         .onDisappear {
             images = []
+        }
+        .onChange(of: valueElements) { newValue in
+            loadImages(from: newValue)
         }
         .overlay(content: {
             if showToast {
@@ -258,36 +253,45 @@ struct MoreImageView: View {
                 }
             }
         })
-        .onChange(of: valueElements) { newValue in
-            self.imageDictionary = [:]
-            self.images = []
-            for valueElement in valueElements {
-                imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
-                    showProgressView = false
-                    guard let image = image else { return }
-                    self.images.append(image)
-                    self.imageDictionary[valueElement] = image
-                })
-            }
-        }
     }
     
-    func loadImageFromURL(imageURLs: [String]) {
-        imageViewModel.loadImageFromURL(imageURLs: imageURLs) { loadedImages in
-            self.images = loadedImages
-            showProgressView = false
+    private func loadImages(from elements: [ValueElement]) {
+        // Initialize or resize images array
+        if images.count != elements.count {
+            images = Array(repeating: UIImage(), count: elements.count)
         }
-    }
-    func loadSingleImageFromUrl(imageUrl: String) {
-        imageViewModel.loadSingleURL(imageURL: imageUrl, completion: { image in
-            guard let image = image else { return }
-            for valueElement in valueElements {
-                if imageUrl == valueElement.url {
-                    self.imageDictionary[valueElement] = image
+        
+        // Process each element
+        for (index, element) in elements.enumerated() {
+            if let cached = imageDictionary[element.id ?? ""] {
+                // If URL hasn't changed, use cached image
+                if cached.0.url == element.url {
+                    images[index] = cached.1
+                    continue
+                }
+                // URL changed, need to reload
+                imageDictionary.removeValue(forKey: element.id ?? "")
+            }
+            
+            // Load new or changed image
+            imageViewModel.loadSingleURL(imageURL: element.url ?? "") { image in
+                guard let image = image else { return }
+                
+                // Only update if the element is still at the same index
+                if index < self.valueElements.count && self.valueElements[index].id == element.id {
+                    self.imageDictionary[element.id ?? ""] = (element, image)
+                    if images.count == 0 {
+                        self.images.append(image)
+                    } else {
+                        self.images[index] = image
+                    }
                 }
             }
-            self.images.append(image)
-        })
+        }
+        
+        // Clean up cached images that are no longer needed
+        let newElementIds = Set(elements.map { $0.id })
+        imageDictionary = imageDictionary.filter { newElementIds.contains($0.key) }
     }
     
     func deleteSelectedImages() {
@@ -368,7 +372,7 @@ struct UploadDeleteView: View {
     }
 }
 
-struct ImageGridView:View {
+struct ImageGridView: View {
     var primaryDisplayOnly: Bool
     @Binding var images: [UIImage]
     @Binding var selectedImagesIndex: Set<Int>
@@ -379,26 +383,40 @@ struct ImageGridView:View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
                 ForEach(Array(images.enumerated()), id: \.offset) { (index, image) in
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                        }
-                        .overlay(alignment: .topTrailing) {
-                            if !primaryDisplayOnly {
-                                Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
-                                    .padding(.top, 12)
-                                    .padding(.trailing, 12)
+                    ZStack {
+                        // Background placeholder with loader
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.gray.opacity(0.1))
+                            .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
+                            .overlay {
+                                if image.size == .zero {
+                                    ProgressView()
+                                }
                             }
-                        }
-                        .onTapGesture {
-                            handleImageSelection(image)
-                        }
-                        .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
+
+                        // Actual image
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            }
+                            .overlay(alignment: .topTrailing) {
+                                if !primaryDisplayOnly {
+                                    Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
+                                        .padding(.top, 12)
+                                        .padding(.trailing, 12)
+                                }
+                            }
+                    }
+                    .onTapGesture {
+                        handleImageSelection(image)
+                    }
+                    .transition(.opacity)
+                    .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                 }
             }
         }
