@@ -8,10 +8,10 @@ import JoyfillAPIService
 
 class ChangeManager {
     private let apiService: APIService
-    private let showImagePicker: (([String]) -> Void) -> Void
     let showScan: (@escaping (ValueUnion) -> Void) -> Void
+    private let showImagePicker:  (@escaping ([String]) -> Void) -> Void
 
-    init(apiService: APIService, showImagePicker: @escaping (([String]) -> Void) -> Void, showScan: @escaping (@escaping (ValueUnion) -> Void) -> Void) {
+    init(apiService: APIService, showImagePicker:  @escaping(@escaping ([String]) -> Void) -> Void) {
         self.showImagePicker = showImagePicker
         self.showScan = showScan
         self.apiService = apiService
