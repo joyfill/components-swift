@@ -10,6 +10,7 @@ import JoyfillAPIService
 import Joyfill
 import UIKit
 import ObjectiveC
+import PhotosUI
 
 struct DocumentSubmissionsListView: View {
     @State var documents: [Document] = []
@@ -177,17 +178,40 @@ class ImagePicker {
                 self.presentImagePicker(sourceType: .camera, currentUploadHandler: currentUploadHandler)
             })
         }
-
-        alert.addAction(UIAlertAction(title: "Photo Library", style: .default) {  _ in
-            self.presentImagePicker(sourceType: .photoLibrary, currentUploadHandler: currentUploadHandler)
+        
+        alert.addAction(UIAlertAction(title: "Photo Library", style: .default) { _ in
+            self.presentPhotoPicker(currentUploadHandler: currentUploadHandler)
         })
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
-        // Present the alert
+        
+        // Add iPad support
+        if let popoverController = alert.popoverPresentationController {
+            popoverController.sourceView = UIApplication.shared.windows.first
+            popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
+        
         UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
     }
-
+    
+    private func presentPhotoPicker(currentUploadHandler: (([String]) -> Void)?) {
+        var config = PHPickerConfiguration()
+        config.selectionLimit = 0 // 0 means no limit
+        config.filter = .images
+        
+        let picker = PHPickerViewController(configuration: config)
+        let coordinator = PhotoPickerCoordinator(uploadHandler: { urls in
+            currentUploadHandler?(urls)
+        })
+        picker.delegate = coordinator
+        
+        // Store coordinator as associated object to prevent it from being deallocated
+        objc_setAssociatedObject(picker, "coordinator", coordinator, .OBJC_ASSOCIATION_RETAIN)
+        
+        UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
+    }
+    
     private func presentImagePicker(sourceType: UIImagePickerController.SourceType, currentUploadHandler: (([String]) -> Void)?) {
         let imagePickerController = UIImagePickerController()
         imagePickerController.sourceType = sourceType
@@ -203,7 +227,61 @@ class ImagePicker {
 
         UIApplication.shared.windows.first?.rootViewController?.present(imagePickerController, animated: true)
     }
-
+    
+    class PhotoPickerCoordinator: NSObject, PHPickerViewControllerDelegate {
+        let uploadHandler: ([String]) -> Void
+        
+        init(uploadHandler: @escaping ([String]) -> Void) {
+            self.uploadHandler = uploadHandler
+        }
+        
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+            
+            let dispatchGroup = DispatchGroup()
+            var imageUrls: [String] = []
+            
+            for result in results {
+                dispatchGroup.enter()
+                
+                result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
+                    defer { dispatchGroup.leave() }
+                    
+                    if let error = error {
+                        print("Error loading image: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let image = object as? UIImage,
+                          let imageUrl = self?.saveImageToTemporaryDirectory(image) else {
+                        return
+                    }
+                    
+                    imageUrls.append(imageUrl.absoluteString)
+                }
+            }
+            
+            dispatchGroup.notify(queue: .main) { [weak self] in
+                self?.uploadHandler(imageUrls)
+            }
+        }
+        
+        private func saveImageToTemporaryDirectory(_ image: UIImage) -> URL? {
+            guard let imageData = image.jpegData(compressionQuality: 0.8) else { return nil }
+            
+            let fileName = UUID().uuidString + ".jpg"
+            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            
+            do {
+                try imageData.write(to: fileURL)
+                return fileURL
+            } catch {
+                print("Error saving image: \(error.localizedDescription)")
+                return nil
+            }
+        }
+    }
+    
     class ImagePickerCoordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         let uploadHandler: ([String]) -> Void
 
