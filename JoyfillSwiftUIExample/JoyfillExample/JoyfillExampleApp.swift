@@ -47,7 +47,7 @@ struct JoyfillExampleApp: App {
                 }
                 .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
             }
-            ImageReplacementTest()
+//            ImageReplacementTest()
         }
     }
     
