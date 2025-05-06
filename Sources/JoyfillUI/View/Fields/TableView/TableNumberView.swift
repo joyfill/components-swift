@@ -4,7 +4,6 @@ struct TableNumberView: View {
     @State private var number: String = ""
     @FocusState private var isTextFieldFocused: Bool
     @Binding var cellModel: TableCellModel
-    @State private var debounceTask: Task<Void, Never>?
     
     private let numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -42,9 +41,7 @@ struct TableNumberView: View {
                 .keyboardType(.decimalPad)
                 .font(.system(size: 15))
                 .onChange(of: number) { _ in
-                    Utility.debounceTextChange(debounceTask: &debounceTask) {
-                        updateFieldValue()
-                    }
+                    updateFieldValue()
                 }
                 .focused($isTextFieldFocused)
         }

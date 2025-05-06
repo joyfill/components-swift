@@ -483,7 +483,7 @@ extension JoyDoc {
         file.name = "All Fields Template"
         file.version = 1
         file.styles = Metadata(dictionary: [:])
-        file.pageOrder = ["6629fab320fca7c8107a6cf6", "66600801dc1d8b4f72f54917", "66852e19e780e2aef89ab2c4", "66852e1b8d389f71128a2b86", "66852e1f3bde6be7d0e3966c", "66a0fdb24fc544e2f274060a", "66a1eacc327a9bd5db3b5469", "66a1ead16fbc343e4b5bde0a", "66a383809036dc395dd78ad7", "66a383a3dda2112f45eacde5", "66a383a6574181c946e6fac2", "66aa2463d832a298793aeb28", "66aa286569ad25c65517385e", "66aa297ad6ff5d3f06588fbf", "66aa29c00c2300ab34cc0d7d"]
+        file.pageOrder = ["6629fab320fca7c8107a6cf6", "66600801dc1d8b4f72f54917", "66852e19e780e2aef89ab2c4", "66852e1b8d389f71128a2b86", "66852e1f3bde6be7d0e3966c", "66a0fdb24fc544e2f274060a", "66a1eacc327a9bd5db3b5469", "66a1ead16fbc343e4b5bde0a", "66a383809036dc395dd78ad7", "66a383a3dda2112f45eacde5", "66a383a6574181c946e6fac2", "66aa2463d832a298793aeb28", "66aa286569ad25c65517385e", "66aa297ad6ff5d3f06588fbf", "66aa29c00c2300ab34cc0d7d","6629fab320fca7c8107a6cf6page16"]
         file.views = []
         
         var document = self

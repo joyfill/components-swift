@@ -151,44 +151,45 @@ struct TableMultiSelectSheetView: View {
                 })
             }
             .padding(.bottom, 12)
-
-            VStack(spacing: 0){
-                if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
-                    ForEach(0..<options.count, id: \.self) { index in
-                        let optionValue = options[index].value ?? ""
-                        let isSelected: Bool = {
-                            let selectedArray = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
-                            return selectedArray.contains(options[index].id ?? "") ?? false
-                        }()
-
-                        if isMulti {
-                            TableMultiSelection(option: optionValue,
-                                                isSelected: isSelected,
-                                                multiSelectedOptionArray: $tempMultiSelectedOptionArray,
-                                                selectedItemId: options[index].id ?? "",
-                                                color: Color(hex: options[index].color ?? ""))
+            
+            ScrollView {
+                VStack(spacing: 0){
+                    if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
+                        ForEach(0..<options.count, id: \.self) { index in
+                            let optionValue = options[index].value ?? ""
+                            let isSelected: Bool = {
+                                let selectedArray = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
+                                return selectedArray.contains(options[index].id ?? "") ?? false
+                            }()
                             
-                            if index < options.count - 1 {
-                                Divider()
-                            }
-                        } else {
-                            TableRadioView(option: optionValue,
-                                           singleSelectedOptionArray: $tempSingleSelectedOptionArray,
-                                           selectedItemId: options[index].id ?? "",
-                                           color: Color(hex: options[index].color ?? ""))
-                            if index < options.count - 1 {
-                                Divider()
+                            if isMulti {
+                                TableMultiSelection(option: optionValue,
+                                                    isSelected: isSelected,
+                                                    multiSelectedOptionArray: $tempMultiSelectedOptionArray,
+                                                    selectedItemId: options[index].id ?? "",
+                                                    color: Color(hex: options[index].color ?? ""))
+                                
+                                if index < options.count - 1 {
+                                    Divider()
+                                }
+                            } else {
+                                TableRadioView(option: optionValue,
+                                               singleSelectedOptionArray: $tempSingleSelectedOptionArray,
+                                               selectedItemId: options[index].id ?? "",
+                                               color: Color(hex: options[index].color ?? ""))
+                                if index < options.count - 1 {
+                                    Divider()
+                                }
                             }
                         }
                     }
                 }
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
             }
-            .cornerRadius(10)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-            )
-            
             Spacer()
         }
         .padding(.all, 16)
@@ -232,7 +233,7 @@ struct TableMultiSelection: View {
                 multiSelectedOptionArray.append(selectedItemId) // Item doesn't exist, so add it
             }
         }, label: {
-            HStack(alignment: .top) {
+            HStack {
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
                     .padding(.top, 4)
                     .imageScale(.large)
@@ -265,7 +266,7 @@ struct TableRadioView: View {
                 singleSelectedOptionArray = [selectedItemId]
             }
         }, label: {
-            HStack(alignment: .top) {
+            HStack {
                 Image(systemName: singleSelectedOptionArray == [selectedItemId] ? "smallcircle.filled.circle.fill" : "circle")
                     .padding(.top, 4)
                 Text(option)
