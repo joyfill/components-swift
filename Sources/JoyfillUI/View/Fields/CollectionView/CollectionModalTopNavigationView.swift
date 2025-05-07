@@ -629,14 +629,16 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 )
                                 .cornerRadius(10)
                         case .block:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled)
-                            TableBlockView(cellModel: Binding.constant(cellModel))
-                                .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                            if !isUsedForBulkEdit {
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled)
+                                TableBlockView(cellModel: Binding.constant(cellModel))
+                                    .frame(minHeight: 40)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                    )
+                                    .cornerRadius(10)
+                            }
                         default:
                             Text("")
                         }

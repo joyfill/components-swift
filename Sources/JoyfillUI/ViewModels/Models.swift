@@ -230,8 +230,8 @@ struct TableDataModel {
     }
         
     mutating func filterRowsIfNeeded() {
+        filteredcellModels = cellModels
         guard !filterModels.noFilterApplied else {
-            filteredcellModels = cellModels
             return
         }
         
