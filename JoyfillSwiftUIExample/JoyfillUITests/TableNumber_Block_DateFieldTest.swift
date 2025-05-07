@@ -406,7 +406,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         firstDatePicker.tap()
         
        // TODO: Remember - ["Sunday 7 April"] - here set the date of current month
-        let specificDayButton = app.buttons["Sunday 5 January"] // The full label of the button
+        let specificDayButton = app.buttons["Thursday 1 May"] // The full label of the button
         XCTAssertTrue(specificDayButton.exists, "Check current month date is changed or not")
         specificDayButton.tap()
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
@@ -469,8 +469,11 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Change selected time
     func testChangeTimePicker() throws {
         goToTableDetailPage()
-        let firstDatePicker = app.datePickers.element(boundBy: 0)
-        firstDatePicker.tap()
+//        let firstDatePicker = app.datePickers.element(boundBy: 1)
+//        firstDatePicker.tap()
+        let headerTimeLabel = app.buttons["12:00 AM"]
+        XCTAssertTrue(headerTimeLabel.exists, "Expected to see the time header before switching to wheels")
+        headerTimeLabel.tap()
         
         let hourPicker = app.pickerWheels.element(boundBy: 0)
         let minutePicker = app.pickerWheels.element(boundBy: 1)
@@ -485,7 +488,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         goBack()
         sleep(1)
         let checkSelectedTimeValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
-        XCTAssertEqual(946711920000.0, checkSelectedTimeValue)
+        XCTAssertEqual(1712302320000.0, checkSelectedTimeValue)
         
     }
     
@@ -500,7 +503,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"CalendarImageIdentifier").children(matching: .image).matching(identifier: "CalendarImageIdentifier").element(boundBy: 0).tap()
         
         let firstDatePicker = app.datePickers.element(boundBy: 0)
-        firstDatePicker.tap()
+        let timeCoordinate = firstDatePicker.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
+        timeCoordinate.tap()
         
         let hourPicker = app.pickerWheels.element(boundBy: 0)
         let minutePicker = app.pickerWheels.element(boundBy: 1)
@@ -514,8 +518,15 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         sleep(1)
         goBack()
         sleep(1)
+        
+        let calendar = Calendar.current
+        let now = Date()
+        let todayMidnight = calendar.startOfDay(for: now)
+        let twelveMinutes = TimeInterval(12 * 60)
+        let expectedEpochMilliseconds = (todayMidnight.timeIntervalSince1970 + twelveMinutes) * 1000.0
+
         let checkSelectedTimeValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
-        XCTAssertEqual(1735756920000.0, checkSelectedTimeValue)
+        XCTAssertEqual(expectedEpochMilliseconds, checkSelectedTimeValue)
     }
     
     // Bulk single edit test case
@@ -1067,6 +1078,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Swipe for siganture column
     func swipeLeftForSignatureColumn() {
         let element = app.children(matching: .window).element(boundBy: 0).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
+        app.cells[""]
         element.swipeLeft()
         element.swipeLeft()
     }
