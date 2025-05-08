@@ -20,6 +20,7 @@ public struct TemplateListView: View {
     @State private var hasMoreTemplates: Bool = true
     @State private var searchText: String = ""
     var isAlreadyToken: Bool
+    let imagePicker = ImagePicker()
     
     init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool) {
         self.isAlreadyToken = isAlreadyToken
@@ -35,7 +36,10 @@ public struct TemplateListView: View {
     }
     
     private var changeManager: ChangeManager {
-        ChangeManager(apiService: apiService, showImagePicker: showImagePicker)
+        return ChangeManager(
+            apiService: apiService,
+            showImagePicker: imagePicker.showPickerOptions
+        )
     }
     
     private var filteredTemplates: [Document] {
