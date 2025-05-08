@@ -14,8 +14,12 @@ class JoyfillUITestsBaseClass: XCTestCase {
     override func tearDownWithError() throws {
         app = nil
     }
-
+    
     func goBack() {
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+    }
+    
+    func swipeSheetDown() {
         let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
         let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
         topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
