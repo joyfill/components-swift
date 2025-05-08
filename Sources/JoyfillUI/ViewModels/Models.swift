@@ -340,6 +340,14 @@ struct DisplayTextDataModel {
     var fontWeight: String?
     var fontColor: String?
     var fontStyle: String?
+    var textAlign: String?
+    var textDecoration: String?
+    var textTransform: String?
+    var backgroundColor: String?
+    var borderColor: String?
+    var borderWidth: Double?
+    var borderRadius: Double?
+    var padding: Double?
 }
 
 struct DropdownDataModel {
