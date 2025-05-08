@@ -171,31 +171,38 @@ struct DocumentSubmissionsListView: View {
 
 class ImagePicker {
     func showPickerOptions(currentUploadHandler: (([String]) -> Void)?) {
+        guard let topViewController = UIApplication.shared.windows
+            .filter({ $0.isKeyWindow }).first?
+            .rootViewController?.topMostViewController() else {
+            print("No view controller found to present from")
+            return
+        }
+
         let alert = UIAlertController(title: "Select Image Source", message: nil, preferredStyle: .actionSheet)
 
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             alert.addAction(UIAlertAction(title: "Camera", style: .default) { _ in
-                self.presentImagePicker(sourceType: .camera, currentUploadHandler: currentUploadHandler)
+                self.presentImagePicker(from: topViewController, sourceType: .camera, currentUploadHandler: currentUploadHandler)
             })
         }
         
         alert.addAction(UIAlertAction(title: "Photo Library", style: .default) { _ in
-            self.presentPhotoPicker(currentUploadHandler: currentUploadHandler)
+            self.presentPhotoPicker(from: topViewController, currentUploadHandler: currentUploadHandler)
         })
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         // Add iPad support
         if let popoverController = alert.popoverPresentationController {
-            popoverController.sourceView = UIApplication.shared.windows.first
+            popoverController.sourceView = topViewController.view
             popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY, width: 0, height: 0)
             popoverController.permittedArrowDirections = []
         }
         
-        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+        topViewController.present(alert, animated: true)
     }
     
-    private func presentPhotoPicker(currentUploadHandler: (([String]) -> Void)?) {
+    private func presentPhotoPicker(from viewController: UIViewController, currentUploadHandler: (([String]) -> Void)?) {
         var config = PHPickerConfiguration()
         config.selectionLimit = 0 // 0 means no limit
         config.filter = .images
@@ -209,10 +216,10 @@ class ImagePicker {
         // Store coordinator as associated object to prevent it from being deallocated
         objc_setAssociatedObject(picker, "coordinator", coordinator, .OBJC_ASSOCIATION_RETAIN)
         
-        UIApplication.shared.windows.first?.rootViewController?.present(picker, animated: true)
+        viewController.present(picker, animated: true)
     }
     
-    private func presentImagePicker(sourceType: UIImagePickerController.SourceType, currentUploadHandler: (([String]) -> Void)?) {
+    private func presentImagePicker(from viewController: UIViewController, sourceType: UIImagePickerController.SourceType, currentUploadHandler: (([String]) -> Void)?) {
         let imagePickerController = UIImagePickerController()
         imagePickerController.sourceType = sourceType
         imagePickerController.allowsEditing = true
@@ -225,7 +232,7 @@ class ImagePicker {
         // Store coordinator as associated object to prevent it from being deallocated
         objc_setAssociatedObject(imagePickerController, "coordinator", coordinator, .OBJC_ASSOCIATION_RETAIN)
 
-        UIApplication.shared.windows.first?.rootViewController?.present(imagePickerController, animated: true)
+        viewController.present(imagePickerController, animated: true)
     }
     
     class PhotoPickerCoordinator: NSObject, PHPickerViewControllerDelegate {
@@ -318,5 +325,23 @@ class ImagePicker {
                 return nil
             }
         }
+    }
+}
+
+extension UIViewController {
+    func topMostViewController() -> UIViewController {
+        if let presented = self.presentedViewController {
+            return presented.topMostViewController()
+        }
+        
+        if let navigation = self as? UINavigationController {
+            return navigation.visibleViewController?.topMostViewController() ?? navigation
+        }
+        
+        if let tab = self as? UITabBarController {
+            return tab.selectedViewController?.topMostViewController() ?? tab
+        }
+        
+        return self
     }
 }
