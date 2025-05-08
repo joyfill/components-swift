@@ -106,19 +106,6 @@ struct ImageView: View {
                 )
                 .disabled(imageDataModel.mode == .readonly || showProgressView)
             }
-            
-            NavigationLink(destination:
-                            MoreImageView(images: $images,
-                                          valueElements: $valueElements,
-                                          isMultiEnabled: isMultiEnabled,
-                                          showToast: $showToast,
-                                          uploadAction: uploadAction,
-                                          isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
-                           , isActive: $showMoreImages) {
-                EmptyView()
-            }
-                           .frame(width: 0, height: 0)
-                           .hidden()
         }
         .onAppear {
             if !hasAppeared {
@@ -126,6 +113,14 @@ struct ImageView: View {
                 fetchImages()
                 hasAppeared = true
             }
+        }
+        .sheet(isPresented: $showMoreImages) {
+            MoreImageView(images: $images,
+                          valueElements: $valueElements,
+                          isMultiEnabled: isMultiEnabled,
+                          showToast: $showToast,
+                          uploadAction: uploadAction,
+                          isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
