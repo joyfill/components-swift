@@ -37,7 +37,7 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
         clickOnFifthImage()
         
         app.buttons["ImageDeleteIdentifier"].tap()
-        goBack()
+        swipeSheetDown()
         emptyImageAssert()
     }
     
@@ -95,7 +95,7 @@ extension ImageFieldTests {
     private func goToImageDetailPageAndDeleteImageAndGoBack() {
         goToImageDetailPage()
         app.buttons["ImageDeleteIdentifier"].tap()
-        goBack()
+        swipeSheetDown()
     }
     
     func clickOnFirstImage() {
@@ -133,7 +133,7 @@ extension ImageFieldTests {
 
     private func uploadImageOnDetailPageAndGoBack() {
         uploadImageOnDetailPage()
-        goBack()
+        swipeSheetDown()
     }
 
     private func uploadImageOnDetailPage() {

@@ -17,13 +17,24 @@ struct ImageView: View {
     
     @StateObject var imageViewModel = ImageFieldViewModel()
     
-    private let imageDataModel: ImageDataModel
+    @State var imageDataModel: ImageDataModel!
     let eventHandler: FieldChangeEvents
-    
-    public init(imageDataModel: ImageDataModel, eventHandler: FieldChangeEvents) {
+
+    @Binding var listModel: FieldListModel
+
+    public init(listModel: Binding<FieldListModel>, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
-        self.imageDataModel = imageDataModel
-        self.isMultiEnabled = imageDataModel.multi ?? true
+        _listModel = listModel
+        switch listModel.wrappedValue.model {
+        case .image(let dataMode):
+            self.isMultiEnabled = dataMode.multi ?? true
+            _imageDataModel = State(initialValue: dataMode)
+            _valueElements = State(initialValue: dataMode.valueElements ?? [])
+        default:
+            self.imageDataModel = nil
+            self.isMultiEnabled = true
+            break
+        }
     }
     
     var body: some View {
@@ -95,31 +106,37 @@ struct ImageView: View {
                 )
                 .disabled(imageDataModel.mode == .readonly || showProgressView)
             }
-            
-            NavigationLink(destination:
-                            MoreImageView(images: $images,
-                                          valueElements: $valueElements,
-                                          isMultiEnabled: isMultiEnabled,
-                                          showToast: $showToast,
-                                          uploadAction: uploadAction,
-                                          isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
-                           , isActive: $showMoreImages) {
-                EmptyView()
-            }
-                           .frame(width: 0, height: 0)
-                           .hidden()
         }
         .onAppear {
             if !hasAppeared {
                 self.valueElements = imageDataModel.valueElements ?? []
+                fetchImages()
                 hasAppeared = true
             }
+        }
+        .sheet(isPresented: $showMoreImages) {
+            MoreImageView(images: $images,
+                          valueElements: $valueElements,
+                          isMultiEnabled: isMultiEnabled,
+                          showToast: $showToast,
+                          uploadAction: uploadAction,
+                          isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
             let newImageValue = ValueUnion.valueElementArray(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: imageDataModel.fieldIdentifier, updateValue: newImageValue)
             eventHandler.onChange(event: fieldEvent)
+        }
+        .onChange(of: listModel) { newValue in
+            switch newValue.model {
+            case .image(let dataModel):
+                imageDataModel = dataModel
+                self.valueElements = dataModel.valueElements ?? []
+                fetchImages()
+                default : break
+            }
+
         }
     }
     
@@ -176,7 +193,7 @@ struct MoreImageView: View {
     @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
     @State var showProgressView: Bool = false
-    @State var imageDictionary: [ValueElement: UIImage] = [:]
+    @State var imageDictionary: [String: (ValueElement, UIImage)] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -212,19 +229,15 @@ struct MoreImageView: View {
         }
         .padding(.horizontal, 16.0)
         .padding(.vertical, 16)
-        .onAppear{
-            self.imageDictionary = [:]
-            for valueElement in valueElements {
-                imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
-                    showProgressView = false
-                    guard let image = image else { return }
-                    self.images.append(image)
-                    self.imageDictionary[valueElement] = image
-                })
-            }
+        .onAppear {
+            loadImages(from: valueElements)
         }
         .onDisappear {
             images = []
+            imageDictionary.removeAll()
+        }
+        .onChange(of: valueElements) { newValue in
+            loadImages(from: newValue)
         }
         .overlay(content: {
             if showToast {
@@ -236,43 +249,61 @@ struct MoreImageView: View {
                 }
             }
         })
-        .onChange(of: valueElements) { newValue in
-            self.imageDictionary = [:]
-            self.images = []
-            for valueElement in valueElements {
-                imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
-                    showProgressView = false
-                    guard let image = image else { return }
-                    self.images.append(image)
-                    self.imageDictionary[valueElement] = image
-                })
-            }
-        }
     }
     
-    func loadImageFromURL(imageURLs: [String]) {
-        imageViewModel.loadImageFromURL(imageURLs: imageURLs) { loadedImages in
-            self.images = loadedImages
-            showProgressView = false
-        }
-    }
-    func loadSingleImageFromUrl(imageUrl: String) {
-        imageViewModel.loadSingleURL(imageURL: imageUrl, completion: { image in
-            guard let image = image else { return }
-            for valueElement in valueElements {
-                if imageUrl == valueElement.url {
-                    self.imageDictionary[valueElement] = image
+    private func loadImages(from elements: [ValueElement]) {
+        // Initialize images array with placeholders
+        images = Array(repeating: UIImage(), count: elements.count)
+        
+        // Process each element
+        for (index, element) in elements.enumerated() {
+            guard let elementId = element.id else { continue }
+            
+            // Check cache using element ID
+            if let cached = imageDictionary[elementId] {
+                // Use cached image if URL matches
+                if cached.0.url == element.url {
+                    images[index] = cached.1
+                    continue
+                }
+                // URL changed, need to reload
+                imageDictionary.removeValue(forKey: elementId)
+            }
+            
+            // Load new or changed image
+            imageViewModel.loadSingleURL(imageURL: element.url ?? "") { image in
+                guard let image = image else { return }
+                
+                // Only update if the element still exists
+                if index < self.valueElements.count {
+                    self.imageDictionary[elementId] = (element, image)
+                    if index < self.images.count {
+                        self.images[index] = image
+                    } else {
+                        self.images.append(image)
+                    }
                 }
             }
-            self.images.append(image)
-        })
+        }
+        
+        // Clean up cached images that are no longer needed
+        let currentElementIds = Set(elements.compactMap { $0.id })
+        imageDictionary = imageDictionary.filter { currentElementIds.contains($0.key) }
     }
     
     func deleteSelectedImages() {
         let sortedDescending = selectedImagesIndex.sorted(by: >)
         for index in sortedDescending {
-            valueElements.remove(at: index)
-            images.remove(at: index)
+            if index < valueElements.count {
+                // Remove from cache using element ID
+                if let elementId = valueElements[index].id {
+                    imageDictionary.removeValue(forKey: elementId)
+                }
+                valueElements.remove(at: index)
+                if index < images.count {
+                    images.remove(at: index)
+                }
+            }
         }
         selectedImagesIndex.removeAll()
     }
@@ -360,41 +391,51 @@ struct ImageGridView: View {
                     GridItem(.flexible(), spacing: 8)
                 ], spacing: 8) {
                     ForEach(Array(images.enumerated()), id: \.offset) { (index, image) in
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            // Here, use sheetWidth instead of screenWidth.
-                            .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            }
-                            .overlay(alignment: .topTrailing) {
-                                if !primaryDisplayOnly {
-                                    Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
-                                        .padding(.top, 12)
-                                        .padding(.trailing, 12)
+                        ZStack {
+                            // Background placeholder with loader
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.gray.opacity(0.1))
+                                .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
+                                .overlay {
+                                    if image.size == .zero {
+                                        ProgressView()
+                                    }
+                                }
+                            
+                            // Actual image
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                // Here, use sheetWidth instead of screenWidth.
+                                .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                }
+                                .overlay(alignment: .topTrailing) {
+                                    if !primaryDisplayOnly {
+                                        Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
+                                            .padding(.top, 12)
+                                            .padding(.trailing, 12)
+                                    }
+                                }
+                        }
+                        .onTapGesture {
+                            if !primaryDisplayOnly {
+                                if selectedImagesIndex.contains(index) {
+                                    selectedImagesIndex.remove(index)
+                                } else {
+                                    selectedImagesIndex.insert(index)
                                 }
                             }
-                            .onTapGesture {
-                                handleImageSelection(image)
-                            }
-                            .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
+                        }
+                        .transition(.opacity)
+                        .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                     }
                 }
                 .padding(8)
             }
-        }
-    }
-    
-    private func handleImageSelection(_ image: UIImage) {
-        guard !primaryDisplayOnly else { return }
-        let index = images.firstIndex(of: image)!
-        if selectedImagesIndex.contains(index) {
-            selectedImagesIndex.remove(index)
-        } else {
-            selectedImagesIndex.insert(index)
         }
     }
 }
