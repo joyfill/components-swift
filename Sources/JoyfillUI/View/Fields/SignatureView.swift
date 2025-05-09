@@ -189,6 +189,7 @@ struct CanvasSignatureView: View {
                             )
                         })
                         .padding(.all, 10)
+                        .accessibilityIdentifier("TableSignatureEditButton")
                     }
                 } else {
                     CanvasView(lines: $lines)
