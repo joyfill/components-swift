@@ -30,6 +30,7 @@ struct ImageReplacementTest: View, FormChangeEvent {
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {}
     func onFocus(event: JoyfillModel.FieldIdentifier) { }
     func onBlur(event: JoyfillModel.FieldIdentifier) { }
+    func onCapture(event: JoyfillModel.CaptureEvent) { }
 
     func onUpload(event: JoyfillModel.UploadEvent) {
         imagePicker.showPickerOptions { urls in
