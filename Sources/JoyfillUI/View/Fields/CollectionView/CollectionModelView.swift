@@ -233,7 +233,7 @@ struct CollectionModalView : View {
                         }
                     }
                     .disabled(viewModel.tableDataModel.cellModels.count == 0)
-                    .accessibilityIdentifier("SelectAllRowSelectorButton")
+                    .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
             Text("#")
