@@ -103,6 +103,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].tap()
     }
     
+    func tapOnCrossButton() {
+        app.buttons.matching(identifier: "DismissEditSingleRowSheetButtonIdentifier").element.tap()
+    }
+    
     func selectAllNestedRows() {
         app.images.matching(identifier: "selectAllNestedRows")
             .element.tap()
@@ -879,5 +883,115 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
     }
     
+    // Test disabled buttons on row form of top level rows
+    func testSelectOneTopLevelRow() throws {
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        expandRow(number: 2)
+        selectRow(number: 1)
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        //go to next row and test
+        editSingleRowLowerButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        
+        //tap inssert below and test
+        editInsertRowPlusButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+    }
+    
+    // Test disabled buttons on Row Form for nested rows
+    func testSelectOneNestedRow() throws {
+        addThreeNestedRows(parentRowNumber: 1)
+        expandRow(number: 2)
+        
+        selectNestedRow(number: 1)
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        //go to next row and test
+        editSingleRowLowerButton().tap()
+        editSingleRowLowerButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        
+        //tap inssert below and test
+        editInsertRowPlusButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+    }
+    
     // Edit Single Nested Row
+    func testEditSingleNestedRow() throws {
+        addThreeNestedRows(parentRowNumber: 1)
+        expandRow(number: 2)
+        
+        selectNestedRow(number: 1)
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        sleep(1)
+        textField.tap()
+        sleep(1)
+        textField.typeText("Edit")
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+//        XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+//        XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        tapOnCrossButton()
+        
+        goBack()
+        sleep(2)
+        
+        // Textfield
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Hello jiEdit")
+        
+        // Dropdown Field
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")
+        
+        // Multiselect Column
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
+    }
 }
