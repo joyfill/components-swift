@@ -1703,5 +1703,59 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 1).label)
     }
+    
+    func testTextFieldAddRowWithFilters() throws {
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextField()
+        checkSearchTextFieldFilterData()
+        app.buttons["TableAddRowIdentifier"].tap()
+        
+        //there are 2 rows after filter and we add one row with filter, now there are 3 rows , and we check the third row text if its there
+        let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("app", checkDataOnAddRowWithFiltersTextField.value as! String)
+        
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(5, lastIndex)
+    }
+    
+    func testApplyFilterAndBulkEdit() throws {
+        //SEE wheather the bulk edit applied or not in filtered rows
+        navigateToTableViewOnSecondPage()
+        tapOnTextFieldColumn()
+        tapOnSearchBarTextField()
+        checkSearchTextFieldFilterData()
+        tapOnMoreButton()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        sleep(1)
+        textField.tap()
+        sleep(1)
+        textField.typeText("app")
+        
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        sleep(1)
+        
+        let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("app", checkDataOnAddRowWithFiltersTextField.value as! String)
+        
+        let checkDataOnAddRowWithFiltersTextField2 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("app", checkDataOnAddRowWithFiltersTextField2.value as! String)
+        
+        let checkDataOnAddRowWithFiltersDropdown = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Yes", checkDataOnAddRowWithFiltersDropdown.label)
+    }
 }
 
