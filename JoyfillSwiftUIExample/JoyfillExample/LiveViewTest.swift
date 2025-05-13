@@ -91,9 +91,9 @@ struct BasicFormulaTest: View {
             .addFormula(id: "f3", formula: "{num4} + 1")
             .addFormula(id: "f4", formula: "{num5} + 1")
             .addFormula(id: "f5", formula: "{num6} + 1")
-            .addFormula(id: "f6", formula: "{num1} + 1")
+            .addFormula(id: "f6", formula: "{num7} + 1")
 
-            .addNumberField(identifier: "num1", formulaRef: "f1", formulaKey: "hidden")
+            .addNumberField(identifier: "num1", formulaRef: "f1", formulaKey: "value")
             .addNumberField(identifier: "num2", formulaRef: "f2", formulaKey: "value")
             .addNumberField(identifier: "num3", formulaRef: "f3", formulaKey: "value")
             .addNumberField(identifier: "num4", formulaRef: "f4", formulaKey: "value")
