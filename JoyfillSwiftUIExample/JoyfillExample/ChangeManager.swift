@@ -16,7 +16,10 @@ class ChangeManager {
     }
 
     func saveJoyDoc(document: JoyDoc) {
-        apiService.updateDocument(identifier: document.identifier!, document: document) { result in
+        guard let identifier = document.identifier else {
+            return
+        }
+        apiService.updateDocument(identifier: identifier, document: document) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(_):
