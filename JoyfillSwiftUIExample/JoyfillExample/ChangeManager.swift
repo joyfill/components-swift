@@ -44,9 +44,19 @@ class ChangeManager {
 
 extension ChangeManager: FormChangeEvent {
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!.fieldId)
+        if let firstChange = changes.first {
+            print(">>>>>>>>onChange", firstChange.fieldId ?? "")
+        } else {
+            print(">>>>>>>>onChange: no changes")
+        }
+        
         let changeLogs = ["changelogs": changes.map { $0.dictionary }]
-        updateDocument(identifier: document.identifier!, changeLogs: changeLogs)
+        
+        if let identifier = document.identifier {
+            updateDocument(identifier: identifier, changeLogs: changeLogs)
+        } else {
+            print(">>>>>>>>onChange: document has no identifier")
+        }
     }
 
     func onFocus(event: FieldIdentifier) {
