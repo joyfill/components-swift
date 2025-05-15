@@ -430,7 +430,7 @@ extension JoyDoc {
                       formulaRef: String? = nil,
                       formulaKey: String = "value",
                       id: String = UUID().uuidString,
-                      value: String = "",
+                      value: [String] = [""],
                       options: [String] = [],
                       multiselect: Bool = false,
                       label: String? = nil) -> JoyDoc {
@@ -443,7 +443,7 @@ extension JoyDoc {
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
                           id: id,
-                          value: .array(selectedValues),
+                          value: .array(value),
                           label: label)
         } else {
             doc = addField(type: .dropdown,
@@ -451,7 +451,7 @@ extension JoyDoc {
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
                           id: id,
-                          value: .string(value),
+                           value: .string(value.first!),
                           label: label)
         }
         
