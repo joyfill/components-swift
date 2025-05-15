@@ -32,7 +32,11 @@ class TestChangeManager: FormChangeEvent {
     let imagePicker = ImagePicker()
 
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!.fieldId)
+        if let firstChange = changes.first {
+            print(">>>>>>>>onChange", firstChange.fieldId ?? "")
+        } else {
+            print(">>>>>>>>onChange: no changes")
+        }
     }
 
     func onFocus(event: FieldIdentifier) {

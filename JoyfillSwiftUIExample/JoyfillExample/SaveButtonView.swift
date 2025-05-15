@@ -19,7 +19,7 @@ struct SaveButtonView: View {
                 let result = documentEditor.validate()
                 print("Document status:", result.status)
                 for fieldResult in result.fieldValidations {
-                    print("Field status:", fieldResult.field.id!, ":", fieldResult.status)
+                    print("Field status:", fieldResult.field.id ?? "No field id", ":", fieldResult.status)
                 }
             }) {
                 Text("Save")

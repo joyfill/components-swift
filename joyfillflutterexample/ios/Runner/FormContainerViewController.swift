@@ -59,7 +59,11 @@ class FormContainerViewController: UIViewController {
 
 class ChangeHandler: FormChangeEvent {
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!.fieldId)
+        if let firstChange = changes.first {
+            print(">>>>>>>>onChange", firstChange.fieldId ?? "")
+        } else {
+            print(">>>>>>>>onChange: no changes")
+        }
     }
 
     func onFocus(event: FieldIdentifier) {
@@ -71,7 +75,7 @@ class ChangeHandler: FormChangeEvent {
     }
 
     func onUpload(event: UploadEvent) {
-        print(">>>>>>>>onUpload", event.fieldEvent.fieldID!)
+        print(">>>>>>>>onUpload", event.fieldEvent.fieldID)
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
 }
