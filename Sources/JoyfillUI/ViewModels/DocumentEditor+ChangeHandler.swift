@@ -20,7 +20,10 @@ extension DocumentEditor {
         }
         
         let fieldId = fieldIdentifier.fieldID
-        var field = fieldMap[fieldId]!
+        guard let field = fieldMap[fieldId] else {
+            Log("Field not found: \(fieldId)", type: .error)
+            return
+        }
         var lastRowOrder = field.rowOrder ?? []
         guard var elements = field.valueToValueElements else { 
             Log("No elements found for field: \(fieldId)", type: .error)
@@ -283,7 +286,10 @@ extension DocumentEditor {
     public func onChange(fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-        let currentField = field(fieldID: fieldId)!
+        guard let currentField = field(fieldID: fieldId) else {
+            Log("Could not find field with ID: \(fieldId)", type: .error)
+            return
+        }
         updateField(event: changeEvent, fieldIdentifier: fieldIdentifier)
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
     }
@@ -291,12 +297,26 @@ extension DocumentEditor {
     /// Handles changes based on a `FieldChangeData` event.
     /// - Parameter event: A `FieldChangeData` object representing the change event.
     public func onChange(event: FieldChangeData) {
-        var currentField = field(fieldID: event.fieldIdentifier.fieldID)!
-        guard currentField.value != event.updateValue || event.chartData != nil else { return }
-        guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else { return }
+        guard var currentField = field(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Could not find field with ID: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        guard currentField.value != event.updateValue || event.chartData != nil else {
+            Log("Either no change or same value was received", type: .info)
+            return
+        }
+        guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else {
+            Log("Either no change or same value was received", type: .info)
+            return
+        }
         updateField(event: event, fieldIdentifier: event.fieldIdentifier)
-        currentField = field(fieldID: event.fieldIdentifier.fieldID)!
-        handleFieldsOnChange(event: event, currentField: currentField)
+        if let field = field(fieldID: event.fieldIdentifier.fieldID) {
+            currentField = field
+            handleFieldsOnChange(event: event, currentField: currentField)
+        } else {
+            Log("Could not find field with ID: \(event.fieldIdentifier.fieldID)", type: .error)
+        }
+        
     }
 
     func onFocus(event: FieldIdentifier) {
@@ -539,12 +559,21 @@ extension DocumentEditor {
         case "chart":
             return chartChanges(fieldData: fieldData)
         default:
-            return ["value": fieldData.value!.dictionary]
+            guard let value = fieldData.value?.dictionary else {
+                Log("Field value dictionary is missing", type: .error)
+                return [:]
+            }
+            return ["value": value]
         }
     }
 
     private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
-        var valueDict = ["value": fieldData.value!.dictionary]
+        guard let value = fieldData.value?.dictionary else {
+            Log("Chart field value dictionary is missing", type: .error)
+            return [:]
+        }
+        
+        var valueDict = ["value": value]
         valueDict["yTitle"] = fieldData.yTitle
         valueDict["yMin"] = fieldData.yMin
         valueDict["yMax"] = fieldData.yMax
@@ -555,7 +584,12 @@ extension DocumentEditor {
     }
 
     private func addRowChanges(fieldData: JoyDocField, targetRow: TargetRowModel) -> [String: Any] {
-        let lastValueElement = fieldData.value!.valueElements?.first(where: { valueElement in
+        guard let value = fieldData.value else {
+            Log("Field value is missing", type: .error)
+            return [:]
+        }
+        
+        let lastValueElement = value.valueElements?.first(where: { valueElement in
             valueElement.id == targetRow.id
         })
         var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
