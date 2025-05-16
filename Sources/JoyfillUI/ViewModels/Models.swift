@@ -74,11 +74,13 @@ struct TableDataModel {
             }
             return false
         }
-        self.tableColumns = self.columns.compactMap(  { columnId in
-            fieldData.tableColumns?.first(where: {
-                $0.id == columnId
-            })!
-        })
+        self.tableColumns = self.columns.compactMap { columnId in
+            guard let column = fieldData.tableColumns?.first(where: { $0.id == columnId }) else {
+                Log("Column not found for ID: \(columnId)", type: .error)
+                return nil
+            }
+            return column
+        }
         setupColumns()
         filterRowsIfNeeded()
 
@@ -118,12 +120,17 @@ struct TableDataModel {
         
         for column in self.columns {
             if let fieldTableColumn = fieldData.tableColumns?.first(where: { $0.id == column }) {
+                guard let columnId = fieldTableColumn.id else {
+                    Log("Column ID is missing", type: .error)
+                    continue
+                }
+                
                 let optionsLocal = fieldTableColumn.options?.map { option in
                     OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
                 }
                 
                 let fieldTableColumnLocal = CellDataModel(
-                    id: fieldTableColumn.id!,
+                    id: columnId,
                     defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                     options: optionsLocal,
                     valueElements: fieldTableColumn.images ?? [],
@@ -138,21 +145,28 @@ struct TableDataModel {
     func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
         var cells: [CellDataModel] = []
         for columnData in tableColumns {
+            guard let columnId = columnData.id else {
+                Log("Column ID is missing in buildAllCellsForRow", type: .error)
+                continue
+            }
+            
             let optionsLocal = columnData.options?.map { option in
                 OptionLocal(id: option.id, deleted: option.deleted, value: option.value)
             }
-            let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
+            let valueUnion = row.cells?.first(where: { $0.key == columnId })?.value
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
             
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
-            let columnDataLocal = CellDataModel(id: columnData.id!,
-                                                        defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
-                                                        options: optionsLocal,
-                                                        valueElements: columnData.images ?? [],
-                                                        type: columnData.type,
-                                                        title: columnData.title,
-                                                        selectedOptionText: selectedOptionText)
-            if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
+            let columnDataLocal = CellDataModel(
+                id: columnId,
+                defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
+                options: optionsLocal,
+                valueElements: columnData.images ?? [],
+                type: columnData.type,
+                title: columnData.title,
+                selectedOptionText: selectedOptionText
+            )
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnId) {
                 cells.append(cell)
             }
         }
@@ -185,11 +199,19 @@ struct TableDataModel {
     }
 
     var lastRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.last! == rowOrder.last!
+        guard let lastSelectedRow = selectedRows.last,
+              let lastOrderRow = rowOrder.last else {
+            return false
+        }
+        return !selectedRows.isEmpty && lastSelectedRow == lastOrderRow
     }
     
     var firstRowSelected: Bool {
-        return !selectedRows.isEmpty && selectedRows.first! == rowOrder.first!
+        guard let firstSelectedRow = selectedRows.first,
+              let firstOrderRow = rowOrder.first else {
+            return false
+        }
+        return !selectedRows.isEmpty && firstSelectedRow == firstOrderRow
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
@@ -207,13 +229,6 @@ struct TableDataModel {
         dummyCell?.selectedOptionText = selectedOptionText
         return dummyCell
     }
-
-    func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
-        let rowIndex = filteredcellModels.firstIndex(where: { rowDataModel in
-            rowDataModel.rowID == row
-        })!
-        return filteredcellModels[rowIndex].cells[col].data
-    }
     
     func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
         if rowOrder.isEmpty {
@@ -225,7 +240,11 @@ struct TableDataModel {
             for option in column.options ?? []{
                 optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value))
             }
-            return CellDataModel(id: column.id!,
+            guard let columnID = column.id else {
+                Log("ColumnID not found", type: .error)
+                return nil
+            }
+            return CellDataModel(id: columnID,
                                          defaultDropdownSelectedId: column.defaultDropdownSelectedId,
                                          options: optionsLocal,
                                          valueElements: column.images ?? [],
@@ -233,7 +252,10 @@ struct TableDataModel {
                                          title: column.title,
                                          selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "")
         }
-        let rowIndex = rowOrder.firstIndex(of: row)!
+        guard let rowIndex = rowOrder.firstIndex(of: row) else {
+            Log("RowIndex not found in row order", type: .error)
+            return nil
+        }
         return cellModels[rowIndex].cells[col].data
     }
     
