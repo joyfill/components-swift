@@ -1615,10 +1615,26 @@ extension JoyDoc {
         fieldPosition.id = "6629fb3f2eff74a9ca322bb5"
         fieldPosition.type = .number
         var document = self
+        document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
+
+        return document
+    }
+
+    func setNumberPosition() -> JoyDoc {
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "6629fb3df03de10b26270ab3"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 63
+        fieldPosition.id = "6629fb3f2eff74a9ca322bb5"
+        fieldPosition.type = .number
+        var document = self
         document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
-    
+
     func setDatePosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb44c79bb16ce072d233"
@@ -2294,13 +2310,14 @@ extension JoyDoc {
         return updatedDocument
     }
     
-    func setNumberField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setNumberField(hidden: Bool = false, value: ValueUnion? = .double(98789)) -> JoyDoc {
         var field = JoyDocField()
         field.type = "number"
         field.id = "6629fb3df03de10b26270ab3"
         field.identifier = "field_6629fb3fabb87e37c9578b8b"
         field.title = "Number"
         field.description = ""
+        field.required = false
         field.value = value
         field.tipTitle = ""
         field.tipDescription = ""
