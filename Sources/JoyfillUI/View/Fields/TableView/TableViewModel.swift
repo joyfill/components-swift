@@ -40,10 +40,13 @@ class TableViewModel: ObservableObject {
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { cellDataModel in
-                    let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+                    if let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
-                    })!
-                    self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                    }) {
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                    } else {
+                        Log("Could not find column index for \(rowDataModel.id)", type: .error)
+                    }
                 }
                 rowCellModels.append(cellModel)
             }
@@ -114,7 +117,11 @@ class TableViewModel: ObservableObject {
         var rowToCellMap = [String: [CellDataModel]]()
         for row in sortedRows {
             let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
-            rowToCellMap[row.id!] = cellRowModel
+            guard let rowID = row.id else {
+                Log("Could not find row ID for row: \(row)", type: .error)
+                continue
+            }
+            rowToCellMap[rowID] = cellRowModel
         }
         return rowToCellMap
     }
@@ -145,35 +152,57 @@ class TableViewModel: ObservableObject {
     }
 
     func insertBelow() {
-        guard !tableDataModel.selectedRows.isEmpty else { return }
+        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+            Log("No selected row", type: .error)
+            return
+        }
         let cellValues = getCellValues()
-        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: tableDataModel.selectedRows[0], cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
-        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows[0])!
+        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: firstSelectedRowID, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        guard let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: firstSelectedRowID) else {
+            Log("Could not find index of last selected row", type: .error)
+            return
+        }
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
         tableDataModel.emptySelection()
     }
 
     func moveUP() {
-        guard !tableDataModel.selectedRows.isEmpty else { return }
-        tableDataModel.documentEditor?.moveRowUp(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-        moveUP(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+            Log("No selected row", type: .error)
+            return
+        }
+        tableDataModel.documentEditor?.moveRowUp(rowID: firstSelectedRowID, fieldIdentifier: tableDataModel.fieldIdentifier)
+        guard let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: firstSelectedRowID) else {
+            Log("RowID not found in rowOrder", type: .error)
+            return
+        }
+        moveUP(at: lastRowIndex, rowID: firstSelectedRowID)
     }
 
     func moveDown() {
-        guard !tableDataModel.selectedRows.isEmpty else { return }
-        tableDataModel.documentEditor?.moveRowDown(rowID: tableDataModel.selectedRows.first!, fieldIdentifier: tableDataModel.fieldIdentifier)
-        let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: tableDataModel.selectedRows.first!)!
-        moveDown(at: lastRowIndex, rowID: tableDataModel.selectedRows.first!)
+        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+            Log("No selected row", type: .error)
+            return
+        }
+        tableDataModel.documentEditor?.moveRowDown(rowID: firstSelectedRowID, fieldIdentifier: tableDataModel.fieldIdentifier)
+        guard let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: firstSelectedRowID) else {
+            Log("RowID not found in rowOrder", type: .error)
+            return
+        }
+        moveDown(at: lastRowIndex, rowID: firstSelectedRowID)
     }
     
     fileprivate func updateRow(valueElement: ValueElement, at index: Int) {
-        if tableDataModel.rowOrder.count > (index - 1) {
-            tableDataModel.rowOrder.insert(valueElement.id!, at: index)
-        } else {
-            tableDataModel.rowOrder.append(valueElement.id!)
+        guard let rowID = valueElement.id else {
+            Log("Could not get ID for update row", type: .error)
+            return
         }
-        addCellModel(rowID: valueElement.id!, index: index, valueElement: valueElement)
+        if tableDataModel.rowOrder.count > (index - 1) {
+            tableDataModel.rowOrder.insert(rowID, at: index)
+        } else {
+            tableDataModel.rowOrder.append(rowID)
+        }
+        addCellModel(rowID: rowID, index: index, valueElement: valueElement)
         tableDataModel.filterRowsIfNeeded()
     }
     
@@ -203,6 +232,9 @@ class TableViewModel: ObservableObject {
 
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) {
             updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
+        } else {
+            Log("Row data is nil", type: .error)
+            return
         }
     }
     

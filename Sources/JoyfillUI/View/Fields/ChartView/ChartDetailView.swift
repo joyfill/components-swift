@@ -224,7 +224,11 @@ struct LinesView: View {
                     Spacer()
                     
                     Button(action: {
-                        deleteLine(lineId: valueElement.id!)
+                        guard let id = valueElement.id else {
+                            Log("Missing line ID", type: .error)
+                            return
+                        }
+                        deleteLine(lineId: id)
                     }, label: {
                         HStack{
                             Text("Remove")
@@ -392,10 +396,14 @@ struct PointsView: View {
     }
 
     func updatePoint(point: Point) {
-        let index = (points?.firstIndex(where: { $0.id == point.id }))!
-        var points = points
-        points?[index] = point
-        updatePoints(points)
+        if let index = points?.firstIndex(where: { $0.id == point.id }) {
+            var points = points
+            points?[index] = point
+            updatePoints(points)
+        } else {
+            Log("Point with ID \(point.id) not found", type: .error)
+            return
+        }
     }
 
     func addNewPoint(id: String? = nil) {

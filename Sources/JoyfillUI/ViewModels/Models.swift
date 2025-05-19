@@ -300,23 +300,27 @@ struct TableDataModel {
         guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
         
         for fieldTableColumn in self.tableColumns {
-                let optionsLocal = fieldTableColumn.options?.map { option in
-                    OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
-                }
-                
-                let fieldTableColumnLocal = CellDataModel(
-                    id: fieldTableColumn.id!,
-                    defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
-                    options: optionsLocal,
-                    valueElements: fieldTableColumn.images ?? [],
-                    type: fieldTableColumn.type,
-                    title: fieldTableColumn.title,
-                    number: fieldTableColumn.number,
-                    date: fieldTableColumn.date,
-                    format: fieldTableColumn.getFormat(from: fieldPositionTableColumns),
-                    multiSelectValues: fieldTableColumn.multiSelectValues,
-                    multi: fieldTableColumn.multi)
-                columnIdToColumnMap[fieldTableColumn.id!] = fieldTableColumnLocal
+            guard let columnId = fieldTableColumn.id else {
+                Log("Column ID is missing", type: .error)
+                continue
+            }
+            let optionsLocal = fieldTableColumn.options?.map { option in
+                OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+            }
+            
+            let fieldTableColumnLocal = CellDataModel(
+                id: columnId,
+                defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
+                options: optionsLocal,
+                valueElements: fieldTableColumn.images ?? [],
+                type: fieldTableColumn.type,
+                title: fieldTableColumn.title,
+                number: fieldTableColumn.number,
+                date: fieldTableColumn.date,
+                format: fieldTableColumn.getFormat(from: fieldPositionTableColumns),
+                multiSelectValues: fieldTableColumn.multiSelectValues,
+                multi: fieldTableColumn.multi)
+            columnIdToColumnMap[columnId] = fieldTableColumnLocal
         }
     }
     
@@ -328,17 +332,21 @@ struct TableDataModel {
     func buildAllCellsForNestedRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String) -> [CellDataModel] {
         var cells: [CellDataModel] = []
         for columnData in tableColumns {
+            guard let columnID = columnData.id else {
+                Log("Column ID is missing", type: .error)
+                continue
+            }
             let optionsLocal = columnData.options?.map { option in
                 OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
             }
-            let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
+            let valueUnion = row.cells?.first(where: { $0.key == columnID })?.value
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
 //            var dateFormat: DateFormatType = .empty
 //            if columnData.type == .date {
 //                dateFormat = getDateFormatFromFieldPosition(key: schemaKey, columnID: columnData.id ?? "") ?? .empty
 //            }
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
-            let columnDataLocal = CellDataModel(id: columnData.id!,
+            let columnDataLocal = CellDataModel(id: columnID,
                                                 defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
                                                 options: optionsLocal,
                                                 valueElements: columnData.images ?? [],
@@ -350,7 +358,7 @@ struct TableDataModel {
                                                 format: DateFormatType(rawValue: columnData.format ?? ""),
                                                 multiSelectValues: columnData.multiSelectValues,
                                                 multi: columnData.multi)
-            if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
         }
@@ -360,14 +368,19 @@ struct TableDataModel {
     func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
         var cells: [CellDataModel] = []
         for columnData in tableColumns {
+            guard let columnID = columnData.id else {
+                Log("Column ID is missing in buildAllCellsForRow", type: .error)
+                continue
+            }
+            
             let optionsLocal = columnData.options?.map { option in
                 OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
             }
-            let valueUnion = row.cells?.first(where: { $0.key == columnData.id })?.value
+            let valueUnion = row.cells?.first(where: { $0.key == columnID })?.value
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
             
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
-            let columnDataLocal = CellDataModel(id: columnData.id!,
+            let columnDataLocal = CellDataModel(id: columnID,
                                                 defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
                                                 options: optionsLocal,
                                                 valueElements: columnData.images ?? [],
@@ -379,7 +392,7 @@ struct TableDataModel {
                                                 format: columnData.getFormat(from: fieldPositionTableColumns),
                                                 multiSelectValues: columnData.multiSelectValues,
                                                 multi: columnData.multi)
-            if let cell = buildCell(data: columnDataLocal, row: row, column: columnData.id!) {
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
         }
@@ -525,12 +538,12 @@ struct TableDataModel {
 
     var lastRowSelected: Bool {
         let cellModels = self.cellModels.filter({ $0.rowType.isRow })
-        return !selectedRows.isEmpty && selectedRows.last! == cellModels.last?.rowID
+        return !selectedRows.isEmpty && selectedRows.last == cellModels.last?.rowID
     }
     
     var firstRowSelected: Bool {
         let cellModels = self.cellModels.filter({ $0.rowType.isRow })
-        return !selectedRows.isEmpty && selectedRows.first! == cellModels.first?.rowID
+        return !selectedRows.isEmpty && selectedRows.first == cellModels.first?.rowID
     }
     
     var firstNestedRowSelected: Bool {
@@ -606,10 +619,6 @@ struct TableDataModel {
         cellModel.data.title  = value
         cellModels[rowIndex].cells[colIndex] = cellModel
     }
-
-    func getFieldTableColumn(rowIndex: Int, col: Int) -> CellDataModel? {
-        return cellModels[rowIndex].cells[col].data
-    }
     
     func getDummyCell(col: Int, selectedOptionText: String = "") -> CellDataModel? {
         var dummyCell = cellModels.first?.cells[col].data
@@ -630,13 +639,6 @@ struct TableDataModel {
         }
         return cell
     }
-
-    func getFieldTableColumn(row: String, col: Int) -> CellDataModel {
-        let rowIndex = filteredcellModels.firstIndex(where: { rowDataModel in
-            rowDataModel.rowID == row
-        })!
-        return filteredcellModels[rowIndex].cells[col].data
-    }
     
     func getLongestBlockText() -> String {
         filteredcellModels.flatMap { $0.cells }
@@ -655,7 +657,11 @@ struct TableDataModel {
             for option in column.options ?? []{
                 optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color))
             }
-            return CellDataModel(id: column.id!,
+            guard let columnID = column.id else {
+                Log("ColumnID not found", type: .error)
+                return nil
+            }
+            return CellDataModel(id: columnID,
                                  defaultDropdownSelectedId: column.defaultDropdownSelectedId,
                                  options: optionsLocal,
                                  valueElements: column.images ?? [],
@@ -668,7 +674,10 @@ struct TableDataModel {
                                  multiSelectValues: column.multiSelectValues,
                                  multi: column.multi)
         }
-        let rowIndex = rowOrder.firstIndex(of: row)!
+        guard let rowIndex = rowOrder.firstIndex(of: row) else {
+            Log("RowIndex not found", type: .error)
+            return nil
+        }
         let topLevelCellModelsOnly = cellModels.filter { rowDataModel in
             rowDataModel.rowType.isRow
         }
@@ -678,11 +687,6 @@ struct TableDataModel {
     
     func getColumnTitle(columnId: String) -> String {
         return columnIdToColumnMap[columnId]?.title ?? ""
-    }
-    
-    func getColumnTitleAtIndex(index: Int) -> String {
-        guard index < tableColumns.count else { return "" }
-        return columnIdToColumnMap[tableColumns[index].id!]?.title ?? ""
     }
     
     func getColumnType(columnId: String) -> ColumnTypes? {
@@ -695,7 +699,11 @@ struct TableDataModel {
     
     func getColumnIDAtIndex(index: Int) -> String? {
         guard index < tableColumns.count else { return nil }
-        return columnIdToColumnMap[tableColumns[index].id!]?.id
+        guard let id = tableColumns[index].id else {
+            Log("Could not find column ID at index \(index)")
+            return nil
+        }
+        return columnIdToColumnMap[id]?.id
     }
     
     mutating func toggleSelection(rowID: String) {
@@ -785,7 +793,10 @@ struct TableDataModel {
     func getAllNestedRowsForRow(rowID: String) -> [String] {
         var indices: [String] = []
         if let rowDataModel = getRowByID(rowID: rowID) {
-            let index = cellModels.firstIndex(of: rowDataModel)!
+            guard let index = cellModels.firstIndex(of: rowDataModel) else {
+                Log(" Could not find row \(rowID) in cellModels", type: .error)
+                return []
+            }
             
             for i in index..<cellModels.count {
                 let nextRow = cellModels[i]

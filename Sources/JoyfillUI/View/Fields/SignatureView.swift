@@ -72,7 +72,11 @@ struct SignatureView: View {
             DispatchQueue.global().async {
                 var url = ""
                 if let signatureImage = signatureImage {
-                    url = "data:image/png;base64,\(convertImageToBase64(signatureImage)!)"
+                    guard let base64EncodedString = convertImageToBase64(signatureImage) else {
+                        Log("Unable to convert image to base64", type: .error)
+                        return
+                    }
+                    url = "data:image/png;base64,\(base64EncodedString)"
                 }
                 let newSignatureImageValue = ValueUnion.string(url ?? "")
                 DispatchQueue.main.async {
@@ -97,7 +101,7 @@ struct SignatureView: View {
     }
     func convertImageToBase64(_ image: UIImage) -> String? {
         guard let imageData = image.pngData() else {
-            print("Failed to convert UIImage to Data.")
+            Log("Failed to convert UIImage to Data.", type: .error)
             return nil
         }
         return imageData.base64EncodedString()

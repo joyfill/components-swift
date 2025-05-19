@@ -49,7 +49,12 @@ class ConditionalLogicHandler {
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
-            showFieldMap[field.id!] = self.shouldShowLocal(fieldID: field.id!)
+            guard let fieldID = field.id else {
+                Log("Field ID not found", type: .error)
+                return
+            }
+            showFieldMap[fieldID] = self.shouldShowLocal(fieldID: fieldID)
+            
             if field.fieldType == .collection {
                 buildDependencyMap(field: field)
                 buildCollectionSchemaMap(field: field)
@@ -220,11 +225,19 @@ class ConditionalLogicHandler {
         let conditionModels = conditions.compactMap { condition -> ConditionModel?  in
             guard let fieldID = condition.field else { return nil }
             guard let dependentField = documentEditor.field(fieldID: fieldID) else { return nil }
+            guard let dependentFieldID = dependentField.id else {
+                Log("Could not find dependent field ID", type: .error)
+                return nil
+            }
 
-            var allDependentFields: Set<String> = fieldConditionalDependencyMap[dependentField.id!] ?? []
-            if !allDependentFields.contains(dependentField.id!) {
-                allDependentFields.insert(field.id!)
-                fieldConditionalDependencyMap[dependentField.id!] = allDependentFields
+            var allDependentFields: Set<String> = fieldConditionalDependencyMap[dependentFieldID] ?? []
+            if !allDependentFields.contains(dependentFieldID) {
+                guard let id = field.id else {
+                    Log("Could not find field ID", type: .error)
+                    return nil
+                }
+                allDependentFields.insert(id)
+                fieldConditionalDependencyMap[dependentFieldID] = allDependentFields
             }
             return ConditionModel(fieldValue: dependentField.value, fieldType: FieldTypes(dependentField.type), condition: condition.condition, value: condition.value)
         }
