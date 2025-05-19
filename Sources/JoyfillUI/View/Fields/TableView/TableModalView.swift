@@ -30,7 +30,6 @@ struct TableModalView : View {
 
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
-        UIScrollView.appearance().bounces = false
     }
     
     var body: some View {
