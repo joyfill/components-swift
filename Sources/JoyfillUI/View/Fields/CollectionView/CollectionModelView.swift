@@ -233,7 +233,7 @@ struct CollectionModalView : View {
                         }
                     }
                     .disabled(viewModel.tableDataModel.cellModels.count == 0)
-                    .accessibilityIdentifier("SelectAllRowSelectorButton")
+                    .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
             Text("#")
@@ -550,8 +550,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                         }
-                        .accessibilityIdentifier("MyButton")
-
+                        .accessibilityIdentifier("selectRowItem\(index)")
                 }
             case .header:
                 if viewModel.showRowSelector {
@@ -567,6 +566,7 @@ struct CollectionRowsHeaderView: View {
                             }
                         }
                         .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
+                        .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):
                 if viewModel.showRowSelector {
@@ -577,7 +577,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
                         }
-                        .accessibilityIdentifier("MyButton")
+                        .accessibilityIdentifier("selectNestedRowItem\(index)")
                 }
             case .tableExpander:
                 EmptyView()
