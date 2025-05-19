@@ -265,6 +265,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             }
                         })
                         .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                        .accessibilityIdentifier("UpperRowButtonIdentifier")
                         
                         Spacer()
                         
@@ -282,6 +283,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             }
                         })
                         .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                        .accessibilityIdentifier("LowerRowButtonIdentifier")
                         
                         Button(action: {
                             viewModel.insertBelowFromBulkEdit()
@@ -295,6 +297,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                     .foregroundStyle(.blue)
                             }
                         })
+                        .accessibilityIdentifier("PlusTheRowButtonIdentifier")
                         
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
@@ -310,6 +313,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                     .darkLightThemeColor()
                             }
                         })
+                        .accessibilityIdentifier("DismissEditSingleRowSheetButtonIdentifier")
                     }
                 }
                 
@@ -596,7 +600,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                            
+                            .accessibilityIdentifier("EditRowsImageFieldIdentifier")
                         case .signature:
                             let bindingCellModel = Binding<TableCellModel>(
                                 get: {
@@ -618,7 +622,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                             .cornerRadius(10)
-                            
+                            .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                         case .barcode:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
@@ -628,6 +632,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                 )
                                 .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
                         case .block:
                             if !isUsedForBulkEdit {
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled)
