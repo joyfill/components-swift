@@ -15,15 +15,24 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
         guard !rowIDs.isEmpty else {
+            Log("No rows to delete", type: .warning)
             return
         }
+        
         let fieldId = fieldIdentifier.fieldID
-        var field = fieldMap[fieldId]!
+        guard let field = fieldMap[fieldId] else {
+            Log("Field not found: \(fieldId)", type: .error)
+            return
+        }
         var lastRowOrder = field.rowOrder ?? []
-        guard var elements = field.valueToValueElements else { return }
+        guard var elements = field.valueToValueElements else { 
+            Log("No elements found for field: \(fieldId)", type: .error)
+            return 
+        }
 
         for row in rowIDs {
             guard let index = elements.firstIndex(where: { $0.id == row }) else {
+                Log("Row not found: \(row)", type: .error)
                 return
             }
             var element = elements[index]
@@ -40,9 +49,10 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> [Int: ValueElement]{
+    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> [Int: ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            Log("No elements found for field: \(fieldId)", type: .error)
             return [:]
         }
         var targetRows = [TargetRowModel]()
@@ -51,11 +61,21 @@ extension DocumentEditor {
         var changes = [Int: ValueElement]()
 
         rowIDs.forEach { rowID in
-            var element = elements.first(where: { $0.id == rowID })!
+            guard let originalElement = elements.first(where: { $0.id == rowID }) else {
+                Log("Original row not found: \(rowID)", type: .error)
+                return
+            }
+            
+            var element = originalElement
             let newRowID = generateObjectId()
             element.id = newRowID
             elements.append(element)
-            let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
+            
+            guard let lastRowIndex = lastRowOrder.firstIndex(of: rowID) else {
+                Log("Row order index not found for: \(rowID)", type: .error)
+                return
+            }
+            
             lastRowOrder.insert(newRowID, at: lastRowIndex+1)
             targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
             changes[lastRowIndex+1] = element
@@ -76,14 +96,21 @@ extension DocumentEditor {
     public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            Log("No elements found for field: \(fieldId)", type: .error)
             return
         }
+        
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
-        let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
+        guard let lastRowIndex = lastRowOrder.firstIndex(of: rowID) else {
+            Log("Row index not found: \(rowID)", type: .error)
+            return
+        }
 
         guard lastRowIndex != 0 else {
+            Log("Row already at the top, cannot move up", type: .warning)
             return
         }
+        
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
@@ -98,14 +125,21 @@ extension DocumentEditor {
     public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            Log("No elements found for field: \(fieldId)", type: .error)
             return
         }
+        
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
-        let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
+        guard let lastRowIndex = lastRowOrder.firstIndex(of: rowID) else {
+            Log("Row index not found: \(rowID)", type: .error)
+            return
+        }
 
         guard (lastRowOrder.count - 1) != lastRowIndex else {
+            Log("Row already at the bottom, cannot move down", type: .warning)
             return
         }
+        
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
@@ -138,15 +172,22 @@ extension DocumentEditor {
     public func insertBelow(selectedRowID: String, fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+            Log("No elements found for field: \(fieldId)", type: .error)
             return nil
         }
+        
         var targetRows = [TargetRowModel]()
         var lastRowOrder = fieldMap[fieldId]?.rowOrder ?? []
         
         let newRowID = generateObjectId()
         var element = ValueElement(id: newRowID)
         elements.append(element)
-        let lastRowIndex = lastRowOrder.firstIndex(of: selectedRowID)!
+        
+        guard let lastRowIndex = lastRowOrder.firstIndex(of: selectedRowID) else {
+            Log("Selected row index not found: \(selectedRowID)", type: .error)
+            return nil
+        }
+        
         lastRowOrder.insert(newRowID, at: lastRowIndex+1)
         targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
         
@@ -167,6 +208,7 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     func insertRowWithFilter(id: String, filterModels: [FilterModel], fieldIdentifier: FieldIdentifier, tableDataModel: TableDataModel) -> ValueElement? {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+            Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
             return nil
         }
 
@@ -198,6 +240,7 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func bulkEdit(changes: [String: String], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+            Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
             return
         }
         for rowId in selectedRows {
@@ -243,7 +286,10 @@ extension DocumentEditor {
     public func onChange(fieldIdentifier: FieldIdentifier) {
         let fieldId = fieldIdentifier.fieldID
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-        let currentField = field(fieldID: fieldId)!
+        guard let currentField = field(fieldID: fieldId) else {
+            Log("Could not find field with ID: \(fieldId)", type: .error)
+            return
+        }
         updateField(event: changeEvent, fieldIdentifier: fieldIdentifier)
         handleFieldsOnChange(event: changeEvent, currentField: currentField)
     }
@@ -251,12 +297,26 @@ extension DocumentEditor {
     /// Handles changes based on a `FieldChangeData` event.
     /// - Parameter event: A `FieldChangeData` object representing the change event.
     public func onChange(event: FieldChangeData) {
-        var currentField = field(fieldID: event.fieldIdentifier.fieldID)!
-        guard currentField.value != event.updateValue || event.chartData != nil else { return }
-        guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else { return }
+        guard var currentField = field(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Could not find field with ID: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        guard currentField.value != event.updateValue || event.chartData != nil else {
+            Log("Either no change or same value was received", type: .info)
+            return
+        }
+        guard !((currentField.value == nil || currentField.value!.nullOrEmpty) && (event.updateValue == nil || event.updateValue!.nullOrEmpty) && (event.chartData == nil)) else {
+            Log("Either no change or same value was received", type: .info)
+            return
+        }
         updateField(event: event, fieldIdentifier: event.fieldIdentifier)
-        currentField = field(fieldID: event.fieldIdentifier.fieldID)!
-        handleFieldsOnChange(event: event, currentField: currentField)
+        if let field = field(fieldID: event.fieldIdentifier.fieldID) {
+            currentField = field
+            handleFieldsOnChange(event: event, currentField: currentField)
+        } else {
+            Log("Could not find field with ID: \(event.fieldIdentifier.fieldID)", type: .error)
+        }
+        
     }
 
     func onFocus(event: FieldIdentifier) {
@@ -274,22 +334,56 @@ extension DocumentEditor {
 
 extension DocumentEditor {
     private func addRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {
+        guard let documentID = documentID else {
+            Log("DocumentID is missing", type: .error)
+            return
+        }
+        
+        guard let fileID = event.fieldIdentifier.fileID else {
+            Log("FileID is missing for document", type: .error)
+            return
+        }
+        
+        guard let pageID = event.fieldIdentifier.pageID else {
+            Log("PageID is missing for document", type: .error)
+            return
+        }
+        
+        guard let field = field(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Field not found: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldIdentifier = field.identifier else {
+            Log("Field identifier is missing for field: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Field position not found for field: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldPositionID = fieldPosition.id else {
+            Log("Field position ID is missing for field: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
         var changes = [Change]()
-        let field = field(fieldID: event.fieldIdentifier.fieldID)!
-        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
-                                sdk: "swift",
-                                target: "field.value.rowCreate",
-                                _id: documentID!,
-                                identifier: documentIdentifier,
-                                fileId: event.fieldIdentifier.fileID!,
-                                pageId: event.fieldIdentifier.pageID!,
-                                fieldId: event.fieldIdentifier.fieldID,
-                                fieldIdentifier: field.identifier!,
-                                fieldPositionId: fieldPosition.id!,
-                                change: addRowChanges(fieldData: field, targetRow: targetRow),
-                                createdOn: Date().timeIntervalSince1970)
+                              sdk: "swift",
+                              target: "field.value.rowCreate",
+                              _id: documentID,
+                              identifier: documentIdentifier,
+                              fileId: fileID,
+                              pageId: pageID,
+                              fieldId: event.fieldIdentifier.fieldID,
+                              fieldIdentifier: fieldIdentifier,
+                              fieldPositionId: fieldPositionID,
+                              change: addRowChanges(fieldData: field, targetRow: targetRow),
+                              createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
 
@@ -297,24 +391,58 @@ extension DocumentEditor {
     }
 
     private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String]) {
+        guard let documentID = documentID else {
+            Log("DocumentID is missing for delete operation", type: .error)
+            return
+        }
+        
+        guard let fileID = fieldIdentifier.fileID else {
+            Log("FileID is missing for delete operation", type: .error)
+            return
+        }
+        
+        guard let pageID = fieldIdentifier.pageID else {
+            Log("PageID is missing for delete operation", type: .error)
+            return
+        }
+        
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldIdentifier.fieldID]?.value)
-        let targetRowIndexes = rowIDs.map { TargetRowModel.init(id: $0, index: 0)}
+        let targetRowIndexes = rowIDs.map { TargetRowModel(id: $0, index: 0)}
         var changes = [Change]()
-        let field = field(fieldID: event.fieldIdentifier.fieldID)!
-        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        
+        guard let field = field(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Field not found for delete operation: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Field position not found for delete operation: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldIdentifier = field.identifier else {
+            Log("Field identifier is missing for delete operation", type: .error)
+            return
+        }
+        
+        guard let fieldPositionID = fieldPosition.id else {
+            Log("Field position ID is missing for delete operation", type: .error)
+            return
+        }
+        
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
-                                sdk: "swift",
-                                target: "field.value.rowDelete",
-                                _id: documentID!,
-                                identifier: documentIdentifier,
-                                fileId: event.fieldIdentifier.fileID!,
-                                pageId: event.fieldIdentifier.pageID!,
-                                fieldId: event.fieldIdentifier.fieldID,
-                                fieldIdentifier: field.identifier!,
-                                fieldPositionId: fieldPosition.id!,
-                                change: ["rowId": targetRow.id],
-                                createdOn: Date().timeIntervalSince1970)
+                              sdk: "swift",
+                              target: "field.value.rowDelete",
+                              _id: documentID,
+                              identifier: documentIdentifier,
+                              fileId: fileID,
+                              pageId: pageID,
+                              fieldId: event.fieldIdentifier.fieldID,
+                              fieldIdentifier: fieldIdentifier,
+                              fieldPositionId: fieldPositionID,
+                              change: ["rowId": targetRow.id],
+                              createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
@@ -322,44 +450,107 @@ extension DocumentEditor {
     }
 
     private func moveRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {
+        guard let documentID = documentID else {
+            Log("DocumentID is missing for move operation", type: .error)
+            return
+        }
+        
+        guard let fileID = event.fieldIdentifier.fileID else {
+            Log("FileID is missing for move operation", type: .error)
+            return
+        }
+        
+        guard let pageID = event.fieldIdentifier.pageID else {
+            Log("PageID is missing for move operation", type: .error)
+            return
+        }
+        
+        guard let field = field(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Field not found for move operation: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Field position not found for move operation: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldIdentifier = field.identifier else {
+            Log("Field identifier is missing for move operation", type: .error)
+            return
+        }
+        
+        guard let fieldPositionID = fieldPosition.id else {
+            Log("Field position ID is missing for move operation", type: .error)
+            return
+        }
+        
         var changes = [Change]()
-        let field = field(fieldID: event.fieldIdentifier.fieldID)!
-        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        
         for targetRow in targetRowIndexes {
             var change = Change(v: 1,
-                                sdk: "swift",
-                                target: "field.value.rowMove",
-                                _id: documentID!,
-                                identifier: documentIdentifier,
-                                fileId: event.fieldIdentifier.fileID!,
-                                pageId: event.fieldIdentifier.pageID!,
-                                fieldId: event.fieldIdentifier.fieldID,
-                                fieldIdentifier: field.identifier!,
-                                fieldPositionId: fieldPosition.id!,
-                                change: [
-                                    "rowId": targetRow.id,
-                                    "targetRowIndex": targetRow.index,
-                                ],
-                                createdOn: Date().timeIntervalSince1970)
+                              sdk: "swift",
+                              target: "field.value.rowMove",
+                              _id: documentID,
+                              identifier: documentIdentifier,
+                              fileId: fileID,
+                              pageId: pageID,
+                              fieldId: event.fieldIdentifier.fieldID,
+                              fieldIdentifier: fieldIdentifier,
+                              fieldPositionId: fieldPositionID,
+                              change: [
+                                "rowId": targetRow.id,
+                                "targetRowIndex": targetRow.index,
+                              ],
+                              createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
     }
 
     private func handleFieldsOnChange(event: FieldChangeData, currentField: JoyDocField) {
-        let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID)!
+        guard let documentID = documentID else {
+            Log("DocumentID is missing for field update", type: .error)
+            return
+        }
+        
+        guard let fileID = event.fieldIdentifier.fileID else {
+            Log("FileID is missing for field update", type: .error)
+            return
+        }
+        
+        guard let pageID = event.fieldIdentifier.pageID else {
+            Log("PageID is missing for field update", type: .error)
+            return
+        }
+        
+        guard let fieldIdentifier = currentField.identifier else {
+            Log("Field identifier is missing for field update", type: .error)
+            return
+        }
+        
+        guard let fieldPosition = fieldPosition(fieldID: event.fieldIdentifier.fieldID) else {
+            Log("Field position not found for field update: \(event.fieldIdentifier.fieldID)", type: .error)
+            return
+        }
+        
+        guard let fieldPositionID = fieldPosition.id else {
+            Log("Field position ID is missing for field update", type: .error)
+            return
+        }
+        
         var change = Change(v: 1,
-                            sdk: "swift",
-                            target: "field.update",
-                            _id: documentID!,
-                            identifier: documentIdentifier,
-                            fileId: event.fieldIdentifier.fileID!,
-                            pageId: event.fieldIdentifier.pageID!,
-                            fieldId: event.fieldIdentifier.fieldID,
-                            fieldIdentifier: currentField.identifier!,
-                            fieldPositionId: fieldPosition.id!,
-                            change: changes(fieldData: currentField),
-                            createdOn: Date().timeIntervalSince1970)
+                          sdk: "swift",
+                          target: "field.update",
+                          _id: documentID,
+                          identifier: documentIdentifier,
+                          fileId: fileID,
+                          pageId: pageID,
+                          fieldId: event.fieldIdentifier.fieldID,
+                          fieldIdentifier: fieldIdentifier,
+                          fieldPositionId: fieldPositionID,
+                          change: changes(fieldData: currentField),
+                          createdOn: Date().timeIntervalSince1970)
         events?.onChange(changes: [change], document: document)
     }
 
@@ -368,12 +559,21 @@ extension DocumentEditor {
         case "chart":
             return chartChanges(fieldData: fieldData)
         default:
-            return ["value": fieldData.value!.dictionary]
+            guard let value = fieldData.value?.dictionary else {
+                Log("Field value dictionary is missing", type: .error)
+                return [:]
+            }
+            return ["value": value]
         }
     }
 
     private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
-        var valueDict = ["value": fieldData.value!.dictionary]
+        guard let value = fieldData.value?.dictionary else {
+            Log("Chart field value dictionary is missing", type: .error)
+            return [:]
+        }
+        
+        var valueDict = ["value": value]
         valueDict["yTitle"] = fieldData.yTitle
         valueDict["yMin"] = fieldData.yMin
         valueDict["yMax"] = fieldData.yMax
@@ -384,7 +584,12 @@ extension DocumentEditor {
     }
 
     private func addRowChanges(fieldData: JoyDocField, targetRow: TargetRowModel) -> [String: Any] {
-        let lastValueElement = fieldData.value!.valueElements?.first(where: { valueElement in
+        guard let value = fieldData.value else {
+            Log("Field value is missing", type: .error)
+            return [:]
+        }
+        
+        let lastValueElement = value.valueElements?.first(where: { valueElement in
             valueElement.id == targetRow.id
         })
         var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
@@ -405,14 +610,22 @@ extension DocumentEditor {
     
     func onChangeDuplicatePage(view: ModelView? = nil,viewId: String, page: Page, fields: [JoyDocField], fileId: String, targetIndex: Int, newFields: [JoyDocField], viewPage: Page? = nil) {
         var newFieldsArray: [Change] = []
+        guard let documentID = documentID else {
+            Log("DocumentID is missing for duplicate page on change", type: .error)
+            return
+        }
+        guard let documentIdentifier = documentIdentifier else {
+            Log("DocumentIdentifier is missing for duplicate page on change", type: .error)
+            return
+        }
         
         if newFields.count > 0 {
             for field in newFields {
                 newFieldsArray.append(
                     Change(v: 1,
                            sdk: "swift",
-                           id: documentID!,
-                           identifier: documentIdentifier!,
+                           id: documentID,
+                           identifier: documentIdentifier,
                            target: "field.create",
                            fileId: fileId,
                            change: field.dictionary,
@@ -422,16 +635,20 @@ extension DocumentEditor {
         }
         
         if !viewId.isEmpty {
+            guard let viewPage = viewPage else {
+                Log(" viewPage is missing for duplicate page on change", type: .error)
+                return
+            }
             newFieldsArray.append(Change(v: 1,
                                          sdk: "swift",
-                                         id: documentID!,
-                                         identifier: documentIdentifier!,
+                                         id: documentID,
+                                         identifier: documentIdentifier,
                                          target: "page.create",
                                          fileId: fileId,
                                          viewType: "mobile",
                                          viewId: viewId,
                                          change: [
-                                            "page": viewPage!.dictionary,
+                                            "page": viewPage.dictionary,
                                             "targetIndex": targetIndex
                                          ],
                                          createdOn: Date().timeIntervalSince1970)
@@ -439,8 +656,8 @@ extension DocumentEditor {
         }
         newFieldsArray.append(Change(v: 1,
                                      sdk: "swift",
-                                     id: documentID!,
-                                     identifier: documentIdentifier!,
+                                     id: documentID,
+                                     identifier: documentIdentifier,
                                      target: "page.create",
                                      fileId: fileId,
                                      change: [
