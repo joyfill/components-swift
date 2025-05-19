@@ -56,7 +56,6 @@ struct CollectionModalView : View {
 
     init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
-        UIScrollView.appearance().bounces = false
         longestBlockText = viewModel.tableDataModel.getLongestBlockText()
     }
 
