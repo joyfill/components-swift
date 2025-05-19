@@ -635,6 +635,10 @@ extension DocumentEditor {
         }
         
         if !viewId.isEmpty {
+            guard let viewPage = viewPage else {
+                Log(" viewPage is missing for duplicate page on change", type: .error)
+                return
+            }
             newFieldsArray.append(Change(v: 1,
                                          sdk: "swift",
                                          id: documentID,
@@ -644,7 +648,7 @@ extension DocumentEditor {
                                          viewType: "mobile",
                                          viewId: viewId,
                                          change: [
-                                            "page": viewPage!.dictionary,
+                                            "page": viewPage.dictionary,
                                             "targetIndex": targetIndex
                                          ],
                                          createdOn: Date().timeIntervalSince1970)
