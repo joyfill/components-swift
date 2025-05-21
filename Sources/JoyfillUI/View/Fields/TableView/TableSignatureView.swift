@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TableSignatureView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Binding var cellModel: TableCellModel
     @State var isEditable: Bool = false
     @State private var lines: [Line] = []
@@ -22,7 +23,7 @@ struct TableSignatureView: View {
             showCanvasSignatureView = true
         }, label: {
             Image(systemName: "signature")
-                .foregroundColor((title.isEmpty || title == nil) ? .gray : .black)
+                .foregroundColor((title.isEmpty || title == nil) ? .gray : colorScheme == .dark ? .white : .black)
         })
         .accessibilityIdentifier("TableSignatureOpenSheetButton")
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
