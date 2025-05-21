@@ -27,7 +27,7 @@ class TableViewModel: ObservableObject {
         self.tableDataModel.filterRowsIfNeeded()
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
-            .map { $0.id! }
+            .compactMap { $0.id }
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
