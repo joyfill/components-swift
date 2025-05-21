@@ -604,13 +604,13 @@ extension DocumentEditor {
         }
         document.files = files
         updateFieldMap()
+        updateFieldPositionMap()
         updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
         if let views = document.files.first?.views, !views.isEmpty {
             if let page = views.first?.pages?.first(where: { $0.id == newPageID }) {
                 updatePageFieldModels(page, newPageID, firstFile.id ?? "")
             }
         }
-        updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         
         if let views = document.files.first?.views, !views.isEmpty {
