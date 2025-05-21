@@ -369,7 +369,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                 ForEach(Array(tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
-                        let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row)!
+                        if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
                         var cellModel = TableCellModel(rowID: row,
                                                        data: cell,
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
@@ -648,6 +648,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             Text("")
                         }
                     }
+                }
                 }
                 Spacer()
             }

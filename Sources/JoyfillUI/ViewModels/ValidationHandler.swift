@@ -32,15 +32,19 @@ class ValidationHandler {
                 fieldValidities.append(FieldValidity(field: field, status: .valid))
                 continue
             }
+            guard let fieldID = field.id else {
+                Log("Missing field ID", type: .error)
+                continue
+            }
             
             if field.fieldType == .table {
-                let tableFieldValidity = validateTableField(id: field.id!)
+                let tableFieldValidity = validateTableField(id: fieldID)
                 if tableFieldValidity.status == .invalid {
                     isValid = false
                 }
                 fieldValidities.append(tableFieldValidity)
             } else if field.fieldType == .collection {
-                let collectionFieldValidity = validateCollectionField(id: field.id!)
+                let collectionFieldValidity = validateCollectionField(id: fieldID)
                 if collectionFieldValidity.status == .invalid {
                     isValid = false
                 }

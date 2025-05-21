@@ -346,6 +346,7 @@ final class JoyfillTests: XCTestCase {
             .setPageField()
             .setPageField()
             .setPageField()
+            .setPageField()
             .assertPageField()
     }
     

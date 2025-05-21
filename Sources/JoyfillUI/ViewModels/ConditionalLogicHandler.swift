@@ -89,7 +89,11 @@ class ConditionalLogicHandler {
         let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
         let showSchemaMap = buildSchemaMap(valueElements: field.valueToValueElements ?? [], schema: schema, key: rootSchemaKey)
         let collectionSchemaLogic = CollectionSchemaLogic(showSchemaMap: showSchemaMap)
-        showCollectionSchemaMap[field.id!] = collectionSchemaLogic
+        guard let fieldID = field.id else {
+            Log("Field ID not found", type: .error)
+            return
+        }
+        showCollectionSchemaMap[fieldID] = collectionSchemaLogic
     }
     
     func buildSchemaMap(valueElements: [ValueElement], schema: [String: Schema], key: String) -> [RowSchemaID: Bool] {
