@@ -164,12 +164,19 @@ struct TableDataModel {
         rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
     }
 
-    init(fieldHeaderModel: FieldHeaderModel?,
+    init?(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
          documentEditor: DocumentEditor,
          fieldIdentifier: FieldIdentifier) {
-        let fieldData = documentEditor.field(fieldID: fieldIdentifier.fieldID)!
-        let fieldPosition = documentEditor.fieldPosition(fieldID: fieldIdentifier.fieldID)!
+        guard let fieldData = documentEditor.field(fieldID: fieldIdentifier.fieldID) else {
+            Log("Missing field data for fieldID: \(fieldIdentifier.fieldID)", type: .error)
+            return nil
+        }
+        
+        guard let fieldPosition = documentEditor.fieldPosition(fieldID: fieldIdentifier.fieldID) else {
+            Log("Missing field position for fieldID: \(fieldIdentifier.fieldID)", type: .error)
+            return nil
+        }
         self.fieldHeaderModel = fieldHeaderModel
         self.mode = mode
         self.documentEditor = documentEditor
