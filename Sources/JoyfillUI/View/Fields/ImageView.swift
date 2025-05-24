@@ -13,7 +13,7 @@ struct ImageView: View {
     @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State var showToast: Bool = false
     @State var isMultiEnabled: Bool
-    @State var images: [UIImage] = []
+    @State var images: [(UIImage, Bool)] = []
     
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -46,10 +46,23 @@ struct ImageView: View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         .frame(height: 250)
                         .overlay(content: {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFit()
-                                .cornerRadius(10)
+                            if uiImage.size == .zero {
+                                VStack(spacing: 12) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 40, height: 40)
+                                        .foregroundColor(.red)
+                                    Text("Failed to load image")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.gray.opacity(0.8))
+                                }
+                            } else {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(10)
+                            }
                         })
                     VStack {
                         Spacer()
@@ -146,9 +159,15 @@ struct ImageView: View {
             showProgressView = true
             imageViewModel.loadSingleURL(imageURL: valueElement.url ?? "", completion: { image in
                 showProgressView = false
-                guard let image = image else { return }
-                self.uiImagesArray.append(image)
-                self.imageDictionary[valueElement] = image
+                if let image = image {
+                    self.uiImagesArray.append(image)
+                    self.imageDictionary[valueElement] = image
+                } else {
+                    // Create an empty UIImage as placeholder
+                    let placeholderImage = UIImage()
+                    self.uiImagesArray.append(placeholderImage)
+                    self.imageDictionary[valueElement] = placeholderImage
+                }
             })
         }
     }
@@ -158,27 +177,28 @@ struct ImageView: View {
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
-                    guard let image = image else {
-                        showProgressView = false
-                        return
-                    }
+                    showProgressView = false
+                    
+                    let valueElement = valueElements.first { valueElement in
+                        valueElement.url == imageURL
+                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                     
                     if isMultiEnabled == false ?? true {
                         images = []
                         valueElements = []
                     }
                     
-                    let valueElement = valueElements.first { valueElement in
-                        if valueElement.url == imageURL {
-                            return true
-                        }
-                        return false
-                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-                    self.imageDictionary[valueElement] = image
-                    valueElements.append(valueElement)
-                    showProgressView = false
-                    // valueElements upade
-                    self.uiImagesArray.append(image)
+                    if let image = image {
+                        self.imageDictionary[valueElement] = image
+                        valueElements.append(valueElement)
+                        self.uiImagesArray.append(image)
+                    } else {
+                        // Create an empty UIImage as placeholder for failed uploads
+                        let placeholderImage = UIImage()
+                        self.imageDictionary[valueElement] = placeholderImage
+                        valueElements.append(valueElement)
+                        self.uiImagesArray.append(placeholderImage)
+                    }
                 })
             }
         }
@@ -188,7 +208,7 @@ struct ImageView: View {
 struct MoreImageView: View {
     @Environment(\.presentationMode) private var presentationMode
     
-    @Binding var images: [UIImage]
+    @Binding var images: [(UIImage, Bool)]
     @State var selectedImagesIndex: Set<Int> = Set()
     @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
@@ -196,6 +216,7 @@ struct MoreImageView: View {
     @State var imageDictionary: [String: (ValueElement, UIImage)] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
+    @State var imageLoadingState: Bool = false
     
     var uploadAction: () -> Void
     var isUploadHidden: Bool
@@ -253,7 +274,8 @@ struct MoreImageView: View {
     
     private func loadImages(from elements: [ValueElement]) {
         // Initialize images array with placeholders
-        images = Array(repeating: UIImage(), count: elements.count)
+        imageLoadingState = true
+        images = Array(repeating: (UIImage(), false), count: elements.count)
         
         // Process each element
         for (index, element) in elements.enumerated() {
@@ -263,7 +285,7 @@ struct MoreImageView: View {
             if let cached = imageDictionary[elementId] {
                 // Use cached image if URL matches
                 if cached.0.url == element.url {
-                    images[index] = cached.1
+                    images[index] = (cached.1, true)
                     continue
                 }
                 // URL changed, need to reload
@@ -272,15 +294,24 @@ struct MoreImageView: View {
             
             // Load new or changed image
             imageViewModel.loadSingleURL(imageURL: element.url ?? "") { image in
-                guard let image = image else { return }
-                
-                // Only update if the element still exists
-                if index < self.valueElements.count {
-                    self.imageDictionary[elementId] = (element, image)
-                    if index < self.images.count {
-                        self.images[index] = image
-                    } else {
-                        self.images.append(image)
+                DispatchQueue.main.async {
+                    // Only update if the element still exists
+                    if index < self.valueElements.count {
+                        if let image = image {
+                            self.imageDictionary[elementId] = (element, image)
+                            if index < self.images.count {
+                                self.images[index] = (image, true)
+                            } else {
+                                self.images.append((image, true))
+                            }
+                        } else {
+                            // If image failed to load, keep the zero-sized placeholder
+                            if index < self.images.count {
+                                self.images[index] = (UIImage(),true)
+                            } else {
+                                self.images.append((UIImage(), true))
+                            }
+                        }
                     }
                 }
             }
@@ -309,7 +340,7 @@ struct MoreImageView: View {
     }
 }
 struct UploadDeleteView: View {
-    @Binding var imagesArray: [UIImage]
+    @Binding var imagesArray: [(UIImage, Bool)]
     @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
     @Binding var isMultiEnabled: Bool
@@ -372,62 +403,83 @@ struct UploadDeleteView: View {
     
     func loadImagesFromURLs(imageURLs: [String]) {
         imageViewModel.loadImageFromURL(imageURLs: imageURLs) { images in
-            imagesArray.append(contentsOf: images)
+            for image in images {
+                imagesArray.append((image, true))
+            }
         }
     }
 }
 
 struct ImageGridView: View {
     var primaryDisplayOnly: Bool
-    @Binding var images: [UIImage]
+    @Binding var images: [(UIImage, Bool)]
     @Binding var selectedImagesIndex: Set<Int>
-    let screenWidth = UIScreen.main.bounds.width
-    let screenHeight = UIScreen.main.bounds.height
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                ForEach(Array(images.enumerated()), id: \.offset) { (index, image) in
-                    ZStack {
-                        // Background placeholder with loader
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.gray.opacity(0.1))
-                            .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
-                            .overlay {
-                                if image.size == .zero {
+        GeometryReader { geometry in
+            let sheetWidth = geometry.size.width
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    ForEach(Array(images.enumerated()), id: \.offset) { (index, imageTouple) in
+                        ZStack {
+                            // Background placeholder with loader
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.gray.opacity(0.1))
+                                .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
+                            VStack {
+                                if imageTouple.1 {
+                                    if imageTouple.0.size == .zero {
+                                        VStack(spacing: 8) {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 30, height: 30)
+                                                .foregroundColor(.red)
+                                            Text("Failed to load image")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.gray.opacity(0.8))
+                                        }
+                                    } else {
+                                        Image(uiImage: imageTouple.0)
+                                            .resizable()
+                                            .scaledToFit()
+//                                            .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
+                                    }
+                                } else {
                                     ProgressView()
                                 }
                             }
-
-                        // Actual image
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            }
-                            .overlay(alignment: .topTrailing) {
-                                if !primaryDisplayOnly {
-                                    Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
-                                        .padding(.top, 12)
-                                        .padding(.trailing, 12)
+                            .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
+                            // Selection overlay
+                            if !primaryDisplayOnly {
+                                VStack {
+                                    HStack {
+                                        Spacer()
+                                        Image(systemName: selectedImagesIndex.contains(index) ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(selectedImagesIndex.contains(index) ? .blue : .black)
+                                            .padding(.top, 12)
+                                            .padding(.trailing, 12)
+                                    }
+                                    Spacer()
                                 }
                             }
-                    }
-                    .onTapGesture {
-                        if !primaryDisplayOnly {
-                            if selectedImagesIndex.contains(index) {
-                                selectedImagesIndex.remove(index)
-                            } else {
-                                selectedImagesIndex.insert(index)
+                        }
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        }
+                        .onTapGesture {
+                            if !primaryDisplayOnly {
+                                if selectedImagesIndex.contains(index) {
+                                    selectedImagesIndex.remove(index)
+                                } else {
+                                    selectedImagesIndex.insert(index)
+                                }
                             }
                         }
+                        .transition(.opacity)
+                        .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                     }
-                    .transition(.opacity)
-                    .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                 }
             }
         }
