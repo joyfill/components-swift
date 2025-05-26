@@ -186,14 +186,14 @@ struct ImageView: View {
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
                     showProgressView = false
                     
-                    let valueElement = valueElements.first { valueElement in
-                        valueElement.url == imageURL
-                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-                    
                     if isMultiEnabled == false ?? true {
                         images = []
                         valueElements = []
                     }
+                    
+                    let valueElement = valueElements.first { valueElement in
+                        valueElement.url == imageURL
+                    } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
                     
                     if let image = image {
                         self.imageDictionary[valueElement] = image
