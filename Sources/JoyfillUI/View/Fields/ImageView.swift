@@ -1,6 +1,13 @@
 import SwiftUI
 import JoyfillModel
 
+struct ImageState: Identifiable {
+    var id = UUID()
+    var image: UIImage? = nil
+    var isLoaded: Bool = false
+    var hasError: Bool = false
+}
+
 struct ImageView: View {
     @State var imageURL: String?
     @State private var showMoreImages: Bool = false
@@ -13,7 +20,7 @@ struct ImageView: View {
     @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State var showToast: Bool = false
     @State var isMultiEnabled: Bool
-    @State var images: [(UIImage, Bool)] = []
+    @State var images: [ImageState] = []
     
     @StateObject var imageViewModel = ImageFieldViewModel()
     
@@ -207,8 +214,8 @@ struct ImageView: View {
 }
 struct MoreImageView: View {
     @Environment(\.presentationMode) private var presentationMode
-    
-    @Binding var images: [(UIImage, Bool)]
+
+    @Binding var images: [ImageState]
     @State var selectedImagesIndex: Set<Int> = Set()
     @Binding var valueElements: [ValueElement]
     @State var isMultiEnabled: Bool
@@ -216,7 +223,6 @@ struct MoreImageView: View {
     @State var imageDictionary: [String: (ValueElement, UIImage)] = [:]
     @Binding var showToast: Bool
     @StateObject var imageViewModel = ImageFieldViewModel()
-    @State var imageLoadingState: Bool = false
     
     var uploadAction: () -> Void
     var isUploadHidden: Bool
@@ -243,7 +249,7 @@ struct MoreImageView: View {
             }
             if showProgressView {
                 ProgressView()
-            }else {
+            } else {
                 ImageGridView(primaryDisplayOnly: isUploadHidden, images: $images, selectedImagesIndex: $selectedImagesIndex)
             }
             Spacer()
@@ -271,12 +277,11 @@ struct MoreImageView: View {
             }
         })
     }
-    
+
     private func loadImages(from elements: [ValueElement]) {
         // Initialize images array with placeholders
-        imageLoadingState = true
-        images = Array(repeating: (UIImage(), false), count: elements.count)
-        
+        images = elements.map { _ in ImageState() }
+
         // Process each element
         for (index, element) in elements.enumerated() {
             guard let elementId = element.id else { continue }
@@ -285,7 +290,11 @@ struct MoreImageView: View {
             if let cached = imageDictionary[elementId] {
                 // Use cached image if URL matches
                 if cached.0.url == element.url {
-                    images[index] = (cached.1, true)
+                    if index < images.count {
+                        images[index].image = cached.1
+                        images[index].isLoaded = true
+                        images[index].hasError = (cached.1.size == .zero)
+                    }
                     continue
                 }
                 // URL changed, need to reload
@@ -296,21 +305,12 @@ struct MoreImageView: View {
             imageViewModel.loadSingleURL(imageURL: element.url ?? "") { image in
                 DispatchQueue.main.async {
                     // Only update if the element still exists
-                    if index < self.valueElements.count {
+                    if index < self.valueElements.count && index < self.images.count {
+                        self.images[index].image = image
+                        self.images[index].isLoaded = true
+                        self.images[index].hasError = (image?.size == .zero)
                         if let image = image {
                             self.imageDictionary[elementId] = (element, image)
-                            if index < self.images.count {
-                                self.images[index] = (image, true)
-                            } else {
-                                self.images.append((image, true))
-                            }
-                        } else {
-                            // If image failed to load, keep the zero-sized placeholder
-                            if index < self.images.count {
-                                self.images[index] = (UIImage(),true)
-                            } else {
-                                self.images.append((UIImage(), true))
-                            }
                         }
                     }
                 }
@@ -340,7 +340,7 @@ struct MoreImageView: View {
     }
 }
 struct UploadDeleteView: View {
-    @Binding var imagesArray: [(UIImage, Bool)]
+    @Binding var imagesArray: [ImageState]
     @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
     @Binding var isMultiEnabled: Bool
@@ -404,7 +404,7 @@ struct UploadDeleteView: View {
     func loadImagesFromURLs(imageURLs: [String]) {
         imageViewModel.loadImageFromURL(imageURLs: imageURLs) { images in
             for image in images {
-                imagesArray.append((image, true))
+                imagesArray.append(ImageState(image: image, isLoaded: true, hasError: image.size == .zero))
             }
         }
     }
@@ -412,7 +412,7 @@ struct UploadDeleteView: View {
 
 struct ImageGridView: View {
     var primaryDisplayOnly: Bool
-    @Binding var images: [(UIImage, Bool)]
+    @Binding var images: [ImageState]
     @Binding var selectedImagesIndex: Set<Int>
     
     var body: some View {
@@ -420,15 +420,18 @@ struct ImageGridView: View {
             let sheetWidth = geometry.size.width
             ScrollView {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                    ForEach(Array(images.enumerated()), id: \.offset) { (index, imageTouple) in
+                    ForEach(Array(images.enumerated()), id: \.element.id) { (index, imageState) in
                         ZStack {
-                            // Background placeholder with loader
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.gray.opacity(0.1))
                                 .frame(width: sheetWidth / 2 - 32, height: sheetWidth * 0.4)
                             VStack {
-                                if imageTouple.1 {
-                                    if imageTouple.0.size == .zero {
+                                if imageState.isLoaded {
+                                    if let uiImage = imageState.image, uiImage.size != .zero {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .scaledToFit()
+                                    } else {
                                         VStack(spacing: 8) {
                                             Image(systemName: "exclamationmark.triangle.fill")
                                                 .resizable()
@@ -439,11 +442,6 @@ struct ImageGridView: View {
                                                 .font(.system(size: 12))
                                                 .foregroundColor(.gray.opacity(0.8))
                                         }
-                                    } else {
-                                        Image(uiImage: imageTouple.0)
-                                            .resizable()
-                                            .scaledToFit()
-//                                            .frame(width: screenWidth / 2 - 32, height: screenHeight * 0.2)
                                     }
                                 } else {
                                     ProgressView()

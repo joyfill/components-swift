@@ -8,7 +8,7 @@ import JoyfillModel
      @State var showMoreImages2: Bool = false
      @State var showToast: Bool = false
      @Binding var cellModel: TableCellModel
-     @State var images: [(UIImage, Bool)] = []
+     @State var images: [ImageState] = []
 
      public init(cellModel: Binding<TableCellModel>) {
          _cellModel = cellModel
