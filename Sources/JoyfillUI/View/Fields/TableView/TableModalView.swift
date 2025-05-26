@@ -40,7 +40,6 @@ struct TableModalView : View {
 
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
-        UIScrollView.appearance().bounces = false
         longestBlockText = viewModel.tableDataModel.getLongestBlockText()
     }
     
