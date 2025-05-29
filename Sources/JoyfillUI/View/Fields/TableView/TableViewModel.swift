@@ -314,6 +314,10 @@ class TableViewModel: ObservableObject {
                     cellDataModel.multiSelectValues = change.stringArray
                 case .barcode:
                     cellDataModel.title = change.text ?? ""
+                case .image:
+                    cellDataModel.valueElements = change.valueElements ?? []
+                case .signature:
+                    cellDataModel.title = change.text ?? ""
                 default:
                     break
                 }

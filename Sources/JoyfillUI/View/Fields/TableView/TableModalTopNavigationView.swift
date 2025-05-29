@@ -350,6 +350,26 @@ struct EditMultipleRowsSheetView: View {
                                     } else {
                                         self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
                                     }
+                                case .image:
+                                    if isUsedForBulkEdit {
+                                        if cellDataModel.valueElements != [] {
+                                            self.changes[colIndex] = ValueUnion.valueElementArray(cellDataModel.valueElements)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
+                                    } else {
+                                        self.changes[colIndex] = ValueUnion.valueElementArray(cellDataModel.valueElements)
+                                    }
+                                case .signature:
+                                    if isUsedForBulkEdit {
+                                        if !cellDataModel.title.isEmpty {
+                                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
+                                    } else {
+                                        self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
+                                    }
                                 default:
                                     break
                                 }
@@ -360,7 +380,7 @@ struct EditMultipleRowsSheetView: View {
                             }
                             switch cellModel.data.type {
                             case .text:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
                                 
@@ -404,7 +424,7 @@ struct EditMultipleRowsSheetView: View {
                                     )
                                     .cornerRadius(10)
                             case .dropdown:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
                                 TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -415,7 +435,7 @@ struct EditMultipleRowsSheetView: View {
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                             case .date:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
                                 TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -427,7 +447,7 @@ struct EditMultipleRowsSheetView: View {
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                             case .number:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
                                 TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -440,7 +460,7 @@ struct EditMultipleRowsSheetView: View {
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                             case .multiSelect:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
                                 TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
@@ -452,7 +472,7 @@ struct EditMultipleRowsSheetView: View {
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                             case .barcode:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
                                 TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
@@ -463,6 +483,68 @@ struct EditMultipleRowsSheetView: View {
                                     )
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
+                            case .image:
+                                let bindingCellModel = Binding<TableCellModel>(
+                                    get: {
+                                        return cellModel
+                                    },
+                                    set: { newValue in
+                                        cellModel = newValue
+                                    }
+                                )
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
+                                    .font(.headline.bold())
+                                    .padding(.bottom, -8)
+                                HStack {
+                                    Spacer()
+                                    TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+                                        .padding(.vertical, 4)
+                                    Spacer()
+                                }
+                                .frame(minHeight: 40)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsImageFieldIdentifier")
+                            case .signature:
+                                let bindingCellModel = Binding<TableCellModel>(
+                                    get: {
+                                        return cellModel
+                                    },
+                                    set: { newValue in
+                                        cellModel = newValue
+                                    }
+                                )
+                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
+                                    .font(.headline.bold())
+                                    .padding(.bottom, -8)
+                                HStack {
+                                    Spacer()
+                                    TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+                                    Spacer()
+                                }
+                                .frame(minHeight: 40)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
+                            case .block:
+                                if !isUsedForBulkEdit {
+                                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
+                                        .font(.headline.bold())
+                                        .padding(.bottom, -8)
+                                    TableBlockView(cellModel: Binding.constant(cellModel))
+                                        .frame(minHeight: 40)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                        )
+                                        .cornerRadius(10)
+                                }
                             default:
                                 Text("")
                             }
