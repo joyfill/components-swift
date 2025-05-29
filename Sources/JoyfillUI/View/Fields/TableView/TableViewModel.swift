@@ -322,7 +322,6 @@ class TableViewModel: ObservableObject {
             }
         }
         tableDataModel.filterRowsIfNeeded()
-        tableDataModel.emptySelection()
     }
     
     func sendEventsIfNeeded() {
