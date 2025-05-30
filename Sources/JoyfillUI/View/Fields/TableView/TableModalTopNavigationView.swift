@@ -221,9 +221,10 @@ struct TableModalTopNavigationView: View {
 }
 
 struct EditMultipleRowsSheetView: View {
-    let viewModel: TableViewModel
+    @ObservedObject var viewModel: TableViewModel
     @Environment(\.presentationMode)  var presentationMode
     @State var changes = [Int: ValueUnion]()
+    @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
 
     init(viewModel: TableViewModel) {
@@ -233,6 +234,73 @@ struct EditMultipleRowsSheetView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                    if viewModel.tableDataModel.selectedRows.count == 1 {
+                        HStack(alignment: .top) {
+                            Button(action: {
+                                viewModel.selectUpperRow()
+                                changes = [:]
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "chevron.left")
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                                }
+                            })
+                            .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                            .accessibilityIdentifier("UpperRowButtonIdentifier")
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                viewModel.selectBelowRow()
+                                changes = [:]
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                                }
+                            })
+                            .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                            .accessibilityIdentifier("LowerRowButtonIdentifier")
+                            
+                            Button(action: {
+                                viewModel.insertBelowFromBulkEdit()
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(.blue, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "plus")
+                                        .foregroundStyle(.blue)
+                                }
+                            })
+                            .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            
+                            Button(action: {
+                                presentationMode.wrappedValue.dismiss()
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "xmark")
+                                        .resizable()
+                                        .frame(width: 10, height: 10)
+                                        .darkLightThemeColor()
+                                }
+                            })
+                            .accessibilityIdentifier("DismissEditSingleRowSheetButtonIdentifier")
+                        }
+                    }
                 HStack(alignment: .top) {
                     if let title = viewModel.tableDataModel.title {
                         VStack(alignment: .leading) {
@@ -282,12 +350,12 @@ struct EditMultipleRowsSheetView: View {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
                         if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
-                            var cellModel = TableCellModel(rowID: row,
-                                                           data: cell,
-                                                           documentEditor: viewModel.tableDataModel.documentEditor,
-                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                           viewMode: .modalView,
-                                                           editMode: viewModel.tableDataModel.mode)
+                        var cellModel = TableCellModel(rowID: row,
+                                                       data: cell,
+                                                       documentEditor: viewModel.tableDataModel.documentEditor,
+                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                       viewMode: .modalView,
+                                                       editMode: viewModel.tableDataModel.mode)
                             { cellDataModel in
                                 switch cell.type {
                                 case .text:
@@ -427,7 +495,7 @@ struct EditMultipleRowsSheetView: View {
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
-                                TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
                                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -438,7 +506,7 @@ struct EditMultipleRowsSheetView: View {
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
-                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 2)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
@@ -450,7 +518,7 @@ struct EditMultipleRowsSheetView: View {
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
-                                TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .keyboardType(.decimalPad)
                                     .frame(minHeight: 40)
                                     .overlay(
@@ -463,7 +531,7 @@ struct EditMultipleRowsSheetView: View {
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
-                                TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: true)
+                                TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 4)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
@@ -475,7 +543,7 @@ struct EditMultipleRowsSheetView: View {
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
-                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .frame(minHeight: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
@@ -555,5 +623,12 @@ struct EditMultipleRowsSheetView: View {
             }
             .padding(.all, 16)
         }
+        .id(viewID)
+        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
+            viewID = UUID()
+        }
+        .simultaneousGesture(DragGesture().onChanged({ _ in
+            dismissKeyboard()
+        }))
     }
 }

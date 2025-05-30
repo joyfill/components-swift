@@ -151,19 +151,58 @@ class TableViewModel: ObservableObject {
         tableDataModel.emptySelection()
     }
 
-    func insertBelow() {
+    func insertBelow() -> String? {
         guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
             Log("No selected row", type: .error)
-            return
+            return nil
         }
         let cellValues = getCellValues()
-        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: firstSelectedRowID, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        guard let targetRows = tableDataModel.documentEditor?.insertBelow(selectedRowID: firstSelectedRowID, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) else { return nil }
         guard let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: firstSelectedRowID) else {
             Log("Could not find index of last selected row", type: .error)
-            return
+            return nil
         }
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
         tableDataModel.emptySelection()
+        return targetRows.0.id
+    }
+    
+    func insertBelowFromBulkEdit() {
+        if let newRowID = insertBelow() {
+            tableDataModel.selectedRows = [newRowID]
+        }
+    }
+
+    func selectBelowRow() {
+        guard let currentRowID = tableDataModel.selectedRows.first,
+              let currentIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == currentRowID }) else {
+            return
+        }
+
+        let nextIndex = currentIndex + 1
+        guard nextIndex < tableDataModel.cellModels.count else {
+            Log("No next row to select", type: .warning)
+            return
+        }
+
+        let nextRowID = tableDataModel.cellModels[nextIndex].rowID
+        tableDataModel.selectedRows = [nextRowID]
+    }
+    
+    func selectUpperRow() {
+        guard let currentRowID = tableDataModel.selectedRows.first,
+              let currentIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == currentRowID }) else {
+            return
+        }
+
+        let prevIndex = currentIndex - 1
+        guard prevIndex >= 0 else {
+            Log("No previous row to select", type: .warning)
+            return
+        }
+
+        let prevRowID = tableDataModel.cellModels[prevIndex].rowID
+        tableDataModel.selectedRows = [prevRowID]
     }
 
     func moveUP() {
