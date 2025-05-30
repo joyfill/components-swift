@@ -21,7 +21,7 @@ struct TableModalTopNavigationView: View {
                     showingPopover = true
                 }) {
                     Text("More ^")
-                        .foregroundStyle(.selection)
+                        .foregroundStyle(.blue)
                         .font(.system(size: 14))
                         .frame(width: 80, height: 27)
                         .overlay(RoundedRectangle(cornerRadius: 6)
@@ -37,7 +37,7 @@ struct TableModalTopNavigationView: View {
                                     viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(.blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -50,7 +50,7 @@ struct TableModalTopNavigationView: View {
                                     viewModel.moveUP()
                                 }) {
                                     Text("Move Up")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -63,7 +63,7 @@ struct TableModalTopNavigationView: View {
                                     viewModel.moveDown()
                                 }) {
                                     Text("Move Down")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -78,7 +78,7 @@ struct TableModalTopNavigationView: View {
                                 onEditTap?()
                             }) {
                                 Text("Edit \(rowTitle)")
-                                    .foregroundStyle(.selection)
+                                    .foregroundStyle(.blue)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
                             }
@@ -123,7 +123,7 @@ struct TableModalTopNavigationView: View {
                                     viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(.blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -135,7 +135,7 @@ struct TableModalTopNavigationView: View {
                                     viewModel.moveUP()
                                 }) {
                                     Text("Move Up")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -148,7 +148,7 @@ struct TableModalTopNavigationView: View {
                                     viewModel.moveDown()
                                 }) {
                                     Text("Move Down")
-                                        .foregroundStyle(.selection)
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
@@ -162,7 +162,7 @@ struct TableModalTopNavigationView: View {
                                 onEditTap?()
                             }) {
                                 Text("Edit \(rowTitle)")
-                                    .foregroundStyle(.selection)
+                                    .foregroundStyle(.blue)
                                     .font(.system(size: 14))
                                     .frame(height: 27)
                             }
@@ -203,7 +203,7 @@ struct TableModalTopNavigationView: View {
                 viewModel.addRow()
             }) {
                 Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
-                    .foregroundStyle(.selection)
+                    .foregroundStyle(.blue)
                     .font(.system(size: 14))
                     .frame(height: 27)
                     .padding(.horizontal, 16)
@@ -329,21 +329,22 @@ struct EditMultipleRowsSheetView: View {
                                 )
                         })
                         .accessibilityIdentifier("ApplyAllButtonIdentifier")
+                        
+                        Button(action: {
+                            presentationMode.wrappedValue.dismiss()
+                        }, label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                    .frame(width: 27, height: 27)
+                                
+                                Image(systemName: "xmark")
+                                    .resizable()
+                                    .frame(width: 10, height: 10)
+                                    .darkLightThemeColor()
+                            }
+                        })
                     }
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                .frame(width: 27, height: 27)
-
-                            Image(systemName: "xmark")
-                                .resizable()
-                                .frame(width: 10, height: 10)
-                                .darkLightThemeColor()
-                        }
-                    })
                 }
 
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
