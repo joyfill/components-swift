@@ -359,29 +359,38 @@ struct DateFormulaTest: View {
     let documentEditor: DocumentEditor
     
     init() {
+        // Create a timestamp for testing (January 15, 2025)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let testDate = dateFormatter.date(from: "2025-01-15")!
+        let timestamp = testDate.timeIntervalSince1970 * 1000 // Convert to milliseconds
+        
         let document = JoyDoc.addDocument()
             // Current date/time
             .addFormula(id: "now1", formula: "now()")
             
+            // Create date from timestamp
+            .addFormula(id: "timestampToDate", formula: "timestamp({dateTimestamp})")
+            
             // Date components
-            .addFormula(id: "year1", formula: "year({date1})")
-            .addFormula(id: "month1", formula: "month({date1})")
-            .addFormula(id: "day1", formula: "day({date1})")
+            .addFormula(id: "year1", formula: "year(timestamp({dateTimestamp}))")
+            .addFormula(id: "month1", formula: "month(timestamp({dateTimestamp}))")
+            .addFormula(id: "day1", formula: "day(timestamp({dateTimestamp}))")
             
             // Date creation
             .addFormula(id: "date1Creation", formula: "date({year}, {month}, {day})")
             
             // Date additions
-            .addFormula(id: "dateAdd1", formula: "dateAdd({date1}, {amount}, {unit})")
-            .addFormula(id: "dateSubtract1", formula: "dateSubtract({date1}, {amount}, {unit})")
+            .addFormula(id: "dateAdd1", formula: "dateAdd(timestamp({dateTimestamp}), {amount}, {unit})")
+            .addFormula(id: "dateSubtract1", formula: "dateSubtract(timestamp({dateTimestamp}), {amount}, {unit})")
             
             // Date comparisons
             .addFormula(id: "dateEqual", formula: "if(date({year}, {month}, {day}) == date({year}, {month}, {day}), \"Dates Equal\", \"Dates Not Equal\")")
-            .addFormula(id: "dateBefore", formula: "if({date1} < now(), \"Selected date is in the past\", \"Selected date is not in the past\")")
-            .addFormula(id: "dateAfter", formula: "if({date1} > now(), \"Selected date is in the future\", \"Selected date is not in the future\")")
+            .addFormula(id: "dateBefore", formula: "if(timestamp({dateTimestamp}) < now(), \"Selected date is in the past\", \"Selected date is not in the past\")")
+            .addFormula(id: "dateAfter", formula: "if(timestamp({dateTimestamp}) > now(), \"Selected date is in the future\", \"Selected date is not in the future\")")
             
             // Input fields
-            .addDateField(identifier: "date1", value: nil, label: "Select Date")
+            .addNumberField(identifier: "dateTimestamp", value: Double(timestamp), label: "Date Timestamp (milliseconds)")
             .addNumberField(identifier: "year", value: 2025, label: "Year")
             .addNumberField(identifier: "month", value: 5, label: "Month")
             .addNumberField(identifier: "day", value: 15, label: "Day")
@@ -390,6 +399,7 @@ struct DateFormulaTest: View {
 
             // Output fields
             .addDateField(identifier: "currentDate", formulaRef: "now1", formulaKey: "value", label: "Current Date/Time")
+            .addDateField(identifier: "timestampDateResult", formulaRef: "timestampToDate", formulaKey: "value", label: "Date from Timestamp")
             .addNumberField(identifier: "yearResult", formulaRef: "year1", formulaKey: "value", label: "Year Component")
             .addNumberField(identifier: "monthResult", formulaRef: "month1", formulaKey: "value", label: "Month Component")
             .addNumberField(identifier: "dayResult", formulaRef: "day1", formulaKey: "value", label: "Day Component")
@@ -471,10 +481,11 @@ struct ComplexFormulaTest: View {
     let documentEditor: DocumentEditor
     
     init() {
-        // Create date for 2030-01-01
+        // Create timestamp for 2030-01-01
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        let futureDate = dateFormatter.date(from: "2030-01-01")
+        let futureDate = dateFormatter.date(from: "2030-01-01")!
+        let futureTimestamp = futureDate.timeIntervalSince1970 * 1000 // Convert to milliseconds
 
         let document = JoyDoc.addDocument()
             // Complex formula using multiple functions and operations
@@ -484,7 +495,7 @@ struct ComplexFormulaTest: View {
             .addFormula(id: "mathString1", formula: "concat(\"Result: \", round(pow({num1}, {num2}), 2))")
             
             // Date + math formula
-            .addFormula(id: "dateCalc1", formula: "concat(\"Days until 2030: \", round(({futureDate} - now()) / (1000 * 60 * 60 * 24)))")
+            .addFormula(id: "dateCalc1", formula: "concat(\"Days until 2030: \", round((timestamp({futureTimestamp}) - now()) / (1000 * 60 * 60 * 24)))")
             
             // Array + string + logical formula
             .addFormula(id: "arrayLogic1", formula: "if(some({options}, (item) → contains(item, \"a\")), concat(\"Contains 'a': \", filter({options}, (item) → contains(item, \"a\"))), \"No items with 'a'\")")
@@ -496,14 +507,14 @@ struct ComplexFormulaTest: View {
             .addFormula(id: "selfRef1", formula: "if({selfInput} > 100, 100, {selfInput})")
             
             // Formula with different data types
-            .addFormula(id: "mixedTypes1", formula: "concat(\"Text: \", {text1}, \", Number: \", {num1}, \", Date: \", {date1})")
+            .addFormula(id: "mixedTypes1", formula: "concat(\"Text: \", {text1}, \", Number: \", {num1}, \", Date: \", timestamp({currentTimestamp}))")
             
             // Input fields
             .addTextField(identifier: "text1", value: "Test String", label: "Text Input")
             .addNumberField(identifier: "num1", value: 5, label: "Number 1")
             .addNumberField(identifier: "num2", value: 3, label: "Number 2")
-            .addDateField(identifier: "date1", value: nil, label: "Date Input")
-            .addDateField(identifier: "futureDate", value: futureDate, label: "Future Date (fixed 2030-01-01)")
+            .addNumberField(identifier: "currentTimestamp", value: Date().timeIntervalSince1970 * 1000, label: "Current Timestamp")
+            .addNumberField(identifier: "futureTimestamp", value: futureTimestamp, label: "Future Timestamp (2030-01-01)")
             .addOptionField(identifier: "options", value: ["apple", "banana"], options: ["apple", "banana", "cherry", "date"], multiselect: true, label: "Options")
             .addNumberField(identifier: "selfInput", value: 50, label: "Self-Reference Input")
             

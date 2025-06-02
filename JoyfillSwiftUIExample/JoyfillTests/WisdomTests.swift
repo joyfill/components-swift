@@ -268,7 +268,6 @@ class WisdomTests: XCTestCase {
         // Test boolean constants
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "trueResult")?.bool, true)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "falseResult")?.bool, false)
-//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "yesResult")?.bool, true)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "noResult")?.bool, false)
         
         // Test updating values and recalculation
@@ -488,9 +487,10 @@ class WisdomTests: XCTestCase {
     // MARK: - Date Operations Tests
     
     func testDateOperations() {
-        // Create a fixed date for testing
+        // Create a fixed date for testing - use UTC to avoid timezone issues
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Use UTC
         let testDate = dateFormatter.date(from: "2025-05-15")!
         let futureDate = dateFormatter.date(from: "2030-01-01")!
         
@@ -553,18 +553,25 @@ class WisdomTests: XCTestCase {
             
         let documentEditor = DocumentEditor(document: document)
         
-        // Test date components extraction
+        // Helper function to use UTC calendar for test verification
+        func utcComponents(from timestamp: Double) -> DateComponents {
+            let date = Date(timeIntervalSince1970: timestamp / 1000)
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+            return calendar.dateComponents([.year, .month, .day], from: date)
+        }
+        
+        // Test date components extraction (now using UTC date)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "yearResult")?.number, 2025)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "monthResult")?.number, 5)
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayResult")?.number, 15)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayResult")?.number, 15) // Now correctly 15 in UTC
         
         // Test date creation
         let createdDate1Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateCreateResult1")?.number
         XCTAssertNotNil(createdDate1Timestamp)
         if let timestamp = createdDate1Timestamp {
-            // Convert timestamp (in milliseconds) to Date
-            let date = Date(timeIntervalSince1970: timestamp / 1000)
-            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            // Convert timestamp (in milliseconds) to Date and verify using UTC
+            let components = utcComponents(from: timestamp)
             XCTAssertEqual(components.year, 2026)
             XCTAssertEqual(components.month, 7)
             XCTAssertEqual(components.day, 20)
@@ -573,9 +580,8 @@ class WisdomTests: XCTestCase {
         let createdDate2Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateCreateResult2")?.number
         XCTAssertNotNil(createdDate2Timestamp)
         if let timestamp = createdDate2Timestamp {
-            // Convert timestamp (in milliseconds) to Date
-            let date = Date(timeIntervalSince1970: timestamp / 1000)
-            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            // Convert timestamp (in milliseconds) to Date and verify using UTC
+            let components = utcComponents(from: timestamp)
             XCTAssertEqual(components.year, 2025)
             XCTAssertEqual(components.month, 12)
             XCTAssertEqual(components.day, 31)
@@ -585,10 +591,8 @@ class WisdomTests: XCTestCase {
         let addedDate1Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateAddResult1")?.number
         XCTAssertNotNil(addedDate1Timestamp)
         if let timestamp = addedDate1Timestamp {
-            // Convert timestamp (in milliseconds) to Date
-            let date = Date(timeIntervalSince1970: timestamp / 1000)
             // Should be 3 days after 2025-05-15 = 2025-05-18
-            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            let components = utcComponents(from: timestamp)
             XCTAssertEqual(components.year, 2025)
             XCTAssertEqual(components.month, 5)
             XCTAssertEqual(components.day, 18)
@@ -597,10 +601,8 @@ class WisdomTests: XCTestCase {
         let addedDate2Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateAddResult2")?.number
         XCTAssertNotNil(addedDate2Timestamp)
         if let timestamp = addedDate2Timestamp {
-            // Convert timestamp (in milliseconds) to Date
-            let date = Date(timeIntervalSince1970: timestamp / 1000)
             // Should be 1 year after 2025-05-15 = 2026-05-15
-            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            let components = utcComponents(from: timestamp)
             XCTAssertEqual(components.year, 2026)
             XCTAssertEqual(components.month, 5)
             XCTAssertEqual(components.day, 15)
@@ -610,10 +612,8 @@ class WisdomTests: XCTestCase {
         let subtractedDate1Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateSubtractResult1")?.number
         XCTAssertNotNil(subtractedDate1Timestamp)
         if let timestamp = subtractedDate1Timestamp {
-            // Convert timestamp (in milliseconds) to Date
-            let date = Date(timeIntervalSince1970: timestamp / 1000)
             // Should be 3 days before 2025-05-15 = 2025-05-12
-            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            let components = utcComponents(from: timestamp)
             XCTAssertEqual(components.year, 2025)
             XCTAssertEqual(components.month, 5)
             XCTAssertEqual(components.day, 12)
@@ -622,10 +622,8 @@ class WisdomTests: XCTestCase {
         let subtractedDate2Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateSubtractResult2")?.number
         XCTAssertNotNil(subtractedDate2Timestamp)
         if let timestamp = subtractedDate2Timestamp {
-            // Convert timestamp (in milliseconds) to Date
-            let date = Date(timeIntervalSince1970: timestamp / 1000)
             // Should be 1 month before 2025-05-15 = 2025-04-15
-            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+            let components = utcComponents(from: timestamp)
             XCTAssertEqual(components.year, 2025)
             XCTAssertEqual(components.month, 4)
             XCTAssertEqual(components.day, 15)
@@ -638,16 +636,16 @@ class WisdomTests: XCTestCase {
         // Test conditional date logic
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateConditionalResult")?.text, "After 2024")
         
-        // Test date in string
+        // Test date in string (now expecting UTC values)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateInStringResult")?.text, "Year: 2025, Month: 5, Day: 15")
         
-        // Test updating date values
+        // Test updating date values with timestamp (this is in seconds, so should give the expected UTC result)
         documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "date1"), updateValue: ValueUnion.string("1678483200")))
 
-        // Check updated results
+        // Check updated results (using the corrected expectations for UTC)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "yearResult")?.number, 2023)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "monthResult")?.number, 3)
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayResult")?.number, 10)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayResult")?.number, 10) // UTC day for timestamp 1678483200
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateConditionalResult")?.text, "2024 or earlier")
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateInStringResult")?.text, "Year: 2023, Month: 3, Day: 10")
     }
@@ -833,6 +831,93 @@ class WisdomTests: XCTestCase {
         // Update search term
         documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "searchTerm"), updateValue: ValueUnion.string("e")))
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "countIf2Result")?.number, 2) // "e" appears in apple, orange
+    }
+
+    // MARK: - Remaining Features Tests
+    
+    func testRemainingFeatures() {
+        let document = JoyDoc.addDocument()
+            // Self/Current references
+            .addFormula(id: "selfRef", formula: "self * 2")
+            .addFormula(id: "currentRef", formula: "current + 10")
+            .addFormula(id: "thisRef", formula: "this > 50")
+            
+            // Object property references
+            .addFormula(id: "objectProp", formula: "{user.name}")
+            .addFormula(id: "nestedObjectProp", formula: "{user.address.city}")
+            
+            // Array index references
+            .addFormula(id: "arrayIndex", formula: "{fruits[0]}")
+            .addFormula(id: "nestedArrayIndex", formula: "{matrix[1][2]}")
+            .addFormula(id: "dynamicArrayIndex", formula: "{fruits[{selectedIndex}]}")
+            
+            // toNumber function
+            .addFormula(id: "toNumber1", formula: "toNumber(\"100\")")
+            .addFormula(id: "toNumber2", formula: "toNumber(\"100.25\")")
+            .addFormula(id: "toNumber3", formula: "toNumber(\"-50\")")
+            .addFormula(id: "toNumber4", formula: "toNumber(\"invalid\")")
+            .addFormula(id: "toNumberWithSpace", formula: "toNumber(\"  42  \")")
+            .addFormula(id: "toNumberCalculation", formula: "toNumber({stringNumber}) * 2")
+            
+            // Input fields
+            .addNumberField(identifier: "selfValue", value: 25, label: "Self Value")
+            .addNumberField(identifier: "currentValue", value: 15, label: "Current Value")
+            .addNumberField(identifier: "thisValue", value: 75, label: "This Value")
+            .addTextField(identifier: "user", value: "{\"name\":\"John Doe\",\"address\":{\"city\":\"San Francisco\",\"zip\":\"94103\"}}", label: "User Object")
+            .addTextField(identifier: "fruits", value: "[\"apple\",\"banana\",\"orange\",\"grape\"]", label: "Fruits Array")
+            .addTextField(identifier: "matrix", value: "[[1,2,3],[4,5,6],[7,8,9]]", label: "Matrix")
+            .addNumberField(identifier: "selectedIndex", value: 2, label: "Selected Index")
+            .addTextField(identifier: "stringNumber", value: "42", label: "String Number")
+            
+            // Output fields
+            .addNumberField(identifier: "selfRefResult", formulaRef: "selfRef", formulaKey: "value", label: "Self Reference Result")
+            .addNumberField(identifier: "currentRefResult", formulaRef: "currentRef", formulaKey: "value", label: "Current Reference Result")
+            .addCheckboxField(identifier: "thisRefResult", formulaRef: "thisRef", formulaKey: "value", label: "This Reference Result")
+            .addTextField(identifier: "objectPropResult", formulaRef: "objectProp", formulaKey: "value", label: "Object Property Result")
+            .addTextField(identifier: "nestedObjectPropResult", formulaRef: "nestedObjectProp", formulaKey: "value", label: "Nested Object Property Result")
+            .addTextField(identifier: "arrayIndexResult", formulaRef: "arrayIndex", formulaKey: "value", label: "Array Index Result")
+            .addNumberField(identifier: "nestedArrayIndexResult", formulaRef: "nestedArrayIndex", formulaKey: "value", label: "Nested Array Index Result")
+            .addTextField(identifier: "dynamicArrayIndexResult", formulaRef: "dynamicArrayIndex", formulaKey: "value", label: "Dynamic Array Index Result")
+            .addNumberField(identifier: "toNumber1Result", formulaRef: "toNumber1", formulaKey: "value", label: "toNumber(\"100\") Result")
+            .addNumberField(identifier: "toNumber2Result", formulaRef: "toNumber2", formulaKey: "value", label: "toNumber(\"100.25\") Result")
+            .addNumberField(identifier: "toNumber3Result", formulaRef: "toNumber3", formulaKey: "value", label: "toNumber(\"-50\") Result")
+            .addNumberField(identifier: "toNumber4Result", formulaRef: "toNumber4", formulaKey: "value", label: "toNumber(\"invalid\") Result")
+            .addNumberField(identifier: "toNumberWithSpaceResult", formulaRef: "toNumberWithSpace", formulaKey: "value", label: "toNumber with spaces Result")
+            .addNumberField(identifier: "toNumberCalculationResult", formulaRef: "toNumberCalculation", formulaKey: "value", label: "toNumber Calculation Result")
+            
+        let documentEditor = DocumentEditor(document: document)
+        
+        // Test self/current references
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "selfRefResult")?.number, 50) // 25 * 2
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "currentRefResult")?.number, 25) // 15 + 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "thisRefResult")?.bool, true) // 75 > 50
+        
+        // Test object property references
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "objectPropResult")?.text, "John Doe")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nestedObjectPropResult")?.text, "San Francisco")
+        
+        // Test array index references
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "arrayIndexResult")?.text, "apple")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nestedArrayIndexResult")?.number, 6) // matrix[1][2] = 6
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dynamicArrayIndexResult")?.text, "orange") // fruits[2] = orange
+        
+        // Test toNumber function
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumber1Result")?.number, 100)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumber2Result")?.number, 100.25)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumber3Result")?.number, -50)
+        // Invalid conversion should return NaN or null, but we can't easily test for NaN
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumberWithSpaceResult")?.number, 42) // Should handle whitespace
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumberCalculationResult")?.number, 84) // 42 * 2
+        
+        // Test updates
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "selfValue"), updateValue: ValueUnion.int(50)))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "selfRefResult")?.number, 100) // 50 * 2
+        
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "selectedIndex"), updateValue: ValueUnion.int(1)))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dynamicArrayIndexResult")?.text, "banana") // fruits[1] = banana
+        
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "stringNumber"), updateValue: ValueUnion.string("100")))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumberCalculationResult")?.number, 200) // 100 * 2
     }
 }
 
