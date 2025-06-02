@@ -165,9 +165,10 @@ struct UserJsonTextFieldView: View {
     @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
     @State var scanResults: String = ""
     @State private var isFetching: Bool = false
+    let imagePicker = ImagePicker()
     
     private var changeManager: ChangeManager {
-        ChangeManager(apiService: APIService(accessToken: "", baseURL: ""), showImagePicker: showImagePicker, showScan: showScan)
+        ChangeManager(apiService: APIService(accessToken: "", baseURL: ""), showImagePicker: imagePicker.showPickerOptions, showScan: showScan)
     }
     
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
