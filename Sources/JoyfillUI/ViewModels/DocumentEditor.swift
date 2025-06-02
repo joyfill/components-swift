@@ -9,6 +9,10 @@ import Foundation
 import JoyfillModel
 
 public class DocumentEditor: ObservableObject, JoyDocProvider {
+    public func currentFieldIdentifier() -> String? {
+        "asdas"
+    }
+    
     public func setFieldHidden(_ hidden: Bool, for identifier: String) {
         print("setFieldHidden >>>>>", hidden, identifier)
         guard var field = allFields.first(where: { $0.identifier == identifier }) else {
