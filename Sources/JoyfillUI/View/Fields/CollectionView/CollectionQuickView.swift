@@ -98,7 +98,7 @@ struct CollectionQuickView : View {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                         .padding(.horizontal, 4)
                 }
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
