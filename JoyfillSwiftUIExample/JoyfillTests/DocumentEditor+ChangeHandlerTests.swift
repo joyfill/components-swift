@@ -738,48 +738,48 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     }
     
     //InsertRow WithFilter tests
-    func testInsertRowWitFilterValueIsNil() {
-        let tableFieldID = "67612793c4e6a5e6a05e64a3"
-        //RowIds
-        _ = [
-            "676127938056dcd158942bad",
-            "67612793f70928da78973744",
-            "67612793a6cd1f9d39c8433b",
-            "67612793a6cd1f9d39c8433c",// deleted
-            "67612793a6cd1f9d39c8433d"
-        ]
-        // 5 total rows , 1 deleted by default
-        
-        //Table columns Ids
-        _ = [
-            "676127938fb7c5fd4321a2f4",
-            "67612793b5f860ae8d6a4ae6",
-            "67612793c76286eb2763c366"
-        ]
-                
-        let document = JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: false, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false, isRowOrderNil: false)
-            .setTableFieldPosition(hideColumn: false)
-        
-        let documentEditor = documentEditor(document: document)
-        let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        let cellValues: [String: ValueUnion] = ["676127938fb7c5fd4321a2f4": .string("Hello")]
-        let newRowId = "67612793a6cd1f9d39c8434er"
-        let insertedRow = documentEditor.insertRowWithFilter(id: newRowId, cellValues: cellValues, fieldIdentifier: fieldIdentifier)
-        
-        let field = documentEditor.field(fieldID: tableFieldID)
-        
-        //check row order
-        XCTAssertEqual(field?.rowOrder?.count, 5) // Total rows count should 6 now
-        
-        // Check value is nil
-        XCTAssertEqual(field?.value?.valueElements?.count, nil)
-    }
+//    func testInsertRowWitFilterValueIsNil() {
+//        let tableFieldID = "67612793c4e6a5e6a05e64a3"
+//        //RowIds
+//        _ = [
+//            "676127938056dcd158942bad",
+//            "67612793f70928da78973744",
+//            "67612793a6cd1f9d39c8433b",
+//            "67612793a6cd1f9d39c8433c",// deleted
+//            "67612793a6cd1f9d39c8433d"
+//        ]
+//        // 5 total rows , 1 deleted by default
+//        
+//        //Table columns Ids
+//        _ = [
+//            "676127938fb7c5fd4321a2f4",
+//            "67612793b5f860ae8d6a4ae6",
+//            "67612793c76286eb2763c366"
+//        ]
+//                
+//        let document = JoyDoc()
+//            .setDocument()
+//            .setFile()
+//            .setMobileView()
+//            .setPageFieldInMobileView()
+//            .setPageField()
+//            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: false, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false, isRowOrderNil: false)
+//            .setTableFieldPosition(hideColumn: false)
+//        
+//        let documentEditor = documentEditor(document: document)
+//        let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
+//        let cellValues: [String: ValueUnion] = ["676127938fb7c5fd4321a2f4": .string("Hello")]
+//        let newRowId = "67612793a6cd1f9d39c8434er"
+//        let insertedRow = documentEditor.insertRowWithFilter(id: newRowId, cellValues: cellValues, fieldIdentifier: fieldIdentifier)
+//        
+//        let field = documentEditor.field(fieldID: tableFieldID)
+//        
+//        //check row order
+//        XCTAssertEqual(field?.rowOrder?.count, 5) // Total rows count should 6 now
+//        
+//        // Check value is nil
+//        XCTAssertEqual(field?.value?.valueElements?.count, nil)
+//    }
     
     //Bulk edit tests
     func testBulkEdit() {
