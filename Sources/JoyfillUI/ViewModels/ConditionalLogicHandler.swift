@@ -295,6 +295,11 @@ class ConditionalLogicHandler {
                     return selectedArray.contains { $0 == conditionText }
                 }
             }
+            // For text comparison
+            if let fieldText = fieldValue?.text,
+               let conditionText = condition.value?.text {
+                return fieldText.lowercased() == conditionText.lowercased()
+            }
             return fieldValue == condition.value
         case "!=":
             if fieldType == .multiSelect || fieldType == .dropdown {
@@ -304,12 +309,18 @@ class ConditionalLogicHandler {
                     return !selectedArray.contains { $0 == conditionText }
                 }
             }
+            // For text comparison
+            if let fieldText = fieldValue?.text,
+               let conditionText = condition.value?.text {
+                return fieldText.lowercased() != conditionText.lowercased()
+            }
             return fieldValue != condition.value
         case "?=":
             guard let fieldValue = fieldValue else {
                 return false
             }
-            if let fieldValueText = fieldValue.text, let conditionValueText = condition.value?.text {
+            if let fieldValueText = fieldValue.text?.lowercased(),
+               let conditionValueText = condition.value?.text?.lowercased() {
                 return fieldValueText.contains(conditionValueText)
             } else {
                 return false

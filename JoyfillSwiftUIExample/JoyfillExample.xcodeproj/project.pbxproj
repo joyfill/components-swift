@@ -795,8 +795,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.4;
-				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
+				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
@@ -837,8 +836,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.4;
-				PRODUCT_BUNDLE_IDENTIFIER = Joyfill.JoyfillExample;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
+				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
@@ -906,7 +904,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/joyfill/JoyfillModel.git";
 			requirement = {
-				branch = "nested-table-column";
+				branch = "collection-development";
 				kind = branch;
 			};
 		};

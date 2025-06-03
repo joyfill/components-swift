@@ -233,15 +233,13 @@ struct MoreImageView: View {
                 Text("More Images")
                     .fontWeight(.bold)
                 Spacer()
-                if #available(iOS 16, *) {  }
-                else {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Image(systemName: "xmark.circle")
-                            .imageScale(.large)
-                    })
-                }
+                
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    Image(systemName: "xmark.circle")
+                        .imageScale(.large)
+                })
             }
             
             if !isUploadHidden {
