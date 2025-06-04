@@ -49,6 +49,7 @@ struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
+    @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     var longestBlockText: String = ""
@@ -62,11 +63,21 @@ struct CollectionModalView : View {
         VStack {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true })
+                onEditTap: { showEditMultipleRowsSheetView = true },
+                onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
             }
+            .sheet(isPresented: $showFilterModal) {
+                CollectionFilterModal(viewModel: viewModel)
+            }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+
+            // Show active filters indicator
+            if hasActiveFilters {
+                activeFiltersView
+            }
+            
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
@@ -102,6 +113,41 @@ struct CollectionModalView : View {
                 })
             )
         }
+    }
+    
+    private var hasActiveFilters: Bool {
+        return !viewModel.tableDataModel.filterModels.allSatisfy { $0.filterText.isEmpty }
+    }
+    
+    private var activeFiltersView: some View {
+        HStack {
+            Image(systemName: "line.3.horizontal.decrease.circle.fill")
+                .foregroundColor(.blue)
+                .font(.system(size: 16))
+            
+            Text("Filters Active")
+                .font(.subheadline)
+                .foregroundColor(.blue)
+            
+            Spacer()
+            
+            Button(action: {
+                clearFilter()
+            }) {
+                Text("Clear All")
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(4)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.blue.opacity(0.05))
+        .cornerRadius(8)
+        .padding(.horizontal, 12)
     }
 
     func clearFilter() {

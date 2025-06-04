@@ -11,8 +11,13 @@ import JoyfillModel
 struct CollectionModalTopNavigationView: View {
     @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
+    var onFilterTap: (() -> Void)?
     
     @State private var showingPopover = false
+    
+    private var hasActiveFilters: Bool {
+        return !viewModel.tableDataModel.filterModels.allSatisfy { $0.filterText.isEmpty }
+    }
 
     var body: some View {
         HStack {
@@ -22,6 +27,22 @@ struct CollectionModalTopNavigationView: View {
             }
 
             Spacer()
+            
+            // Filter button
+            Button(action: {
+                onFilterTap?()
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                        .foregroundColor(hasActiveFilters ? .blue : .gray)
+                }
+                .font(.system(size: 14))
+                .frame(height: 27)
+                .padding(.horizontal, 12)
+                .overlay(RoundedRectangle(cornerRadius: 6)
+                    .stroke(hasActiveFilters ? Color.blue : Color.buttonBorderColor, lineWidth: 1))
+            }
+            .accessibilityIdentifier("CollectionFilterButtonIdentifier")
 
             if !viewModel.tableDataModel.selectedRows.isEmpty {
                 Button(action: {

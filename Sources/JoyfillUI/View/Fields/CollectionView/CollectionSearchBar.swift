@@ -10,14 +10,14 @@ import JoyfillModel
 
 struct CollectionSearchBar: View {
     @Binding var model: FilterModel
-    @Binding var sortModel: SortModel
+//    @Binding var sortModel: SortModel
     @Binding var selectedColumnIndex: Int
 
     let viewModel: CollectionViewModel
 
     var body: some View {
         HStack {
-            if !viewModel.tableDataModel.cellModels.isEmpty, selectedColumnIndex != Int.min {
+            if !viewModel.tableDataModel.cellModels.isEmpty {
                 let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
@@ -80,43 +80,45 @@ struct CollectionSearchBar: View {
                         Text("")
                     }
                 }
-                Button(action: {
-                    sortModel.order.next()
-                }, label: {
-                    HStack {
-                        Text("Sort")
-                        Image(systemName: getSortIcon())
-                            .foregroundColor(getIconColor())
-                    }
-                    .font(.system(size: 14))
-                    .foregroundColor(.black)
-                })
-                .accessibilityIdentifier("SortButtonIdentifier")
-                .frame(width: 75, height: 25)
-                .background(.white)
-                .cornerRadius(4)
+//                Button(action: {
+//                    sortModel.order.next()
+//                }, label: {
+//                    HStack {
+//                        Text("Sort")
+//                        Image(systemName: getSortIcon())
+//                            .foregroundColor(getIconColor())
+//                    }
+//                    .font(.system(size: 14))
+//                    .foregroundColor(.black)
+//                })
+//                .accessibilityIdentifier("SortButtonIdentifier")
+//                .frame(width: 75, height: 25)
+//                .background(.white)
+//                .cornerRadius(4)
 
-                Button(action: {
-                    model.filterText = ""
-                    selectedColumnIndex = Int.min
-                }, label: {
-                    Image(systemName: "xmark")
-                        .resizable()
-                        .frame(width: 10, height: 10)
-                        .foregroundColor(.black)
-                        .padding(.all, 8)
-                        .background(.white)
-                        .cornerRadius(4)
-                        .padding(.trailing, 8)
-
-                })
-                .accessibilityIdentifier("HideFilterSearchBar")
+//                Button(action: {
+//                    model.filterText = ""
+//                    selectedColumnIndex = Int.min
+//                }, label: {
+//                    Image(systemName: "xmark")
+//                        .resizable()
+//                        .frame(width: 10, height: 10)
+//                        .foregroundColor(.black)
+//                        .padding(.all, 8)
+//                        .background(.white)
+//                        .cornerRadius(4)
+//                        .padding(.trailing, 8)
+//
+//                })
+//                .accessibilityIdentifier("HideFilterSearchBar")
             }
         }
         .frame(height: 40)
-        .background(Color(.systemGray6))
         .cornerRadius(8)
-        .padding(.horizontal, 12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+        )
     }
 
     func getSortIcon() -> String {
