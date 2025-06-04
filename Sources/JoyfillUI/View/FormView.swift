@@ -211,6 +211,7 @@ struct FormView: View {
             }
         }
         .listStyle(PlainListStyle())
+        .id(documentEditor.currentPageID)
         .modifier(KeyboardDismissModifier())
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
