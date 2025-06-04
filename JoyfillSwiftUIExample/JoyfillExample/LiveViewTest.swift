@@ -33,6 +33,7 @@ struct LiveViewTest: View {
     }
     
     enum FormulaTest: CaseIterable {
+        case formBuilder
         case basic
         case logicalFormulas
         case stringFormulas
@@ -44,6 +45,7 @@ struct LiveViewTest: View {
         
         var displayName: String {
             switch self {
+            case .formBuilder: return "🛠️ Form Builder"
             case .basic: return "Basic Test"
             case .logicalFormulas: return "Logical Formulas"
             case .stringFormulas: return "String Formulas"
@@ -58,6 +60,8 @@ struct LiveViewTest: View {
         @ViewBuilder
         var view: some View {
             switch self {
+            case .formBuilder:
+                FormBuilderView()
             case .basic:
                 BasicFormulaTest()
             case .logicalFormulas:

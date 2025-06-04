@@ -389,7 +389,8 @@ public class JoyfillDocContext: EvaluationContext {
                         currentValue = array[index]
                     } else {
                         // Try to resolve it as a dynamic index reference
-                        let referenceString = indexStr.hasPrefix("{") && indexStr.hasSuffix("}") ? indexStr : "{(indexStr)}"; let dynamicIndexResult = resolveReference(referenceString)
+                        let referenceString = indexStr.hasPrefix("{") && indexStr.hasSuffix("}") ? indexStr : "{\(indexStr)}"
+                        let dynamicIndexResult = resolveReference(referenceString)
                         
                         guard case .success(let indexValue) = dynamicIndexResult,
                               case .number(let indexNumber) = indexValue,

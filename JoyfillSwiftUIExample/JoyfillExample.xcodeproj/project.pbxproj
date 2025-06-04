@@ -47,6 +47,7 @@
 		363AEF702C510DF00082359B /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363AEF6F2C510DF00082359B /* JoyfillAPIService */; };
 		364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EC2C510BEC00BA870F /* JoyfillAPIService */; };
 		364300F02C510C4200BA870F /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EF2C510C4200BA870F /* JoyfillModel */; };
+		3656F8992DF076DA001590B2 /* FormBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3656F8982DF076DA001590B2 /* FormBuilderView.swift */; };
 		3661908A2BF239BD006ED7CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 366190892BF239BD006ED7CF /* JoyfillModel */; };
 		366FD1472DD35C9100F9BE3E /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 366FD1462DD35C9100F9BE3E /* JoyfillAPIService */; };
 		366FD14A2DD35D8600F9BE3E /* Examples in Frameworks */ = {isa = PBXBuildFile; productRef = 366FD1492DD35D8600F9BE3E /* Examples */; };
@@ -131,6 +132,7 @@
 		362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsBaseClass.swift; sourceTree = "<group>"; };
 		362A560E2BEE359400B54C14 /* ChartFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartFieldTests.swift; sourceTree = "<group>"; };
 		362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldTests.swift; sourceTree = "<group>"; };
+		3656F8982DF076DA001590B2 /* FormBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormBuilderView.swift; sourceTree = "<group>"; };
 		366190942BF23EAB006ED7CF /* JoyfillTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillTests.xctestplan; sourceTree = "<group>"; };
 		36CE14662DB6680000799B25 /* LiveViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveViewTest.swift; sourceTree = "<group>"; };
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
@@ -288,6 +290,7 @@
 				36CE14662DB6680000799B25 /* LiveViewTest.swift */,
 				E27C87E22D394387008EA35C /* CameraScanner.swift */,
 				04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */,
+				3656F8982DF076DA001590B2 /* FormBuilderView.swift */,
 				FA28C9682BB4356000A2D65C /* SaveButtonView.swift */,
 				1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */,
 				36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */,
@@ -528,6 +531,7 @@
 				13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */,
 				36CE14672DB6680000799B25 /* LiveViewTest.swift in Sources */,
 				E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */,
+				3656F8992DF076DA001590B2 /* FormBuilderView.swift in Sources */,
 				36CE14692DB7F90B00799B25 /* JoyDoc+helper.swift in Sources */,
 				13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */,
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,
