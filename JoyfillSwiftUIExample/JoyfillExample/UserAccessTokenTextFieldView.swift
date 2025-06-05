@@ -291,10 +291,8 @@ struct UserJsonTextFieldView: View {
         }
         .padding(.vertical, 24)
         .onAppear {
-            if enableChangelogs {
-                // Set up the scan handler after the view appears
-                changeManagerWrapper.setScanHandler(showScan)
-            }
+            // Set up the scan handler after the view appears
+            changeManagerWrapper.setScanHandler(showScan)
         }
     }
     
