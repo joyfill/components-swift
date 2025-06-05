@@ -9,6 +9,10 @@ struct FormBuilderView: View {
     @State private var showingPreview = false
     @State private var showingAddField = false
     @State private var showingAddFormula = false
+    @State private var showingEditField = false
+    @State private var showingEditFormula = false
+    @State private var editingField: BuilderField?
+    @State private var editingFormula: BuilderFormula?
     @State private var builtDocument: JoyDoc?
     @State private var documentEditor: DocumentEditor?
     @State private var selectedTemplate: FormTemplate = .mathFormulas
@@ -62,6 +66,17 @@ struct FormBuilderView: View {
                                 
                                 Spacer()
                                 
+                                Text("✏️")
+                                    .font(.caption)
+                                    .foregroundColor(.blue.opacity(0.7))
+                                
+                                Button("Edit") {
+                                    editingFormula = formula
+                                    showingEditFormula = true
+                                }
+                                .foregroundColor(.blue)
+                                .font(.caption)
+                                
                                 Button("Delete") {
                                     deleteFormula(formula)
                                 }
@@ -69,6 +84,11 @@ struct FormBuilderView: View {
                                 .font(.caption)
                             }
                             .padding(.vertical, 2)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                editingFormula = formula
+                                showingEditFormula = true
+                            }
                         }
                         
                         Button("Add Formula") {
@@ -105,6 +125,16 @@ struct FormBuilderView: View {
                                 
                                 Spacer()
                                 
+                                Text("✏️")
+                                    .font(.caption)
+                                    .foregroundColor(.blue.opacity(0.7))
+                                
+                                Button("Edit") {
+                                    editingField = field
+                                    showingEditField = true
+                                }
+                                .foregroundColor(.blue)
+                                
                                 Button("Delete") {
                                     deleteField(field)
                                 }
@@ -112,6 +142,11 @@ struct FormBuilderView: View {
                                 .font(.caption)
                             }
                             .padding(.vertical, 2)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                editingField = field
+                                showingEditField = true
+                            }
                         }
                         
                         Button("Add Field") {
@@ -143,13 +178,61 @@ struct FormBuilderView: View {
             }
             .navigationTitle("Form Builder")
             .sheet(isPresented: $showingAddField) {
-                AddFieldView { field in
+                AddFieldView(editingField: nil) { field in
                     fields.append(field)
                 }
             }
             .sheet(isPresented: $showingAddFormula) {
-                AddFormulaView { formula in
+                AddFormulaView(editingFormula: nil) { formula in
                     formulas.append(formula)
+                }
+            }
+            .sheet(isPresented: $showingEditField) {
+                if let editingField = editingField {
+                    AddFieldView(editingField: editingField) { updatedField in
+                        if let index = fields.firstIndex(where: { $0.id == editingField.id }) {
+                            let oldIdentifier = editingField.identifier
+                            let newIdentifier = updatedField.identifier
+                            
+                            // Update the field
+                            fields[index] = updatedField
+                            
+                            // If identifier changed, update any formulas that reference it
+                            if oldIdentifier != newIdentifier {
+                                for formulaIndex in formulas.indices {
+                                    let oldFormula = formulas[formulaIndex].formula
+                                    let updatedFormula = oldFormula.replacingOccurrences(of: "{\(oldIdentifier)}", with: "{\(newIdentifier)}")
+                                    if updatedFormula != oldFormula {
+                                        formulas[formulaIndex].formula = updatedFormula
+                                    }
+                                }
+                            }
+                        }
+                        self.editingField = nil
+                    }
+                }
+            }
+            .sheet(isPresented: $showingEditFormula) {
+                if let editingFormula = editingFormula {
+                    AddFormulaView(editingFormula: editingFormula) { updatedFormula in
+                        if let index = formulas.firstIndex(where: { $0.id == editingFormula.id }) {
+                            let oldIdentifier = editingFormula.identifier
+                            let newIdentifier = updatedFormula.identifier
+                            
+                            // Update the formula
+                            formulas[index] = updatedFormula
+                            
+                            // If identifier changed, update any fields that reference it
+                            if oldIdentifier != newIdentifier {
+                                for fieldIndex in fields.indices {
+                                    if fields[fieldIndex].formulaRef == oldIdentifier {
+                                        fields[fieldIndex].formulaRef = newIdentifier
+                                    }
+                                }
+                            }
+                        }
+                        self.editingFormula = nil
+                    }
                 }
             }
             .sheet(isPresented: $showingPreview) {
@@ -609,7 +692,23 @@ struct AddFieldView: View {
     @State private var useFormula = false
     @State private var formulaKey = "value"
     
+    let editingField: BuilderField?
     let onAdd: (BuilderField) -> Void
+    
+    init(editingField: BuilderField? = nil, onAdd: @escaping (BuilderField) -> Void) {
+        self.editingField = editingField
+        self.onAdd = onAdd
+        
+        if let field = editingField {
+            _identifier = State(initialValue: field.identifier)
+            _label = State(initialValue: field.label)
+            _fieldType = State(initialValue: field.fieldType)
+            _value = State(initialValue: field.value)
+            _formulaRef = State(initialValue: field.formulaRef ?? "")
+            _useFormula = State(initialValue: field.formulaRef != nil)
+            _formulaKey = State(initialValue: field.formulaKey)
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -658,14 +757,14 @@ struct AddFieldView: View {
                     }
                 }
             }
-            .navigationTitle("Add Field")
+            .navigationTitle(editingField == nil ? "Add Field" : "Edit Field")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(false)
             .navigationBarItems(
                 leading: Button("Cancel") {
                     dismiss()
                 },
-                trailing: Button("Add") {
+                trailing: Button(editingField == nil ? "Add" : "Save") {
                     let field = BuilderField(
                         identifier: identifier,
                         label: label,
@@ -689,7 +788,19 @@ struct AddFormulaView: View {
     @State private var formula = ""
     @State private var selectedTemplate = FormulaTemplate.custom
     
+    let editingFormula: BuilderFormula?
     let onAdd: (BuilderFormula) -> Void
+    
+    init(editingFormula: BuilderFormula? = nil, onAdd: @escaping (BuilderFormula) -> Void) {
+        self.editingFormula = editingFormula
+        self.onAdd = onAdd
+        
+        if let formula = editingFormula {
+            _identifier = State(initialValue: formula.identifier)
+            _formula = State(initialValue: formula.formula)
+            _selectedTemplate = State(initialValue: .custom)
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -735,14 +846,14 @@ struct AddFormulaView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            .navigationTitle("Add Formula")
+            .navigationTitle(editingFormula == nil ? "Add Formula" : "Edit Formula")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(false)
             .navigationBarItems(
                 leading: Button("Cancel") {
                     dismiss()
                 },
-                trailing: Button("Add") {
+                trailing: Button(editingFormula == nil ? "Add" : "Save") {
                     let newFormula = BuilderFormula(
                         identifier: identifier,
                         formula: formula
