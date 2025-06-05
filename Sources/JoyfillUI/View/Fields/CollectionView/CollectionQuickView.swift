@@ -10,7 +10,6 @@ import JoyfillModel
 
 struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
-    private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
@@ -89,6 +88,13 @@ struct CollectionQuickView : View {
         .onAppear() {
             refreshID = UUID()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            // Handle orientation changes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                offset = CGPoint.zero // Reset scroll offset on rotation
+                refreshID = UUID() // Force refresh of table
+            }
+        }
     }
     
     var colsHeader: some View {
@@ -102,7 +108,7 @@ struct CollectionQuickView : View {
                         .padding(.horizontal, 4)
                 }
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
+                .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
             }
         }
     }
@@ -128,7 +134,7 @@ struct CollectionQuickView : View {
                                 .foregroundColor(Color.tableCellBorderColor)
                             CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
                         }
-                        .frame(width: (screenWidth / 3) - 8, height: rowHeight)
+                        .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
                     }
                 }
             }
