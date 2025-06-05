@@ -27,14 +27,16 @@ struct DocumentSubmissionsListView: View {
     @State private var hasMoreDocuments: Bool = true
     @State private var currentUploadHandler: (([String]) -> Void)?
     let imagePicker = ImagePicker()
+    let enableChangelogs: Bool
 
     let title: String
     private let apiService: APIService
     
-    init(apiService: APIService, identifier: String, title: String) {
+    init(apiService: APIService, identifier: String, title: String, enableChangelogs: Bool = true) {
         self.apiService = apiService
         self.title = title
         self.identifier = identifier
+        self.enableChangelogs = enableChangelogs
     }
     
     var body: some View {
@@ -48,7 +50,7 @@ struct DocumentSubmissionsListView: View {
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
-                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
+                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager, enableChangelogs: enableChangelogs), isActive: $showDocumentDetails)
                 }
                 List {
                     Section(header: Text("Documents")

@@ -13,12 +13,18 @@ struct UserAccessTokenTextFieldView: View {
     @State var apiService: APIService? = nil
     @State private var isFetching: Bool = false
     var isAlreadyToken: Bool
+    let enableChangelogs: Bool
+    
+    init(isAlreadyToken: Bool, enableChangelogs: Bool = false) {
+        self.isAlreadyToken = isAlreadyToken
+        self.enableChangelogs = enableChangelogs
+    }
     
     var body: some View {
         if isAlreadyToken {
             NavigationLink(
                 destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
-                                                       result: templateAndDocuments, isAlreadyToken: true)),
+                                                       result: templateAndDocuments, isAlreadyToken: true, enableChangelogs: enableChangelogs)),
                 isActive: isAlreadyToken ? Binding.constant(true) : $showTemplate
             ) {
                 EmptyView()
@@ -130,7 +136,7 @@ struct UserAccessTokenTextFieldView: View {
                 
                 NavigationLink(
                     destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
-                                                           result: templateAndDocuments, isAlreadyToken: false)),
+                                                           result: templateAndDocuments, isAlreadyToken: false, enableChangelogs: enableChangelogs)),
                     isActive: $showTemplate
                 ) {
                     EmptyView()
@@ -167,9 +173,14 @@ struct UserJsonTextFieldView: View {
     @State private var isFetching: Bool = false
     @State private var showChangelogView = false
     let imagePicker = ImagePicker()
+    let enableChangelogs: Bool
     
     // Use @StateObject with a custom wrapper
     @StateObject private var changeManagerWrapper: ChangeManagerWrapper = ChangeManagerWrapper()
+    
+    init(enableChangelogs: Bool = false) {
+        self.enableChangelogs = enableChangelogs
+    }
     
     private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
         currentCaptureHandler = captureHandler
@@ -242,30 +253,53 @@ struct UserJsonTextFieldView: View {
             
             // Button Section
             VStack(spacing: 16) {
-                NavigationLink(destination: FormDestinationView(
-                    jsonString: jsonString,
-                    changeManager: changeManagerWrapper.changeManager,
-                    showChangelogView: $showChangelogView
-                )) {
-                    HStack {
-                        Spacer()
-                        Text("View Form")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        Spacer()
+                if enableChangelogs {
+                    NavigationLink(destination: FormDestinationView(
+                        jsonString: jsonString,
+                        changeManager: changeManagerWrapper.changeManager,
+                        showChangelogView: $showChangelogView
+                    )) {
+                        HStack {
+                            Spacer()
+                            Text("View Form")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                        }
+                        .frame(height: 54)
+                        .foregroundStyle(.white)
+                        .background(
+                            jsonString.isEmpty || errorMessage != nil
+                            ? Color.gray.opacity(0.3)
+                            : Color.blue
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
+                                radius: 2, x: 0, y: 1)
                     }
-                    .frame(height: 54)
-                    .foregroundStyle(.white)
-                    .background(
-                        jsonString.isEmpty || errorMessage != nil
-                        ? Color.gray.opacity(0.3)
-                        : Color.blue
-                    )
-                    .cornerRadius(16)
-                    .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
-                            radius: 2, x: 0, y: 1)
+                    .disabled(jsonString.isEmpty || errorMessage != nil)
+                } else {
+                    NavigationLink(destination: SimpleFormDestinationView(jsonString: jsonString)) {
+                        HStack {
+                            Spacer()
+                            Text("View Form")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                        }
+                        .frame(height: 54)
+                        .foregroundStyle(.white)
+                        .background(
+                            jsonString.isEmpty || errorMessage != nil
+                            ? Color.gray.opacity(0.3)
+                            : Color.blue
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
+                                radius: 2, x: 0, y: 1)
+                    }
+                    .disabled(jsonString.isEmpty || errorMessage != nil)
                 }
-                .disabled(jsonString.isEmpty || errorMessage != nil)
                 
                 if !jsonString.isEmpty {
                     Text("JSON length: \(jsonString.count)")
@@ -278,8 +312,10 @@ struct UserJsonTextFieldView: View {
         }
         .padding(.vertical, 24)
         .onAppear {
-            // Set up the scan handler after the view appears
-            changeManagerWrapper.setScanHandler(showScan)
+            if enableChangelogs {
+                // Set up the scan handler after the view appears
+                changeManagerWrapper.setScanHandler(showScan)
+            }
         }
     }
     
@@ -326,6 +362,32 @@ struct UserJsonTextFieldView: View {
         } catch {
             errorMessage = "Invalid JSON format"
         }
+    }
+}
+
+// Simple form destination without changelog functionality
+struct SimpleFormDestinationView: View {
+    let jsonString: String
+    @StateObject private var documentEditor: DocumentEditor
+    
+    init(jsonString: String) {
+        self.jsonString = jsonString
+        
+        // Create DocumentEditor ONCE during initialization
+        let jsonData = jsonString.data(using: .utf8) ?? Data()
+        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+        
+        self._documentEditor = StateObject(wrappedValue: DocumentEditor(
+            document: JoyDoc(dictionary: dictionary),
+            mode: .fill,
+            events: nil,
+            pageID: "",
+            navigation: true
+        ))
+    }
+    
+    var body: some View {
+        Form(documentEditor: documentEditor)
     }
 }
 
@@ -450,6 +512,287 @@ class ChangeManagerWrapper: ObservableObject {
                 self?.scanHandler?(captureHandler) ?? captureHandler(.string("default"))
             }
         )
+    }
+}
+
+// MARK: - Option Selection View
+
+struct OptionSelectionView: View {
+    @State private var selectedOption: OptionType? = nil
+    @State private var isNavigating: Bool = false
+    
+    enum OptionType: CaseIterable {
+        case token
+        case jsonToForm
+        case testingChangelogs
+        
+        var title: String {
+            switch self {
+            case .token:
+                return "Token"
+            case .jsonToForm:
+                return "JSON to Form"
+            case .testingChangelogs:
+                return "Testing Changelogs"
+            }
+        }
+        
+        var description: String {
+            switch self {
+            case .token:
+                return "Enter your access token to work with templates"
+            case .jsonToForm:
+                return "Input JSON data to create forms directly"
+            case .testingChangelogs:
+                return "Use both token and JSON with changelog testing"
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .token:
+                return "key.fill"
+            case .jsonToForm:
+                return "doc.text.fill"
+            case .testingChangelogs:
+                return "testtube.2"
+            }
+        }
+        
+        var color: Color {
+            switch self {
+            case .token:
+                return .blue
+            case .jsonToForm:
+                return .green
+            case .testingChangelogs:
+                return .orange
+            }
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 32) {
+                // Header Section
+                VStack(spacing: 16) {
+                    Image(systemName: "app.badge")
+                        .font(.system(size: 60))
+                        .foregroundColor(.blue)
+                    
+                    Text("Joyfill Example")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    
+                    Text("Choose how you'd like to get started")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 32)
+                
+                // Options Section
+                VStack(spacing: 16) {
+                    ForEach(OptionType.allCases, id: \.self) { option in
+                        OptionCard(
+                            option: option,
+                            isSelected: selectedOption == option
+                        ) {
+                            selectedOption = option
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer()
+                
+                // Continue Button
+                NavigationLink(
+                    destination: destinationView(),
+                    isActive: Binding(
+                        get: { isNavigating },
+                        set: { newValue in
+                            isNavigating = newValue
+                            if !newValue {
+                                // Reset selectedOption when navigation is dismissed
+                                selectedOption = nil
+                            }
+                        }
+                    )
+                ) {
+                    Button(action: {
+                        if selectedOption != nil {
+                            isNavigating = true
+                        }
+                    }) {
+                        HStack {
+                            Spacer()
+                            Text("Continue")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                            Spacer()
+                        }
+                        .frame(height: 54)
+                        .background(
+                            selectedOption == nil
+                            ? Color.gray.opacity(0.3)
+                            : Color.blue
+                        )
+                        .cornerRadius(16)
+                        .shadow(
+                            color: selectedOption == nil ? .clear : .black.opacity(0.1),
+                            radius: 2, x: 0, y: 1
+                        )
+                    }
+                    .disabled(selectedOption == nil)
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 32)
+            }
+            .navigationBarHidden(true)
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+    
+    @ViewBuilder
+    private func destinationView() -> some View {
+        switch selectedOption {
+        case .token:
+            ScrollView {
+                VStack {
+                    UserAccessTokenTextFieldView(isAlreadyToken: false, enableChangelogs: false)
+                }
+            }
+            .modifier(KeyboardDismissModifier())
+        case .jsonToForm:
+            ScrollView {
+                VStack {
+                    UserJsonTextFieldView(enableChangelogs: false)
+                }
+            }
+            .modifier(KeyboardDismissModifier())
+        case .testingChangelogs:
+            TestingChangelogsView()
+        case .none:
+            EmptyView()
+        }
+    }
+}
+
+struct OptionCard: View {
+    let option: OptionSelectionView.OptionType
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 16) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(option.color.opacity(0.1))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: option.icon)
+                        .font(.system(size: 24))
+                        .foregroundColor(option.color)
+                }
+                
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(option.title)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    Text(option.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Spacer()
+                
+                // Selection indicator
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 20))
+                    .foregroundColor(isSelected ? option.color : .gray.opacity(0.3))
+            }
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.gray.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(
+                                isSelected ? option.color : Color.gray.opacity(0.15),
+                                lineWidth: isSelected ? 2 : 1
+                            )
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct TestingChangelogsView: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                // Header
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Testing Changelogs")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    
+                    Text("Both token and JSON options with changelog testing enabled")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Token Section
+                UserAccessTokenTextFieldView(isAlreadyToken: false, enableChangelogs: true)
+                
+                Divider()
+                    .padding(.horizontal, 20)
+                
+                // JSON Section
+                UserJsonTextFieldView(enableChangelogs: true)
+                
+                // Changelog Testing Note
+                VStack(spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "info.circle.fill")
+                            .foregroundColor(.orange)
+                        Text("Changelog Testing Enabled")
+                            .font(.headline)
+                            .foregroundColor(.orange)
+                    }
+                    
+                    Text("This mode includes additional logging and testing features for development purposes.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.orange.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                        )
+                )
+                .padding(.horizontal, 20)
+            }
+            .padding(.vertical, 24)
+        }
+        .modifier(KeyboardDismissModifier())
     }
 }
 
