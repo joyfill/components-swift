@@ -253,53 +253,32 @@ struct UserJsonTextFieldView: View {
             
             // Button Section
             VStack(spacing: 16) {
-                if enableChangelogs {
-                    NavigationLink(destination: FormDestinationView(
-                        jsonString: jsonString,
-                        changeManager: changeManagerWrapper.changeManager,
-                        showChangelogView: $showChangelogView
-                    )) {
-                        HStack {
-                            Spacer()
-                            Text("View Form")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                            Spacer()
-                        }
-                        .frame(height: 54)
-                        .foregroundStyle(.white)
-                        .background(
-                            jsonString.isEmpty || errorMessage != nil
-                            ? Color.gray.opacity(0.3)
-                            : Color.blue
-                        )
-                        .cornerRadius(16)
-                        .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
-                                radius: 2, x: 0, y: 1)
+                NavigationLink(destination: FormDestinationView(
+                    jsonString: jsonString,
+                    changeManager: changeManagerWrapper.changeManager,
+                    showChangelogView: $showChangelogView,
+                    enableChangelogs: enableChangelogs
+                )) {
+                    HStack {
+                        Spacer()
+                        Text("View Form")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        Spacer()
                     }
-                    .disabled(jsonString.isEmpty || errorMessage != nil)
-                } else {
-                    NavigationLink(destination: SimpleFormDestinationView(jsonString: jsonString)) {
-                        HStack {
-                            Spacer()
-                            Text("View Form")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                            Spacer()
-                        }
-                        .frame(height: 54)
-                        .foregroundStyle(.white)
-                        .background(
-                            jsonString.isEmpty || errorMessage != nil
-                            ? Color.gray.opacity(0.3)
-                            : Color.blue
-                        )
-                        .cornerRadius(16)
-                        .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
-                                radius: 2, x: 0, y: 1)
-                    }
-                    .disabled(jsonString.isEmpty || errorMessage != nil)
+                    .frame(height: 54)
+                    .foregroundStyle(.white)
+                    .background(
+                        jsonString.isEmpty || errorMessage != nil
+                        ? Color.gray.opacity(0.3)
+                        : Color.blue
+                    )
+                    .cornerRadius(16)
+                    .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
+                            radius: 2, x: 0, y: 1)
                 }
+                .disabled(jsonString.isEmpty || errorMessage != nil)
+                
                 
                 if !jsonString.isEmpty {
                     Text("JSON length: \(jsonString.count)")
@@ -365,43 +344,19 @@ struct UserJsonTextFieldView: View {
     }
 }
 
-// Simple form destination without changelog functionality
-struct SimpleFormDestinationView: View {
-    let jsonString: String
-    @StateObject private var documentEditor: DocumentEditor
-    
-    init(jsonString: String) {
-        self.jsonString = jsonString
-        
-        // Create DocumentEditor ONCE during initialization
-        let jsonData = jsonString.data(using: .utf8) ?? Data()
-        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
-        
-        self._documentEditor = StateObject(wrappedValue: DocumentEditor(
-            document: JoyDoc(dictionary: dictionary),
-            mode: .fill,
-            events: nil,
-            pageID: "",
-            navigation: true
-        ))
-    }
-    
-    var body: some View {
-        Form(documentEditor: documentEditor)
-    }
-}
-
 // Separate view for the form destination that properly manages DocumentEditor state
 struct FormDestinationView: View {
     let jsonString: String
     @ObservedObject var changeManager: ChangeManager
     @Binding var showChangelogView: Bool
     @StateObject private var documentEditor: DocumentEditor
+    let enableChangelogs: Bool
     
-    init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>) {
+    init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool) {
         self.jsonString = jsonString
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
+        self.enableChangelogs = enableChangelogs
         
         // Create DocumentEditor ONCE during initialization
         let jsonData = jsonString.data(using: .utf8) ?? Data()
@@ -418,29 +373,31 @@ struct FormDestinationView: View {
     
     var body: some View {
         VStack {
-            HStack {
-                Spacer()
-                
-                Button(action: {
-                    showChangelogView = true
-                }) {
-                    HStack {
-                        Image(systemName: "list.clipboard")
-                        Text("Logs")
-                        if !changeManager.displayedChangelogs.isEmpty {
-                            Text("\(changeManager.displayedChangelogs.count)")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.red)
-                                .clipShape(Capsule())
+            if enableChangelogs {
+                HStack {
+                    Spacer()
+                    
+                    Button(action: {
+                        showChangelogView = true
+                    }) {
+                        HStack {
+                            Image(systemName: "list.clipboard")
+                            Text("Logs")
+                            if !changeManager.displayedChangelogs.isEmpty {
+                                Text("\(changeManager.displayedChangelogs.count)")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.red)
+                                    .clipShape(Capsule())
+                            }
                         }
                     }
+                    .buttonStyle(.bordered)
+                    .padding(.trailing, 16)
+                    .padding(.top, 8)
                 }
-                .buttonStyle(.bordered)
-                .padding(.trailing, 16)
-                .padding(.top, 8)
             }
             
             Form(documentEditor: documentEditor)
