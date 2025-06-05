@@ -165,15 +165,11 @@ struct UserJsonTextFieldView: View {
     @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
     @State var scanResults: String = ""
     @State private var isFetching: Bool = false
+    @State private var showChangelogView = false
     let imagePicker = ImagePicker()
     
-    private var changeManager: ChangeManager {
-        ChangeManager(apiService: APIService(accessToken: "", baseURL: ""), showImagePicker: imagePicker.showPickerOptions, showScan: showScan)
-    }
-    
-    private func showImagePicker(uploadHandler: ([String]) -> Void) {
-        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
-    }
+    // Use @StateObject with a custom wrapper
+    @StateObject private var changeManagerWrapper: ChangeManagerWrapper = ChangeManagerWrapper()
     
     private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
         currentCaptureHandler = captureHandler
@@ -246,7 +242,11 @@ struct UserJsonTextFieldView: View {
             
             // Button Section
             VStack(spacing: 16) {
-                NavigationLink(destination: LazyView(destinationView())) {
+                NavigationLink(destination: FormDestinationView(
+                    jsonString: jsonString,
+                    changeManager: changeManagerWrapper.changeManager,
+                    showChangelogView: $showChangelogView
+                )) {
                     HStack {
                         Spacer()
                         Text("View Form")
@@ -277,6 +277,10 @@ struct UserJsonTextFieldView: View {
             .padding(.horizontal, 20)
         }
         .padding(.vertical, 24)
+        .onAppear {
+            // Set up the scan handler after the view appears
+            changeManagerWrapper.setScanHandler(showScan)
+        }
     }
     
     func presentCameraScannerView() {
@@ -323,25 +327,64 @@ struct UserJsonTextFieldView: View {
             errorMessage = "Invalid JSON format"
         }
     }
+}
+
+// Separate view for the form destination that properly manages DocumentEditor state
+struct FormDestinationView: View {
+    let jsonString: String
+    @ObservedObject var changeManager: ChangeManager
+    @Binding var showChangelogView: Bool
+    @StateObject private var documentEditor: DocumentEditor
     
-    func destinationView() -> AnyView {
-        guard !jsonString.isEmpty,
-              let jsonData = jsonString.data(using: .utf8) else {
-            return AnyView(Text("Invalid JSON"))
-        }
+    init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>) {
+        self.jsonString = jsonString
+        self.changeManager = changeManager
+        self._showChangelogView = showChangelogView
         
-        do {
-            let dictionary = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] ?? [:]
-            let documentEditor = DocumentEditor(
-                document: JoyDoc(dictionary: dictionary),
-                mode: .fill,
-                events: changeManager,
-                pageID: "",
-                navigation: true
-            )
-            return AnyView(LazyView(Form(documentEditor: documentEditor)))
-        } catch {
-            return AnyView(Text("Invalid JSON"))
+        // Create DocumentEditor ONCE during initialization
+        let jsonData = jsonString.data(using: .utf8) ?? Data()
+        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+        
+        self._documentEditor = StateObject(wrappedValue: DocumentEditor(
+            document: JoyDoc(dictionary: dictionary),
+            mode: .fill,
+            events: changeManager,
+            pageID: "",
+            navigation: true
+        ))
+    }
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Spacer()
+                
+                Button(action: {
+                    showChangelogView = true
+                }) {
+                    HStack {
+                        Image(systemName: "list.clipboard")
+                        Text("Logs")
+                        if !changeManager.displayedChangelogs.isEmpty {
+                            Text("\(changeManager.displayedChangelogs.count)")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.red)
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+                .buttonStyle(.bordered)
+                .padding(.trailing, 16)
+                .padding(.top, 8)
+            }
+            
+            Form(documentEditor: documentEditor)
+        }
+        .sheet(isPresented: $showChangelogView) {
+            ChangelogView(changeManager: changeManager)
         }
     }
 }
@@ -373,6 +416,40 @@ extension UIViewController {
             return topViewController(base: presented)
         }
         return base
+    }
+}
+
+// Wrapper class to handle ChangeManager initialization and scan functionality
+class ChangeManagerWrapper: ObservableObject {
+    @Published var changeManager: ChangeManager
+    private var scanHandler: ((@escaping (ValueUnion) -> Void) -> Void)?
+    
+    init() {
+        let imagePicker = ImagePicker()
+        
+        // Initialize ChangeManager with a simple closure first
+        self.changeManager = ChangeManager(
+            apiService: APIService(accessToken: "", baseURL: ""),
+            showImagePicker: imagePicker.showPickerOptions,
+            showScan: { captureHandler in
+                // Provide default implementation
+                captureHandler(.string("default"))
+            }
+        )
+    }
+    
+    func setScanHandler(_ handler: @escaping (@escaping (ValueUnion) -> Void) -> Void) {
+        self.scanHandler = handler
+        
+        // Recreate the ChangeManager with the proper scan handler
+        let imagePicker = ImagePicker()
+        self.changeManager = ChangeManager(
+            apiService: APIService(accessToken: "", baseURL: ""),
+            showImagePicker: imagePicker.showPickerOptions,
+            showScan: { [weak self] captureHandler in
+                self?.scanHandler?(captureHandler) ?? captureHandler(.string("default"))
+            }
+        )
     }
 }
 
