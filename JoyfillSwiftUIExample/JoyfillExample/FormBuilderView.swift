@@ -6,7 +6,6 @@ import JoyfillFormulas
 struct FormBuilderView: View {
     @State private var fields: [BuilderField] = []
     @State private var formulas: [BuilderFormula] = []
-    @State private var showingPreview = false
     @State private var showingAddField = false
     @State private var showingAddFormula = false
     @State private var showingEditField = false
@@ -19,164 +18,227 @@ struct FormBuilderView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                // Template Picker Section
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("📋 Load Template")
-                        .font(.headline)
-                        .padding(.horizontal)
-                    
-                    Picker("Select Template", selection: $selectedTemplate) {
-                        ForEach(FormTemplate.allCases, id: \.self) { template in
-                            Text(template.displayName).tag(template)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .padding(.horizontal)
-                    .onChange(of: selectedTemplate) { newValue in
-                        if newValue != .custom {
-                            loadTemplate(newValue)
-                        }
-                    }
-                    
-                    if selectedTemplate != .custom {
-                        Text(selectedTemplate.description)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                            .padding(.bottom, 4)
-                    }
-                    
-                    Divider()
-                        .padding(.horizontal)
-                }
-                
-                List {
-                    Section("Formulas") {
-                        ForEach(formulas) { formula in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(formula.identifier)
-                                        .font(.headline)
-                                    Text(formula.formula)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(2)
-                                }
-                                
-                                Spacer()
-                                
-                                Text("✏️")
-                                    .font(.caption)
-                                    .foregroundColor(.blue.opacity(0.7))
-                                
-                                Button("Edit") {
-                                    editingFormula = formula
-                                    showingEditFormula = true
-                                }
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Template Picker Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "doc.text.fill")
                                 .foregroundColor(.blue)
-                                .font(.caption)
-                                
-                                Button("Delete") {
-                                    deleteFormula(formula)
-                                }
-                                .foregroundColor(.red)
-                                .font(.caption)
-                            }
-                            .padding(.vertical, 2)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                editingFormula = formula
-                                showingEditFormula = true
-                            }
+                                .font(.title2)
+                            
+                            Text("Load Template")
+                                .font(.title2)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
                         }
+                        .padding(.horizontal, 20)
                         
-                        Button("Add Formula") {
-                            showingAddFormula = true
-                        }
-                        .foregroundColor(.blue)
-                    }
-                    
-                    Section("Fields") {
-                        ForEach(fields) { field in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(field.label)
-                                        .font(.headline)
-                                    HStack {
-                                        Text(field.fieldType.rawValue)
-                                            .font(.caption)
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 2)
-                                            .background(Color.blue.opacity(0.2))
-                                            .cornerRadius(4)
-                                        
-                                        Text("ID: \(field.identifier)")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        
-                                        if let formulaRef = field.formulaRef {
-                                            Text("Formula: \(formulaRef)")
-                                                .font(.caption)
-                                                .foregroundColor(.green)
+                        VStack(alignment: .leading, spacing: 12) {
+                            Menu {
+                                ForEach(FormTemplate.allCases, id: \.self) { template in
+                                    Button(action: {
+                                        selectedTemplate = template
+                                        if template != .custom {
+                                            loadTemplate(template)
                                         }
+                                    }) {
+                                        Label(template.displayName, systemImage: template.systemImage)
                                     }
                                 }
-                                
-                                Spacer()
-                                
-                                Text("✏️")
-                                    .font(.caption)
-                                    .foregroundColor(.blue.opacity(0.7))
-                                
-                                Button("Edit") {
-                                    editingField = field
-                                    showingEditField = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: selectedTemplate.systemImage)
+                                        .foregroundColor(.blue)
+                                    Text(selectedTemplate.displayName)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .foregroundColor(.secondary)
+                                        .font(.caption)
                                 }
-                                .foregroundColor(.blue)
-                                
-                                Button("Delete") {
-                                    deleteField(field)
-                                }
-                                .foregroundColor(.red)
-                                .font(.caption)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(12)
                             }
-                            .padding(.vertical, 2)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                editingField = field
-                                showingEditField = true
+                            .padding(.horizontal, 20)
+                            
+                            if selectedTemplate != .custom {
+                                Text(selectedTemplate.description)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 20)
                             }
                         }
+                    }
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 16)
+                    
+                    // Formulas Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "function")
+                                .foregroundColor(.purple)
+                            Text("Formulas")
+                                .font(.title2)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
+                            Button(action: { showingAddFormula = true }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundColor(.blue)
+                                    .font(.title2)
+                            }
+                        }
+                        .padding(.horizontal, 20)
                         
-                        Button("Add Field") {
-                            showingAddField = true
+                        if formulas.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "function")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.secondary)
+                                
+                                Text("No Formulas Yet")
+                                    .foregroundColor(.secondary)
+                                
+                                Text("Add your first formula to get started")
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.vertical, 32)
+                            .frame(maxWidth: .infinity)
+                        } else {
+                            LazyVStack(spacing: 12) {
+                                ForEach(formulas) { formula in
+                                    FormulaCardView(
+                                        formula: formula,
+                                        onEdit: {
+                                            editingFormula = formula
+                                            showingEditFormula = true
+                                        },
+                                        onDelete: { deleteFormula(formula) }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, 20)
                         }
-                        .foregroundColor(.blue)
                     }
-                }
-                
-                HStack {
-                    Button("Clear All") {
-                        fields.removeAll()
-                        formulas.removeAll()
-                    }
-                    .foregroundColor(.red)
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 16)
                     
-                    Spacer()
-                    
-                    Button("Test Form") {
-                        buildAndPreviewForm()
+                    // Fields Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "rectangle.3.group.fill")
+                                .foregroundColor(.green)
+                                .font(.title2)
+                            
+                            Text("Fields")
+                                .font(.title2)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
+                            Button(action: { showingAddField = true }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundColor(.blue)
+                                    .font(.title2)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        if fields.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "rectangle.3.group")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.secondary)
+                                
+                                Text("No Fields Yet")
+                                
+                                Text("Add your first field to get started")
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.vertical, 32)
+                            .frame(maxWidth: .infinity)
+                        } else {
+                            LazyVStack(spacing: 12) {
+                                ForEach(fields) { field in
+                                    FieldCardView(
+                                        field: field,
+                                        onEdit: {
+                                            editingField = field
+                                            showingEditField = true
+                                        },
+                                        onDelete: { deleteField(field) }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
                     }
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(fields.isEmpty ? Color.gray : Color.blue)
-                    .cornerRadius(8)
-                    .disabled(fields.isEmpty)
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 16)
+                    
+                    // Action Buttons
+                    HStack(spacing: 16) {
+                        Button("Clear All") {
+                            fields.removeAll()
+                            formulas.removeAll()
+                        }
+                        .foregroundColor(.red)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 24)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(10)
+                        .disabled(fields.isEmpty && formulas.isEmpty)
+                        
+                        Spacer()
+                        
+                        NavigationLink(destination: {
+                            if let documentEditor = documentEditor {
+                                Form(documentEditor: documentEditor)
+//                                    .navigationTitle("Form Preview")
+                                    .navigationBarTitleDisplayMode(.inline)
+                            } else {
+                                Text("Please build the form first")
+                                    .foregroundColor(.secondary)
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 14))
+                                Text("Test Form")
+                            }
+                            .foregroundColor(.white)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 32)
+                            .background(fields.isEmpty ? Color.gray : Color.blue)
+                            .cornerRadius(10)
+                        }
+                        .disabled(fields.isEmpty)
+                        .simultaneousGesture(TapGesture().onEnded {
+                            if !fields.isEmpty {
+                                buildAndPreviewForm()
+                            }
+                        })
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 32)
                 }
-                .padding()
             }
-            .navigationTitle("Form Builder")
+            .background(Color(.systemGroupedBackground))
+//            .navigationTitle("Form Builder")
+            .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingAddField) {
                 AddFieldView(editingField: nil) { field in
                     fields.append(field)
@@ -232,18 +294,6 @@ struct FormBuilderView: View {
                             }
                         }
                         self.editingFormula = nil
-                    }
-                }
-            }
-            .sheet(isPresented: $showingPreview) {
-                if let documentEditor = documentEditor {
-                    NavigationView {
-                        Form(documentEditor: documentEditor)
-                            .navigationTitle("Form Preview")
-                            .navigationBarTitleDisplayMode(.inline)
-                            .navigationBarItems(trailing: Button("Done") {
-                                showingPreview = false
-                            })
                     }
                 }
             }
@@ -367,7 +417,6 @@ struct FormBuilderView: View {
         
         builtDocument = document
         documentEditor = DocumentEditor(document: document)
-        showingPreview = true
     }
     
     private func loadTemplate(_ template: FormTemplate) {
@@ -643,6 +692,26 @@ enum FieldType: String, CaseIterable {
     case checkbox = "Checkbox"
     case option = "Option"
     case date = "Date"
+    
+    var systemImage: String {
+        switch self {
+        case .text: return "textformat"
+        case .number: return "number"
+        case .checkbox: return "checkmark.square"
+        case .option: return "list.bullet"
+        case .date: return "calendar"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .text: return .blue
+        case .number: return .green
+        case .checkbox: return .purple
+        case .option: return .orange
+        case .date: return .red
+        }
+    }
 }
 
 enum FormTemplate: CaseIterable {
@@ -665,6 +734,19 @@ enum FormTemplate: CaseIterable {
         case .referenceResolution: return "🔗 Advanced References"
         case .dateFormulas: return "📅 Date Formulas"
         case .conversionFormulas: return "🔄 Type Conversion"
+        }
+    }
+    
+    var systemImage: String {
+        switch self {
+        case .custom: return "doc.text.fill"
+        case .mathFormulas: return "function"
+        case .stringFormulas: return "text.alignleft"
+        case .arrayFormulas: return "rectangle.3.group.fill"
+        case .logicalFormulas: return "brain.head.profile"
+        case .referenceResolution: return "link"
+        case .dateFormulas: return "calendar"
+        case .conversionFormulas: return "arrow.left.arrow.right"
         }
     }
     
@@ -712,72 +794,243 @@ struct AddFieldView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section("Field Details") {
-                    TextField("Identifier", text: $identifier)
-                        .autocapitalization(.none)
-                    TextField("Label", text: $label)
-                    
-                    Picker("Field Type", selection: $fieldType) {
-                        ForEach(FieldType.allCases, id: \.self) { type in
-                            Text(type.rawValue).tag(type)
-                        }
-                    }
-                }
-                
-                Section("Value or Formula") {
-                    Toggle("Use Formula", isOn: $useFormula)
-                    
-                    if useFormula {
-                        TextField("Formula Reference ID", text: $formulaRef)
-                            .autocapitalization(.none)
-                        TextField("Formula Key", text: $formulaKey)
-                            .autocapitalization(.none)
-                    } else {
-                        switch fieldType {
-                        case .text:
-                            TextField("Default Value", text: $value)
-                        case .number:
-                            TextField("Default Value (number)", text: $value)
-                                .keyboardType(.numberPad)
-                        case .checkbox:
-                            Picker("Default Value", selection: $value) {
-                                Text("False").tag("false")
-                                Text("True").tag("true")
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: fieldTypeIcon)
+                                .foregroundColor(fieldTypeColor)
+                                .font(.title2)
+                                .frame(width: 32, height: 32)
+                                .background(fieldTypeColor.opacity(0.15))
+                                .clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(editingField == nil ? "New Field" : "Edit Field")
+                                
+                                Text("Configure your form field")
+                                    .foregroundColor(.secondary)
                             }
-                        case .option:
-                            TextField("Options (comma separated)", text: $value)
-                            Text("Example: apple,banana,cherry")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        case .date:
-                            Text("Default: Current Date")
-                                .foregroundColor(.secondary)
+                            
+                            Spacer()
                         }
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    
+                    // Field Details Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundColor(.blue)
+                            Text("Field Details")
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Identifier")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                
+                                TextField("e.g., firstName", text: $identifier)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Label")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                
+                                TextField("e.g., First Name", text: $label)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Field Type")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                
+                                Menu {
+                                    ForEach(FieldType.allCases, id: \.self) { type in
+                                        Button(action: { fieldType = type }) {
+                                            Label(type.rawValue, systemImage: type.systemImage)
+                                        }
+                                    }
+                                } label: {
+                                    HStack {
+                                        Image(systemName: fieldType.systemImage)
+                                            .foregroundColor(fieldType.color)
+                                        Text(fieldType.rawValue)
+                                        Spacer()
+                                        Image(systemName: "chevron.down")
+                                            .foregroundColor(.secondary)
+                                            .font(.caption)
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 16)
+                    
+                    // Value Configuration Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: useFormula ? "link" : "pencil.line")
+                                .foregroundColor(useFormula ? .green : .orange)
+                            Text("Value Configuration")
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 16) {
+                            HStack {
+                                Toggle("Use Formula", isOn: $useFormula)
+                                    .toggleStyle(SwitchToggleStyle(tint: .blue))
+                            }
+                            
+                            if useFormula {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Formula Reference ID")
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                    
+                                    TextField("e.g., calculateTotal", text: $formulaRef)
+                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                        .autocapitalization(.none)
+                                        .disableAutocorrection(true)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Formula Key")
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                    
+                                    TextField("value", text: $formulaKey)
+                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                        .autocapitalization(.none)
+                                        .disableAutocorrection(true)
+                                }
+                            } else {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Default Value")
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                    
+                                    Group {
+                                        switch fieldType {
+                                        case .text:
+                                            TextField("Enter default text", text: $value)
+                                        case .number:
+                                            TextField("Enter default number", text: $value)
+                                                .keyboardType(.numberPad)
+                                        case .checkbox:
+                                            Menu {
+                                                Button("False") { value = "false" }
+                                                Button("True") { value = "true" }
+                                            } label: {
+                                                HStack {
+                                                    Text(value.isEmpty ? "Select value" : value.capitalized)
+                                                    Spacer()
+                                                    Image(systemName: "chevron.down")
+                                                        .foregroundColor(.secondary)
+                                                        .font(.caption)
+                                                }
+                                                .padding()
+                                                .background(Color(.systemGray6))
+                                                .cornerRadius(10)
+                                            }
+                                        case .option:
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                TextField("apple,banana,cherry", text: $value)
+                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                Text("Separate options with commas")
+                                            }
+                                        case .date:
+                                            HStack {
+                                                Image(systemName: "calendar")
+                                                    .foregroundColor(.secondary)
+                                                Text("Will use current date")
+                                            }
+                                            .padding()
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(10)
+                                        }
+                                    }
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 16)
+                    
+                    Spacer(minLength: 32)
                 }
             }
-            .navigationTitle(editingField == nil ? "Add Field" : "Edit Field")
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(false)
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    dismiss()
-                },
-                trailing: Button(editingField == nil ? "Add" : "Save") {
-                    let field = BuilderField(
-                        identifier: identifier,
-                        label: label,
-                        fieldType: fieldType,
-                        value: value,
-                        formulaRef: useFormula ? formulaRef : nil,
-                        formulaKey: formulaKey
-                    )
-                    onAdd(field)
-                    dismiss()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.blue)
                 }
-                .disabled(identifier.isEmpty || label.isEmpty)
-            )
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(editingField == nil ? "Add" : "Save") {
+                        let field = BuilderField(
+                            identifier: identifier,
+                            label: label,
+                            fieldType: fieldType,
+                            value: value,
+                            formulaRef: useFormula ? formulaRef : nil,
+                            formulaKey: formulaKey
+                        )
+                        onAdd(field)
+                        dismiss()
+                    }
+                    .disabled(identifier.isEmpty || label.isEmpty)
+                    .foregroundColor(identifier.isEmpty || label.isEmpty ? .gray : .blue)
+                }
+            }
+        }
+    }
+    
+    private var fieldTypeIcon: String {
+        switch fieldType {
+        case .text: return "textformat"
+        case .number: return "number"
+        case .checkbox: return "checkmark.square"
+        case .option: return "list.bullet"
+        case .date: return "calendar"
+        }
+    }
+    
+    private var fieldTypeColor: Color {
+        switch fieldType {
+        case .text: return .blue
+        case .number: return .green
+        case .checkbox: return .purple
+        case .option: return .orange
+        case .date: return .red
         }
     }
 }
@@ -804,65 +1057,200 @@ struct AddFormulaView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section("Formula Details") {
-                    TextField("Formula ID", text: $identifier)
-                        .autocapitalization(.none)
-                    
-                    Picker("Template", selection: $selectedTemplate) {
-                        ForEach(FormulaTemplate.allCases, id: \.self) { template in
-                            Text(template.displayName).tag(template)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "function")
+                                .foregroundColor(.purple)
+                                .font(.title2)
+                                .frame(width: 32, height: 32)
+                                .background(Color.purple.opacity(0.15))
+                                .clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(editingFormula == nil ? "New Formula" : "Edit Formula")
+                                
+                                Text("Create powerful calculations")
+                            }
+                            
+                            Spacer()
                         }
                     }
-                    .onChange(of: selectedTemplate) { newValue in
-                        formula = newValue.formulaText
-                    }
-                }
-                
-                Section("Formula") {
-                    if #available(iOS 16.0, *) {
-                        TextField("Formula", text: $formula, axis: .vertical)
-                            .lineLimit(3...6)
-                            .autocapitalization(.none)
-                            .font(.system(.body, design: .monospaced))
-                    } else {
-                        // Fallback on earlier versions
-                        TextField("Formula", text: $formula)
-                            .autocapitalization(.none)
-                            .font(.system(.body, design: .monospaced))
-                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
                     
-                    Text("Examples:")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("• {field1} + {field2}")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("• if({num1} > 10, \"Valid\", \"Invalid\")")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("• concat({firstName}, \" \", {lastName})")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    // Formula Details Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundColor(.blue)
+                            Text("Formula Details")
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Formula ID")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                
+                                TextField("e.g., calculateTotal", text: $identifier)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Template")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                
+                                Menu {
+                                    ForEach(FormulaTemplate.allCases, id: \.self) { template in
+                                        Button(action: {
+                                            selectedTemplate = template
+                                            formula = template.formulaText
+                                        }) {
+                                            Text(template.displayName)
+                                        }
+                                    }
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "doc.text")
+                                            .foregroundColor(.purple)
+                                        Text(selectedTemplate.displayName)
+                                        Spacer()
+                                        Image(systemName: "chevron.down")
+                                            .foregroundColor(.secondary)
+                                            .font(.caption)
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 16)
+                    
+                    // Formula Expression Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "curlybraces")
+                                .foregroundColor(.green)
+                            Text("Formula Expression")
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Expression")
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                
+                                ZStack(alignment: .topLeading) {
+                                    if #available(iOS 16.0, *) {
+                                        TextField("Enter your formula", text: $formula, axis: .vertical)
+                                            .lineLimit(3...6)
+                                            .font(.system(.body, design: .monospaced))
+                                            .padding()
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(12)
+                                            .autocapitalization(.none)
+                                            .disableAutocorrection(true)
+                                    } else {
+                                        TextEditor(text: $formula)
+                                            .font(.system(.body, design: .monospaced))
+                                            .frame(minHeight: 80)
+                                            .padding(8)
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(12)
+                                    }
+                                }
+                            }
+                            
+                            // Examples Section
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Image(systemName: "lightbulb.fill")
+                                        .foregroundColor(.orange)
+                                        .font(.caption)
+                                    Text("Examples")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .textCase(.uppercase)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 8) {
+                                    FormulaExampleView(
+                                        title: "Field Reference",
+                                        example: "{field1} + {field2}",
+                                        description: "Reference other fields"
+                                    )
+                                    
+                                    FormulaExampleView(
+                                        title: "Conditional Logic",
+                                        example: "if({num1} > 10, \"Valid\", \"Invalid\")",
+                                        description: "Add conditional statements"
+                                    )
+                                    
+                                    FormulaExampleView(
+                                        title: "String Concatenation",
+                                        example: "concat({firstName}, \" \", {lastName})",
+                                        description: "Combine text values"
+                                    )
+                                    
+                                    FormulaExampleView(
+                                        title: "Array Operations",
+                                        example: "map({numbers}, (item) → item * 2)",
+                                        description: "Transform array data"
+                                    )
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                    .padding(.horizontal, 16)
+                    
+                    Spacer(minLength: 32)
                 }
             }
-            .navigationTitle(editingFormula == nil ? "Add Formula" : "Edit Formula")
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(false)
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    dismiss()
-                },
-                trailing: Button(editingFormula == nil ? "Add" : "Save") {
-                    let newFormula = BuilderFormula(
-                        identifier: identifier,
-                        formula: formula
-                    )
-                    onAdd(newFormula)
-                    dismiss()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.blue)
                 }
-                .disabled(identifier.isEmpty || formula.isEmpty)
-            )
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(editingFormula == nil ? "Add" : "Save") {
+                        let newFormula = BuilderFormula(
+                            identifier: identifier,
+                            formula: formula
+                        )
+                        onAdd(newFormula)
+                        dismiss()
+                    }
+                    .disabled(identifier.isEmpty || formula.isEmpty)
+                    .foregroundColor(identifier.isEmpty || formula.isEmpty ? .gray : .blue)
+                }
+            }
         }
     }
 }
@@ -901,6 +1289,238 @@ enum FormulaTemplate: CaseIterable {
         case .dateCalculation: return "dateAdd({dateField}, 7, \"days\")"
         case .stringManipulation: return "upper({textField})"
         }
+    }
+}
+
+// MARK: - Card Views
+
+struct FormulaCardView: View {
+    let formula: BuilderFormula
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "function")
+                    .foregroundColor(.purple)
+                    .font(.title3)
+                    .frame(width: 24, height: 24)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(formula.identifier)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Text("Formula")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    Button(action: onEdit) {
+                        Image(systemName: "pencil")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 16, weight: .medium))
+                            .frame(width: 32, height: 32)
+                            .background(Color.blue.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                            .font(.system(size: 16, weight: .medium))
+                            .frame(width: 32, height: 32)
+                            .background(Color.red.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Expression")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .textCase(.uppercase)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    Text(formula.formula)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                }
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onEdit)
+    }
+}
+
+struct FieldCardView: View {
+    let field: BuilderField
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: fieldTypeIcon)
+                    .foregroundColor(fieldTypeColor)
+                    .font(.title3)
+                    .frame(width: 24, height: 24)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(field.label)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    HStack(spacing: 8) {
+                        Text(field.fieldType.rawValue)
+                            .font(.caption)
+                            .foregroundColor(fieldTypeColor)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(fieldTypeColor.opacity(0.15))
+                            .cornerRadius(6)
+                        
+                        Text("ID: \(field.identifier)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 12) {
+                    Button(action: onEdit) {
+                        Image(systemName: "pencil")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 16, weight: .medium))
+                            .frame(width: 32, height: 32)
+                            .background(Color.blue.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                            .font(.system(size: 16, weight: .medium))
+                            .frame(width: 32, height: 32)
+                            .background(Color.red.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                if let formulaRef = field.formulaRef {
+                    HStack {
+                        Image(systemName: "link")
+                            .foregroundColor(.green)
+                            .font(.caption)
+                        
+                        Text("Linked to formula: \(formulaRef)")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.green.opacity(0.1))
+                    .cornerRadius(8)
+                } else {
+                    HStack {
+                        Image(systemName: "pencil.line")
+                            .foregroundColor(.orange)
+                            .font(.caption)
+                        
+                        Text("Default value: \(field.value.isEmpty ? "None" : field.value)")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.orange.opacity(0.1))
+                    .cornerRadius(8)
+                }
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onEdit)
+    }
+    
+    private var fieldTypeIcon: String {
+        switch field.fieldType {
+        case .text: return "textformat"
+        case .number: return "number"
+        case .checkbox: return "checkmark.square"
+        case .option: return "list.bullet"
+        case .date: return "calendar"
+        }
+    }
+    
+    private var fieldTypeColor: Color {
+        switch field.fieldType {
+        case .text: return .blue
+        case .number: return .green
+        case .checkbox: return .purple
+        case .option: return .orange
+        case .date: return .red
+        }
+    }
+}
+
+struct FormulaExampleView: View {
+    let title: String
+    let example: String
+    let description: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Text(description)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                Text(example)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color(.systemGray5))
+                    .cornerRadius(6)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(.systemGray6).opacity(0.5))
+        .cornerRadius(8)
     }
 }
 

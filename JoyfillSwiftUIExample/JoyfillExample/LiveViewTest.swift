@@ -42,7 +42,7 @@ struct LiveViewTest: View {
         case arrayFormulas
         case complexFormulas
         case conversionFormulas
-        
+
         var displayName: String {
             switch self {
             case .formBuilder: return "🛠️ Form Builder"
@@ -56,29 +56,32 @@ struct LiveViewTest: View {
             case .conversionFormulas: return "Conversion Formulas"
             }
         }
-        
+
         @ViewBuilder
         var view: some View {
-            switch self {
-            case .formBuilder:
-                FormBuilderView()
-            case .basic:
-                BasicFormulaTest()
-            case .logicalFormulas:
-                LogicalFormulaTest()
-            case .stringFormulas:
-                StringFormulaTest()
-            case .mathFormulas:
-                MathFormulaTest()
-            case .dateFormulas:
-                DateFormulaTest()
-            case .arrayFormulas:
-                ArrayFormulaTest()
-            case .complexFormulas:
-                ComplexFormulaTest()
-            case .conversionFormulas:
-                ConversionFormulaTest()
+            VStack {
+                switch self {
+                case .formBuilder:
+                    FormBuilderView()
+                case .basic:
+                    BasicFormulaTest()
+                case .logicalFormulas:
+                    LogicalFormulaTest()
+                case .stringFormulas:
+                    StringFormulaTest()
+                case .mathFormulas:
+                    MathFormulaTest()
+                case .dateFormulas:
+                    DateFormulaTest()
+                case .arrayFormulas:
+                    ArrayFormulaTest()
+                case .complexFormulas:
+                    ComplexFormulaTest()
+                case .conversionFormulas:
+                    ConversionFormulaTest()
+                }
             }
+            .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
         }
     }
 }

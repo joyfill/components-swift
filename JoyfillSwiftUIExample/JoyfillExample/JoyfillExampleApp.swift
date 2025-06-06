@@ -53,7 +53,7 @@ struct JoyfillExampleApp: App {
 //                    }
 //                    .modifier(KeyboardDismissModifier())
 //                }
-//                .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
+                .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
 //            }
         }
     }
