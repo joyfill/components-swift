@@ -8,10 +8,8 @@ struct FormBuilderView: View {
     @State private var formulas: [BuilderFormula] = []
     @State private var showingAddField = false
     @State private var showingAddFormula = false
-    @State private var showingEditField = false
-    @State private var showingEditFormula = false
-    @State private var editingField: BuilderField?
-    @State private var editingFormula: BuilderFormula?
+    @State private var editingField: BuilderField? = nil
+    @State private var editingFormula: BuilderFormula? = nil
     @State private var builtDocument: JoyDoc?
     @State private var documentEditor: DocumentEditor?
     @State private var selectedTemplate: FormTemplate = .allFieldTypes
@@ -118,7 +116,6 @@ struct FormBuilderView: View {
                                         formula: formula,
                                         onEdit: {
                                             editingFormula = formula
-                                            showingEditFormula = true
                                         },
                                         onDelete: { deleteFormula(formula) }
                                     )
@@ -174,7 +171,6 @@ struct FormBuilderView: View {
                                         field: field,
                                         onEdit: {
                                             editingField = field
-                                            showingEditField = true
                                         },
                                         onDelete: { deleteField(field) }
                                     )
@@ -249,52 +245,48 @@ struct FormBuilderView: View {
                     formulas.append(formula)
                 }
             }
-            .sheet(isPresented: $showingEditField) {
-                if let editingField = editingField {
-                    AddFieldView(editingField: editingField, formulas: formulas) { updatedField in
-                        if let index = fields.firstIndex(where: { $0.id == editingField.id }) {
-                            let oldIdentifier = editingField.identifier
-                            let newIdentifier = updatedField.identifier
-                            
-                            // Update the field
-                            fields[index] = updatedField
-                            
-                            // If identifier changed, update any formulas that reference it
-                            if oldIdentifier != newIdentifier {
-                                for formulaIndex in formulas.indices {
-                                    let oldFormula = formulas[formulaIndex].formula
-                                    let updatedFormula = oldFormula.replacingOccurrences(of: "{\(oldIdentifier)}", with: "{\(newIdentifier)}")
-                                    if updatedFormula != oldFormula {
-                                        formulas[formulaIndex].formula = updatedFormula
-                                    }
+            .sheet(item: $editingField) { field in
+                AddFieldView(editingField: field, formulas: formulas) { updatedField in
+                    if let index = fields.firstIndex(where: { $0.id == field.id }) {
+                        let oldIdentifier = field.identifier
+                        let newIdentifier = updatedField.identifier
+                        
+                        // Update the field
+                        fields[index] = updatedField
+                        
+                        // If identifier changed, update any formulas that reference it
+                        if oldIdentifier != newIdentifier {
+                            for formulaIndex in formulas.indices {
+                                let oldFormula = formulas[formulaIndex].formula
+                                let updatedFormula = oldFormula.replacingOccurrences(of: "{\(oldIdentifier)}", with: "{\(newIdentifier)}")
+                                if updatedFormula != oldFormula {
+                                    formulas[formulaIndex].formula = updatedFormula
                                 }
                             }
                         }
-                        self.editingField = nil
                     }
+                    editingField = nil
                 }
             }
-            .sheet(isPresented: $showingEditFormula) {
-                if let editingFormula = editingFormula {
-                    AddFormulaView(editingFormula: editingFormula) { updatedFormula in
-                        if let index = formulas.firstIndex(where: { $0.id == editingFormula.id }) {
-                            let oldIdentifier = editingFormula.identifier
-                            let newIdentifier = updatedFormula.identifier
-                            
-                            // Update the formula
-                            formulas[index] = updatedFormula
-                            
-                            // If identifier changed, update any fields that reference it
-                            if oldIdentifier != newIdentifier {
-                                for fieldIndex in fields.indices {
-                                    if fields[fieldIndex].formulaRef == oldIdentifier {
-                                        fields[fieldIndex].formulaRef = newIdentifier
-                                    }
+            .sheet(item: $editingFormula) { formula in
+                AddFormulaView(editingFormula: formula) { updatedFormula in
+                    if let index = formulas.firstIndex(where: { $0.id == formula.id }) {
+                        let oldIdentifier = formula.identifier
+                        let newIdentifier = updatedFormula.identifier
+                        
+                        // Update the formula
+                        formulas[index] = updatedFormula
+                        
+                        // If identifier changed, update any fields that reference it
+                        if oldIdentifier != newIdentifier {
+                            for fieldIndex in fields.indices {
+                                if fields[fieldIndex].formulaRef == oldIdentifier {
+                                    fields[fieldIndex].formulaRef = newIdentifier
                                 }
                             }
                         }
-                        self.editingFormula = nil
                     }
+                    editingFormula = nil
                 }
             }
             .onAppear {
