@@ -29,7 +29,7 @@ struct CollectionFilterModal: View {
                     Spacer()
                     
                     Button(action: {
-                        applyFilters()
+                        viewModel.tableDataModel.filterRowsIfNeeded()
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Apply")
@@ -43,6 +43,7 @@ struct CollectionFilterModal: View {
                     })
                     
                     Button(action: {
+                        clearAllFilters()
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         ZStack {
@@ -68,6 +69,10 @@ struct CollectionFilterModal: View {
                         ForEach(Array(viewModel.tableDataModel.schema), id: \.key) { key, value in
                             Button("\(value.title ?? "")") {
                                 selectedSchemaKey = key
+                                // Reset selections when schema changes
+                                selectedSortedColumnID = ""
+                                selectedFilterColumnID = ""
+                                selectedColumnIndex = 0
                             }
                         }
                     } label: {
@@ -104,6 +109,13 @@ struct CollectionFilterModal: View {
             .background(colorScheme == .dark ? Color.black : Color.white)
         }
         .font(.system(size: 15, weight: .bold))
+        .onAppear {
+            // Initialize with root schema key if not set
+            if selectedSchemaKey.isEmpty {
+                selectedSchemaKey = viewModel.rootSchemaKey
+            }
+            loadCurrentFilters()
+        }
     }
     
     private var sortingView: some View {
@@ -142,7 +154,7 @@ struct CollectionFilterModal: View {
                     }
                     
                     Button(action: {
-                        
+                        viewModel.tableDataModel.sortModel.order.next()
                     }, label: {
                         HStack {
                             Text("Sort")
@@ -159,11 +171,12 @@ struct CollectionFilterModal: View {
                         RoundedRectangle(cornerRadius: 6)
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
+                    .disabled(selectedSortedColumnID.isEmpty)
                 }
             }
             
             Button(action: {
-                
+                clearSorting()
             }, label: {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.red)
@@ -212,20 +225,23 @@ struct CollectionFilterModal: View {
                     )
                 }
                 if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == selectedFilterColumnID }) {
-//                    if let colIndex = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey).firstIndex(where: {$0.id == selectedFilterColumnID }) {
-                        CollectionSearchBar(model: $viewModel.tableDataModel.filterModels[index],
-                                            selectedColumnIndex: $selectedColumnIndex,
-                                            viewModel: viewModel)
-//                    }
+                    if let column = getSelectedColumn() {
+                        CollectionSearchBar(
+                            model: $viewModel.tableDataModel.filterModels[index],
+                            column: column,
+                            viewModel: viewModel
+                        )
+                    }
                 }
             }
             
             Button(action: {
-                
+                clearFilterForColumn()
             }, label: {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.red)
             })
+            .disabled(selectedFilterColumnID.isEmpty)
         }
         .padding(.all, 8)
         .overlay(
@@ -252,6 +268,10 @@ struct CollectionFilterModal: View {
         case .ascending, .descending:
             return .blue
         }
+    }
+    
+    func getSelectedColumn() -> FieldTableColumn? {
+        viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey).first(where: { $0.id == selectedFilterColumnID })
     }
             
     private func getSelectedSchemaTitle() -> String {
@@ -289,36 +309,22 @@ struct CollectionFilterModal: View {
         selectedFilters.removeAll()
     }
     
-    private func applyFilters() {
-        // Clear existing filters first
-        for i in 0..<viewModel.tableDataModel.filterModels.count {
-            viewModel.tableDataModel.filterModels[i].filterText = ""
+    private func clearSorting() {
+        selectedSortedColumnID = ""
+        viewModel.tableDataModel.sortModel.order = .none
+    }
+    
+    private func clearFilterForColumn() {
+        guard !selectedFilterColumnID.isEmpty else { return }
+        
+        if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == selectedFilterColumnID }) {
+            viewModel.tableDataModel.filterModels[index].filterText = ""
         }
         
-        // Apply global search - set search text to all text-based columns
-        if !searchText.isEmpty {
-            for (index, column) in viewModel.tableDataModel.tableColumns.enumerated() {
-                if index < viewModel.tableDataModel.filterModels.count {
-                    switch column.type {
-                    case .text, .barcode:
-                        viewModel.tableDataModel.filterModels[index].filterText = searchText
-                    default:
-                        break
-                    }
-                }
-            }
-        }
+        selectedFilters.removeValue(forKey: selectedFilterColumnID)
+        selectedFilterColumnID = ""
+        selectedColumnIndex = 0
         
-        // Apply column-specific filters (will override global search for specific columns)
-        for (index, column) in viewModel.tableDataModel.tableColumns.enumerated() {
-            if let filterText = selectedFilters[column.id ?? ""], !filterText.isEmpty {
-                if index < viewModel.tableDataModel.filterModels.count {
-                    viewModel.tableDataModel.filterModels[index].filterText = filterText
-                }
-            }
-        }
-        
-        // Trigger filtering
         viewModel.tableDataModel.filterRowsIfNeeded()
     }
     
@@ -333,5 +339,13 @@ struct CollectionFilterModal: View {
         
         // Reset filtered results
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        
+        // Clear selections
+        selectedFilterColumnID = ""
+        selectedSortedColumnID = ""
+        selectedColumnIndex = 0
+        
+        // Reset sort order
+        viewModel.tableDataModel.sortModel.order = .none
     }
 }

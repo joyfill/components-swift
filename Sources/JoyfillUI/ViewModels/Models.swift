@@ -195,12 +195,12 @@ struct TableDataModel {
                     self.tableColumns = filterTableColumns(key: key)
                     self.childrens = value.children ?? []
                 }
+                for (colIndex, column) in filterTableColumns(key: key).enumerated() {
+                    let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown)
+                    self.filterModels.append(filterModel)
+                }
             }
             self.fieldRequired = fieldData.required ?? false
-            for (colIndex, column) in self.tableColumns.enumerated() {
-                let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown)
-                self.filterModels.append(filterModel)
-            }
         } else {
             fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
                 let column = fieldData.tableColumns?.first { $0.id == colID }
@@ -631,6 +631,29 @@ struct TableDataModel {
         var dummyCell = cellModels.first?.cells[col].data
         dummyCell?.selectedOptionText = selectedOptionText
         return dummyCell
+    }
+    
+    func getDummyCellForCollectionFilter(column: FieldTableColumn) -> CellDataModel? {
+        guard let columnId = column.id else {
+            Log("Column ID is missing", type: .error)
+            return nil
+        }
+        let optionsLocal = column.options?.map { option in
+            OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+        }
+        
+        return CellDataModel(
+            id: columnId,
+            defaultDropdownSelectedId: column.defaultDropdownSelectedId,
+            options: optionsLocal,
+            valueElements: column.images ?? [],
+            type: column.type,
+            title: column.title,
+            number: column.number,
+            date: column.date,
+            format: column.getFormat(from: fieldPositionTableColumns),
+            multiSelectValues: column.multiSelectValues,
+            multi: column.multi)
     }
     
     func getDummyNestedCell(col: Int, isBulkEdit: Bool, rowID: String) -> CellDataModel? {
