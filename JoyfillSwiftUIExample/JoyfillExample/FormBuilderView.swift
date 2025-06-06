@@ -240,7 +240,7 @@ struct FormBuilderView: View {
 //            .navigationTitle("Form Builder")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingAddField) {
-                AddFieldView(editingField: nil) { field in
+                AddFieldView(editingField: nil, formulas: formulas) { field in
                     fields.append(field)
                 }
             }
@@ -251,7 +251,7 @@ struct FormBuilderView: View {
             }
             .sheet(isPresented: $showingEditField) {
                 if let editingField = editingField {
-                    AddFieldView(editingField: editingField) { updatedField in
+                    AddFieldView(editingField: editingField, formulas: formulas) { updatedField in
                         if let index = fields.firstIndex(where: { $0.id == editingField.id }) {
                             let oldIdentifier = editingField.identifier
                             let newIdentifier = updatedField.identifier
@@ -361,7 +361,7 @@ struct FormBuilderView: View {
                     )
                 }
                 
-            case .checkbox:
+            case .multiSelect:
                 if let formulaRef = field.formulaRef {
                     document = document.addCheckboxField(
                         identifier: field.identifier,
@@ -394,7 +394,7 @@ struct FormBuilderView: View {
                     )
                 }
                 
-            case .option:
+            case .dropdown:
                 let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                 if let formulaRef = field.formulaRef {
                     document = document.addOptionField(
@@ -409,6 +409,23 @@ struct FormBuilderView: View {
                         identifier: field.identifier,
                         value: [options.first ?? ""],
                         options: options,
+                        label: field.label
+                    )
+                }
+            
+            default:
+                // Handle other field types as text fields for now
+                if let formulaRef = field.formulaRef {
+                    document = document.addTextField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        label: field.label
+                    )
+                } else {
+                    document = document.addTextField(
+                        identifier: field.identifier,
+                        value: field.value,
                         label: field.label
                     )
                 }
@@ -510,14 +527,14 @@ struct FormBuilderView: View {
             
             fields = [
                 BuilderField(identifier: "numbers", label: "Numbers Array", fieldType: .text, value: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"),
-                BuilderField(identifier: "fruits", label: "Fruits", fieldType: .option, value: "apple,banana,cherry,date,elderberry"),
+                BuilderField(identifier: "fruits", label: "Fruits", fieldType: .dropdown, value: "apple,banana,cherry,date,elderberry"),
                 BuilderField(identifier: "sumResult", label: "Array Sum", fieldType: .number, formulaRef: "arraySum"),
                 BuilderField(identifier: "lengthResult", label: "Array Length", fieldType: .number, formulaRef: "arrayLength"),
                 BuilderField(identifier: "mapResult", label: "Doubled Numbers", fieldType: .text, formulaRef: "arrayMap"),
                 BuilderField(identifier: "filterResult", label: "Numbers > 5", fieldType: .text, formulaRef: "arrayFilter"),
                 BuilderField(identifier: "findResult", label: "First with 'a'", fieldType: .text, formulaRef: "arrayFind"),
-                BuilderField(identifier: "everyResult", label: "All Positive", fieldType: .checkbox, formulaRef: "arrayEvery"),
-                BuilderField(identifier: "someResult", label: "Some have 'e'", fieldType: .checkbox, formulaRef: "arraySome"),
+                BuilderField(identifier: "everyResult", label: "All Positive", fieldType: .multiSelect, formulaRef: "arrayEvery"),
+                BuilderField(identifier: "someResult", label: "Some have 'e'", fieldType: .multiSelect, formulaRef: "arraySome"),
                 BuilderField(identifier: "concatResult", label: "Concatenated", fieldType: .text, formulaRef: "arrayConcat")
             ]
             
@@ -537,13 +554,13 @@ struct FormBuilderView: View {
             let inputFields = [
                 BuilderField(identifier: "age", label: "Age", fieldType: .number, value: "25"),
                 BuilderField(identifier: "score", label: "Test Score", fieldType: .number, value: "85"),
-                BuilderField(identifier: "isActive", label: "Is Active", fieldType: .checkbox, value: "true"),
-                BuilderField(identifier: "hasPermission", label: "Has Permission", fieldType: .checkbox, value: "true"),
-                BuilderField(identifier: "isVip", label: "Is VIP", fieldType: .checkbox, value: "false"),
-                BuilderField(identifier: "isPremium", label: "Is Premium", fieldType: .checkbox, value: "true"),
-                BuilderField(identifier: "isBlocked", label: "Is Blocked", fieldType: .checkbox, value: "false"),
-                BuilderField(identifier: "hasLicense", label: "Has License", fieldType: .checkbox, value: "true"),
-                BuilderField(identifier: "hasPermit", label: "Has Permit", fieldType: .checkbox, value: "false"),
+                BuilderField(identifier: "isActive", label: "Is Active", fieldType: .multiSelect, value: "true"),
+                BuilderField(identifier: "hasPermission", label: "Has Permission", fieldType: .multiSelect, value: "true"),
+                BuilderField(identifier: "isVip", label: "Is VIP", fieldType: .multiSelect, value: "false"),
+                BuilderField(identifier: "isPremium", label: "Is Premium", fieldType: .multiSelect, value: "true"),
+                BuilderField(identifier: "isBlocked", label: "Is Blocked", fieldType: .multiSelect, value: "false"),
+                BuilderField(identifier: "hasLicense", label: "Has License", fieldType: .multiSelect, value: "true"),
+                BuilderField(identifier: "hasPermit", label: "Has Permit", fieldType: .multiSelect, value: "false"),
                 BuilderField(identifier: "optionalText", label: "Optional Text", fieldType: .text, value: "")
             ]
             
@@ -551,9 +568,9 @@ struct FormBuilderView: View {
             let resultFields = [
                 BuilderField(identifier: "ageCategory", label: "Age Category", fieldType: .text, formulaRef: "simpleIf"),
                 BuilderField(identifier: "grade", label: "Letter Grade", fieldType: .text, formulaRef: "nestedIf"),
-                BuilderField(identifier: "accessGranted", label: "Access Granted", fieldType: .checkbox, formulaRef: "andLogic"),
-                BuilderField(identifier: "specialMember", label: "Special Member", fieldType: .checkbox, formulaRef: "orLogic"),
-                BuilderField(identifier: "canAccess", label: "Can Access", fieldType: .checkbox, formulaRef: "notLogic"),
+                BuilderField(identifier: "accessGranted", label: "Access Granted", fieldType: .multiSelect, formulaRef: "andLogic"),
+                BuilderField(identifier: "specialMember", label: "Special Member", fieldType: .multiSelect, formulaRef: "orLogic"),
+                BuilderField(identifier: "canAccess", label: "Can Access", fieldType: .multiSelect, formulaRef: "notLogic"),
                 BuilderField(identifier: "drivingStatus", label: "Driving Status", fieldType: .text, formulaRef: "complexLogic"),
                 BuilderField(identifier: "textStatus", label: "Text Status", fieldType: .text, formulaRef: "emptyCheck")
             ]
@@ -584,7 +601,7 @@ struct FormBuilderView: View {
                 BuilderField(identifier: "selfValue", label: "Self Value", fieldType: .number, value: "25"),
                 BuilderField(identifier: "currentValue", label: "Current Value", fieldType: .number, value: "15"),
                 BuilderField(identifier: "numbers", label: "Numbers", fieldType: .text, value: "[10, 20, 30]"),
-                BuilderField(identifier: "useFirst", label: "Use First", fieldType: .checkbox, value: "true")
+                BuilderField(identifier: "useFirst", label: "Use First", fieldType: .multiSelect, value: "true")
             ]
             
             // Result fields
@@ -674,7 +691,7 @@ struct BuilderField: Identifiable {
     let id = UUID()
     var identifier: String
     var label: String
-    var fieldType: FieldType
+    var fieldType: FieldTypes
     var value: String = ""
     var formulaRef: String? = nil
     var formulaKey: String = "value"
@@ -686,20 +703,47 @@ struct BuilderFormula: Identifiable {
     var formula: String
 }
 
-enum FieldType: String, CaseIterable {
-    case text = "Text"
-    case number = "Number"
-    case checkbox = "Checkbox"
-    case option = "Option"
-    case date = "Date"
+// Extension to add UI properties to FieldTypes from JoyfillModel
+extension FieldTypes: @retroactive CaseIterable {
+    public static var allCases: [FieldTypes] {
+        return [.text, .number, .date, .dropdown, .multiSelect]
+    }
+    
+    var displayName: String {
+        switch self {
+        case .text: return "Text"
+        case .number: return "Number"
+        case .date: return "Date"
+        case .dropdown: return "Dropdown"
+        case .multiSelect: return "Multi Select"
+        case .textarea: return "Text Area"
+        case .signature: return "Signature"
+        case .block: return "Block"
+        case .chart: return "Chart"
+        case .richText: return "Rich Text"
+        case .table: return "Table"
+        case .collection: return "Collection"
+        case .image: return "Image"
+        case .unknown: return "Unknown"
+        }
+    }
     
     var systemImage: String {
         switch self {
         case .text: return "textformat"
         case .number: return "number"
-        case .checkbox: return "checkmark.square"
-        case .option: return "list.bullet"
         case .date: return "calendar"
+        case .dropdown: return "list.bullet"
+        case .multiSelect: return "checkmark.square"
+        case .textarea: return "text.alignleft"
+        case .signature: return "signature"
+        case .block: return "cube"
+        case .chart: return "chart.bar"
+        case .richText: return "textformat.abc"
+        case .table: return "tablecells"
+        case .collection: return "rectangle.3.group"
+        case .image: return "photo"
+        case .unknown: return "questionmark"
         }
     }
     
@@ -707,9 +751,18 @@ enum FieldType: String, CaseIterable {
         switch self {
         case .text: return .blue
         case .number: return .green
-        case .checkbox: return .purple
-        case .option: return .orange
         case .date: return .red
+        case .dropdown: return .orange
+        case .multiSelect: return .purple
+        case .textarea: return .indigo
+        case .signature: return .brown
+        case .block: return .gray
+        case .chart: return .pink
+        case .richText: return .cyan
+        case .table: return .mint
+        case .collection: return .teal
+        case .image: return .yellow
+        case .unknown: return .secondary
         }
     }
 }
@@ -768,17 +821,19 @@ struct AddFieldView: View {
     @Environment(\.dismiss) var dismiss
     @State private var identifier = ""
     @State private var label = ""
-    @State private var fieldType: FieldType = .text
+    @State private var fieldType: FieldTypes = .text
     @State private var value = ""
     @State private var formulaRef = ""
     @State private var useFormula = false
     @State private var formulaKey = "value"
     
     let editingField: BuilderField?
+    let formulas: [BuilderFormula]
     let onAdd: (BuilderField) -> Void
     
-    init(editingField: BuilderField? = nil, onAdd: @escaping (BuilderField) -> Void) {
+    init(editingField: BuilderField? = nil, formulas: [BuilderFormula] = [], onAdd: @escaping (BuilderField) -> Void) {
         self.editingField = editingField
+        self.formulas = formulas
         self.onAdd = onAdd
         
         if let field = editingField {
@@ -855,16 +910,16 @@ struct AddFieldView: View {
                                     .foregroundColor(.primary)
                                 
                                 Menu {
-                                    ForEach(FieldType.allCases, id: \.self) { type in
+                                    ForEach(FieldTypes.allCases, id: \.self) { type in
                                         Button(action: { fieldType = type }) {
-                                            Label(type.rawValue, systemImage: type.systemImage)
+                                            Label(type.displayName, systemImage: type.systemImage)
                                         }
                                     }
                                 } label: {
                                     HStack {
                                         Image(systemName: fieldType.systemImage)
                                             .foregroundColor(fieldType.color)
-                                        Text(fieldType.rawValue)
+                                        Text(fieldType.displayName)
                                         Spacer()
                                         Image(systemName: "chevron.down")
                                             .foregroundColor(.secondary)
@@ -905,10 +960,41 @@ struct AddFieldView: View {
                                         .font(.subheadline)
                                         .foregroundColor(.primary)
                                     
-                                    TextField("e.g., calculateTotal", text: $formulaRef)
-                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                                        .autocapitalization(.none)
-                                        .disableAutocorrection(true)
+                                    Menu {
+                                        if formulas.isEmpty {
+                                            Button("No formulas available") { }
+                                                .disabled(true)
+                                        } else {
+                                            ForEach(formulas, id: \.identifier) { formula in
+                                                Button(action: { formulaRef = formula.identifier }) {
+                                                    HStack {
+                                                        Image(systemName: "function")
+                                                            .foregroundColor(.purple)
+                                                        Text(formula.identifier)
+                                                        Spacer()
+                                                        Text(formula.formula.count > 20 ? String(formula.formula.prefix(20)) + "..." : formula.formula)
+                                                            .font(.caption)
+                                                            .foregroundColor(.secondary)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: "function")
+                                                .foregroundColor(formulaRef.isEmpty ? .secondary : .purple)
+                                            Text(formulaRef.isEmpty ? "Select formula" : formulaRef)
+                                                .foregroundColor(formulaRef.isEmpty ? .secondary : .primary)
+                                            Spacer()
+                                            Image(systemName: "chevron.down")
+                                                .foregroundColor(.secondary)
+                                                .font(.caption)
+                                        }
+                                        .padding()
+                                        .background(Color(.systemGray6))
+                                        .cornerRadius(10)
+                                    }
+                                    .disabled(formulas.isEmpty)
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 8) {
@@ -929,12 +1015,12 @@ struct AddFieldView: View {
                                     
                                     Group {
                                         switch fieldType {
-                                        case .text:
+                                        case .text, .textarea, .richText:
                                             TextField("Enter default text", text: $value)
                                         case .number:
                                             TextField("Enter default number", text: $value)
                                                 .keyboardType(.numberPad)
-                                        case .checkbox:
+                                        case .multiSelect:
                                             Menu {
                                                 Button("False") { value = "false" }
                                                 Button("True") { value = "true" }
@@ -950,11 +1036,13 @@ struct AddFieldView: View {
                                                 .background(Color(.systemGray6))
                                                 .cornerRadius(10)
                                             }
-                                        case .option:
+                                        case .dropdown:
                                             VStack(alignment: .leading, spacing: 4) {
                                                 TextField("apple,banana,cherry", text: $value)
                                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                                 Text("Separate options with commas")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
                                             }
                                         case .date:
                                             HStack {
@@ -965,6 +1053,8 @@ struct AddFieldView: View {
                                             .padding()
                                             .background(Color(.systemGray6))
                                             .cornerRadius(10)
+                                        default:
+                                            TextField("Enter default value", text: $value)
                                         }
                                     }
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -1015,23 +1105,11 @@ struct AddFieldView: View {
     }
     
     private var fieldTypeIcon: String {
-        switch fieldType {
-        case .text: return "textformat"
-        case .number: return "number"
-        case .checkbox: return "checkmark.square"
-        case .option: return "list.bullet"
-        case .date: return "calendar"
-        }
+        return fieldType.systemImage
     }
     
     private var fieldTypeColor: Color {
-        switch fieldType {
-        case .text: return .blue
-        case .number: return .green
-        case .checkbox: return .purple
-        case .option: return .orange
-        case .date: return .red
-        }
+        return fieldType.color
     }
 }
 
@@ -1388,7 +1466,7 @@ struct FieldCardView: View {
                         .foregroundColor(.primary)
                     
                     HStack(spacing: 8) {
-                        Text(field.fieldType.rawValue)
+                        Text(field.fieldType.displayName)
                             .font(.caption)
                             .foregroundColor(fieldTypeColor)
                             .padding(.horizontal, 8)
@@ -1468,23 +1546,11 @@ struct FieldCardView: View {
     }
     
     private var fieldTypeIcon: String {
-        switch field.fieldType {
-        case .text: return "textformat"
-        case .number: return "number"
-        case .checkbox: return "checkmark.square"
-        case .option: return "list.bullet"
-        case .date: return "calendar"
-        }
+        return field.fieldType.systemImage
     }
     
     private var fieldTypeColor: Color {
-        switch field.fieldType {
-        case .text: return .blue
-        case .number: return .green
-        case .checkbox: return .purple
-        case .option: return .orange
-        case .date: return .red
-        }
+        return field.fieldType.color
     }
 }
 
