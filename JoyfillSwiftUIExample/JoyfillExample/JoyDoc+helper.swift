@@ -327,6 +327,7 @@ extension JoyDoc {
                         formulaRef: String? = nil,
                         formulaKey: String = "value",
                         id: String = UUID().uuidString,
+                        label: String? = nil,
                         htmlContent: String = "<p>Sample rich text</p>") -> JoyDoc {
         return addField(type: .richText,
                        identifier: identifier,

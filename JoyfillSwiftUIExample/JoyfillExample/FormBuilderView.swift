@@ -14,7 +14,7 @@ struct FormBuilderView: View {
     @State private var editingFormula: BuilderFormula?
     @State private var builtDocument: JoyDoc?
     @State private var documentEditor: DocumentEditor?
-    @State private var selectedTemplate: FormTemplate = .mathFormulas
+    @State private var selectedTemplate: FormTemplate = .allFieldTypes
     
     var body: some View {
         NavigationView {
@@ -298,7 +298,7 @@ struct FormBuilderView: View {
                 }
             }
             .onAppear {
-                loadTemplate(.mathFormulas) // Load basic math template by default
+                loadTemplate(.allFieldTypes) // Load comprehensive field types template by default
             }
         }
     }
@@ -344,6 +344,35 @@ struct FormBuilderView: View {
                     )
                 }
                 
+            case .textarea:
+                if let formulaRef = field.formulaRef {
+                    document = document.addTextareaField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey
+                    )
+                } else {
+                    document = document.addTextareaField(
+                        identifier: field.identifier,
+                        value: field.value
+                    )
+                }
+                
+            case .richText:
+                if let formulaRef = field.formulaRef {
+                    document = document.addRichTextField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        htmlContent: field.value
+                    )
+                } else {
+                    document = document.addRichTextField(
+                        identifier: field.identifier,
+                        htmlContent: field.value
+                    )
+                }
+                
             case .number:
                 if let formulaRef = field.formulaRef {
                     document = document.addNumberField(
@@ -357,23 +386,6 @@ struct FormBuilderView: View {
                     document = document.addNumberField(
                         identifier: field.identifier,
                         value: numberValue,
-                        label: field.label
-                    )
-                }
-                
-            case .multiSelect:
-                if let formulaRef = field.formulaRef {
-                    document = document.addCheckboxField(
-                        identifier: field.identifier,
-                        formulaRef: formulaRef,
-                        formulaKey: field.formulaKey,
-                        label: field.label
-                    )
-                } else {
-                    let boolValue = field.value.lowercased() == "true"
-                    document = document.addCheckboxField(
-                        identifier: field.identifier,
-                        value: boolValue,
                         label: field.label
                     )
                 }
@@ -412,6 +424,139 @@ struct FormBuilderView: View {
                         label: field.label
                     )
                 }
+                
+            case .multiSelect:
+                if field.needsOptions {
+                    // Multi-select with options
+                    let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+                    if let formulaRef = field.formulaRef {
+                        document = document.addOptionField(
+                            identifier: field.identifier,
+                            formulaRef: formulaRef,
+                            formulaKey: field.formulaKey,
+                            options: options,
+                            multiselect: true,
+                            label: field.label
+                        )
+                    } else {
+                        document = document.addOptionField(
+                            identifier: field.identifier,
+                            value: [],
+                            options: options,
+                            multiselect: true,
+                            label: field.label
+                        )
+                    }
+                } else {
+                    // Checkbox/boolean multi-select
+                    if let formulaRef = field.formulaRef {
+                        document = document.addCheckboxField(
+                            identifier: field.identifier,
+                            formulaRef: formulaRef,
+                            formulaKey: field.formulaKey,
+                            label: field.label
+                        )
+                    } else {
+                        let boolValue = field.value.lowercased() == "true"
+                        document = document.addCheckboxField(
+                            identifier: field.identifier,
+                            value: boolValue,
+                            label: field.label
+                        )
+                    }
+                }
+                
+            case .signature:
+                if let formulaRef = field.formulaRef {
+                    document = document.addSignatureField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey
+                    )
+                } else {
+                    document = document.addSignatureField(
+                        identifier: field.identifier,
+                        signatureUrl: field.value
+                    )
+                }
+                
+            case .image:
+                if let formulaRef = field.formulaRef {
+                    document = document.addImageField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        allowMultiple: field.supportsMultiple
+                    )
+                } else {
+                    document = document.addImageField(
+                        identifier: field.identifier,
+                        imageUrl: field.value,
+                        allowMultiple: field.supportsMultiple
+                    )
+                }
+                
+            case .block:
+                if let formulaRef = field.formulaRef {
+                    document = document.addBlockField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey
+                    )
+                } else {
+                    document = document.addBlockField(
+                        identifier: field.identifier
+                    )
+                }
+                
+            case .chart:
+                if let formulaRef = field.formulaRef {
+                    document = document.addChartField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey
+                    )
+                } else {
+                    // Create some sample points for chart
+                    let samplePoints: [Point] = []
+                    document = document.addChartField(
+                        identifier: field.identifier,
+                        points: samplePoints
+                    )
+                }
+                
+            case .table:
+                if let formulaRef = field.formulaRef {
+                    document = document.addTableField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey
+                    )
+                } else {
+                    // Create sample table columns
+                    let sampleColumns: [FieldTableColumn] = []
+                    document = document.addTableField(
+                        identifier: field.identifier,
+                        columns: sampleColumns,
+                        rows: []
+                    )
+                }
+                
+            case .collection:
+                if let formulaRef = field.formulaRef {
+                    document = document.addCollectionField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey
+                    )
+                } else {
+                    // Create basic schema for collection
+                    let basicSchema: [String: Schema] = [:]
+                    document = document.addCollectionField(
+                        identifier: field.identifier,
+                        schema: basicSchema
+                    )
+                }
             
             default:
                 // Handle other field types as text fields for now
@@ -445,6 +590,49 @@ struct FormBuilderView: View {
         case .custom:
             // Keep current data as is
             break
+            
+        case .allFieldTypes:
+            // Comprehensive showcase of all field types
+            formulas = [
+                BuilderFormula(identifier: "textFormula", formula: "upper({textInput})"),
+                BuilderFormula(identifier: "numberFormula", formula: "{number1} + {number2}"),
+                BuilderFormula(identifier: "dateFormula", formula: "dateAdd({startDate}, 7, \"days\")")
+            ]
+            
+            fields = [
+                // Basic Input Fields
+                BuilderField(identifier: "textInput", label: "Text Field", fieldType: .text, value: "Sample text"),
+                BuilderField(identifier: "textareaInput", label: "Text Area", fieldType: .textarea, value: "Multi-line\ntext content"),
+                BuilderField(identifier: "richTextInput", label: "Rich Text", fieldType: .richText, value: "<p><strong>Rich</strong> <em>text</em> content</p>"),
+                BuilderField(identifier: "numberInput", label: "Number Field", fieldType: .number, value: "42"),
+                BuilderField(identifier: "dateInput", label: "Date Field", fieldType: .date, value: ""),
+                
+                // Selection Fields
+                BuilderField(identifier: "dropdownInput", label: "Dropdown", fieldType: .dropdown, value: "Option 1,Option 2,Option 3"),
+                BuilderField(identifier: "multiselectInput", label: "Multi Select", fieldType: .multiSelect, value: "Choice A,Choice B,Choice C"),
+                
+                // Media & Interaction Fields
+                BuilderField(identifier: "imageInput", label: "Image Field", fieldType: .image, value: ""),
+                BuilderField(identifier: "signatureInput", label: "Signature", fieldType: .signature, value: ""),
+                
+                // Display Fields
+                BuilderField(identifier: "blockInput", label: "Block/Label", fieldType: .block, value: "This is a static label"),
+                
+                // Advanced Fields
+                BuilderField(identifier: "chartInput", label: "Chart Field", fieldType: .chart, value: "Sample Chart"),
+                BuilderField(identifier: "tableInput", label: "Table Field", fieldType: .table, value: ""),
+                BuilderField(identifier: "collectionInput", label: "Collection", fieldType: .collection, value: ""),
+                
+                // Formula-driven Fields
+                BuilderField(identifier: "textResult", label: "Text Formula Result", fieldType: .text, formulaRef: "textFormula"),
+                BuilderField(identifier: "numberResult", label: "Number Formula Result", fieldType: .number, formulaRef: "numberFormula"),
+                BuilderField(identifier: "dateResult", label: "Date Formula Result", fieldType: .date, formulaRef: "dateFormula"),
+                
+                // Supporting Fields for Formulas
+                BuilderField(identifier: "number1", label: "First Number", fieldType: .number, value: "10"),
+                BuilderField(identifier: "number2", label: "Second Number", fieldType: .number, value: "5"),
+                BuilderField(identifier: "startDate", label: "Start Date", fieldType: .date, value: "")
+            ]
             
         case .mathFormulas:
             // Math formulas template
@@ -695,6 +883,14 @@ struct BuilderField: Identifiable {
     var value: String = ""
     var formulaRef: String? = nil
     var formulaKey: String = "value"
+    
+    var needsOptions: Bool {
+        return fieldType == .dropdown || fieldType == .multiSelect
+    }
+    
+    var supportsMultiple: Bool {
+        return fieldType == .image || fieldType == .multiSelect
+    }
 }
 
 struct BuilderFormula: Identifiable {
@@ -706,7 +902,7 @@ struct BuilderFormula: Identifiable {
 // Extension to add UI properties to FieldTypes from JoyfillModel
 extension FieldTypes: @retroactive CaseIterable {
     public static var allCases: [FieldTypes] {
-        return [.text, .number, .date, .dropdown, .multiSelect]
+        return [.text, .textarea, .richText, .number, .date, .dropdown, .multiSelect, .signature, .image, .block, .chart, .table, .collection]
     }
     
     var displayName: String {
@@ -718,7 +914,7 @@ extension FieldTypes: @retroactive CaseIterable {
         case .multiSelect: return "Multi Select"
         case .textarea: return "Text Area"
         case .signature: return "Signature"
-        case .block: return "Block"
+        case .block: return "Block/Label"
         case .chart: return "Chart"
         case .richText: return "Rich Text"
         case .table: return "Table"
@@ -765,10 +961,38 @@ extension FieldTypes: @retroactive CaseIterable {
         case .unknown: return .secondary
         }
     }
+    
+    var description: String {
+        switch self {
+        case .text: return "Single line text input"
+        case .number: return "Numeric input field"
+        case .date: return "Date and time picker"
+        case .dropdown: return "Single selection dropdown"
+        case .multiSelect: return "Multiple selection options"
+        case .textarea: return "Multi-line text input"
+        case .signature: return "Digital signature capture"
+        case .block: return "Static text or label"
+        case .chart: return "Data visualization chart"
+        case .richText: return "Formatted text editor"
+        case .table: return "Data table with rows and columns"
+        case .collection: return "Nested data collection"
+        case .image: return "Image upload and display"
+        case .unknown: return "Unknown field type"
+        }
+    }
+    
+    var needsOptions: Bool {
+        return self == .dropdown || self == .multiSelect
+    }
+    
+    var supportsMultiple: Bool {
+        return self == .image || self == .multiSelect
+    }
 }
 
 enum FormTemplate: CaseIterable {
     case custom
+    case allFieldTypes
     case mathFormulas
     case stringFormulas
     case arrayFormulas
@@ -780,6 +1004,7 @@ enum FormTemplate: CaseIterable {
     var displayName: String {
         switch self {
         case .custom: return "🔧 Custom"
+        case .allFieldTypes: return "📋 All Field Types"
         case .mathFormulas: return "🧮 Math Formulas"
         case .stringFormulas: return "📝 String Formulas"
         case .arrayFormulas: return "📊 Array Formulas"
@@ -793,6 +1018,7 @@ enum FormTemplate: CaseIterable {
     var systemImage: String {
         switch self {
         case .custom: return "doc.text.fill"
+        case .allFieldTypes: return "square.grid.3x3"
         case .mathFormulas: return "function"
         case .stringFormulas: return "text.alignleft"
         case .arrayFormulas: return "rectangle.3.group.fill"
@@ -806,6 +1032,7 @@ enum FormTemplate: CaseIterable {
     var description: String {
         switch self {
         case .custom: return "Start from scratch or keep current form"
+        case .allFieldTypes: return "Showcase of all available field types"
         case .mathFormulas: return "Basic math operations, calculations, and functions"
         case .stringFormulas: return "Text manipulation, concatenation, and validation"
         case .arrayFormulas: return "Array operations with lambda functions"
@@ -911,15 +1138,32 @@ struct AddFieldView: View {
                                 
                                 Menu {
                                     ForEach(FieldTypes.allCases, id: \.self) { type in
-                                        Button(action: { fieldType = type }) {
-                                            Label(type.displayName, systemImage: type.systemImage)
+                                        Button(action: { 
+                                            fieldType = type
+                                            // Reset value when changing field type
+                                            if !useFormula {
+                                                value = defaultValueForFieldType(type)
+                                            }
+                                        }) {
+                                            VStack(alignment: .leading) {
+                                                Label(type.displayName, systemImage: type.systemImage)
+                                                Text(type.description)
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                            }
                                         }
                                     }
                                 } label: {
                                     HStack {
                                         Image(systemName: fieldType.systemImage)
                                             .foregroundColor(fieldType.color)
-                                        Text(fieldType.displayName)
+                                        VStack(alignment: .leading) {
+                                            Text(fieldType.displayName)
+                                            Text(fieldType.description)
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                                .lineLimit(1)
+                                        }
                                         Spacer()
                                         Image(systemName: "chevron.down")
                                             .foregroundColor(.secondary)
@@ -1015,49 +1259,176 @@ struct AddFieldView: View {
                                     
                                     Group {
                                         switch fieldType {
-                                        case .text, .textarea, .richText:
+                                        case .text:
                                             TextField("Enter default text", text: $value)
+                                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                
+                                        case .textarea:
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                ZStack(alignment: .topLeading) {
+                                                    if #available(iOS 16.0, *) {
+                                                        TextField("Enter multi-line text", text: $value, axis: .vertical)
+                                                            .lineLimit(3...6)
+                                                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                    } else {
+                                                        TextEditor(text: $value)
+                                                            .frame(minHeight: 80)
+                                                            .padding(4)
+                                                            .overlay(
+                                                                RoundedRectangle(cornerRadius: 8)
+                                                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                                                            )
+                                                    }
+                                                }
+                                            }
+                                            
+                                        case .richText:
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                ZStack(alignment: .topLeading) {
+                                                    if #available(iOS 16.0, *) {
+                                                        TextField("Enter HTML content", text: $value, axis: .vertical)
+                                                            .lineLimit(3...6)
+                                                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                    } else {
+                                                        TextEditor(text: $value)
+                                                            .frame(minHeight: 80)
+                                                            .padding(4)
+                                                            .overlay(
+                                                                RoundedRectangle(cornerRadius: 8)
+                                                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                                                            )
+                                                    }
+                                                }
+                                                Text("HTML content for rich text")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            
                                         case .number:
                                             TextField("Enter default number", text: $value)
                                                 .keyboardType(.numberPad)
+                                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                
                                         case .multiSelect:
-                                            Menu {
-                                                Button("False") { value = "false" }
-                                                Button("True") { value = "true" }
-                                            } label: {
-                                                HStack {
-                                                    Text(value.isEmpty ? "Select value" : value.capitalized)
-                                                    Spacer()
-                                                    Image(systemName: "chevron.down")
+                                            if fieldType.needsOptions {
+                                                VStack(alignment: .leading, spacing: 8) {
+                                                    TextField("option1,option2,option3", text: $value)
+                                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                    Text("Separate options with commas")
+                                                        .font(.caption2)
                                                         .foregroundColor(.secondary)
-                                                        .font(.caption)
                                                 }
-                                                .padding()
-                                                .background(Color(.systemGray6))
-                                                .cornerRadius(10)
+                                            } else {
+                                                Menu {
+                                                    Button("False") { value = "false" }
+                                                    Button("True") { value = "true" }
+                                                } label: {
+                                                    HStack {
+                                                        Text(value.isEmpty ? "Select value" : value.capitalized)
+                                                        Spacer()
+                                                        Image(systemName: "chevron.down")
+                                                            .foregroundColor(.secondary)
+                                                            .font(.caption)
+                                                    }
+                                                    .padding()
+                                                    .background(Color(.systemGray6))
+                                                    .cornerRadius(10)
+                                                }
                                             }
+                                            
                                         case .dropdown:
                                             VStack(alignment: .leading, spacing: 4) {
-                                                TextField("apple,banana,cherry", text: $value)
+                                                TextField("option1,option2,option3", text: $value)
                                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                                 Text("Separate options with commas")
-                                                    .font(.caption)
+                                                    .font(.caption2)
                                                     .foregroundColor(.secondary)
                                             }
+                                            
                                         case .date:
                                             HStack {
                                                 Image(systemName: "calendar")
                                                     .foregroundColor(.secondary)
                                                 Text("Will use current date")
+                                                    .foregroundColor(.secondary)
                                             }
                                             .padding()
                                             .background(Color(.systemGray6))
                                             .cornerRadius(10)
+                                            
+                                        case .signature:
+                                            HStack {
+                                                Image(systemName: "signature")
+                                                    .foregroundColor(.secondary)
+                                                Text("Digital signature field")
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            .padding()
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(10)
+                                            
+                                        case .image:
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                TextField("Image URL (optional)", text: $value)
+                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                Text("Leave empty for upload-only field")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            
+                                        case .block:
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                TextField("Static text or label", text: $value)
+                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                Text("Display-only text content")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            
+                                        case .chart:
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                TextField("Chart title (optional)", text: $value)
+                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                HStack {
+                                                    Image(systemName: "chart.bar")
+                                                        .foregroundColor(.secondary)
+                                                    Text("Data visualization chart")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                            }
+                                            
+                                        case .table:
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                TextField("Table name (optional)", text: $value)
+                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                HStack {
+                                                    Image(systemName: "tablecells")
+                                                        .foregroundColor(.secondary)
+                                                    Text("Data table with rows and columns")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                            }
+                                            
+                                        case .collection:
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                TextField("Collection name (optional)", text: $value)
+                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                HStack {
+                                                    Image(systemName: "rectangle.3.group")
+                                                        .foregroundColor(.secondary)
+                                                    Text("Nested data collection")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                            }
+                                            
                                         default:
                                             TextField("Enter default value", text: $value)
+                                                .textFieldStyle(RoundedBorderTextFieldStyle())
                                         }
                                     }
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
                                 }
                             }
                         }
@@ -1110,6 +1481,23 @@ struct AddFieldView: View {
     
     private var fieldTypeColor: Color {
         return fieldType.color
+    }
+    
+    private func defaultValueForFieldType(_ type: FieldTypes) -> String {
+        switch type {
+        case .text, .textarea, .richText:
+            return ""
+        case .number:
+            return "0"
+        case .multiSelect:
+            return "false"
+        case .dropdown:
+            return ""
+        case .date:
+            return Date().formatted(date: .abbreviated, time: .omitted)
+        default:
+            return ""
+        }
     }
 }
 
