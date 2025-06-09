@@ -221,27 +221,28 @@ struct CollectionModalView : View {
                                                        isHeaderNested: false)
                         }
                         
-//                        let safeFilteredModels = viewModel.tableDataModel.filteredcellModels
-                        ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.element.wrappedValue.rowID) { (index, $rowCellModels) in
-//                            if index < safeFilteredModels.count {
+                        var safeFilteredModels = viewModel.tableDataModel.filteredcellModels
+                        ForEach(Array(safeFilteredModels.enumerated()), id: \.element.rowID) { (index, rowCellModels) in
+                            if index < safeFilteredModels.count {
                                 HStack(spacing: 0) {
-//                                    let bindingRowModel = Binding(get: {
-//                                        safeFilteredModels[index]
-//                                    }, set: { newValue in
-//                                        if index < viewModel.tableDataModel.filteredcellModels.count {
-//                                            viewModel.tableDataModel.filteredcellModels[index] = newValue
-//                                        } else {
-//                                            Log("Row not found at this index ", type: .error)
-//                                        }
-//                                    })
-                                    CollectionRowsHeaderView(viewModel: viewModel, rowModel: $rowCellModels, colorScheme: colorScheme, index: index)
+                                    let bindingRowModel = Binding(get: {
+                                        safeFilteredModels[index]
+                                    }, set: { newValue in
+                                        if index < viewModel.tableDataModel.filteredcellModels.count {
+                                            viewModel.tableDataModel.filteredcellModels[index] = newValue
+                                            safeFilteredModels[index] = newValue
+                                        } else {
+                                            Log("Row not found at this index ", type: .error)
+                                        }
+                                    })
+                                    CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index)
                                     
                                     switch rowCellModels.rowType {
                                     case .row:
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, longestBlockText: longestBlockText)
                                             .frame(height: 60)
                                     case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, longestBlockText: longestBlockText)
                                             .frame(height: 60)
                                     case .header(level: let level, tableColumns: let tableColumns):
                                         CollectionColumnHeaderView(viewModel: viewModel,
@@ -251,11 +252,11 @@ struct CollectionModalView : View {
                                                                    isHeaderNested: true)
                                         .frame(height: 60)
                                     case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
-                                        CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
+                                        CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
                                             .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                                     }
                                 }
-//                            }
+                            }
                         }
 
                     }
