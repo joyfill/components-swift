@@ -64,7 +64,7 @@ struct CollectionQuickView : View {
                         .font(.system(size: 8, weight: .heavy))
                         .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
                     
-                    Text(viewModel.tableDataModel.viewMoreText)
+                    Text(viewModel.tableDataModel.collectionRowsCount)
                         .font(.system(size: 16))
                 }
                 .foregroundStyle(.black)
