@@ -908,7 +908,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/joyfill/JoyfillModel.git";
 			requirement = {
-				branch = "collection-development";
+				branch = "beta-2";
 				kind = branch;
 			};
 		};
