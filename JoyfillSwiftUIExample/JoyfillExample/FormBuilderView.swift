@@ -174,15 +174,13 @@ struct FormBuilderView: View {
                                 
                                 List {
                                     ForEach(fields) { field in
-                                        FieldCardView(
-                                            field: field,
-                                            onEdit: {
+                                        FieldCardView(field: field)
+                                            .listRowBackground(Color(.systemBackground))
+                                            .listRowSeparator(.hidden)
+                                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                            .onTapGesture {
                                                 editingField = field
                                             }
-                                        )
-                                        .listRowBackground(Color(.systemBackground))
-                                        .listRowSeparator(.hidden)
-                                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                                     }
                                     .onDelete(perform: deleteFieldAtIndex)
                                 }
@@ -1968,7 +1966,6 @@ struct FormulaCardView: View {
 
 struct FieldCardView: View {
     let field: BuilderField
-    let onEdit: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -2000,17 +1997,7 @@ struct FieldCardView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 12) {
-                    Button(action: onEdit) {
-                        Image(systemName: "pencil")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 16, weight: .medium))
-                            .frame(width: 32, height: 32)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
+                // No buttons needed - entire cell is tappable
             }
             
             VStack(alignment: .leading, spacing: 8) {
@@ -2050,7 +2037,6 @@ struct FieldCardView: View {
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         .contentShape(Rectangle())
-        .onTapGesture(perform: onEdit)
     }
     
     private var fieldTypeIcon: String {
