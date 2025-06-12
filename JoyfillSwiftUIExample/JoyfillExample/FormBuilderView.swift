@@ -657,14 +657,14 @@ struct FormBuilderView: View {
                     document = document.addTableField(
                         identifier: field.identifier,
                         formulaRef: formulaRef,
-                        formulaKey: field.formulaKey
+                        formulaKey: field.formulaKey,
+                        columns: field.tableColumns
                     )
                 } else {
                     // Create sample table columns
-                    let sampleColumns: [FieldTableColumn] = []
                     document = document.addTableField(
                         identifier: field.identifier,
-                        columns: sampleColumns,
+                        columns: field.tableColumns,
                         rows: []
                     )
                 }
@@ -1122,6 +1122,7 @@ struct BuilderField: Identifiable {
     var value: String = ""
     var formulaRef: String? = nil
     var formulaKey: String = "value"
+    var tableColumns: [FieldTableColumn] = []
     
     var needsOptions: Bool {
         return fieldType == .dropdown || fieldType == .multiSelect
@@ -1292,7 +1293,12 @@ struct AddFieldView: View {
     @State private var formulaRef = ""
     @State private var useFormula = false
     @State private var formulaKey = "value"
-    
+    @State private var tableColumns: [FieldTableColumn] = []
+    @State private var showingAddColumn = false
+    @State private var editingColumn: FieldTableColumn? = nil
+    @State private var editingColumnIndex: Int? = nil
+    @State private var showingEditColumn = false
+
     let editingField: BuilderField?
     let formulas: [BuilderFormula]
     let onAdd: (BuilderField) -> Void
@@ -1310,6 +1316,7 @@ struct AddFieldView: View {
             _formulaRef = State(initialValue: field.formulaRef ?? "")
             _useFormula = State(initialValue: field.formulaRef != nil)
             _formulaKey = State(initialValue: field.formulaKey)
+            _tableColumns = State(initialValue: field.tableColumns)
         }
     }
     
@@ -1355,10 +1362,14 @@ struct AddFieldView: View {
                                     .font(.subheadline)
                                     .foregroundColor(.primary)
                                 
-                                TextField("e.g., firstName", text: $identifier)
+                                TextField("e.g., firstName (optional)", text: $identifier)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .autocapitalization(.none)
                                     .disableAutocorrection(true)
+                                
+                                Text("Optional - Auto-generated from label if empty")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
                             }
                             
                             VStack(alignment: .leading, spacing: 8) {
@@ -1490,185 +1501,6 @@ struct AddFieldView: View {
                                         .autocapitalization(.none)
                                         .disableAutocorrection(true)
                                 }
-                            } else {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Default Value")
-                                        .font(.subheadline)
-                                        .foregroundColor(.primary)
-                                    
-                                    Group {
-                                        switch fieldType {
-                                        case .text:
-                                            TextField("Enter default text", text: $value)
-                                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                
-                                        case .textarea:
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                ZStack(alignment: .topLeading) {
-                                                    if #available(iOS 16.0, *) {
-                                                        TextField("Enter multi-line text", text: $value, axis: .vertical)
-                                                            .lineLimit(3...6)
-                                                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                    } else {
-                                                        TextEditor(text: $value)
-                                                            .frame(minHeight: 80)
-                                                            .padding(4)
-                                                            .overlay(
-                                                                RoundedRectangle(cornerRadius: 8)
-                                                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                                                            )
-                                                    }
-                                                }
-                                            }
-                                            
-                                        case .richText:
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                ZStack(alignment: .topLeading) {
-                                                    if #available(iOS 16.0, *) {
-                                                        TextField("Enter HTML content", text: $value, axis: .vertical)
-                                                            .lineLimit(3...6)
-                                                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                    } else {
-                                                        TextEditor(text: $value)
-                                                            .frame(minHeight: 80)
-                                                            .padding(4)
-                                                            .overlay(
-                                                                RoundedRectangle(cornerRadius: 8)
-                                                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                                                            )
-                                                    }
-                                                }
-                                                Text("HTML content for rich text")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            
-                                        case .number:
-                                            TextField("Enter default number", text: $value)
-                                                .keyboardType(.numberPad)
-                                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                
-                                        case .multiSelect:
-                                            if fieldType.needsOptions {
-                                                VStack(alignment: .leading, spacing: 8) {
-                                                    TextField("option1,option2,option3", text: $value)
-                                                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                    Text("Separate options with commas")
-                                                        .font(.caption2)
-                                                        .foregroundColor(.secondary)
-                                                }
-                                            } else {
-                                                Menu {
-                                                    Button("False") { value = "false" }
-                                                    Button("True") { value = "true" }
-                                                } label: {
-                                                    HStack {
-                                                        Text(value.isEmpty ? "Select value" : value.capitalized)
-                                                        Spacer()
-                                                        Image(systemName: "chevron.down")
-                                                            .foregroundColor(.secondary)
-                                                            .font(.caption)
-                                                    }
-                                                    .padding()
-                                                    .background(Color(.systemGray6))
-                                                    .cornerRadius(10)
-                                                }
-                                            }
-                                            
-                                        case .dropdown:
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                TextField("option1,option2,option3", text: $value)
-                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                Text("Separate options with commas")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            
-                                        case .date:
-                                            HStack {
-                                                Image(systemName: "calendar")
-                                                    .foregroundColor(.secondary)
-                                                Text("Will use current date")
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            .padding()
-                                            .background(Color(.systemGray6))
-                                            .cornerRadius(10)
-                                            
-                                        case .signature:
-                                            HStack {
-                                                Image(systemName: "signature")
-                                                    .foregroundColor(.secondary)
-                                                Text("Digital signature field")
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            .padding()
-                                            .background(Color(.systemGray6))
-                                            .cornerRadius(10)
-                                            
-                                        case .image:
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                TextField("Image URL (optional)", text: $value)
-                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                Text("Leave empty for upload-only field")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            
-                                        case .block:
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                TextField("Static text or label", text: $value)
-                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                Text("Display-only text content")
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            
-                                        case .chart:
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                TextField("Chart title (optional)", text: $value)
-                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                HStack {
-                                                    Image(systemName: "chart.bar")
-                                                        .foregroundColor(.secondary)
-                                                    Text("Data visualization chart")
-                                                        .font(.caption2)
-                                                        .foregroundColor(.secondary)
-                                                }
-                                            }
-                                            
-                                        case .table:
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                TextField("Table name (optional)", text: $value)
-                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                HStack {
-                                                    Image(systemName: "tablecells")
-                                                        .foregroundColor(.secondary)
-                                                    Text("Data table with rows and columns")
-                                                        .font(.caption2)
-                                                        .foregroundColor(.secondary)
-                                                }
-                                            }
-                                            
-                                        case .collection:
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                TextField("Collection name (optional)", text: $value)
-                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                                HStack {
-                                                    Image(systemName: "rectangle.3.group")
-                                                        .foregroundColor(.secondary)
-                                                    Text("Nested data collection")
-                                                        .font(.caption2)
-                                                        .foregroundColor(.secondary)
-                                                }
-                                            }
-                                            
-                                        default:
-                                            TextField("Enter default value", text: $value)
-                                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                        }
-                                    }
-                                }
                             }
                         }
                         .padding(.horizontal, 20)
@@ -1678,6 +1510,61 @@ struct AddFieldView: View {
                     .cornerRadius(16)
                     .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
                     .padding(.horizontal, 16)
+                    
+                    // Table Columns Section (for table fields)
+                    if fieldType == .table {
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Image(systemName: "tablecells")
+                                    .foregroundColor(.mint)
+                                Text("Table Columns")
+                                
+                                Spacer()
+                                
+                                Button(action: { showingAddColumn = true }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(.blue)
+                                        .font(.title3)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            
+                            if tableColumns.isEmpty {
+                                VStack(spacing: 12) {
+                                    Image(systemName: "tablecells")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(.secondary)
+                                    
+                                    Text("No Columns Yet")
+                                        .foregroundColor(.secondary)
+                                    
+                                    Text("Add columns to define your table structure")
+                                        .multilineTextAlignment(.center)
+                                        .foregroundColor(.secondary)
+                                        .font(.subheadline)
+                                }
+                                .padding(.vertical, 24)
+                                .frame(maxWidth: .infinity)
+                            } else {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    ForEach(Array(tableColumns.enumerated()), id: \.offset) { index, column in
+                                        TableColumnCardView(column: column)
+                                            .onTapGesture {
+                                                editingColumn = column
+                                                editingColumnIndex = index
+                                                showingEditColumn = true
+                                            }
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                            }
+                        }
+                        .padding(.vertical, 16)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                        .padding(.horizontal, 16)
+                    }
                     
                     Spacer(minLength: 32)
                 }
@@ -1696,19 +1583,41 @@ struct AddFieldView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(editingField == nil ? "Add" : "Save") {
+                        // Auto-generate identifier if empty
+                        let finalIdentifier = identifier.isEmpty ? generateIdentifier(from: label) : identifier
+                        
                         let field = BuilderField(
-                            identifier: identifier,
+                            identifier: finalIdentifier,
                             label: label,
                             fieldType: fieldType,
                             value: value,
                             formulaRef: useFormula ? formulaRef : nil,
-                            formulaKey: formulaKey
+                            formulaKey: formulaKey,
+                            tableColumns: tableColumns
                         )
                         onAdd(field)
                         dismiss()
                     }
-                    .disabled(identifier.isEmpty || label.isEmpty)
-                    .foregroundColor(identifier.isEmpty || label.isEmpty ? .gray : .blue)
+                    .disabled(label.isEmpty)
+                    .foregroundColor(label.isEmpty ? .gray : .blue)
+                }
+            }
+            .sheet(isPresented: $showingAddColumn) {
+                AddColumnView { column in
+                    tableColumns.append(column)
+                }
+            }
+            .sheet(isPresented: $showingEditColumn) {
+                if let editingColumn = editingColumn {
+                    AddColumnView(editingColumn: editingColumn) { updatedColumn in
+                        if let index = tableColumns.firstIndex(where: { 
+                            ($0.identifier == editingColumn.identifier) && ($0.title == editingColumn.title)
+                        }) {
+                            tableColumns[index] = updatedColumn
+                        }
+                        self.editingColumn = nil
+                        showingEditColumn = false
+                    }
                 }
             }
         }
@@ -1737,6 +1646,24 @@ struct AddFieldView: View {
         default:
             return ""
         }
+    }
+    
+    private func generateIdentifier(from label: String) -> String {
+        // Convert label to camelCase identifier
+        let words = label.components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+        
+        guard !words.isEmpty else { return "field" }
+        
+        let camelCase = words.enumerated().map { index, word in
+            if index == 0 {
+                return word.lowercased()
+            } else {
+                return word.capitalized
+            }
+        }.joined()
+        
+        return camelCase.isEmpty ? "field" : camelCase
     }
 }
 
@@ -2173,3 +2100,526 @@ struct FormulaExampleView: View {
 #Preview {
     FormBuilderView()
 } 
+
+// MARK: - Table Configuration Views
+
+struct TableColumnCardView: View {
+    let column: FieldTableColumn
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: (column.type ?? .text).systemImage)
+                    .foregroundColor((column.type ?? .text).color)
+                    .font(.title3)
+                    .frame(width: 24, height: 24)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(column.title.isEmpty ? "Untitled Column" : column.title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    HStack(spacing: 8) {
+                        Text((column.type ?? .text).displayName)
+                            .font(.caption)
+                            .foregroundColor((column.type ?? .text).color)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background((column.type ?? .text).color.opacity(0.15))
+                            .cornerRadius(6)
+                        
+                        if column.required == true {
+                            Text("Required")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(4)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                Text("W: \(column.width ?? 150)")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            
+            if (column.type ?? .text).needsOptions && !(column.options?.isEmpty ?? true) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Options")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(Array((column.options?.prefix(3) ?? []).enumerated()), id: \.offset) { index, option in
+                                Text(option.value ?? "")
+                                    .font(.caption2)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color(.systemGray5))
+                                    .cornerRadius(4)
+                            }
+                            if (column.options?.count ?? 0) > 3 {
+                                Text("+\((column.options?.count ?? 0) - 3)")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(Color(.systemBackground))
+        .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
+    }
+}
+
+struct AddColumnView: View {
+    @Environment(\.dismiss) var dismiss
+    @State private var title = ""
+    @State private var identifier = ""
+    @State private var columnType: ColumnTypes = .text
+    @State private var defaultValue = ""
+    @State private var width: Int = 150
+    @State private var required = false
+    @State private var maxImageWidth: Double = 100
+    @State private var maxImageHeight: Double = 60
+    @State private var options: [Option] = []
+    
+    let editingColumn: FieldTableColumn?
+    let onAdd: (FieldTableColumn) -> Void
+    
+    init(editingColumn: FieldTableColumn? = nil, onAdd: @escaping (FieldTableColumn) -> Void) {
+        self.editingColumn = editingColumn
+        self.onAdd = onAdd
+        
+        if let column = editingColumn {
+            _title = State(initialValue: column.title)
+            _identifier = State(initialValue: column.identifier ?? "")
+            _columnType = State(initialValue: column.type ?? .text)
+            _defaultValue = State(initialValue: "")
+            _width = State(initialValue: column.width ?? 150)
+            _required = State(initialValue: column.required ?? false)
+            _options = State(initialValue: column.options ?? [])
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    AddColumnHeaderView(editingColumn: editingColumn)
+                    AddColumnDetailsView(
+                        title: $title,
+                        columnType: $columnType,
+                        width: $width,
+                        required: $required
+                    )
+                    
+                    if columnType.needsOptions {
+                        AddColumnOptionsView(
+                            columnType: columnType,
+                            options: $options,
+                            addOption: addOption
+                        )
+                    }
+                    
+                    if columnType == .image {
+                        AddColumnImageSettingsView(
+                            maxImageWidth: $maxImageWidth,
+                            maxImageHeight: $maxImageHeight
+                        )
+                    }
+                    
+                    Spacer(minLength: 32)
+                }
+            }
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.blue)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(editingColumn == nil ? "Add" : "Save") {
+                        saveColumn()
+                    }
+                    .disabled(title.isEmpty)
+                    .foregroundColor(title.isEmpty ? .gray : .blue)
+                }
+            }
+        }
+    }
+    
+    private func addOption() {
+        var option = Option()
+        option.id = UUID().uuidString
+        options.append(option)
+    }
+    
+    private func saveColumn() {
+        let finalIdentifier = identifier.isEmpty ? generateColumnIdentifier(from: title) : identifier
+        
+        var column = FieldTableColumn()
+        column.id = UUID().uuidString
+        column.identifier = finalIdentifier
+        column.title = title
+        column.type = columnType
+        column.options = columnType.needsOptions ? options.filter { !(($0.value ?? "").isEmpty) } : nil
+        column.width = width
+        column.required = required
+        
+        onAdd(column)
+        dismiss()
+    }
+    
+    private func generateColumnIdentifier(from title: String) -> String {
+        let words = title.components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+        
+        guard !words.isEmpty else { return "column" }
+        
+        let camelCase = words.enumerated().map { index, word in
+            if index == 0 {
+                return word.lowercased()
+            } else {
+                return word.capitalized
+            }
+        }.joined()
+        
+        return camelCase.isEmpty ? "column" : camelCase
+    }
+}
+
+// MARK: - AddColumn Subviews
+
+struct AddColumnHeaderView: View {
+    let editingColumn: JoyfillModel.FieldTableColumn?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "tablecells.fill")
+                    .foregroundColor(.mint)
+                    .font(.title2)
+                    .frame(width: 32, height: 32)
+                    .background(Color.mint.opacity(0.15))
+                    .clipShape(Circle())
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(editingColumn == nil ? "New Column" : "Edit Column")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                    
+                    Text("Configure table column")
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+    }
+}
+
+struct AddColumnDetailsView: View {
+    @Binding var title: String
+    @Binding var columnType: ColumnTypes
+    @Binding var width: Int
+    @Binding var required: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "info.circle.fill")
+                    .foregroundColor(.blue)
+                Text("Column Details")
+            }
+            .padding(.horizontal, 20)
+            
+            VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Title")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                    
+                    TextField("e.g., Product Name", text: $title)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Column Type")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                    
+                    Menu {
+                        ForEach(ColumnTypes.tableColumnTypes, id: \.self) { type in
+                            Button(action: {
+                                columnType = type
+                            }) {
+                                Label(type.displayName, systemImage: type.systemImage)
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: columnType.systemImage)
+                                .foregroundColor(columnType.color)
+                            Text(columnType.displayName)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                    }
+                }
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Width")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        
+                        HStack {
+                            Slider(value: Binding(
+                                get: { Double(width) },
+                                set: { width = Int($0) }
+                            ), in: 100...400, step: 10) {
+                                Text("Width")
+                            }
+                            Text("\(width)px")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .frame(width: 40)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Required")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        
+                        Toggle("", isOn: $required)
+                            .toggleStyle(SwitchToggleStyle(tint: .red))
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.vertical, 16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+        .padding(.horizontal, 16)
+    }
+}
+
+struct AddColumnOptionsView: View {
+    let columnType: ColumnTypes
+    @Binding var options: [Option]
+    let addOption: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "list.bullet")
+                    .foregroundColor(.orange)
+                Text("Options")
+                
+                Spacer()
+                
+                Button(action: addOption) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(.blue)
+                        .font(.title3)
+                }
+            }
+            .padding(.horizontal, 20)
+            
+            if options.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "list.bullet")
+                        .font(.system(size: 24))
+                        .foregroundColor(.secondary)
+                    
+                    Text("No Options Yet")
+                        .foregroundColor(.secondary)
+                    
+                    Text("Add options for this column")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.vertical, 20)
+                .frame(maxWidth: .infinity)
+            } else {
+                LazyVStack(spacing: 8) {
+                    ForEach(options.indices, id: \.self) { index in
+                        HStack {
+                            TextField("Option \(index + 1)", text: Binding(
+                                get: { options[index].value ?? "" },
+                                set: { options[index].value = $0 }
+                            ))
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            
+                            Button(action: {
+                                options.remove(at: index)
+                            }) {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundColor(.red)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+        }
+        .padding(.vertical, 16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+        .padding(.horizontal, 16)
+    }
+}
+
+struct AddColumnImageSettingsView: View {
+    @Binding var maxImageWidth: Double
+    @Binding var maxImageHeight: Double
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "photo")
+                    .foregroundColor(.indigo)
+                Text("Image Settings")
+            }
+            .padding(.horizontal, 20)
+            
+            VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Max Width: \(Int(maxImageWidth))px")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                    
+                    Slider(value: $maxImageWidth, in: 50...300, step: 10)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Max Height: \(Int(maxImageHeight))px")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                    
+                    Slider(value: $maxImageHeight, in: 50...200, step: 10)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.vertical, 16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+        .padding(.horizontal, 16)
+    }
+}
+
+// Supported column types (all except table and unknown)
+extension ColumnTypes {
+    static var tableColumnTypes: [ColumnTypes] {
+        return allCases.filter { $0 != .table && $0 != .unknown }
+    }
+}
+
+// Extension to add UI properties to ColumnTypes from JoyfillModel
+extension ColumnTypes: @retroactive CaseIterable {
+    public static var allCases: [ColumnTypes] {
+        return [.text, .dropdown, .image, .block, .date, .number, .multiSelect, .progress, .barcode, .signature]
+    }
+    
+    var displayName: String {
+        switch self {
+        case .text: return "Text"
+        case .dropdown: return "Dropdown"
+        case .image: return "Image"
+        case .block: return "Block/Label"
+        case .date: return "Date"
+        case .number: return "Number"
+        case .multiSelect: return "Multi Select"
+        case .progress: return "Progress"
+        case .barcode: return "Barcode"
+        case .table: return "Table"
+        case .signature: return "Signature"
+        case .unknown: return "Unknown"
+        }
+    }
+    
+    var systemImage: String {
+        switch self {
+        case .text: return "textformat"
+        case .dropdown: return "list.bullet"
+        case .image: return "photo"
+        case .block: return "cube"
+        case .date: return "calendar"
+        case .number: return "number"
+        case .multiSelect: return "checkmark.square"
+        case .progress: return "chart.bar.fill"
+        case .barcode: return "barcode"
+        case .table: return "tablecells"
+        case .signature: return "signature"
+        case .unknown: return "questionmark"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .text: return .blue
+        case .dropdown: return .orange
+        case .image: return .yellow
+        case .block: return .gray
+        case .date: return .red
+        case .number: return .green
+        case .multiSelect: return .purple
+        case .progress: return .pink
+        case .barcode: return .brown
+        case .table: return .mint
+        case .signature: return .indigo
+        case .unknown: return .secondary
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .text: return "Single line text input"
+        case .dropdown: return "Single selection dropdown"
+        case .image: return "Image upload and display"
+        case .block: return "Static text or label"
+        case .date: return "Date and time picker"
+        case .number: return "Numeric input field"
+        case .multiSelect: return "Multiple selection options"
+        case .progress: return "Progress indicator"
+        case .barcode: return "Barcode scanner/display"
+        case .table: return "Nested table (not supported in columns)"
+        case .signature: return "Digital signature capture"
+        case .unknown: return "Unknown column type"
+        }
+    }
+    
+    var needsOptions: Bool {
+        return self == .dropdown || self == .multiSelect
+    }
+}
