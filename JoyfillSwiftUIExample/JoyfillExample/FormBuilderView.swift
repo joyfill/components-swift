@@ -151,18 +151,23 @@ struct FormBuilderView: View {
                                     .padding(.vertical, 24)
                                     .frame(maxWidth: .infinity)
                                 } else {
-                                    LazyVStack(spacing: 12) {
-                                        ForEach(formulas) { formula in
-                                            FormulaCardView(
-                                                formula: formula,
-                                                onEdit: {
-                                                    editingFormula = formula
-                                                },
-                                                onDelete: { deleteFormula(formula) }
-                                            )
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        List {
+                                            ForEach(formulas) { formula in
+                                                FormulaCardView(formula: formula)
+                                                    .listRowBackground(Color(.systemBackground))
+                                                    .listRowSeparator(.hidden)
+                                                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                                    .onTapGesture {
+                                                        editingFormula = formula
+                                                    }
+                                            }
+                                            .onDelete(perform: deleteFormulaAtIndex)
                                         }
+                                        .listStyle(.plain)
+                                        .frame(height: CGFloat(min(formulas.count * 120, 400)))
+                                        .background(Color(.systemGroupedBackground))
                                     }
-                                    .padding(.horizontal, 20)
                                 }
                             }
                         }
@@ -420,6 +425,20 @@ struct FormBuilderView: View {
     
     private func deleteFieldAtIndex(at offsets: IndexSet) {
         fields.remove(atOffsets: offsets)
+    }
+    
+    private func deleteFormulaAtIndex(at offsets: IndexSet) {
+        let formulasToDelete = offsets.map { formulas[$0] }
+        formulas.remove(atOffsets: offsets)
+        
+        // Remove formula references from fields
+        for deletedFormula in formulasToDelete {
+            for index in fields.indices {
+                if fields[index].formulaRef == deletedFormula.identifier {
+                    fields[index].formulaRef = nil
+                }
+            }
+        }
     }
     
     private func moveField(from source: IndexSet, to destination: Int) {
@@ -1983,8 +2002,6 @@ enum FormulaTemplate: CaseIterable {
 
 struct FormulaCardView: View {
     let formula: BuilderFormula
-    let onEdit: () -> Void
-    let onDelete: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -2006,28 +2023,6 @@ struct FormulaCardView: View {
                 }
                 
                 Spacer()
-                
-                HStack(spacing: 12) {
-                    Button(action: onEdit) {
-                        Image(systemName: "pencil")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 16, weight: .medium))
-                            .frame(width: 32, height: 32)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .foregroundColor(.red)
-                            .font(.system(size: 16, weight: .medium))
-                            .frame(width: 32, height: 32)
-                            .background(Color.red.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
             }
             
             VStack(alignment: .leading, spacing: 8) {
@@ -2052,7 +2047,6 @@ struct FormulaCardView: View {
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         .contentShape(Rectangle())
-        .onTapGesture(perform: onEdit)
     }
 }
 
