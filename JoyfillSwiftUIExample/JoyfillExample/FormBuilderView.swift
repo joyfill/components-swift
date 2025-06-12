@@ -2,6 +2,7 @@ import SwiftUI
 import JoyfillModel
 import Joyfill
 import JoyfillFormulas
+import UIKit
 
 struct FormBuilderView: View {
     @State private var fields: [BuilderField] = []
@@ -187,16 +188,30 @@ struct FormBuilderView: View {
                     
                     // Action Buttons
                     HStack(spacing: 16) {
-                        Button("Clear All") {
+                        Button(action: {
                             fields.removeAll()
                             formulas.removeAll()
+                        }) {
+                            Image(systemName: "trash")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(width: 50, height: 50)
+                                .background(fields.isEmpty && formulas.isEmpty ? Color.gray : Color.red)
+                                .clipShape(Circle())
                         }
-                        .foregroundColor(.red)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 24)
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(10)
                         .disabled(fields.isEmpty && formulas.isEmpty)
+                        
+                        Button(action: {
+                            copyJSONToClipboard()
+                        }) {
+                            Image(systemName: "doc.on.doc")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(width: 50, height: 50)
+                                .background(fields.isEmpty ? Color.gray : Color.purple)
+                                .clipShape(Circle())
+                        }
+                        .disabled(fields.isEmpty)
                         
                         Spacer()
                         
@@ -210,16 +225,12 @@ struct FormBuilderView: View {
                                     .foregroundColor(.secondary)
                             }
                         }) {
-                            HStack {
-                                Image(systemName: "play.fill")
-                                    .font(.system(size: 14))
-                                Text("Test Form")
-                            }
-                            .foregroundColor(.white)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 32)
-                            .background(fields.isEmpty ? Color.gray : Color.blue)
-                            .cornerRadius(10)
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(width: 50, height: 50)
+                                .background(fields.isEmpty ? Color.gray : Color.blue)
+                                .clipShape(Circle())
                         }
                         .disabled(fields.isEmpty)
                         .simultaneousGesture(TapGesture().onEnded {
@@ -863,6 +874,118 @@ struct FormBuilderView: View {
                 BuilderField(identifier: "roundedResult", label: "Rounded Result", fieldType: .number, formulaRef: "roundedConversion"),
                 BuilderField(identifier: "validationResult", label: "Validation Result", fieldType: .text, formulaRef: "validationCheck")
             ]
+        }
+    }
+    
+    private func copyJSONToClipboard() {
+        // Build the document structure similar to buildAndPreviewForm
+        var document = JoyDoc.addDocument()
+        
+        // Add all formulas first
+        for formula in formulas {
+            document = document.addFormula(id: formula.identifier, formula: formula.formula)
+        }
+        
+        // Add all fields (simplified version for JSON generation)
+        for field in fields {
+            switch field.fieldType {
+            case .text:
+                if let formulaRef = field.formulaRef {
+                    document = document.addTextField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        label: field.label
+                    )
+                } else {
+                    document = document.addTextField(
+                        identifier: field.identifier,
+                        value: field.value,
+                        label: field.label
+                    )
+                }
+            case .number:
+                if let formulaRef = field.formulaRef {
+                    document = document.addNumberField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        label: field.label
+                    )
+                } else {
+                    let numberValue = Double(field.value) ?? 0
+                    document = document.addNumberField(
+                        identifier: field.identifier,
+                        value: numberValue,
+                        label: field.label
+                    )
+                }
+            case .date:
+                if let formulaRef = field.formulaRef {
+                    document = document.addDateField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        label: field.label
+                    )
+                } else {
+                    document = document.addDateField(
+                        identifier: field.identifier,
+                        value: Date(),
+                        label: field.label
+                    )
+                }
+            case .dropdown:
+                let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+                if let formulaRef = field.formulaRef {
+                    document = document.addOptionField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        options: options,
+                        label: field.label
+                    )
+                } else {
+                    document = document.addOptionField(
+                        identifier: field.identifier,
+                        value: [options.first ?? ""],
+                        options: options,
+                        label: field.label
+                    )
+                }
+            // Add other field types as needed
+            default:
+                // Default to text field for simplicity
+                if let formulaRef = field.formulaRef {
+                    document = document.addTextField(
+                        identifier: field.identifier,
+                        formulaRef: formulaRef,
+                        formulaKey: field.formulaKey,
+                        label: field.label
+                    )
+                } else {
+                    document = document.addTextField(
+                        identifier: field.identifier,
+                        value: field.value,
+                        label: field.label
+                    )
+                }
+            }
+        }
+        
+        // Convert document to JSON
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: document.dictionary, options: [.prettyPrinted, .sortedKeys])
+            
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                // Copy to clipboard
+                UIPasteboard.general.string = jsonString
+                
+                // Optional: Show user feedback (you could add a toast or alert here)
+                print("JSON copied to clipboard!")
+            }
+        } catch {
+            print("Error generating JSON: \(error)")
         }
     }
 }
