@@ -15,21 +15,19 @@ struct LiveViewTest: View {
     @State private var selectedTest: FormulaTest = .basic
     
     var body: some View {
-        NavigationView {
-            VStack {
-                Picker("Select Test", selection: $selectedTest) {
-                    ForEach(FormulaTest.allCases, id: \.self) { test in
-                        Text(test.displayName).tag(test)
-                    }
+        VStack {
+            Picker("Select Test", selection: $selectedTest) {
+                ForEach(FormulaTest.allCases, id: \.self) { test in
+                    Text(test.displayName).tag(test)
                 }
-                .pickerStyle(MenuPickerStyle())
-                .padding()
-                
-                selectedTest.view
-                    .padding(.horizontal)
             }
-            .navigationTitle("Formula Tests")
+            .pickerStyle(MenuPickerStyle())
+            .padding()
+            
+            selectedTest.view
+                .padding(.horizontal)
         }
+        .navigationTitle("Formula Tests")
     }
     
     enum FormulaTest: CaseIterable {

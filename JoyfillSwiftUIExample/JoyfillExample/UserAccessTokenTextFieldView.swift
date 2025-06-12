@@ -480,6 +480,8 @@ struct OptionSelectionView: View {
         case token
         case jsonToForm
         case testingChangelogs
+        case imageReplacementTest
+        case liveViewTest
         
         var title: String {
             switch self {
@@ -489,6 +491,10 @@ struct OptionSelectionView: View {
                 return "JSON to Form"
             case .testingChangelogs:
                 return "Testing Changelogs"
+            case .imageReplacementTest:
+                return "Image Replacement Test"
+            case .liveViewTest:
+                return "Live View Test"
             }
         }
         
@@ -500,6 +506,10 @@ struct OptionSelectionView: View {
                 return "Input JSON data to create forms directly"
             case .testingChangelogs:
                 return "Use both token and JSON with changelog testing"
+            case .imageReplacementTest:
+                return "Test image replacement functionality"
+            case .liveViewTest:
+                return "Test live view features and capabilities"
             }
         }
         
@@ -511,6 +521,10 @@ struct OptionSelectionView: View {
                 return "doc.text.fill"
             case .testingChangelogs:
                 return "testtube.2"
+            case .imageReplacementTest:
+                return "photo.fill"
+            case .liveViewTest:
+                return "video.fill"
             }
         }
         
@@ -522,13 +536,17 @@ struct OptionSelectionView: View {
                 return .green
             case .testingChangelogs:
                 return .orange
+            case .imageReplacementTest:
+                return .purple
+            case .liveViewTest:
+                return .red
             }
         }
     }
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 32) {
+            VStack(spacing: 0) {
                 // Header Section
                 VStack(spacing: 16) {
                     Image(systemName: "app.badge")
@@ -546,92 +564,105 @@ struct OptionSelectionView: View {
                         .multilineTextAlignment(.center)
                 }
                 .padding(.top, 32)
+                .padding(.bottom, 24)
                 
-                // Options Section
-                VStack(spacing: 16) {
-                    ForEach(OptionType.allCases, id: \.self) { option in
-                        OptionCard(
-                            option: option,
-                            isSelected: selectedOption == option
-                        ) {
-                            selectedOption = option
-                        }
-                    }
-                }
-                .padding(.horizontal, 20)
-                
-                Spacer()
-                
-                // Continue Button
-                NavigationLink(
-                    destination: destinationView(),
-                    isActive: Binding(
-                        get: { isNavigating },
-                        set: { newValue in
-                            isNavigating = newValue
-                            if !newValue {
-                                // Reset selectedOption when navigation is dismissed
-                                selectedOption = nil
+                // Scrollable Options Section
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ForEach(OptionType.allCases, id: \.self) { option in
+                            OptionCard(
+                                option: option,
+                                isSelected: selectedOption == option
+                            ) {
+                                selectedOption = option
                             }
                         }
-                    )
-                ) {
-                    Button(action: {
-                        if selectedOption != nil {
-                            isNavigating = true
-                        }
-                    }) {
-                        HStack {
-                            Spacer()
-                            Text("Continue")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                            Spacer()
-                        }
-                        .frame(height: 54)
-                        .background(
-                            selectedOption == nil
-                            ? Color.gray.opacity(0.3)
-                            : Color.blue
-                        )
-                        .cornerRadius(16)
-                        .shadow(
-                            color: selectedOption == nil ? .clear : .black.opacity(0.1),
-                            radius: 2, x: 0, y: 1
-                        )
                     }
-                    .disabled(selectedOption == nil)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 100) // Add padding to account for the Continue button
+                }
+                
+                // Continue Button - Fixed at bottom
+                VStack {
+                    NavigationLink(
+                        destination: destinationView(),
+                        isActive: Binding(
+                            get: { isNavigating },
+                            set: { newValue in
+                                isNavigating = newValue
+                                if !newValue {
+                                    // Reset selectedOption when navigation is dismissed
+                                    selectedOption = nil
+                                }
+                            }
+                        )
+                    ) {
+                        Button(action: {
+                            if selectedOption != nil {
+                                isNavigating = true
+                            }
+                        }) {
+                            HStack {
+                                Spacer()
+                                Text("Continue")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .frame(height: 54)
+                            .background(
+                                selectedOption == nil
+                                ? Color.gray.opacity(0.3)
+                                : Color.blue
+                            )
+                            .cornerRadius(16)
+                            .shadow(
+                                color: selectedOption == nil ? .clear : .black.opacity(0.1),
+                                radius: 2, x: 0, y: 1
+                            )
+                        }
+                        .disabled(selectedOption == nil)
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 32)
+                .background(Color(UIColor.systemBackground))
             }
             .navigationBarHidden(true)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
+        .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
     }
     
     @ViewBuilder
     private func destinationView() -> some View {
         switch selectedOption {
         case .token:
-            ScrollView {
-                VStack {
-                    UserAccessTokenTextFieldView(isAlreadyToken: false, enableChangelogs: false)
+            AnyView(
+                ScrollView {
+                    VStack {
+                        UserAccessTokenTextFieldView(isAlreadyToken: false, enableChangelogs: false)
+                    }
                 }
-            }
-            .modifier(KeyboardDismissModifier())
+                .modifier(KeyboardDismissModifier())
+            )
         case .jsonToForm:
-            ScrollView {
-                VStack {
-                    UserJsonTextFieldView(enableChangelogs: false)
+            AnyView(
+                ScrollView {
+                    VStack {
+                        UserJsonTextFieldView(enableChangelogs: false)
+                    }
                 }
-            }
-            .modifier(KeyboardDismissModifier())
+                .modifier(KeyboardDismissModifier())
+            )
         case .testingChangelogs:
-            TestingChangelogsView()
+            AnyView(TestingChangelogsView())
+        case .imageReplacementTest:
+            AnyView(ImageReplacementTest())
+        case .liveViewTest:
+            AnyView(LiveViewTest())
         case .none:
-            EmptyView()
+            AnyView(EmptyView())
         }
     }
 }
@@ -749,5 +780,4 @@ struct TestingChangelogsView: View {
         }
         .modifier(KeyboardDismissModifier())
     }
-}
-
+} 

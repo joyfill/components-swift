@@ -21,10 +21,8 @@ struct ImageReplacementTest: View, FormChangeEvent {
     }
     
     var body: some View {
-        NavigationView {
-            Form(documentEditor: documentEditor)
+        Form(documentEditor: documentEditor)
                 .tint(.red)
-        }
     }
 
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {}
