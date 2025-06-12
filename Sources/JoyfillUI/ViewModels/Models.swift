@@ -208,7 +208,7 @@ struct TableDataModel {
                     self.childrens = value.children ?? []
                 }
                 for (colIndex, column) in filterTableColumns(key: key).enumerated() {
-                    let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown)
+                    let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown, schemaKey: key)
                     self.filterModels.append(filterModel)
                 }
             }
@@ -281,6 +281,111 @@ struct TableDataModel {
         }
         
         filteredcellModels = newFiltered
+    }
+    
+    /// Enhanced filtering method that supports schema-specific filtering for nested collections
+    mutating func filterRowsIfNeeded(schema: String) {
+        filteredcellModels = cellModels
+        guard !filterModels.noFilterApplied else {
+            return
+        }
+        
+        // If filtering on root schema, use original logic
+        if schema.isEmpty || isRootSchema(schema) {
+            filterRowsIfNeeded()
+            return
+        }
+        
+        // Apply schema-specific nested filtering
+        filteredcellModels = applySchemaSpecificFilter(rows: cellModels, targetSchema: schema, filters: filterModels)
+    }
+    
+    /// Applies filtering at a specific schema level while preserving hierarchy
+    private func applySchemaSpecificFilter(rows: [RowDataModel], targetSchema: String, filters: [FilterModel]) -> [RowDataModel] {
+        var result: [RowDataModel] = []
+        var excludedRowIDs: Set<String> = Set()
+        
+        // First pass: identify rows that should be excluded (target schema rows that don't match filter)
+        for row in rows {
+            if case .nestedRow(_, _, _, let parentSchemaKey) = row.rowType,
+               parentSchemaKey == targetSchema {
+                if !rowMatchesFilterForSchema(row, filters: filters, schema: targetSchema) {
+                    excludedRowIDs.insert(row.rowID)
+                }
+            }
+        }
+        
+        // Second pass: build result, excluding filtered rows and their descendants
+        var i = 0
+        while i < rows.count {
+            let row = rows[i]
+            
+            // Check if this row should be excluded
+            if excludedRowIDs.contains(row.rowID) {
+                if row.isExpanded {
+                    i += childrensForRows(i, row, row.rowType.level).count + 1
+                    continue
+                } else {
+                    i += 1
+                    continue
+                }
+            }
+            
+            // Include this row
+            result.append(row)
+            i += 1
+        }
+        
+        return result
+    }
+    /// Checks if a row matches the filter for a specific schema
+    private func rowMatchesFilterForSchema(_ row: RowDataModel, filters: [FilterModel], schema: String) -> Bool {
+        // Get only filters that belong to this schema
+        let schemaFilters = filters.filter { $0.schemaKey == schema }
+        
+        // Get the table columns for this schema to map filter indices correctly
+        let schemaColumns = filterTableColumns(key: schema)
+        
+        for filter in schemaFilters {
+            if filter.filterText.isEmpty {
+                continue
+            }
+            
+            // Find the correct cell index for this schema's column
+            guard let columnIndex = schemaColumns.firstIndex(where: { $0.id == filter.colID }),
+                  row.cells.indices.contains(columnIndex) else { 
+                continue 
+            }
+            
+            let column = row.cells[columnIndex].data
+            let match: Bool
+            
+            switch column.type {
+            case .text:
+                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            case .dropdown:
+                match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
+            case .number:
+                let columnNumberString = String(format: "%g", column.number ?? 0)
+                match = columnNumberString.hasPrefix(filter.filterText)
+            case .multiSelect:
+                match = column.multiSelectValues?.contains(filter.filterText) ?? false
+            case .barcode:
+                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            default:
+                match = false
+            }
+            
+            if !match {
+                return false
+            }
+        }
+        return true
+    }
+    
+    /// Checks if the given schema is the root schema
+    private func isRootSchema(_ schemaKey: String) -> Bool {
+        return schema[schemaKey]?.root == true
     }
 
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {

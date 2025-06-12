@@ -25,11 +25,38 @@ struct CollectionFilterModal: View {
                 // Main Content
                 HStack {
                     Text("Filter")
+                        .font(.system(size: 15, weight: .bold))
                         
                     Spacer()
                     
                     Button(action: {
-                        viewModel.tableDataModel.filterRowsIfNeeded()
+                        viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
+                    }, label: {
+                        Text("Expand All")
+                            .darkLightThemeColor()
+                            .font(.system(size: 12))
+                            .frame(width: 80, height: 27)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.blue, lineWidth: 1)
+                            )
+                    })
+                    
+                    Button(action: {
+                        viewModel.setupCellModels()
+                    }, label: {
+                        Text("Collapse All")
+                            .darkLightThemeColor()
+                            .font(.system(size: 12))
+                            .frame(width: 80, height: 27)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.orange, lineWidth: 1)
+                            )
+                    })
+                    
+                    Button(action: {
+                        viewModel.tableDataModel.filterRowsIfNeeded(schema: selectedSchemaKey)
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Apply")
@@ -64,6 +91,7 @@ struct CollectionFilterModal: View {
                 VStack(alignment: .leading, spacing: 12) {
                     // Filter by Column Section
                     Text("Schema type")
+                        .font(.system(size: 15, weight: .bold))
                         
                     Menu {
                         ForEach(Array(viewModel.tableDataModel.schema), id: \.key) { key, value in
@@ -108,7 +136,6 @@ struct CollectionFilterModal: View {
             }
             .background(colorScheme == .dark ? Color.black : Color.white)
         }
-        .font(.system(size: 15, weight: .bold))
         .onAppear {
             // Initialize with root schema key if not set
             if selectedSchemaKey.isEmpty {
@@ -122,6 +149,7 @@ struct CollectionFilterModal: View {
         HStack {
             VStack(alignment: .leading) {
                 Text("Sort")
+                    .font(.system(size: 15, weight: .bold))
                    
                 HStack {
                     Menu {
@@ -194,6 +222,7 @@ struct CollectionFilterModal: View {
         HStack {
             VStack(alignment: .leading) {
                 Text("Filter")
+                    .font(.system(size: 15, weight: .bold))
                 
                 Menu {
                     let columns = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey)
@@ -224,7 +253,7 @@ struct CollectionFilterModal: View {
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
                 }
-                if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == selectedFilterColumnID }) {
+                if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == selectedFilterColumnID && $0.schemaKey == selectedSchemaKey }) {
                     if let column = getSelectedColumn() {
                         CollectionSearchBar(
                             model: $viewModel.tableDataModel.filterModels[index],
@@ -294,13 +323,11 @@ struct CollectionFilterModal: View {
     }
     
     private func loadCurrentFilters() {
-        // Load current filter state
-        for (index, column) in viewModel.tableDataModel.tableColumns.enumerated() {
-            if index < viewModel.tableDataModel.filterModels.count {
-                let filterModel = viewModel.tableDataModel.filterModels[index]
-                if !filterModel.filterText.isEmpty {
-                    selectedFilters[column.id ?? ""] = filterModel.filterText
-                }
+        // Load current filter state for the selected schema
+        let schemaFilters = viewModel.tableDataModel.filterModels.filter { $0.schemaKey == selectedSchemaKey }
+        for filterModel in schemaFilters {
+            if !filterModel.filterText.isEmpty {
+                selectedFilters[filterModel.colID] = filterModel.filterText
             }
         }
     }
@@ -317,7 +344,7 @@ struct CollectionFilterModal: View {
     private func clearFilterForColumn() {
         guard !selectedFilterColumnID.isEmpty else { return }
         
-        if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == selectedFilterColumnID }) {
+        if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == selectedFilterColumnID && $0.schemaKey == selectedSchemaKey }) {
             viewModel.tableDataModel.filterModels[index].filterText = ""
         }
         
@@ -325,16 +352,18 @@ struct CollectionFilterModal: View {
         selectedFilterColumnID = ""
         selectedColumnIndex = 0
         
-        viewModel.tableDataModel.filterRowsIfNeeded()
+        viewModel.tableDataModel.filterRowsIfNeeded(schema: selectedSchemaKey)
     }
     
     private func clearAllFilters() {
         searchText = ""
         selectedFilters.removeAll()
         
-        // Clear all filter models
+        // Clear filter models for the selected schema only
         for i in 0..<viewModel.tableDataModel.filterModels.count {
-            viewModel.tableDataModel.filterModels[i].filterText = ""
+            if viewModel.tableDataModel.filterModels[i].schemaKey == selectedSchemaKey {
+                viewModel.tableDataModel.filterModels[i].filterText = ""
+            }
         }
         
         // Reset filtered results

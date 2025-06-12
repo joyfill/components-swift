@@ -534,6 +534,7 @@ struct CollectionRowsHeaderView: View {
                                 Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                     .frame(width: 40, height: 60)
                                     .border(Color.tableCellBorderColor)
+                                    .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
                                     .onTapGesture {
                                         viewModel.expandTables(rowDataModel: rowModel, level: level)
                                     }
