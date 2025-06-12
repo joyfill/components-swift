@@ -38,7 +38,7 @@ class Utility {
         }
         let widthForTwoEmptyBox: CGFloat = 80
         let widthForThirdEmptyBox: CGFloat = showSelector ? 40 : 0
-        return max(totalWidth, singleColumnWidth * 2) + widthForTwoEmptyBox + widthForThirdEmptyBox
+        return max(totalWidth, singleColumnWidth) + widthForTwoEmptyBox + widthForThirdEmptyBox
     }
     
     static func getTotalTableScrollWidth(level: Int) -> CGFloat {

@@ -661,7 +661,6 @@ final class ValidationTestCase: XCTestCase {
             .setRequiredTextFieldInMobile()
             .setRequiredShowNumberFieldByLogicWithoutValuePositionInMobile()
             .setSingleSelectPosition()
-
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
@@ -671,7 +670,6 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
         XCTAssertEqual(validationResult.fieldValidities[1].status, .invalid)
-
     }
 
     func testRequiredShowHiddenFieldWithValue() {
@@ -687,10 +685,10 @@ final class ValidationTestCase: XCTestCase {
             .setRequiredTextFieldInMobile()
             .setRequiredShowNumberFieldByLogicWithoutValuePositionInMobile()
             .setSingleSelectPosition()
-
+        
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
+        
         XCTAssertEqual(validationResult.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.count, 2)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
@@ -714,17 +712,16 @@ final class ValidationTestCase: XCTestCase {
             .setRequiredTextFieldInMobile()
             .setRequiredHideNumberFieldByLogicWithoutValuePositionInMobile()
             .setSingleSelectPosition()
-
+        
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
+        
         XCTAssertEqual(validationResult.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.count, 2)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
         XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-
     }
 
     func testRequiredHideNumberFieldWithValues() {
@@ -740,19 +737,19 @@ final class ValidationTestCase: XCTestCase {
             .setRequiredTextFieldInMobile()
             .setRequiredHideNumberFieldByLogicWithoutValuePositionInMobile()
             .setSingleSelectPosition()
-
+        
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
+        
         XCTAssertEqual(validationResult.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.count, 2)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
         XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-
+        
     }
-
+    
     func testRequiredTableField() {
         let document = JoyDoc()
             .setDocument()
@@ -880,7 +877,8 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
-
+    }
+        
         // Test Case for duplicate the page
         func testPageDuplication() {
             let document = JoyDoc()
@@ -892,12 +890,12 @@ final class ValidationTestCase: XCTestCase {
 
             let originalPageID = "6629fab320fca7c8107a6cf6"
             let fieldCount = document.fields.count * 2
-            let documentEditor = DocumentEditor(document: document)
+            let documentEditor = documentEditor(document: document)
             documentEditor.duplicatePage(pageID: originalPageID)
-
+            
             let firstFile = documentEditor.document.files.first
             let pageOrder = firstFile?.pageOrder
-
+            
             // Ensure the original page id exists.
             guard let originalIndex = pageOrder?.firstIndex(of: originalPageID) else {
                 XCTFail("Original page id not found in pageOrder.")
@@ -920,9 +918,11 @@ final class ValidationTestCase: XCTestCase {
                     XCTAssertNotEqual(dupFieldPos.field, origFieldPos.field, "Duplicated field id should differ from original field id.")
                 }
             }
-
+            
             XCTAssertEqual(documentEditor.document.fields.count, fieldCount, "Fields count can not match.")
         }
+    
+}
 
     }
 }

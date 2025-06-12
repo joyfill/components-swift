@@ -62,7 +62,7 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
     @Published var pageFieldModels = [String: PageModel]()
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
-    var events: FormChangeEvent?
+    public var events: FormChangeEvent?
     
     private var validationHandler: ValidationHandler!
     private var conditionalLogicHandler: ConditionalLogicHandler!
@@ -307,20 +307,35 @@ extension DocumentEditor {
         return resultFieldPositions
     }
     
-    private func pageIDAndIndex(key: String) -> (String, Int) {
+    private func pageIDAndIndex(key: String) -> (String, Int)? {
         let components = key.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
-        let pageID = components.first.map(String.init) ?? ""
-        let index = components.last.map { Int(String($0))! }!
+        guard let pageID = components.first.map(String.init),
+              let lastComponent = components.last.map(String.init),
+              let index = Int(lastComponent) else {
+            return nil
+        }
         return (pageID, index)
     }
     
     func refreshField(fieldId: String) {
-        let pageIDIndexValue = fieldIndexMap[fieldId]!
-        let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue)
-        let fieldPosition = self.fieldPositionMap[fieldId]
-        let identifier = pageFieldModels[pageID]!.fields[index].fieldIdentifier
-        let dataModelType = getFieldModel(fieldPosition: fieldPosition!, fieldIdentifier: identifier)
-        pageFieldModels[pageID]!.fields[index].model = dataModelType
+        guard let pageIDIndexValue = fieldIndexMap[fieldId] else {
+            Log("Could not find pageIDIndexValue for field \(fieldId)", type: .error)
+            return
+        }
+        guard let (pageID, index) = pageIDAndIndex(key: pageIDIndexValue) else {
+            Log("Could not find pageID and index for field \(fieldId)")
+            return
+        }
+        guard let fieldPosition = self.fieldPositionMap[fieldId] else {
+            Log("Could not find fieldPosition for field \(fieldId)", type: .error)
+            return
+        }
+        guard let identifier = pageFieldModels[pageID]?.fields[index].fieldIdentifier else {
+            Log("Could not find fieldIdentifier for field \(fieldId)", type: .error)
+            return
+        }
+        let dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: identifier)
+        pageFieldModels[pageID]?.fields[index].model = dataModelType
     }
     
     private func valueElements(fieldID: String) -> [ValueElement]? {
@@ -335,7 +350,11 @@ extension DocumentEditor {
     }
     
     func getFieldModel(fieldPosition: FieldPosition, fieldIdentifier: FieldIdentifier) -> FieldListModelType {
-        let fieldData = fieldMap[fieldPosition.field!]
+        guard let fieldPositionFieldID = fieldPosition.field else {
+            Log("Could not find fieldPositionFieldID", type: .error)
+            return .none
+        }
+        let fieldData = fieldMap[fieldPositionFieldID]
         var dataModelType: FieldListModelType = .none
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         
@@ -349,11 +368,21 @@ extension DocumentEditor {
                                       fieldHeaderModel: fieldHeaderModel)
             dataModelType = .text(model)
         case .block:
-            let model = DisplayTextDataModel(displayText: fieldData?.value?.text,
-                                             fontSize: fieldPosition.fontSize,
-                                             fontWeight: fieldPosition.fontWeight,
-                                             fontColor: fieldPosition.fontColor,
-                                             fontStyle: fieldPosition.fontStyle)
+            let model = DisplayTextDataModel(
+                displayText: fieldData?.value?.text,
+                fontSize: fieldPosition.fontSize,
+                fontWeight: fieldPosition.fontWeight,
+                fontColor: fieldPosition.fontColor,
+                fontStyle: fieldPosition.fontStyle,
+                textAlign: fieldPosition.textAlign,
+                textDecoration: fieldPosition.textDecoration,
+                textTransform: fieldPosition.textTransform,
+                backgroundColor: fieldPosition.backgroundColor,
+                borderColor: fieldPosition.borderColor,
+                borderWidth: fieldPosition.borderWidth,
+                borderRadius: fieldPosition.borderRadius,
+                padding: fieldPosition.padding
+            )
             dataModelType = .block(model)
         case .multiSelect:
             let model = MultiSelectionDataModel(fieldIdentifier: fieldIdentifier,
@@ -410,17 +439,19 @@ extension DocumentEditor {
                                           fieldHeaderModel: fieldHeaderModel)
             dataModelType = .richText(model)
         case .table:
-            let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
-                                       mode: fieldEditMode,
-                                       documentEditor: self,
-                                       fieldIdentifier: fieldIdentifier)
-            dataModelType = .table(model)
+            if let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
+                                          mode: fieldEditMode,
+                                          documentEditor: self,
+                                          fieldIdentifier: fieldIdentifier) {
+                dataModelType = .table(model)
+            }
         case .collection:
-            let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
-                                       mode: fieldEditMode,
-                                       documentEditor: self,
-                                       fieldIdentifier: fieldIdentifier)
-            dataModelType = .collection(model)
+            if let model = TableDataModel(fieldHeaderModel: fieldHeaderModel,
+                                          mode: fieldEditMode,
+                                          documentEditor: self,
+                                          fieldIdentifier: fieldIdentifier) {
+                dataModelType = .collection(model)
+        }
         case .image:
             let model = ImageDataModel(fieldIdentifier: fieldIdentifier,
                                        multi: fieldData?.multi,
@@ -443,8 +474,12 @@ extension DocumentEditor {
         var fieldListModels = [FieldListModel]()
         let fieldPositions = mapWebViewToMobileView(fieldPositions: duplicatedPage.fieldPositions ?? [])
         for fieldPosition in fieldPositions ?? [] {
-            let fieldData = fieldMap[fieldPosition.field!]
-            let fieldIdentifier = FieldIdentifier(fieldID: fieldPosition.field!, pageID: newPageID, fileID: fileId)
+            guard let fieldPositionFieldID = fieldPosition.field else {
+                Log("FieldPositions has nil FieldID", type: .error)
+                continue
+            }
+            let fieldData = fieldMap[fieldPositionFieldID]
+            let fieldIdentifier = FieldIdentifier(fieldID: fieldPositionFieldID, pageID: newPageID, fileID: fileId)
             var dataModelType: FieldListModelType = .none
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
             
@@ -453,7 +488,7 @@ extension DocumentEditor {
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
             let index = fieldListModels.count - 1
-            fieldIndexMap[fieldPosition.field!] = fieldIndexMapValue(pageID: newPageID, index: index)
+            fieldIndexMap[fieldPositionFieldID] = fieldIndexMapValue(pageID: newPageID, index: index)
         }
         pageFieldModels[newPageID] = PageModel(id: newPageID, fields: fieldListModels)
     }
@@ -492,15 +527,19 @@ extension DocumentEditor {
     
     public func duplicatePage(pageID: String) {
         guard var firstFile = document.files.first else {
-            print("No file found in document.")
+            Log("No file found in document.", type: .error)
             return
         }
         
         guard let originalPageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) else {
-            print("Page with id \(pageID) not found in file.pages.")
+            Log("Page with id \(pageID) not found in file.pages.", type: .error)
             return
         }
-        let originalPage = firstFile.pages![originalPageIndex]
+        guard let pages = firstFile.pages else {
+            Log("No pages found in file", type: .error)
+            return
+        }
+        let originalPage = pages[originalPageIndex]
         let newPageID = generateObjectId()
         
         var duplicatedPage = originalPage
@@ -605,19 +644,31 @@ extension DocumentEditor {
         }
         document.files = files
         updateFieldMap()
+        updateFieldPositionMap()
         updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
-        if let views = document.files[0].views, !views.isEmpty {
-            if let page = views[0].pages?.first(where: { $0.id == newPageID }) {
+        if let views = document.files.first?.views, !views.isEmpty {
+            if let page = views.first?.pages?.first(where: { $0.id == newPageID }) {
                 updatePageFieldModels(page, newPageID, firstFile.id ?? "")
             }
         }
-        updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         
-        if let views = document.files[0].views, !views.isEmpty {
-            onChangeDuplicatePage(view: views[0], viewId: views[0].id ?? "", page: duplicatedPage,fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!, newFields: newFields, viewPage: (document.files[0].views?[0].pages?.first(where: { $0.id == newPageID }))!)
-        }else {
-            onChangeDuplicatePage(viewId: "", page: duplicatedPage, fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: (document.files[0].pageOrder?.firstIndex(of: newPageID))!, newFields: newFields)
+        if let views = document.files.first?.views, !views.isEmpty {
+            guard let targetIndex = document.files.first?.pageOrder?.firstIndex(of: newPageID) else {
+                Log("Could not find index for duplicated page", type: .error)
+                return
+            }
+            guard let viewPage = views.first?.pages?.first(where: { $0.id == newPageID }) else {
+                Log("Could not find view page for duplicated page", type: .error)
+                return
+            }
+            onChangeDuplicatePage(view: views.first, viewId: views.first?.id ?? "", page: duplicatedPage,fields: document.fields, fileId: document.files.first?.id ?? "", targetIndex: targetIndex, newFields: newFields, viewPage: viewPage)
+        } else {
+            guard let targetIdnex = document.files.first?.pageOrder?.firstIndex(of: newPageID) else {
+                Log("Could not find index for duplicated page", type: .error)
+                return
+            }
+            onChangeDuplicatePage(viewId: "", page: duplicatedPage, fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: targetIdnex, newFields: newFields)
         }
     }
 }

@@ -37,9 +37,53 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
         clickOnFifthImage()
         
         app.buttons["ImageDeleteIdentifier"].tap()
-        goBack()
+        swipeSheetDown()
         emptyImageAssert()
     }
+    
+    func testUploadWithoutCallingHandler() {
+        //FAIL: we need to comment a line from changemanager UITestFormContainerViewHandler
+        goToImageDetailPage()
+        uploadImageOnDetailPageAndGoBack()
+
+        let uploadFlag = app.staticTexts["uploadflag"]
+        XCTAssertEqual(uploadFlag.label, "true")
+        let onChangeFlag = app.staticTexts["onChangeFlag"]
+        XCTAssertEqual(onChangeFlag.label, "false")
+    }
+    
+    func testUploadWithoutCallingHandlerForMultiFalse() {
+        //FAIL: we need to comment a line from changemanager UITestFormContainerViewHandler
+        app.swipeUp()
+        app.swipeUp()
+        app.swipeUp()
+        app.swipeUp()
+
+        goToImageDetailPage()
+        uploadImageOnDetailPageAndGoBack()
+
+        let uploadFlag = app.staticTexts["uploadflag"]
+        XCTAssertEqual(uploadFlag.label, "true")
+        let onChangeFlag = app.staticTexts["onChangeFlag"]
+        XCTAssertEqual(onChangeFlag.label, "false")
+    }
+    
+    func testImageUploadFromDetailPageToMultiFalse() {
+        // Tap on the second image field's "More" button
+        //2nd image is multi false , so count will be still one and image got changed
+        app.swipeUp()
+        app.swipeUp()
+        app.swipeUp()
+        app.swipeUp()
+
+        goToImageDetailPage()
+        uploadImageOnDetailPageAndGoBack()
+
+        imageAssertCount(count: 1)
+
+        XCTAssertEqual("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s", onChangeResultValue().imageURLs?.first)
+    }
+    
 }
 
 extension ImageFieldTests {
@@ -51,7 +95,7 @@ extension ImageFieldTests {
     private func goToImageDetailPageAndDeleteImageAndGoBack() {
         goToImageDetailPage()
         app.buttons["ImageDeleteIdentifier"].tap()
-        goBack()
+        swipeSheetDown()
     }
     
     func clickOnFirstImage() {
@@ -89,7 +133,7 @@ extension ImageFieldTests {
 
     private func uploadImageOnDetailPageAndGoBack() {
         uploadImageOnDetailPage()
-        goBack()
+        swipeSheetDown()
     }
 
     private func uploadImageOnDetailPage() {

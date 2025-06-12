@@ -32,15 +32,19 @@ class ValidationHandler {
                 fieldValidities.append(FieldValidity(field: field, status: .valid))
                 continue
             }
+            guard let fieldID = field.id else {
+                Log("Missing field ID", type: .error)
+                continue
+            }
             
             if field.fieldType == .table {
-                let tableFieldValidity = validateTableField(id: field.id!)
+                let tableFieldValidity = validateTableField(id: fieldID)
                 if tableFieldValidity.status == .invalid {
                     isValid = false
                 }
                 fieldValidities.append(tableFieldValidity)
             } else if field.fieldType == .collection {
-                let collectionFieldValidity = validateCollectionField(id: field.id!)
+                let collectionFieldValidity = validateCollectionField(id: fieldID)
                 if collectionFieldValidity.status == .invalid {
                     isValid = false
                 }
@@ -184,13 +188,15 @@ class ValidationHandler {
                     if let childSchema = schema[childID] {
                         for row in nonDeletedRows {
                             let isChildVisible = documentEditor.shouldShowSchema(for: id, rowSchemaID: RowSchemaID(rowID: row.id ?? "", schemaID: childID))
-                            if isChildVisible && childSchema.required == true {
-                                let childRows = row.childrens?[childID]?.valueToValueElements ?? []
-                                if childRows.isEmpty {
-                                    isCollectionValid = false
-                                    continue
+                            let childRows = row.childrens?[childID]?.valueToValueElements ?? []
+                            if isChildVisible {
+                                if childSchema.required == true {
+                                    
+                                    if childRows.isEmpty {
+                                        isCollectionValid = false
+                                        continue
+                                    }
                                 }
-
                                 // Recurse into children validation
                                 let nestedValidity = validateCollectionFieldChild(fieldID: id, rows: childRows, schema: childSchema)
                                 if nestedValidity.status == .invalid {
@@ -205,7 +211,7 @@ class ValidationHandler {
         }
 
         let status: ValidationStatus = isCollectionValid ? .valid : .invalid
-        return FieldValidity(field: field, status: status, children: childrenValidities, rowValidities: rowValidities, columnValidities: columnValidities)
+        return FieldValidity(field: field, status: status)
     }
     
     private func validateCollectionFieldChild(fieldID: String, rows: [ValueElement], schema: Schema) -> FieldValidity {
@@ -239,11 +245,14 @@ class ValidationHandler {
                 for childID in children {
                     if let childSchema = documentEditor.field(fieldID: fieldID)?.schema?[childID] {
                         let isChildVisible = documentEditor.shouldShowSchema(for: fieldID, rowSchemaID: RowSchemaID(rowID: row.id ?? "", schemaID: childID))
-                        if isChildVisible && childSchema.required == true {
-                            let childRows = row.childrens?[childID]?.valueToValueElements ?? []
-                            if childRows.isEmpty {
-                                isValid = false
-                                continue
+                        let childRows = row.childrens?[childID]?.valueToValueElements ?? []
+                        
+                        if isChildVisible {
+                            if childSchema.required == true {
+                                if childRows.isEmpty {
+                                    isValid = false
+                                    continue
+                                }
                             }
                             let nested = validateCollectionFieldChild(fieldID: fieldID, rows: childRows, schema: childSchema)
                             if nested.status == .invalid {

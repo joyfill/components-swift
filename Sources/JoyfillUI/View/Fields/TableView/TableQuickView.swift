@@ -88,6 +88,13 @@ struct TableQuickView : View {
         .onAppear() {
             refreshID = UUID()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            // Handle orientation changes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                offset = CGPoint.zero // Reset scroll offset on rotation
+                refreshID = UUID() // Force refresh of table
+            }
+        }
     }
     
     var colsHeader: some View {
@@ -101,7 +108,7 @@ struct TableQuickView : View {
                         .padding(.horizontal, 4)
                 }
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
+                .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
             }
         }
     }
@@ -128,7 +135,7 @@ struct TableQuickView : View {
                                     .foregroundColor(Color.tableCellBorderColor)
                                 TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
                             }
-                            .frame(width: (screenWidth / 3) - 8, height: rowHeight)
+                            .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
                         }
                     }
                 }

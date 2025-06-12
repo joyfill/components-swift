@@ -40,7 +40,6 @@ struct TableModalView : View {
 
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
-        UIScrollView.appearance().bounces = false
         longestBlockText = viewModel.tableDataModel.getLongestBlockText()
     }
     
@@ -230,7 +229,7 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
                 Button(action: {
-                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
+//                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     HStack {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
@@ -243,10 +242,10 @@ struct TableModalView : View {
                                 .imageScale(.small)
                         }
                         
-                        if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
-                        }
+//                        if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
+//                            Image(systemName: "line.3.horizontal.decrease.circle")
+//                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
+//                        }
                         
                     }
                     .padding(.all, 4)
@@ -264,7 +263,8 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
+//                .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled(true)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in

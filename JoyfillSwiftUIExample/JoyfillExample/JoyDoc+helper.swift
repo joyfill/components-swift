@@ -327,6 +327,7 @@ extension JoyDoc {
                         formulaRef: String? = nil,
                         formulaKey: String = "value",
                         id: String = UUID().uuidString,
+
                         label: String? = nil,
                         htmlContent: String = "<p>Sample rich text</p>") -> JoyDoc {
         return addField(type: .richText,
@@ -367,6 +368,7 @@ extension JoyDoc {
         return doc
     }
     
+
     /// Adds a collection field to the document
     func addCollectionField(identifier: String = "collection1",
                           formulaRef: String? = nil,
@@ -387,7 +389,29 @@ extension JoyDoc {
         
         return doc
     }
-    
+
+    //    /// Adds a collection field to the document
+//    func addCollectionField(identifier: String = "collection1",
+//                          formulaRef: String? = nil,
+//                          formulaKey: String = "value",
+//                          id: String = UUID().uuidString,
+//                          schema: [String: Schema] = [:]) -> JoyDoc {
+//        var doc = addField(type: .collection,
+//                          identifier: identifier,
+//                          formulaRef: formulaRef,
+//                          formulaKey: formulaKey,
+//                          id: id,
+//                          value: .null)
+//        
+//        // Add schema to the field
+//        if let index = doc.fields.firstIndex(where: { $0.id == id }) {
+//            doc.fields[index].schema = schema
+//        }
+//        
+//        return doc
+//    }
+
+
     /// Adds an image field to the document
     func addImageField(identifier: String = "image1",
                      formulaRef: String? = nil,

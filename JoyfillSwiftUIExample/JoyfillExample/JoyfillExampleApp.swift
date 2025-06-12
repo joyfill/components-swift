@@ -14,6 +14,10 @@ class AppState: ObservableObject {
     @Published var changeResult: String = ""
 }
 
+// MARK: - Quick Configuration
+// Change this to true for quick testing with default token, false for option selection screen
+let useQuickTestMode: Bool = false
+
 @main
 struct JoyfillExampleApp: App {
     @StateObject private var appState = AppState()
@@ -33,7 +37,7 @@ struct JoyfillExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            LiveViewTest()
+//            LiveViewTest()
 //            if joyfillUITestsMode {
 //                NavigationView {
 //                    UITestFormContainerView(documentEditor: documentEditor)
@@ -53,8 +57,26 @@ struct JoyfillExampleApp: App {
 //                    }
 //                    .modifier(KeyboardDismissModifier())
 //                }
-                .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
+//                .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
 //            }
+            if joyfillUITestsMode {
+                NavigationView {
+                    UITestFormContainerView(documentEditor: documentEditor)
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+                Text(appState.changeResult)
+                    .accessibilityIdentifier("resultfield")
+                    .frame(height: 10)
+            } else if useQuickTestMode {
+                // Quick test mode: directly open template list with default token
+                NavigationView {
+                    UserAccessTokenTextFieldView(isAlreadyToken: true, enableChangelogs: false)
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+            } else {
+                OptionSelectionView()
+            }
+//            ImageReplacementTest()
         }
     }
     
