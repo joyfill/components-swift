@@ -481,13 +481,19 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Check if it's a column name (for all values in that column)
         let possibleColumnName = nextComponent
+        guard let possibleColumnID = field.tableColumns?.first(where: { column in
+            column.title == possibleColumnName
+        })?.id else {
+            return .failure(.invalidReference("Field '\(field.identifier ?? "unknown")' is not a valid collection"))
+        }
+
         if pathComponents.count == 1 {
             // Get all values from this column: {fieldName.columnName}
             var columnValues: [FormulaValue] = []
             
             for element in valueElements {
                 if let cells = element.cells,
-                   let cellValue = cells[possibleColumnName] {
+                   let cellValue = cells[possibleColumnID] {
                     columnValues.append(convertValueUnionToFormulaValue(cellValue))
                 } else {
                     // If column doesn't exist in this row, use null
