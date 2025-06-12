@@ -1208,10 +1208,6 @@ extension DocumentEditor {
             Log("DocumentID is missing", type: .error)
             return nil
         }
-        guard let documentIdentifier = documentIdentifier else {
-            Log("DocumentIdentifier is missing", type: .error)
-            return nil
-        }
         guard let fileID = fieldIdentifier.fileID else {
             Log("FileID is missing", type: .error)
             return nil
@@ -1244,7 +1240,7 @@ extension DocumentEditor {
 
 struct FieldChangeContext {
     let documentID: String
-    let documentIdentifier: String
+    let documentIdentifier: String?
     let fileID: String
     let pageID: String
     let field: JoyDocField

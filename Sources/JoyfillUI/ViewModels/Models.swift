@@ -163,6 +163,18 @@ struct TableDataModel {
     var viewMoreText: String {
         rowOrder.count > 1 ? "+\(rowOrder.count)" : ""
     }
+    
+    var collectionRowsCount: String {
+        nondeletedRowsCount > 1 ? "+\(nondeletedRowsCount)" : ""
+    }
+    
+    var nondeletedRowsCount: Int {
+        guard let valueElements = valueToValueElements, !valueElements.isEmpty else {
+            return 0
+        }
+
+        return valueElements.filter { !($0.deleted ?? false) }.count
+    }
 
     init?(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,

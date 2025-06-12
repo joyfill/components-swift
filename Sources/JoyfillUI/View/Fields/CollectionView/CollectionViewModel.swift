@@ -475,7 +475,7 @@ class CollectionViewModel: ObservableObject {
         }
 
         for i in indicesToRemoveArray.reversed() {
-            tableDataModel.filteredcellModels.remove(at: i)
+//            tableDataModel.filteredcellModels.remove(at: i)
             tableDataModel.cellModels.remove(at: i)
         }
         //Remove selections for the rows that are removed(Closed) from the table.
@@ -536,7 +536,7 @@ class CollectionViewModel: ObservableObject {
             default:
                 break
             }
-            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+//            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
         }
         updateCollectionWidth()
@@ -551,7 +551,7 @@ class CollectionViewModel: ObservableObject {
         }
         
         for i in indicesToRemove.reversed() {
-            tableDataModel.filteredcellModels.remove(at: i)
+//            tableDataModel.filteredcellModels.remove(at: i)
             tableDataModel.cellModels.remove(at: i)
         }
         //Remove selections for the rows that are removed from the table.
@@ -598,7 +598,7 @@ class CollectionViewModel: ObservableObject {
                     }
                 }
             }
-            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
+//            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
             for cellModel in cellModels {
                 expendSpecificTable(rowDataModel: cellModel, parentID: (columnID: "", rowID: cellModel.rowID), level: level)
