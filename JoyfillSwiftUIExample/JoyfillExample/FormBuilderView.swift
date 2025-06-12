@@ -166,18 +166,30 @@ struct FormBuilderView: View {
                             .padding(.vertical, 32)
                             .frame(maxWidth: .infinity)
                         } else {
-                            LazyVStack(spacing: 12) {
-                                ForEach(fields) { field in
-                                    FieldCardView(
-                                        field: field,
-                                        onEdit: {
-                                            editingField = field
-                                        },
-                                        onDelete: { deleteField(field) }
-                                    )
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Fields Count: \(fields.count)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 16)
+                                
+                                List {
+                                    ForEach(fields) { field in
+                                        FieldCardView(
+                                            field: field,
+                                            onEdit: {
+                                                editingField = field
+                                            }
+                                        )
+                                        .listRowBackground(Color(.systemBackground))
+                                        .listRowSeparator(.hidden)
+                                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                    }
+                                    .onDelete(perform: deleteFieldAtIndex)
                                 }
+                                .listStyle(.plain)
+                                .frame(minHeight: 300)
+                                .background(Color(.systemGroupedBackground))
                             }
-                            .padding(.horizontal, 20)
                         }
                     }
                     .padding(.vertical, 16)
@@ -318,6 +330,10 @@ struct FormBuilderView: View {
                 fields[index].formulaRef = nil
             }
         }
+    }
+    
+    private func deleteFieldAtIndex(at offsets: IndexSet) {
+        fields.remove(atOffsets: offsets)
     }
     
     private func buildAndPreviewForm() {
@@ -1953,7 +1969,6 @@ struct FormulaCardView: View {
 struct FieldCardView: View {
     let field: BuilderField
     let onEdit: () -> Void
-    let onDelete: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -1992,16 +2007,6 @@ struct FieldCardView: View {
                             .font(.system(size: 16, weight: .medium))
                             .frame(width: 32, height: 32)
                             .background(Color.blue.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .foregroundColor(.red)
-                            .font(.system(size: 16, weight: .medium))
-                            .frame(width: 32, height: 32)
-                            .background(Color.red.opacity(0.1))
                             .clipShape(Circle())
                     }
                     .buttonStyle(PlainButtonStyle())

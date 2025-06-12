@@ -304,10 +304,9 @@
 				E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */,
 				E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */,
 				E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */,
-				E27C87E22D394387008EA35C /* CameraScanner.swift */,
 				E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */,
 				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
-                E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */,
+				E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */,
 				36CE14662DB6680000799B25 /* LiveViewTest.swift */,
 				E27C87E22D394387008EA35C /* CameraScanner.swift */,
 				04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */,
@@ -419,7 +418,6 @@
 				36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */,
 				36C6F4C42CEF4CEC001765CF /* JoyfillModel */,
 				E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */,
-				E2C9BB262D8F2AAF006A9047 /* JoyfillModel */,
 				366FD1462DD35C9100F9BE3E /* JoyfillAPIService */,
 				366FD1492DD35D8600F9BE3E /* Examples */,
 				366FD14B2DD35D8600F9BE3E /* JoyfillFormulas */,
@@ -595,7 +593,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Z928FCJVR4;
+				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -617,7 +615,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Z928FCJVR4;
+				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -641,7 +639,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Z928FCJVR4;
+				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -664,7 +662,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Z928FCJVR4;
+				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -812,7 +810,7 @@
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Z928FCJVR4;
+				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
@@ -853,7 +851,7 @@
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Z928FCJVR4;
+				DEVELOPMENT_TEAM = Y5JMZSQP2T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
@@ -1058,12 +1056,10 @@
 		};
 		E2F8A2102DCC7A0F00D3E124 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E2F8A20F2DCC7A0F00D3E124 /* XCRemoteSwiftPackageReference "JoyfillModel" */;
 			productName = JoyfillModel;
 		};
 		E2F8A2122DCC7A2D00D3E124 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E2F8A20F2DCC7A0F00D3E124 /* XCRemoteSwiftPackageReference "JoyfillModel" */;
 			productName = JoyfillModel;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
