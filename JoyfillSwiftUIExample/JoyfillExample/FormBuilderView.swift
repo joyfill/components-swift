@@ -183,6 +183,7 @@ struct FormBuilderView: View {
                                             }
                                     }
                                     .onDelete(perform: deleteFieldAtIndex)
+                                    .onMove(perform: moveField)
                                 }
                                 .listStyle(.plain)
                                 .frame(minHeight: 300)
@@ -332,6 +333,10 @@ struct FormBuilderView: View {
     
     private func deleteFieldAtIndex(at offsets: IndexSet) {
         fields.remove(atOffsets: offsets)
+    }
+    
+    private func moveField(from source: IndexSet, to destination: Int) {
+        fields.move(fromOffsets: source, toOffset: destination)
     }
     
     private func buildAndPreviewForm() {
@@ -1970,6 +1975,7 @@ struct FieldCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
+                
                 Image(systemName: fieldTypeIcon)
                     .foregroundColor(fieldTypeColor)
                     .font(.title3)
