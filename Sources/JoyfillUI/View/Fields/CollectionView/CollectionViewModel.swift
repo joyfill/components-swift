@@ -305,7 +305,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func updateCollectionWidth() {
-        collectionWidth = tableDataModel.cellModels
+        collectionWidth = tableDataModel.filteredcellModels
             .map { $0.rowWidth }
             .max() ?? 0
     }
@@ -404,6 +404,158 @@ class CollectionViewModel: ObservableObject {
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
+    }
+    
+    func setupAllCellModels(targetSchema: String) {
+        tableDataModel.cellModels = []
+        tableDataModel.filteredcellModels = []
+        var cellModels = [RowDataModel]()
+        let rowDataMap = setupRows()
+        let rowToChildrenMap = setupRowsChildrens()
+        
+        // Create root rows with all nested content pre-expanded
+        tableDataModel.valueToValueElements?.enumerated().forEach { rootIndex, valueElement in
+            if valueElement.deleted ?? false { return }
+            guard let rowID = valueElement.id else {
+                Log("Could not find rowID for valueElement", type: .error)
+                return
+            }
+            var rowCellModels = [TableCellModel]()
+            let childrens = rowToChildrenMap[rowID] ?? [:]
+            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
+                let columnModel = rowDataMap[rowID]?[colIndex]
+                if let columnModel = columnModel {
+                    
+                    let cellModel = TableCellModel(rowID: rowID,
+                                                   data: columnModel,
+                                                   documentEditor: tableDataModel.documentEditor,
+                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                   viewMode: .modalView,
+                                                   editMode: tableDataModel.mode) { cellDataModel in
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                    }
+                    rowCellModels.append(cellModel)
+                }
+            }
+            
+            let rootRowModel = RowDataModel(rowID: rowID,
+                                          cells: rowCellModels,
+                                          rowType: .row(index: rootIndex + 1),
+                                          isExpanded: true,
+                                          childrens: childrens,
+                                          rowWidth: rowWidth(tableDataModel.tableColumns, 0))
+            cellModels.append(rootRowModel)
+            
+            // Add all nested rows for this root row
+//            if targetSchema != rootSchemaKey {
+                addAllNestedRowsRecursively(to: &cellModels,
+                                            parentRowID: rowID,
+                                            level: 0,
+                                            parentSchemaKey: rootSchemaKey,
+                                            parentID: ("", rowID),
+                                            targetSchema: targetSchema)
+//            }
+        }
+        tableDataModel.cellModels = cellModels
+        tableDataModel.filteredcellModels = cellModels
+    }
+    
+    /// Recursively adds all nested rows maintaining the proper hierarchical order
+    private func addAllNestedRowsRecursively(to cellModels: inout [RowDataModel], 
+                                           parentRowID: String, 
+                                           level: Int, 
+                                           parentSchemaKey: String,
+                                             parentID: (columnID: String, rowID: String),
+                                             targetSchema: String) {
+        
+        // Get the schema for the parent to find its children
+        guard let schema = tableDataModel.schema[parentSchemaKey],
+              let childrenKeys = schema.children, !childrenKeys.isEmpty else {
+            return
+        }
+        
+        // Get the children data for the parent row
+        let parentChildren = getChildren(forRowId: parentRowID, in: tableDataModel.valueToValueElements ?? []) ?? [:]
+        
+        // Process each child schema
+        for childSchemaKey in childrenKeys {
+            guard let childSchema = tableDataModel.schema[childSchemaKey] else {
+                continue
+            }
+            
+            // Add table expander for this schema
+            let expanderRowID = UUID().uuidString
+            let filteredTableColumns = tableDataModel.filterTableColumns(key: childSchemaKey)
+            let expanderRow = RowDataModel(rowID: expanderRowID,
+                                         cells: [],
+                                         rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
+                                                               level: level,
+                                                               parentID: parentID,
+                                                               rowWidth: rowWidth(filteredTableColumns, level)),
+                                         isExpanded: true, // Mark as expanded since we're showing content
+                                         rowWidth: rowWidth(filteredTableColumns, level))
+            cellModels.append(expanderRow)
+            
+            // Add header row for the nested table
+            let headerRowID = UUID().uuidString
+            let headerRow = RowDataModel(rowID: headerRowID,
+                                       cells: [],
+                                       rowType: .header(level: level + 1, tableColumns: filteredTableColumns),
+                                       rowWidth: rowWidth(filteredTableColumns, level + 1))
+            cellModels.append(headerRow)
+            
+            guard let childValueElements = parentChildren[childSchemaKey]?.valueToValueElements else {
+                continue
+            }
+            
+            // Add all nested rows for this schema
+            let nonDeletedChildRows = childValueElements.filter { !($0.deleted ?? false) }
+            for (nestedIndex, childValueElement) in nonDeletedChildRows.enumerated() {
+                guard let childRowID = childValueElement.id else { continue }
+                
+                // Build cells for this nested row
+                let cellDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: filteredTableColumns, 
+                                                                             childValueElement, 
+                                                                             schemaKey: childSchemaKey)
+                var nestedCells: [TableCellModel] = []
+                for cellDataModel in cellDataModels {
+                    let cellModel = TableCellModel(rowID: childRowID,
+                                                   data: cellDataModel,
+                                                   documentEditor: tableDataModel.documentEditor,
+                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                   viewMode: .modalView,
+                                                   editMode: tableDataModel.mode) { cellDataModel in
+                        let columnIndex = filteredTableColumns.firstIndex(where: { column in
+                            column.id == cellDataModel.id
+                        })
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: childRowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
+                    }
+                    nestedCells.append(cellModel)
+                }
+                
+                // Create the nested row
+                let nestedRowModel = RowDataModel(rowID: childRowID,
+                                                cells: nestedCells,
+                                                rowType: .nestedRow(level: level + 1,
+                                                                   index: nestedIndex + 1,
+                                                                   parentID: parentID,
+                                                                   parentSchemaKey: childSchemaKey),
+                                                  isExpanded: true,
+                                                childrens: childValueElement.childrens ?? [:],
+                                                rowWidth: rowWidth(filteredTableColumns, level + 1))
+                cellModels.append(nestedRowModel)
+                
+                // Recursively add nested rows for this child (if it has children)
+//                if targetSchema != childSchemaKey {
+                    addAllNestedRowsRecursively(to: &cellModels,
+                                                parentRowID: childRowID,
+                                                level: level + 1,
+                                                parentSchemaKey: childSchemaKey,
+                                                parentID: ("", childRowID),
+                                                targetSchema: targetSchema)
+//                }
+            }
+        }
     }
 
     private func setupRows() -> [String: [CellDataModel]] {
