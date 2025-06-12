@@ -14,234 +14,321 @@ struct FormBuilderView: View {
     @State private var builtDocument: JoyDoc?
     @State private var documentEditor: DocumentEditor?
     @State private var selectedTemplate: FormTemplate = .allFieldTypes
+    @State private var isFormulasExpanded = true
+    @State private var isFieldsExpanded = true
+    @State private var isTemplateExpanded = false
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Template Picker Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: "doc.text.fill")
-                                .foregroundColor(.blue)
-                                .font(.title2)
-                            
-                            Text("Load Template")
-                                .font(.title2)
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal, 20)
-                        
-                        VStack(alignment: .leading, spacing: 12) {
-                            Menu {
-                                ForEach(FormTemplate.allCases, id: \.self) { template in
-                                    Button(action: {
-                                        selectedTemplate = template
-                                        if template != .custom {
-                                            loadTemplate(template)
-                                        }
-                                    }) {
-                                        Label(template.displayName, systemImage: template.systemImage)
-                                    }
+            VStack(spacing: 0) {
+                // Main scrollable content
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Template Picker Section (Collapsible)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isTemplateExpanded.toggle()
                                 }
-                            } label: {
+                            }) {
                                 HStack {
-                                    Image(systemName: selectedTemplate.systemImage)
+                                    Image(systemName: "doc.text.fill")
                                         .foregroundColor(.blue)
-                                    Text(selectedTemplate.displayName)
+                                        .font(.title2)
+                                    
+                                    Text("Load Template")
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                    
                                     Spacer()
-                                    Image(systemName: "chevron.down")
+                                    
+                                    Image(systemName: isTemplateExpanded ? "chevron.up" : "chevron.down")
                                         .foregroundColor(.secondary)
-                                        .font(.caption)
+                                        .font(.system(size: 14, weight: .medium))
                                 }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
+                                .padding(.horizontal, 20)
+                                .contentShape(Rectangle())
                             }
-                            .padding(.horizontal, 20)
+                            .buttonStyle(PlainButtonStyle())
                             
-                            if selectedTemplate != .custom {
-                                Text(selectedTemplate.description)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal, 20)
-                            }
-                        }
-                    }
-                    .padding(.vertical, 16)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-                    .padding(.horizontal, 16)
-                    
-                    // Formulas Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: "function")
-                                .foregroundColor(.purple)
-                            Text("Formulas")
-                                .font(.title2)
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                            
-                            Button(action: { showingAddFormula = true }) {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .font(.title2)
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        
-                        if formulas.isEmpty {
-                            VStack(spacing: 12) {
-                                Image(systemName: "function")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.secondary)
-                                
-                                Text("No Formulas Yet")
-                                    .foregroundColor(.secondary)
-                                
-                                Text("Add your first formula to get started")
-                                    .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(.vertical, 32)
-                            .frame(maxWidth: .infinity)
-                        } else {
-                            LazyVStack(spacing: 12) {
-                                ForEach(formulas) { formula in
-                                    FormulaCardView(
-                                        formula: formula,
-                                        onEdit: {
-                                            editingFormula = formula
-                                        },
-                                        onDelete: { deleteFormula(formula) }
-                                    )
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                    }
-                    .padding(.vertical, 16)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-                    .padding(.horizontal, 16)
-                    
-                    // Fields Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: "rectangle.3.group.fill")
-                                .foregroundColor(.green)
-                                .font(.title2)
-                            
-                            Text("Fields")
-                                .font(.title2)
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                            
-                            Button(action: { showingAddField = true }) {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .font(.title2)
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        
-                        if fields.isEmpty {
-                            VStack(spacing: 12) {
-                                Image(systemName: "rectangle.3.group")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.secondary)
-                                
-                                Text("No Fields Yet")
-                                
-                                Text("Add your first field to get started")
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding(.vertical, 32)
-                            .frame(maxWidth: .infinity)
-                        } else {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Fields Count: \(fields.count)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal, 16)
-                                
-                                List {
-                                    ForEach(fields) { field in
-                                        FieldCardView(field: field)
-                                            .listRowBackground(Color(.systemBackground))
-                                            .listRowSeparator(.hidden)
-                                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                                            .onTapGesture {
-                                                editingField = field
+                            if isTemplateExpanded {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Menu {
+                                        ForEach(FormTemplate.allCases, id: \.self) { template in
+                                            Button(action: {
+                                                selectedTemplate = template
+                                                if template != .custom {
+                                                    loadTemplate(template)
+                                                }
+                                            }) {
+                                                Label(template.displayName, systemImage: template.systemImage)
                                             }
+                                        }
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: selectedTemplate.systemImage)
+                                                .foregroundColor(.blue)
+                                            Text(selectedTemplate.displayName)
+                                            Spacer()
+                                            Image(systemName: "chevron.down")
+                                                .foregroundColor(.secondary)
+                                                .font(.caption)
+                                        }
+                                        .padding()
+                                        .background(Color(.systemGray6))
+                                        .cornerRadius(12)
                                     }
-                                    .onDelete(perform: deleteFieldAtIndex)
-                                    .onMove(perform: moveField)
+                                    .padding(.horizontal, 20)
+                                    
+                                    if selectedTemplate != .custom {
+                                        Text(selectedTemplate.description)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                            .padding(.horizontal, 20)
+                                    }
                                 }
-                                .listStyle(.plain)
-                                .frame(minHeight: 300)
-                                .background(Color(.systemGroupedBackground))
                             }
                         }
+                        .padding(.vertical, 16)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                        .padding(.horizontal, 16)
+                        
+                        // Formulas Section (Collapsible)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isFormulasExpanded.toggle()
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: "function")
+                                        .foregroundColor(.purple)
+                                        .font(.title2)
+                                    
+                                    Text("Formulas")
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("(\(formulas.count))")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: isFormulasExpanded ? "chevron.up" : "chevron.down")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 14, weight: .medium))
+                                    
+                                    Button(action: { showingAddFormula = true }) {
+                                        Image(systemName: "plus.circle.fill")
+                                            .foregroundColor(.blue)
+                                            .font(.title2)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                                .padding(.horizontal, 20)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            if isFormulasExpanded {
+                                if formulas.isEmpty {
+                                    VStack(spacing: 12) {
+                                        Image(systemName: "function")
+                                            .font(.system(size: 32))
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("No Formulas Yet")
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("Add your first formula to get started")
+                                            .foregroundColor(.secondary)
+                                            .multilineTextAlignment(.center)
+                                            .font(.subheadline)
+                                    }
+                                    .padding(.vertical, 24)
+                                    .frame(maxWidth: .infinity)
+                                } else {
+                                    LazyVStack(spacing: 12) {
+                                        ForEach(formulas) { formula in
+                                            FormulaCardView(
+                                                formula: formula,
+                                                onEdit: {
+                                                    editingFormula = formula
+                                                },
+                                                onDelete: { deleteFormula(formula) }
+                                            )
+                                        }
+                                    }
+                                    .padding(.horizontal, 20)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 16)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                        .padding(.horizontal, 16)
+                        
+                        // Fields Section (Collapsible)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isFieldsExpanded.toggle()
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: "rectangle.3.group.fill")
+                                        .foregroundColor(.green)
+                                        .font(.title2)
+                                    
+                                    Text("Fields")
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("(\(fields.count))")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: isFieldsExpanded ? "chevron.up" : "chevron.down")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 14, weight: .medium))
+                                    
+                                    Button(action: { showingAddField = true }) {
+                                        Image(systemName: "plus.circle.fill")
+                                            .foregroundColor(.blue)
+                                            .font(.title2)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                                .padding(.horizontal, 20)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            if isFieldsExpanded {
+                                if fields.isEmpty {
+                                    VStack(spacing: 12) {
+                                        Image(systemName: "rectangle.3.group")
+                                            .font(.system(size: 32))
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("No Fields Yet")
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text("Add your first field to get started")
+                                            .multilineTextAlignment(.center)
+                                            .foregroundColor(.secondary)
+                                            .font(.subheadline)
+                                    }
+                                    .padding(.vertical, 24)
+                                    .frame(maxWidth: .infinity)
+                                } else {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        List {
+                                            ForEach(fields) { field in
+                                                FieldCardView(field: field)
+                                                    .listRowBackground(Color(.systemBackground))
+                                                    .listRowSeparator(.hidden)
+                                                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                                    .onTapGesture {
+                                                        editingField = field
+                                                    }
+                                            }
+                                            .onDelete(perform: deleteFieldAtIndex)
+                                            .onMove(perform: moveField)
+                                        }
+                                        .listStyle(.plain)
+                                        .frame(height: CGFloat(min(fields.count * 120, 400)))
+                                        .background(Color(.systemGroupedBackground))
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.vertical, 16)
+                        .background(Color(.systemBackground))
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 20)
                     }
-                    .padding(.vertical, 16)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-                    .padding(.horizontal, 16)
+                }
+                
+                // Fixed Bottom Action Buttons
+                VStack(spacing: 0) {
+                    Divider()
+                        .background(Color(.systemGray4))
                     
-                    // Action Buttons
-                    HStack(spacing: 16) {
+                    HStack(spacing: 20) {
+                        // Clear All Button
                         Button(action: {
-                            fields.removeAll()
-                            formulas.removeAll()
+                            withAnimation {
+                                fields.removeAll()
+                                formulas.removeAll()
+                            }
                         }) {
-                            Image(systemName: "trash")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(fields.isEmpty && formulas.isEmpty ? Color.gray : Color.red)
-                                .clipShape(Circle())
+                            VStack(spacing: 6) {
+                                Image(systemName: "trash.fill")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 48, height: 48)
+                                    .background(fields.isEmpty && formulas.isEmpty ? Color.gray : Color.red)
+                                    .clipShape(Circle())
+                                
+                                Text("Clear All")
+                                    .font(.caption2)
+                                    .foregroundColor(fields.isEmpty && formulas.isEmpty ? .secondary : .red)
+                            }
                         }
                         .disabled(fields.isEmpty && formulas.isEmpty)
                         
+                        // Copy JSON Button
                         Button(action: {
                             copyJSONToClipboard()
                         }) {
-                            Image(systemName: "doc.on.doc")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(fields.isEmpty ? Color.gray : Color.purple)
-                                .clipShape(Circle())
+                            VStack(spacing: 6) {
+                                Image(systemName: "doc.on.doc.fill")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 48, height: 48)
+                                    .background(fields.isEmpty ? Color.gray : Color.purple)
+                                    .clipShape(Circle())
+                                
+                                Text("Copy JSON")
+                                    .font(.caption2)
+                                    .foregroundColor(fields.isEmpty ? .secondary : .purple)
+                            }
                         }
                         .disabled(fields.isEmpty)
                         
                         Spacer()
                         
+                        // Test Form Button
                         NavigationLink(destination: {
                             if let documentEditor = documentEditor {
                                 Form(documentEditor: documentEditor)
-//                                    .navigationTitle("Form Preview")
                                     .navigationBarTitleDisplayMode(.inline)
                             } else {
                                 Text("Please build the form first")
                                     .foregroundColor(.secondary)
                             }
                         }) {
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(fields.isEmpty ? Color.gray : Color.blue)
-                                .clipShape(Circle())
+                            VStack(spacing: 6) {
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 48, height: 48)
+                                    .background(fields.isEmpty ? Color.gray : Color.blue)
+                                    .clipShape(Circle())
+                                
+                                Text("Test Form")
+                                    .font(.caption2)
+                                    .foregroundColor(fields.isEmpty ? .secondary : .blue)
+                            }
                         }
                         .disabled(fields.isEmpty)
                         .simultaneousGesture(TapGesture().onEnded {
@@ -250,12 +337,12 @@ struct FormBuilderView: View {
                             }
                         })
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 32)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 16)
+                    .background(Color(.systemBackground))
                 }
             }
             .background(Color(.systemGroupedBackground))
-//            .navigationTitle("Form Builder")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingAddField) {
                 AddFieldView(editingField: nil, formulas: formulas) { field in
