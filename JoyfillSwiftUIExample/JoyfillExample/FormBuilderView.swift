@@ -7,6 +7,7 @@ import UIKit
 struct FormBuilderView: View {
     @State private var fields: [BuilderField] = []
     @State private var formulas: [BuilderFormula] = []
+    @State private var tableColumns: [FieldTableColumn] = []
     @State private var showingAddField = false
     @State private var showingAddFormula = false
     @State private var editingField: BuilderField? = nil
@@ -1007,11 +1008,38 @@ struct FormBuilderView: View {
             ]
         case .table:
             formulas = [
-                BuilderFormula(identifier: "total", formula: "sum(products.price)"),
+                BuilderFormula(identifier: "max", formula: "max(products.price)"),
+                BuilderFormula(identifier: "amount", formula: "sum(products.price)"),
+                BuilderFormula(identifier: "tax", formula: "if(amount > 500, 20, 10)"),
+                BuilderFormula(identifier: "amountsWithTax", formula: "map(products.price, (item) → item + (item * (tax/100)))"),
+                BuilderFormula(identifier: "total", formula: "(amount +  ((tax * amount)/100))"),
+                BuilderFormula(identifier: "totalMap", formula: "sum(amountsWithTax)"),
             ]
+
+            var priceColumn = FieldTableColumn()
+            priceColumn.id = UUID().uuidString
+            priceColumn.identifier = ""
+            priceColumn.title = "Price"
+            priceColumn.type = .number
+            priceColumn.required = true
+
+            var productColumn = FieldTableColumn()
+            productColumn.id = UUID().uuidString
+            productColumn.identifier = ""
+            productColumn.title = "Product"
+            productColumn.type = .text
+            priceColumn.required = true
+
+            tableColumns = [productColumn, priceColumn]
+
             fields = [
-                BuilderField(identifier: "products", label: "Products", fieldType: .table, value: ""),
+                BuilderField(identifier: "products", label: "Products", fieldType: .table, value: "", tableColumns: tableColumns),
+                BuilderField(identifier: "max", label: "Maximum price", fieldType: .number, formulaRef: "max"),
+                BuilderField(identifier: "amount", label: "Amount", fieldType: .number, formulaRef: "amount"),
+                BuilderField(identifier: "tax", label: "Tax % applicable", fieldType: .number, formulaRef: "tax"),
+                BuilderField(identifier: "amountsWithTax", label: "Amounts with tax", fieldType: .text, value: "[]", formulaRef: "amountsWithTax"),
                 BuilderField(identifier: "total", label: "Total amount", fieldType: .number, formulaRef: "total"),
+                BuilderField(identifier: "totalMap", label: "Total amount map", fieldType: .number, formulaRef: "totalMap"),
             ]
         }
     }
