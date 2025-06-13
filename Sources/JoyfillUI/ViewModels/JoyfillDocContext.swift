@@ -18,6 +18,14 @@ public class JoyfillDocContext: EvaluationContext {
     private let docProvider: JoyDocProvider
     private var temporaryVariables: [String: FormulaValue] = [:]
     
+    // Add shared UTC date formatter
+    private lazy var utcDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
     // Properties for formula dependencies
     private var formulaCache: [String: FormulaValue] = [:]
     private var dependencyGraph: [String: Set<String>] = [:]  // field -> fields it depends on
@@ -523,11 +531,41 @@ public class JoyfillDocContext: EvaluationContext {
     private func convertValueUnionToFormulaValue(_ value: ValueUnion) -> FormulaValue {
         switch value {
         case .double(let doubleVal):
+            // Handle timestamp values - check if it's likely milliseconds or seconds
+            if doubleVal > 1000000000000 { // Likely a millisecond timestamp (> year 2001 in milliseconds)
+                let date = Date(timeIntervalSince1970: doubleVal / 1000.0)
+                return .date(date)
+            } else if doubleVal > 1000000000 { // Likely a second timestamp (> year 2001 in seconds)
+                let date = Date(timeIntervalSince1970: doubleVal)
+                return .date(date)
+            }
             return .number(doubleVal)
         case .int(let intVal):
+            // Handle timestamp values - check if it's likely milliseconds or seconds
+            if intVal > 1000000000000 { // Likely a millisecond timestamp
+                let date = Date(timeIntervalSince1970: Double(intVal) / 1000.0)
+                return .date(date)
+            } else if intVal > 1000000000 { // Likely a second timestamp
+                let date = Date(timeIntervalSince1970: Double(intVal))
+                return .date(date)
+            }
             return .number(Double(intVal))
         case .string(let stringVal):
-            // Try to parse JSON strings first
+            // Try to parse as timestamp first - check if it's likely milliseconds or seconds
+            if let timestamp = Double(stringVal) {
+                if timestamp > 1000000000000 { // Likely milliseconds
+                    let date = Date(timeIntervalSince1970: timestamp / 1000.0)
+                    return .date(date)
+                } else if timestamp > 1000000000 { // Likely seconds
+                    let date = Date(timeIntervalSince1970: timestamp)
+                    return .date(date)
+                }
+            }
+            // Try to parse as date string using UTC formatter
+            if let date = utcDateFormatter.date(from: stringVal) {
+                return .date(date)
+            }
+            // Try to parse JSON strings if not a timestamp or date
             if let jsonData = stringVal.data(using: .utf8) {
                 do {
                     let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: [])
@@ -699,6 +737,14 @@ public class JoyfillDocContext: EvaluationContext {
         case .literal:
             // Literals don't contain references
             break
+        case .arrayAccess(array: let arrayNode, index: let indexNode):
+            // Extract references from both the array expression and the index expression
+            extractReferencesFromNode(arrayNode, references: &references)
+            extractReferencesFromNode(indexNode, references: &references)
+        case .propertyAccess(object: let objectNode, property: _):
+            // Extract references from the object expression
+            // Property names are strings, not references
+            extractReferencesFromNode(objectNode, references: &references)
         }
     }
     
