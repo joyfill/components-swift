@@ -31,30 +31,30 @@ class WisdomTests: XCTestCase {
         let document = JoyDoc
             .addDocument()
             // Basic mathematical operators
-            .addFormula(id: "add1", formula: "{num1} + {num2}")
-            .addFormula(id: "subtract1", formula: "{num2} - {num1}")
-            .addFormula(id: "multiply1", formula: "{num1} * {num2}")
-            .addFormula(id: "divide1", formula: "{num2} / {num1}")
+            .addFormula(id: "add1", formula: "num1 + num2")
+            .addFormula(id: "subtract1", formula: "num2 - num1")
+            .addFormula(id: "multiply1", formula: "num1 * num2")
+            .addFormula(id: "divide1", formula: "num2 / num1")
             
             // Operator precedence and parentheses
-            .addFormula(id: "precedence1", formula: "{num1} + {num2} * 2")  // num1 + (num2 * 2)
-            .addFormula(id: "precedence2", formula: "({num1} + {num2}) * 2") // (num1 + num2) * 2
-            .addFormula(id: "complexExpression", formula: "({num1} + {num2}) * 3 - {num3} / 2")
+            .addFormula(id: "precedence1", formula: "num1 + num2 * 2")  // num1 + (num2 * 2)
+            .addFormula(id: "precedence2", formula: "(num1 + num2) * 2") // (num1 + num2) * 2
+            .addFormula(id: "complexExpression", formula: "(num1 + num2) * 3 - num3 / 2")
             
             // Negative numbers
-            .addFormula(id: "negative1", formula: "-{num1}")
-            .addFormula(id: "negative2", formula: "{num2} * (-1)")
-            .addFormula(id: "negativeResult", formula: "{num2} - {num1} * 3") // Can result in negative
+            .addFormula(id: "negative1", formula: "-num1")
+            .addFormula(id: "negative2", formula: "num2 * (-1)")
+            .addFormula(id: "negativeResult", formula: "num2 - num1 * 3") // Can result in negative
             
             // Math functions
-            .addFormula(id: "sum1", formula: "sum({num1}, {num2}, {num3})")
-            .addFormula(id: "max1", formula: "max({num1}, {num2}, {num3})")
-            .addFormula(id: "pow1", formula: "pow({num1}, 2)")  // Square of num1
-            .addFormula(id: "sqrt1", formula: "sqrt({num3})")  // Square root of num3
-            .addFormula(id: "mod1", formula: "mod({num3}, {num1})") // num3 % num1
-            .addFormula(id: "round1", formula: "round({decimal})")
-            .addFormula(id: "ceil1", formula: "ceil({decimal})")
-            .addFormula(id: "floor1", formula: "floor({decimal})")
+            .addFormula(id: "sum1", formula: "sum(num1, num2, num3)")
+            .addFormula(id: "max1", formula: "max(num1, num2, num3)")
+            .addFormula(id: "pow1", formula: "pow(num1, 2)")  // Square of num1
+            .addFormula(id: "sqrt1", formula: "sqrt(num3)")  // Square root of num3
+            .addFormula(id: "mod1", formula: "mod(num3, num1)") // num3 % num1
+            .addFormula(id: "round1", formula: "round(decimal)")
+            .addFormula(id: "ceil1", formula: "ceil(decimal)")
+            .addFormula(id: "floor1", formula: "floor(decimal)")
             
             // Field setup
             .addNumberField(identifier: "num1", value: 10, label: "Number 1")
@@ -161,36 +161,36 @@ class WisdomTests: XCTestCase {
     func testLogicalOperations() {
         let document = JoyDoc.addDocument()
             // Simple if statement
-            .addFormula(id: "if1", formula: "if({num1} > 10, \"Greater than 10\", \"Less or equal to 10\")")
-            .addFormula(id: "if2", formula: "if({num1} == 15, \"Exactly 15\", \"Not 15\")")
+            .addFormula(id: "if1", formula: "if(num1 > 10, \"Greater than 10\", \"Less or equal to 10\")")
+            .addFormula(id: "if2", formula: "if(num1 == 15, \"Exactly 15\", \"Not 15\")")
             
             // Nested if
-            .addFormula(id: "nestedIf", formula: "if({num1} > 20, \"High\", if({num1} > 10, \"Medium\", \"Low\"))")
+            .addFormula(id: "nestedIf", formula: "if(num1 > 20, \"High\", if(num1 > 10, \"Medium\", \"Low\"))")
             
             // And operator
-            .addFormula(id: "and1", formula: "and({bool1}, {bool2})")
-            .addFormula(id: "and2", formula: "and({bool1}, {bool2}, {bool3})")
-            .addFormula(id: "andComplex", formula: "and({num1} > 10, {num2} < 30)")
+            .addFormula(id: "and1", formula: "and(bool1, bool2)")
+            .addFormula(id: "and2", formula: "and(bool1, bool2, bool3)")
+            .addFormula(id: "andComplex", formula: "and(num1 > 10, num2 < 30)")
             
             // Or operator
-            .addFormula(id: "or1", formula: "or({bool1}, {bool2})")
-            .addFormula(id: "or2", formula: "or({bool1}, {bool2}, {bool3})")
-            .addFormula(id: "orComplex", formula: "or({num1} > 20, {num2} < 10)")
+            .addFormula(id: "or1", formula: "or(bool1, bool2)")
+            .addFormula(id: "or2", formula: "or(bool1, bool2, bool3)")
+            .addFormula(id: "orComplex", formula: "or(num1 > 20, num2 < 10)")
             
             // Not operator
-            .addFormula(id: "not1", formula: "not({bool1})")
-            .addFormula(id: "notComplex", formula: "not({num1} > 20)")
+            .addFormula(id: "not1", formula: "not(bool1)")
+            .addFormula(id: "notComplex", formula: "not(num1 > 20)")
             
             // Empty function
-            .addFormula(id: "empty1", formula: "empty({text1})")
-            .addFormula(id: "empty2", formula: "empty({text2})")
-            .addFormula(id: "empty3", formula: "empty({emptyArray})")
-            .addFormula(id: "empty4", formula: "empty({nonEmptyArray})")
+            .addFormula(id: "empty1", formula: "empty(text1)")
+            .addFormula(id: "empty2", formula: "empty(text2)")
+            .addFormula(id: "empty3", formula: "empty(emptyArray)")
+            .addFormula(id: "empty4", formula: "empty(nonEmptyArray)")
             .addFormula(id: "emptyZero", formula: "empty(0)")
             
             // Complex logical combinations
-            .addFormula(id: "complex1", formula: "if(and({bool1}, or({num1} > 15, {num2} < 10)), \"Complex true\", \"Complex false\")")
-            .addFormula(id: "complex2", formula: "if(not(empty({text1})), \"Text has value\", \"Text is empty\")")
+            .addFormula(id: "complex1", formula: "if(and(bool1, or(num1 > 15, num2 < 10)), \"Complex true\", \"Complex false\")")
+            .addFormula(id: "complex2", formula: "if(not(empty(text1)), \"Text has value\", \"Text is empty\")")
             
             // Boolean constants
             .addFormula(id: "trueValue", formula: "true")
@@ -289,31 +289,31 @@ class WisdomTests: XCTestCase {
     func testStringOperations() {
         let document = JoyDoc.addDocument()
             // Simple string reference
-            .addFormula(id: "stringRef", formula: "{text1}")
+            .addFormula(id: "stringRef", formula: "text1")
             
             // Case manipulation
-            .addFormula(id: "upper1", formula: "upper({text1})")
-            .addFormula(id: "lower1", formula: "lower({text2})")
-            .addFormula(id: "mixedCase", formula: "concat(upper(substring({text1}, 0, 1)), lower(substring({text1}, 1)))")
+            .addFormula(id: "upper1", formula: "upper(text1)")
+            .addFormula(id: "lower1", formula: "lower(text2)")
+            .addFormula(id: "mixedCase", formula: "concat(upper(substring(text1, 0, 1)), lower(substring(text1, 1)))")
             
             // Contains check
-            .addFormula(id: "contains1", formula: "contains({text1}, \"joy\")")
-            .addFormula(id: "contains2", formula: "contains({text1}, \"xyz\")")
-            .addFormula(id: "containsCaseInsensitive", formula: "contains({text1}, \"JOY\")")
+            .addFormula(id: "contains1", formula: "contains(text1, \"joy\")")
+            .addFormula(id: "contains2", formula: "contains(text1, \"xyz\")")
+            .addFormula(id: "containsCaseInsensitive", formula: "contains(text1, \"JOY\")")
             
             // Length calculation
-            .addFormula(id: "length1", formula: "length({text1})")
-            .addFormula(id: "length2", formula: "length({text3})")
+            .addFormula(id: "length1", formula: "length(text1)")
+            .addFormula(id: "length2", formula: "length(text3)")
             
             // Concatenation with + operator
-            .addFormula(id: "concatPlus", formula: "{text1} + \" \" + {text2}")
+            .addFormula(id: "concatPlus", formula: "text1 + \" \" + text2")
             
             // Concatenation with concat function
-            .addFormula(id: "concatFunc", formula: "concat({text1}, \" - \", {text2})")
-            .addFormula(id: "concatMultiple", formula: "concat({text1}, \" \", {text2}, \" (\", {text3}, \")\")")
+            .addFormula(id: "concatFunc", formula: "concat(text1, \" - \", text2)")
+            .addFormula(id: "concatMultiple", formula: "concat(text1, \" \", text2, \" (\", text3, \")\")")
             
             // Conditional string formatting
-            .addFormula(id: "conditionalFormat", formula: "if(length({text1}) > 10, \"Long text: \" + {text1}, \"Short text: \" + {text1})")
+            .addFormula(id: "conditionalFormat", formula: "if(length(text1) > 10, \"Long text: \" + text1, \"Short text: \" + text1)")
             
             // String quotes testing
             .addFormula(id: "singleQuotes", formula: "'Single quoted text'")
@@ -321,8 +321,8 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "mixedQuotes", formula: "concat('Single', \" and \", 'double', \" quotes\")")
             
             // Complex string manipulation
-            .addFormula(id: "emailValidation", formula: "if(and(contains({email}, \"@\"), contains({email}, \".\")), \"Valid email format\", \"Invalid email format\")")
-            .addFormula(id: "nameFormatter", formula: "if(and(not(empty({firstName})), not(empty({lastName}))), concat(upper(substring({firstName}, 0, 1)), \". \", {lastName}), \"Please enter your name\")")
+            .addFormula(id: "emailValidation", formula: "if(and(contains(email, \"@\"), contains(email, \".\")), \"Valid email format\", \"Invalid email format\")")
+            .addFormula(id: "nameFormatter", formula: "if(and(not(empty(firstName)), not(empty(lastName))), concat(upper(substring(firstName, 0, 1)), \". \", lastName), \"Please enter your name\")")
             
             // Input fields
             .addTextField(identifier: "text1", value: "joyfill", label: "Text 1")
@@ -499,30 +499,30 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "now1", formula: "now()")
             
             // Date components extraction
-            .addFormula(id: "year1", formula: "year({date1})")
-            .addFormula(id: "month1", formula: "month({date1})")
-            .addFormula(id: "day1", formula: "day({date1})")
+            .addFormula(id: "year1", formula: "year(date1)")
+            .addFormula(id: "month1", formula: "month(date1)")
+            .addFormula(id: "day1", formula: "day(date1)")
             
             // Date creation
-            .addFormula(id: "dateCreate1", formula: "date({yearValue}, {monthValue}, {dayValue})")
+            .addFormula(id: "dateCreate1", formula: "date(yearValue, monthValue, dayValue)")
             .addFormula(id: "dateCreate2", formula: "date(2025, 12, 31)")
             
             // Date arithmetic
-            .addFormula(id: "dateAdd1", formula: "dateAdd({date1}, {timeAmount}, {timeUnit})")
-            .addFormula(id: "dateAdd2", formula: "dateAdd({date1}, 1, \"years\")")
-            .addFormula(id: "dateSubtract1", formula: "dateSubtract({date1}, {timeAmount}, {timeUnit})")
-            .addFormula(id: "dateSubtract2", formula: "dateSubtract({date1}, 1, \"months\")")
+            .addFormula(id: "dateAdd1", formula: "dateAdd(date1, timeAmount, timeUnit)")
+            .addFormula(id: "dateAdd2", formula: "dateAdd(date1, 1, \"years\")")
+            .addFormula(id: "dateSubtract1", formula: "dateSubtract(date1, timeAmount, timeUnit)")
+            .addFormula(id: "dateSubtract2", formula: "dateSubtract(date1, 1, \"months\")")
             
             // Date comparison
-            .addFormula(id: "dateEqual", formula: "if({date1} == {date1Clone}, \"Dates are equal\", \"Dates are different\")")
-            .addFormula(id: "dateBefore", formula: "if({date1} < {futureDate}, \"Before future date\", \"Not before future date\")")
-            .addFormula(id: "dateAfter", formula: "if({date1} > now(), \"After current date\", \"Not after current date\")")
+            .addFormula(id: "dateEqual", formula: "if(date1 == date1Clone, \"Dates are equal\", \"Dates are different\")")
+            .addFormula(id: "dateBefore", formula: "if(date1 < futureDate, \"Before future date\", \"Not before future date\")")
+            .addFormula(id: "dateAfter", formula: "if(date1 > now(), \"After current date\", \"Not after current date\")")
             
             // Date with conditional logic
-            .addFormula(id: "dateConditional", formula: "if(year({date1}) > 2024, \"After 2024\", \"2024 or earlier\")")
+            .addFormula(id: "dateConditional", formula: "if(year(date1) > 2024, \"After 2024\", \"2024 or earlier\")")
             
             // Date formatting in strings
-            .addFormula(id: "dateInString", formula: "concat(\"Year: \", year({date1}), \", Month: \", month({date1}), \", Day: \", day({date1}))")
+            .addFormula(id: "dateInString", formula: "concat(\"Year: \", year(date1), \", Month: \", month(date1), \", Day: \", day(date1))")
             
             // Input fields
             .addDateField(identifier: "date1", value: testDate, label: "Test Date (2025-05-15)")
@@ -655,54 +655,54 @@ class WisdomTests: XCTestCase {
     func testArrayOperations() {
         let document = JoyDoc.addDocument()
             // Array length
-            .addFormula(id: "length1", formula: "length({fruitArray})")
-            .addFormula(id: "length2", formula: "length({emptyArray})")
-            .addFormula(id: "length3", formula: "length({numArray})")
+            .addFormula(id: "length1", formula: "length(fruitArray)")
+            .addFormula(id: "length2", formula: "length(emptyArray)")
+            .addFormula(id: "length3", formula: "length(numArray)")
             
             // Count if
-            .addFormula(id: "countIf1", formula: "countIf({fruitArray}, \"a\")")
-            .addFormula(id: "countIf2", formula: "countIf({fruitArray}, {searchTerm})")
+            .addFormula(id: "countIf1", formula: "countIf(fruitArray, \"a\")")
+            .addFormula(id: "countIf2", formula: "countIf(fruitArray, searchTerm)")
             
             // Array concatenation
-            .addFormula(id: "concat1", formula: "concat({fruitArray}, {colorArray})")
-            .addFormula(id: "concat2", formula: "concat(\"Selected options: \", {fruitArray})")
-            .addFormula(id: "concat3", formula: "concat({numArray}, [10, 11, 12])")
+            .addFormula(id: "concat1", formula: "concat(fruitArray, colorArray)")
+            .addFormula(id: "concat2", formula: "concat(\"Selected options: \", fruitArray)")
+            .addFormula(id: "concat3", formula: "concat(numArray, [10, 11, 12])")
             
             // Flat
-            .addFormula(id: "flat1", formula: "flat([[{fruitArray}], [{colorArray}]])")
-            .addFormula(id: "flatDepth", formula: "flat([{numArray}, [10, [11, [12]]]], 2)")
+            .addFormula(id: "flat1", formula: "flat([[fruitArray], [colorArray]])")
+            .addFormula(id: "flatDepth", formula: "flat([numArray, [10, [11, [12]]]], 2)")
             
             // Map
-            .addFormula(id: "map1", formula: "map({numArray}, (item) → item * 2)")
-            .addFormula(id: "map2", formula: "map({fruitArray}, (item) → concat(\"fruit: \", item))")
+            .addFormula(id: "map1", formula: "map(numArray, (item) → item * 2)")
+            .addFormula(id: "map2", formula: "map(fruitArray, (item) → concat(\"fruit: \", item))")
             
             // FlatMap
-            .addFormula(id: "flatMap1", formula: "flatMap({numArray}, (item) → [item, item * 2])")
+            .addFormula(id: "flatMap1", formula: "flatMap(numArray, (item) → [item, item * 2])")
             
             // Filter
-            .addFormula(id: "filter1", formula: "filter({numArray}, (item) → item > 3)")
-            .addFormula(id: "filter2", formula: "filter({fruitArray}, (item) → contains(item, \"a\"))")
+            .addFormula(id: "filter1", formula: "filter(numArray, (item) → item > 3)")
+            .addFormula(id: "filter2", formula: "filter(fruitArray, (item) → contains(item, \"a\"))")
             
             // Reduce
-            .addFormula(id: "reduce1", formula: "reduce({numArray}, (acc, item) → acc + item, 0)")
-            .addFormula(id: "reduce2", formula: "reduce({numArray}, (acc, item) → acc * item, 1)")
+            .addFormula(id: "reduce1", formula: "reduce(numArray, (acc, item) → acc + item, 0)")
+            .addFormula(id: "reduce2", formula: "reduce(numArray, (acc, item) → acc * item, 1)")
             
             // Find
-            .addFormula(id: "find1", formula: "find({numArray}, (item) → item > 3)")
-            .addFormula(id: "find2", formula: "find({fruitArray}, (item) → contains(item, \"g\"))")
-            .addFormula(id: "find3", formula: "find({numArray}, (item) → item > 100)") // No match
+            .addFormula(id: "find1", formula: "find(numArray, (item) → item > 3)")
+            .addFormula(id: "find2", formula: "find(fruitArray, (item) → contains(item, \"g\"))")
+            .addFormula(id: "find3", formula: "find(numArray, (item) → item > 100)") // No match
             
             // Every
-            .addFormula(id: "every1", formula: "every({numArray}, (item) → item > 0)")
-            .addFormula(id: "every2", formula: "every({numArray}, (item) → item > 3)") // Should be false
+            .addFormula(id: "every1", formula: "every(numArray, (item) → item > 0)")
+            .addFormula(id: "every2", formula: "every(numArray, (item) → item > 3)") // Should be false
             
             // Some
-            .addFormula(id: "some1", formula: "some({numArray}, (item) → item > 3)")
-            .addFormula(id: "some2", formula: "some({numArray}, (item) → item > 10)") // Should be false
+            .addFormula(id: "some1", formula: "some(numArray, (item) → item > 3)")
+            .addFormula(id: "some2", formula: "some(numArray, (item) → item > 10)") // Should be false
             
             // Complex array operations
-            .addFormula(id: "complexArray1", formula: "filter(map({numArray}, (item) → item * 2), (item) → item > 6)")
-            .addFormula(id: "complexArray2", formula: "reduce(filter({numArray}, (item) → item > 2), (acc, item) → acc + item, 0)")
+            .addFormula(id: "complexArray1", formula: "filter(map(numArray, (item) → item * 2), (item) → item > 6)")
+            .addFormula(id: "complexArray2", formula: "reduce(filter(numArray, (item) → item > 2), (acc, item) → acc + item, 0)")
             
             // Input fields
             .addOptionField(identifier: "fruitArray", value: ["apple", "banana", "orange", "grape"], 
