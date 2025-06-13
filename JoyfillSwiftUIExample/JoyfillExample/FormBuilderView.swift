@@ -371,7 +371,13 @@ struct FormBuilderView: View {
                         if oldIdentifier != newIdentifier {
                             for formulaIndex in formulas.indices {
                                 let oldFormula = formulas[formulaIndex].formula
-                                let updatedFormula = oldFormula.replacingOccurrences(of: "{\(oldIdentifier)}", with: "{\(newIdentifier)}")
+                                // Use regex with word boundaries to replace only complete identifiers
+                                let pattern = "\\b\(NSRegularExpression.escapedPattern(for: oldIdentifier))\\b"
+                                let updatedFormula = oldFormula.replacingOccurrences(
+                                    of: pattern,
+                                    with: newIdentifier,
+                                    options: .regularExpression
+                                )
                                 if updatedFormula != oldFormula {
                                     formulas[formulaIndex].formula = updatedFormula
                                 }
@@ -721,9 +727,9 @@ struct FormBuilderView: View {
         case .allFieldTypes:
             // Comprehensive showcase of all field types
             formulas = [
-                BuilderFormula(identifier: "textFormula", formula: "upper({textInput})"),
-                BuilderFormula(identifier: "numberFormula", formula: "{number1} + {number2}"),
-                BuilderFormula(identifier: "dateFormula", formula: "dateAdd({startDate}, 7, \"days\")")
+                BuilderFormula(identifier: "textFormula", formula: "upper(textInput)"),
+                BuilderFormula(identifier: "numberFormula", formula: "number1 + number2"),
+                BuilderFormula(identifier: "dateFormula", formula: "dateAdd(startDate, 7, \"days\")")
             ]
             
             fields = [
@@ -764,13 +770,13 @@ struct FormBuilderView: View {
         case .mathFormulas:
             // Math formulas template
             formulas = [
-                BuilderFormula(identifier: "addition", formula: "{num1} + {num2}"),
-                BuilderFormula(identifier: "multiplication", formula: "{num1} * {num2}"),
-                BuilderFormula(identifier: "power", formula: "pow({base}, {exponent})"),
-                BuilderFormula(identifier: "squareRoot", formula: "sqrt({number})"),
-                BuilderFormula(identifier: "rounding", formula: "round({decimal}, {places})"),
-                BuilderFormula(identifier: "percentage", formula: "({score} / {total}) * 100"),
-                BuilderFormula(identifier: "average", formula: "({num1} + {num2} + {num3}) / 3")
+                BuilderFormula(identifier: "addition", formula: "num1 + num2"),
+                BuilderFormula(identifier: "multiplication", formula: "num1 * num2"),
+                BuilderFormula(identifier: "power", formula: "pow(base, exponent)"),
+                BuilderFormula(identifier: "squareRoot", formula: "sqrt(number)"),
+                BuilderFormula(identifier: "rounding", formula: "round(decimal, places)"),
+                BuilderFormula(identifier: "percentage", formula: "(score / total) * 100"),
+                BuilderFormula(identifier: "average", formula: "(num1 + num2 + num3) / 3")
             ]
             
             // Input fields
@@ -803,13 +809,13 @@ struct FormBuilderView: View {
         case .stringFormulas:
             // String manipulation template
             formulas = [
-                BuilderFormula(identifier: "fullName", formula: "concat({firstName}, \" \", {lastName})"),
-                BuilderFormula(identifier: "upperCase", formula: "upper({text})"),
-                BuilderFormula(identifier: "lowerCase", formula: "lower({text})"),
-                BuilderFormula(identifier: "textLength", formula: "length({text})"),
-                BuilderFormula(identifier: "containsCheck", formula: "contains({text}, {searchTerm})"),
-                BuilderFormula(identifier: "emailValidation", formula: "if(and(contains({email}, \"@\"), contains({email}, \".\")), \"Valid\", \"Invalid\")"),
-                BuilderFormula(identifier: "greeting", formula: "concat(\"Hello, \", {firstName}, \"! You have \", length({text}), \" characters.\")")
+                BuilderFormula(identifier: "fullName", formula: "concat(firstName, \" \", lastName)"),
+                BuilderFormula(identifier: "upperCase", formula: "upper(text)"),
+                BuilderFormula(identifier: "lowerCase", formula: "lower(text)"),
+                BuilderFormula(identifier: "textLength", formula: "length(text)"),
+                BuilderFormula(identifier: "containsCheck", formula: "contains(text, searchTerm)"),
+                BuilderFormula(identifier: "emailValidation", formula: "if(and(contains(email, \"@\"), contains(email, \".\")), \"Valid\", \"Invalid\")"),
+                BuilderFormula(identifier: "greeting", formula: "concat(\"Hello, \", firstName, \"! You have \", length(text), \" characters.\")")
             ]
             
             fields = [
@@ -830,14 +836,14 @@ struct FormBuilderView: View {
         case .arrayFormulas:
             // Array operations template
             formulas = [
-                BuilderFormula(identifier: "arraySum", formula: "sum({numbers})"),
-                BuilderFormula(identifier: "arrayLength", formula: "length({fruits})"),
-                BuilderFormula(identifier: "arrayMap", formula: "map({numbers}, (item) → item * 2)"),
-                BuilderFormula(identifier: "arrayFilter", formula: "filter({numbers}, (item) → item > 5)"),
-                BuilderFormula(identifier: "arrayFind", formula: "find({fruits}, (item) → contains(item, \"a\"))"),
-                BuilderFormula(identifier: "arrayEvery", formula: "every({numbers}, (item) → item > 0)"),
-                BuilderFormula(identifier: "arraySome", formula: "some({fruits}, (item) → contains(item, \"e\"))"),
-                BuilderFormula(identifier: "arrayConcat", formula: "concat(\"Selected: \", {fruits})")
+                BuilderFormula(identifier: "arraySum", formula: "sum(numbers)"),
+                BuilderFormula(identifier: "arrayLength", formula: "length(fruits)"),
+                BuilderFormula(identifier: "arrayMap", formula: "map(numbers, (item) → item * 2)"),
+                BuilderFormula(identifier: "arrayFilter", formula: "filter(numbers, (item) → item > 5)"),
+                BuilderFormula(identifier: "arrayFind", formula: "find(fruits, (item) → contains(item, \"a\"))"),
+                BuilderFormula(identifier: "arrayEvery", formula: "every(numbers, (item) → item > 0)"),
+                BuilderFormula(identifier: "arraySome", formula: "some(fruits, (item) → contains(item, \"e\"))"),
+                BuilderFormula(identifier: "arrayConcat", formula: "concat(\"Selected: \", fruits)")
             ]
             
             fields = [
@@ -856,13 +862,13 @@ struct FormBuilderView: View {
         case .logicalFormulas:
             // Logical operations template
             formulas = [
-                BuilderFormula(identifier: "simpleIf", formula: "if({age} >= 18, \"Adult\", \"Minor\")"),
-                BuilderFormula(identifier: "nestedIf", formula: "if({score} >= 90, \"A\", if({score} >= 80, \"B\", if({score} >= 70, \"C\", \"F\")))"),
-                BuilderFormula(identifier: "andLogic", formula: "and({isActive}, {hasPermission})"),
-                BuilderFormula(identifier: "orLogic", formula: "or({isVip}, {isPremium})"),
-                BuilderFormula(identifier: "notLogic", formula: "not({isBlocked})"),
-                BuilderFormula(identifier: "complexLogic", formula: "if(and({age} >= 18, or({hasLicense}, {hasPermit})), \"Can Drive\", \"Cannot Drive\")"),
-                BuilderFormula(identifier: "emptyCheck", formula: "if(empty({optionalText}), \"No value provided\", {optionalText})")
+                BuilderFormula(identifier: "simpleIf", formula: "if(age >= 18, \"Adult\", \"Minor\")"),
+                BuilderFormula(identifier: "nestedIf", formula: "if(score >= 90, \"A\", if(score >= 80, \"B\", if(score >= 70, \"C\", \"F\")))"),
+                BuilderFormula(identifier: "andLogic", formula: "and(isActive, hasPermission)"),
+                BuilderFormula(identifier: "orLogic", formula: "or(isVip, isPremium)"),
+                BuilderFormula(identifier: "notLogic", formula: "not(isBlocked)"),
+                BuilderFormula(identifier: "complexLogic", formula: "if(and(age >= 18, or(hasLicense, hasPermit)), \"Can Drive\", \"Cannot Drive\")"),
+                BuilderFormula(identifier: "emptyCheck", formula: "if(empty(optionalText), \"No value provided\", optionalText)")
             ]
             
             // Input fields
@@ -895,14 +901,14 @@ struct FormBuilderView: View {
         case .referenceResolution:
             // Advanced reference resolution template
             formulas = [
-                BuilderFormula(identifier: "arrayIndex", formula: "{fruits[{selectedIndex}]}"),
-                BuilderFormula(identifier: "dynamicIndex", formula: "{matrix[{row}][{col}]}"),
-                BuilderFormula(identifier: "objectProperty", formula: "{user.name}"),
-                BuilderFormula(identifier: "nestedProperty", formula: "{user.address.city}"),
+                BuilderFormula(identifier: "arrayIndex", formula: "fruits[selectedIndex]"),
+                BuilderFormula(identifier: "dynamicIndex", formula: "matrix[row][col]"),
+                BuilderFormula(identifier: "objectProperty", formula: "user.name"),
+                BuilderFormula(identifier: "nestedProperty", formula: "user.address.city"),
                 BuilderFormula(identifier: "selfReference", formula: "self * 2"),
                 BuilderFormula(identifier: "currentReference", formula: "current + 10"),
-                BuilderFormula(identifier: "dynamicSum", formula: "{numbers[0]} + {numbers[1]} + {numbers[2]}"),
-                BuilderFormula(identifier: "conditionalRef", formula: "if({useFirst}, {fruits[0]}, {fruits[1]})")
+                BuilderFormula(identifier: "dynamicSum", formula: "numbers[0] + numbers[1] + numbers[2]"),
+                BuilderFormula(identifier: "conditionalRef", formula: "if(useFirst, fruits[0], fruits[1])")
             ]
             
             // Input fields
@@ -937,13 +943,13 @@ struct FormBuilderView: View {
             // Date manipulation template  
             formulas = [
                 BuilderFormula(identifier: "currentDate", formula: "now()"),
-                BuilderFormula(identifier: "dateYear", formula: "year({birthDate})"),
-                BuilderFormula(identifier: "dateMonth", formula: "month({birthDate})"),
-                BuilderFormula(identifier: "dateDay", formula: "day({birthDate})"),
-                BuilderFormula(identifier: "addDays", formula: "dateAdd({startDate}, {days}, \"days\")"),
-                BuilderFormula(identifier: "addWeeks", formula: "dateAdd({startDate}, {weeks}, \"weeks\")"),
-                BuilderFormula(identifier: "subtractDays", formula: "dateSubtract({endDate}, {days}, \"days\")"),
-                BuilderFormula(identifier: "ageCalculation", formula: "round((now() - {birthDate}) / (365.25 * 24 * 60 * 60 * 1000))")
+                BuilderFormula(identifier: "dateYear", formula: "year(birthDate)"),
+                BuilderFormula(identifier: "dateMonth", formula: "month(birthDate)"),
+                BuilderFormula(identifier: "dateDay", formula: "day(birthDate)"),
+                BuilderFormula(identifier: "addDays", formula: "dateAdd(startDate, days, \"days\")"),
+                BuilderFormula(identifier: "addWeeks", formula: "dateAdd(startDate, weeks, \"weeks\")"),
+                BuilderFormula(identifier: "subtractDays", formula: "dateSubtract(endDate, days, \"days\")"),
+                BuilderFormula(identifier: "ageCalculation", formula: "round((now() - birthDate) / (365.25 * 24 * 60 * 60 * 1000))")
             ]
             
             let currentTime = Date().timeIntervalSince1970 * 1000
@@ -971,13 +977,13 @@ struct FormBuilderView: View {
         case .conversionFormulas:
             // Type conversion template
             formulas = [
-                BuilderFormula(identifier: "stringToNumber", formula: "toNumber({stringValue})"),
-                BuilderFormula(identifier: "numberCalculation", formula: "toNumber({stringNum1}) + toNumber({stringNum2})"),
-                BuilderFormula(identifier: "decimalConversion", formula: "toNumber({decimalString})"),
-                BuilderFormula(identifier: "negativeConversion", formula: "toNumber({negativeString})"),
-                BuilderFormula(identifier: "percentageCalc", formula: "(toNumber({numerator}) / toNumber({denominator})) * 100"),
-                BuilderFormula(identifier: "roundedConversion", formula: "round(toNumber({floatString}), 2)"),
-                BuilderFormula(identifier: "validationCheck", formula: "if(toNumber({inputValue}) > 0, \"Valid Number\", \"Invalid or Zero\")")
+                BuilderFormula(identifier: "stringToNumber", formula: "toNumber(stringValue)"),
+                BuilderFormula(identifier: "numberCalculation", formula: "toNumber(stringNum1) + toNumber(stringNum2)"),
+                BuilderFormula(identifier: "decimalConversion", formula: "toNumber(decimalString)"),
+                BuilderFormula(identifier: "negativeConversion", formula: "toNumber(negativeString)"),
+                BuilderFormula(identifier: "percentageCalc", formula: "(toNumber(numerator) / toNumber(denominator)) * 100"),
+                BuilderFormula(identifier: "roundedConversion", formula: "round(toNumber(floatString), 2)"),
+                BuilderFormula(identifier: "validationCheck", formula: "if(toNumber(inputValue) > 0, \"Valid Number\", \"Invalid or Zero\")")
             ]
             
             fields = [
@@ -1823,25 +1829,25 @@ struct AddFormulaView: View {
                                 VStack(alignment: .leading, spacing: 8) {
                                     FormulaExampleView(
                                         title: "Field Reference",
-                                        example: "{field1} + {field2}",
+                                        example: "field1 + field2",
                                         description: "Reference other fields"
                                     )
                                     
                                     FormulaExampleView(
                                         title: "Conditional Logic",
-                                        example: "if({num1} > 10, \"Valid\", \"Invalid\")",
+                                        example: "if(num1 > 10, \"Valid\", \"Invalid\")",
                                         description: "Add conditional statements"
                                     )
                                     
                                     FormulaExampleView(
                                         title: "String Concatenation",
-                                        example: "concat({firstName}, \" \", {lastName})",
+                                        example: "concat(firstName, \" \", lastName)",
                                         description: "Combine text values"
                                     )
                                     
                                     FormulaExampleView(
                                         title: "Array Operations",
-                                        example: "map({numbers}, (item) → item * 2)",
+                                        example: "map(numbers, (item) → item * 2)",
                                         description: "Transform array data"
                                     )
                                 }
@@ -1913,13 +1919,13 @@ enum FormulaTemplate: CaseIterable {
     var formulaText: String {
         switch self {
         case .custom: return ""
-        case .addition: return "{field1} + {field2}"
-        case .conditional: return "if({condition}, \"True\", \"False\")"
-        case .concatenation: return "concat({field1}, \" \", {field2})"
-        case .validation: return "if({value} > 0, \"Valid\", \"Invalid\")"
-        case .arrayOperation: return "sum({arrayField})"
-        case .dateCalculation: return "dateAdd({dateField}, 7, \"days\")"
-        case .stringManipulation: return "upper({textField})"
+        case .addition: return "field1 + field2"
+        case .conditional: return "if(condition, \"True\", \"False\")"
+        case .concatenation: return "concat(field1, \" \", field2)"
+        case .validation: return "if(value > 0, \"Valid\", \"Invalid\")"
+        case .arrayOperation: return "sum(arrayField)"
+        case .dateCalculation: return "dateAdd(dateField, 7, \"days\")"
+        case .stringManipulation: return "upper(textField)"
         }
     }
 }
