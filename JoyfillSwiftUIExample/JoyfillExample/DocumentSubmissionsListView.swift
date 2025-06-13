@@ -74,28 +74,6 @@ struct DocumentSubmissionsListView: View {
                 }
             }
             .navigationTitle(title)
-            .sheet(isPresented: $showCameraScannerView) {
-                if #available(iOS 16.0, *) {
-                    CameraScanner(startScanning: $showCameraScannerView,
-                                  scanResult: $scanResults,
-                                  onSave: { result in
-                        if let currentCaptureHandler = currentCaptureHandler {
-                            currentCaptureHandler(.string(result))
-                        }
-                    })
-                } else {
-                    // Fallback on earlier versions
-                }
-                
-                if isLoadingMoreDocuments {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }
-                    .padding()
-                }
-            }
         }
     }
     
@@ -120,7 +98,7 @@ struct DocumentSubmissionsListView: View {
     private func fetchLocalDocument() {
         isloading = true
         DispatchQueue.global().async {
-            self.document = sampleJSONDocument(fileName: "TableNewColumns")
+            self.document = sampleJSONDocument(fileName: "Joydocjson")
             DispatchQueue.main.async {
                 showDocumentDetails = true
                 isloading = false
@@ -137,7 +115,8 @@ struct DocumentSubmissionsListView: View {
                 case .success(let data):
                     do {
                         if let dictionary = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String: Any] {
-                            self.document = JoyDoc(dictionary: dictionary)
+//                            self.document = JoyDoc(dictionary: dictionary)
+                            fetchLocalDocument()
                             showDocumentDetails = true
                         }
                     } catch {
@@ -174,7 +153,7 @@ struct DocumentSubmissionsListView: View {
                 .multilineTextAlignment(.center)
             hostingController = UIHostingController(rootView: AnyView(fallbackView))
         }
-        
+        hostingController.modalPresentationStyle = .fullScreen
         topVC.present(hostingController, animated: true, completion: nil)
     }
 
@@ -284,6 +263,8 @@ class ImagePicker {
 
         // Store coordinator as associated object to prevent it from being deallocated
         objc_setAssociatedObject(imagePickerController, "coordinator", coordinator, .OBJC_ASSOCIATION_RETAIN)
+        
+        imagePickerController.modalPresentationStyle = .fullScreen
 
         viewController.present(imagePickerController, animated: true)
     }

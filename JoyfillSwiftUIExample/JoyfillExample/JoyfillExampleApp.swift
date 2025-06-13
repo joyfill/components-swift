@@ -16,7 +16,7 @@ class AppState: ObservableObject {
 
 // MARK: - Quick Configuration
 // Change this to true for quick testing with default token, false for option selection screen
-let useQuickTestMode: Bool = false
+let useQuickTestMode: Bool = true
 
 @main
 struct JoyfillExampleApp: App {
