@@ -512,6 +512,7 @@ struct FormBuilderView: View {
                         identifier: field.identifier,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
+                        value: 0,
                         label: field.label
                     )
                 } else {
@@ -1004,6 +1005,14 @@ struct FormBuilderView: View {
                 BuilderField(identifier: "roundedResult", label: "Rounded Result", fieldType: .number, formulaRef: "roundedConversion"),
                 BuilderField(identifier: "validationResult", label: "Validation Result", fieldType: .text, formulaRef: "validationCheck")
             ]
+        case .table:
+            formulas = [
+                BuilderFormula(identifier: "total", formula: "sum(products.price)"),
+            ]
+            fields = [
+                BuilderField(identifier: "products", label: "Products", fieldType: .table, value: ""),
+                BuilderField(identifier: "total", label: "Total amount", fieldType: .number, formulaRef: "total"),
+            ]
         }
     }
     
@@ -1040,6 +1049,7 @@ struct FormBuilderView: View {
                         identifier: field.identifier,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
+                        value: 0,
                         label: field.label
                     )
                 } else {
@@ -1246,7 +1256,8 @@ enum FormTemplate: CaseIterable {
     case referenceResolution
     case dateFormulas
     case conversionFormulas
-    
+    case table
+
     var displayName: String {
         switch self {
         case .custom: return "🔧 Custom"
@@ -1258,6 +1269,7 @@ enum FormTemplate: CaseIterable {
         case .referenceResolution: return "🔗 Advanced References"
         case .dateFormulas: return "📅 Date Formulas"
         case .conversionFormulas: return "🔄 Type Conversion"
+        case .table: return "📋 Table field"
         }
     }
     
@@ -1272,6 +1284,7 @@ enum FormTemplate: CaseIterable {
         case .referenceResolution: return "link"
         case .dateFormulas: return "calendar"
         case .conversionFormulas: return "arrow.left.arrow.right"
+        case .table: return "square.grid.3x3"
         }
     }
     
@@ -1286,6 +1299,7 @@ enum FormTemplate: CaseIterable {
         case .referenceResolution: return "Dynamic references, object properties, array indexing"
         case .dateFormulas: return "Date calculations and manipulations"
         case .conversionFormulas: return "Type conversions and data transformations"
+        case .table: return "Table referance resolution"
         }
     }
 }

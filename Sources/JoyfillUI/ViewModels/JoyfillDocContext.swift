@@ -55,7 +55,8 @@ public class JoyfillDocContext: EvaluationContext {
         
         if isComplexReference {
             // Complex reference like "fruits[selectedIndex]", "user.name", "matrix[row][col]"
-            return resolveComplexReference(name)
+            let pathComponents = name.split(separator: ".").map(String.init)
+            return resolveComplexFieldReference(pathComponents)
         } else {
             // Simple reference like "fieldName", "self", "current", "this"
             return resolveSimpleFieldReference(name)
@@ -207,8 +208,8 @@ public class JoyfillDocContext: EvaluationContext {
             // Check for circular dependency
             if evaluationInProgress.contains(identifier) {
                 return .failure(.circularReference("Circular dependency detected for field '\(identifier)'"))
-            }
-            
+        }
+        
             // Mark this field as currently being evaluated
             evaluationInProgress.insert(identifier)
             
@@ -225,8 +226,8 @@ public class JoyfillDocContext: EvaluationContext {
                 // Cache the result if successful
                 if case .success(let value) = result {
                     formulaCache[identifier] = value
-                }
-                
+        }
+        
                 return result
                 
             case .failure(let error):
@@ -239,33 +240,54 @@ public class JoyfillDocContext: EvaluationContext {
         // Not a formula field, return the stored value
         return convertFieldValueToFormulaValue(field.value)
     }
-    
-    private func resolveComplexReference(_ name: String) -> Result<FormulaValue, FormulaError> {
-        // Parse complex reference like "fruits[selectedIndex]", "user.name", "matrix[row][col]"
-        
-        // First, extract the base field identifier and the remaining path
-        let (baseFieldId, remainingPath) = parseComplexReference(name)
-        
-        // Get the base field
-        guard let field = docProvider.field(for: baseFieldId) else {
-            return .failure(.invalidReference("Field with identifier '\(baseFieldId)' not found"))
+
+    private func resolveComplexFieldReference(_ pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
+        // Parsing logic for complex field references
+        // Starting point is usually a field identifier
+        let firstComponent = pathComponents[0]
+
+        // Check if the first component contains array indexing syntax
+        var fieldIdentifier = firstComponent
+        var remainingPath = Array(pathComponents.dropFirst())
+
+        // If the first component has array indexing like "fruits[0]" or "matrix[1][2]"
+        if firstComponent.contains("[") && firstComponent.contains("]") {
+            // Extract the base field name from something like "fruits[0]" or "matrix[1][2]"
+            if let bracketIndex = firstComponent.firstIndex(of: "[") {
+                fieldIdentifier = String(firstComponent[..<bracketIndex])
+
+                // Extract and split multiple array index parts like [1][2]
+                let indexPart = String(firstComponent[bracketIndex...])
+//                let indexComponents = splitArrayIndexes(indexPart)
+//                remainingPath = indexComponents + remainingPath
+            }
         }
-        
-        // Get the base field value
-        let baseValueResult = convertFieldValueToFormulaValue(field.value)
-        guard case .success(let baseValue) = baseValueResult else {
-            return baseValueResult
+
+        guard let field = docProvider.field(for: fieldIdentifier) else {
+            return .failure(.invalidReference("Field with identifier '\(fieldIdentifier)' not found"))
         }
-        
-        // If there's no remaining path, return the base value
-        if remainingPath.isEmpty {
-            return .success(baseValue)
+
+        // Handle different reference patterns based on the field type
+        if field.fieldType == JoyfillModel.FieldTypes.table {
+            // Handle collection-specific reference patterns
+            return resolveCollectionReference(field, pathComponents: remainingPath)
+        } else if !remainingPath.isEmpty {
+            // This could be a property access or array index reference
+
+            // First, resolve the base field value
+            let baseValueResult = convertFieldValueToFormulaValue(field.value)
+            guard case .success(let baseValue) = baseValueResult else {
+                return baseValueResult
+            }
+
+            // Process the remainder of the path
+            return resolvePathOnValue(baseValue, path: remainingPath)
         }
-        
-        // Process the remaining path on the base value
-        return resolvePathOnValue(baseValue, path: remainingPath)
+
+        // For single component without indexing, fallback to simple resolution
+        return resolveSimpleFieldReference(fieldIdentifier)
     }
-    
+
     private func parseComplexReference(_ name: String) -> (baseFieldId: String, remainingPath: [String]) {
         var baseFieldId = ""
         var remainingPath: [String] = []
@@ -330,7 +352,7 @@ public class JoyfillDocContext: EvaluationContext {
                     
                     guard index >= 0 && index < array.count else {
                         return .failure(.invalidReference("Array index out of bounds: \(index)"))
-                    }
+            }
                     
                     currentValue = array[index]
                 } else {
@@ -339,10 +361,10 @@ public class JoyfillDocContext: EvaluationContext {
                     
                     guard case .success(let indexValue) = dynamicIndexResult,
                           case .number(let indexNumber) = indexValue,
-                          indexNumber.truncatingRemainder(dividingBy: 1) == 0 else {
+              indexNumber.truncatingRemainder(dividingBy: 1) == 0 else {
                         return .failure(.invalidReference("Invalid array index: \(indexStr)"))
-                    }
-                    
+        }
+        
                     let index = Int(indexNumber)
                     
                     guard case .array(let array) = currentValue else {
@@ -351,7 +373,7 @@ public class JoyfillDocContext: EvaluationContext {
                     
                     guard index >= 0 && index < array.count else {
                         return .failure(.invalidReference("Array index out of bounds: \(index)"))
-                    }
+            }
                     
                     currentValue = array[index]
                 }
@@ -370,7 +392,7 @@ public class JoyfillDocContext: EvaluationContext {
                         guard case .dictionary(let dict) = currentValue,
                               let propValue = dict[arrayName] else {
                             return .failure(.invalidReference("Property '\(arrayName)' not found"))
-                        }
+                }
                         currentValue = propValue
                     }
                     
@@ -378,8 +400,8 @@ public class JoyfillDocContext: EvaluationContext {
                     if let index = Int(indexStr) {
                         // Access array by index
                         guard case .array(let array) = currentValue else {
-                            return .failure(.invalidReference("Cannot index a non-array value"))
-                        }
+            return .failure(.invalidReference("Cannot index a non-array value"))
+        }
                         
                         guard index >= 0 && index < array.count else {
                             return .failure(.invalidReference("Array index out of bounds: \(index)"))
@@ -394,8 +416,8 @@ public class JoyfillDocContext: EvaluationContext {
                               case .number(let indexNumber) = indexValue,
                               indexNumber.truncatingRemainder(dividingBy: 1) == 0 else {
                             return .failure(.invalidReference("Invalid array index: \(indexStr)"))
-                        }
-                        
+        }
+        
                         let index = Int(indexNumber)
                         
                         guard case .array(let array) = currentValue else {
@@ -410,7 +432,7 @@ public class JoyfillDocContext: EvaluationContext {
                     }
                 } else {
                     return .failure(.invalidReference("Invalid array index syntax: \(component)"))
-                }
+        }
             } else {
                 // Regular property access
                 guard case .dictionary(let dict) = currentValue,
@@ -473,14 +495,14 @@ public class JoyfillDocContext: EvaluationContext {
                     return .success(convertValueUnionToFormulaValue(cellValue))
                 } else {
                     return .failure(.invalidReference("Column '\(columnName)' not found in row at index \(index)"))
-                }
+            }
             }
         } 
         
         // Check if it's a column name (for all values in that column)
         let possibleColumnName = nextComponent
         guard let possibleColumnID = field.tableColumns?.first(where: { column in
-            column.title == possibleColumnName
+            column.title.lowercased() == possibleColumnName.lowercased()
         })?.id else {
             return .failure(.invalidReference("Field '\(field.identifier ?? "unknown")' is not a valid collection"))
         }
@@ -547,8 +569,8 @@ public class JoyfillDocContext: EvaluationContext {
                     let date = Date(timeIntervalSince1970: timestamp / 1000.0)
                     return .date(date)
                 } else if timestamp > 1000000000 { // Likely seconds
-                    let date = Date(timeIntervalSince1970: timestamp)
-                    return .date(date)
+                let date = Date(timeIntervalSince1970: timestamp)
+                return .date(date)
                 }
             }
             // Try to parse as date string using UTC formatter
@@ -622,7 +644,7 @@ public class JoyfillDocContext: EvaluationContext {
                 return .boolean(number.boolValue)
             } else {
                 // It's a number
-                return .number(number.doubleValue)
+            return .number(number.doubleValue)
             }
         } else if jsonObject is NSNull {
             return .null
