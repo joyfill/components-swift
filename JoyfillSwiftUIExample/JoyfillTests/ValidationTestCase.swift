@@ -924,9 +924,6 @@ final class ValidationTestCase: XCTestCase {
     
 }
 
-    }
-}
-
     extension ValidationTestCase {
         func testRequiredCollectionField() {
             let document = JoyDoc()

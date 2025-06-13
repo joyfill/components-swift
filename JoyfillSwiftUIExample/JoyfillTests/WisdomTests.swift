@@ -842,13 +842,13 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "thisRef", formula: "this > 50")
             
             // Object property references
-            .addFormula(id: "objectProp", formula: "{user.name}")
-            .addFormula(id: "nestedObjectProp", formula: "{user.address.city}")
+            .addFormula(id: "objectProp", formula: "user.name")
+            .addFormula(id: "nestedObjectProp", formula: "user.address.city")
             
             // Array index references
-            .addFormula(id: "arrayIndex", formula: "{fruits[0]}")
-            .addFormula(id: "nestedArrayIndex", formula: "{matrix[1][2]}")
-            .addFormula(id: "dynamicArrayIndex", formula: "{fruits[{selectedIndex}]}")
+            .addFormula(id: "arrayIndex", formula: "fruits[0]")
+            .addFormula(id: "nestedArrayIndex", formula: "matrix[1][2]")
+            .addFormula(id: "dynamicArrayIndex", formula: "fruits[selectedIndex]")
             
             // toNumber function
             .addFormula(id: "toNumber1", formula: "toNumber(\"100\")")
@@ -856,7 +856,7 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "toNumber3", formula: "toNumber(\"-50\")")
             .addFormula(id: "toNumber4", formula: "toNumber(\"invalid\")")
             .addFormula(id: "toNumberWithSpace", formula: "toNumber(\"  42  \")")
-            .addFormula(id: "toNumberCalculation", formula: "toNumber({stringNumber}) * 2")
+            .addFormula(id: "toNumberCalculation", formula: "toNumber(stringNumber) * 2")
             
             // Input fields
             .addNumberField(identifier: "selfValue", value: 25, label: "Self Value")
