@@ -42,7 +42,7 @@ public class JoyfillDocContext: EvaluationContext {
     }
 
     /// Resolve a reference string against the JoyDoc
-    /// - Parameter name: Reference string (e.g., "{fieldIdentifier}" or "fieldIdentifier")
+    /// - Parameter name: Reference string (e.g., "fieldIdentifier", "fruits[0]", "user.name")
     /// - Returns: Result containing the resolved FormulaValue or an error
     public func resolveReference(_ name: String) -> Result<FormulaValue, FormulaError> {
         // First check temporary variables (for lambda parameters)
@@ -50,22 +50,16 @@ public class JoyfillDocContext: EvaluationContext {
             return .success(tempValue)
         }
         
-        // Handle braced references like {fieldName} or {fruits[{selectedIndex}]}
-        if name.hasPrefix("{") && name.hasSuffix("}") {
-            let content = String(name.dropFirst().dropLast())
-            
-            // Check if this is a simple field reference (no dots or brackets)
-            if !content.contains(".") && !content.contains("[") {
-                return resolveSimpleFieldReference(content)
-            } else {
-                // Complex reference - split by dots for processing
-                let pathComponents = content.split(separator: ".").map(String.init)
-                return resolveComplexFieldReference(pathComponents)
-            }
-        }
+        // Detect if this is a complex reference by checking for dots or brackets
+        let isComplexReference = name.contains(".") || name.contains("[")
         
-        // Handle bare references (like "self", "current", "this")
-        return resolveSimpleFieldReference(name)
+        if isComplexReference {
+            // Complex reference like "fruits[selectedIndex]", "user.name", "matrix[row][col]"
+            return resolveComplexReference(name)
+        } else {
+            // Simple reference like "fieldName", "self", "current", "this"
+            return resolveSimpleFieldReference(name)
+        }
     }
     
     /// Provides access to cached formula values for introspection
@@ -246,68 +240,69 @@ public class JoyfillDocContext: EvaluationContext {
         return convertFieldValueToFormulaValue(field.value)
     }
     
-    private func resolveComplexFieldReference(_ pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
-        // Parsing logic for complex field references
-        // Starting point is usually a field identifier
-        let firstComponent = pathComponents[0]
+    private func resolveComplexReference(_ name: String) -> Result<FormulaValue, FormulaError> {
+        // Parse complex reference like "fruits[selectedIndex]", "user.name", "matrix[row][col]"
         
-        // Check if the first component contains array indexing syntax
-        var fieldIdentifier = firstComponent
-        var remainingPath = Array(pathComponents.dropFirst())
+        // First, extract the base field identifier and the remaining path
+        let (baseFieldId, remainingPath) = parseComplexReference(name)
         
-        // If the first component has array indexing like "fruits[0]" or "matrix[1][2]"
-        if firstComponent.contains("[") && firstComponent.contains("]") {
-            // Extract the base field name from something like "fruits[0]" or "matrix[1][2]"
-            if let bracketIndex = firstComponent.firstIndex(of: "[") {
-                fieldIdentifier = String(firstComponent[..<bracketIndex])
-                
-                // Extract and split multiple array index parts like [1][2]
-                let indexPart = String(firstComponent[bracketIndex...])
-                let indexComponents = splitArrayIndexes(indexPart)
-                remainingPath = indexComponents + remainingPath
-            }
+        // Get the base field
+        guard let field = docProvider.field(for: baseFieldId) else {
+            return .failure(.invalidReference("Field with identifier '\(baseFieldId)' not found"))
         }
         
-        guard let field = docProvider.field(for: fieldIdentifier) else {
-            return .failure(.invalidReference("Field with identifier '\(fieldIdentifier)' not found"))
+        // Get the base field value
+        let baseValueResult = convertFieldValueToFormulaValue(field.value)
+        guard case .success(let baseValue) = baseValueResult else {
+            return baseValueResult
         }
         
-        // Handle different reference patterns based on the field type
-        if field.fieldType == JoyfillModel.FieldTypes.table {
-            // Handle collection-specific reference patterns
-            return resolveCollectionReference(field, pathComponents: remainingPath)
-        } else if !remainingPath.isEmpty {
-            // This could be a property access or array index reference
-            
-            // First, resolve the base field value
-            let baseValueResult = convertFieldValueToFormulaValue(field.value)
-            guard case .success(let baseValue) = baseValueResult else {
-                return baseValueResult
-            }
-            
-            // Process the remainder of the path
-            return resolvePathOnValue(baseValue, path: remainingPath)
+        // If there's no remaining path, return the base value
+        if remainingPath.isEmpty {
+            return .success(baseValue)
         }
         
-        // For single component without indexing, fallback to simple resolution
-        return resolveSimpleFieldReference(fieldIdentifier)
+        // Process the remaining path on the base value
+        return resolvePathOnValue(baseValue, path: remainingPath)
     }
     
-    /// Splits array index notation like "[1][2]" into separate components ["[1]", "[2]"]
-    private func splitArrayIndexes(_ indexString: String) -> [String] {
+    private func parseComplexReference(_ name: String) -> (baseFieldId: String, remainingPath: [String]) {
+        var baseFieldId = ""
+        var remainingPath: [String] = []
+        
+        // Handle different types of complex references
+        if name.contains("[") {
+            // Array access like "fruits[selectedIndex]" or "matrix[row][col]"
+            if let firstBracket = name.firstIndex(of: "[") {
+                baseFieldId = String(name[..<firstBracket])
+                let indexPart = String(name[firstBracket...])
+                remainingPath = parseArrayIndexes(indexPart)
+            }
+        } else if name.contains(".") {
+            // Property access like "user.name" or "user.address.city"
+            let components = name.split(separator: ".").map(String.init)
+            baseFieldId = components[0]
+            remainingPath = Array(components.dropFirst())
+        }
+        
+        return (baseFieldId, remainingPath)
+    }
+    
+    private func parseArrayIndexes(_ indexString: String) -> [String] {
         var components: [String] = []
         var current = indexString
         
         while !current.isEmpty {
             if let startIndex = current.firstIndex(of: "["),
                let endIndex = current.firstIndex(of: "]") {
-                // Extract one complete bracket pair
-                let component = String(current[startIndex...endIndex])
-                components.append(component)
+                // Extract the content between brackets
+                let nextIndex = current.index(after: startIndex)
+                let indexContent = String(current[nextIndex..<endIndex])
+                components.append("[\(indexContent)]")
                 
                 // Move past this bracket pair
-                let nextIndex = current.index(after: endIndex)
-                current = nextIndex < current.endIndex ? String(current[nextIndex...]) : ""
+                let afterBracket = current.index(after: endIndex)
+                current = afterBracket < current.endIndex ? String(current[afterBracket...]) : ""
             } else {
                 break // No more brackets
             }
@@ -340,11 +335,7 @@ public class JoyfillDocContext: EvaluationContext {
                     currentValue = array[index]
                 } else {
                     // Try to resolve it as a dynamic index reference
-                    // Check if indexStr already has braces
-                    let referenceString = indexStr.hasPrefix("{") && indexStr.hasSuffix("}") 
-                                         ? indexStr 
-                                         : "{\(indexStr)}"
-                    let dynamicIndexResult = resolveReference(referenceString)
+                    let dynamicIndexResult = resolveReference(indexStr)
                     
                     guard case .success(let indexValue) = dynamicIndexResult,
                           case .number(let indexNumber) = indexValue,
@@ -397,8 +388,7 @@ public class JoyfillDocContext: EvaluationContext {
                         currentValue = array[index]
                     } else {
                         // Try to resolve it as a dynamic index reference
-                        let referenceString = indexStr.hasPrefix("{") && indexStr.hasSuffix("}") ? indexStr : "{\(indexStr)}"
-                        let dynamicIndexResult = resolveReference(referenceString)
+                        let dynamicIndexResult = resolveReference(indexStr)
                         
                         guard case .success(let indexValue) = dynamicIndexResult,
                               case .number(let indexNumber) = indexValue,
