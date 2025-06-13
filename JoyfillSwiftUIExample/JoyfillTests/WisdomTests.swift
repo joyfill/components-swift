@@ -545,11 +545,11 @@ class WisdomTests: XCTestCase {
             .addDateField(identifier: "dateAddResult2", formulaRef: "dateAdd2", formulaKey: "value", label: "Date After Addition 2")
             .addDateField(identifier: "dateSubtractResult1", formulaRef: "dateSubtract1", formulaKey: "value", label: "Date After Subtraction 1")
             .addDateField(identifier: "dateSubtractResult2", formulaRef: "dateSubtract2", formulaKey: "value", label: "Date After Subtraction 2")
-            .addTextField(identifier: "dateEqualResult", formulaRef: "dateEqual", formulaKey: "value", label: "Date Equality Test")
-            .addTextField(identifier: "dateBeforeResult", formulaRef: "dateBefore", formulaKey: "value", label: "Date Before Test")
-            .addTextField(identifier: "dateAfterResult", formulaRef: "dateAfter", formulaKey: "value", label: "Date After Test")
-            .addTextField(identifier: "dateConditionalResult", formulaRef: "dateConditional", formulaKey: "value", label: "Date Conditional Test")
-            .addTextField(identifier: "dateInStringResult", formulaRef: "dateInString", formulaKey: "value", label: "Date in String")
+            .addTextField(identifier: "dateEqualResult", formulaRef: "dateEqual", formulaKey: "value", value: "", label: "Date Equality Test")
+            .addTextField(identifier: "dateBeforeResult", formulaRef: "dateBefore", formulaKey: "value", value: "", label: "Date Before Test")
+            .addTextField(identifier: "dateAfterResult", formulaRef: "dateAfter", formulaKey: "value", value: "", label: "Date After Test")
+            .addTextField(identifier: "dateConditionalResult", formulaRef: "dateConditional", formulaKey: "value", value: "", label: "Date Conditional Test")
+            .addTextField(identifier: "dateInStringResult", formulaRef: "dateInString", formulaKey: "value", value: "", label: "Date in String")
             
         let documentEditor = DocumentEditor(document: document)
         
