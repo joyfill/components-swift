@@ -468,6 +468,7 @@ struct FormBuilderView: View {
                         identifier: field.identifier,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
+                        value: field.value,
                         label: field.label
                     )
                 } else {
