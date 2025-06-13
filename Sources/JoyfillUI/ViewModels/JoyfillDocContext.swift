@@ -1116,8 +1116,16 @@ public class JoyfillDocContext: EvaluationContext {
     
     /// Evaluates all formula fields and updates their values
     public func evaluateAllFormulas() {
+        print("🚀 evaluateAllFormulas started")
+        
         // Get all formula fields
         let formulaFields = docProvider.allFormulsFields()
+        print("🚀 Found \(formulaFields.count) formula fields")
+        
+        // Debug: List all formula fields
+        for field in formulaFields {
+            print("🚀 Formula field found: \(field.identifier ?? "no identifier") with formulas: \(field.formulas?.count ?? 0)")
+        }
         
         // Create a topologically sorted list of fields based on dependencies
         let sortedFields = topologicalSortFormulaFields(formulaFields)
@@ -1125,6 +1133,8 @@ public class JoyfillDocContext: EvaluationContext {
         // Evaluate each field in dependency order
         for field in sortedFields {
             if let identifier = field.identifier, let formulaInfo = getFormulaForField(field) {
+                print("🚀 Evaluating formula for field \(identifier): \(formulaInfo.formulaString)")
+                
                 // Evaluate the formula
                 let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
@@ -1133,11 +1143,14 @@ public class JoyfillDocContext: EvaluationContext {
                     let result = evaluator.evaluate(node: ast, context: self)
                     
                     if case .success(let value) = result {
+                        print("🚀 Formula evaluation successful for \(identifier): \(value)")
                         // Cache the result
                         formulaCache[identifier] = value
                         
                         // Update the field's value in the document
                         updateFieldWithFormulaResult(identifier: identifier, value: value, key: formulaInfo.key)
+                    } else {
+                        print("🚀 Formula evaluation failed for \(identifier): \(result)")
                     }
                     
                 case .failure(let error):
@@ -1145,6 +1158,8 @@ public class JoyfillDocContext: EvaluationContext {
                 }
             }
         }
+        
+        print("🚀 evaluateAllFormulas completed")
     }
     
     /// Creates a topologically sorted list of formula fields based on their dependencies
@@ -1213,13 +1228,17 @@ public class JoyfillDocContext: EvaluationContext {
     ///   - value: The formula result value
     ///   - key: The field property to update (e.g., "value", "hidden", etc.)
     private func updateFieldWithFormulaResult(identifier: String, value: FormulaValue, key: String = "value") {
+        print("🔧 updateFieldWithFormulaResult called for \(identifier) with value: \(value) and key: \(key)")
+        
         // Convert FormulaValue to ValueUnion
         let valueUnion = convertFormulaValueToValueUnion(value)
+        print("🔧 Converted to ValueUnion: \(valueUnion)")
         
         // Update the field value in the document
         // Note: Currently this only handles the "value" property
         // In the future, this would need to be extended to handle other properties like "hidden", "valid", etc.
         if key == "value" {
+            print("🔧 Calling docProvider.updateValue for \(identifier)")
             docProvider.updateValue(for: identifier, value: valueUnion)
         } else if (key == "hidden") {
             docProvider.setFieldHidden(value.boolValue, for: identifier)
