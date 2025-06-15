@@ -1154,11 +1154,3 @@ struct TextDataModel {
     var mode: Mode
     var fieldHeaderModel: FieldHeaderModel?
 }
-
-// MARK: - Extensions
-
-extension Array where Element == FilterModel {
-    var noFilterApplied: Bool {
-        return allSatisfy { $0.filterText.isEmpty }
-    }
-}
