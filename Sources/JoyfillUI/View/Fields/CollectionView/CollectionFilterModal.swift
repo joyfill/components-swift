@@ -54,7 +54,7 @@ struct CollectionFilterModal: View {
                     })
                     
                     Button(action: {
-                        viewModel.tableDataModel.filterRowsIfNeeded(schema: selectedSchemaKey)
+                        viewModel.tableDataModel.filterCollectionRowsIfNeeded()
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Apply")

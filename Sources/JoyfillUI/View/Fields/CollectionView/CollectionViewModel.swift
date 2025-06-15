@@ -36,7 +36,7 @@ class CollectionViewModel: ObservableObject {
         cellWidthMapping()
         setupCellModels()
         updateCollectionWidth()
-        self.tableDataModel.filterRowsIfNeeded()
+        self.tableDataModel.filterCollectionRowsIfNeeded()
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
@@ -757,7 +757,7 @@ class CollectionViewModel: ObservableObject {
             }
             tableDataModel.cellModels[index].isExpanded.toggle()
         }
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
         updateCollectionWidth()
     }
     
@@ -881,7 +881,7 @@ class CollectionViewModel: ObservableObject {
                                    rowType: .row(index: rowDataModel.rowType.index + 1),
                                    schemaKey: parentSchemaKey)
             }
-            tableDataModel.filterRowsIfNeeded()
+            tableDataModel.filterCollectionRowsIfNeeded()
         }
         
         guard let rowDataModel = tableDataModel.cellModels.first(where: { $0.rowID == sortedSelectedRows[0] }) else {
@@ -932,7 +932,7 @@ class CollectionViewModel: ObservableObject {
             }
             tableDataModel.cellModels[i] = model
         }
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
     }
     
     func insertBelow() -> String? {
@@ -952,7 +952,7 @@ class CollectionViewModel: ObservableObject {
         default:
             return nil
         }
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
         tableDataModel.emptySelection()
     }
     
@@ -1108,7 +1108,7 @@ class CollectionViewModel: ObservableObject {
             collapseTables(index, currentRow, currentRow.rowType.level)
         }
         self.tableDataModel.cellModels.remove(at: index)
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
     }
     
     func getUpperRowIndex(startingIndex: Int) -> Int {
@@ -1168,7 +1168,7 @@ class CollectionViewModel: ObservableObject {
         } else {
             self.tableDataModel.cellModels.moveItems(from: [index], to: upperRowIndicesToMove.sorted())
         }
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
     }
     
     fileprivate func moveNestedDown(at index: Int, rowID: String) {
@@ -1188,7 +1188,7 @@ class CollectionViewModel: ObservableObject {
         } else {
             self.tableDataModel.cellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: [index])
         }
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
     }
 
     fileprivate func getChildrensBy(_ schemaKey: String) -> [String : Children] {
@@ -1227,7 +1227,7 @@ class CollectionViewModel: ObservableObject {
                                childrens: getChildrensBy(rootSchemaKey),
                                rowType: .row(index: rowIndex),
                                schemaKey: rootSchemaKey)
-            self.tableDataModel.filterRowsIfNeeded()
+            self.tableDataModel.filterCollectionRowsIfNeeded()
         }
     }
     
@@ -1269,7 +1269,7 @@ class CollectionViewModel: ObservableObject {
             
             let rowDataModelForIndexing = tableDataModel.cellModels[startingIndex + 2]
             reIndexingRows(rowDataModel: rowDataModelForIndexing)
-            self.tableDataModel.filterRowsIfNeeded()
+            self.tableDataModel.filterCollectionRowsIfNeeded()
         }
     }
     
@@ -1361,7 +1361,7 @@ class CollectionViewModel: ObservableObject {
             
             tableDataModel.cellModels[index] = rowDataModel
         }
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
@@ -1409,7 +1409,7 @@ class CollectionViewModel: ObservableObject {
                 }
             }
         }
-        tableDataModel.filterRowsIfNeeded()
+        tableDataModel.filterCollectionRowsIfNeeded()
     }
     
     func sendEventsIfNeeded() {

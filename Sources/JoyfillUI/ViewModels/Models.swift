@@ -284,12 +284,13 @@ struct TableDataModel {
     }
     
     /// Enhanced filtering method that supports schema-specific filtering for nested collections
-    mutating func filterRowsIfNeeded(schema: String) {
+    mutating func filterCollectionRowsIfNeeded() {
         filteredcellModels = cellModels
         guard !filterModels.noFilterApplied else {
             return
         }
-        
+        let activeFilters = filterModels.filter { !$0.filterText.isEmpty }
+        let schema = activeFilters.first?.schemaKey ?? ""
         // If filtering on root schema, use original logic
         if schema.isEmpty || isRootSchema(schema) {
             filterRowsIfNeeded()
