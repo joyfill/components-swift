@@ -43,6 +43,23 @@ struct CollectionModalTopNavigationView: View {
                     .stroke(hasActiveFilters ? Color.blue : Color.buttonBorderColor, lineWidth: 1))
             }
             .accessibilityIdentifier("CollectionFilterButtonIdentifier")
+            
+            if hasActiveFilters {
+                Button(action: {
+                    clearFilter()
+                }, label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            .frame(width: 27, height: 27)
+                        
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 10, height: 10)
+                            .darkLightThemeColor()
+                    }
+                })
+            }
 
             if !viewModel.tableDataModel.selectedRows.isEmpty {
                 Button(action: {
@@ -233,6 +250,14 @@ struct CollectionModalTopNavigationView: View {
             }
 
         }
+    }
+    
+    func clearFilter() {
+        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        for i in 0..<viewModel.tableDataModel.filterModels.count {
+            viewModel.tableDataModel.filterModels[i].filterText = ""
+        }
+        viewModel.tableDataModel.emptySelection()
     }
 
     var rowTitle: String {

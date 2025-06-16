@@ -14,7 +14,6 @@ struct CollectionFilterModal: View {
     @Environment(\.colorScheme) var colorScheme
     @State var selectedSchemaKey: String = ""
     @State var selectedSortedColumnID: String = ""
-    @State var selectedFilterColumnID: [String] = []
     @State var totalFiltersCount: Int = 1
     
     var body: some View {
@@ -33,14 +32,15 @@ struct CollectionFilterModal: View {
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Apply")
-                            .darkLightThemeColor()
                             .font(.system(size: 14))
                             .frame(width: 88, height: 27)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            )
                     })
+                    .foregroundStyle(currentFiltersColumnsIDs().count > 0 ? .blue : .gray)
+                    .disabled(currentFiltersColumnsIDs().count > 0 ? false : true)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(currentFiltersColumnsIDs().count > 0 ? .blue : .gray, lineWidth: 1)
+                    )
                     
                     Button(action: {
                         clearAllFilters()
@@ -100,8 +100,8 @@ struct CollectionFilterModal: View {
                             ForEach(0..<totalFiltersCount, id: \.self) { i in
                                 FilteringView(viewModel: viewModel,
                                               selectedSchemaKey: $selectedSchemaKey,
-                                              currentSelectedFilterColumnID: selectedFilterColumnID.indices.contains(i) ? selectedFilterColumnID[i] : "",
-                                              selectedFilterColumnID: $selectedFilterColumnID,
+                                              currentSelectedFilterColumnID: currentFiltersColumnsIDs().indices.contains(i) ? currentFiltersColumnsIDs()[i] : "",
+                                              selectedFilterColumnID: currentFiltersColumnsIDs(),
                                               totalFiltersCount: $totalFiltersCount)
                             }
                             
@@ -109,15 +109,15 @@ struct CollectionFilterModal: View {
                                 totalFiltersCount += 1
                             }, label: {
                                 Text("+ Add Filter")
-                                    .darkLightThemeColor()
                                     .font(.system(size: 12))
                                     .frame(width: 80, height: 27)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .stroke(Color.blue, lineWidth: 1)
-                                    )
                             })
-                            
+                            .foregroundColor(currentFiltersColumnsIDs().count != totalFiltersCount ? .gray : .blue)
+                            .disabled(currentFiltersColumnsIDs().count != totalFiltersCount)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(currentFiltersColumnsIDs().count != totalFiltersCount ? .gray : .blue, lineWidth: 1)
+                            )
                         }
                     }
                     
@@ -245,25 +245,28 @@ struct CollectionFilterModal: View {
     private func loadCurrentFilters() {
         let activeFilters = viewModel.tableDataModel.filterModels.filter { !$0.filterText.isEmpty }
         selectedSchemaKey = activeFilters.first?.schemaKey ?? viewModel.rootSchemaKey
-        for activeFilter in activeFilters {
-            selectedFilterColumnID.append(activeFilter.colID)
-        }
         
         if activeFilters.count == 0 {
             totalFiltersCount = 1
         } else {
             totalFiltersCount = activeFilters.count
         }
-//        selectedFilterColumnID = activeFilters.first?.colID ?? ""
     }
     
+    private func currentFiltersColumnsIDs() -> [String] {
+        var selectedFilterColumnID: [String] = []
+        let activeFilters = viewModel.tableDataModel.filterModels.filter { !$0.filterText.isEmpty }
+        for activeFilter in activeFilters {
+            selectedFilterColumnID.append(activeFilter.colID)
+        }
+        return selectedFilterColumnID
+    }
+        
     private func clearSorting() {
         selectedSortedColumnID = ""
         viewModel.tableDataModel.sortModel.order = .none
     }
-    
-    
-    
+
     private func clearAllFilters() {
         // Clear filter models for the selected schema only
         for i in 0..<viewModel.tableDataModel.filterModels.count {
@@ -271,15 +274,9 @@ struct CollectionFilterModal: View {
                 viewModel.tableDataModel.filterModels[i].filterText = ""
             }
         }
-        
-        // Reset filtered results
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
-        
-        // Clear selections
-        selectedFilterColumnID = []
         selectedSortedColumnID = ""
         totalFiltersCount = 1
-        // Reset sort order
         viewModel.tableDataModel.sortModel.order = .none
     }
 }
@@ -287,7 +284,7 @@ struct FilteringView: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var selectedSchemaKey: String
     @State var currentSelectedFilterColumnID: String
-    @Binding var selectedFilterColumnID: [String]
+    var selectedFilterColumnID: [String]
     @Environment(\.colorScheme) var colorScheme
     @Binding var totalFiltersCount: Int
     
@@ -308,14 +305,11 @@ struct FilteringView: View {
                     ForEach(columns, id: \.id) { column in
                         Button("\(column.title ?? "")") {
                             currentSelectedFilterColumnID = column.id ?? ""
-                            if !selectedFilterColumnID.contains(currentSelectedFilterColumnID) {
-                                selectedFilterColumnID.append(currentSelectedFilterColumnID)
-                            }
                         }
                     }
                 } label: {
                     HStack {
-                        Text(selectedFilterColumnID.isEmpty ? "Select column type" : getSelectedFilteredColumnTitle(columnID: currentSelectedFilterColumnID))
+                        Text(currentSelectedFilterColumnID.isEmpty ? "Select column type" : getSelectedFilteredColumnTitle(columnID: currentSelectedFilterColumnID))
                             .font(.system(size: 14))
                             .foregroundColor(.primary)
                         
@@ -351,15 +345,13 @@ struct FilteringView: View {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.red)
             })
-            .disabled(selectedFilterColumnID.isEmpty)
+//            .disabled(selectedFilterColumnID.isEmpty)
         }
         .padding(.all, 8)
         .overlay(
             RoundedRectangle(cornerRadius: 6)
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
         )
-        
-        
     }
     
     private func getSelectedFilteredColumnTitle(columnID: String) -> String {
@@ -376,9 +368,9 @@ struct FilteringView: View {
             viewModel.tableDataModel.filterModels[index].filterText = ""
         }
         
-        if let index = selectedFilterColumnID.firstIndex(of: columnID) {
-            selectedFilterColumnID.remove(at: index)
-        }
+//        if let index = selectedFilterColumnID.firstIndex(of: columnID) {
+//            selectedFilterColumnID.remove(at: index)
+//        }
         totalFiltersCount -= 1
         if totalFiltersCount == 0 {
             totalFiltersCount = 1

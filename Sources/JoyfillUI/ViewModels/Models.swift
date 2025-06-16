@@ -941,13 +941,13 @@ struct TableDataModel {
     func getAllNestedRowsForRow(rowID: String) -> [String] {
         var indices: [String] = []
         if let rowDataModel = getRowByID(rowID: rowID) {
-            guard let index = cellModels.firstIndex(of: rowDataModel) else {
+            guard let index = filteredcellModels.firstIndex(of: rowDataModel) else {
                 Log(" Could not find row \(rowID) in cellModels", type: .error)
                 return []
             }
             
-            for i in index..<cellModels.count {
-                let nextRow = cellModels[i]
+            for i in index..<filteredcellModels.count {
+                let nextRow = filteredcellModels[i]
                 if nextRow.rowType.isRow {
                     break
                 }
