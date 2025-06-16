@@ -29,32 +29,6 @@ struct CollectionFilterModal: View {
                     
                     Button(action: {
                         viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
-                    }, label: {
-                        Text("Expand All")
-                            .darkLightThemeColor()
-                            .font(.system(size: 12))
-                            .frame(width: 80, height: 27)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.blue, lineWidth: 1)
-                            )
-                    })
-                    
-                    Button(action: {
-                        viewModel.setupCellModels()
-                    }, label: {
-                        Text("Collapse All")
-                            .darkLightThemeColor()
-                            .font(.system(size: 12))
-                            .frame(width: 80, height: 27)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.orange, lineWidth: 1)
-                            )
-                    })
-                    
-                    Button(action: {
-                        viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
                         viewModel.tableDataModel.filterCollectionRowsIfNeeded()
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
