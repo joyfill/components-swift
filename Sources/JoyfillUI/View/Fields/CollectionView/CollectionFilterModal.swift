@@ -32,14 +32,14 @@ struct CollectionFilterModal: View {
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Apply")
+                            .darkLightThemeColor()
                             .font(.system(size: 14))
                             .frame(width: 88, height: 27)
                     })
-                    .foregroundStyle(currentFiltersColumnsIDs().count > 0 ? .blue : .gray)
-                    .disabled(currentFiltersColumnsIDs().count > 0 ? false : true)
+                    .foregroundStyle(.gray)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(currentFiltersColumnsIDs().count > 0 ? .blue : .gray, lineWidth: 1)
+                            .stroke(.gray, lineWidth: 1)
                     )
                     
                     Button(action: {
@@ -345,7 +345,6 @@ struct FilteringView: View {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.red)
             })
-//            .disabled(selectedFilterColumnID.isEmpty)
         }
         .padding(.all, 8)
         .overlay(
@@ -367,10 +366,6 @@ struct FilteringView: View {
         if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == columnID && $0.schemaKey == selectedSchemaKey }) {
             viewModel.tableDataModel.filterModels[index].filterText = ""
         }
-        
-//        if let index = selectedFilterColumnID.firstIndex(of: columnID) {
-//            selectedFilterColumnID.remove(at: index)
-//        }
         totalFiltersCount -= 1
         if totalFiltersCount == 0 {
             totalFiltersCount = 1
