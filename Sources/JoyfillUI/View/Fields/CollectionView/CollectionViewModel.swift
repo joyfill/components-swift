@@ -441,20 +441,20 @@ class CollectionViewModel: ObservableObject {
             let rootRowModel = RowDataModel(rowID: rowID,
                                           cells: rowCellModels,
                                           rowType: .row(index: rootIndex + 1),
-                                          isExpanded: true,
+                                            isExpanded: targetSchema != rootSchemaKey ? true : false,
                                           childrens: childrens,
                                           rowWidth: rowWidth(tableDataModel.tableColumns, 0))
             cellModels.append(rootRowModel)
             
             // Add all nested rows for this root row
-//            if targetSchema != rootSchemaKey {
+            if targetSchema != rootSchemaKey {
                 addAllNestedRowsRecursively(to: &cellModels,
                                             parentRowID: rowID,
                                             level: 0,
                                             parentSchemaKey: rootSchemaKey,
                                             parentID: ("", rowID),
                                             targetSchema: targetSchema)
-//            }
+            }
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
@@ -540,20 +540,20 @@ class CollectionViewModel: ObservableObject {
                                                                    index: nestedIndex + 1,
                                                                    parentID: parentID,
                                                                    parentSchemaKey: childSchemaKey),
-                                                  isExpanded: true,
+                                                  isExpanded: targetSchema != childSchemaKey ? true : false,
                                                 childrens: childValueElement.childrens ?? [:],
                                                 rowWidth: rowWidth(filteredTableColumns, level + 1))
                 cellModels.append(nestedRowModel)
                 
                 // Recursively add nested rows for this child (if it has children)
-//                if targetSchema != childSchemaKey {
+                if targetSchema != childSchemaKey {
                     addAllNestedRowsRecursively(to: &cellModels,
                                                 parentRowID: childRowID,
                                                 level: level + 1,
                                                 parentSchemaKey: childSchemaKey,
                                                 parentID: ("", childRowID),
                                                 targetSchema: targetSchema)
-//                }
+                }
             }
         }
     }
