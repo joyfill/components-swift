@@ -4,7 +4,7 @@ import JoyfillFormulas
 
 /// Protocol that provides access to JoyDoc data without direct dependency
 public protocol JoyDocProvider {
-    func field(for identifier: String) -> JoyDocField?
+    func field(fieldID: String?) -> JoyDocField?
     func allFormulsFields() -> [JoyDocField]
     func formula(with id: String) -> Formula?
     func updateValue(for identifier: String, value: ValueUnion)
@@ -123,7 +123,7 @@ public class JoyfillDocContext: EvaluationContext {
         }
         
         // Resolve the reference to the current field
-        guard let field = docProvider.field(for: currentIdentifier) else {
+        guard let field = docProvider.field(fieldID: currentIdentifier) else {
             return .failure(.invalidReference("Cannot resolve self reference: Current field not found"))
         }
         
@@ -185,7 +185,7 @@ public class JoyfillDocContext: EvaluationContext {
             // Map self-reference keywords to specific field patterns
             let fieldName = identifier + "Value"
             
-            guard let field = docProvider.field(for: fieldName) else {
+            guard let field = docProvider.field(fieldID: fieldName) else {
                 return .failure(.invalidReference("Field with identifier '\(fieldName)' not found for '\(identifier)' reference"))
             }
             
@@ -194,7 +194,7 @@ public class JoyfillDocContext: EvaluationContext {
         }
         
         // Search the fields for a matching identifier
-        guard let field = docProvider.field(for: identifier) else {
+        guard let field = docProvider.field(fieldID: identifier) else {
             return .failure(.invalidReference("Field with identifier '\(identifier)' not found"))
         }
         
@@ -263,7 +263,7 @@ public class JoyfillDocContext: EvaluationContext {
             }
         }
 
-        guard let field = docProvider.field(for: fieldIdentifier) else {
+        guard let field = docProvider.field(fieldID: fieldIdentifier) else {
             return .failure(.invalidReference("Field with identifier '\(fieldIdentifier)' not found"))
         }
 
@@ -449,7 +449,7 @@ public class JoyfillDocContext: EvaluationContext {
     private func resolveCollectionReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
         // Get the value elements array from the field
         guard let valueElements = field.value?.valueElements else {
-            return .failure(.invalidReference("Field '\(field.identifier ?? "unknown")' is not a valid collection"))
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid collection"))
         }
         
         // If no further path components, return the entire collection
@@ -504,7 +504,7 @@ public class JoyfillDocContext: EvaluationContext {
         guard let possibleColumnID = field.tableColumns?.first(where: { column in
             column.title.lowercased() == possibleColumnName.lowercased()
         })?.id else {
-            return .failure(.invalidReference("Field '\(field.identifier ?? "unknown")' is not a valid collection"))
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid collection"))
         }
 
         if pathComponents.count == 1 {
@@ -662,7 +662,7 @@ public class JoyfillDocContext: EvaluationContext {
         let formulaFields = docProvider.allFormulsFields()
         
         for field in formulaFields {
-            if let identifier = field.identifier, let formulaInfo = getFormulaForField(field) {
+            if let identifier = field.id, let formulaInfo = getFormulaForField(field) {
                 // Extract references from the formula
                 let dependencies = extractReferences(from: formulaInfo.formulaString)
                 dependencyGraph[identifier] = Set(dependencies)
@@ -996,7 +996,7 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each dependent field
         for fieldId in sortedDependentFields {
-            if let field = docProvider.field(for: fieldId), let formulaInfo = getFormulaForField(field) {
+            if let field = docProvider.field(fieldID: fieldId), let formulaInfo = getFormulaForField(field) {
                 // Parse and evaluate the formula
                 let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
@@ -1050,7 +1050,7 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each dependent field
         for fieldId in sortedDependentFields {
-            if let field = docProvider.field(for: fieldId), let formulaInfo = getFormulaForField(field) {
+            if let field = docProvider.field(fieldID: fieldId), let formulaInfo = getFormulaForField(field) {
                 // Parse and evaluate the formula
                 let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
@@ -1136,7 +1136,7 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Debug: List all formula fields
         for field in formulaFields {
-            print("🚀 Formula field found: \(field.identifier ?? "no identifier") with formulas: \(field.formulas?.count ?? 0)")
+            print("🚀 Formula field found: \(field.id ?? "no identifier") with formulas: \(field.formulas?.count ?? 0)")
         }
         
         // Create a topologically sorted list of fields based on dependencies
@@ -1144,7 +1144,7 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each field in dependency order
         for field in sortedFields {
-            if let identifier = field.identifier, let formulaInfo = getFormulaForField(field) {
+            if let identifier = field.id, let formulaInfo = getFormulaForField(field) {
                 print("🚀 Evaluating formula for field \(identifier): \(formulaInfo.formulaString)")
                 
                 // Evaluate the formula
@@ -1185,7 +1185,7 @@ public class JoyfillDocContext: EvaluationContext {
         // Create a map of identifiers to fields for easy lookup
         var fieldMap: [String: JoyDocField] = [:]
         for field in fields {
-            if let identifier = field.identifier {
+            if let identifier = field.id {
                 fieldMap[identifier] = field
             }
         }
@@ -1226,7 +1226,7 @@ public class JoyfillDocContext: EvaluationContext {
         
         // Perform topological sort
         for field in fields {
-            if let identifier = field.identifier, !visited.contains(identifier) {
+            if let identifier = field.id, !visited.contains(identifier) {
                 visit(identifier)
             }
         }

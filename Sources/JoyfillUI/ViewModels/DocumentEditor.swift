@@ -26,10 +26,6 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
         document.formulas.first { $0.id == id }
     }
     
-    public func field(for identifier: String) -> JoyfillModel.JoyDocField? {
-        return allFields.first(where: { $0.identifier == identifier })
-    }
-    
     public func allFormulsFields() -> [JoyfillModel.JoyDocField] {
         allFields.filter { $0.formulas != nil }
     }

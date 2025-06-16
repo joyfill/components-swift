@@ -1,4 +1,5 @@
 import SwiftUI
+import JoyfillAPIService
 import JoyfillModel
 import Joyfill
 import JoyfillFormulas
@@ -18,6 +19,27 @@ struct FormBuilderView: View {
     @State private var isFormulasExpanded = true
     @State private var isFieldsExpanded = true
     @State private var isTemplateExpanded = false
+    @State private var showingPasteAlert = false
+    @State private var pasteAlertMessage = ""
+    let imagePicker = ImagePicker()
+    let changeManager: ChangeManager
+
+    init(fields: [BuilderField] = [], formulas: [BuilderFormula] = [], tableColumns: [FieldTableColumn] = [], showingAddField: Bool = false, showingAddFormula: Bool = false, editingField: BuilderField? = nil, editingFormula: BuilderFormula? = nil, builtDocument: JoyDoc? = nil, documentEditor: DocumentEditor? = nil, selectedTemplate: FormTemplate = .allFieldTypes, isFormulasExpanded: Bool = true, isFieldsExpanded: Bool = true, isTemplateExpanded: Bool = false) {
+        self.fields = fields
+        self.formulas = formulas
+        self.tableColumns = tableColumns
+        self.showingAddField = showingAddField
+        self.showingAddFormula = showingAddFormula
+        self.editingField = editingField
+        self.editingFormula = editingFormula
+        self.builtDocument = builtDocument
+        self.documentEditor = documentEditor
+        self.selectedTemplate = selectedTemplate
+        self.isFormulasExpanded = isFormulasExpanded
+        self.isFieldsExpanded = isFieldsExpanded
+        self.isTemplateExpanded = isTemplateExpanded
+        self.changeManager = ChangeManager(showImagePicker: imagePicker.showPickerOptions, showScan: {_ in })
+    }
     
     var body: some View {
         NavigationView {
@@ -310,6 +332,24 @@ struct FormBuilderView: View {
                         }
                         .disabled(fields.isEmpty)
                         
+                        // Paste JSON Button
+                        Button(action: {
+                            pasteAndLoadJSON()
+                        }) {
+                            VStack(spacing: 6) {
+                                Image(systemName: "doc.on.clipboard.fill")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 48, height: 48)
+                                    .background(Color.orange)
+                                    .clipShape(Circle())
+                                
+                                Text("Paste JSON")
+                                    .font(.caption2)
+                                    .foregroundColor(.orange)
+                            }
+                        }
+
                         Spacer()
                         
                         // Test Form Button
@@ -409,10 +449,122 @@ struct FormBuilderView: View {
                     editingFormula = nil
                 }
             }
+            .alert(isPresented: $showingPasteAlert) {
+                Alert(title: Text("Paste JSON"), message: Text(pasteAlertMessage), dismissButton: .default(Text("OK")))
+            }
             .onAppear {
                 loadTemplate(.allFieldTypes) // Load comprehensive field types template by default
             }
         }
+    }
+    
+    private func pasteAndLoadJSON() {
+        guard let jsonString = UIPasteboard.general.string else {
+            pasteAlertMessage = "Clipboard does not contain a string."
+            showingPasteAlert = true
+            return
+        }
+        
+        guard let jsonData = jsonString.data(using: .utf8) else {
+            pasteAlertMessage = "Failed to encode JSON string to data."
+            showingPasteAlert = true
+            return
+        }
+        
+        do {
+            if let jsonDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                let joyDoc = JoyDoc(dictionary: jsonDict)
+                load(from: joyDoc)
+                pasteAlertMessage = "Successfully loaded form from JSON."
+                showingPasteAlert = true
+            }
+        } catch {
+            pasteAlertMessage = "Failed to parse JSON: \(error.localizedDescription)"
+            showingPasteAlert = true
+        }
+    }
+    
+    private func load(from joyDoc: JoyDoc) {
+        // Clear existing data
+        fields.removeAll()
+        formulas.removeAll()
+        
+        // Load formulas
+        self.formulas = joyDoc.formulas.map {
+            BuilderFormula(identifier: $0.id ?? "", formula: $0.formula ?? "")
+        }
+        
+        // Load fields
+        self.fields = joyDoc.fields.map { docField -> BuilderField in
+            let fieldType = docField.fieldType
+            
+            var valueString = ""
+            
+            if fieldType == .dropdown || (fieldType == .multiSelect && docField.multi == true) {
+                if let options = docField.options {
+                    // For dropdowns/multiselects, the 'value' in the builder is a comma-separated list of options
+                    valueString = options.compactMap { $0.value }.joined(separator: ", ")
+                } else {
+                     // The actual selected value is in `docField.value`, handle it
+                    switch docField.value {
+                        case .string(let s):
+                            valueString = s
+                        case .array(let a):
+                            valueString = a.joined(separator: ", ")
+                        default:
+                            valueString = ""
+                    }
+                }
+            } else {
+                switch docField.value {
+                case .string(let s):
+                    valueString = s
+                case .double(let d):
+                    valueString = String(d)
+                case .bool(let b):
+                    // This is for checkbox which is a form of multiSelect
+                    valueString = String(b)
+                case .array(let a):
+                    valueString = a.joined(separator: ", ")
+                case .valueElementArray(let elements):
+                    if fieldType == .image {
+                        valueString = elements.compactMap { $0.url }.joined(separator: ", ")
+                    } else {
+                        valueString = "" // Not represented as a simple string for other types like table/chart
+                    }
+                case .dictionary(let dict):
+                    if let data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted),
+                       let jsonString = String(data: data, encoding: .utf8) {
+                        valueString = jsonString
+                    }
+                case .null, .none:
+                    valueString = ""
+                case .some(.int(_)):
+                    valueString = ""
+                }
+            }
+            
+            var formulaRef: String?
+            var formulaKey: String = "value"
+            
+            if let appliedFormula = docField.formulas?.first {
+                formulaRef = appliedFormula.formula
+                formulaKey = appliedFormula.key ?? "value"
+            }
+            
+            return BuilderField(
+                identifier: docField.identifier ?? docField.id ?? "",
+                label: docField.title ?? "",
+                fieldType: fieldType,
+                value: valueString,
+                formulaRef: formulaRef,
+                formulaKey: formulaKey,
+                tableColumns: docField.tableColumns ?? []
+            )
+        }
+        
+        // Switch to custom template view
+        selectedTemplate = .custom
     }
     
     private func deleteField(_ field: BuilderField) {
@@ -715,6 +867,7 @@ struct FormBuilderView: View {
         
         builtDocument = document
         documentEditor = DocumentEditor(document: document)
+//        changeManager.documentEditor = documentEditor
     }
     
     private func loadTemplate(_ template: FormTemplate) {
