@@ -10,7 +10,7 @@ import JoyfillModel
      @Binding var cellModel: TableCellModel
      private var isUsedForBulkEdit = false
      @State var valueElements: [ValueElement] = []
-     @State var images: [UIImage] = []
+     @State var images: [ImageState] = []
 
      public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
          _cellModel = cellModel
