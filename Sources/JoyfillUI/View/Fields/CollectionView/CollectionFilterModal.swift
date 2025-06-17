@@ -14,6 +14,7 @@ struct CollectionFilterModal: View {
     @Environment(\.colorScheme) var colorScheme
     @State var selectedSchemaKey: String = ""
     @State var selectedSortedColumnID: String = ""
+    @State var order: SortOder = .none
     @State var totalFiltersCount: Int = 1
     @State var refreshID = UUID()
     @State var collectionFilterModels: [FilterModel] = []
@@ -30,8 +31,13 @@ struct CollectionFilterModal: View {
                     
                     Button(action: {
                         viewModel.tableDataModel.filterModels = collectionFilterModels
+                        viewModel.tableDataModel.sortModel.colID = selectedSortedColumnID
+                        viewModel.tableDataModel.sortModel.schemaKey = selectedSchemaKey
+                        viewModel.tableDataModel.sortModel.order = order
+                        
                         viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
                         viewModel.tableDataModel.filterCollectionRowsIfNeeded()
+                        viewModel.sortRowsIfNeeded()
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Apply")
@@ -46,7 +52,6 @@ struct CollectionFilterModal: View {
                     )
                     
                     Button(action: {
-                        clearAllFilters()
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         ZStack {
@@ -180,7 +185,7 @@ struct CollectionFilterModal: View {
                     }
                     
                     Button(action: {
-                        viewModel.tableDataModel.sortModel.order.next()
+                        order.next()
                     }, label: {
                         HStack {
                             Text("Sort")
@@ -190,7 +195,8 @@ struct CollectionFilterModal: View {
                         .font(.system(size: 14))
                         .foregroundColor(.black)
                     })
-                    .frame(width: 75, height: 25)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
                     .background(colorScheme == .dark ? Color.gray.opacity(0.15) : Color.gray.opacity(0.08))
                     .cornerRadius(4)
                     .overlay(
@@ -217,7 +223,7 @@ struct CollectionFilterModal: View {
     }
     
     func getSortIcon() -> String {
-        switch viewModel.tableDataModel.sortModel.order {
+        switch order {
         case .ascending:
             return "arrow.up"
         case .descending:
@@ -228,7 +234,7 @@ struct CollectionFilterModal: View {
     }
     
     func getIconColor() -> Color {
-        switch viewModel.tableDataModel.sortModel.order {
+        switch order {
         case .none:
             return .black
         case .ascending, .descending:
@@ -256,6 +262,10 @@ struct CollectionFilterModal: View {
         } else {
             totalFiltersCount = activeFilters.count
         }
+        
+        selectedSchemaKey = viewModel.tableDataModel.sortModel.schemaKey == "" ? viewModel.rootSchemaKey : viewModel.tableDataModel.sortModel.schemaKey
+        selectedSortedColumnID = viewModel.tableDataModel.sortModel.colID
+        order = viewModel.tableDataModel.sortModel.order
     }
     
     private func currentFiltersColumnsIDs() -> [String] {
@@ -270,6 +280,9 @@ struct CollectionFilterModal: View {
     private func clearSorting() {
         selectedSortedColumnID = ""
         viewModel.tableDataModel.sortModel.order = .none
+        order = .none
+        viewModel.tableDataModel.sortModel.colID = ""
+        viewModel.tableDataModel.sortModel.schemaKey = ""
     }
 
     private func clearAllFilters() {
@@ -280,7 +293,7 @@ struct CollectionFilterModal: View {
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
         selectedSortedColumnID = ""
         totalFiltersCount = 1
-        viewModel.tableDataModel.sortModel.order = .none
+        clearSorting()
     }
 }
 struct FilteringView: View {

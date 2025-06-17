@@ -16,7 +16,7 @@ struct CollectionModalTopNavigationView: View {
     @State private var showingPopover = false
     
     private var hasActiveFilters: Bool {
-        return !viewModel.tableDataModel.filterModels.allSatisfy { $0.filterText.isEmpty }
+        return !viewModel.tableDataModel.filterModels.allSatisfy { $0.filterText.isEmpty } || viewModel.tableDataModel.sortModel.order != .none
     }
 
     var body: some View {
@@ -252,11 +252,18 @@ struct CollectionModalTopNavigationView: View {
         }
     }
     
+    fileprivate func clearSorting() {
+        viewModel.tableDataModel.sortModel.order = .none
+        viewModel.tableDataModel.sortModel.colID = ""
+        viewModel.tableDataModel.sortModel.schemaKey = ""
+    }
+    
     func clearFilter() {
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
         for i in 0..<viewModel.tableDataModel.filterModels.count {
             viewModel.tableDataModel.filterModels[i].filterText = ""
         }
+        clearSorting()
         viewModel.tableDataModel.emptySelection()
     }
 

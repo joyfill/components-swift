@@ -211,6 +211,76 @@ class CollectionViewModel: ObservableObject {
         return true
     }
         
+    func sortRowsIfNeeded() {
+        guard tableDataModel.sortModel.order != .none else { return }
+        guard tableDataModel.sortModel.colID != "" else { return }
+        guard tableDataModel.sortModel.schemaKey != "" else { return }
+        
+        let columns = tableDataModel.filterTableColumns(key: tableDataModel.sortModel.schemaKey)
+        guard let colIndex = columns.firstIndex(where: { $0.id == tableDataModel.sortModel.colID }) else { return }
+
+        tableDataModel.filteredcellModels = tableDataModel.filteredcellModels.sorted { row1, row2 in
+            
+            let sameParent = row1.rowType.parentID?.rowID == row2.rowType.parentID?.rowID
+            let sameSchema = row1.rowType.parentSchemaKey == row2.rowType.parentSchemaKey
+            if sameParent && sameSchema {
+                guard row1.cells.indices.contains(colIndex), row2.cells.indices.contains(colIndex) else {
+                    return false
+                }
+                let cell1 = row1.cells[colIndex].data
+                let cell2 = row2.cells[colIndex].data
+
+                // Only compare if types match
+                guard cell1.type == cell2.type else {
+                    return false
+                }
+
+                switch cell1.type {
+                case .text:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.title ?? "") < (cell2.title ?? "")
+                    case .descending:
+                        return (cell1.title ?? "") > (cell2.title ?? "")
+                    case .none:
+                        return true
+                    }
+                case .dropdown:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.selectedOptionText ?? "") < (cell2.selectedOptionText ?? "")
+                    case .descending:
+                        return (cell1.selectedOptionText ?? "") > (cell2.selectedOptionText ?? "")
+                    case .none:
+                        return true
+                    }
+                case .number:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.number ?? 0) < (cell2.number ?? 0)
+                    case .descending:
+                        return (cell1.number ?? 0) > (cell2.number ?? 0)
+                    case .none:
+                        return true
+                    }
+                case .barcode:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.title ?? "") < (cell2.title ?? "")
+                    case .descending:
+                        return (cell1.title ?? "") > (cell2.title ?? "")
+                    case .none:
+                        return true
+                    }
+                default:
+                    return false
+                }
+            } else {
+                return false
+            }
+        }
+    }
+        
     private func isRequiredColumnsValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
         let validColumns = tableDataModel.filterTableColumns(key: schemaID)
         let requiredColumns = validColumns.filter({ $0.required == true })
