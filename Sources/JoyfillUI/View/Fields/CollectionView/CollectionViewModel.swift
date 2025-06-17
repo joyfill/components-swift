@@ -458,6 +458,7 @@ class CollectionViewModel: ObservableObject {
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
+        updateCollectionWidth()
     }
     
     /// Recursively adds all nested rows maintaining the proper hierarchical order
@@ -491,7 +492,7 @@ class CollectionViewModel: ObservableObject {
                                          rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                level: level,
                                                                parentID: parentID,
-                                                               rowWidth: rowWidth(filteredTableColumns, level)),
+                                                               rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
                                          isExpanded: true, // Mark as expanded since we're showing content
                                          rowWidth: rowWidth(filteredTableColumns, level))
             cellModels.append(expanderRow)
