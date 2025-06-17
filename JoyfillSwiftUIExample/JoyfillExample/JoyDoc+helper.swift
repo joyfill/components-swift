@@ -30,7 +30,7 @@ extension JoyDoc {
         formulaObj.desc = desc
         formulaObj.type = type
         formulaObj.scope = scope
-        formulaObj.formula = formula
+        formulaObj.expression = formula
         
         var doc = self
         doc.formulas.append(formulaObj)
@@ -95,7 +95,7 @@ extension JoyDoc {
                   value: ValueUnion,
                   label: String? = nil) -> JoyDoc {
         var doc = self
-            .setFieldData(type: type, identifier: identifier, id: id, value: value, label: label)
+            .setFieldData(type: type, identifier: identifier, id: identifier, value: value, label: label)
             .setFieldPosition(type: type, id: id)
         
         // Apply formula if provided
@@ -165,7 +165,7 @@ extension JoyDoc {
                        identifier: identifier, 
                        formulaRef: formulaRef, 
                        formulaKey: formulaKey,
-                       id: id, 
+                       id: identifier, 
                        value: .double(value),
                        label: label)
     }
@@ -181,7 +181,7 @@ extension JoyDoc {
                        identifier: identifier, 
                        formulaRef: formulaRef, 
                        formulaKey: formulaKey,
-                       id: id, 
+                       id: identifier, 
                        value: .string(value),
                        label: label)
     }
@@ -200,7 +200,7 @@ extension JoyDoc {
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
-                       id: id,
+                       id: identifier,
                        value: value != nil ? .double(timestamp * 1000) : .null,
                        label: label)
     }
@@ -215,7 +215,7 @@ extension JoyDoc {
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
-                       id: id,
+                       id: identifier,
                        value: .string(value))
     }
     
@@ -230,7 +230,7 @@ extension JoyDoc {
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
-                          id: id,
+                          id: identifier,
                           value: .string(selectedValue))
         
         // Add options to the field
@@ -254,7 +254,7 @@ extension JoyDoc {
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
-                          id: id,
+                          id: identifier,
                           value: .array(selectedValues))
         
         // Add options to the field and set multi flag
@@ -276,7 +276,7 @@ extension JoyDoc {
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
-                       id: id,
+                       id: identifier,
                        value: .string(signatureUrl))
     }
     
@@ -289,7 +289,7 @@ extension JoyDoc {
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
-                       id: id,
+                       id: identifier,
                        value: .null)
     }
     
@@ -318,7 +318,7 @@ extension JoyDoc {
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
-                       id: id,
+                       id: identifier,
                        value: .valueElementArray(pointElements))
     }
     
@@ -334,7 +334,7 @@ extension JoyDoc {
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
-                       id: id,
+                       id: identifier,
                        value: .string(htmlContent))
     }
     
@@ -349,7 +349,7 @@ extension JoyDoc {
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
-                          id: id,
+                          id: identifier,
                           value: .valueElementArray(rows))
         
         // Add columns and set up table field
@@ -379,7 +379,7 @@ extension JoyDoc {
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
-                          id: id,
+                          id: identifier,
                           value: .null)
         
         // Add schema to the field
@@ -400,7 +400,7 @@ extension JoyDoc {
 //                          identifier: identifier,
 //                          formulaRef: formulaRef,
 //                          formulaKey: formulaKey,
-//                          id: id,
+//                          id: identifier,
 //                          value: .null)
 //        
 //        // Add schema to the field
@@ -423,7 +423,7 @@ extension JoyDoc {
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
-                          id: id,
+                          id: identifier,
                           value: .string(imageUrl))
         
         // Set multi flag for multiple images
@@ -445,7 +445,7 @@ extension JoyDoc {
                        identifier: identifier,
                        formulaRef: formulaRef,
                        formulaKey: formulaKey,
-                       id: id,
+                       id: identifier,
                        value: .bool(value),
                        label: label)
     }
@@ -467,7 +467,7 @@ extension JoyDoc {
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
-                          id: id,
+                          id: identifier,
                           value: .array(value),
                           label: label)
         } else {
@@ -475,7 +475,7 @@ extension JoyDoc {
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
-                          id: id,
+                          id: identifier,
                            value: .string(value.first!),
                           label: label)
         }

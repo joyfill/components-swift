@@ -15,7 +15,7 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
     
     public func setFieldHidden(_ hidden: Bool, for identifier: String) {
         print("setFieldHidden >>>>>", hidden, identifier)
-        guard var field = allFields.first(where: { $0.identifier == identifier }) else {
+        guard var field = allFields.first(where: { $0.id == identifier }) else {
             return
         }
         conditionalLogicHandler.showFieldMap[field.id!] = hidden
@@ -32,7 +32,7 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
     
     public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
         print("updateValue called >>>>>>>", value)
-       guard var field = allFields.first(where: { $0.identifier == identifier }) else {
+       guard var field = allFields.first(where: { $0.id == identifier }) else {
            return
        }
         guard let fieldID = field.id else { return }
@@ -254,7 +254,7 @@ extension DocumentEditor {
             updatefield(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
-            if let identifier = field.identifier {
+            if let identifier = field.id {
                 JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
             }
         }

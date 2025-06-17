@@ -176,7 +176,7 @@ public class JoyfillDocContext: EvaluationContext {
         }
         
         // Return the formula string and the target key
-        return (formulaString: formula.formula ?? "", key: key)
+        return (formulaString: formula.expression ?? "", key: key)
     }
     
     private func resolveSimpleFieldReference(_ identifier: String) -> Result<FormulaValue, FormulaError> {

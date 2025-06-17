@@ -402,9 +402,9 @@ struct FormBuilderView: View {
             .sheet(item: $editingField) { field in
                 AddFieldView(editingField: field, formulas: formulas) { updatedField in
                     if let index = fields.firstIndex(where: { $0.id == field.id }) {
-                        let oldIdentifier = field.identifier
-                        let newIdentifier = updatedField.identifier
-                        
+                        let oldIdentifier = field.id
+                        let newIdentifier = updatedField.id
+
                         // Update the field
                         fields[index] = updatedField
                         
@@ -431,8 +431,8 @@ struct FormBuilderView: View {
             .sheet(item: $editingFormula) { formula in
                 AddFormulaView(editingFormula: formula) { updatedFormula in
                     if let index = formulas.firstIndex(where: { $0.id == formula.id }) {
-                        let oldIdentifier = formula.identifier
-                        let newIdentifier = updatedFormula.identifier
+                        let oldIdentifier = formula.id
+                        let newIdentifier = updatedFormula.id
                         
                         // Update the formula
                         formulas[index] = updatedFormula
@@ -491,7 +491,7 @@ struct FormBuilderView: View {
         
         // Load formulas
         self.formulas = joyDoc.formulas.map {
-            BuilderFormula(identifier: $0.id ?? "", formula: $0.formula ?? "")
+            BuilderFormula(id: $0.id ?? "", formula: $0.expression ?? "")
         }
         
         // Load fields
@@ -553,7 +553,7 @@ struct FormBuilderView: View {
             }
             
             return BuilderField(
-                identifier: docField.identifier ?? docField.id ?? "",
+                id: docField.id ?? "",
                 label: docField.title ?? "",
                 fieldType: fieldType,
                 value: valueString,
@@ -575,7 +575,7 @@ struct FormBuilderView: View {
         formulas.removeAll { $0.id == formula.id }
         // Also remove formula references from fields
         for index in fields.indices {
-            if fields[index].formulaRef == formula.identifier {
+            if fields[index].formulaRef == formula.id {
                 fields[index].formulaRef = nil
             }
         }
@@ -592,7 +592,7 @@ struct FormBuilderView: View {
         // Remove formula references from fields
         for deletedFormula in formulasToDelete {
             for index in fields.indices {
-                if fields[index].formulaRef == deletedFormula.identifier {
+                if fields[index].formulaRef == deletedFormula.id {
                     fields[index].formulaRef = nil
                 }
             }
@@ -608,7 +608,7 @@ struct FormBuilderView: View {
         
         // Add all formulas first
         for formula in formulas {
-            document = document.addFormula(id: formula.identifier, formula: formula.formula)
+            document = document.addFormula(id: formula.id, formula: formula.formula)
         }
         
         // Add all fields
@@ -617,7 +617,7 @@ struct FormBuilderView: View {
             case .text:
                 if let formulaRef = field.formulaRef {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         value: field.value,
@@ -625,7 +625,7 @@ struct FormBuilderView: View {
                     )
                 } else {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: field.value,
                         label: field.label
                     )
@@ -634,13 +634,13 @@ struct FormBuilderView: View {
             case .textarea:
                 if let formulaRef = field.formulaRef {
                     document = document.addTextareaField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey
                     )
                 } else {
                     document = document.addTextareaField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: field.value
                     )
                 }
@@ -648,14 +648,14 @@ struct FormBuilderView: View {
             case .richText:
                 if let formulaRef = field.formulaRef {
                     document = document.addRichTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         htmlContent: field.value
                     )
                 } else {
                     document = document.addRichTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         htmlContent: field.value
                     )
                 }
@@ -663,7 +663,7 @@ struct FormBuilderView: View {
             case .number:
                 if let formulaRef = field.formulaRef {
                     document = document.addNumberField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         value: 0,
@@ -672,7 +672,7 @@ struct FormBuilderView: View {
                 } else {
                     let numberValue = Double(field.value) ?? 0
                     document = document.addNumberField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: numberValue,
                         label: field.label
                     )
@@ -681,14 +681,14 @@ struct FormBuilderView: View {
             case .date:
                 if let formulaRef = field.formulaRef {
                     document = document.addDateField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         label: field.label
                     )
                 } else {
                     document = document.addDateField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: Date(),
                         label: field.label
                     )
@@ -698,7 +698,7 @@ struct FormBuilderView: View {
                 let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                 if let formulaRef = field.formulaRef {
                     document = document.addOptionField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         options: options,
@@ -706,7 +706,7 @@ struct FormBuilderView: View {
                     )
                 } else {
                     document = document.addOptionField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: [options.first ?? ""],
                         options: options,
                         label: field.label
@@ -719,7 +719,7 @@ struct FormBuilderView: View {
                     let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                     if let formulaRef = field.formulaRef {
                         document = document.addOptionField(
-                            identifier: field.identifier,
+                            identifier: field.id,
                             formulaRef: formulaRef,
                             formulaKey: field.formulaKey,
                             options: options,
@@ -728,7 +728,7 @@ struct FormBuilderView: View {
                         )
                     } else {
                         document = document.addOptionField(
-                            identifier: field.identifier,
+                            identifier: field.id,
                             value: [],
                             options: options,
                             multiselect: true,
@@ -739,7 +739,7 @@ struct FormBuilderView: View {
                     // Checkbox/boolean multi-select
                     if let formulaRef = field.formulaRef {
                         document = document.addCheckboxField(
-                            identifier: field.identifier,
+                            identifier: field.id,
                             formulaRef: formulaRef,
                             formulaKey: field.formulaKey,
                             label: field.label
@@ -747,7 +747,7 @@ struct FormBuilderView: View {
                     } else {
                         let boolValue = field.value.lowercased() == "true"
                         document = document.addCheckboxField(
-                            identifier: field.identifier,
+                            identifier: field.id,
                             value: boolValue,
                             label: field.label
                         )
@@ -757,13 +757,13 @@ struct FormBuilderView: View {
             case .signature:
                 if let formulaRef = field.formulaRef {
                     document = document.addSignatureField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey
                     )
                 } else {
                     document = document.addSignatureField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         signatureUrl: field.value
                     )
                 }
@@ -771,14 +771,14 @@ struct FormBuilderView: View {
             case .image:
                 if let formulaRef = field.formulaRef {
                     document = document.addImageField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         allowMultiple: field.supportsMultiple
                     )
                 } else {
                     document = document.addImageField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         imageUrl: field.value,
                         allowMultiple: field.supportsMultiple
                     )
@@ -787,20 +787,20 @@ struct FormBuilderView: View {
             case .block:
                 if let formulaRef = field.formulaRef {
                     document = document.addBlockField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey
                     )
                 } else {
                     document = document.addBlockField(
-                        identifier: field.identifier
+                        identifier: field.id
                     )
                 }
                 
             case .chart:
                 if let formulaRef = field.formulaRef {
                     document = document.addChartField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey
                     )
@@ -808,7 +808,7 @@ struct FormBuilderView: View {
                     // Create some sample points for chart
                     let samplePoints: [Point] = []
                     document = document.addChartField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         points: samplePoints
                     )
                 }
@@ -816,7 +816,7 @@ struct FormBuilderView: View {
             case .table:
                 if let formulaRef = field.formulaRef {
                     document = document.addTableField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         columns: field.tableColumns
@@ -824,7 +824,7 @@ struct FormBuilderView: View {
                 } else {
                     // Create sample table columns
                     document = document.addTableField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         columns: field.tableColumns,
                         rows: []
                     )
@@ -833,7 +833,7 @@ struct FormBuilderView: View {
             case .collection:
                 if let formulaRef = field.formulaRef {
                     document = document.addCollectionField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey
                     )
@@ -841,7 +841,7 @@ struct FormBuilderView: View {
                     // Create basic schema for collection
                     let basicSchema: [String: Schema] = [:]
                     document = document.addCollectionField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         schema: basicSchema
                     )
                 }
@@ -850,14 +850,14 @@ struct FormBuilderView: View {
                 // Handle other field types as text fields for now
                 if let formulaRef = field.formulaRef {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         label: field.label
                     )
                 } else {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: field.value,
                         label: field.label
                     )
@@ -883,81 +883,81 @@ struct FormBuilderView: View {
         case .allFieldTypes:
             // Comprehensive showcase of all field types
             formulas = [
-                BuilderFormula(identifier: "textFormula", formula: "upper(textInput)"),
-                BuilderFormula(identifier: "numberFormula", formula: "number1 + number2"),
-                BuilderFormula(identifier: "dateFormula", formula: "dateAdd(startDate, 7, \"days\")")
+                BuilderFormula(id: "textFormula", formula: "upper(textInput)"),
+                BuilderFormula(id: "numberFormula", formula: "number1 + number2"),
+                BuilderFormula(id: "dateFormula", formula: "dateAdd(startDate, 7, \"days\")")
             ]
             
             fields = [
                 // Basic Input Fields
-                BuilderField(identifier: "textInput", label: "Text Field", fieldType: .text, value: "Sample text"),
-                BuilderField(identifier: "textareaInput", label: "Text Area", fieldType: .textarea, value: "Multi-line\ntext content"),
-                BuilderField(identifier: "richTextInput", label: "Rich Text", fieldType: .richText, value: "<p><strong>Rich</strong> <em>text</em> content</p>"),
-                BuilderField(identifier: "numberInput", label: "Number Field", fieldType: .number, value: "42"),
-                BuilderField(identifier: "dateInput", label: "Date Field", fieldType: .date, value: ""),
-                
+                BuilderField(id: "textInput", label: "Text Field", fieldType: .text, value: "Sample text"),
+                BuilderField(id: "textareaInput", label: "Text Area", fieldType: .textarea, value: "Multi-line\ntext content"),
+                BuilderField(id: "richTextInput", label: "Rich Text", fieldType: .richText, value: "<p><strong>Rich</strong> <em>text</em> content</p>"),
+                BuilderField(id: "numberInput", label: "Number Field", fieldType: .number, value: "42"),
+                BuilderField(id: "dateInput", label: "Date Field", fieldType: .date, value: ""),
+
                 // Selection Fields
-                BuilderField(identifier: "dropdownInput", label: "Dropdown", fieldType: .dropdown, value: "Option 1,Option 2,Option 3"),
-                BuilderField(identifier: "multiselectInput", label: "Multi Select", fieldType: .multiSelect, value: "Choice A,Choice B,Choice C"),
-                
+                BuilderField(id: "dropdownInput", label: "Dropdown", fieldType: .dropdown, value: "Option 1,Option 2,Option 3"),
+                BuilderField(id: "multiselectInput", label: "Multi Select", fieldType: .multiSelect, value: "Choice A,Choice B,Choice C"),
+
                 // Media & Interaction Fields
-                BuilderField(identifier: "imageInput", label: "Image Field", fieldType: .image, value: ""),
-                BuilderField(identifier: "signatureInput", label: "Signature", fieldType: .signature, value: ""),
-                
+                BuilderField(id: "imageInput", label: "Image Field", fieldType: .image, value: ""),
+                BuilderField(id: "signatureInput", label: "Signature", fieldType: .signature, value: ""),
+
                 // Display Fields
-                BuilderField(identifier: "blockInput", label: "Block/Label", fieldType: .block, value: "This is a static label"),
-                
+                BuilderField(id: "blockInput", label: "Block/Label", fieldType: .block, value: "This is a static label"),
+
                 // Advanced Fields
-                BuilderField(identifier: "chartInput", label: "Chart Field", fieldType: .chart, value: "Sample Chart"),
-                BuilderField(identifier: "tableInput", label: "Table Field", fieldType: .table, value: ""),
-                BuilderField(identifier: "collectionInput", label: "Collection", fieldType: .collection, value: ""),
-                
+                BuilderField(id: "chartInput", label: "Chart Field", fieldType: .chart, value: "Sample Chart"),
+                BuilderField(id: "tableInput", label: "Table Field", fieldType: .table, value: ""),
+                BuilderField(id: "collectionInput", label: "Collection", fieldType: .collection, value: ""),
+
                 // Formula-driven Fields
-                BuilderField(identifier: "textResult", label: "Text Formula Result", fieldType: .text, formulaRef: "textFormula"),
-                BuilderField(identifier: "numberResult", label: "Number Formula Result", fieldType: .number, formulaRef: "numberFormula"),
-                BuilderField(identifier: "dateResult", label: "Date Formula Result", fieldType: .date, formulaRef: "dateFormula"),
-                
+                BuilderField(id: "textResult", label: "Text Formula Result", fieldType: .text, formulaRef: "textFormula"),
+                BuilderField(id: "numberResult", label: "Number Formula Result", fieldType: .number, formulaRef: "numberFormula"),
+                BuilderField(id: "dateResult", label: "Date Formula Result", fieldType: .date, formulaRef: "dateFormula"),
+
                 // Supporting Fields for Formulas
-                BuilderField(identifier: "number1", label: "First Number", fieldType: .number, value: "10"),
-                BuilderField(identifier: "number2", label: "Second Number", fieldType: .number, value: "5"),
-                BuilderField(identifier: "startDate", label: "Start Date", fieldType: .date, value: "")
+                BuilderField(id: "number1", label: "First Number", fieldType: .number, value: "10"),
+                BuilderField(id: "number2", label: "Second Number", fieldType: .number, value: "5"),
+                BuilderField(id: "startDate", label: "Start Date", fieldType: .date, value: "")
             ]
             
         case .mathFormulas:
             // Math formulas template
             formulas = [
-                BuilderFormula(identifier: "addition", formula: "num1 + num2"),
-                BuilderFormula(identifier: "multiplication", formula: "num1 * num2"),
-                BuilderFormula(identifier: "power", formula: "pow(base, exponent)"),
-                BuilderFormula(identifier: "squareRoot", formula: "sqrt(number)"),
-                BuilderFormula(identifier: "rounding", formula: "round(decimal, places)"),
-                BuilderFormula(identifier: "percentage", formula: "(score / total) * 100"),
-                BuilderFormula(identifier: "average", formula: "(num1 + num2 + num3) / 3")
+                BuilderFormula(id: "addition", formula: "num1 + num2"),
+                BuilderFormula(id: "multiplication", formula: "num1 * num2"),
+                BuilderFormula(id: "power", formula: "pow(base, exponent)"),
+                BuilderFormula(id: "squareRoot", formula: "sqrt(number)"),
+                BuilderFormula(id: "rounding", formula: "round(decimal, places)"),
+                BuilderFormula(id: "percentage", formula: "(score / total) * 100"),
+                BuilderFormula(id: "average", formula: "(num1 + num2 + num3) / 3")
             ]
             
             // Input fields
             let inputFields = [
-                BuilderField(identifier: "num1", label: "First Number", fieldType: .number, value: "10"),
-                BuilderField(identifier: "num2", label: "Second Number", fieldType: .number, value: "5"),
-                BuilderField(identifier: "num3", label: "Third Number", fieldType: .number, value: "15"),
-                BuilderField(identifier: "base", label: "Base", fieldType: .number, value: "2"),
-                BuilderField(identifier: "exponent", label: "Exponent", fieldType: .number, value: "3"),
-                BuilderField(identifier: "number", label: "Square Root Input", fieldType: .number, value: "16"),
-                BuilderField(identifier: "decimal", label: "Decimal Number", fieldType: .number, value: "3.14159"),
-                BuilderField(identifier: "places", label: "Decimal Places", fieldType: .number, value: "2"),
-                BuilderField(identifier: "score", label: "Score", fieldType: .number, value: "85"),
-                BuilderField(identifier: "total", label: "Total", fieldType: .number, value: "100")
+                BuilderField(id: "num1", label: "First Number", fieldType: .number, value: "10"),
+                BuilderField(id: "num2", label: "Second Number", fieldType: .number, value: "5"),
+                BuilderField(id: "num3", label: "Third Number", fieldType: .number, value: "15"),
+                BuilderField(id: "base", label: "Base", fieldType: .number, value: "2"),
+                BuilderField(id: "exponent", label: "Exponent", fieldType: .number, value: "3"),
+                BuilderField(id: "number", label: "Square Root Input", fieldType: .number, value: "16"),
+                BuilderField(id: "decimal", label: "Decimal Number", fieldType: .number, value: "3.14159"),
+                BuilderField(id: "places", label: "Decimal Places", fieldType: .number, value: "2"),
+                BuilderField(id: "score", label: "Score", fieldType: .number, value: "85"),
+                BuilderField(id: "total", label: "Total", fieldType: .number, value: "100")
             ]
             
             // Result fields
             let resultFields = [
-                BuilderField(identifier: "sum", label: "Sum Result", fieldType: .number, formulaRef: "addition"),
-                BuilderField(identifier: "product", label: "Product Result", fieldType: .number, formulaRef: "multiplication"),
-                BuilderField(identifier: "powerResult", label: "Power Result", fieldType: .number, formulaRef: "power"),
-                BuilderField(identifier: "sqrtResult", label: "Square Root", fieldType: .number, formulaRef: "squareRoot"),
-                BuilderField(identifier: "roundResult", label: "Rounded Value", fieldType: .number, formulaRef: "rounding"),
-                BuilderField(identifier: "percentResult", label: "Percentage", fieldType: .number, formulaRef: "percentage"),
-                BuilderField(identifier: "avgResult", label: "Average", fieldType: .number, formulaRef: "average")
+                BuilderField(id: "sum", label: "Sum Result", fieldType: .number, formulaRef: "addition"),
+                BuilderField(id: "product", label: "Product Result", fieldType: .number, formulaRef: "multiplication"),
+                BuilderField(id: "powerResult", label: "Power Result", fieldType: .number, formulaRef: "power"),
+                BuilderField(id: "sqrtResult", label: "Square Root", fieldType: .number, formulaRef: "squareRoot"),
+                BuilderField(id: "roundResult", label: "Rounded Value", fieldType: .number, formulaRef: "rounding"),
+                BuilderField(id: "percentResult", label: "Percentage", fieldType: .number, formulaRef: "percentage"),
+                BuilderField(id: "avgResult", label: "Average", fieldType: .number, formulaRef: "average")
             ]
             
             fields = inputFields + resultFields
@@ -965,91 +965,91 @@ struct FormBuilderView: View {
         case .stringFormulas:
             // String manipulation template
             formulas = [
-                BuilderFormula(identifier: "fullName", formula: "concat(firstName, \" \", lastName)"),
-                BuilderFormula(identifier: "upperCase", formula: "upper(text)"),
-                BuilderFormula(identifier: "lowerCase", formula: "lower(text)"),
-                BuilderFormula(identifier: "textLength", formula: "length(text)"),
-                BuilderFormula(identifier: "containsCheck", formula: "contains(text, searchTerm)"),
-                BuilderFormula(identifier: "emailValidation", formula: "if(and(contains(email, \"@\"), contains(email, \".\")), \"Valid\", \"Invalid\")"),
-                BuilderFormula(identifier: "greeting", formula: "concat(\"Hello, \", firstName, \"! You have \", length(text), \" characters.\")")
+                BuilderFormula(id: "fullName", formula: "concat(firstName, \" \", lastName)"),
+                BuilderFormula(id: "upperCase", formula: "upper(text)"),
+                BuilderFormula(id: "lowerCase", formula: "lower(text)"),
+                BuilderFormula(id: "textLength", formula: "length(text)"),
+                BuilderFormula(id: "containsCheck", formula: "contains(text, searchTerm)"),
+                BuilderFormula(id: "emailValidation", formula: "if(and(contains(email, \"@\"), contains(email, \".\")), \"Valid\", \"Invalid\")"),
+                BuilderFormula(id: "greeting", formula: "concat(\"Hello, \", firstName, \"! You have \", length(text), \" characters.\")")
             ]
             
             fields = [
-                BuilderField(identifier: "firstName", label: "First Name", fieldType: .text, value: "John"),
-                BuilderField(identifier: "lastName", label: "Last Name", fieldType: .text, value: "Doe"),
-                BuilderField(identifier: "text", label: "Sample Text", fieldType: .text, value: "Hello World"),
-                BuilderField(identifier: "searchTerm", label: "Search Term", fieldType: .text, value: "Hello"),
-                BuilderField(identifier: "email", label: "Email", fieldType: .text, value: "john@example.com"),
-                BuilderField(identifier: "fullNameResult", label: "Full Name", fieldType: .text, formulaRef: "fullName"),
-                BuilderField(identifier: "upperResult", label: "Uppercase", fieldType: .text, formulaRef: "upperCase"),
-                BuilderField(identifier: "lowerResult", label: "Lowercase", fieldType: .text, formulaRef: "lowerCase"),
-                BuilderField(identifier: "lengthResult", label: "Text Length", fieldType: .number, formulaRef: "textLength"),
-                BuilderField(identifier: "containsResult", label: "Contains Check", fieldType: .text, formulaRef: "containsCheck"),
-                BuilderField(identifier: "emailResult", label: "Email Valid", fieldType: .text, formulaRef: "emailValidation"),
-                BuilderField(identifier: "greetingResult", label: "Greeting Message", fieldType: .text, formulaRef: "greeting")
+                BuilderField(id: "firstName", label: "First Name", fieldType: .text, value: "John"),
+                BuilderField(id: "lastName", label: "Last Name", fieldType: .text, value: "Doe"),
+                BuilderField(id: "text", label: "Sample Text", fieldType: .text, value: "Hello World"),
+                BuilderField(id: "searchTerm", label: "Search Term", fieldType: .text, value: "Hello"),
+                BuilderField(id: "email", label: "Email", fieldType: .text, value: "john@example.com"),
+                BuilderField(id: "fullNameResult", label: "Full Name", fieldType: .text, formulaRef: "fullName"),
+                BuilderField(id: "upperResult", label: "Uppercase", fieldType: .text, formulaRef: "upperCase"),
+                BuilderField(id: "lowerResult", label: "Lowercase", fieldType: .text, formulaRef: "lowerCase"),
+                BuilderField(id: "lengthResult", label: "Text Length", fieldType: .number, formulaRef: "textLength"),
+                BuilderField(id: "containsResult", label: "Contains Check", fieldType: .text, formulaRef: "containsCheck"),
+                BuilderField(id: "emailResult", label: "Email Valid", fieldType: .text, formulaRef: "emailValidation"),
+                BuilderField(id: "greetingResult", label: "Greeting Message", fieldType: .text, formulaRef: "greeting")
             ]
             
         case .arrayFormulas:
             // Array operations template
             formulas = [
-                BuilderFormula(identifier: "arraySum", formula: "sum(numbers)"),
-                BuilderFormula(identifier: "arrayLength", formula: "length(fruits)"),
-                BuilderFormula(identifier: "arrayMap", formula: "map(numbers, (item) → item * 2)"),
-                BuilderFormula(identifier: "arrayFilter", formula: "filter(numbers, (item) → item > 5)"),
-                BuilderFormula(identifier: "arrayFind", formula: "find(fruits, (item) → contains(item, \"a\"))"),
-                BuilderFormula(identifier: "arrayEvery", formula: "every(numbers, (item) → item > 0)"),
-                BuilderFormula(identifier: "arraySome", formula: "some(fruits, (item) → contains(item, \"e\"))"),
-                BuilderFormula(identifier: "arrayConcat", formula: "concat(\"Selected: \", fruits)")
+                BuilderFormula(id: "arraySum", formula: "sum(numbers)"),
+                BuilderFormula(id: "arrayLength", formula: "length(fruits)"),
+                BuilderFormula(id: "arrayMap", formula: "map(numbers, (item) → item * 2)"),
+                BuilderFormula(id: "arrayFilter", formula: "filter(numbers, (item) → item > 5)"),
+                BuilderFormula(id: "arrayFind", formula: "find(fruits, (item) → contains(item, \"a\"))"),
+                BuilderFormula(id: "arrayEvery", formula: "every(numbers, (item) → item > 0)"),
+                BuilderFormula(id: "arraySome", formula: "some(fruits, (item) → contains(item, \"e\"))"),
+                BuilderFormula(id: "arrayConcat", formula: "concat(\"Selected: \", fruits)")
             ]
             
             fields = [
-                BuilderField(identifier: "numbers", label: "Numbers Array", fieldType: .text, value: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"),
-                BuilderField(identifier: "fruits", label: "Fruits", fieldType: .dropdown, value: "apple,banana,cherry,date,elderberry"),
-                BuilderField(identifier: "sumResult", label: "Array Sum", fieldType: .number, formulaRef: "arraySum"),
-                BuilderField(identifier: "lengthResult", label: "Array Length", fieldType: .number, formulaRef: "arrayLength"),
-                BuilderField(identifier: "mapResult", label: "Doubled Numbers", fieldType: .text, formulaRef: "arrayMap"),
-                BuilderField(identifier: "filterResult", label: "Numbers > 5", fieldType: .text, formulaRef: "arrayFilter"),
-                BuilderField(identifier: "findResult", label: "First with 'a'", fieldType: .text, formulaRef: "arrayFind"),
-                BuilderField(identifier: "everyResult", label: "All Positive", fieldType: .multiSelect, formulaRef: "arrayEvery"),
-                BuilderField(identifier: "someResult", label: "Some have 'e'", fieldType: .multiSelect, formulaRef: "arraySome"),
-                BuilderField(identifier: "concatResult", label: "Concatenated", fieldType: .text, formulaRef: "arrayConcat")
+                BuilderField(id: "numbers", label: "Numbers Array", fieldType: .text, value: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"),
+                BuilderField(id: "fruits", label: "Fruits", fieldType: .dropdown, value: "apple,banana,cherry,date,elderberry"),
+                BuilderField(id: "sumResult", label: "Array Sum", fieldType: .number, formulaRef: "arraySum"),
+                BuilderField(id: "lengthResult", label: "Array Length", fieldType: .number, formulaRef: "arrayLength"),
+                BuilderField(id: "mapResult", label: "Doubled Numbers", fieldType: .text, formulaRef: "arrayMap"),
+                BuilderField(id: "filterResult", label: "Numbers > 5", fieldType: .text, formulaRef: "arrayFilter"),
+                BuilderField(id: "findResult", label: "First with 'a'", fieldType: .text, formulaRef: "arrayFind"),
+                BuilderField(id: "everyResult", label: "All Positive", fieldType: .multiSelect, formulaRef: "arrayEvery"),
+                BuilderField(id: "someResult", label: "Some have 'e'", fieldType: .multiSelect, formulaRef: "arraySome"),
+                BuilderField(id: "concatResult", label: "Concatenated", fieldType: .text, formulaRef: "arrayConcat")
             ]
             
         case .logicalFormulas:
             // Logical operations template
             formulas = [
-                BuilderFormula(identifier: "simpleIf", formula: "if(age >= 18, \"Adult\", \"Minor\")"),
-                BuilderFormula(identifier: "nestedIf", formula: "if(score >= 90, \"A\", if(score >= 80, \"B\", if(score >= 70, \"C\", \"F\")))"),
-                BuilderFormula(identifier: "andLogic", formula: "and(isActive, hasPermission)"),
-                BuilderFormula(identifier: "orLogic", formula: "or(isVip, isPremium)"),
-                BuilderFormula(identifier: "notLogic", formula: "not(isBlocked)"),
-                BuilderFormula(identifier: "complexLogic", formula: "if(and(age >= 18, or(hasLicense, hasPermit)), \"Can Drive\", \"Cannot Drive\")"),
-                BuilderFormula(identifier: "emptyCheck", formula: "if(empty(optionalText), \"No value provided\", optionalText)")
+                BuilderFormula(id: "simpleIf", formula: "if(age >= 18, \"Adult\", \"Minor\")"),
+                BuilderFormula(id: "nestedIf", formula: "if(score >= 90, \"A\", if(score >= 80, \"B\", if(score >= 70, \"C\", \"F\")))"),
+                BuilderFormula(id: "andLogic", formula: "and(isActive, hasPermission)"),
+                BuilderFormula(id: "orLogic", formula: "or(isVip, isPremium)"),
+                BuilderFormula(id: "notLogic", formula: "not(isBlocked)"),
+                BuilderFormula(id: "complexLogic", formula: "if(and(age >= 18, or(hasLicense, hasPermit)), \"Can Drive\", \"Cannot Drive\")"),
+                BuilderFormula(id: "emptyCheck", formula: "if(empty(optionalText), \"No value provided\", optionalText)")
             ]
             
             // Input fields
             let inputFields = [
-                BuilderField(identifier: "age", label: "Age", fieldType: .number, value: "25"),
-                BuilderField(identifier: "score", label: "Test Score", fieldType: .number, value: "85"),
-                BuilderField(identifier: "isActive", label: "Is Active", fieldType: .multiSelect, value: "true"),
-                BuilderField(identifier: "hasPermission", label: "Has Permission", fieldType: .multiSelect, value: "true"),
-                BuilderField(identifier: "isVip", label: "Is VIP", fieldType: .multiSelect, value: "false"),
-                BuilderField(identifier: "isPremium", label: "Is Premium", fieldType: .multiSelect, value: "true"),
-                BuilderField(identifier: "isBlocked", label: "Is Blocked", fieldType: .multiSelect, value: "false"),
-                BuilderField(identifier: "hasLicense", label: "Has License", fieldType: .multiSelect, value: "true"),
-                BuilderField(identifier: "hasPermit", label: "Has Permit", fieldType: .multiSelect, value: "false"),
-                BuilderField(identifier: "optionalText", label: "Optional Text", fieldType: .text, value: "")
+                BuilderField(id: "age", label: "Age", fieldType: .number, value: "25"),
+                BuilderField(id: "score", label: "Test Score", fieldType: .number, value: "85"),
+                BuilderField(id: "isActive", label: "Is Active", fieldType: .multiSelect, value: "true"),
+                BuilderField(id: "hasPermission", label: "Has Permission", fieldType: .multiSelect, value: "true"),
+                BuilderField(id: "isVip", label: "Is VIP", fieldType: .multiSelect, value: "false"),
+                BuilderField(id: "isPremium", label: "Is Premium", fieldType: .multiSelect, value: "true"),
+                BuilderField(id: "isBlocked", label: "Is Blocked", fieldType: .multiSelect, value: "false"),
+                BuilderField(id: "hasLicense", label: "Has License", fieldType: .multiSelect, value: "true"),
+                BuilderField(id: "hasPermit", label: "Has Permit", fieldType: .multiSelect, value: "false"),
+                BuilderField(id: "optionalText", label: "Optional Text", fieldType: .text, value: "")
             ]
             
             // Result fields
             let resultFields = [
-                BuilderField(identifier: "ageCategory", label: "Age Category", fieldType: .text, formulaRef: "simpleIf"),
-                BuilderField(identifier: "grade", label: "Letter Grade", fieldType: .text, formulaRef: "nestedIf"),
-                BuilderField(identifier: "accessGranted", label: "Access Granted", fieldType: .multiSelect, formulaRef: "andLogic"),
-                BuilderField(identifier: "specialMember", label: "Special Member", fieldType: .multiSelect, formulaRef: "orLogic"),
-                BuilderField(identifier: "canAccess", label: "Can Access", fieldType: .multiSelect, formulaRef: "notLogic"),
-                BuilderField(identifier: "drivingStatus", label: "Driving Status", fieldType: .text, formulaRef: "complexLogic"),
-                BuilderField(identifier: "textStatus", label: "Text Status", fieldType: .text, formulaRef: "emptyCheck")
+                BuilderField(id: "ageCategory", label: "Age Category", fieldType: .text, formulaRef: "simpleIf"),
+                BuilderField(id: "grade", label: "Letter Grade", fieldType: .text, formulaRef: "nestedIf"),
+                BuilderField(id: "accessGranted", label: "Access Granted", fieldType: .multiSelect, formulaRef: "andLogic"),
+                BuilderField(id: "specialMember", label: "Special Member", fieldType: .multiSelect, formulaRef: "orLogic"),
+                BuilderField(id: "canAccess", label: "Can Access", fieldType: .multiSelect, formulaRef: "notLogic"),
+                BuilderField(id: "drivingStatus", label: "Driving Status", fieldType: .text, formulaRef: "complexLogic"),
+                BuilderField(id: "textStatus", label: "Text Status", fieldType: .text, formulaRef: "emptyCheck")
             ]
             
             fields = inputFields + resultFields
@@ -1057,40 +1057,40 @@ struct FormBuilderView: View {
         case .referenceResolution:
             // Advanced reference resolution template
             formulas = [
-                BuilderFormula(identifier: "arrayIndex", formula: "fruits[selectedIndex]"),
-                BuilderFormula(identifier: "dynamicIndex", formula: "matrix[row][col]"),
-                BuilderFormula(identifier: "objectProperty", formula: "user.name"),
-                BuilderFormula(identifier: "nestedProperty", formula: "user.address.city"),
-                BuilderFormula(identifier: "selfReference", formula: "self * 2"),
-                BuilderFormula(identifier: "currentReference", formula: "current + 10"),
-                BuilderFormula(identifier: "dynamicSum", formula: "numbers[0] + numbers[1] + numbers[2]"),
-                BuilderFormula(identifier: "conditionalRef", formula: "if(useFirst, fruits[0], fruits[1])")
+                BuilderFormula(id: "arrayIndex", formula: "fruits[selectedIndex]"),
+                BuilderFormula(id: "dynamicIndex", formula: "matrix[row][col]"),
+                BuilderFormula(id: "objectProperty", formula: "user.name"),
+                BuilderFormula(id: "nestedProperty", formula: "user.address.city"),
+                BuilderFormula(id: "selfReference", formula: "self * 2"),
+                BuilderFormula(id: "currentReference", formula: "current + 10"),
+                BuilderFormula(id: "dynamicSum", formula: "numbers[0] + numbers[1] + numbers[2]"),
+                BuilderFormula(id: "conditionalRef", formula: "if(useFirst, fruits[0], fruits[1])")
             ]
             
             // Input fields
             let inputFields = [
-                BuilderField(identifier: "fruits", label: "Fruits Array", fieldType: .text, value: "[\"apple\", \"banana\", \"cherry\", \"date\"]"),
-                BuilderField(identifier: "selectedIndex", label: "Selected Index", fieldType: .number, value: "2"),
-                BuilderField(identifier: "matrix", label: "Matrix", fieldType: .text, value: "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]"),
-                BuilderField(identifier: "row", label: "Row Index", fieldType: .number, value: "1"),
-                BuilderField(identifier: "col", label: "Column Index", fieldType: .number, value: "2"),
-                BuilderField(identifier: "user", label: "User Object", fieldType: .text, value: "{\"name\": \"John\", \"address\": {\"city\": \"NYC\"}}"),
-                BuilderField(identifier: "selfValue", label: "Self Value", fieldType: .number, value: "25"),
-                BuilderField(identifier: "currentValue", label: "Current Value", fieldType: .number, value: "15"),
-                BuilderField(identifier: "numbers", label: "Numbers", fieldType: .text, value: "[10, 20, 30]"),
-                BuilderField(identifier: "useFirst", label: "Use First", fieldType: .multiSelect, value: "true")
+                BuilderField(id: "fruits", label: "Fruits Array", fieldType: .text, value: "[\"apple\", \"banana\", \"cherry\", \"date\"]"),
+                BuilderField(id: "selectedIndex", label: "Selected Index", fieldType: .number, value: "2"),
+                BuilderField(id: "matrix", label: "Matrix", fieldType: .text, value: "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]"),
+                BuilderField(id: "row", label: "Row Index", fieldType: .number, value: "1"),
+                BuilderField(id: "col", label: "Column Index", fieldType: .number, value: "2"),
+                BuilderField(id: "user", label: "User Object", fieldType: .text, value: "{\"name\": \"John\", \"address\": {\"city\": \"NYC\"}}"),
+                BuilderField(id: "selfValue", label: "Self Value", fieldType: .number, value: "25"),
+                BuilderField(id: "currentValue", label: "Current Value", fieldType: .number, value: "15"),
+                BuilderField(id: "numbers", label: "Numbers", fieldType: .text, value: "[10, 20, 30]"),
+                BuilderField(id: "useFirst", label: "Use First", fieldType: .multiSelect, value: "true")
             ]
             
             // Result fields
             let resultFields = [
-                BuilderField(identifier: "selectedFruit", label: "Selected Fruit", fieldType: .text, formulaRef: "arrayIndex"),
-                BuilderField(identifier: "matrixValue", label: "Matrix Value", fieldType: .number, formulaRef: "dynamicIndex"),
-                BuilderField(identifier: "userName", label: "User Name", fieldType: .text, formulaRef: "objectProperty"),
-                BuilderField(identifier: "userCity", label: "User City", fieldType: .text, formulaRef: "nestedProperty"),
-                BuilderField(identifier: "selfResult", label: "Self * 2", fieldType: .number, formulaRef: "selfReference"),
-                BuilderField(identifier: "currentResult", label: "Current + 10", fieldType: .number, formulaRef: "currentReference"),
-                BuilderField(identifier: "numbersSum", label: "Numbers Sum", fieldType: .number, formulaRef: "dynamicSum"),
-                BuilderField(identifier: "conditionalResult", label: "Conditional Fruit", fieldType: .text, formulaRef: "conditionalRef")
+                BuilderField(id: "selectedFruit", label: "Selected Fruit", fieldType: .text, formulaRef: "arrayIndex"),
+                BuilderField(id: "matrixValue", label: "Matrix Value", fieldType: .number, formulaRef: "dynamicIndex"),
+                BuilderField(id: "userName", label: "User Name", fieldType: .text, formulaRef: "objectProperty"),
+                BuilderField(id: "userCity", label: "User City", fieldType: .text, formulaRef: "nestedProperty"),
+                BuilderField(id: "selfResult", label: "Self * 2", fieldType: .number, formulaRef: "selfReference"),
+                BuilderField(id: "currentResult", label: "Current + 10", fieldType: .number, formulaRef: "currentReference"),
+                BuilderField(id: "numbersSum", label: "Numbers Sum", fieldType: .number, formulaRef: "dynamicSum"),
+                BuilderField(id: "conditionalResult", label: "Conditional Fruit", fieldType: .text, formulaRef: "conditionalRef")
             ]
             
             fields = inputFields + resultFields
@@ -1098,14 +1098,14 @@ struct FormBuilderView: View {
         case .dateFormulas:
             // Date manipulation template  
             formulas = [
-                BuilderFormula(identifier: "currentDate", formula: "now()"),
-                BuilderFormula(identifier: "dateYear", formula: "year(birthDate)"),
-                BuilderFormula(identifier: "dateMonth", formula: "month(birthDate)"),
-                BuilderFormula(identifier: "dateDay", formula: "day(birthDate)"),
-                BuilderFormula(identifier: "addDays", formula: "dateAdd(startDate, days, \"days\")"),
-                BuilderFormula(identifier: "addWeeks", formula: "dateAdd(startDate, weeks, \"weeks\")"),
-                BuilderFormula(identifier: "subtractDays", formula: "dateSubtract(endDate, days, \"days\")"),
-                BuilderFormula(identifier: "ageCalculation", formula: "round((now() - birthDate) / (365.25 * 24 * 60 * 60 * 1000))")
+                BuilderFormula(id: "currentDate", formula: "now()"),
+                BuilderFormula(id: "dateYear", formula: "year(birthDate)"),
+                BuilderFormula(id: "dateMonth", formula: "month(birthDate)"),
+                BuilderFormula(id: "dateDay", formula: "day(birthDate)"),
+                BuilderFormula(id: "addDays", formula: "dateAdd(startDate, days, \"days\")"),
+                BuilderFormula(id: "addWeeks", formula: "dateAdd(startDate, weeks, \"weeks\")"),
+                BuilderFormula(id: "subtractDays", formula: "dateSubtract(endDate, days, \"days\")"),
+                BuilderFormula(id: "ageCalculation", formula: "round((now() - birthDate) / (365.25 * 24 * 60 * 60 * 1000))")
             ]
             
             let currentTime = Date().timeIntervalSince1970 * 1000
@@ -1115,71 +1115,71 @@ struct FormBuilderView: View {
             let endTime = currentTime + Double(daysToMilliseconds)
             
             fields = [
-                BuilderField(identifier: "birthDate", label: "Birth Date", fieldType: .number, value: String(birthTime)),
-                BuilderField(identifier: "startDate", label: "Start Date", fieldType: .number, value: String(currentTime)),
-                BuilderField(identifier: "endDate", label: "End Date", fieldType: .number, value: String(endTime)),
-                BuilderField(identifier: "days", label: "Days to Add", fieldType: .number, value: "7"),
-                BuilderField(identifier: "weeks", label: "Weeks to Add", fieldType: .number, value: "2"),
-                BuilderField(identifier: "currentDateResult", label: "Current Date", fieldType: .date, formulaRef: "currentDate"),
-                BuilderField(identifier: "yearResult", label: "Birth Year", fieldType: .number, formulaRef: "dateYear"),
-                BuilderField(identifier: "monthResult", label: "Birth Month", fieldType: .number, formulaRef: "dateMonth"),
-                BuilderField(identifier: "dayResult", label: "Birth Day", fieldType: .number, formulaRef: "dateDay"),
-                BuilderField(identifier: "addDaysResult", label: "Date + Days", fieldType: .date, formulaRef: "addDays"),
-                BuilderField(identifier: "addWeeksResult", label: "Date + Weeks", fieldType: .date, formulaRef: "addWeeks"),
-                BuilderField(identifier: "subtractResult", label: "Date - Days", fieldType: .date, formulaRef: "subtractDays"),
-                BuilderField(identifier: "ageResult", label: "Calculated Age", fieldType: .number, formulaRef: "ageCalculation")
+                BuilderField(id: "birthDate", label: "Birth Date", fieldType: .number, value: String(birthTime)),
+                BuilderField(id: "startDate", label: "Start Date", fieldType: .number, value: String(currentTime)),
+                BuilderField(id: "endDate", label: "End Date", fieldType: .number, value: String(endTime)),
+                BuilderField(id: "days", label: "Days to Add", fieldType: .number, value: "7"),
+                BuilderField(id: "weeks", label: "Weeks to Add", fieldType: .number, value: "2"),
+                BuilderField(id: "currentDateResult", label: "Current Date", fieldType: .date, formulaRef: "currentDate"),
+                BuilderField(id: "yearResult", label: "Birth Year", fieldType: .number, formulaRef: "dateYear"),
+                BuilderField(id: "monthResult", label: "Birth Month", fieldType: .number, formulaRef: "dateMonth"),
+                BuilderField(id: "dayResult", label: "Birth Day", fieldType: .number, formulaRef: "dateDay"),
+                BuilderField(id: "addDaysResult", label: "Date + Days", fieldType: .date, formulaRef: "addDays"),
+                BuilderField(id: "addWeeksResult", label: "Date + Weeks", fieldType: .date, formulaRef: "addWeeks"),
+                BuilderField(id: "subtractResult", label: "Date - Days", fieldType: .date, formulaRef: "subtractDays"),
+                BuilderField(id: "ageResult", label: "Calculated Age", fieldType: .number, formulaRef: "ageCalculation")
             ]
             
         case .conversionFormulas:
             // Type conversion template
             formulas = [
-                BuilderFormula(identifier: "stringToNumber", formula: "toNumber(stringValue)"),
-                BuilderFormula(identifier: "numberCalculation", formula: "toNumber(stringNum1) + toNumber(stringNum2)"),
-                BuilderFormula(identifier: "decimalConversion", formula: "toNumber(decimalString)"),
-                BuilderFormula(identifier: "negativeConversion", formula: "toNumber(negativeString)"),
-                BuilderFormula(identifier: "percentageCalc", formula: "(toNumber(numerator) / toNumber(denominator)) * 100"),
-                BuilderFormula(identifier: "roundedConversion", formula: "round(toNumber(floatString), 2)"),
-                BuilderFormula(identifier: "validationCheck", formula: "if(toNumber(inputValue) > 0, \"Valid Number\", \"Invalid or Zero\")")
+                BuilderFormula(id: "stringToNumber", formula: "toNumber(stringValue)"),
+                BuilderFormula(id: "numberCalculation", formula: "toNumber(stringNum1) + toNumber(stringNum2)"),
+                BuilderFormula(id: "decimalConversion", formula: "toNumber(decimalString)"),
+                BuilderFormula(id: "negativeConversion", formula: "toNumber(negativeString)"),
+                BuilderFormula(id: "percentageCalc", formula: "(toNumber(numerator) / toNumber(denominator)) * 100"),
+                BuilderFormula(id: "roundedConversion", formula: "round(toNumber(floatString), 2)"),
+                BuilderFormula(id: "validationCheck", formula: "if(toNumber(inputValue) > 0, \"Valid Number\", \"Invalid or Zero\")")
             ]
             
             fields = [
-                BuilderField(identifier: "stringValue", label: "String Number", fieldType: .text, value: "42"),
-                BuilderField(identifier: "stringNum1", label: "String Number 1", fieldType: .text, value: "10"),
-                BuilderField(identifier: "stringNum2", label: "String Number 2", fieldType: .text, value: "25"),
-                BuilderField(identifier: "decimalString", label: "Decimal String", fieldType: .text, value: "3.14159"),
-                BuilderField(identifier: "negativeString", label: "Negative String", fieldType: .text, value: "-25"),
-                BuilderField(identifier: "numerator", label: "Numerator", fieldType: .text, value: "75"),
-                BuilderField(identifier: "denominator", label: "Denominator", fieldType: .text, value: "100"),
-                BuilderField(identifier: "floatString", label: "Float String", fieldType: .text, value: "12.3456789"),
-                BuilderField(identifier: "inputValue", label: "Input Value", fieldType: .text, value: "123"),
-                BuilderField(identifier: "numberResult", label: "Converted Number", fieldType: .number, formulaRef: "stringToNumber"),
-                BuilderField(identifier: "calculationResult", label: "Sum Result", fieldType: .number, formulaRef: "numberCalculation"),
-                BuilderField(identifier: "decimalResult", label: "Decimal Result", fieldType: .number, formulaRef: "decimalConversion"),
-                BuilderField(identifier: "negativeResult", label: "Negative Result", fieldType: .number, formulaRef: "negativeConversion"),
-                BuilderField(identifier: "percentageResult", label: "Percentage", fieldType: .number, formulaRef: "percentageCalc"),
-                BuilderField(identifier: "roundedResult", label: "Rounded Result", fieldType: .number, formulaRef: "roundedConversion"),
-                BuilderField(identifier: "validationResult", label: "Validation Result", fieldType: .text, formulaRef: "validationCheck")
+                BuilderField(id: "stringValue", label: "String Number", fieldType: .text, value: "42"),
+                BuilderField(id: "stringNum1", label: "String Number 1", fieldType: .text, value: "10"),
+                BuilderField(id: "stringNum2", label: "String Number 2", fieldType: .text, value: "25"),
+                BuilderField(id: "decimalString", label: "Decimal String", fieldType: .text, value: "3.14159"),
+                BuilderField(id: "negativeString", label: "Negative String", fieldType: .text, value: "-25"),
+                BuilderField(id: "numerator", label: "Numerator", fieldType: .text, value: "75"),
+                BuilderField(id: "denominator", label: "Denominator", fieldType: .text, value: "100"),
+                BuilderField(id: "floatString", label: "Float String", fieldType: .text, value: "12.3456789"),
+                BuilderField(id: "inputValue", label: "Input Value", fieldType: .text, value: "123"),
+                BuilderField(id: "numberResult", label: "Converted Number", fieldType: .number, formulaRef: "stringToNumber"),
+                BuilderField(id: "calculationResult", label: "Sum Result", fieldType: .number, formulaRef: "numberCalculation"),
+                BuilderField(id: "decimalResult", label: "Decimal Result", fieldType: .number, formulaRef: "decimalConversion"),
+                BuilderField(id: "negativeResult", label: "Negative Result", fieldType: .number, formulaRef: "negativeConversion"),
+                BuilderField(id: "percentageResult", label: "Percentage", fieldType: .number, formulaRef: "percentageCalc"),
+                BuilderField(id: "roundedResult", label: "Rounded Result", fieldType: .number, formulaRef: "roundedConversion"),
+                BuilderField(id: "validationResult", label: "Validation Result", fieldType: .text, formulaRef: "validationCheck")
             ]
         case .table:
             formulas = [
-                BuilderFormula(identifier: "max", formula: "max(products.price)"),
-                BuilderFormula(identifier: "amount", formula: "sum(products.price)"),
-                BuilderFormula(identifier: "tax", formula: "if(amount > 500, 20, 10)"),
-                BuilderFormula(identifier: "amountsWithTax", formula: "map(products.price, (item) → item + (item * (tax/100)))"),
-                BuilderFormula(identifier: "total", formula: "(amount +  ((tax * amount)/100))"),
-                BuilderFormula(identifier: "totalMap", formula: "sum(amountsWithTax)"),
+                BuilderFormula(id: "max", formula: "max(products.price)"),
+                BuilderFormula(id: "amount", formula: "sum(products.price)"),
+                BuilderFormula(id: "tax", formula: "if(amount > 500, 20, 10)"),
+                BuilderFormula(id: "amountsWithTax", formula: "map(products.price, (item) → item + (item * (tax/100)))"),
+                BuilderFormula(id: "total", formula: "(amount +  ((tax * amount)/100))"),
+                BuilderFormula(id: "totalMap", formula: "sum(amountsWithTax)"),
             ]
 
             var priceColumn = FieldTableColumn()
             priceColumn.id = UUID().uuidString
-            priceColumn.identifier = ""
+            priceColumn.id = ""
             priceColumn.title = "Price"
             priceColumn.type = .number
             priceColumn.required = true
 
             var productColumn = FieldTableColumn()
             productColumn.id = UUID().uuidString
-            productColumn.identifier = ""
+            productColumn.id = ""
             productColumn.title = "Product"
             productColumn.type = .text
             priceColumn.required = true
@@ -1187,13 +1187,13 @@ struct FormBuilderView: View {
             tableColumns = [productColumn, priceColumn]
 
             fields = [
-                BuilderField(identifier: "products", label: "Products", fieldType: .table, value: "", tableColumns: tableColumns),
-                BuilderField(identifier: "max", label: "Maximum price", fieldType: .number, formulaRef: "max"),
-                BuilderField(identifier: "amount", label: "Amount", fieldType: .number, formulaRef: "amount"),
-                BuilderField(identifier: "tax", label: "Tax % applicable", fieldType: .number, formulaRef: "tax"),
-                BuilderField(identifier: "amountsWithTax", label: "Amounts with tax", fieldType: .text, value: "[]", formulaRef: "amountsWithTax"),
-                BuilderField(identifier: "total", label: "Total amount", fieldType: .number, formulaRef: "total"),
-                BuilderField(identifier: "totalMap", label: "Total amount map", fieldType: .number, formulaRef: "totalMap"),
+                BuilderField(id: "products", label: "Products", fieldType: .table, value: "", tableColumns: tableColumns),
+                BuilderField(id: "max", label: "Maximum price", fieldType: .number, formulaRef: "max"),
+                BuilderField(id: "amount", label: "Amount", fieldType: .number, formulaRef: "amount"),
+                BuilderField(id: "tax", label: "Tax % applicable", fieldType: .number, formulaRef: "tax"),
+                BuilderField(id: "amountsWithTax", label: "Amounts with tax", fieldType: .text, value: "[]", formulaRef: "amountsWithTax"),
+                BuilderField(id: "total", label: "Total amount", fieldType: .number, formulaRef: "total"),
+                BuilderField(id: "totalMap", label: "Total amount map", fieldType: .number, formulaRef: "totalMap"),
             ]
         }
     }
@@ -1204,7 +1204,7 @@ struct FormBuilderView: View {
         
         // Add all formulas first
         for formula in formulas {
-            document = document.addFormula(id: formula.identifier, formula: formula.formula)
+            document = document.addFormula(id: formula.id, formula: formula.formula)
         }
         
         // Add all fields (simplified version for JSON generation)
@@ -1213,14 +1213,14 @@ struct FormBuilderView: View {
             case .text:
                 if let formulaRef = field.formulaRef {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         label: field.label
                     )
                 } else {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: field.value,
                         label: field.label
                     )
@@ -1228,7 +1228,7 @@ struct FormBuilderView: View {
             case .number:
                 if let formulaRef = field.formulaRef {
                     document = document.addNumberField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         value: 0,
@@ -1237,7 +1237,7 @@ struct FormBuilderView: View {
                 } else {
                     let numberValue = Double(field.value) ?? 0
                     document = document.addNumberField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: numberValue,
                         label: field.label
                     )
@@ -1245,14 +1245,14 @@ struct FormBuilderView: View {
             case .date:
                 if let formulaRef = field.formulaRef {
                     document = document.addDateField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         label: field.label
                     )
                 } else {
                     document = document.addDateField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: Date(),
                         label: field.label
                     )
@@ -1261,7 +1261,7 @@ struct FormBuilderView: View {
                 let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                 if let formulaRef = field.formulaRef {
                     document = document.addOptionField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         options: options,
@@ -1269,7 +1269,7 @@ struct FormBuilderView: View {
                     )
                 } else {
                     document = document.addOptionField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: [options.first ?? ""],
                         options: options,
                         label: field.label
@@ -1280,14 +1280,14 @@ struct FormBuilderView: View {
                 // Default to text field for simplicity
                 if let formulaRef = field.formulaRef {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
                         label: field.label
                     )
                 } else {
                     document = document.addTextField(
-                        identifier: field.identifier,
+                        identifier: field.id,
                         value: field.value,
                         label: field.label
                     )
@@ -1313,8 +1313,7 @@ struct FormBuilderView: View {
 }
 
 struct BuilderField: Identifiable {
-    let id = UUID()
-    var identifier: String
+    let id: String
     var label: String
     var fieldType: FieldTypes
     var value: String = ""
@@ -1332,8 +1331,7 @@ struct BuilderField: Identifiable {
 }
 
 struct BuilderFormula: Identifiable {
-    let id = UUID()
-    var identifier: String
+    var id: String
     var formula: String
 }
 
@@ -1511,7 +1509,7 @@ struct AddFieldView: View {
         self.onAdd = onAdd
         
         if let field = editingField {
-            _identifier = State(initialValue: field.identifier)
+            _identifier = State(initialValue: field.id)
             _label = State(initialValue: field.label)
             _fieldType = State(initialValue: field.fieldType)
             _value = State(initialValue: field.value)
@@ -1560,7 +1558,7 @@ struct AddFieldView: View {
                         
                         VStack(spacing: 16) {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("Identifier")
+                                Text("_id")
                                     .font(.subheadline)
                                     .foregroundColor(.primary)
                                 
@@ -1661,12 +1659,12 @@ struct AddFieldView: View {
                                             Button("No formulas available") { }
                                                 .disabled(true)
                                         } else {
-                                            ForEach(formulas, id: \.identifier) { formula in
-                                                Button(action: { formulaRef = formula.identifier }) {
+                                            ForEach(formulas, id: \.id) { formula in
+                                                Button(action: { formulaRef = formula.id }) {
                                                     HStack {
                                                         Image(systemName: "function")
                                                             .foregroundColor(.purple)
-                                                        Text(formula.identifier)
+                                                        Text(formula.id)
                                                         Spacer()
                                                         Text(formula.formula.count > 20 ? String(formula.formula.prefix(20)) + "..." : formula.formula)
                                                             .font(.caption)
@@ -1789,7 +1787,7 @@ struct AddFieldView: View {
                         let finalIdentifier = identifier.isEmpty ? generateIdentifier(from: label) : identifier
                         
                         let field = BuilderField(
-                            identifier: finalIdentifier,
+                            id: finalIdentifier,
                             label: label,
                             fieldType: fieldType,
                             value: value,
@@ -1813,7 +1811,7 @@ struct AddFieldView: View {
                 if let editingColumn = editingColumn {
                     AddColumnView(editingColumn: editingColumn) { updatedColumn in
                         if let index = tableColumns.firstIndex(where: { 
-                            ($0.identifier == editingColumn.identifier) && ($0.title == editingColumn.title)
+                            ($0.id == editingColumn.id) && ($0.title == editingColumn.title)
                         }) {
                             tableColumns[index] = updatedColumn
                         }
@@ -1883,7 +1881,7 @@ struct AddFormulaView: View {
         self.onAdd = onAdd
         
         if let formula = editingFormula {
-            _identifier = State(initialValue: formula.identifier)
+            _identifier = State(initialValue: formula.id)
             _formula = State(initialValue: formula.formula)
             _selectedTemplate = State(initialValue: .custom)
         }
@@ -2075,7 +2073,7 @@ struct AddFormulaView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(editingFormula == nil ? "Add" : "Save") {
                         let newFormula = BuilderFormula(
-                            identifier: identifier,
+                            id: identifier,
                             formula: formula
                         )
                         onAdd(newFormula)
@@ -2140,7 +2138,7 @@ struct FormulaCardView: View {
                     .frame(width: 24, height: 24)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(formula.identifier)
+                    Text(formula.id)
                         .font(.headline)
                         .foregroundColor(.primary)
                     
@@ -2204,7 +2202,7 @@ struct FieldCardView: View {
                             .background(fieldTypeColor.opacity(0.15))
                             .cornerRadius(6)
                         
-                        Text("ID: \(field.identifier)")
+                        Text("ID: \(field.id)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
