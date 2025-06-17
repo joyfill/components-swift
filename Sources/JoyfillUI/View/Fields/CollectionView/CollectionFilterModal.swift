@@ -16,6 +16,7 @@ struct CollectionFilterModal: View {
     @State var selectedSortedColumnID: String = ""
     @State var totalFiltersCount: Int = 1
     @State var refreshID = UUID()
+    @State var collectionFilterModels: [FilterModel] = []
     
     var body: some View {
         ScrollView {
@@ -28,6 +29,7 @@ struct CollectionFilterModal: View {
                     Spacer()
                     
                     Button(action: {
+                        viewModel.tableDataModel.filterModels = collectionFilterModels
                         viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
                         viewModel.tableDataModel.filterCollectionRowsIfNeeded()
                         presentationMode.wrappedValue.dismiss()
@@ -100,7 +102,8 @@ struct CollectionFilterModal: View {
                                               currentSelectedFilterColumnID: currentFiltersColumnsIDs().indices.contains(i) ? currentFiltersColumnsIDs()[i] : "",
                                               selectedFilterColumnID: currentFiltersColumnsIDs(),
                                               totalFiltersCount: $totalFiltersCount,
-                                              refreshID: $refreshID)
+                                              refreshID: $refreshID,
+                                              collectionFilterModels: $collectionFilterModels)
                             }
                             
                             Button(action: {
@@ -117,6 +120,7 @@ struct CollectionFilterModal: View {
                                     .stroke(shouldEnableAddFilter() ? .gray : .blue, lineWidth: 1)
                             )
                         }
+                        .id(refreshID)
                     }
                     
                     Spacer()
@@ -132,7 +136,6 @@ struct CollectionFilterModal: View {
             }
             loadCurrentFilters()
         }
-        .id(refreshID)
     }
     
     func shouldEnableAddFilter() -> Bool {
@@ -244,7 +247,8 @@ struct CollectionFilterModal: View {
     }
     
     private func loadCurrentFilters() {
-        let activeFilters = viewModel.tableDataModel.filterModels.filter { !$0.filterText.isEmpty }
+        collectionFilterModels = viewModel.tableDataModel.filterModels
+        let activeFilters = collectionFilterModels.filter { !$0.filterText.isEmpty }
         selectedSchemaKey = activeFilters.first?.schemaKey ?? viewModel.rootSchemaKey
         
         if activeFilters.count == 0 {
@@ -256,7 +260,7 @@ struct CollectionFilterModal: View {
     
     private func currentFiltersColumnsIDs() -> [String] {
         var selectedFilterColumnID: [String] = []
-        let activeFilters = viewModel.tableDataModel.filterModels.filter { !$0.filterText.isEmpty }
+        let activeFilters = collectionFilterModels.filter { !$0.filterText.isEmpty }
         for activeFilter in activeFilters {
             selectedFilterColumnID.append(activeFilter.colID)
         }
@@ -270,8 +274,8 @@ struct CollectionFilterModal: View {
 
     private func clearAllFilters() {
         // Clear filter models for the selected schema only
-        for i in 0..<viewModel.tableDataModel.filterModels.count {
-                viewModel.tableDataModel.filterModels[i].filterText = ""
+        for i in 0..<collectionFilterModels.count {
+            collectionFilterModels[i].filterText = ""
         }
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
         selectedSortedColumnID = ""
@@ -287,6 +291,7 @@ struct FilteringView: View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var totalFiltersCount: Int
     @Binding var refreshID: UUID
+    @Binding var collectionFilterModels: [FilterModel]
     
     var body: some View {
         HStack {
@@ -328,10 +333,10 @@ struct FilteringView: View {
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
                 }
-                if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == currentSelectedFilterColumnID && $0.schemaKey == selectedSchemaKey }) {
+                if let index = collectionFilterModels.firstIndex(where: { $0.colID == currentSelectedFilterColumnID && $0.schemaKey == selectedSchemaKey }) {
                     if let column = getSelectedColumn(columnID: currentSelectedFilterColumnID) {
                         CollectionSearchBar(
-                            model: $viewModel.tableDataModel.filterModels[index],
+                            model: $collectionFilterModels[index],
                             column: column,
                             viewModel: viewModel
                         )
@@ -364,8 +369,8 @@ struct FilteringView: View {
     }
     
     private func clearFilterForColumn(columnID: String) {
-        if let index = viewModel.tableDataModel.filterModels.firstIndex(where: { $0.colID == columnID && $0.schemaKey == selectedSchemaKey }) {
-            viewModel.tableDataModel.filterModels[index].filterText = ""
+        if let index = collectionFilterModels.firstIndex(where: { $0.colID == columnID && $0.schemaKey == selectedSchemaKey }) {
+            collectionFilterModels[index].filterText = ""
         }
         totalFiltersCount -= 1
         if totalFiltersCount == 0 {
