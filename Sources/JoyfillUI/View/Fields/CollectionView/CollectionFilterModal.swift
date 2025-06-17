@@ -62,10 +62,6 @@ struct CollectionFilterModal: View {
                 .padding(.horizontal, 16)
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    // Filter by Column Section
-                    Text("Schema type")
-                        .font(.system(size: 15, weight: .bold))
-                        
                     Menu {
                         ForEach(Array(viewModel.tableDataModel.schema), id: \.key) { key, value in
                             Button("\(value.title ?? "")") {
