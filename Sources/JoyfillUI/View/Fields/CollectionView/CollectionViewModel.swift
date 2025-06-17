@@ -448,7 +448,7 @@ class CollectionViewModel: ObservableObject {
             
             // Add all nested rows for this root row
             if targetSchema != rootSchemaKey {
-                addAllNestedRowsRecursively(to: &cellModels,
+                addAllSchemasRecursively(to: &cellModels,
                                             parentRowID: rowID,
                                             level: 0,
                                             parentSchemaKey: rootSchemaKey,
@@ -461,7 +461,7 @@ class CollectionViewModel: ObservableObject {
         updateCollectionWidth()
     }
     
-    fileprivate func extractedFunc(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel]) {
+    fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel]) {
         // Add all nested rows for this schema
         let nonDeletedChildRows = childValueElements.filter { !($0.deleted ?? false) }
         for (nestedIndex, childValueElement) in nonDeletedChildRows.enumerated() {
@@ -501,7 +501,7 @@ class CollectionViewModel: ObservableObject {
             
             // Recursively add nested rows for this child (if it has children)
             if targetSchema != childSchemaKey {
-                addAllNestedRowsRecursively(to: &cellModels,
+                addAllSchemasRecursively(to: &cellModels,
                                             parentRowID: childRowID,
                                             level: level + 1,
                                             parentSchemaKey: childSchemaKey,
@@ -512,8 +512,8 @@ class CollectionViewModel: ObservableObject {
     }
     
     /// Recursively adds all nested rows maintaining the proper hierarchical order
-    private func addAllNestedRowsRecursively(to cellModels: inout [RowDataModel], 
-                                           parentRowID: String, 
+    private func addAllSchemasRecursively(to cellModels: inout [RowDataModel],
+                                           parentRowID: String,
                                            level: Int, 
                                            parentSchemaKey: String,
                                              parentID: (columnID: String, rowID: String),
@@ -561,7 +561,7 @@ class CollectionViewModel: ObservableObject {
                     continue
                 }
                 
-                extractedFunc(childValueElements, filteredTableColumns, childSchemaKey, level, parentID, targetSchema, &cellModels)
+                addAllNestedRowsRecursively(childValueElements, filteredTableColumns, childSchemaKey, level, parentID, targetSchema, &cellModels)
             }
         }
     }
