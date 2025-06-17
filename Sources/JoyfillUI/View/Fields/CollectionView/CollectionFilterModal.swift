@@ -15,6 +15,7 @@ struct CollectionFilterModal: View {
     @State var selectedSchemaKey: String = ""
     @State var selectedSortedColumnID: String = ""
     @State var totalFiltersCount: Int = 1
+    @State var refreshID = UUID()
     
     var body: some View {
         ScrollView {
@@ -98,7 +99,8 @@ struct CollectionFilterModal: View {
                                               selectedSchemaKey: $selectedSchemaKey,
                                               currentSelectedFilterColumnID: currentFiltersColumnsIDs().indices.contains(i) ? currentFiltersColumnsIDs()[i] : "",
                                               selectedFilterColumnID: currentFiltersColumnsIDs(),
-                                              totalFiltersCount: $totalFiltersCount)
+                                              totalFiltersCount: $totalFiltersCount,
+                                              refreshID: $refreshID)
                             }
                             
                             Button(action: {
@@ -108,11 +110,11 @@ struct CollectionFilterModal: View {
                                     .font(.system(size: 12))
                                     .frame(width: 80, height: 27)
                             })
-                            .foregroundColor(currentFiltersColumnsIDs().count != totalFiltersCount ? .gray : .blue)
-                            .disabled(currentFiltersColumnsIDs().count != totalFiltersCount)
+                            .foregroundColor(shouldEnableAddFilter() ? .gray : .blue)
+                            .disabled(shouldEnableAddFilter())
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(currentFiltersColumnsIDs().count != totalFiltersCount ? .gray : .blue, lineWidth: 1)
+                                    .stroke(shouldEnableAddFilter() ? .gray : .blue, lineWidth: 1)
                             )
                         }
                     }
@@ -130,6 +132,12 @@ struct CollectionFilterModal: View {
             }
             loadCurrentFilters()
         }
+        .id(refreshID)
+    }
+    
+    func shouldEnableAddFilter() -> Bool {
+        let allColumnsWhichNeedFilters = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey)
+        return currentFiltersColumnsIDs().count != totalFiltersCount || allColumnsWhichNeedFilters.count == totalFiltersCount
     }
     
     private var sortingView: some View {
@@ -205,7 +213,6 @@ struct CollectionFilterModal: View {
         
     }
     
-    
     func getSortIcon() -> String {
         switch viewModel.tableDataModel.sortModel.order {
         case .ascending:
@@ -225,9 +232,7 @@ struct CollectionFilterModal: View {
             return .blue
         }
     }
-    
-    
-            
+      
     private func getSelectedSchemaTitle() -> String {
         let schema = viewModel.tableDataModel.schema
         return schema[selectedSchemaKey]?.title ?? ""
@@ -266,9 +271,7 @@ struct CollectionFilterModal: View {
     private func clearAllFilters() {
         // Clear filter models for the selected schema only
         for i in 0..<viewModel.tableDataModel.filterModels.count {
-            if viewModel.tableDataModel.filterModels[i].schemaKey == selectedSchemaKey {
                 viewModel.tableDataModel.filterModels[i].filterText = ""
-            }
         }
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
         selectedSortedColumnID = ""
@@ -283,6 +286,7 @@ struct FilteringView: View {
     var selectedFilterColumnID: [String]
     @Environment(\.colorScheme) var colorScheme
     @Binding var totalFiltersCount: Int
+    @Binding var refreshID: UUID
     
     var body: some View {
         HStack {
@@ -337,6 +341,7 @@ struct FilteringView: View {
             
             Button(action: {
                 clearFilterForColumn(columnID: currentSelectedFilterColumnID)
+                refreshID = UUID()
             }, label: {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.red)
