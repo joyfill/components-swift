@@ -122,56 +122,6 @@ struct CollectionModalView : View {
         viewModel.tableDataModel.emptySelection()
     }
 
-//    func sortRowsIfNeeded() {
-//        if currentSelectedCol != Int.min {
-//            guard viewModel.tableDataModel.sortModel.order != .none else { return }
-//            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowModel1, rowModel2 in
-//                let column1 = rowModel1.cells[currentSelectedCol].data
-//                let column2 = rowModel2.cells[currentSelectedCol].data
-//                switch column1.type {
-//                case .text:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.title ?? "") < (column2.title ?? "")
-//                    case .descending:
-//                        return (column1.title ?? "") > (column2.title ?? "")
-//                    case .none:
-//                        return true
-//                    }
-//                case .dropdown:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.selectedOptionText ?? "") < (column2.selectedOptionText ?? "")
-//                    case .descending:
-//                        return (column1.selectedOptionText ?? "") > (column2.selectedOptionText ?? "")
-//                    case .none:
-//                        return true
-//                    }
-//                case .number:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.number ?? 0) < (column2.number ?? 0)
-//                    case .descending:
-//                        return (column1.number ?? 0) > (column2.number ?? 0)
-//                    case .none:
-//                        return true
-//                    }
-//                case .barcode:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.title ?? "") < (column2.title ?? "")
-//                    case .descending:
-//                        return (column1.title ?? "") > (column2.title ?? "")
-//                    case .none:
-//                        return true
-//                    }
-//                default:
-//                    return false
-//                }
-//            }
-//        }
-//    }
-
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
