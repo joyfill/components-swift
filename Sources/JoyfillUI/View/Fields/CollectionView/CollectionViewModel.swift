@@ -836,6 +836,7 @@ class CollectionViewModel: ObservableObject {
             tableDataModel.cellModels[index].isExpanded.toggle()
         }
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
         updateCollectionWidth()
     }
     
@@ -960,6 +961,7 @@ class CollectionViewModel: ObservableObject {
                                    schemaKey: parentSchemaKey)
             }
             tableDataModel.filterCollectionRowsIfNeeded()
+            sortRowsIfNeeded()
         }
         
         guard let rowDataModel = tableDataModel.cellModels.first(where: { $0.rowID == sortedSelectedRows[0] }) else {
@@ -1011,6 +1013,7 @@ class CollectionViewModel: ObservableObject {
             tableDataModel.cellModels[i] = model
         }
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     func insertBelow() -> String? {
@@ -1031,11 +1034,12 @@ class CollectionViewModel: ObservableObject {
             return nil
         }
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
         tableDataModel.emptySelection()
     }
     
     func insertRowBelow() -> String? {
-        let cellValues = getCellValues()
+        let cellValues = getCellValues(columns: tableDataModel.tableColumns)
         guard let result = tableDataModel.documentEditor?.insertBelowNestedRow(selectedRowID: tableDataModel.selectedRows[0],
                                                                                cellValues: cellValues,
                                                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1073,7 +1077,7 @@ class CollectionViewModel: ObservableObject {
         }
         
         let tableColumns: [FieldTableColumn] = tableDataModel.schema[nestedKey]?.tableColumns ?? []
-        let cellValues = getCellValuesForNested(columns: tableColumns)
+        let cellValues = getCellValues(columns: tableColumns)
         let selectedRow = tableDataModel.cellModels[selecteRowIndex]
         
         guard let rowData = tableDataModel.documentEditor?.insertBelowNestedRow(selectedRowID: tableDataModel.selectedRows[0],
@@ -1187,6 +1191,7 @@ class CollectionViewModel: ObservableObject {
         }
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     func getUpperRowIndex(startingIndex: Int) -> Int {
@@ -1247,6 +1252,7 @@ class CollectionViewModel: ObservableObject {
             self.tableDataModel.cellModels.moveItems(from: [index], to: upperRowIndicesToMove.sorted())
         }
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     fileprivate func moveNestedDown(at index: Int, rowID: String) {
@@ -1267,6 +1273,7 @@ class CollectionViewModel: ObservableObject {
             self.tableDataModel.cellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: [index])
         }
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
 
     fileprivate func getChildrensBy(_ schemaKey: String) -> [String : Children] {
@@ -1281,7 +1288,7 @@ class CollectionViewModel: ObservableObject {
     
     func addRow() {
         let id = generateObjectId()
-        let cellValues = getCellValues()
+        let cellValues = getCellValues(columns: tableDataModel.tableColumns)
         
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
                                                                             cellValues: cellValues,
@@ -1306,6 +1313,7 @@ class CollectionViewModel: ObservableObject {
                                rowType: .row(index: rowIndex),
                                schemaKey: rootSchemaKey)
             self.tableDataModel.filterCollectionRowsIfNeeded()
+            sortRowsIfNeeded()
         }
     }
     
@@ -1313,7 +1321,7 @@ class CollectionViewModel: ObservableObject {
         let id = generateObjectId()
         let schemaTableColumns = tableDataModel.schema[schemaKey]?.tableColumns ?? []
         let filteredTableColumns = tableDataModel.filterTableColumns(key: schemaKey)
-        let cellValues = getCellValuesForNested(columns: filteredTableColumns)
+        let cellValues = getCellValues(columns: filteredTableColumns)
                 
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
                                                                             cellValues: cellValues,
@@ -1348,24 +1356,11 @@ class CollectionViewModel: ObservableObject {
             let rowDataModelForIndexing = tableDataModel.cellModels[startingIndex + 2]
             reIndexingRows(rowDataModel: rowDataModelForIndexing)
             self.tableDataModel.filterCollectionRowsIfNeeded()
+            sortRowsIfNeeded()
         }
     }
     
-    func getCellValuesForNested(columns: [FieldTableColumn]) -> [String: ValueUnion] {
-        var cellValues: [String: ValueUnion] = [:]
-        for column in columns {
-            if let defaultValue = column.value {
-                guard let id = column.id else {
-                    Log("Missing column id", type: .error)
-                    continue
-                }
-                cellValues[id] = defaultValue
-            }
-        }
-        return cellValues
-    }
-    
-    func getCellValues() -> [String: ValueUnion] {
+    func getCellValues(columns: [FieldTableColumn]) -> [String: ValueUnion] {
         var cellValues: [String: ValueUnion] = [:]
         
         for filterModel in tableDataModel.filterModels {
@@ -1374,7 +1369,7 @@ class CollectionViewModel: ObservableObject {
             
             if change.isEmpty {
                 // No filter Applied, Extract default value if present
-                if let defaultValue = tableDataModel.tableColumns.first(where: { $0.id == columnId })?.value {
+                if let defaultValue = columns.first(where: { $0.id == columnId })?.value {
                     cellValues[columnId] = defaultValue
                 }
             } else {
@@ -1440,6 +1435,7 @@ class CollectionViewModel: ObservableObject {
             tableDataModel.cellModels[index] = rowDataModel
         }
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
@@ -1488,6 +1484,7 @@ class CollectionViewModel: ObservableObject {
             }
         }
         tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     func sendEventsIfNeeded() {
