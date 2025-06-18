@@ -1490,6 +1490,18 @@ class CollectionViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
     }
+    
+    func getFilteredColumns(for schemaKey: String) -> [FieldTableColumn] {
+        let tableColumns = tableDataModel.filterTableColumns(key: schemaKey)
+        return tableColumns.filter { column in
+            switch column.type {
+            case .text, .dropdown, .multiSelect, .number, .barcode:
+                return true
+            default:
+                return false
+            }
+        }
+    }
 }
 
 extension Array {

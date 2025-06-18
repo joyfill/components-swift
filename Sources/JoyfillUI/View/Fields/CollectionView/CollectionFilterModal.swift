@@ -144,7 +144,7 @@ struct CollectionFilterModal: View {
     }
     
     func shouldEnableAddFilter() -> Bool {
-        let allColumnsWhichNeedFilters = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey)
+        let allColumnsWhichNeedFilters = viewModel.getFilteredColumns(for: selectedSchemaKey)
         return currentFiltersColumnsIDs().count != totalFiltersCount || allColumnsWhichNeedFilters.count == totalFiltersCount
     }
     
@@ -156,7 +156,7 @@ struct CollectionFilterModal: View {
                    
                 HStack {
                     Menu {
-                        let columns = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey)
+                        let columns = viewModel.getFilteredColumns(for: selectedSchemaKey)
                         ForEach(columns, id: \.id) { column in
                             Button("\(column.title ?? "")") {
                                 selectedSortedColumnID = column.id ?? ""
@@ -248,7 +248,7 @@ struct CollectionFilterModal: View {
     }
     
     private func getSelectedSortedColumnTitle() -> String {
-        let tableColumns = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey)
+        let tableColumns = viewModel.getFilteredColumns(for: selectedSchemaKey)
         return tableColumns.first(where: {$0.id == selectedSortedColumnID})?.title ?? ""
     }
     
@@ -313,7 +313,7 @@ struct FilteringView: View {
                     .font(.system(size: 15, weight: .bold))
                 
                 Menu {
-                    let columns = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey)
+                    let columns = viewModel.getFilteredColumns(for: selectedSchemaKey)
                         .filter { column in
                             if let id = column.id {
                                 return !selectedFilterColumnID.contains(id)
@@ -373,12 +373,12 @@ struct FilteringView: View {
     }
     
     private func getSelectedFilteredColumnTitle(columnID: String) -> String {
-        let tableColumns = viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey)
+        let tableColumns = viewModel.getFilteredColumns(for: selectedSchemaKey)
         return tableColumns.first(where: {$0.id == columnID})?.title ?? ""
     }
     
     func getSelectedColumn(columnID: String) -> FieldTableColumn? {
-        viewModel.tableDataModel.filterTableColumns(key: selectedSchemaKey).first(where: { $0.id == columnID })
+        viewModel.getFilteredColumns(for: selectedSchemaKey).first(where: { $0.id == columnID })
     }
     
     private func clearFilterForColumn(columnID: String) {
