@@ -148,7 +148,7 @@ struct CollectionModalView : View {
                             viewModel.tableDataModel.emptySelection()
                         }
                     }
-                    .disabled(viewModel.tableDataModel.cellModels.count == 0)
+                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0)
                     .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
@@ -247,7 +247,7 @@ struct CollectionExpanderView: View {
         HStack {
             if viewModel.tableDataModel.mode != .readonly {
                 Button(action: {
-                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+//                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
                     viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {

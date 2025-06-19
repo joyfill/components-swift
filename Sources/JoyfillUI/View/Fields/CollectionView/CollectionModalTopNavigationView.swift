@@ -259,7 +259,8 @@ struct CollectionModalTopNavigationView: View {
     }
     
     func clearFilter() {
-        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+//        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        viewModel.setupCellModels()
         for i in 0..<viewModel.tableDataModel.filterModels.count {
             viewModel.tableDataModel.filterModels[i].filterText = ""
         }

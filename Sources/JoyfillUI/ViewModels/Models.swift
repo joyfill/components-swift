@@ -142,6 +142,7 @@ struct TableDataModel {
     let documentEditor: DocumentEditor?
     let fieldIdentifier: FieldIdentifier
     let title: String?
+    let fieldType: FieldTypes
     var fieldRequired: Bool = false
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
@@ -197,6 +198,7 @@ struct TableDataModel {
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
+        self.fieldType = fieldData.fieldType
                 
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
@@ -249,7 +251,9 @@ struct TableDataModel {
     }
         
     mutating func filterRowsIfNeeded() {
-        filteredcellModels = cellModels
+        if fieldType == .table {
+            filteredcellModels = cellModels
+        }
         guard !filterModels.noFilterApplied else {
             return
         }
@@ -285,7 +289,7 @@ struct TableDataModel {
     
     /// Enhanced filtering method that supports schema-specific filtering for nested collections
     mutating func filterCollectionRowsIfNeeded() {
-        filteredcellModels = cellModels
+//        filteredcellModels = filteredcellModels
         guard !filterModels.noFilterApplied else {
             return
         }
@@ -298,7 +302,7 @@ struct TableDataModel {
         }
         
         // Apply schema-specific nested filtering
-        filteredcellModels = applySchemaSpecificFilter(rows: cellModels, targetSchema: schema, filters: filterModels)
+        filteredcellModels = applySchemaSpecificFilter(rows: filteredcellModels, targetSchema: schema, filters: filterModels)
     }
     
     /// Applies hierarchical filtering that shows only matching rows and their parents
@@ -659,21 +663,21 @@ struct TableDataModel {
     }
     
     mutating func updateCellModelForNested(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
-        guard let index = cellModels.firstIndex(where: { $0.rowID == rowId }) else {
+        guard let index = filteredcellModels.firstIndex(where: { $0.rowID == rowId }) else {
             return
         }
-        var cellModel = cellModels[index].cells[colIndex]
+        var cellModel = filteredcellModels[index].cells[colIndex]
         cellModel.data = cellDataModel
-        cellModels[index].cells[colIndex] = cellModel
+        filteredcellModels[index].cells[colIndex] = cellModel
         if isBulkEdit {
-            cellModels[index].cells[colIndex].id = UUID()
+            filteredcellModels[index].cells[colIndex].id = UUID()
         }
     }
     
     func childrensForRows(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) -> [Int] {
         var indices: [Int] = []
-        for i in index + 1..<cellModels.count {
-            let nextRow = cellModels[i]
+        for i in index + 1..<filteredcellModels.count {
+            let nextRow = filteredcellModels[i]
             
             if nextRow.rowType.level < rowDataModel.rowType.level {
                 break
@@ -719,8 +723,8 @@ struct TableDataModel {
     func childrensForASpecificRow(_ index: Int, _ rowDataModel: RowDataModel) -> [Int] {
         var indices: [Int] = []
         
-        for i in index + 1..<cellModels.count {
-            let nextRow = cellModels[i]
+        for i in index + 1..<filteredcellModels.count {
+            let nextRow = filteredcellModels[i]
             
             //Stop if find another table expander of same level
             if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
@@ -754,13 +758,13 @@ struct TableDataModel {
     }
 
     var lastRowSelected: Bool {
-        let cellModels = self.cellModels.filter({ $0.rowType.isRow })
-        return !selectedRows.isEmpty && selectedRows.last == cellModels.last?.rowID
+        let filteredcellModels = self.filteredcellModels.filter({ $0.rowType.isRow })
+        return !selectedRows.isEmpty && selectedRows.last == filteredcellModels.last?.rowID
     }
     
     var firstRowSelected: Bool {
-        let cellModels = self.cellModels.filter({ $0.rowType.isRow })
-        return !selectedRows.isEmpty && selectedRows.first == cellModels.first?.rowID
+        let filteredcellModels = self.filteredcellModels.filter({ $0.rowType.isRow })
+        return !selectedRows.isEmpty && selectedRows.first == filteredcellModels.first?.rowID
     }
     
     var firstNestedRowSelected: Bool {
@@ -768,11 +772,11 @@ struct TableDataModel {
     }
     
     var isFirstNestedRow: Bool {
-        guard let selectedRowID = selectedRows.first, let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }), index > 0 else {
+        guard let selectedRowID = selectedRows.first, let index = filteredcellModels.firstIndex(where: { $0.rowID == selectedRowID }), index > 0 else {
             return false
         }
-        let currentRow = cellModels[index]
-        let previousRow = cellModels[index - 1]
+        let currentRow = filteredcellModels[index]
+        let previousRow = filteredcellModels[index - 1]
         switch previousRow.rowType {
         case .header(level: let level, tableColumns: _):
             if level == currentRow.rowType.level {
@@ -792,11 +796,11 @@ struct TableDataModel {
     
     var isLastNestedRow: Bool {
         guard let selectedRowID = selectedRows.first,
-              let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }) else {
+              let index = filteredcellModels.firstIndex(where: { $0.rowID == selectedRowID }) else {
             return false
         }
         
-        let selectedRow = cellModels[index]
+        let selectedRow = filteredcellModels[index]
         switch selectedRow.rowType {
         case .row(index: let index):
             return false
@@ -809,11 +813,11 @@ struct TableDataModel {
         let nextIndex = index + childrenIndices.count + 1
         
         // If there's no next row, then this is the last row.
-        guard nextIndex < cellModels.count else {
+        guard nextIndex < filteredcellModels.count else {
             return true
         }
         
-        let nextRow = cellModels[nextIndex]
+        let nextRow = filteredcellModels[nextIndex]
         
         switch nextRow.rowType {
         case .nestedRow(level: let nestedLevel, index: let index, parentID: _, _):
@@ -867,7 +871,7 @@ struct TableDataModel {
     }
     
     func getDummyNestedCell(col: Int, isBulkEdit: Bool, rowID: String) -> CellDataModel? {
-        let selectedRow = cellModels.first(where: { $0.rowID == rowID })
+        let selectedRow = filteredcellModels.first(where: { $0.rowID == rowID })
         var cell = selectedRow?.cells[col].data
         if isBulkEdit {
             cell?.title = ""
@@ -918,7 +922,7 @@ struct TableDataModel {
             Log("RowIndex not found", type: .error)
             return nil
         }
-        let topLevelCellModelsOnly = cellModels.filter { rowDataModel in
+        let topLevelCellModelsOnly = filteredcellModels.filter { rowDataModel in
             rowDataModel.rowType.isRow
         }
         return topLevelCellModelsOnly[rowIndex].cells[col].data
@@ -1034,7 +1038,7 @@ struct TableDataModel {
         var indices: [String] = []
         if let rowDataModel = getRowByID(rowID: rowID) {
             guard let index = filteredcellModels.firstIndex(of: rowDataModel) else {
-                Log(" Could not find row \(rowID) in cellModels", type: .error)
+                Log(" Could not find row \(rowID) in filteredcellModels", type: .error)
                 return []
             }
             

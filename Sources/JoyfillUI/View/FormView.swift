@@ -107,7 +107,7 @@ enum FieldListModelType: Equatable {
         case (.text(let lhs), .text(let rhs)):
             return lhs.text == rhs.text
         case (.table(let lhs), .table(let rhs)):
-            return lhs.cellModels == rhs.cellModels
+            return lhs.filteredcellModels == rhs.filteredcellModels
         case (.chart(let lhs), .chart(let rhs)):
             return lhs.valueElements == rhs.valueElements
         case (.date(let lhs), .date(let rhs)):

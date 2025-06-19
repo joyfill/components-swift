@@ -306,7 +306,7 @@ struct CollectionFilterModal: View {
         for i in 0..<collectionFilterModels.count {
             collectionFilterModels[i].filterText = ""
         }
-        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels
         selectedSortedColumnID = ""
         totalFiltersCount = 1
         clearSorting()

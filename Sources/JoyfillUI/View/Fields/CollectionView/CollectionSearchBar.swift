@@ -17,7 +17,7 @@ struct CollectionSearchBar: View {
 
     var body: some View {
         HStack {
-            if !viewModel.tableDataModel.cellModels.isEmpty {
+            if !viewModel.tableDataModel.filteredcellModels.isEmpty {
                 let cellDataModel = viewModel.tableDataModel.getDummyCellForCollectionFilter(column: column)
                 if let cellDataModel = cellDataModel {
                     let cellModel = TableCellModel(rowID: "",
