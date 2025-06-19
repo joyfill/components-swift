@@ -30,26 +30,42 @@ struct CollectionFilterModal: View {
                     Spacer()
                     
                     Button(action: {
-                        viewModel.tableDataModel.filterModels = collectionFilterModels
-                        viewModel.tableDataModel.sortModel.colID = selectedSortedColumnID
-                        viewModel.tableDataModel.sortModel.schemaKey = selectedSchemaKey
-                        viewModel.tableDataModel.sortModel.order = order
-                        
-                        viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
-                        viewModel.tableDataModel.filterCollectionRowsIfNeeded()
-                        viewModel.sortRowsIfNeeded()
-                        presentationMode.wrappedValue.dismiss()
+                        Task {
+                            viewModel.isLoading = true
+                            // Give UI a chance to update
+                            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                            
+                            viewModel.tableDataModel.filterModels = collectionFilterModels
+                            viewModel.tableDataModel.sortModel.colID = selectedSortedColumnID
+                            viewModel.tableDataModel.sortModel.schemaKey = selectedSchemaKey
+                            viewModel.tableDataModel.sortModel.order = order
+                            
+                            await MainActor.run {
+                                viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
+                                viewModel.tableDataModel.filterCollectionRowsIfNeeded()
+                                viewModel.isLoading = false
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
                     }, label: {
-                        Text("Apply")
-                            .darkLightThemeColor()
-                            .font(.system(size: 14))
-                            .frame(width: 88, height: 27)
+                        ZStack {
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                                    .frame(width: 88, height: 27)
+                            } else {
+                                Text("Apply")
+                                    .darkLightThemeColor()
+                                    .font(.system(size: 14))
+                                    .frame(width: 88, height: 27)
+                            }
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
                     })
-                    .foregroundStyle(.gray)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(.gray, lineWidth: 1)
-                    )
+                    .disabled(viewModel.isLoading)
                     
                     Button(action: {
                         presentationMode.wrappedValue.dismiss()

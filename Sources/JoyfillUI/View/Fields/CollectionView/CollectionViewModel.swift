@@ -18,6 +18,7 @@ class CollectionViewModel: ObservableObject {
     @Published var collectionWidth: CGFloat = 0.0
     @Published var blockLongestTextMap: [String: String] = [:]
     @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
+    @Published var isLoading: Bool = false
     private var requiredColumnIds: [String] = []
     var rootSchemaKey: String = ""
 
