@@ -263,8 +263,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         let app = XCUIApplication()
         let element4 = app.windows.children(matching: .other).element
-        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-        element.swipeLeft()
+//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+//        element.swipeLeft()
         
         let multiSelectionButtons = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertGreaterThan(multiSelectionButtons.count, 0)
@@ -274,7 +274,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         selectAllMultiSlectOptions()
 
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-        element.swipeRight()
+//        element.swipeRight()
         goBack()
         sleep(2)
         do {
@@ -290,8 +290,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         let app = XCUIApplication()
         let element4 = app.windows.children(matching: .other).element
-        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-        element.swipeLeft()
+//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+//        element.swipeLeft()
         
         let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
         XCTAssertGreaterThan(imageButtons.count, 0)
@@ -302,7 +302,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ImageUploadImageIdentifier"].tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
 
-        element.swipeDown()
+//        element.swipeDown()
+        dismissSheet()
         goBack()
         sleep(2)
         do {
@@ -317,9 +318,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         let app = XCUIApplication()
-        let element4 = app.windows.children(matching: .other).element
-        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-        element.swipeLeft()
+//        let element4 = app.windows.children(matching: .other).element
+//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+//        element.swipeLeft()
         
         let firstCollectionNumberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("", firstCollectionNumberField.value as! String)
@@ -340,9 +341,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         let app = XCUIApplication()
-        let element4 = app.windows.children(matching: .other).element
-        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-        element.swipeLeft()
+//        let element4 = app.windows.children(matching: .other).element
+//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+//        element.swipeLeft()
         
         let firstCollectionDateField = app.images.matching(identifier: "CalendarImageIdentifier").element(boundBy: 0)
         firstCollectionDateField.tap()
@@ -350,7 +351,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let datePickers = app.datePickers
         XCTAssertTrue(datePickers.element.exists)
         
-        element.swipeRight()
+//        element.swipeRight()
         goBack()
         sleep(2)
         
