@@ -301,40 +301,132 @@ struct TableDataModel {
         filteredcellModels = applySchemaSpecificFilter(rows: cellModels, targetSchema: schema, filters: filterModels)
     }
     
-    /// Applies filtering at a specific schema level while preserving hierarchy
+    /// Applies hierarchical filtering that shows only matching rows and their parents
     private func applySchemaSpecificFilter(rows: [RowDataModel], targetSchema: String, filters: [FilterModel]) -> [RowDataModel] {
         var result: [RowDataModel] = []
-        var excludedRowIDs: Set<String> = Set()
+        var matchingRowIDs: Set<String> = Set()
+        var parentRowIDs: Set<String> = Set()
+        var parentToChildMap: [String: String] = [:] // Maps parent row ID to its immediate child in the matching path
+        var schemaChain: [String] = [] // Track the schema chain to the target
         
-        // First pass: identify rows that should be excluded (target schema rows that don't match filter)
+        // First pass: identify rows that match the filter at the target schema level
         for row in rows {
             if case .nestedRow(_, _, _, let parentSchemaKey) = row.rowType,
                parentSchemaKey == targetSchema {
-                if !rowMatchesFilterForSchema(row, filters: filters, schema: targetSchema) {
-                    excludedRowIDs.insert(row.rowID)
+                if rowMatchesFilterForSchema(row, filters: filters, schema: targetSchema) {
+                    matchingRowIDs.insert(row.rowID)
+                    
+                    // Find and add all parent row IDs up to the top level
+                    var currentParentID = row.rowType.parentID?.rowID
+                    var currentRowID = row.rowID
+                    var parentChain: [String] = []
+                    
+                    // Find the schema chain
+                    var currentRow: RowDataModel? = row
+                    while let parentID = currentParentID {
+                        parentRowIDs.insert(parentID)
+                        parentChain.append(parentID)
+                        parentToChildMap[parentID] = currentRowID
+                        
+                        // Find the parent row and get its parent
+                        if let parentRow = rows.first(where: { $0.rowID == parentID }) {
+                            if case .nestedRow(_, _, _, let schema) = parentRow.rowType {
+                                if !schemaChain.contains(schema) {
+                                    schemaChain.append(schema)
+                                }
+                            }
+                            currentParentID = parentRow.rowType.parentID?.rowID
+                            currentRowID = parentID
+                            currentRow = parentRow
+                        } else {
+                            break
+                        }
+                    }
                 }
             }
         }
         
-        // Second pass: build result, excluding filtered rows and their descendants
+        // If no matches found, return empty result
+        if matchingRowIDs.isEmpty {
+            return []
+        }
+        
+        // Second pass: build result, including only matching rows and their parents
         var i = 0
+        var includedRowIDs: Set<String> = []
+        var currentPath: [String] = [] // Track the current path we're building
+        
         while i < rows.count {
             let row = rows[i]
             
-            // Check if this row should be excluded
-            if excludedRowIDs.contains(row.rowID) {
-                if row.isExpanded {
-                    i += childrensForRows(i, row, row.rowType.level).count + 1
-                    continue
+            // Check if this row should be included
+            let shouldInclude: Bool
+            var isInMatchingPath = false
+            
+            switch row.rowType {
+            case .row:
+                // Include top-level rows that have matching children
+                shouldInclude = parentRowIDs.contains(row.rowID)
+                isInMatchingPath = shouldInclude
+                if shouldInclude {
+                    currentPath = [row.rowID]
+                }
+                
+            case .nestedRow(_, _, _, let parentSchemaKey):
+                if parentSchemaKey == targetSchema {
+                    shouldInclude = matchingRowIDs.contains(row.rowID)
+                    isInMatchingPath = shouldInclude
                 } else {
-                    i += 1
-                    continue
+                    // Include this row if it's in the parent chain of any matching row
+                    shouldInclude = parentRowIDs.contains(row.rowID)
+                    // Check if this row is in the path to a matching row
+                    isInMatchingPath = shouldInclude && (parentToChildMap[row.rowID] != nil || schemaChain.contains(parentSchemaKey))
+                }
+                
+            case .header:
+                // Include headers for any schema level that has visible content
+                if let parentID = row.rowType.parentID?.rowID {
+                    // Include header if its parent is in the path OR if we have any rows at this level
+                    shouldInclude = parentRowIDs.contains(parentID) || 
+                        (rows.contains { otherRow in
+                            if case .nestedRow(let level, _, _, _) = otherRow.rowType {
+                                return level == row.rowType.level && matchingRowIDs.contains(otherRow.rowID)
+                            }
+                            return false
+                        })
+                    isInMatchingPath = shouldInclude
+                } else {
+                    // For top-level headers, include if we have any matching content
+                    shouldInclude = !matchingRowIDs.isEmpty
+                    isInMatchingPath = shouldInclude
+                }
+                
+            case .tableExpander(let schemaValue, let level, let parentID, _):
+                // Include expanders for schemas in the chain
+                if let (schemaKey, _) = schemaValue {
+                    shouldInclude = schemaKey == targetSchema || schemaChain.contains(schemaKey) || (parentID?.rowID).map { parentRowIDs.contains($0) } == true
+                    isInMatchingPath = shouldInclude
+                } else {
+                    shouldInclude = false
+                    isInMatchingPath = false
                 }
             }
             
-            // Include this row
-            result.append(row)
-            i += 1
+            if shouldInclude {
+                // Include the row
+                var rowToAdd = row
+                result.append(rowToAdd)
+                includedRowIDs.insert(row.rowID)
+                i += 1
+            } else {
+                // Skip this row and its children if it's expanded
+                if row.isExpanded {
+                    let childrenCount = childrensForRows(i, row, row.rowType.level).count
+                    i += childrenCount + 1
+                } else {
+                    i += 1
+                }
+            }
         }
         
         return result
