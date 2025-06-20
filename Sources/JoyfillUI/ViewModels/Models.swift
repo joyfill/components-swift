@@ -287,14 +287,22 @@ struct TableDataModel {
         filteredcellModels = newFiltered
     }
     
+    func getActiveFilters() ->[FilterModel] {
+        return filterModels.filter { !$0.filterText.isEmpty }
+    }
+    
+    func getActiveFiltersSchemaKey() -> String? {
+        return getActiveFilters().first?.schemaKey
+    }
+    
     /// Enhanced filtering method that supports schema-specific filtering for nested collections
     mutating func filterCollectionRowsIfNeeded() {
 //        filteredcellModels = filteredcellModels
         guard !filterModels.noFilterApplied else {
             return
         }
-        let activeFilters = filterModels.filter { !$0.filterText.isEmpty }
-        let schema = activeFilters.first?.schemaKey ?? ""
+        let activeFilters = getActiveFilters()
+        let schema = getActiveFiltersSchemaKey() ?? ""
         // If filtering on root schema, use original logic
         if schema.isEmpty || isRootSchema(schema) {
             filterRowsIfNeeded()
@@ -317,7 +325,7 @@ struct TableDataModel {
         for row in rows {
             if case .nestedRow(_, _, _, let parentSchemaKey) = row.rowType,
                parentSchemaKey == targetSchema {
-                if rowMatchesFilterForSchema(row, filters: filters, schema: targetSchema) {
+                if rowMatchesFilter(row, filters: filters) {
                     matchingRowIDs.insert(row.rowID)
                     
                     // Find and add all parent row IDs up to the top level
@@ -435,51 +443,6 @@ struct TableDataModel {
         
         return result
     }
-    /// Checks if a row matches the filter for a specific schema
-    private func rowMatchesFilterForSchema(_ row: RowDataModel, filters: [FilterModel], schema: String) -> Bool {
-        // Get only filters that belong to this schema
-        let schemaFilters = filters.filter { $0.schemaKey == schema }
-        
-        // Get the table columns for this schema to map filter indices correctly
-        let schemaColumns = filterTableColumns(key: schema)
-        
-        for filter in schemaFilters {
-            if filter.filterText.isEmpty {
-                continue
-            }
-            
-            // Find the correct cell index for this schema's column
-            guard let columnIndex = schemaColumns.firstIndex(where: { $0.id == filter.colID }),
-                  row.cells.indices.contains(columnIndex) else { 
-                continue 
-            }
-            
-            let column = row.cells[columnIndex].data
-            let match: Bool
-            
-            switch column.type {
-            case .text:
-                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
-            case .dropdown:
-                match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
-            case .number:
-                let columnNumberString = String(format: "%g", column.number ?? 0)
-                match = columnNumberString.hasPrefix(filter.filterText)
-            case .multiSelect:
-                match = column.multiSelectValues?.contains(filter.filterText) ?? false
-            case .barcode:
-                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
-            default:
-                match = false
-            }
-            
-            if !match {
-                return false
-            }
-        }
-        return true
-    }
-    
     /// Checks if the given schema is the root schema
     private func isRootSchema(_ schemaKey: String) -> Bool {
         return schema[schemaKey]?.root == true
@@ -548,6 +511,17 @@ struct TableDataModel {
     func getDateFormatFromFieldPosition(key: String, columnID: String) -> DateFormatType? {
         let schema = fieldPositionSchema[key]
         return schema?.tableColumns?.first(where: { $0.id == columnID })?.format
+    }
+    
+    func shouldShowRowAccToFilters(schemaKey: String, row: RowDataModel) -> Bool {
+        guard !filterModels.noFilterApplied else {
+            return true
+        }
+        if schemaKey == getActiveFiltersSchemaKey() {
+            return rowMatchesFilter(row, filters: getActiveFilters())
+        } else {
+            return true
+        }
     }
     
     func buildAllCellsForNestedRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String) -> [CellDataModel] {

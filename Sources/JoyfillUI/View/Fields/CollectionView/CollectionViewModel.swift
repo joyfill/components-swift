@@ -753,16 +753,18 @@ class CollectionViewModel: ObservableObject {
                         }
                         subCells.append(cellModel)
                     }
-                    
-                    cellModels.append(RowDataModel(rowID: row.id ?? "",
-                                                   cells: subCells,
-                                                   rowType: .nestedRow(level: level + 1,
-                                                                       index: nestedIndex+1,
-                                                                       parentID: parentID,
-                                                                       parentSchemaKey: schemaValue?.0 ?? ""),
-                                                   childrens: row.childrens ?? [:],
-                                                   rowWidth: rowWidth(filteredTableColumns, level + 1)
-                                                  ))
+                    let row = RowDataModel(rowID: row.id ?? "",
+                                           cells: subCells,
+                                           rowType: .nestedRow(level: level + 1,
+                                                               index: nestedIndex+1,
+                                                               parentID: parentID,
+                                                               parentSchemaKey: schemaValue?.0 ?? ""),
+                                           childrens: row.childrens ?? [:],
+                                           rowWidth: rowWidth(filteredTableColumns, level + 1)
+                                          )
+                   if tableDataModel.shouldShowRowAccToFilters(schemaKey: schemaValue?.0 ?? "", row: row) {
+                       cellModels.append(row)
+                   }
                 }
             default:
                 break
