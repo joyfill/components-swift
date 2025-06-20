@@ -140,7 +140,7 @@ struct CollectionModalView : View {
             if viewModel.showRowSelector  {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
-                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
+                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
                         if !viewModel.tableDataModel.allRowSelected {
                             viewModel.tableDataModel.selectAllRows()
@@ -148,7 +148,7 @@ struct CollectionModalView : View {
                             viewModel.tableDataModel.emptySelection()
                         }
                     }
-                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0)
+                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied)
                     .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
@@ -245,7 +245,7 @@ struct CollectionExpanderView: View {
 
     var body: some View {
         HStack {
-            if viewModel.tableDataModel.mode != .readonly {
+            if viewModel.tableDataModel.mode != .readonly && viewModel.tableDataModel.filterModels.noFilterApplied {
                 Button(action: {
 //                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
@@ -298,7 +298,7 @@ struct RootTitleRowView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if viewModel.tableDataModel.mode != .readonly {
+            if viewModel.tableDataModel.mode != .readonly && viewModel.tableDataModel.filterModels.noFilterApplied {
                 Button(action: {
                     viewModel.addRow()
                 }) {
@@ -485,7 +485,7 @@ struct CollectionRowsHeaderView: View {
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
-                            viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
                         }
                         .accessibilityIdentifier("selectRowItem\(index)")
                 }
@@ -493,7 +493,7 @@ struct CollectionRowsHeaderView: View {
                 if viewModel.showRowSelector {
                     Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "circle.square.fill" : "square")
                         .frame(width: 40, height: 60)
-                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 ? Color.gray.opacity(0.4) : nil)
+                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied ? Color.gray.opacity(0.4) : nil)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             if !viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) {
@@ -502,7 +502,7 @@ struct CollectionRowsHeaderView: View {
                                 viewModel.tableDataModel.emptySelection()
                             }
                         }
-                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
+                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied)
                         .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):
@@ -512,7 +512,7 @@ struct CollectionRowsHeaderView: View {
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
-                            viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
                         }
                         .accessibilityIdentifier("selectNestedRowItem\(index)")
                 }

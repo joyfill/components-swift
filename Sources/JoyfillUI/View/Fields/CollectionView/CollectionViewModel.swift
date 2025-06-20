@@ -478,6 +478,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func setupAllCellModels(targetSchema: String) {
+        tableDataModel.emptySelection()
 //        tableDataModel.filteredcellModels = []
         tableDataModel.filteredcellModels = []
         var cellModels = [RowDataModel]()

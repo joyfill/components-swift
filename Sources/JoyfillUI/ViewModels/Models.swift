@@ -918,6 +918,14 @@ struct TableDataModel {
         lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none || lastNestedRowSelected
     }
     
+    var shouldDisableMoveUpFilterActive: Bool {
+        firstRowSelected || sortModel.order != .none || firstNestedRowSelected
+    }
+    
+    var shouldDisableMoveDownFilterActive: Bool {
+        lastRowSelected || sortModel.order != .none || lastNestedRowSelected
+    }
+    
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data.title  = value
@@ -1005,7 +1013,7 @@ struct TableDataModel {
             Log("RowIndex not found", type: .error)
             return nil
         }
-        let topLevelCellModelsOnly = filteredcellModels.filter { rowDataModel in
+        let topLevelCellModelsOnly = cellModels.filter { rowDataModel in
             rowDataModel.rowType.isRow
         }
         return topLevelCellModelsOnly[rowIndex].cells[col].data
@@ -1031,6 +1039,39 @@ struct TableDataModel {
             return nil
         }
         return columnIdToColumnMap[id]?.id
+    }
+    
+    mutating func toggleSelectionForCollection(rowID: String) {
+        guard let currentRow = filteredcellModels.first(where: { $0.rowID == rowID }) else {
+            return
+        }
+        
+        // If no rows are selected yet, simply add the rowID.
+        guard let firstSelectedRowID = selectedRows.first, let firstSelectedRow = getRowByID(rowID: firstSelectedRowID) else {
+            selectedRows.append(rowID)
+            return
+        }
+        
+        // Check if the current row has the same parentID and parentSchemaKey as the first selected row.
+        let sameParent = currentRow.rowType.parentID?.rowID == firstSelectedRow.rowType.parentID?.rowID
+        let sameSchema = currentRow.rowType.parentSchemaKey == firstSelectedRow.rowType.parentSchemaKey
+        
+        guard sameParent, sameSchema else {
+            // Show alert
+            pendingRowID = [rowID]
+            showResetSelectionAlert = true
+            return
+        }
+        
+        if let index = selectedRows.firstIndex(of: rowID) {
+            selectedRows.remove(at: index)
+        } else {
+            if filterModels.noFilterApplied {
+                selectedRows.append(rowID)
+            } else {
+                selectedRows = [rowID]
+            }
+        }
     }
     
     mutating func toggleSelection(rowID: String) {

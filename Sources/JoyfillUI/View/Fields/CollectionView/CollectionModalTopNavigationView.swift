@@ -76,7 +76,7 @@ struct CollectionModalTopNavigationView: View {
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
-                            if viewModel.tableDataModel.selectedRows.count == 1 {
+                            if viewModel.tableDataModel.selectedRows.count == 1 && viewModel.tableDataModel.filterModels.noFilterApplied {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -130,20 +130,20 @@ struct CollectionModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
-                            
-                            Button(action: {
-                                showingPopover = false
-                                viewModel.deleteSelectedRow()
-                            }) {
-                                Text("Delete \(rowTitle)")
-                                    .foregroundStyle(.red)
-                                    .font(.system(size: 14))
-                                    .frame(height: 27)
+                            if viewModel.tableDataModel.filterModels.noFilterApplied {
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.deleteSelectedRow()
+                                }) {
+                                    Text("Delete \(rowTitle)")
+                                        .foregroundStyle(.red)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 10)
+                                .accessibilityIdentifier("TableDeleteRowIdentifier")
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 10)
-                            .accessibilityIdentifier("TableDeleteRowIdentifier")
-                            
 //                            Button(action: {
 //                                showingPopover = false
 //                                viewModel.duplicateRow()
@@ -311,14 +311,14 @@ struct CollectionEditMultipleRowsSheetView: View {
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
+                                    .stroke(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue, lineWidth: 1)
                                     .frame(width: 27, height: 27)
                                 
                                 Image(systemName: "chevron.left")
-                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue)
                             }
                         })
-                        .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                        .disabled(viewModel.tableDataModel.shouldDisableMoveUpFilterActive)
                         .accessibilityIdentifier("UpperRowButtonIdentifier")
                         
                         Spacer()
@@ -329,29 +329,30 @@ struct CollectionEditMultipleRowsSheetView: View {
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
+                                    .stroke(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue, lineWidth: 1)
                                     .frame(width: 27, height: 27)
                                 
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue)
                             }
                         })
-                        .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                        .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                         .accessibilityIdentifier("LowerRowButtonIdentifier")
-                        
-                        Button(action: {
-                            viewModel.insertBelowFromBulkEdit()
-                        }, label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.blue, lineWidth: 1)
-                                    .frame(width: 27, height: 27)
-                                
-                                Image(systemName: "plus")
-                                    .foregroundStyle(.blue)
-                            }
-                        })
-                        .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                        if viewModel.tableDataModel.filterModels.noFilterApplied {
+                            Button(action: {
+                                viewModel.insertBelowFromBulkEdit()
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(.blue, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "plus")
+                                        .foregroundStyle(.blue)
+                                }
+                            })
+                            .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                        }
                         
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
