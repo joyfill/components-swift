@@ -835,269 +835,34 @@ class WisdomTests: XCTestCase {
     // MARK: - Table Cell Resolution Tests
     
     func testTableCellResolution() {
-        let document = JoyDoc.addDocument()
-            // Table access formulas - testing all reference syntaxes
-            .addFormula(id: "tableCount", formula: "COUNT(products)")
-            .addFormula(id: "tableLength", formula: "LENGTH(products)")
-            .addFormula(id: "tableSummary", formula: "CONCAT(\"Table has \", COUNT(products), \" rows\")")
-            
-            // Specific row access
-            .addFormula(id: "firstRowName", formula: "products.0.name")
-            .addFormula(id: "firstRowPrice", formula: "products.0.price")
-            .addFormula(id: "firstRowCategory", formula: "products.0.category")
-            .addFormula(id: "firstRowStock", formula: "products.0.inStock")
-            .addFormula(id: "secondRowName", formula: "products.1.name")
-            .addFormula(id: "secondRowPrice", formula: "products.1.price")
-            
-            // Column access (entire columns as arrays)
-            .addFormula(id: "allNames", formula: "products.name")
-            .addFormula(id: "allPrices", formula: "products.price")
-            .addFormula(id: "allCategories", formula: "products.category")
-            .addFormula(id: "stockColumn", formula: "products.inStock")
-            
-            // Aggregate functions on table columns
-            .addFormula(id: "totalPrice", formula: "SUM(products.price)")
-            .addFormula(id: "maxPrice", formula: "MAX(products.price)")
-            .addFormula(id: "minPrice", formula: "MIN(products.price)")
-            .addFormula(id: "avgPrice", formula: "AVG(products.price)")
-            .addFormula(id: "priceCount", formula: "COUNT(products.price)")
-            
-            // Multiple cell references in calculations
-            .addFormula(id: "firstTwoTotal", formula: "products.0.price + products.1.price")
-            .addFormula(id: "priceComparison", formula: "if(products.0.price > products.1.price, \"First is more expensive\", \"Second is more expensive\")")
-            .addFormula(id: "nameConcat", formula: "CONCAT(products.0.name, \" and \", products.1.name)")
-            
-            // Conditional logic with table data
-            .addFormula(id: "expensiveItems", formula: "if(maxPriceResult > 100, \"Has expensive items\", \"All items affordable\")")
-            .addFormula(id: "totalValue", formula: "if(totalPriceResult > 500, \"High value inventory\", \"Low value inventory\")")
-            .addFormula(id: "firstItemStatus", formula: "if(products.0.inStock == \"Yes\", \"First item available\", \"First item out of stock\")")
-            
-            // Array operations on table columns
-            .addFormula(id: "expensivePrices", formula: "filter(products.price, (price) → price > 50)")
-            .addFormula(id: "discountedPrices", formula: "map(products.price, (price) → price * 0.9)")
-            .addFormula(id: "pricesWithTax", formula: "map(products.price, (price) → price * 1.1)")
-            .addFormula(id: "categoriesCount", formula: "length(products.category)")
-            
-            // Complex formulas combining multiple table references
-            .addFormula(id: "avgOfFirstTwo", formula: "(products.0.price + products.1.price) / 2")
-            .addFormula(id: "inventoryValue", formula: "sum(map(products.price, (price) → if(price > 0, price, 0)))")
-            .addFormula(id: "categoryReport", formula: "concat(\"Categories: \", length(products.category), \", First: \", products.0.category)")
-            
-            // Edge cases and validation
-            .addFormula(id: "emptyCheck", formula: "if(empty(products), \"No products\", \"Has products\")")
-            .addFormula(id: "rowExists", formula: "if(count(products) > 2, products.2.name, \"Third row doesn't exist\")")
-            
-            // Create comprehensive table columns  
-            .addTableField(
-                identifier: "products",
-                columns: [
-                    // Create Product Name Column (Text)
-                    {
-                        var nameColumn = FieldTableColumn()
-                        nameColumn.id = "name"
-                        nameColumn.title = "Product Name"
-                        nameColumn.type = .text
-                        nameColumn.required = true
-                        nameColumn.width = 200
-                        return nameColumn
-                    }(),
-                    
-                    // Create Price Column (Number)
-                    {
-                        var priceColumn = FieldTableColumn()
-                        priceColumn.id = "price"
-                        priceColumn.title = "Price"
-                        priceColumn.type = .number
-                        priceColumn.required = true
-                        priceColumn.width = 100
-                        return priceColumn
-                    }(),
-                    
-                    // Create Category Column (Dropdown)
-                    {
-                        var categoryColumn = FieldTableColumn()
-                        categoryColumn.id = "category"
-                        categoryColumn.title = "Category"
-                        categoryColumn.type = .dropdown
-                        categoryColumn.required = false
-                        categoryColumn.width = 150
-                        
-                        // Add dropdown options for category
-                        var electronicsOption = Option()
-                        electronicsOption.id = "electronics"
-                        electronicsOption.value = "Electronics"
-                        
-                        var clothingOption = Option()
-                        clothingOption.id = "clothing"
-                        clothingOption.value = "Clothing"
-                        
-                        var homeOption = Option()
-                        homeOption.id = "home"
-                        homeOption.value = "Home & Garden"
-                        
-                        var sportsOption = Option()
-                        sportsOption.id = "sports"
-                        sportsOption.value = "Sports"
-                        
-                        categoryColumn.options = [electronicsOption, clothingOption, homeOption, sportsOption]
-                        
-                        return categoryColumn
-                    }(),
-                    
-                    // Create In Stock Column (Dropdown)
-                    {
-                        var stockColumn = FieldTableColumn()
-                        stockColumn.id = "inStock"
-                        stockColumn.title = "In Stock"
-                        stockColumn.type = .dropdown
-                        stockColumn.required = false
-                        stockColumn.width = 120
-                        
-                        // Add dropdown options for stock status
-                        var yesOption = Option()
-                        yesOption.id = "yes"
-                        yesOption.value = "Yes"
-                        
-                        var noOption = Option()
-                        noOption.id = "no"
-                        noOption.value = "No"
-                        
-                        stockColumn.options = [yesOption, noOption]
-                        
-                        return stockColumn
-                    }(),
-                    
-                    // Create Description Column (Text)
-                    {
-                        var descColumn = FieldTableColumn()
-                        descColumn.id = "description"
-                        descColumn.title = "Description"
-                        descColumn.type = .text
-                        descColumn.required = false
-                        descColumn.width = 250
-                        return descColumn
-                    }()
-                ],
-                rows: [
-                    // Row 1: Laptop
-                    {
-                        var row1 = ValueElement(id: "row1")
-                        row1.cells = [
-                            "name": .string("Laptop"),
-                            "price": .double(999.99),
-                            "category": .string("Electronics"),
-                            "inStock": .string("Yes"),
-                            "description": .string("High-performance laptop")
-                        ]
-                        return row1
-                    }(),
-                    
-                    // Row 2: T-Shirt
-                    {
-                        var row2 = ValueElement(id: "row2")
-                        row2.cells = [
-                            "name": .string("T-Shirt"),
-                            "price": .double(29.99),
-                            "category": .string("Clothing"),
-                            "inStock": .string("Yes"),
-                            "description": .string("Cotton t-shirt")
-                        ]
-                        return row2
-                    }(),
-                    
-                    // Row 3: Garden Tools
-                    {
-                        var row3 = ValueElement(id: "row3")
-                        row3.cells = [
-                            "name": .string("Garden Tools"),
-                            "price": .double(75.50),
-                            "category": .string("Home & Garden"),
-                            "inStock": .string("No"),
-                            "description": .string("Complete garden tool set")
-                        ]
-                        return row3
-                    }()
-                ]
-            )
-            
-            // Output fields for testing results
-            .addNumberField(identifier: "tableCountResult", formulaRef: "tableCount", formulaKey: "value", label: "Table Row Count")
-            .addNumberField(identifier: "tableLengthResult", formulaRef: "tableLength", formulaKey: "value", label: "Table Length")
-            .addTextField(identifier: "tableSummaryResult", formulaRef: "tableSummary", formulaKey: "value", label: "Table Summary")
-            
-            // Specific row access results
-            .addTextField(identifier: "firstRowNameResult", formulaRef: "firstRowName", formulaKey: "value", label: "First Row Name")
-            .addNumberField(identifier: "firstRowPriceResult", formulaRef: "firstRowPrice", formulaKey: "value", label: "First Row Price")
-            .addTextField(identifier: "firstRowCategoryResult", formulaRef: "firstRowCategory", formulaKey: "value", label: "First Row Category")
-            .addTextField(identifier: "firstRowStockResult", formulaRef: "firstRowStock", formulaKey: "value", label: "First Row Stock")
-            .addTextField(identifier: "secondRowNameResult", formulaRef: "secondRowName", formulaKey: "value", label: "Second Row Name")
-            .addNumberField(identifier: "secondRowPriceResult", formulaRef: "secondRowPrice", formulaKey: "value", label: "Second Row Price")
-            
-            // Column access results
-            .addTextField(identifier: "allNamesResult", formulaRef: "allNames", formulaKey: "value", label: "All Names")
-            .addTextField(identifier: "allPricesResult", formulaRef: "allPrices", formulaKey: "value", label: "All Prices")
-            .addTextField(identifier: "allCategoriesResult", formulaRef: "allCategories", formulaKey: "value", label: "All Categories")
-            .addTextField(identifier: "stockColumnResult", formulaRef: "stockColumn", formulaKey: "value", label: "Stock Column")
-            
-            // Aggregate function results
-            .addNumberField(identifier: "totalPriceResult", formulaRef: "totalPrice", formulaKey: "value", label: "Total Price")
-            .addNumberField(identifier: "maxPriceResult", formulaRef: "maxPrice", formulaKey: "value", label: "Max Price")
-            .addNumberField(identifier: "minPriceResult", formulaRef: "minPrice", formulaKey: "value", label: "Min Price")
-            .addNumberField(identifier: "avgPriceResult", formulaRef: "avgPrice", formulaKey: "value", label: "Average Price")
-            .addNumberField(identifier: "priceCountResult", formulaRef: "priceCount", formulaKey: "value", label: "Price Count")
-            
-            // Multiple cell reference results
-            .addNumberField(identifier: "firstTwoTotalResult", formulaRef: "firstTwoTotal", formulaKey: "value", label: "First Two Total")
-            .addTextField(identifier: "priceComparisonResult", formulaRef: "priceComparison", formulaKey: "value", label: "Price Comparison")
-            .addTextField(identifier: "nameConcatResult", formulaRef: "nameConcat", formulaKey: "value", label: "Name Concatenation")
-            
-            // Conditional logic results
-            .addTextField(identifier: "expensiveItemsResult", formulaRef: "expensiveItems", formulaKey: "value", label: "Expensive Items Check")
-            .addTextField(identifier: "totalValueResult", formulaRef: "totalValue", formulaKey: "value", label: "Total Value Assessment")
-            .addTextField(identifier: "firstItemStatusResult", formulaRef: "firstItemStatus", formulaKey: "value", label: "First Item Status")
-            
-            // Array operations results
-            .addTextField(identifier: "expensivePricesResult", formulaRef: "expensivePrices", formulaKey: "value", label: "Expensive Prices")
-            .addTextField(identifier: "discountedPricesResult", formulaRef: "discountedPrices", formulaKey: "value", label: "Discounted Prices")
-            .addTextField(identifier: "pricesWithTaxResult", formulaRef: "pricesWithTax", formulaKey: "value", label: "Prices With Tax")
-            .addNumberField(identifier: "categoriesCountResult", formulaRef: "categoriesCount", formulaKey: "value", label: "Categories Count")
-            
-            // Complex formula results
-            .addNumberField(identifier: "avgOfFirstTwoResult", formulaRef: "avgOfFirstTwo", formulaKey: "value", label: "Average of First Two")
-            .addNumberField(identifier: "inventoryValueResult", formulaRef: "inventoryValue", formulaKey: "value", label: "Inventory Value")
-            .addTextField(identifier: "categoryReportResult", formulaRef: "categoryReport", formulaKey: "value", label: "Category Report")
-            
-            // Edge case results
-            .addTextField(identifier: "emptyCheckResult", formulaRef: "emptyCheck", formulaKey: "value", label: "Empty Check")
-            .addTextField(identifier: "rowExistsResult", formulaRef: "rowExists", formulaKey: "value", label: "Row Exists Check")
+        // Use the standardized table cell resolution document
+        let document = JoyDoc.createTableCellResolutionDocument()
             
         let documentEditor = DocumentEditor(document: document)
         
-        // Test table count and length
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "tableCountResult")?.number, 3) // 3 rows
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "tableLengthResult")?.number, 3) // 3 rows
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "tableSummaryResult")?.text, "Table has 3 rows")
+        // Test basic table info (using standardized field identifiers)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "rowCount")?.number, 3) // 3 rows
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "tableInfo")?.text, "Table has 3 rows")
         
         // Test specific row access
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstRowNameResult")?.text, "Laptop")
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstRowPriceResult")?.number, 999.99)
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstRowCategoryResult")?.text, "Electronics") // Dropdown value resolution
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstRowStockResult")?.text, "Yes") // Dropdown value resolution
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "secondRowNameResult")?.text, "T-Shirt")
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "secondRowPriceResult")?.number, 29.99)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstProductName")?.text, "Laptop")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstProductPrice")?.number, 999.99)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstProductInStock")?.text, "Yes") // Dropdown value resolution
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "secondProductCategory")?.text, "Clothing")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstProductDesc")?.text, "Laptop costs $999.99")
         
         // Test column access (arrays)
-        let allNamesResult = documentEditor.value(ofFieldWithIdentifier: "allNamesResult")?.text
-        XCTAssertNotNil(allNamesResult)
-        XCTAssertTrue(allNamesResult?.contains("Laptop") == true)
-        XCTAssertTrue(allNamesResult?.contains("T-Shirt") == true)
-        XCTAssertTrue(allNamesResult?.contains("Garden Tools") == true)
+        let nameArrayResult = documentEditor.value(ofFieldWithIdentifier: "nameArray")?.text
+        XCTAssertNotNil(nameArrayResult)
+        XCTAssertTrue(nameArrayResult?.contains("Laptop") == true)
+        XCTAssertTrue(nameArrayResult?.contains("T-Shirt") == true)
+        XCTAssertTrue(nameArrayResult?.contains("Garden Tools") == true)
         
-        let allPricesResult = documentEditor.value(ofFieldWithIdentifier: "allPricesResult")?.text
-        XCTAssertNotNil(allPricesResult)
-        XCTAssertTrue(allPricesResult?.contains("999.99") == true)
-        XCTAssertTrue(allPricesResult?.contains("29.99") == true)
-        XCTAssertTrue(allPricesResult?.contains("75.5") == true)
+        let priceArrayResult = documentEditor.value(ofFieldWithIdentifier: "priceArray")?.text
+        XCTAssertNotNil(priceArrayResult)
+        XCTAssertTrue(priceArrayResult?.contains("999.99") == true)
+        XCTAssertTrue(priceArrayResult?.contains("29.99") == true)
+        XCTAssertTrue(priceArrayResult?.contains("75.5") == true)
         
         // Test aggregate functions
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "totalPriceResult")!.number!, 1105.48, accuracy: 0.01) // 999.99 + 29.99 + 75.50
@@ -1106,47 +871,62 @@ class WisdomTests: XCTestCase {
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "avgPriceResult")!.number!, 368.49, accuracy: 0.01) // 1105.48 / 3
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "priceCountResult")?.number!, 3)
 
-        // Test multiple cell references
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstTwoTotalResult")!.number!, 1029.98, accuracy: 0.01) // 999.99 + 29.99
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "priceComparisonResult")?.text, "First is more expensive")
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nameConcatResult")?.text, "Laptop and T-Shirt")
+        // Test array functions
+        let expensiveResult = documentEditor.value(ofFieldWithIdentifier: "expensiveResult")?.text
+        XCTAssertNotNil(expensiveResult)
+        XCTAssertTrue(expensiveResult?.contains("999.99") == true) // > 50
+        XCTAssertTrue(expensiveResult?.contains("75.5") == true) // > 50
+        XCTAssertFalse(expensiveResult?.contains("29.99") == true) // Not > 50
         
-        // Test conditional logic
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "expensiveItemsResult")?.text, "Has expensive items") // maxPrice > 100
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "totalValueResult")?.text, "High value inventory") // totalPrice > 500
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstItemStatusResult")?.text, "First item available") // first item in stock
+        let doubledResult = documentEditor.value(ofFieldWithIdentifier: "doubledResult")?.text
+        XCTAssertNotNil(doubledResult)
+        XCTAssertTrue(doubledResult?.contains("1999.98") == true) // 999.99 * 2
         
-        // Test array operations
-        let expensivePricesResult = documentEditor.value(ofFieldWithIdentifier: "expensivePricesResult")?.text
-        XCTAssertNotNil(expensivePricesResult)
-        XCTAssertTrue(expensivePricesResult?.contains("999.99") == true) // > 50
-        XCTAssertTrue(expensivePricesResult?.contains("75.5") == true) // > 50
-        XCTAssertFalse(expensivePricesResult?.contains("29.99") == true) // Not > 50
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "firstExpensiveResult")?.number, 999.99) // First item > 100
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasExpensiveResult")?.text, "true") // Has items > 100
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "allCheapResult")?.text, "true") // All items < 1000
+        
+        // Test string functions
+        let upperNamesResult = documentEditor.value(ofFieldWithIdentifier: "upperNamesResult")?.text
+        XCTAssertNotNil(upperNamesResult)
+        XCTAssertTrue(upperNamesResult?.contains("LAPTOP") == true)
+        
+        let nameListResult = documentEditor.value(ofFieldWithIdentifier: "nameListResult")?.text
+        XCTAssertNotNil(nameListResult)
+        XCTAssertTrue(nameListResult?.hasPrefix("Products:") == true)
+        
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "categoryCountResult")?.number, 3) // 3 unique categories
+        
+        // Test logical functions
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "allInStockResult")?.text, "false") // Not all in stock (Garden Tools is No)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "anyInStockResult")?.text, "true") // Some are in stock
+        
+        let stockSummaryResult = documentEditor.value(ofFieldWithIdentifier: "stockSummaryResult")?.text
+        XCTAssertNotNil(stockSummaryResult)
+        XCTAssertTrue(stockSummaryResult?.contains("In Stock:") == true)
+        
+        // Test complex calculations
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "taxRateResult")?.number, 0.15) // totalPrice > 500, so 15%
+        
+        let pricesWithTaxResult = documentEditor.value(ofFieldWithIdentifier: "pricesWithTaxResult")?.text
+        XCTAssertNotNil(pricesWithTaxResult)
+        
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "totalWithTaxResult")!.number!, 1271.302, accuracy: 0.01) // Total with 15% tax
         
         let discountedPricesResult = documentEditor.value(ofFieldWithIdentifier: "discountedPricesResult")?.text
         XCTAssertNotNil(discountedPricesResult)
-        XCTAssertTrue(discountedPricesResult?.contains("899.99") == true) // 999.99 * 0.9
+        XCTAssertTrue(discountedPricesResult?.contains("899.99") == true) // 999.99 * 0.9 (>100 so discounted)
         
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "categoriesCountResult")?.number, 3) // 3 categories
+        // Test conditional logic
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "priceCategoryResult")?.text, "Premium") // 999.99 > 100
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "stockWarningResult")?.text, "Available") // First item in stock
         
-        // Test complex formulas
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "avgOfFirstTwoResult")!.number!, 514.99, accuracy: 0.01) // (999.99 + 29.99) / 2
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "inventoryValueResult")!.number!, 1105.48, accuracy: 0.01) // Sum of positive prices
-
-        let categoryReportResult = documentEditor.value(ofFieldWithIdentifier: "categoryReportResult")?.text
-        XCTAssertNotNil(categoryReportResult)
-        XCTAssertTrue(categoryReportResult?.hasPrefix("Categories: 3") == true)
-        XCTAssertTrue(categoryReportResult?.contains("Electronics") == true)
+        // Test mixed references
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "avgVsFirstResult")!.number!, 631.5, accuracy: 0.01) // 999.99 - 368.49
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "priceSpreadResult")?.number, 970.0) // 999.99 - 29.99
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "inventoryValueResult")!.number!, 1029.98, accuracy: 0.01) // Only in-stock items: Laptop + T-Shirt
         
-        // Test edge cases
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "emptyCheckResult")?.text, "Has products") // Table not empty
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "rowExistsResult")?.text, "Garden Tools") // Third row exists
-        
-        // Test dynamic updates by modifying table data
-        // This would require adding a method to update table cell values, which might not be implemented yet
-        // For now, we test that all static references work correctly
-        
-        print("✅ All table cell resolution tests passed!")
+        print("✅ All table cell resolution tests passed with standardized formulas!")
     }
 
     // MARK: - Remaining Features Tests
