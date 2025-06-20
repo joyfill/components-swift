@@ -342,7 +342,6 @@ extension JoyDoc {
     func addTableField(identifier: String = "table1",
                      formulaRef: String? = nil,
                      formulaKey: String = "value",
-                     id: String = UUID().uuidString,
                      columns: [FieldTableColumn] = [],
                      rows: [ValueElement] = []) -> JoyDoc {
         var doc = addField(type: .table,
@@ -353,7 +352,7 @@ extension JoyDoc {
                           value: .valueElementArray(rows))
         
         // Add columns and set up table field
-        if let index = doc.fields.firstIndex(where: { $0.id == id }) {
+        if let index = doc.fields.firstIndex(where: { $0.id == identifier }) {
             doc.fields[index].tableColumns = columns
             
             // Generate column order from column IDs

@@ -449,7 +449,7 @@ public class JoyfillDocContext: EvaluationContext {
     private func resolveCollectionReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
         // Get the value elements array from the field
         guard let valueElements = field.value?.valueElements else {
-            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid collection"))
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid table"))
         }
         
         // If no further path components, return the entire collection
@@ -469,17 +469,16 @@ public class JoyfillDocContext: EvaluationContext {
         }
         
         // The next component could be:
-        // 1. A schemaId (for nested collections)
-        // 2. A numeric index (for specific row)
-        // 3. A column name (for all values in that column)
+        // 1. A numeric index (for specific row) - supports products.0.price syntax
+        // 2. A column name/ID (for all values in that column) - supports products.price syntax
         
         let nextComponent = pathComponents[0]
         
-        // Check if it's a numeric index
+        // Check if it's a numeric index (e.g., products.0.price)
         if let index = Int(nextComponent), index >= 0, index < valueElements.count {
             // Handle {fieldName.index} or {fieldName.index.columnName}
             if pathComponents.count == 1 {
-                // Return the entire row as a dictionary
+                // Return the entire row as a dictionary: products.0
                 var dict: [String: FormulaValue] = [:]
                 if let cells = valueElements[index].cells {
                     for (key, value) in cells {
@@ -488,32 +487,57 @@ public class JoyfillDocContext: EvaluationContext {
                 }
                 return .success(.dictionary(dict))
             } else if pathComponents.count == 2 {
-                // Return a specific cell value: {fieldName.index.columnName}
-                let columnName = pathComponents[1]
-                if let cells = valueElements[index].cells,
-                   let cellValue = cells[columnName] {
-                    return .success(convertValueUnionToFormulaValue(cellValue))
-                } else {
-                    return .failure(.invalidReference("Column '\(columnName)' not found in row at index \(index)"))
-            }
+                // Return a specific cell value: products.0.price
+                let columnIdentifier = pathComponents[1]
+                
+                if let cells = valueElements[index].cells {
+                    // First try to find by exact column ID match
+                    if let cellValue = cells[columnIdentifier] {
+                        return .success(convertValueUnionToFormulaValue(cellValue))
+                    }
+                    
+                    // If not found by ID, try to find by column title
+                    if let matchingColumn = field.tableColumns?.first(where: { column in
+                        column.title.lowercased() == columnIdentifier.lowercased() ||
+                        column.id?.lowercased() == columnIdentifier.lowercased()
+                    }),
+                    let columnId = matchingColumn.id,
+                    let cellValue = cells[columnId] {
+                        return .success(convertValueUnionToFormulaValue(cellValue))
+                    }
+                }
+                
+                return .failure(.invalidReference("Column '\(columnIdentifier)' not found in row at index \(index) of table '\(field.id ?? "unknown")'"))
             }
         } 
         
-        // Check if it's a column name (for all values in that column)
-        let possibleColumnName = nextComponent
-        guard let possibleColumnID = field.tableColumns?.first(where: { column in
-            column.title.lowercased() == possibleColumnName.lowercased()
-        })?.id else {
-            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid collection"))
+        // Check if it's a column name/ID (for all values in that column) - e.g., products.price
+        let columnIdentifier = nextComponent
+        
+        // Find the column by ID or title
+        var foundColumnId: String? = nil
+        
+        // First, check if it's a direct column ID match
+        if field.tableColumns?.contains(where: { $0.id == columnIdentifier }) == true {
+            foundColumnId = columnIdentifier
+        } else {
+            // Try to find by column title
+            foundColumnId = field.tableColumns?.first(where: { column in
+                column.title.lowercased() == columnIdentifier.lowercased()
+            })?.id
+        }
+        
+        guard let columnId = foundColumnId else {
+            return .failure(.invalidReference("Column '\(columnIdentifier)' not found in table '\(field.id ?? "unknown")'"))
         }
 
         if pathComponents.count == 1 {
-            // Get all values from this column: {fieldName.columnName}
+            // Get all values from this column: products.price
             var columnValues: [FormulaValue] = []
             
             for element in valueElements {
                 if let cells = element.cells,
-                   let cellValue = cells[possibleColumnID] {
+                   let cellValue = cells[columnId] {
                     columnValues.append(convertValueUnionToFormulaValue(cellValue))
                 } else {
                     // If column doesn't exist in this row, use null
@@ -524,10 +548,8 @@ public class JoyfillDocContext: EvaluationContext {
             return .success(.array(columnValues))
         }
         
-        // Check if it might be a schema ID (for nested collections)
-        // This would require additional knowledge of the schema structure
-        
-        return .failure(.invalidReference("Unable to resolve complex collection reference path: \(pathComponents.joined(separator: "."))"))
+        // If we get here, it's an unsupported reference pattern
+        return .failure(.invalidReference("Unable to resolve table reference path: \(pathComponents.joined(separator: ".")) in table '\(field.id ?? "unknown")'"))
     }
     
     // MARK: - Conversion Methods

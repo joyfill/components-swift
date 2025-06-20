@@ -1161,39 +1161,192 @@ struct FormBuilderView: View {
                 BuilderField(id: "validationResult", label: "Validation Result", fieldType: .text, formulaRef: "validationCheck")
             ]
         case .table:
+            // Comprehensive table cell resolution test formulas
             formulas = [
-                BuilderFormula(id: "max", formula: "max(products.price)"),
-                BuilderFormula(id: "amount", formula: "sum(products.price)"),
-                BuilderFormula(id: "tax", formula: "if(amount > 500, 20, 10)"),
-                BuilderFormula(id: "amountsWithTax", formula: "map(products.price, (item) → item + (item * (tax/100)))"),
-                BuilderFormula(id: "total", formula: "(amount +  ((tax * amount)/100))"),
-                BuilderFormula(id: "totalMap", formula: "sum(amountsWithTax)"),
+                // 1. Entire Table Access
+                BuilderFormula(id: "tableRowCount", formula: "count(products)"),
+                BuilderFormula(id: "tableAsText", formula: "concat(\"Table has \", count(products), \" rows\")"),
+                
+                // 2. Specific Row Access (products.0, products.1, etc.)
+                BuilderFormula(id: "firstRowName", formula: "products.0.name"),
+                BuilderFormula(id: "firstRowPrice", formula: "products.0.price"),
+                BuilderFormula(id: "firstRowInStock", formula: "products.0.inStock"),
+                BuilderFormula(id: "secondRowCategory", formula: "products.1.category"),
+                BuilderFormula(id: "firstRowAsText", formula: "concat(products.0.name, \" costs $\", products.0.price)"),
+                
+                // 3. Entire Column Access (products.price, products.name, etc.)
+                BuilderFormula(id: "allPrices", formula: "products.price"),
+                BuilderFormula(id: "allNames", formula: "products.name"),
+                BuilderFormula(id: "allCategories", formula: "products.category"),
+                BuilderFormula(id: "allStockStatus", formula: "products.inStock"),
+                
+                // 4. Aggregate Functions on Columns
+                BuilderFormula(id: "totalPrice", formula: "sum(products.price)"),
+                BuilderFormula(id: "avgPrice", formula: "average(products.price)"),
+                BuilderFormula(id: "maxPrice", formula: "max(products.price)"),
+                BuilderFormula(id: "minPrice", formula: "min(products.price)"),
+                BuilderFormula(id: "priceCount", formula: "count(products.price)"),
+                
+                // 5. Array Functions with Columns
+                BuilderFormula(id: "expensiveItems", formula: "filter(products.price, (p) → p > 50)"),
+                BuilderFormula(id: "doubledPrices", formula: "map(products.price, (p) → p * 2)"),
+                BuilderFormula(id: "firstExpensiveItem", formula: "find(products.price, (p) → p > 100)"),
+                BuilderFormula(id: "hasExpensiveItems", formula: "some(products.price, (p) → p > 100)"),
+                BuilderFormula(id: "allItemsCheap", formula: "every(products.price, (p) → p < 1000)"),
+                
+                // 6. String Functions with Columns
+                BuilderFormula(id: "upperCaseNames", formula: "map(products.name, (n) → upper(n))"),
+                BuilderFormula(id: "nameList", formula: "concat(\"Products: \", join(products.name, \", \"))"),
+                BuilderFormula(id: "categoryCount", formula: "count(unique(products.category))"),
+                
+                // 7. Logical Functions with Columns
+                BuilderFormula(id: "allInStock", formula: "every(products.inStock, (stock) → stock)"),
+                BuilderFormula(id: "anyInStock", formula: "some(products.inStock, (stock) → stock)"),
+                BuilderFormula(id: "stockSummary", formula: "concat(\"In Stock: \", count(filter(products.inStock, (s) → s)), \" / \", count(products))"),
+                
+                // 8. Complex Calculations
+                BuilderFormula(id: "taxRate", formula: "if(totalPrice > 500, 0.15, 0.10)"),
+                BuilderFormula(id: "pricesWithTax", formula: "map(products.price, (p) → p + (p * taxRate))"),
+                BuilderFormula(id: "totalWithTax", formula: "sum(pricesWithTax)"),
+                BuilderFormula(id: "discountedPrices", formula: "map(products.price, (p) → if(p > 100, p * 0.9, p))"),
+                
+                // 9. Conditional Logic with Row Data
+                BuilderFormula(id: "priceCategory", formula: "if(products.0.price < 50, \"Budget\", if(products.0.price < 100, \"Mid-range\", \"Premium\"))"),
+                BuilderFormula(id: "stockWarning", formula: "if(products.0.inStock, \"Available\", \"Out of Stock\")"),
+                
+                // 10. Mixed References
+                BuilderFormula(id: "averageVsFirst", formula: "products.0.price - avgPrice"),
+                BuilderFormula(id: "priceSpread", formula: "maxPrice - minPrice"),
+                BuilderFormula(id: "inventoryValue", formula: "sum(map(products, (row) → if(row.inStock, row.price, 0)))"),
             ]
+            
+            // Create comprehensive table columns
+            var nameColumn = FieldTableColumn()
+            nameColumn.id = "name"
+            nameColumn.title = "Product Name"
+            nameColumn.type = .text
+            nameColumn.required = true
+            nameColumn.width = 200
 
             var priceColumn = FieldTableColumn()
-            priceColumn.id = UUID().uuidString
-            priceColumn.id = ""
+            priceColumn.id = "price"
             priceColumn.title = "Price"
             priceColumn.type = .number
             priceColumn.required = true
+            priceColumn.width = 100
 
-            var productColumn = FieldTableColumn()
-            productColumn.id = UUID().uuidString
-            productColumn.id = ""
-            productColumn.title = "Product"
-            productColumn.type = .text
-            priceColumn.required = true
+            var categoryColumn = FieldTableColumn()
+            categoryColumn.id = "category"
+            categoryColumn.title = "Category"
+            categoryColumn.type = .dropdown
+            categoryColumn.required = false
+            categoryColumn.width = 150
+            
+            // Add dropdown options for category
+            var electronicsOption = Option()
+            electronicsOption.id = "electronics"
+            electronicsOption.value = "Electronics"
+            
+            var clothingOption = Option()
+            clothingOption.id = "clothing"
+            clothingOption.value = "Clothing"
+            
+            var homeOption = Option()
+            homeOption.id = "home"
+            homeOption.value = "Home & Garden"
+            
+            var sportsOption = Option()
+            sportsOption.id = "sports"
+            sportsOption.value = "Sports"
+            
+            categoryColumn.options = [electronicsOption, clothingOption, homeOption, sportsOption]
 
-            tableColumns = [productColumn, priceColumn]
+            var inStockColumn = FieldTableColumn()
+            inStockColumn.id = "inStock"
+            inStockColumn.title = "In Stock"
+            inStockColumn.type = .dropdown
+            inStockColumn.required = false
+            inStockColumn.width = 100
+            
+            // Add boolean options for in stock
+            var trueOption = Option()
+            trueOption.id = "true"
+            trueOption.value = "Yes"
+            
+            var falseOption = Option()
+            falseOption.id = "false"
+            falseOption.value = "No"
+            
+            inStockColumn.options = [trueOption, falseOption]
+
+            var descriptionColumn = FieldTableColumn()
+            descriptionColumn.id = "description"
+            descriptionColumn.title = "Description"
+            descriptionColumn.type = .text
+            descriptionColumn.required = false
+            descriptionColumn.width = 250
+
+            tableColumns = [nameColumn, priceColumn, categoryColumn, inStockColumn, descriptionColumn]
 
             fields = [
-                BuilderField(id: "products", label: "Products", fieldType: .table, value: "", tableColumns: tableColumns),
-                BuilderField(id: "max", label: "Maximum price", fieldType: .number, formulaRef: "max"),
-                BuilderField(id: "amount", label: "Amount", fieldType: .number, formulaRef: "amount"),
-                BuilderField(id: "tax", label: "Tax % applicable", fieldType: .number, formulaRef: "tax"),
-                BuilderField(id: "amountsWithTax", label: "Amounts with tax", fieldType: .text, value: "[]", formulaRef: "amountsWithTax"),
-                BuilderField(id: "total", label: "Total amount", fieldType: .number, formulaRef: "total"),
-                BuilderField(id: "totalMap", label: "Total amount map", fieldType: .number, formulaRef: "totalMap"),
+                // Main table field
+                BuilderField(id: "products", label: "Products Table", fieldType: .table, value: "", tableColumns: tableColumns),
+                
+                // Basic table info
+                BuilderField(id: "rowCount", label: "Total Rows", fieldType: .number, formulaRef: "tableRowCount"),
+                BuilderField(id: "tableInfo", label: "Table Summary", fieldType: .text, formulaRef: "tableAsText"),
+                
+                // Specific row access results
+                BuilderField(id: "firstProductName", label: "First Product Name", fieldType: .text, formulaRef: "firstRowName"),
+                BuilderField(id: "firstProductPrice", label: "First Product Price", fieldType: .number, formulaRef: "firstRowPrice"),
+                BuilderField(id: "firstProductInStock", label: "First Product In Stock", fieldType: .text, formulaRef: "firstRowInStock"),
+                BuilderField(id: "secondProductCategory", label: "Second Product Category", fieldType: .text, formulaRef: "secondRowCategory"),
+                BuilderField(id: "firstProductDesc", label: "First Product Description", fieldType: .text, formulaRef: "firstRowAsText"),
+                
+                // Column array access results
+                BuilderField(id: "priceArray", label: "All Prices Array", fieldType: .text, formulaRef: "allPrices"),
+                BuilderField(id: "nameArray", label: "All Names Array", fieldType: .text, formulaRef: "allNames"),
+                BuilderField(id: "categoryArray", label: "All Categories Array", fieldType: .text, formulaRef: "allCategories"),
+                BuilderField(id: "stockArray", label: "All Stock Status Array", fieldType: .text, formulaRef: "allStockStatus"),
+                
+                // Aggregate function results
+                BuilderField(id: "totalPriceResult", label: "Total Price", fieldType: .number, formulaRef: "totalPrice"),
+                BuilderField(id: "avgPriceResult", label: "Average Price", fieldType: .number, formulaRef: "avgPrice"),
+                BuilderField(id: "maxPriceResult", label: "Maximum Price", fieldType: .number, formulaRef: "maxPrice"),
+                BuilderField(id: "minPriceResult", label: "Minimum Price", fieldType: .number, formulaRef: "minPrice"),
+                BuilderField(id: "priceCountResult", label: "Price Count", fieldType: .number, formulaRef: "priceCount"),
+                
+                // Array function results
+                BuilderField(id: "expensiveResult", label: "Expensive Items", fieldType: .text, formulaRef: "expensiveItems"),
+                BuilderField(id: "doubledResult", label: "Doubled Prices", fieldType: .text, formulaRef: "doubledPrices"),
+                BuilderField(id: "firstExpensiveResult", label: "First Expensive Item", fieldType: .number, formulaRef: "firstExpensiveItem"),
+                BuilderField(id: "hasExpensiveResult", label: "Has Expensive Items", fieldType: .text, formulaRef: "hasExpensiveItems"),
+                BuilderField(id: "allCheapResult", label: "All Items Cheap", fieldType: .text, formulaRef: "allItemsCheap"),
+                
+                // String function results
+                BuilderField(id: "upperNamesResult", label: "Uppercase Names", fieldType: .text, formulaRef: "upperCaseNames"),
+                BuilderField(id: "nameListResult", label: "Name List", fieldType: .text, formulaRef: "nameList"),
+                BuilderField(id: "categoryCountResult", label: "Unique Categories", fieldType: .number, formulaRef: "categoryCount"),
+                
+                // Logic function results
+                BuilderField(id: "allInStockResult", label: "All In Stock", fieldType: .text, formulaRef: "allInStock"),
+                BuilderField(id: "anyInStockResult", label: "Any In Stock", fieldType: .text, formulaRef: "anyInStock"),
+                BuilderField(id: "stockSummaryResult", label: "Stock Summary", fieldType: .text, formulaRef: "stockSummary"),
+                
+                // Complex calculation results
+                BuilderField(id: "taxRateResult", label: "Tax Rate", fieldType: .number, formulaRef: "taxRate"),
+                BuilderField(id: "pricesWithTaxResult", label: "Prices With Tax", fieldType: .text, formulaRef: "pricesWithTax"),
+                BuilderField(id: "totalWithTaxResult", label: "Total With Tax", fieldType: .number, formulaRef: "totalWithTax"),
+                BuilderField(id: "discountedPricesResult", label: "Discounted Prices", fieldType: .text, formulaRef: "discountedPrices"),
+                
+                // Conditional results
+                BuilderField(id: "priceCategoryResult", label: "Price Category", fieldType: .text, formulaRef: "priceCategory"),
+                BuilderField(id: "stockWarningResult", label: "Stock Warning", fieldType: .text, formulaRef: "stockWarning"),
+                
+                // Mixed reference results
+                BuilderField(id: "avgVsFirstResult", label: "Avg vs First Price", fieldType: .number, formulaRef: "averageVsFirst"),
+                BuilderField(id: "priceSpreadResult", label: "Price Spread", fieldType: .number, formulaRef: "priceSpread"),
+                BuilderField(id: "inventoryValueResult", label: "Inventory Value", fieldType: .number, formulaRef: "inventoryValue")
             ]
         }
     }
