@@ -140,7 +140,7 @@ struct CollectionModalView : View {
             if viewModel.showRowSelector  {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
-                    .foregroundColor(viewModel.tableDataModel.cellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
+                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
                         if !viewModel.tableDataModel.allRowSelected {
                             viewModel.tableDataModel.selectAllRows()
