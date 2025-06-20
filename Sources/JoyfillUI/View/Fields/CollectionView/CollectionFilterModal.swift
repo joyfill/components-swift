@@ -43,6 +43,7 @@ struct CollectionFilterModal: View {
                             await MainActor.run {
                                 viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
                                 viewModel.tableDataModel.filterCollectionRowsIfNeeded()
+                                viewModel.sortRowsIfNeeded()
                                 viewModel.isLoading = false
                                 presentationMode.wrappedValue.dismiss()
                             }
