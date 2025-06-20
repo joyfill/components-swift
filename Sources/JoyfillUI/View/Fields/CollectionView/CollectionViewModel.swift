@@ -806,28 +806,30 @@ class CollectionViewModel: ObservableObject {
             
             for id in ids {
                 let rowSchemaID = RowSchemaID(rowID: rowDataModel.rowID, schemaID: id)
-                if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShow {
-                    var childrens: [String: Children] = [:]
-                    if let children = parentCellModel?.childrens[id] {
-                        childrens = [id : children]
-                    }
-                    
-                    let newRowID = UUID().uuidString
-                    if let schemaValue = tableDataModel.schema[id] {
-                        let schemaTablecolumns = schemaValue.tableColumns ?? []
-                        let filteredTableColumns = tableDataModel.filterTableColumns(key: id)
-                        var rowDataModel = RowDataModel(rowID: newRowID,
-                                                        cells: rowDataModel.cells,
-                                                        rowType: .tableExpander(schemaValue: (id, schemaValue),
-                                                                                level: level,
-                                                                                parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
-                                                        childrens: childrens,
-                                                        rowWidth: rowWidth(filteredTableColumns, level)
-                        )
-                        rowDataModel.isExpanded = false
-                        cellModels.append(rowDataModel)
+                if let shouldShowAccToLogic = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShowAccToLogic {
+                    if tableDataModel.shouldShowSchemaAccToFilters(schemaID: id) {
+                        var childrens: [String: Children] = [:]
+                        if let children = parentCellModel?.childrens[id] {
+                            childrens = [id : children]
+                        }
                         
+                        let newRowID = UUID().uuidString
+                        if let schemaValue = tableDataModel.schema[id] {
+                            let schemaTablecolumns = schemaValue.tableColumns ?? []
+                            let filteredTableColumns = tableDataModel.filterTableColumns(key: id)
+                            var rowDataModel = RowDataModel(rowID: newRowID,
+                                                            cells: rowDataModel.cells,
+                                                            rowType: .tableExpander(schemaValue: (id, schemaValue),
+                                                                                    level: level,
+                                                                                    parentID: (columnID: "", rowID: rowDataModel.rowID),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
+                                                            childrens: childrens,
+                                                            rowWidth: rowWidth(filteredTableColumns, level)
+                            )
+                            rowDataModel.isExpanded = false
+                            cellModels.append(rowDataModel)
+                            
+                        }
                     }
                 }
             }

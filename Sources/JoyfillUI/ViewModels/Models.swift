@@ -152,6 +152,7 @@ struct TableDataModel {
     var fieldPositionSchema: [String : FieldPositionSchema] = [:]
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
+    var schemaChainMap: [String: [String]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -202,6 +203,7 @@ struct TableDataModel {
                 
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
+            buildFullSchemaChainMap()
             self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
                 if value.root == true {
@@ -231,6 +233,48 @@ struct TableDataModel {
         }
         setupColumns()
         filterRowsIfNeeded()
+    }
+    
+    mutating func buildFullSchemaChainMap() {
+        func dfs(currentKey: String, currentPath: [String], map: inout [String: [String]]) {
+            let pathToCurrent = currentPath + [currentKey]
+            var result = pathToCurrent
+
+            let children = schema[currentKey]?.children ?? []
+            for child in children {
+                result.append(child)
+                dfs(currentKey: child, currentPath: pathToCurrent, map: &map)
+                if let childChain = map[child] {
+                    result += childChain.filter { !result.contains($0) }
+                }
+            }
+
+            map[currentKey] = result
+        }
+
+        for (key, value) in schema where value.root == true {
+            dfs(currentKey: key, currentPath: [], map: &schemaChainMap)
+        }
+    }
+    
+    func shouldShowSchemaAccToFilters(schemaID: String) -> Bool {
+        guard !filterModels.noFilterApplied else {
+            return true
+        }
+        let activeFilterSchemaID = getActiveFiltersSchemaID() ?? ""
+
+        // If the current schema is the same as the filter schema, allow
+        if schemaID == activeFilterSchemaID {
+            return true
+        }
+
+        // Check if the schema is in the path of the active filter schema
+        if let pathToRoot = schemaChainMap[activeFilterSchemaID] {
+            return pathToRoot.contains(schemaID)
+        }
+
+        // If no path found, assume not visible
+        return false
     }
     
     func filterTableColumns(key: String) -> [FieldTableColumn] {
@@ -291,7 +335,7 @@ struct TableDataModel {
         return filterModels.filter { !$0.filterText.isEmpty }
     }
     
-    func getActiveFiltersSchemaKey() -> String? {
+    func getActiveFiltersSchemaID() -> String? {
         return getActiveFilters().first?.schemaKey
     }
     
@@ -302,7 +346,7 @@ struct TableDataModel {
             return
         }
         let activeFilters = getActiveFilters()
-        let schema = getActiveFiltersSchemaKey() ?? ""
+        let schema = getActiveFiltersSchemaID() ?? ""
         // If filtering on root schema, use original logic
         if schema.isEmpty || isRootSchema(schema) {
             filterRowsIfNeeded()
@@ -414,13 +458,18 @@ struct TableDataModel {
                 }
                 
             case .tableExpander(let schemaValue, let level, let parentID, _):
-                // Include expanders for schemas in the chain
-                if let (schemaKey, _) = schemaValue {
-                    shouldInclude = schemaKey == targetSchema || schemaChain.contains(schemaKey) || (parentID?.rowID).map { parentRowIDs.contains($0) } == true
-                    isInMatchingPath = shouldInclude
-                } else {
+                if !shouldShowSchemaAccToFilters(schemaID: schemaValue?.0 ?? "") {
                     shouldInclude = false
                     isInMatchingPath = false
+                } else {
+                    // Include expanders for schemas in the chain
+                    if let (schemaKey, _) = schemaValue {
+                        shouldInclude = schemaKey == targetSchema || schemaChain.contains(schemaKey) || (parentID?.rowID).map { parentRowIDs.contains($0) } == true
+                        isInMatchingPath = shouldInclude
+                    } else {
+                        shouldInclude = false
+                        isInMatchingPath = false
+                    }
                 }
             }
             
@@ -517,7 +566,7 @@ struct TableDataModel {
         guard !filterModels.noFilterApplied else {
             return true
         }
-        if schemaKey == getActiveFiltersSchemaKey() {
+        if schemaKey == getActiveFiltersSchemaID() {
             return rowMatchesFilter(row, filters: getActiveFilters())
         } else {
             return true
