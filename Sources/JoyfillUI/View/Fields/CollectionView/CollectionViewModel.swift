@@ -478,7 +478,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func setupAllCellModels(targetSchema: String) {
-        tableDataModel.filteredcellModels = []
+//        tableDataModel.filteredcellModels = []
         tableDataModel.filteredcellModels = []
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
@@ -527,7 +527,7 @@ class CollectionViewModel: ObservableObject {
                                             targetSchema: targetSchema)
             }
         }
-        tableDataModel.filteredcellModels = cellModels
+//        tableDataModel.filteredcellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
         updateCollectionWidth()
     }

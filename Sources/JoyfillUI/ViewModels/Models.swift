@@ -113,6 +113,13 @@ enum RowType: Equatable {
         return false
     }
     
+    var isNestedRow: Bool {
+        if case .nestedRow = self {
+            return true
+        }
+        return false
+    }
+    
     static func == (lhs: RowType, rhs: RowType) -> Bool {
         switch (lhs, rhs) {
         case (.row, .row),
@@ -482,8 +489,13 @@ struct TableDataModel {
             } else {
                 // Skip this row and its children if it's expanded
                 if row.isExpanded {
-                    let childrenCount = childrensForRows(i, row, row.rowType.level).count
-                    i += childrenCount + 1
+                    if row.rowType.isRow || row.rowType.isNestedRow {
+                        let childrenCount = childrensForRows(i, row, row.rowType.level).count
+                        i += childrenCount + 1
+                    } else {
+                        let childrenCount = childrensForASpecificRow(i, row).count
+                        i += childrenCount + 1
+                    }
                 } else {
                     i += 1
                 }
