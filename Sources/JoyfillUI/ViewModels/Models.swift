@@ -578,11 +578,59 @@ struct TableDataModel {
         guard !filterModels.noFilterApplied else {
             return true
         }
-        if schemaKey == getActiveFiltersSchemaID() {
+        
+        let activeSchema = getActiveFiltersSchemaID() ?? ""
+        
+        // If the current schema is the one being filtered, apply the filter directly
+        if schemaKey == activeSchema {
             return rowMatchesFilter(row, filters: getActiveFilters())
-        } else {
-            return true
         }
+
+        if let chain = schemaChainMap[activeSchema],
+           let index = chain.firstIndex(of: activeSchema) {
+            let rightSide = Array(chain[(index+1)...])
+            if rightSide.contains(schemaKey) {
+                return true
+            }
+        }
+            
+        // Otherwise, check if this schema contains the active schema in its descendant chain
+        // and if any of its children rows pass the filter
+        if let schemaChain = schemaChainMap[schemaKey], schemaChain.contains(activeSchema) {
+            // Look up children from this row and recursively check them
+            for childSchemaKey in schemaChain where childSchemaKey != schemaKey {
+                if let childrens = row.childrens[childSchemaKey]?.valueToValueElements {
+                    let tableColumns = filterTableColumns(key: childSchemaKey)
+                    for (index, child) in childrens.enumerated() {
+                        let cellDataModels = buildAllCellsForNestedRow(tableColumns: tableColumns, child, schemaKey: childSchemaKey)
+                        let cells: [TableCellModel] = cellDataModels.map { cellData in
+                            TableCellModel(
+                                rowID: child.id ?? UUID().uuidString,
+                                data: cellData,
+                                documentEditor: documentEditor,
+                                fieldIdentifier: fieldIdentifier,
+                                viewMode: .modalView,
+                                editMode: mode,
+                                didChange: { _ in }
+                            )
+                        }
+                        let childRowModel = RowDataModel(
+                            rowID: child.id ?? UUID().uuidString,
+                            cells: cells,
+                            rowType: .nestedRow(level: 0, index: index, parentID: row.rowType.parentID, parentSchemaKey: childSchemaKey),
+                            childrens: child.childrens ?? [:]
+                        )
+                        if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: childRowModel) {
+                            return true
+                        }
+                    }
+                }
+            }
+            return false
+        }
+
+        // If schema is unrelated to the active filtered schema, do not show
+        return false
     }
     
     func buildAllCellsForNestedRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String) -> [CellDataModel] {
