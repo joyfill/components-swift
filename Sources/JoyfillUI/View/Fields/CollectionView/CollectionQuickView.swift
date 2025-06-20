@@ -42,7 +42,7 @@ struct CollectionQuickView : View {
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
                 .frame(maxHeight:
-                        (CGFloat((viewModel.tableDataModel.cellModels.isEmpty ? 2:  viewModel.tableDataModel.cellModels.count)) * rowHeight + rowHeight)
+                        (CGFloat((viewModel.tableDataModel.filteredcellModels.isEmpty ? 2:  viewModel.tableDataModel.filteredcellModels.count)) * rowHeight + rowHeight)
                 )
             }
             .overlay(
