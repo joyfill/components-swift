@@ -1458,6 +1458,150 @@ class WisdomTests: XCTestCase {
         
         print("✅ All Text Field Resolution tests completed!")
     }
+
+    // MARK: - Dropdown Field Resolution Tests
+    
+    func testDropdownFieldResolution() {
+        // Create document with dropdown fields and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access - Get Selected Value
+            .addFormula(id: "simpleAccess", formula: "dropdown1")
+            
+            // String operations on dropdown values
+            .addFormula(id: "upperDropdown", formula: "upper(dropdown1)")
+            .addFormula(id: "lowerDropdown", formula: "lower(dropdown1)")
+            .addFormula(id: "containsCheck", formula: "contains(dropdown1, \"Premium\")")
+            .addFormula(id: "lengthCheck", formula: "length(dropdown1)")
+            .addFormula(id: "emptyCheck", formula: "empty(dropdown1)")
+            
+            // Concatenation with dropdown values
+            .addFormula(id: "prefixDropdown", formula: "concat(\"Selected: \", dropdown1)")
+            .addFormula(id: "multiConcat", formula: "concat(dropdown1, \" - \", dropdown2)")
+            
+            // Conditional logic based on dropdown values
+            .addFormula(id: "conditionalPricing", formula: "if(equals(dropdown1, \"Premium\"), \"$99/month\", \"$49/month\")")
+            .addFormula(id: "categoryCheck", formula: "if(contains(lower(dropdown1), \"premium\"), \"High Tier\", \"Standard Tier\")")
+            
+            // Comparison operations
+            .addFormula(id: "equalityCheck", formula: "equals(dropdown1, dropdown2)")
+            .addFormula(id: "notEqualCheck", formula: "not(equals(dropdown1, \"Basic\"))")
+            
+            // Edge case tests
+            .addFormula(id: "emptyDropdownCheck", formula: "empty(emptyDropdown)")
+            .addFormula(id: "emptyDropdownLength", formula: "length(emptyDropdown)")
+            .addFormula(id: "emptyDropdownDefault", formula: "if(empty(emptyDropdown), \"No selection\", emptyDropdown)")
+            
+            // Complex nested operations
+            .addFormula(id: "complexLogic", formula: "concat(upper(dropdown1), \" users get \", if(equals(dropdown1, \"Premium\"), \"unlimited\", \"limited\"), \" access\")")
+            
+            // Add dropdown fields with different values
+            .addDropdownField(identifier: "dropdown1", selectedValue: "Premium")
+            .addDropdownField(identifier: "dropdown2", selectedValue: "Basic") 
+            .addDropdownField(identifier: "emptyDropdown", selectedValue: "") // Empty dropdown
+            
+            // Add result fields for all formulas
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
+            .addTextField(identifier: "upperDropdownResult", formulaRef: "upperDropdown")
+            .addTextField(identifier: "lowerDropdownResult", formulaRef: "lowerDropdown")
+            .addTextField(identifier: "containsCheckResult", formulaRef: "containsCheck")
+            .addTextField(identifier: "lengthCheckResult", formulaRef: "lengthCheck")
+            .addTextField(identifier: "emptyCheckResult", formulaRef: "emptyCheck")
+            .addTextField(identifier: "prefixDropdownResult", formulaRef: "prefixDropdown")
+            .addTextField(identifier: "multiConcatResult", formulaRef: "multiConcat")
+            .addTextField(identifier: "conditionalPricingResult", formulaRef: "conditionalPricing")
+            .addTextField(identifier: "categoryCheckResult", formulaRef: "categoryCheck")
+            .addTextField(identifier: "equalityCheckResult", formulaRef: "equalityCheck")
+            .addTextField(identifier: "notEqualCheckResult", formulaRef: "notEqualCheck")
+            .addTextField(identifier: "emptyDropdownCheckResult", formulaRef: "emptyDropdownCheck")
+            .addTextField(identifier: "emptyDropdownLengthResult", formulaRef: "emptyDropdownLength")
+            .addTextField(identifier: "emptyDropdownDefaultResult", formulaRef: "emptyDropdownDefault")
+            .addTextField(identifier: "complexLogicResult", formulaRef: "complexLogic")
+        
+        let documentEditor = DocumentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing Dropdown Field Resolution...")
+        
+        // 1. Simple Access - should return exact selected value
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access: '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "Premium", "Simple dropdown access should return the selected value")
+        
+        // 2. Transform to Uppercase
+        let upperDropdownResult = documentEditor.value(ofFieldWithIdentifier: "upperDropdownResult")?.text
+        print("🔤 Upper Dropdown: '\(upperDropdownResult ?? "nil")'")
+        XCTAssertEqual(upperDropdownResult, "PREMIUM", "Dropdown value should be converted to uppercase")
+        
+        // 3. Transform to Lowercase
+        let lowerDropdownResult = documentEditor.value(ofFieldWithIdentifier: "lowerDropdownResult")?.text
+        print("🔡 Lower Dropdown: '\(lowerDropdownResult ?? "nil")'")
+        XCTAssertEqual(lowerDropdownResult, "premium", "Dropdown value should be converted to lowercase")
+        
+        // 4. Contains Check - should find "Premium" in "Premium"
+        let containsCheckResult = documentEditor.value(ofFieldWithIdentifier: "containsCheckResult")?.bool
+        print("🔍 Contains Check: \(containsCheckResult ?? false)")
+        XCTAssertEqual(containsCheckResult, true, "Should find 'Premium' in the dropdown value")
+        
+        // 5. Length Check - "Premium" = 7 characters
+        let lengthCheckResult = documentEditor.value(ofFieldWithIdentifier: "lengthCheckResult")?.number
+        print("📏 Length Check: \(lengthCheckResult ?? 0)")
+        XCTAssertEqual(lengthCheckResult, 7, "Character count should be 7 for 'Premium'")
+        
+        // 6. Empty Check - should be false since dropdown has value
+        let emptyCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyCheckResult")?.bool
+        print("❓ Empty Check: \(emptyCheckResult ?? true)")
+        XCTAssertEqual(emptyCheckResult, false, "Dropdown with value should not be empty")
+        
+        // 7. Prefix Concatenation
+        let prefixDropdownResult = documentEditor.value(ofFieldWithIdentifier: "prefixDropdownResult")?.text
+        print("📝 Prefix Dropdown: '\(prefixDropdownResult ?? "nil")'")
+        XCTAssertEqual(prefixDropdownResult, "Selected: Premium", "Should prefix dropdown value with text")
+        
+        // 8. Multi Dropdown Concatenation
+        let multiConcatResult = documentEditor.value(ofFieldWithIdentifier: "multiConcatResult")?.text
+        print("🔗 Multi Concat: '\(multiConcatResult ?? "nil")'")
+        XCTAssertEqual(multiConcatResult, "Premium - Basic", "Should concatenate two dropdown values")
+        
+        // 9. Conditional Pricing Based on Dropdown
+        let conditionalPricingResult = documentEditor.value(ofFieldWithIdentifier: "conditionalPricingResult")?.text
+        print("💰 Conditional Pricing: '\(conditionalPricingResult ?? "nil")'")
+        XCTAssertEqual(conditionalPricingResult, "$99/month", "Should return Premium pricing")
+        
+        // 10. Category Check with Case Insensitive Logic
+        let categoryCheckResult = documentEditor.value(ofFieldWithIdentifier: "categoryCheckResult")?.text
+        print("🏷️ Category Check: '\(categoryCheckResult ?? "nil")'")
+        XCTAssertEqual(categoryCheckResult, "High Tier", "Should identify Premium as High Tier")
+        
+        // 11. Equality Check Between Dropdowns
+        let equalityCheckResult = documentEditor.value(ofFieldWithIdentifier: "equalityCheckResult")?.bool
+        print("⚖️ Equality Check: \(equalityCheckResult ?? false)")
+        XCTAssertEqual(equalityCheckResult, false, "Premium and Basic should not be equal")
+        
+        // 12. Not Equal Check
+        let notEqualCheckResult = documentEditor.value(ofFieldWithIdentifier: "notEqualCheckResult")?.bool
+        print("❌ Not Equal Check: \(notEqualCheckResult ?? false)")
+        XCTAssertEqual(notEqualCheckResult, true, "Premium should not equal Basic")
+        
+        // 13. Empty Dropdown Tests
+        let emptyDropdownCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyDropdownCheckResult")?.bool
+        print("🕳️ Empty Dropdown Check: \(emptyDropdownCheckResult ?? false)")
+        XCTAssertEqual(emptyDropdownCheckResult, true, "Empty dropdown should return true for empty check")
+        
+        let emptyDropdownLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyDropdownLengthResult")?.number
+        print("📏 Empty Dropdown Length: \(emptyDropdownLengthResult ?? -1)")
+        XCTAssertEqual(emptyDropdownLengthResult, 0, "Empty dropdown should have length 0")
+        
+        let emptyDropdownDefaultResult = documentEditor.value(ofFieldWithIdentifier: "emptyDropdownDefaultResult")?.text
+        print("🔄 Empty Dropdown Default: '\(emptyDropdownDefaultResult ?? "nil")'")
+        XCTAssertEqual(emptyDropdownDefaultResult, "No selection", "Should return default text for empty dropdown")
+        
+        // 14. Complex Nested Logic
+        let complexLogicResult = documentEditor.value(ofFieldWithIdentifier: "complexLogicResult")?.text
+        print("🧠 Complex Logic: '\(complexLogicResult ?? "nil")'")
+        XCTAssertEqual(complexLogicResult, "PREMIUM users get unlimited access", "Complex nested operations should work correctly")
+        
+        print("✅ All Dropdown Field Resolution tests completed!")
+    }
 }
 
 extension DocumentEditor {
