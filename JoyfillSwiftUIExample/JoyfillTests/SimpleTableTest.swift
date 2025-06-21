@@ -2,6 +2,7 @@ import XCTest
 @testable import JoyfillExample
 import JoyfillModel
 import JoyfillFormulas
+import Joyfill
 
 class SimpleTableTest: XCTestCase {
     
@@ -31,14 +32,9 @@ class SimpleTableTest: XCTestCase {
         // Test total price calculation
         let totalPrice = documentEditor.value(ofFieldWithIdentifier: "totalPriceResult")?.number
         print("Total price: \(totalPrice ?? -1)")
-        XCTAssertEqual(totalPrice, 1105.48, accuracy: 0.01, "Total price should be 1105.48")
-        
+        XCTAssertEqual(totalPrice!, 1105.48, accuracy: 0.01, "Total price should be 1105.48")
+
         print("✅ Basic table cell resolution test passed!")
     }
 }
-
-extension DocumentEditor {
-    func value(ofFieldWithIdentifier identifier: String) -> ValueUnion? {
-        self.field(fieldID: identifier)?.value
-    }
-} 
+ 
