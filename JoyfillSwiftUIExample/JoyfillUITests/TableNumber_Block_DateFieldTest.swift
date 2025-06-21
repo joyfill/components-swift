@@ -1140,6 +1140,185 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
         startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
     }
+    
+    func selectRow(index: Int) {
+        let allButtons = app.images.matching(identifier: "MyButton")
+        if allButtons.count > 0 {
+            allButtons.element(boundBy: index).tap()
+        } else {
+            XCTFail("No MyButton found with identifier: MyButton")
+        }
+    }
+     
+    
+    // Check button disable when in last row form
+    func testRowFormNextButtonDisable() {
+        goToTableDetailPage()
+        selectRow(index: 0)
+        app.buttons["TableMoreButtonIdentifier"].tap()
+         
+        app/*@START_MENU_TOKEN@*/.buttons["TableEditRowsIdentifier"]/*[[".otherElements",".buttons[\"Edit 1 row\"]",".buttons[\"TableEditRowsIdentifier\"]"],[[[-1,2],[-1,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.firstMatch.tap()
+        
+        let element = app/*@START_MENU_TOKEN@*/.buttons["LowerRowButtonIdentifier"]/*[[".otherElements",".buttons[\"Forward\"]",".buttons[\"LowerRowButtonIdentifier\"]"],[[[-1,2],[-1,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.firstMatch
+        element.tap()
+        element.tap()
+        element.tap()
+        element.tap()
+        element.tap()
+        element.tap()
+        element.tap()
+        app/*@START_MENU_TOKEN@*/.buttons["DismissEditSingleRowSheetButtonIdentifier"]/*[[".otherElements",".buttons[\"Close\"]",".buttons[\"DismissEditSingleRowSheetButtonIdentifier\"]"],[[[-1,2],[-1,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.firstMatch.tap()
+    }
+     
+    
+    func testEditRowNumberAndDismiss() {
+        goToTableDetailPage()
+        selectRow(index: 0)
+        
+        app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
+        app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
+        
+        let numberField = app.textFields["EditRowsNumberFieldIdentifier"].firstMatch
+        XCTAssertTrue(numberField.waitForExistence(timeout: 3), "Edit number field not found")
+        numberField.tap()
+        numberField.typeText("0")
+        
+        app.buttons["UpperRowButtonIdentifier"].firstMatch.tap()
+        app.buttons["LowerRowButtonIdentifier"].firstMatch.tap()
+        app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch.tap()
+    }
+    
+    func testRowNavigationButtonsDisabledStates() {
+        goToTableDetailPage()
+        selectRow(index: 0)
+        
+        app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
+        app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
+        
+        let previousButton = app.buttons["UpperRowButtonIdentifier"].firstMatch
+        XCTAssertTrue(previousButton.waitForExistence(timeout: 2), "Previous button not found")
+        XCTAssertFalse(previousButton.isEnabled, "Previous button should be disabled on first row")
+        
+        let nextButton = app.buttons["LowerRowButtonIdentifier"].firstMatch
+        XCTAssertTrue(nextButton.waitForExistence(timeout: 2), "Next button not found")
+        XCTAssertTrue(nextButton.isEnabled, "Next button should be enabled on first row")
+        
+        while nextButton.isEnabled {
+            nextButton.tap()
+        }
+        
+        XCTAssertTrue(previousButton.isEnabled, "Previous button should be enabled on last row")
+        XCTAssertFalse(nextButton.isEnabled, "Next button should be disabled on last row")
+        app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch.tap()
+    }
+    
+    func testUpdatedNumberFieldPersistsAcrossNavigationAndDismiss() {
+        let updatedValue = "123"
+
+        goToTableDetailPage()
+        selectRow(index: 0)
+        
+        app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
+        app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
+        
+        let numberField = app.textFields["EditRowsNumberFieldIdentifier"].firstMatch
+        XCTAssertTrue(numberField.waitForExistence(timeout: 3), "Edit number field not found (initial)")
+        numberField.tap()
+        numberField.clearAndEnterText(updatedValue)
+        numberField.typeText("\n") // Ensure commit
+        
+        let nextButton = app.buttons["LowerRowButtonIdentifier"].firstMatch
+        XCTAssertTrue(nextButton.waitForExistence(timeout: 2))
+        nextButton.tap()
+        
+        let previousButton = app.buttons["UpperRowButtonIdentifier"].firstMatch
+        XCTAssertTrue(previousButton.waitForExistence(timeout: 2))
+        previousButton.tap()
+        
+        XCTAssertTrue(numberField.waitForExistence(timeout: 3), "Edit number field not found after navigation")
+        XCTAssertEqual(numberField.value as? String, updatedValue, "Value did not persist after navigation")
+        
+        app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch.tap()
+        
+        let element = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(element.waitForExistence(timeout: 3), "Main table field not found after dismiss")
+        XCTAssertEqual(element.value as? String, updatedValue, "Value did not match after dismiss")
+    }
+    
+    func testMultiRowSelectionHidesInsertAndMoveButtons() {
+        goToTableDetailPage()
+
+        let buttons = app.images.matching(identifier: "MyButton")
+        XCTAssertTrue(buttons.firstMatch.waitForExistence(timeout: 3), "No MyButton elements found")
+
+        let firstButton = buttons.element(boundBy: 0)
+        let secondButton = buttons.element(boundBy: 1)
+
+        XCTAssertTrue(firstButton.exists, "First MyButton not found")
+        XCTAssertTrue(secondButton.exists, "Second MyButton not found")
+
+        firstButton.tap()
+        secondButton.tap()
+
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 2), "More options button not found")
+        moreButton.tap()
+
+        let insertButton = app.buttons["InsertRowButtonIdentifier"]
+        let moveUpButton = app.buttons["MoveRowUpButtonIdentifier"]
+        let moveDownButton = app.buttons["MoveRowDownButtonIdentifier"]
+
+        XCTAssertFalse(insertButton.exists, "Insert button should not be shown when multiple rows are selected")
+        XCTAssertFalse(moveUpButton.exists, "Move Up button should not be shown when multiple rows are selected")
+        XCTAssertFalse(moveDownButton.exists, "Move Down button should not be shown when multiple rows are selected")
+    }
+    
+    func  testUpdatedBarcodeFieldPersistsAcrossNavigationAndDismiss() {
+        let updatedValue = "First row updated"
+        goToTableDetailPage()
+        
+        let barcodeFieldIdentifier = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
+        XCTAssertTrue(barcodeFieldIdentifier.waitForExistence(timeout: 3))
+        XCTAssertEqual(barcodeFieldIdentifier.value as? String, "First row")
+        
+        selectRow(index: 0)
+        app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
+        app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
+        
+        let textField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
+        XCTAssertTrue(textField.waitForExistence(timeout: 3), "Edit text field not found (initial)")
+        textField.tap()
+        textField.clearAndEnterText(updatedValue)
+        
+        let nextButton = app.buttons["LowerRowButtonIdentifier"].firstMatch
+        XCTAssertTrue(nextButton.waitForExistence(timeout: 2))
+        nextButton.tap()
+        
+        let previousButton = app.buttons["UpperRowButtonIdentifier"].firstMatch
+        XCTAssertTrue(previousButton.waitForExistence(timeout: 2))
+        previousButton.tap()
+        
+        XCTAssertTrue(textField.waitForExistence(timeout: 3), "Edit text field not found after navigation")
+        XCTAssertEqual(textField.value as? String, updatedValue, "Value did not persist after navigation")
+        
+        app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch.tap()
+        
+        let element = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
+        XCTAssertTrue(element.waitForExistence(timeout: 3), "Main table field not found after dismiss")
+        XCTAssertEqual(element.value as? String, updatedValue, "Value did not match after dismiss")
+    }
+    
 }
 
-
+extension XCUIElement {
+    func clearAndEnterText(_ text: String) {
+        tap()
+        press(forDuration: 1.1)
+        let selectAll = XCUIApplication().menuItems["Select All"]
+        if selectAll.waitForExistence(timeout: 1) {
+            selectAll.tap()
+        }
+        typeText(XCUIKeyboardKey.delete.rawValue)
+        typeText(text)
+    }
+}
