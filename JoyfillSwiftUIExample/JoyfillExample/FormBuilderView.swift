@@ -1118,7 +1118,7 @@ struct FormBuilderView: View {
             ]
         case .table:
             // Use the standardized table cell resolution document
-            let tableDocument = JoyDoc.createTableCellResolutionDocument()
+            let tableDocument = JoyDoc.createComprehensiveTableCellResolutionDocument1()
             
             // Extract formulas from the standardized document
             formulas = tableDocument.formulas.map {

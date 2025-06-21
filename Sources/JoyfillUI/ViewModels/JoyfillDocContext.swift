@@ -434,12 +434,26 @@ public class JoyfillDocContext: EvaluationContext {
                     return .failure(.invalidReference("Invalid array index syntax: \(component)"))
         }
             } else {
-                // Regular property access
-                guard case .dictionary(let dict) = currentValue,
-                      let propValue = dict[component] else {
-                    return .failure(.invalidReference("Property '\(component)' not found"))
+                // Check if it's a plain numeric index (e.g., "0", "1", "2")
+                if let index = Int(component) {
+                    // Access array by index
+                    guard case .array(let array) = currentValue else {
+                        return .failure(.invalidReference("Cannot index a non-array value with index '\(component)'"))
+                    }
+                    
+                    guard index >= 0 && index < array.count else {
+                        return .failure(.invalidReference("Array index out of bounds: \(index)"))
+                    }
+                    
+                    currentValue = array[index]
+                } else {
+                    // Regular property access
+                    guard case .dictionary(let dict) = currentValue,
+                          let propValue = dict[component] else {
+                        return .failure(.invalidReference("Property '\(component)' not found"))
+                    }
+                    currentValue = propValue
                 }
-                currentValue = propValue
             }
         }
         
@@ -486,24 +500,40 @@ public class JoyfillDocContext: EvaluationContext {
                     }
                 }
                 return .success(.dictionary(dict))
-            } else if pathComponents.count == 2 {
-                // Return a specific cell value: products.0.price
+            } else if pathComponents.count >= 2 {
+                // Handle: products.0.price or products.0.tags.0
                 let columnIdentifier = pathComponents[1]
                 
                 if let cells = valueElements[index].cells {
+                    var cellValue: ValueUnion? = nil
+                    
                     // First try to find by exact column ID match
-                    if let cellValue = cells[columnIdentifier] {
-                        return .success(convertValueUnionToFormulaValue(cellValue))
+                    if let foundValue = cells[columnIdentifier] {
+                        cellValue = foundValue
+                    } else {
+                        // If not found by ID, try to find by column title
+                        if let matchingColumn = field.tableColumns?.first(where: { column in
+                            column.title.lowercased() == columnIdentifier.lowercased() ||
+                            column.id?.lowercased() == columnIdentifier.lowercased()
+                        }),
+                        let columnId = matchingColumn.id,
+                        let foundValue = cells[columnId] {
+                            cellValue = foundValue
+                        }
                     }
                     
-                    // If not found by ID, try to find by column title
-                    if let matchingColumn = field.tableColumns?.first(where: { column in
-                        column.title.lowercased() == columnIdentifier.lowercased() ||
-                        column.id?.lowercased() == columnIdentifier.lowercased()
-                    }),
-                    let columnId = matchingColumn.id,
-                    let cellValue = cells[columnId] {
-                        return .success(convertValueUnionToFormulaValue(cellValue))
+                    guard let foundCellValue = cellValue else {
+                        return .failure(.invalidReference("Column '\(columnIdentifier)' not found in row at index \(index) of table '\(field.id ?? "unknown")'"))
+                    }
+                    
+                    // If we have more path components (e.g., products.0.tags.0), handle nested access
+                    if pathComponents.count > 2 {
+                        let remainingPath = Array(pathComponents.dropFirst(2))
+                        let formulaValue = convertValueUnionToFormulaValue(foundCellValue)
+                        return resolvePathOnValue(formulaValue, path: remainingPath)
+                    } else {
+                        // Simple cell access: products.0.price
+                        return .success(convertValueUnionToFormulaValue(foundCellValue))
                     }
                 }
                 
@@ -1407,15 +1437,56 @@ private class TemporaryVariableContext: EvaluationContext {
     
     func resolveReference(_ name: String) -> Result<FormulaValue, FormulaError> {
         // First check additional variables (temporary lambda parameters)
+        // Lambda parameters are stored without braces, so check both versions
         let cleanName = name.hasPrefix("{") && name.hasSuffix("}") 
                        ? String(name.dropFirst().dropLast()) 
                        : name
         
+        // Handle property access on temporary variables (e.g., "row.price")
+        if cleanName.contains(".") {
+            let components = cleanName.split(separator: ".", maxSplits: 1)
+            if components.count == 2 {
+                let objectName = String(components[0])
+                let propertyName = String(components[1])
+                
+                // Check if the object is in our temporary variables
+                if let objectValue = additionalVariables[objectName] {
+                    // Perform property access on the temporary variable
+                    switch objectValue {
+                    case .dictionary(let dict):
+                        if let propertyValue = dict[propertyName] {
+                            return .success(propertyValue)
+                        } else {
+                            return .failure(.invalidReference("Property '\(propertyName)' not found on temporary variable '\(objectName)'"))
+                        }
+                    case .array(let array):
+                        // Array of dictionaries - extract property from each row
+                        var extractedValues: [FormulaValue] = []
+                        for item in array {
+                            if case .dictionary(let dict) = item {
+                                if let value = dict[propertyName] {
+                                    extractedValues.append(value)
+                                } else {
+                                    extractedValues.append(.null)
+                                }
+                            } else {
+                                return .failure(.typeMismatch(expected: "Array of dictionaries for property access", actual: "Array containing non-dictionary"))
+                            }
+                        }
+                        return .success(.array(extractedValues))
+                    default:
+                        return .failure(.typeMismatch(expected: "Dictionary or Array for property access", actual: "Temporary variable '\(objectName)' is not a dictionary or array"))
+                    }
+                }
+            }
+        }
+        
+        // Check for the clean name (without braces) first
         if let value = additionalVariables[cleanName] {
             return .success(value)
         }
         
-        // Also check the original name in case it has braces
+        // Also check the original name in case it was stored with braces
         if let value = additionalVariables[name] {
             return .success(value)
         }
@@ -1428,11 +1499,9 @@ private class TemporaryVariableContext: EvaluationContext {
         // Create a new lightweight context with the additional variable
         var newVariables = self.additionalVariables
         
-        let cleanName = name.hasPrefix("{") && name.hasSuffix("}") 
-                       ? String(name.dropFirst().dropLast()) 
-                       : name
-        
-        newVariables[cleanName] = value
+        // Lambda parameters are passed without braces, so store them as-is
+        // This ensures they can be resolved correctly by resolveReference
+        newVariables[name] = value
         
         return TemporaryVariableContext(
             baseContext: self.baseContext,

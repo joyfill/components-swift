@@ -749,4 +749,1040 @@ extension JoyDoc {
             .addNumberField(identifier: "priceSpreadResult", formulaRef: "priceSpread", label: "Price Spread")
             .addNumberField(identifier: "inventoryValueResult", formulaRef: "inventoryValue", label: "Inventory Value")
     }
+
+    /// Creates a comprehensive table cell resolution document that covers ALL specification use cases
+    /// This method ensures consistency between tests and FormBuilderView templates
+    static func createComprehensiveTableCellResolutionDocument() -> JoyDoc {
+        return JoyDoc.addDocument()
+            // BASIC ACCESS PATTERNS
+            .addFormula(id: "basicTextAccess", formula: "products.0.name")
+            .addFormula(id: "basicDropdownAccess", formula: "products.0.category")
+            .addFormula(id: "basicNumberAccess", formula: "products.0.price")
+            .addFormula(id: "basicMultiSelectAccess", formula: "products.0.tags")
+            .addFormula(id: "basicMultiSelectFirstItem", formula: "products.0.tags.0")
+            .addFormula(id: "basicImageAccess", formula: "products.0.images")
+            .addFormula(id: "basicImageFirstItem", formula: "products.0.images.0")
+            .addFormula(id: "basicDateAccess", formula: "products.0.createdDate")
+            .addFormula(id: "basicBlockAccess", formula: "products.0.description")
+            .addFormula(id: "basicBarcodeAccess", formula: "products.0.barcode")
+            .addFormula(id: "basicSignatureAccess", formula: "products.0.signature")
+            
+            // COLUMN ACCESS (ALL CELLS)
+            .addFormula(id: "allNames", formula: "products.name")
+            .addFormula(id: "allPrices", formula: "products.price")
+            .addFormula(id: "allCategories", formula: "products.category")
+            .addFormula(id: "allTags", formula: "products.tags")
+            .addFormula(id: "allImages", formula: "products.images")
+            .addFormula(id: "allDates", formula: "products.createdDate")
+            .addFormula(id: "allDescriptions", formula: "products.description")
+            .addFormula(id: "allBarcodes", formula: "products.barcode")
+            .addFormula(id: "allSignatures", formula: "products.signature")
+            
+            // AGGREGATE FUNCTIONS
+            .addFormula(id: "totalRows", formula: "LENGTH(products)")
+            .addFormula(id: "totalPrice", formula: "SUM(products.price)")
+            .addFormula(id: "avgPrice", formula: "AVERAGE(products.price)")
+            .addFormula(id: "maxPrice", formula: "MAX(products.price)")
+            .addFormula(id: "minPrice", formula: "MIN(products.price)")
+            .addFormula(id: "priceCount", formula: "COUNT(products.price)")
+            
+            // STRING FUNCTIONS
+            .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.name)))")
+            .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) → row.name == \"Laptop\"))")
+            .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) → CONTAINS(LOWER(row.name), \"jack\")))")
+            .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) → CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
+            .addFormula(id: "upperNames", formula: "MAP(products.name, (name) → UPPER(name))")
+            .addFormula(id: "lowerCategories", formula: "MAP(products.category, (cat) → LOWER(cat))")
+            
+            // DROPDOWN FUNCTIONS
+            .addFormula(id: "yesDropdownCount", formula: "LENGTH(FILTER(products, (row) → row.category == \"Electronics\"))")
+            .addFormula(id: "notNADropdownCount", formula: "LENGTH(FILTER(products, (row) → row.category != \"N/A\"))")
+            .addFormula(id: "allDropdownsFilled", formula: "EVERY(products, (row) → NOT(EMPTY(row.category)))")
+            .addFormula(id: "dropdownConcat", formula: "REDUCE(products, (acc, row) → CONCAT(acc, \", \", row.category), \"\")")
+            
+            // MULTISELECT FUNCTIONS
+            .addFormula(id: "hasOption1Count", formula: "LENGTH(FILTER(products, (row) → SOME(row.tags, (option) → option == \"Popular\")))")
+            .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) → AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\"))))")
+            .addFormula(id: "emptyMultiSelectCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.tags)))")
+            .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) → row.tags)")
+            .addFormula(id: "reducedTags", formula: "REDUCE(FLATMAP(products, (row) → row.tags), (acc, item) → CONCAT(acc, \", \", item), \"\")")
+            
+            // IMAGE FUNCTIONS
+            .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.images))))")
+            .addFormula(id: "allHaveImages", formula: "EVERY(products, (row) → NOT(EMPTY(row.images)))")
+            .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) → LENGTH(row.images)))")
+            
+            // NUMBER FUNCTIONS
+            .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) → row.price > 100))")
+            .addFormula(id: "zeroCount", formula: "LENGTH(FILTER(products, (row) → row.price == 0))")
+            .addFormula(id: "squaredPrices", formula: "MAP(products, (row) → POW(row.price, 2))")
+            .addFormula(id: "evenPrices", formula: "MAP(products, (row) → MOD(row.price, 2) == 0)")
+            
+            // DATE FUNCTIONS
+            .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.createdDate))))")
+            .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) → DAY(row.createdDate) >= 2))")
+            .addFormula(id: "latestDate", formula: "MAX(MAP(products, (row) → row.createdDate))")
+            .addFormula(id: "extractedDays", formula: "MAP(products, (row) → DAY(row.createdDate))")
+            
+            // BLOCK FUNCTIONS
+            .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(UPPER(row.description), \"QUESTION\")))")
+            
+            // BARCODE FUNCTIONS
+            .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(row.barcode, \"code\")))")
+            .addFormula(id: "nonEmptyBarcodeCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.barcode))))")
+            .addFormula(id: "scannedLabels", formula: "MAP(products, (row) → CONCAT(\"SCANNED \", row.barcode))")
+            .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) → IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
+            
+            // SIGNATURE FUNCTIONS
+            .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.signature))))")
+            .addFormula(id: "missingSignatureCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.signature)))")
+            .addFormula(id: "totalSignedRows", formula: "REDUCE(products, (acc, row) → acc + (NOT(EMPTY(row.signature)) ? 1 : 0), 0)")
+            .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) → NOT(EMPTY(row.signature)))")
+            .addFormula(id: "auditTags", formula: "MAP(products, (row, i) → IF(NOT(EMPTY(row.signature)), CONCAT(\"Row \", TOSTRING(i), \" Signed\"), CONCAT(\"Row \", TOSTRING(i), \" Not Signed\")))")
+            
+            // OPERATORS
+            .addFormula(id: "addTen", formula: "MAP(products, (row) → row.price + 10)")
+            .addFormula(id: "multiplyBySelf", formula: "MAP(products, (row) → row.price * row.price)")
+            .addFormula(id: "divideByTwo", formula: "MAP(products, (row) → row.price / 2)")
+            .addFormula(id: "subtractOne", formula: "MAP(products, (row) → row.price - 1)")
+            .addFormula(id: "equalToThree", formula: "MAP(products, (row) → row.price == 3)")
+            .addFormula(id: "notEqualYes", formula: "MAP(products, (row) → row.category != \"Electronics\")")
+            .addFormula(id: "greaterThanTen", formula: "MAP(products, (row) → row.price > 10)")
+            .addFormula(id: "greaterEqualEleven", formula: "MAP(products, (row) → row.price >= 11)")
+            .addFormula(id: "lessThanThree", formula: "MAP(products, (row) → row.price < 3)")
+            .addFormula(id: "lessEqualTwo", formula: "MAP(products, (row) → row.price <= 2)")
+            
+            // COMPLEX CONDITIONALS
+            .addFormula(id: "complexFilter", formula: "LENGTH(FILTER(products, (row) → AND(IF(CONTAINS(LOWER(row.name), \"laptop\"), true, false), AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\")), OR(row.price == 3, row.price == 4))))")
+            
+            // Create comprehensive table with ALL column types
+            .addTableField(
+                identifier: "products",
+                columns: [
+                    // Text Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "name"
+                        col.title = "Product Name"
+                        col.type = .text
+                        col.required = true
+                        col.width = 200
+                        return col
+                    }(),
+                    
+                    // Number Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "price"
+                        col.title = "Price"
+                        col.type = .number
+                        col.required = true
+                        col.width = 100
+                        return col
+                    }(),
+                    
+                    // Dropdown Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "category"
+                        col.title = "Category"
+                        col.type = .dropdown
+                        col.required = false
+                        col.width = 150
+                        
+                        var opt1 = Option()
+                        opt1.id = "electronics"
+                        opt1.value = "Electronics"
+                        
+                        var opt2 = Option()
+                        opt2.id = "clothing"
+                        opt2.value = "Clothing"
+                        
+                        var opt3 = Option()
+                        opt3.id = "na"
+                        opt3.value = "N/A"
+                        
+                        col.options = [opt1, opt2, opt3]
+                        return col
+                    }(),
+                    
+                    // MultiSelect Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "tags"
+                        col.title = "Tags"
+                        col.type = .multiSelect
+                        col.required = false
+                        col.width = 200
+                        
+                        var opt1 = Option()
+                        opt1.id = "popular"
+                        opt1.value = "Popular"
+                        
+                        var opt2 = Option()
+                        opt2.id = "sale"
+                        opt2.value = "Sale"
+                        
+                        var opt3 = Option()
+                        opt3.id = "new"
+                        opt3.value = "New"
+                        
+                        col.options = [opt1, opt2, opt3]
+                        return col
+                    }(),
+                    
+                    // Image Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "images"
+                        col.title = "Images"
+                        col.type = .image
+                        col.required = false
+                        col.width = 150
+                        return col
+                    }(),
+                    
+                    // Date Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "createdDate"
+                        col.title = "Created Date"
+                        col.type = .date
+                        col.required = false
+                        col.width = 120
+                        return col
+                    }(),
+                    
+                    // Block Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "description"
+                        col.title = "Description"
+                        col.type = .block
+                        col.required = false
+                        col.width = 250
+                        return col
+                    }(),
+                    
+                    // Barcode Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "barcode"
+                        col.title = "Barcode"
+                        col.type = .barcode
+                        col.required = false
+                        col.width = 150
+                        return col
+                    }(),
+                    
+                    // Signature Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "signature"
+                        col.title = "Signature"
+                        col.type = .signature
+                        col.required = false
+                        col.width = 150
+                        return col
+                    }()
+                ],
+                rows: [
+                    // Row 1: Comprehensive data
+                    {
+                        var row = ValueElement(id: "row1")
+                        row.cells = [
+                            "name": .string("Laptop"),
+                            "price": .double(999.99),
+                            "category": .string("Electronics"),
+                            "tags": .array(["Popular", "Sale"]),
+                            "images": .array(["https://example.com/laptop1.jpg", "https://example.com/laptop2.jpg"]),
+                            "createdDate": .double(1748750400000), // Jan 1, 2025
+                            "description": .string("Question 1: High-performance laptop"),
+                            "barcode": .string("code 1"),
+                            "signature": .string("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 2: Mixed data
+                    {
+                        var row = ValueElement(id: "row2")
+                        row.cells = [
+                            "name": .string("T-Shirt"),
+                            "price": .double(29.99),
+                            "category": .string("Clothing"),
+                            "tags": .array(["Popular", "New"]),
+                            "images": .array(["https://example.com/tshirt.jpg"]),
+                            "createdDate": .double(1748836800000), // Jan 2, 2025
+                            "description": .string("Cotton t-shirt"),
+                            "barcode": .string("code with space"),
+                            "signature": .string("") // Empty signature
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 3: Edge cases
+                    {
+                        var row = ValueElement(id: "row3")
+                        row.cells = [
+                            "name": .string(""),
+                            "price": .double(0),
+                            "category": .string("N/A"),
+                            "tags": .array([]), // Empty array
+                            "images": .array(["https://example.com/img1.jpg", "https://example.com/img2.jpg", "https://example.com/img3.jpg"]), // 3 images
+                            "createdDate": .double(1748923200000), // Jan 3, 2025
+                            "description": .string("Question 2: Empty name test"),
+                            "barcode": .string(""),
+                            "signature": .string("")
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 4: More test data
+                    {
+                        var row = ValueElement(id: "row4")
+                        row.cells = [
+                            "name": .string("Jack's Item"),
+                            "price": .double(11),
+                            "category": .string("Electronics"),
+                            "tags": .array(["Popular", "Sale", "New"]), // All three options
+                            "images": .array([]), // No images
+                            "createdDate": .double(1748750400000), // Jan 1, 2025 (same as row 1)
+                            "description": .string("Question 3: Jack's special item"),
+                            "barcode": .string("code 2"),
+                            "signature": .string("")
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 5: Final test data
+                    {
+                        var row = ValueElement(id: "row5")
+                        row.cells = [
+                            "name": .string("Jackie's Product"),
+                            "price": .double(200),
+                            "category": .string(""),
+                            "tags": .array([]), // Empty
+                            "images": .array([]), // Empty
+                            "createdDate": .double(0), // Empty/null date
+                            "description": .string("Regular description"),
+                            "barcode": .string(""),
+                            "signature": .string("")
+                        ]
+                        return row
+                    }()
+                ]
+            )
+            
+            // Add output fields for ALL test cases
+            .addTextField(identifier: "basicTextResult", formulaRef: "basicTextAccess", label: "Basic Text Access")
+            .addTextField(identifier: "basicDropdownResult", formulaRef: "basicDropdownAccess", label: "Basic Dropdown Access")
+            .addNumberField(identifier: "basicNumberResult", formulaRef: "basicNumberAccess", label: "Basic Number Access")
+            .addTextField(identifier: "basicMultiSelectResult", formulaRef: "basicMultiSelectAccess", label: "Basic MultiSelect Access")
+            .addTextField(identifier: "basicMultiSelectFirstResult", formulaRef: "basicMultiSelectFirstItem", label: "Basic MultiSelect First Item")
+            .addTextField(identifier: "basicImageResult", formulaRef: "basicImageAccess", label: "Basic Image Access")
+            .addTextField(identifier: "basicImageFirstResult", formulaRef: "basicImageFirstItem", label: "Basic Image First Item")
+            .addNumberField(identifier: "basicDateResult", formulaRef: "basicDateAccess", label: "Basic Date Access")
+            .addTextField(identifier: "basicBlockResult", formulaRef: "basicBlockAccess", label: "Basic Block Access")
+            .addTextField(identifier: "basicBarcodeResult", formulaRef: "basicBarcodeAccess", label: "Basic Barcode Access")
+            .addTextField(identifier: "basicSignatureResult", formulaRef: "basicSignatureAccess", label: "Basic Signature Access")
+            
+            // Column access results
+            .addTextField(identifier: "allNamesResult", formulaRef: "allNames", label: "All Names")
+            .addTextField(identifier: "allPricesResult", formulaRef: "allPrices", label: "All Prices")
+            .addTextField(identifier: "allCategoriesResult", formulaRef: "allCategories", label: "All Categories")
+            .addTextField(identifier: "allTagsResult", formulaRef: "allTags", label: "All Tags")
+            .addTextField(identifier: "allImagesResult", formulaRef: "allImages", label: "All Images")
+            .addTextField(identifier: "allDatesResult", formulaRef: "allDates", label: "All Dates")
+            .addTextField(identifier: "allDescriptionsResult", formulaRef: "allDescriptions", label: "All Descriptions")
+            .addTextField(identifier: "allBarcodesResult", formulaRef: "allBarcodes", label: "All Barcodes")
+            .addTextField(identifier: "allSignaturesResult", formulaRef: "allSignatures", label: "All Signatures")
+            
+            // Add more output fields for all the other formulas...
+            .addNumberField(identifier: "totalRowsResult", formulaRef: "totalRows", label: "Total Rows")
+            .addNumberField(identifier: "totalPriceResult", formulaRef: "totalPrice", label: "Total Price")
+            .addNumberField(identifier: "avgPriceResult", formulaRef: "avgPrice", label: "Average Price")
+            .addNumberField(identifier: "maxPriceResult", formulaRef: "maxPrice", label: "Max Price")
+            .addNumberField(identifier: "minPriceResult", formulaRef: "minPrice", label: "Min Price")
+            .addNumberField(identifier: "priceCountResult", formulaRef: "priceCount", label: "Price Count")
+    }
+
+    static func createComprehensiveTableCellResolutionDocument1() -> JoyDoc {
+        return JoyDoc.addDocument()
+                   .addFormula(id: "basicTextAccess", formula: "products.0.name")
+                   .addFormula(id: "basicNumberAccess", formula: "products.0.price")
+                   .addFormula(id: "basicDropdownAccess", formula: "products.0.category")
+                   .addFormula(id: "basicMultiSelectAccess", formula: "products.0.tags")
+                   .addFormula(id: "basicMultiSelectFirstItem", formula: "products.0.tags.0")
+                   .addFormula(id: "basicImageAccess", formula: "products.0.images")
+                   .addFormula(id: "basicImageFirstItem", formula: "products.0.images.0")
+                   .addFormula(id: "basicDateAccess", formula: "products.0.createdDate")
+                   .addFormula(id: "basicBlockAccess", formula: "products.0.description")
+                   .addFormula(id: "basicBarcodeAccess", formula: "products.0.barcode")
+                   .addFormula(id: "basicSignatureAccess", formula: "products.0.signature")
+       
+                   // STRING FUNCTIONS (as per spec)
+                   .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.name)))")
+                   .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) → row.name == \"Laptop\"))")
+                   .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) → CONTAINS(LOWER(row.name), \"jack\")))")
+                   .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) → CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
+       
+                   // MULTISELECT FUNCTIONS (as per spec)
+                   .addFormula(id: "hasPopularCount", formula: "LENGTH(FILTER(products, (row) → SOME(row.tags, (option) → option == \"Popular\")))")
+                   .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) → AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\"))))")
+                   .addFormula(id: "emptyMultiSelectCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.tags)))")
+                   .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) → row.tags)")
+       
+                   // IMAGE FUNCTIONS (as per spec)
+                   .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.images))))")
+                   .addFormula(id: "allHaveImages", formula: "EVERY(products, (row) → NOT(EMPTY(row.images)))")
+                   .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) → LENGTH(row.images)))")
+       
+                   // NUMBER FUNCTIONS (as per spec)
+                   .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) → row.price > 100))")
+                   .addFormula(id: "squaredPrices", formula: "MAP(products, (row) → POW(row.price, 2))")
+                   .addFormula(id: "evenPrices", formula: "MAP(products, (row) → MOD(row.price, 2) == 0)")
+       
+                   // DATE FUNCTIONS (as per spec)
+                   .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.createdDate))))")
+                   .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) → DAY(row.createdDate) >= 2))")
+                   .addFormula(id: "extractedDays", formula: "MAP(products, (row) → DAY(row.createdDate))")
+       
+                   // BLOCK FUNCTIONS (as per spec)
+                   .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(UPPER(row.description), \"QUESTION\")))")
+       
+                   // BARCODE FUNCTIONS (as per spec)
+                   .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(row.barcode, \"code\")))")
+                   .addFormula(id: "nonEmptyBarcodeCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.barcode))))")
+                   .addFormula(id: "scannedLabels", formula: "MAP(products, (row) → CONCAT(\"SCANNED \", row.barcode))")
+                   .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) → IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
+       
+                   // SIGNATURE FUNCTIONS (as per spec)
+                   .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.signature))))")
+                   .addFormula(id: "missingSignatureCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.signature)))")
+                   .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) → NOT(EMPTY(row.signature)))")
+       
+                   // Create comprehensive table with ALL column types (as per PDF spec)
+                   .addTableField(
+                       identifier: "products",
+                       columns: [
+                           // Text Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "name"
+                               col.title = "Product Name"
+                               col.type = .text
+                               col.required = true
+                               col.width = 200
+                               return col
+                           }(),
+       
+                           // Number Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "price"
+                               col.title = "Price"
+                               col.type = .number
+                               col.required = true
+                               col.width = 100
+                               return col
+                           }(),
+       
+                           // Dropdown Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "category"
+                               col.title = "Category"
+                               col.type = .dropdown
+                               col.required = false
+                               col.width = 150
+       
+                               var opt1 = Option()
+                               opt1.id = "electronics"
+                               opt1.value = "Electronics"
+       
+                               var opt2 = Option()
+                               opt2.id = "clothing"
+                               opt2.value = "Clothing"
+       
+                               var opt3 = Option()
+                               opt3.id = "na"
+                               opt3.value = "N/A"
+       
+                               col.options = [opt1, opt2, opt3]
+                               return col
+                           }(),
+       
+                           // MultiSelect Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "tags"
+                               col.title = "Tags"
+                               col.type = .multiSelect
+                               col.required = false
+                               col.width = 200
+       
+                               var opt1 = Option()
+                               opt1.id = "popular"
+                               opt1.value = "Popular"
+       
+                               var opt2 = Option()
+                               opt2.id = "sale"
+                               opt2.value = "Sale"
+       
+                               var opt3 = Option()
+                               opt3.id = "new"
+                               opt3.value = "New"
+       
+                               col.options = [opt1, opt2, opt3]
+                               return col
+                           }(),
+       
+                           // Image Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "images"
+                               col.title = "Images"
+                               col.type = .image
+                               col.required = false
+                               col.width = 150
+                               return col
+                           }(),
+       
+                           // Date Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "createdDate"
+                               col.title = "Created Date"
+                               col.type = .date
+                               col.required = false
+                               col.width = 120
+                               return col
+                           }(),
+       
+                           // Block Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "description"
+                               col.title = "Description"
+                               col.type = .block
+                               col.required = false
+                               col.width = 250
+                               return col
+                           }(),
+       
+                           // Barcode Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "barcode"
+                               col.title = "Barcode"
+                               col.type = .barcode
+                               col.required = false
+                               col.width = 150
+                               return col
+                           }(),
+       
+                           // Signature Column
+                           {
+                               var col = FieldTableColumn()
+                               col.id = "signature"
+                               col.title = "Signature"
+                               col.type = .signature
+                               col.required = false
+                               col.width = 150
+                               return col
+                           }()
+                       ],
+                       rows: [
+                           // Row 1: Comprehensive data (matches PDF spec examples)
+                           {
+                               var row = ValueElement(id: "row1")
+                               row.cells = [
+                                   "name": .string("Laptop"),
+                                   "price": .double(999.99),
+                                   "category": .string("Electronics"),
+                                   "tags": .array(["Popular", "Sale"]),
+                                   "images": .array(["https://example.com/laptop1.jpg", "https://example.com/laptop2.jpg"]),
+                                   "createdDate": .double(1748750400000), // Jan 1, 2025
+                                   "description": .string("Question 1: High-performance laptop"),
+                                   "barcode": .string("code 1"),
+                                   "signature": .string("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
+                               ]
+                               return row
+                           }(),
+       
+                           // Row 2: Mixed data
+                           {
+                               var row = ValueElement(id: "row2")
+                               row.cells = [
+                                   "name": .string(""),
+                                   "price": .double(29.99),
+                                   "category": .string("Clothing"),
+                                   "tags": .array(["Popular", "New"]),
+                                   "images": .array(["https://example.com/tshirt.jpg"]),
+                                   "createdDate": .double(1748836800000), // Jan 2, 2025
+                                   "description": .string("Cotton t-shirt"),
+                                   "barcode": .string("code with space"),
+                                   "signature": .string("") // Empty signature
+                               ]
+                               return row
+                           }(),
+       
+                           // Row 3: Edge cases (empty values, etc.)
+                           {
+                               var row = ValueElement(id: "row3")
+                               row.cells = [
+                                   "name": .string("Jack's Item"),
+                                   "price": .double(11),
+                                   "category": .string("Electronics"),
+                                   "tags": .array(["Popular", "Sale", "New"]), // All three options
+                                   "images": .array([]), // No images
+                                   "createdDate": .double(1748923200000), // Jan 3, 2025
+                                   "description": .string("Question 2: Jack's special item"),
+                                   "barcode": .string("code 2"),
+                                   "signature": .string("")
+                               ]
+                               return row
+                           }(),
+       
+                           // Row 4: More edge cases
+                           {
+                               var row = ValueElement(id: "row4")
+                               row.cells = [
+                                   "name": .string("Jackie's Product"),
+                                   "price": .double(200),
+                                   "category": .string(""),
+                                   "tags": .array([]), // Empty
+                                   "images": .array(["https://example.com/img1.jpg", "https://example.com/img2.jpg", "https://example.com/img3.jpg"]), // 3 images (max)
+                                   "createdDate": .double(0), // Empty/null date
+                                   "description": .string("Regular description"),
+                                   "barcode": .string(""),
+                                   "signature": .string("")
+                               ]
+                               return row
+                           }(),
+       
+                           // Row 5: Final test data
+                           {
+                               var row = ValueElement(id: "row5")
+                               row.cells = [
+                                   "name": .string("Test Product"),
+                                   "price": .double(3), // For testing equality
+                                   "category": .string("N/A"),
+                                   "tags": .array([]), // Empty
+                                   "images": .array([]), // Empty
+                                   "createdDate": .double(1748750400000), // Jan 1, 2025 (same as row 1)
+                                   "description": .string("Question 3: Test item"),
+                                   "barcode": .string(""),
+                                   "signature": .string("data:image/png;base64,signatureData")
+                               ]
+                               return row
+                           }()
+                       ]
+                   )
+       
+                   // Add output fields for ALL test cases
+                   .addTextField(identifier: "basicTextResult", formulaRef: "basicTextAccess", label: "Basic Text Access")
+                   .addNumberField(identifier: "basicNumberResult", formulaRef: "basicNumberAccess", label: "Basic Number Access")
+                   .addTextField(identifier: "basicDropdownResult", formulaRef: "basicDropdownAccess", label: "Basic Dropdown Access")
+                   .addTextField(identifier: "basicMultiSelectResult", formulaRef: "basicMultiSelectAccess", label: "Basic MultiSelect Access")
+                   .addTextField(identifier: "basicMultiSelectFirstResult", formulaRef: "basicMultiSelectFirstItem", label: "Basic MultiSelect First Item")
+                   .addTextField(identifier: "basicImageResult", formulaRef: "basicImageAccess", label: "Basic Image Access")
+                   .addTextField(identifier: "basicImageFirstResult", formulaRef: "basicImageFirstItem", label: "Basic Image First Item")
+                   .addNumberField(identifier: "basicDateResult", formulaRef: "basicDateAccess", label: "Basic Date Access")
+                   .addTextField(identifier: "basicBlockResult", formulaRef: "basicBlockAccess", label: "Basic Block Access")
+                   .addTextField(identifier: "basicBarcodeResult", formulaRef: "basicBarcodeAccess", label: "Basic Barcode Access")
+                   .addTextField(identifier: "basicSignatureResult", formulaRef: "basicSignatureAccess", label: "Basic Signature Access")
+       
+                   // String function results
+                   .addNumberField(identifier: "emptyTextCountResult", formulaRef: "emptyTextCount", label: "Empty Text Count")
+                   .addNumberField(identifier: "exactNameMatchResult", formulaRef: "exactNameMatch", label: "Exact Name Match")
+                   .addNumberField(identifier: "nameContainsJackResult", formulaRef: "nameContainsJack", label: "Name Contains Jack")
+                   .addTextField(identifier: "nameLabelsResult", formulaRef: "nameLabels", label: "Name Labels")
+       
+                   // MultiSelect function results
+                   .addNumberField(identifier: "hasPopularCountResult", formulaRef: "hasPopularCount", label: "Has Popular Count")
+                   .addNumberField(identifier: "hasAllOptionsCountResult", formulaRef: "hasAllOptionsCount", label: "Has All Options Count")
+                   .addNumberField(identifier: "emptyMultiSelectCountResult", formulaRef: "emptyMultiSelectCount", label: "Empty MultiSelect Count")
+                   .addTextField(identifier: "flattenedTagsResult", formulaRef: "flattenedTags", label: "Flattened Tags")
+       
+                   // Image function results
+                   .addNumberField(identifier: "hasImageCountResult", formulaRef: "hasImageCount", label: "Has Image Count")
+                   .addTextField(identifier: "allHaveImagesResult", formulaRef: "allHaveImages", label: "All Have Images")
+                   .addNumberField(identifier: "maxImageCountResult", formulaRef: "maxImageCount", label: "Max Image Count")
+       
+                   // Number function results
+                   .addNumberField(identifier: "expensiveCountResult", formulaRef: "expensiveCount", label: "Expensive Count")
+                   .addTextField(identifier: "squaredPricesResult", formulaRef: "squaredPrices", label: "Squared Prices")
+                   .addTextField(identifier: "evenPricesResult", formulaRef: "evenPrices", label: "Even Prices")
+       
+                   // Date function results
+                   .addNumberField(identifier: "hasDateCountResult", formulaRef: "hasDateCount", label: "Has Date Count")
+                   .addNumberField(identifier: "dayGte2CountResult", formulaRef: "dayGte2Count", label: "Day >= 2 Count")
+                   .addTextField(identifier: "extractedDaysResult", formulaRef: "extractedDays", label: "Extracted Days")
+       
+                   // Block function results
+                   .addNumberField(identifier: "questionCountResult", formulaRef: "questionCount", label: "Question Count")
+       
+                   // Barcode function results
+                   .addNumberField(identifier: "codeStartsCountResult", formulaRef: "codeStartsCount", label: "Code Starts Count")
+                   .addNumberField(identifier: "nonEmptyBarcodeCountResult", formulaRef: "nonEmptyBarcodeCount", label: "Non-Empty Barcode Count")
+                   .addTextField(identifier: "scannedLabelsResult", formulaRef: "scannedLabels", label: "Scanned Labels")
+                   .addTextField(identifier: "replaceMissingBarcodesResult", formulaRef: "replaceMissingBarcodes", label: "Replace Missing Barcodes")
+       
+                   // Signature function results
+                   .addNumberField(identifier: "hasSignatureCountResult", formulaRef: "hasSignatureCount", label: "Has Signature Count")
+                   .addNumberField(identifier: "missingSignatureCountResult", formulaRef: "missingSignatureCount", label: "Missing Signature Count")
+                   .addTextField(identifier: "allHaveSignaturesResult", formulaRef: "allHaveSignatures", label: "All Have Signatures")
+
+    }
+
+    static func cellResolution() -> JoyDoc {
+        return JoyDoc.addDocument()
+        // BASIC ACCESS PATTERNS - All column types from spec
+            .addFormula(id: "basicTextAccess", formula: "products.0.name")
+            .addFormula(id: "basicNumberAccess", formula: "products.0.price")
+            .addFormula(id: "basicDropdownAccess", formula: "products.0.category")
+            .addFormula(id: "basicMultiSelectAccess", formula: "products.0.tags")
+            .addFormula(id: "basicMultiSelectFirstItem", formula: "products.0.tags.0")
+            .addFormula(id: "basicImageAccess", formula: "products.0.images")
+            .addFormula(id: "basicImageFirstItem", formula: "products.0.images.0")
+            .addFormula(id: "basicDateAccess", formula: "products.0.createdDate")
+            .addFormula(id: "basicBlockAccess", formula: "products.0.description")
+            .addFormula(id: "basicBarcodeAccess", formula: "products.0.barcode")
+            .addFormula(id: "basicSignatureAccess", formula: "products.0.signature")
+        
+        // AGGREGATE FUNCTIONS
+            .addFormula(id: "tableRowCount", formula: "COUNT(products)")
+            .addFormula(id: "totalPrice", formula: "SUM(products.price)")
+            .addFormula(id: "avgPrice", formula: "AVERAGE(products.price)")
+            .addFormula(id: "maxPrice", formula: "MAX(products.price)")
+            .addFormula(id: "minPrice", formula: "MIN(products.price)")
+        
+        // STRING FUNCTIONS (from spec)
+            .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.name)))")
+            .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) → row.name == \"Laptop\"))")
+            .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) → CONTAINS(LOWER(row.name), \"jack\")))")
+            .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) → CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
+        
+        // MULTISELECT FUNCTIONS (from spec)
+            .addFormula(id: "hasPopularCount", formula: "LENGTH(FILTER(products, (row) → SOME(row.tags, (option) → option == \"Popular\")))")
+            .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) → AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\"))))")
+            .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) → row.tags)")
+        
+        // IMAGE FUNCTIONS (from spec)
+            .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.images))))")
+            .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) → LENGTH(row.images)))")
+        
+        // NUMBER FUNCTIONS (from spec)
+            .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) → row.price > 100))")
+            .addFormula(id: "squaredPrices", formula: "MAP(products, (row) → POW(row.price, 2))")
+            .addFormula(id: "evenPrices", formula: "MAP(products, (row) → MOD(row.price, 2) == 0)")
+        
+        // DATE FUNCTIONS (from spec)
+            .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.createdDate))))")
+            .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) → DAY(row.createdDate) >= 2))")
+            .addFormula(id: "extractedDays", formula: "MAP(products, (row) → DAY(row.createdDate))")
+        
+        // BLOCK FUNCTIONS (from spec)
+            .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(UPPER(row.description), \"QUESTION\")))")
+        
+        // BARCODE FUNCTIONS (from spec)
+            .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(row.barcode, \"code\")))")
+            .addFormula(id: "scannedLabels", formula: "MAP(products, (row) → CONCAT(\"SCANNED \", row.barcode))")
+            .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) → IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
+        
+        // SIGNATURE FUNCTIONS (from spec)
+            .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.signature))))")
+            .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) → NOT(EMPTY(row.signature)))")
+        
+        // OPERATORS (from spec)
+            .addFormula(id: "addTen", formula: "MAP(products, (row) → row.price + 10)")
+            .addFormula(id: "multiplyBySelf", formula: "MAP(products, (row) → row.price * row.price)")
+            .addFormula(id: "equalToThree", formula: "MAP(products, (row) → row.price == 3)")
+            .addFormula(id: "greaterThanTen", formula: "MAP(products, (row) → row.price > 10)")
+        
+        // Create comprehensive table with ALL column types
+            .addTableField(
+                identifier: "products",
+                columns: [
+                    // Text Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "name"
+                        col.title = "Product Name"
+                        col.type = .text
+                        col.required = true
+                        col.width = 200
+                        return col
+                    }(),
+                    
+                    // Number Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "price"
+                        col.title = "Price"
+                        col.type = .number
+                        col.required = true
+                        col.width = 100
+                        return col
+                    }(),
+                    
+                    // Dropdown Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "category"
+                        col.title = "Category"
+                        col.type = .dropdown
+                        col.required = false
+                        col.width = 150
+                        
+                        var opt1 = Option()
+                        opt1.id = "electronics"
+                        opt1.value = "Electronics"
+                        
+                        var opt2 = Option()
+                        opt2.id = "clothing"
+                        opt2.value = "Clothing"
+                        
+                        var opt3 = Option()
+                        opt3.id = "na"
+                        opt3.value = "N/A"
+                        
+                        col.options = [opt1, opt2, opt3]
+                        return col
+                    }(),
+                    
+                    // MultiSelect Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "tags"
+                        col.title = "Tags"
+                        col.type = .multiSelect
+                        col.required = false
+                        col.width = 200
+                        
+                        var opt1 = Option()
+                        opt1.id = "popular"
+                        opt1.value = "Popular"
+                        
+                        var opt2 = Option()
+                        opt2.id = "sale"
+                        opt2.value = "Sale"
+                        
+                        var opt3 = Option()
+                        opt3.id = "new"
+                        opt3.value = "New"
+                        
+                        col.options = [opt1, opt2, opt3]
+                        return col
+                    }(),
+                    
+                    // Image Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "images"
+                        col.title = "Images"
+                        col.type = .image
+                        col.required = false
+                        col.width = 150
+                        return col
+                    }(),
+                    
+                    // Date Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "createdDate"
+                        col.title = "Created Date"
+                        col.type = .date
+                        col.required = false
+                        col.width = 120
+                        return col
+                    }(),
+                    
+                    // Block Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "description"
+                        col.title = "Description"
+                        col.type = .block
+                        col.required = false
+                        col.width = 250
+                        return col
+                    }(),
+                    
+                    // Barcode Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "barcode"
+                        col.title = "Barcode"
+                        col.type = .barcode
+                        col.required = false
+                        col.width = 150
+                        return col
+                    }(),
+                    
+                    // Signature Column
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "signature"
+                        col.title = "Signature"
+                        col.type = .signature
+                        col.required = false
+                        col.width = 150
+                        return col
+                    }()
+                ],
+                rows: [
+                    // Row 1: Comprehensive data (matches PDF spec examples)
+                    {
+                        var row = ValueElement(id: "row1")
+                        row.cells = [
+                            "name": .string("Laptop"),
+                            "price": .double(999.99),
+                            "category": .string("Electronics"),
+                            "tags": .array(["Popular", "Sale"]),
+                            "images": .array(["https://example.com/laptop1.jpg", "https://example.com/laptop2.jpg"]),
+                            "createdDate": .double(1748750400000), // Jan 1, 2025
+                            "description": .string("Question 1: High-performance laptop"),
+                            "barcode": .string("code 1"),
+                            "signature": .string("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 2: Mixed data
+                    {
+                        var row = ValueElement(id: "row2")
+                        row.cells = [
+                            "name": .string(""),
+                            "price": .double(29.99),
+                            "category": .string("Clothing"),
+                            "tags": .array(["Popular", "New"]),
+                            "images": .array(["https://example.com/tshirt.jpg"]),
+                            "createdDate": .double(1748836800000), // Jan 2, 2025
+                            "description": .string("Cotton t-shirt"),
+                            "barcode": .string("code with space"),
+                            "signature": .string("") // Empty signature
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 3: Edge cases
+                    {
+                        var row = ValueElement(id: "row3")
+                        row.cells = [
+                            "name": .string("Jack's Item"),
+                            "price": .double(11),
+                            "category": .string("Electronics"),
+                            "tags": .array(["Popular", "Sale", "New"]), // All three options
+                            "images": .array([]), // No images
+                            "createdDate": .double(1748923200000), // Jan 3, 2025
+                            "description": .string("Question 2: Jack's special item"),
+                            "barcode": .string("code 2"),
+                            "signature": .string("")
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 4: More edge cases
+                    {
+                        var row = ValueElement(id: "row4")
+                        row.cells = [
+                            "name": .string("Jackie's Product"),
+                            "price": .double(200),
+                            "category": .string(""),
+                            "tags": .array([]), // Empty
+                            "images": .array(["https://example.com/img1.jpg", "https://example.com/img2.jpg", "https://example.com/img3.jpg"]), // 3 images (max)
+                            "createdDate": .double(0), // Empty/null date
+                            "description": .string("Regular description"),
+                            "barcode": .string(""),
+                            "signature": .string("")
+                        ]
+                        return row
+                    }(),
+                    
+                    // Row 5: Final test data
+                    {
+                        var row = ValueElement(id: "row5")
+                        row.cells = [
+                            "name": .string("Test Product"),
+                            "price": .double(3), // For testing equality
+                            "category": .string("N/A"),
+                            "tags": .array([]), // Empty
+                            "images": .array([]), // Empty
+                            "createdDate": .double(1748750400000), // Jan 1, 2025 (same as row 1)
+                            "description": .string("Question 3: Test item"),
+                            "barcode": .string(""),
+                            "signature": .string("data:image/png;base64,signatureData")
+                        ]
+                        return row
+                    }()
+                ]
+            )
+        
+        // Add output fields for ALL test cases
+            .addTextField(identifier: "basicTextResult", formulaRef: "basicTextAccess", label: "Basic Text Access")
+            .addNumberField(identifier: "basicNumberResult", formulaRef: "basicNumberAccess", label: "Basic Number Access")
+            .addTextField(identifier: "basicDropdownResult", formulaRef: "basicDropdownAccess", label: "Basic Dropdown Access")
+            .addTextField(identifier: "basicMultiSelectResult", formulaRef: "basicMultiSelectAccess", label: "Basic MultiSelect Access")
+            .addTextField(identifier: "basicMultiSelectFirstResult", formulaRef: "basicMultiSelectFirstItem", label: "Basic MultiSelect First Item")
+            .addTextField(identifier: "basicImageResult", formulaRef: "basicImageAccess", label: "Basic Image Access")
+            .addTextField(identifier: "basicImageFirstResult", formulaRef: "basicImageFirstItem", label: "Basic Image First Item")
+            .addNumberField(identifier: "basicDateResult", formulaRef: "basicDateAccess", label: "Basic Date Access")
+            .addTextField(identifier: "basicBlockResult", formulaRef: "basicBlockAccess", label: "Basic Block Access")
+            .addTextField(identifier: "basicBarcodeResult", formulaRef: "basicBarcodeAccess", label: "Basic Barcode Access")
+            .addTextField(identifier: "basicSignatureResult", formulaRef: "basicSignatureAccess", label: "Basic Signature Access")
+        
+        // Aggregate results
+            .addNumberField(identifier: "rowCount", formulaRef: "tableRowCount", label: "Total Rows")
+            .addNumberField(identifier: "totalPriceResult", formulaRef: "totalPrice", label: "Total Price")
+            .addNumberField(identifier: "avgPriceResult", formulaRef: "avgPrice", label: "Average Price")
+            .addNumberField(identifier: "maxPriceResult", formulaRef: "maxPrice", label: "Max Price")
+            .addNumberField(identifier: "minPriceResult", formulaRef: "minPrice", label: "Min Price")
+        
+        // String function results
+            .addNumberField(identifier: "emptyTextCountResult", formulaRef: "emptyTextCount", label: "Empty Text Count")
+            .addNumberField(identifier: "exactNameMatchResult", formulaRef: "exactNameMatch", label: "Exact Name Match")
+            .addNumberField(identifier: "nameContainsJackResult", formulaRef: "nameContainsJack", label: "Name Contains Jack")
+            .addTextField(identifier: "nameLabelsResult", formulaRef: "nameLabels", label: "Name Labels")
+        
+        // MultiSelect function results
+            .addNumberField(identifier: "hasPopularCountResult", formulaRef: "hasPopularCount", label: "Has Popular Count")
+            .addNumberField(identifier: "hasAllOptionsCountResult", formulaRef: "hasAllOptionsCount", label: "Has All Options Count")
+            .addTextField(identifier: "flattenedTagsResult", formulaRef: "flattenedTags", label: "Flattened Tags")
+        
+        // Image function results
+            .addNumberField(identifier: "hasImageCountResult", formulaRef: "hasImageCount", label: "Has Image Count")
+            .addNumberField(identifier: "maxImageCountResult", formulaRef: "maxImageCount", label: "Max Image Count")
+        
+        // Number function results
+            .addNumberField(identifier: "expensiveCountResult", formulaRef: "expensiveCount", label: "Expensive Count")
+            .addTextField(identifier: "squaredPricesResult", formulaRef: "squaredPrices", label: "Squared Prices")
+            .addTextField(identifier: "evenPricesResult", formulaRef: "evenPrices", label: "Even Prices")
+        
+        // Date function results
+            .addNumberField(identifier: "hasDateCountResult", formulaRef: "hasDateCount", label: "Has Date Count")
+            .addNumberField(identifier: "dayGte2CountResult", formulaRef: "dayGte2Count", label: "Day >= 2 Count")
+            .addTextField(identifier: "extractedDaysResult", formulaRef: "extractedDays", label: "Extracted Days")
+        
+        // Block function results
+            .addNumberField(identifier: "questionCountResult", formulaRef: "questionCount", label: "Question Count")
+        
+        // Barcode function results
+            .addNumberField(identifier: "codeStartsCountResult", formulaRef: "codeStartsCount", label: "Code Starts Count")
+            .addTextField(identifier: "scannedLabelsResult", formulaRef: "scannedLabels", label: "Scanned Labels")
+            .addTextField(identifier: "replaceMissingBarcodesResult", formulaRef: "replaceMissingBarcodes", label: "Replace Missing Barcodes")
+        
+        // Signature function results
+            .addNumberField(identifier: "hasSignatureCountResult", formulaRef: "hasSignatureCount", label: "Has Signature Count")
+            .addTextField(identifier: "allHaveSignaturesResult", formulaRef: "allHaveSignatures", label: "All Have Signatures")
+        
+        // Operator results
+            .addTextField(identifier: "addTenResult", formulaRef: "addTen", label: "Add Ten")
+            .addTextField(identifier: "multiplyBySelfResult", formulaRef: "multiplyBySelf", label: "Multiply By Self")
+            .addTextField(identifier: "equalToThreeResult", formulaRef: "equalToThree", label: "Equal To Three")
+            .addTextField(identifier: "greaterThanTenResult", formulaRef: "greaterThanTen", label: "Greater Than Ten")
+        
+    }
 }
