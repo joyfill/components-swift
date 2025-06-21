@@ -1602,6 +1602,157 @@ class WisdomTests: XCTestCase {
         
         print("✅ All Dropdown Field Resolution tests completed!")
     }
+
+    // MARK: - MultiSelect Field Resolution Tests
+    
+    func testMultiSelectFieldResolution() {
+        // Create document with multiSelect fields and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access - Individual Option by Index
+            .addFormula(id: "simpleAccess", formula: "field1.0")
+            
+            // Conditionals - Less than or equal to: Check total number of selected items
+            .addFormula(id: "lengthCheck", formula: "length(field1) <= 2")
+            
+            // Conditionals - Equality: Check if "Option 2" is Selected
+            .addFormula(id: "option2Selected", formula: "some(field1, (item) → item == \"Option 2\")")
+            
+            // Conditionals - Not Equal: Enforce "Option 3" Not Selected
+            .addFormula(id: "option3NotSelected", formula: "every(field1, (item) → item != \"Option 3\")")
+            
+            // Misc - Count Selected Options
+            .addFormula(id: "countSelected", formula: "length(field1)")
+            
+            // Misc - Check if "Option 3" is NOT Selected
+            .addFormula(id: "option3NotSelectedAlt", formula: "not(some(field1, (item) → item == \"Option 3\"))")
+            
+            // Misc - Conditional Output for "Option 1"
+            .addFormula(id: "conditionalOption1", formula: "if(some(field1, (item) → item == \"Option 1\"), \"Selected Option 1\", \"Did not select Option 1\")")
+            
+            // Misc - Convert Selected Options to Uppercase
+            .addFormula(id: "uppercaseOptions", formula: "map(field1, (item) → upper(item))")
+            
+            // Misc - Comma-Separated List of Selected Options
+            .addFormula(id: "commaSeparated", formula: "reduce(field1, (acc, item) → if(empty(acc), item, concat(acc, \", \", item)), \"\")")
+            
+            // Misc - Check if All Options Are Selected
+            .addFormula(id: "allOptionsSelected", formula: "every([\"Option 1\", \"Option 2\", \"Option 3\"], (opt) → some(field1, (item) → item == opt))")
+            
+            // Misc - Filter for "Option 1" Only
+            .addFormula(id: "filterOption1", formula: "filter(field1, (item) → item == \"Option 1\")")
+            
+            // Additional test cases for edge scenarios
+            .addFormula(id: "emptyMultiSelectLength", formula: "length(emptyMultiSelect)")
+            .addFormula(id: "emptyMultiSelectCheck", formula: "empty(emptyMultiSelect)")
+            .addFormula(id: "secondOption", formula: "field1.1")
+            .addFormula(id: "allOptionsArray", formula: "field1")
+            
+            // Add multiSelect fields with test data matching the spec
+            // field1 has ["Option 2", "Option 1"] selected (as per spec examples)
+            .addMultiSelectField(identifier: "field1", selectedValues: ["Option 2", "Option 1"])
+            .addMultiSelectField(identifier: "emptyMultiSelect", selectedValues: []) // Empty multiSelect
+            
+            // Add result fields for all formulas
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
+            .addTextField(identifier: "lengthCheckResult", formulaRef: "lengthCheck")
+            .addTextField(identifier: "option2SelectedResult", formulaRef: "option2Selected")
+            .addTextField(identifier: "option3NotSelectedResult", formulaRef: "option3NotSelected")
+            .addTextField(identifier: "countSelectedResult", formulaRef: "countSelected")
+            .addTextField(identifier: "option3NotSelectedAltResult", formulaRef: "option3NotSelectedAlt")
+            .addTextField(identifier: "conditionalOption1Result", formulaRef: "conditionalOption1")
+            .addTextField(identifier: "uppercaseOptionsResult", formulaRef: "uppercaseOptions")
+            .addTextField(identifier: "commaSeparatedResult", formulaRef: "commaSeparated")
+            .addTextField(identifier: "allOptionsSelectedResult", formulaRef: "allOptionsSelected")
+            .addTextField(identifier: "filterOption1Result", formulaRef: "filterOption1")
+            .addTextField(identifier: "emptyMultiSelectLengthResult", formulaRef: "emptyMultiSelectLength")
+            .addTextField(identifier: "emptyMultiSelectCheckResult", formulaRef: "emptyMultiSelectCheck")
+            .addTextField(identifier: "secondOptionResult", formulaRef: "secondOption")
+            .addTextField(identifier: "allOptionsArrayResult", formulaRef: "allOptionsArray")
+        
+        let documentEditor = DocumentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing MultiSelect Field Resolution...")
+        
+        // 1. Simple Access - field1.0 should return "Option 2" (first item in ["Option 2", "Option 1"])
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access (field1.0): '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "Option 2", "Simple multiSelect access should return first selected option")
+        
+        // 2. Length Check - length(field1) <= 2 should be true (2 <= 2)
+        let lengthCheckResult = documentEditor.value(ofFieldWithIdentifier: "lengthCheckResult")?.bool
+        print("📏 Length Check (length <= 2): \(lengthCheckResult ?? false)")
+        XCTAssertEqual(lengthCheckResult, true, "Length check should be true since 2 <= 2")
+        
+        // 3. Option 2 Selected - some(field1, (item) -> item == "Option 2") should be true
+        let option2SelectedResult = documentEditor.value(ofFieldWithIdentifier: "option2SelectedResult")?.bool
+        print("✅ Option 2 Selected: \(option2SelectedResult ?? false)")
+        XCTAssertEqual(option2SelectedResult, true, "Should find Option 2 in selected options")
+        
+        // 4. Option 3 Not Selected - every(field1, (item) -> item != "Option 3") should be true
+        let option3NotSelectedResult = documentEditor.value(ofFieldWithIdentifier: "option3NotSelectedResult")?.bool
+        print("❌ Option 3 Not Selected (every): \(option3NotSelectedResult ?? false)")
+        XCTAssertEqual(option3NotSelectedResult, true, "All items should be != Option 3")
+        
+        // 5. Count Selected - length(field1) should be 2
+        let countSelectedResult = documentEditor.value(ofFieldWithIdentifier: "countSelectedResult")?.number
+        print("🔢 Count Selected: \(countSelectedResult ?? 0)")
+        XCTAssertEqual(countSelectedResult, 2, "Should count 2 selected options")
+        
+        // 6. Option 3 Not Selected Alt - not(some(field1, (item) -> item == "Option 3")) should be true
+        let option3NotSelectedAltResult = documentEditor.value(ofFieldWithIdentifier: "option3NotSelectedAltResult")?.bool
+        print("❌ Option 3 Not Selected (not/some): \(option3NotSelectedAltResult ?? false)")
+        XCTAssertEqual(option3NotSelectedAltResult, true, "Should not find Option 3 in selected options")
+        
+        // 7. Conditional Option 1 - should return "Selected Option 1"
+        let conditionalOption1Result = documentEditor.value(ofFieldWithIdentifier: "conditionalOption1Result")?.text
+        print("🎯 Conditional Option 1: '\(conditionalOption1Result ?? "nil")'")
+        XCTAssertEqual(conditionalOption1Result, "Selected Option 1", "Should find Option 1 and return success message")
+        
+        // 8. Uppercase Options - map(field1, (item) -> upper(item)) should return ["OPTION 2", "OPTION 1"]
+        let uppercaseOptionsResult = documentEditor.value(ofFieldWithIdentifier: "uppercaseOptionsResult")?.text
+        print("🔤 Uppercase Options: '\(uppercaseOptionsResult ?? "nil")'")
+        // Note: Array results are converted to string representation for text fields
+        XCTAssertTrue(uppercaseOptionsResult?.contains("OPTION 2") == true, "Should contain OPTION 2")
+        XCTAssertTrue(uppercaseOptionsResult?.contains("OPTION 1") == true, "Should contain OPTION 1")
+        
+        // 9. Comma-Separated List - should return "Option 2, Option 1"
+        let commaSeparatedResult = documentEditor.value(ofFieldWithIdentifier: "commaSeparatedResult")?.text
+        print("📝 Comma Separated: '\(commaSeparatedResult ?? "nil")'")
+        XCTAssertEqual(commaSeparatedResult, "Option 2, Option 1", "Should create comma-separated list")
+        
+        // 10. All Options Selected - should return false (Option 3 not selected)
+        let allOptionsSelectedResult = documentEditor.value(ofFieldWithIdentifier: "allOptionsSelectedResult")?.bool
+        print("🎯 All Options Selected: \(allOptionsSelectedResult ?? true)")
+        XCTAssertEqual(allOptionsSelectedResult, false, "Should be false since Option 3 is not selected")
+        
+        // 11. Filter Option 1 - should return ["Option 1"]
+        let filterOption1Result = documentEditor.value(ofFieldWithIdentifier: "filterOption1Result")?.text
+        print("🔍 Filter Option 1: '\(filterOption1Result ?? "nil")'")
+        XCTAssertTrue(filterOption1Result?.contains("Option 1") == true, "Should contain filtered Option 1")
+        
+        // 12. Empty MultiSelect Tests
+        let emptyMultiSelectLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyMultiSelectLengthResult")?.number
+        print("📏 Empty MultiSelect Length: \(emptyMultiSelectLengthResult ?? -1)")
+        XCTAssertEqual(emptyMultiSelectLengthResult, 0, "Empty multiSelect should have length 0")
+        
+        let emptyMultiSelectCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyMultiSelectCheckResult")?.bool
+        print("🕳️ Empty MultiSelect Check: \(emptyMultiSelectCheckResult ?? false)")
+        XCTAssertEqual(emptyMultiSelectCheckResult, true, "Empty multiSelect should return true for empty check")
+        
+        // 13. Second Option - field1.1 should return "Option 1" (second item)
+        let secondOptionResult = documentEditor.value(ofFieldWithIdentifier: "secondOptionResult")?.text
+        print("📝 Second Option (field1.1): '\(secondOptionResult ?? "nil")'")
+        XCTAssertEqual(secondOptionResult, "Option 1", "Second option access should return Option 1")
+        
+        // 14. All Options Array - field1 should return the full array
+        let allOptionsArrayResult = documentEditor.value(ofFieldWithIdentifier: "allOptionsArrayResult")?.text
+        print("📋 All Options Array: '\(allOptionsArrayResult ?? "nil")'")
+        XCTAssertTrue(allOptionsArrayResult?.contains("Option 2") == true, "Should contain Option 2")
+        XCTAssertTrue(allOptionsArrayResult?.contains("Option 1") == true, "Should contain Option 1")
+        
+        print("✅ All MultiSelect Field Resolution tests completed!")
+    }
 }
 
 extension DocumentEditor {
