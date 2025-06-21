@@ -1331,6 +1331,133 @@ class WisdomTests: XCTestCase {
         
         print("✅ All Textarea Field Resolution tests completed!")
     }
+
+    // MARK: - Text Field Resolution Tests
+    
+    func testTextFieldResolution() {
+        // Create document with text field and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access
+            .addFormula(id: "simpleAccess", formula: "text1")
+            
+            // 1. Concatenating Strings (static)
+            .addFormula(id: "staticConcat", formula: "concat(\"Hello\", \" \", \"World\")")
+            
+            // 2. Using Field Values in Concatenation
+            .addFormula(id: "fieldConcat", formula: "concat(\"Current entry: \", text1)")
+            
+            // 3. Changing Case - Upper
+            .addFormula(id: "transformUpper", formula: "upper(text1)")
+            
+            // 4. Changing Case - Lower
+            .addFormula(id: "transformLower", formula: "lower(text1)")
+            
+            // Additional comprehensive string function tests
+            .addFormula(id: "containsCheck", formula: "contains(text1, \"formulas\")")
+            .addFormula(id: "emptyCheck", formula: "empty(text1)")
+            .addFormula(id: "lengthCheck", formula: "length(text1)")
+            .addFormula(id: "trimCheck", formula: "trim(text1)")
+            
+            // Complex concatenation examples
+            .addFormula(id: "multiConcat", formula: "concat(\"Prefix: \", upper(text1), \" - Suffix\")")
+            .addFormula(id: "conditionalText", formula: "if(contains(text1, \"test\"), \"Found test!\", \"No test found\")")
+            
+            // Edge case tests
+            .addFormula(id: "emptyTextCheck", formula: "empty(emptyText)")
+            .addFormula(id: "emptyTextLength", formula: "length(emptyText)")
+            
+            // Add text field with the exact content from spec: "test for formulas"
+            .addTextField(identifier: "text1", value: "test for formulas")
+            
+            // Add empty text field for edge case testing
+            .addTextField(identifier: "emptyText", value: "")
+            
+            // Add result fields for all formulas
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
+            .addTextField(identifier: "staticConcatResult", formulaRef: "staticConcat")
+            .addTextField(identifier: "fieldConcatResult", formulaRef: "fieldConcat")
+            .addTextField(identifier: "transformUpperResult", formulaRef: "transformUpper")
+            .addTextField(identifier: "transformLowerResult", formulaRef: "transformLower")
+            .addTextField(identifier: "containsCheckResult", formulaRef: "containsCheck")
+            .addTextField(identifier: "emptyCheckResult", formulaRef: "emptyCheck")
+            .addTextField(identifier: "lengthCheckResult", formulaRef: "lengthCheck")
+            .addTextField(identifier: "trimCheckResult", formulaRef: "trimCheck")
+            .addTextField(identifier: "multiConcatResult", formulaRef: "multiConcat")
+            .addTextField(identifier: "conditionalTextResult", formulaRef: "conditionalText")
+            .addTextField(identifier: "emptyTextCheckResult", formulaRef: "emptyTextCheck")
+            .addTextField(identifier: "emptyTextLengthResult", formulaRef: "emptyTextLength")
+        
+        let documentEditor = DocumentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing Text Field Resolution...")
+        
+        // 1. Simple Access - should return exact field value
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access: '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "test for formulas", "Simple text access should return the field value")
+        
+        // 2. Static String Concatenation
+        let staticConcatResult = documentEditor.value(ofFieldWithIdentifier: "staticConcatResult")?.text
+        print("🔗 Static Concat: '\(staticConcatResult ?? "nil")'")
+        XCTAssertEqual(staticConcatResult, "Hello World", "Static concatenation should work correctly")
+        
+        // 3. Field Value Concatenation
+        let fieldConcatResult = documentEditor.value(ofFieldWithIdentifier: "fieldConcatResult")?.text
+        print("📝 Field Concat: '\(fieldConcatResult ?? "nil")'")
+        XCTAssertEqual(fieldConcatResult, "Current entry: test for formulas", "Field concatenation should include field value")
+        
+        // 4. Transform to Uppercase
+        let transformUpperResult = documentEditor.value(ofFieldWithIdentifier: "transformUpperResult")?.text
+        print("🔤 Transform Upper: '\(transformUpperResult ?? "nil")'")
+        XCTAssertEqual(transformUpperResult, "TEST FOR FORMULAS", "Text should be converted to uppercase")
+        
+        // 5. Transform to Lowercase
+        let transformLowerResult = documentEditor.value(ofFieldWithIdentifier: "transformLowerResult")?.text
+        print("🔡 Transform Lower: '\(transformLowerResult ?? "nil")'")
+        XCTAssertEqual(transformLowerResult, "test for formulas", "Text should be converted to lowercase")
+        
+        // 6. Contains Check - should find "formulas" in "test for formulas"
+        let containsCheckResult = documentEditor.value(ofFieldWithIdentifier: "containsCheckResult")?.bool
+        print("🔍 Contains Check: \(containsCheckResult ?? false)")
+        XCTAssertEqual(containsCheckResult, true, "Should find 'formulas' in the text")
+        
+        // 7. Empty Check - should be false since text has content
+        let emptyCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyCheckResult")?.bool
+        print("❓ Empty Check: \(emptyCheckResult ?? true)")
+        XCTAssertEqual(emptyCheckResult, false, "Text with content should not be empty")
+        
+        // 8. Length Check - "test for formulas" = 17 characters
+        let lengthCheckResult = documentEditor.value(ofFieldWithIdentifier: "lengthCheckResult")?.number
+        print("📏 Length Check: \(lengthCheckResult ?? 0)")
+        XCTAssertEqual(lengthCheckResult, 17, "Character count should be 17")
+        
+        // 9. Trim Check - should return same since no leading/trailing spaces
+        let trimCheckResult = documentEditor.value(ofFieldWithIdentifier: "trimCheckResult")?.text
+        print("✂️ Trim Check: '\(trimCheckResult ?? "nil")'")
+        XCTAssertEqual(trimCheckResult, "test for formulas", "Trimmed text should be the same (no extra spaces)")
+        
+        // 10. Multi Concatenation with transformation
+        let multiConcatResult = documentEditor.value(ofFieldWithIdentifier: "multiConcatResult")?.text
+        print("🔗 Multi Concat: '\(multiConcatResult ?? "nil")'")
+        XCTAssertEqual(multiConcatResult, "Prefix: TEST FOR FORMULAS - Suffix", "Complex concatenation should work")
+        
+        // 11. Conditional Text Based on Contains
+        let conditionalTextResult = documentEditor.value(ofFieldWithIdentifier: "conditionalTextResult")?.text
+        print("🔀 Conditional Text: '\(conditionalTextResult ?? "nil")'")
+        XCTAssertEqual(conditionalTextResult, "Found test!", "Should find 'test' in the text")
+        
+        // 12. Empty Text Field Tests
+        let emptyTextCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextCheckResult")?.bool
+        print("🕳️ Empty Text Check: \(emptyTextCheckResult ?? false)")
+        XCTAssertEqual(emptyTextCheckResult, true, "Empty text field should return true for empty check")
+        
+        let emptyTextLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextLengthResult")?.number
+        print("📏 Empty Text Length: \(emptyTextLengthResult ?? -1)")
+        XCTAssertEqual(emptyTextLengthResult, 0, "Empty text field should have length 0")
+        
+        print("✅ All Text Field Resolution tests completed!")
+    }
 }
 
 extension DocumentEditor {
