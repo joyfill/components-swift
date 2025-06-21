@@ -1214,6 +1214,123 @@ class WisdomTests: XCTestCase {
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "debugMultiSelectFirstResult")?.text, "Popular")
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "debugImageFirstResult")?.text, "https://example.com/laptop1.jpg")
     }
+
+    // MARK: - Textarea Field Resolution Tests
+    
+    func testTextareaFieldResolution() {
+        // Create document with textarea field and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access
+            .addFormula(id: "simpleAccess", formula: "textarea1")
+            
+            // 1. Check if Textarea Contains a Keyword (case-insensitive)
+            .addFormula(id: "containsUrgent", formula: "contains(lower(textarea1), \"urgent\")")
+            
+            // 2. Transform to Uppercase
+            .addFormula(id: "transformUpper", formula: "upper(textarea1)")
+            
+            // 3. Transform to Lowercase
+            .addFormula(id: "transformLower", formula: "lower(textarea1)")
+            
+            // 4. Append a Message to the End
+            .addFormula(id: "appendMessage", formula: "concat(textarea1, \"\n-- Reviewed by Admin --\")")
+            
+            // 5. Empty Check
+            .addFormula(id: "emptyCheck", formula: "empty(textarea1)")
+            
+            // 6. If-Else Based on Text Presence
+            .addFormula(id: "conditionalError", formula: "if(contains(lower(textarea1), \"error\"), \"Error Detected\", \"All Clear\")")
+            
+            // 7. Concatenate with Static Prefix
+            .addFormula(id: "staticPrefix", formula: "concat(\"User Notes:\n\", textarea1)")
+            
+            // 8. Count Character Length of Entire Textarea (including newlines)
+            .addFormula(id: "characterLength", formula: "length(textarea1)")
+            
+            // Additional edge case tests
+            .addFormula(id: "emptyTextareaCheck", formula: "empty(emptyTextarea)")
+            .addFormula(id: "emptyTextareaLength", formula: "length(emptyTextarea)")
+            
+            // Add textarea field with the exact content from spec
+            .addTextareaField(identifier: "textarea1", value: "Line 1\nLine 2\nLine 3")
+            
+            // Add empty textarea for edge case testing
+            .addTextareaField(identifier: "emptyTextarea", value: "")
+            
+            // Add result fields for each formula
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess", formulaKey: "value", label: "Simple Access")
+            .addTextField(identifier: "containsUrgentResult", formulaRef: "containsUrgent", formulaKey: "value", label: "Contains Urgent")
+            .addTextField(identifier: "transformUpperResult", formulaRef: "transformUpper", formulaKey: "value", label: "Transform Upper")
+            .addTextField(identifier: "transformLowerResult", formulaRef: "transformLower", formulaKey: "value", label: "Transform Lower")
+            .addTextField(identifier: "appendMessageResult", formulaRef: "appendMessage", formulaKey: "value", label: "Append Message")
+            .addTextField(identifier: "emptyCheckResult", formulaRef: "emptyCheck", formulaKey: "value", label: "Empty Check")
+            .addTextField(identifier: "conditionalErrorResult", formulaRef: "conditionalError", formulaKey: "value", label: "Conditional Error")
+            .addTextField(identifier: "staticPrefixResult", formulaRef: "staticPrefix", formulaKey: "value", label: "Static Prefix")
+            .addTextField(identifier: "characterLengthResult", formulaRef: "characterLength", formulaKey: "value", label: "Character Length")
+            .addTextField(identifier: "emptyTextareaCheckResult", formulaRef: "emptyTextareaCheck", formulaKey: "value", label: "Empty Textarea Check")
+            .addTextField(identifier: "emptyTextareaLengthResult", formulaRef: "emptyTextareaLength", formulaKey: "value", label: "Empty Textarea Length")
+
+        let documentEditor = DocumentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing Textarea Field Resolution...")
+        
+        // 1. Simple Access
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access: '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "Line 1\nLine 2\nLine 3", "Simple textarea access should return the full content")
+        
+        // 2. Contains Check (case-insensitive) - should be false since "urgent" is not in the text
+        let containsUrgentResult = documentEditor.value(ofFieldWithIdentifier: "containsUrgentResult")?.bool
+        print("🔍 Contains 'urgent': \(containsUrgentResult ?? false)")
+        XCTAssertEqual(containsUrgentResult, false, "Textarea should not contain 'urgent'")
+        
+        // 3. Transform to Uppercase
+        let transformUpperResult = documentEditor.value(ofFieldWithIdentifier: "transformUpperResult")?.text
+        print("🔤 Transform Upper: '\(transformUpperResult ?? "nil")'")
+        XCTAssertEqual(transformUpperResult, "LINE 1\nLINE 2\nLINE 3", "Textarea should be converted to uppercase")
+        
+        // 4. Transform to Lowercase
+        let transformLowerResult = documentEditor.value(ofFieldWithIdentifier: "transformLowerResult")?.text
+        print("🔡 Transform Lower: '\(transformLowerResult ?? "nil")'")
+        XCTAssertEqual(transformLowerResult, "line 1\nline 2\nline 3", "Textarea should be converted to lowercase")
+        
+        // 5. Append Message
+        let appendMessageResult = documentEditor.value(ofFieldWithIdentifier: "appendMessageResult")?.text
+        print("📝 Append Message: '\(appendMessageResult ?? "nil")'")
+        XCTAssertEqual(appendMessageResult, "Line 1\nLine 2\nLine 3\n-- Reviewed by Admin --", "Message should be appended to textarea")
+        
+        // 6. Empty Check - should be false since textarea has content
+        let emptyCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyCheckResult")?.bool
+        print("❓ Empty Check: \(emptyCheckResult ?? true)")
+        XCTAssertEqual(emptyCheckResult, false, "Textarea with content should not be empty")
+        
+        // 7. Conditional Error Check - should be "All Clear" since no "error" in text
+        let conditionalErrorResult = documentEditor.value(ofFieldWithIdentifier: "conditionalErrorResult")?.text
+        print("⚠️ Conditional Error: '\(conditionalErrorResult ?? "nil")'")
+        XCTAssertEqual(conditionalErrorResult, "All Clear", "Should return 'All Clear' when no error found")
+        
+        // 8. Static Prefix
+        let staticPrefixResult = documentEditor.value(ofFieldWithIdentifier: "staticPrefixResult")?.text
+        print("📋 Static Prefix: '\(staticPrefixResult ?? "nil")'")
+        XCTAssertEqual(staticPrefixResult, "User Notes:\nLine 1\nLine 2\nLine 3", "Should prefix textarea with static text")
+        
+        // 9. Character Length (including newlines) - "Line 1\nLine 2\nLine 3" = 20 characters
+        let characterLengthResult = documentEditor.value(ofFieldWithIdentifier: "characterLengthResult")?.number
+        print("📏 Character Length: \(characterLengthResult ?? 0)")
+        XCTAssertEqual(characterLengthResult, 20, "Character count should include newlines (20 total)")
+        
+        // 10. Empty Textarea Tests
+        let emptyTextareaCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextareaCheckResult")?.bool
+        print("🕳️ Empty Textarea Check: \(emptyTextareaCheckResult ?? false)")
+        XCTAssertEqual(emptyTextareaCheckResult, true, "Empty textarea should return true for empty check")
+        
+        let emptyTextareaLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextareaLengthResult")?.number
+        print("📏 Empty Textarea Length: \(emptyTextareaLengthResult ?? -1)")
+        XCTAssertEqual(emptyTextareaLengthResult, 0, "Empty textarea should have length 0")
+        
+        print("✅ All Textarea Field Resolution tests completed!")
+    }
 }
 
 extension DocumentEditor {
