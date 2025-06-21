@@ -1027,6 +1027,3 @@ extension DocumentEditor {
         self.field(fieldID: identifier)?.value
     }
 }
-
-
-//XCTAssertEqual failed: ("Optional(JoyfillModel.ValueUnion.int(30))") is not equal to ("Optional(JoyfillModel.ValueUnion.int(30))")

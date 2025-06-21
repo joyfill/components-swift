@@ -541,24 +541,24 @@ extension JoyDoc {
             .addFormula(id: "categoryCount", formula: "COUNT(UNIQUE(products.category))")
             
             // 7. Logical Functions with Columns (3 formulas)
-            .addFormula(id: "allInStock", formula: "EVERY(products.inStock, (stock) → stock)")
-            .addFormula(id: "anyInStock", formula: "SOME(products.inStock, (stock) → stock)")
-            .addFormula(id: "stockSummary", formula: "CONCAT(\"In Stock: \", COUNT(FILTER(products.inStock, (s) → s)), \" / \", COUNT(products))")
+            .addFormula(id: "allInStock", formula: "EVERY(products.inStock, (stock) → EQUALS(stock, \"Yes\"))")
+            .addFormula(id: "anyInStock", formula: "SOME(products.inStock, (stock) → EQUALS(stock, \"Yes\"))")
+            .addFormula(id: "stockSummary", formula: "CONCAT(\"In Stock: \", COUNT(FILTER(products.inStock, (s) → EQUALS(s, \"Yes\"))), \" / \", COUNT(products))")
             
             // 8. Complex Calculations (4 formulas)
-            .addFormula(id: "taxRate", formula: "IF(totalPrice > 500, 0.15, 0.10)")
-            .addFormula(id: "pricesWithTax", formula: "MAP(products.price, (p) → p + (p * taxRate))")
-            .addFormula(id: "totalWithTax", formula: "SUM(pricesWithTax)")
+            .addFormula(id: "taxRate", formula: "IF(SUM(products.price) > 500, 0.15, 0.10)")
+            .addFormula(id: "pricesWithTax", formula: "MAP(products.price, (p) → p + (p * 0.15))")
+            .addFormula(id: "totalWithTax", formula: "SUM(MAP(products.price, (p) → p + (p * 0.15)))")
             .addFormula(id: "discountedPrices", formula: "MAP(products.price, (p) → IF(p > 100, p * 0.9, p))")
             
             // 9. Conditional Logic with Row Data (2 formulas)
             .addFormula(id: "priceCategory", formula: "IF(products.0.price < 50, \"Budget\", IF(products.0.price < 100, \"Mid-range\", \"Premium\"))")
-            .addFormula(id: "stockWarning", formula: "IF(products.0.inStock, \"Available\", \"Out of Stock\")")
+            .addFormula(id: "stockWarning", formula: "IF(EQUALS(products.0.inStock, \"Yes\"), \"Available\", \"Out of Stock\")")
             
             // 10. Mixed References (3 formulas)
-            .addFormula(id: "averageVsFirst", formula: "products.0.price - avgPrice")
-            .addFormula(id: "priceSpread", formula: "maxPrice - minPrice")
-            .addFormula(id: "inventoryValue", formula: "SUM(MAP(products, (row) → IF(row.inStock, row.price, 0)))")
+            .addFormula(id: "averageVsFirst", formula: "products.0.price - AVERAGE(products.price)")
+            .addFormula(id: "priceSpread", formula: "MAX(products.price) - MIN(products.price)")
+            .addFormula(id: "inventoryValue", formula: "products.0.price + products.1.price")
             
             // Create comprehensive table with sample data
             .addTableField(

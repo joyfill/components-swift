@@ -494,56 +494,9 @@ struct FormBuilderView: View {
             BuilderFormula(id: $0.id ?? "", formula: $0.expression ?? "")
         }
         
-        // Load fields
+//        // Load fields
         self.fields = joyDoc.fields.map { docField -> BuilderField in
             let fieldType = docField.fieldType
-            
-            var valueString = ""
-            
-            if fieldType == .dropdown || (fieldType == .multiSelect && docField.multi == true) {
-                if let options = docField.options {
-                    // For dropdowns/multiselects, the 'value' in the builder is a comma-separated list of options
-                    valueString = options.compactMap { $0.value }.joined(separator: ", ")
-                } else {
-                     // The actual selected value is in `docField.value`, handle it
-                    switch docField.value {
-                        case .string(let s):
-                            valueString = s
-                        case .array(let a):
-                            valueString = a.joined(separator: ", ")
-                        default:
-                            valueString = ""
-                    }
-                }
-            } else {
-                switch docField.value {
-                case .string(let s):
-                    valueString = s
-                case .double(let d):
-                    valueString = String(d)
-                case .bool(let b):
-                    // This is for checkbox which is a form of multiSelect
-                    valueString = String(b)
-                case .array(let a):
-                    valueString = a.joined(separator: ", ")
-                case .valueElementArray(let elements):
-                    if fieldType == .image {
-                        valueString = elements.compactMap { $0.url }.joined(separator: ", ")
-                    } else {
-                        valueString = "" // Not represented as a simple string for other types like table/chart
-                    }
-                case .dictionary(let dict):
-                    if let data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted),
-                       let jsonString = String(data: data, encoding: .utf8) {
-                        valueString = jsonString
-                    }
-                case .null, .none:
-                    valueString = ""
-                case .some(.int(_)):
-                    valueString = ""
-                }
-            }
-            
             var formulaRef: String?
             var formulaKey: String = "value"
             
@@ -552,15 +505,17 @@ struct FormBuilderView: View {
                 formulaKey = appliedFormula.key ?? "value"
             }
             
-            return BuilderField(
+            var field = BuilderField(
                 id: docField.id ?? "",
                 label: docField.title ?? "",
                 fieldType: fieldType,
-                value: valueString,
+                value: docField.value?.text ?? "",
                 formulaRef: formulaRef,
                 formulaKey: formulaKey,
                 tableColumns: docField.tableColumns ?? []
             )
+            field.valueUnion = docField.value
+            return field
         }
         
         // Switch to custom template view
@@ -819,14 +774,15 @@ struct FormBuilderView: View {
                         identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
-                        columns: field.tableColumns
+                        columns: field.tableColumns,
+                        rows: field.valueUnion?.valueElements ?? []
                     )
                 } else {
                     // Create sample table columns
                     document = document.addTableField(
                         identifier: field.id,
                         columns: field.tableColumns,
-                        rows: []
+                        rows: field.valueUnion?.valueElements ?? []
                     )
                 }
                 
@@ -1194,7 +1150,7 @@ struct FormBuilderView: View {
                     valueString = ""
                 }
                 
-                return BuilderField(
+                var fieldToBeReturned =  BuilderField(
                     id: fieldId,
                     label: docField.title ?? fieldId,
                     fieldType: fieldType,
@@ -1203,6 +1159,8 @@ struct FormBuilderView: View {
                     formulaKey: formulaKey,
                     tableColumns: docField.tableColumns ?? []
                 )
+                fieldToBeReturned.valueUnion = docField.value
+                return fieldToBeReturned
             }
         }
     }
@@ -1325,7 +1283,16 @@ struct BuilderField: Identifiable {
     let id: String
     var label: String
     var fieldType: FieldTypes
-    var value: String = ""
+    var valueUnion: ValueUnion?
+    var value: String {
+        get {
+            return valueUnion?.text ?? ""
+        }
+
+        set {
+            valueUnion = .string(newValue)
+        }
+    }
     var formulaRef: String? = nil
     var formulaKey: String = "value"
     var tableColumns: [FieldTableColumn] = []
@@ -1336,6 +1303,16 @@ struct BuilderField: Identifiable {
     
     var supportsMultiple: Bool {
         return fieldType == .image || fieldType == .multiSelect
+    }
+
+    init(id: String = "", label: String = "", fieldType: FieldTypes, value: String = "", formulaRef: String? = nil, formulaKey: String = "", tableColumns: [FieldTableColumn] = []) {
+        self.id = id
+        self.label = label
+        self.fieldType = fieldType
+        self.valueUnion = .string(value)
+        self.formulaRef = formulaRef
+        self.formulaKey = formulaKey
+        self.tableColumns = tableColumns
     }
 }
 
