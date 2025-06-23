@@ -43,7 +43,7 @@ class CollectionViewModel: ObservableObject {
         
     }
         
-    func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String { 
+    func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
         var longestText = ""
         
         for valueElement in valueElements {
@@ -478,18 +478,17 @@ class CollectionViewModel: ObservableObject {
     
     func setupAllCellModels(targetSchema: String) {
         tableDataModel.emptySelection()
-//        tableDataModel.filteredcellModels = []
         tableDataModel.filteredcellModels = []
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
         let rowToChildrenMap = setupRowsChildrens()
         
-        // Create root rows with all nested content pre-expanded
-        tableDataModel.valueToValueElements?.enumerated().forEach { rootIndex, valueElement in
-            if valueElement.deleted ?? false { return }
+        let rootRows = tableDataModel.valueToValueElements?.filter { !($0.deleted ?? false) } ?? []
+        var displayIndex = 1
+        for valueElement in rootRows {
             guard let rowID = valueElement.id else {
                 Log("Could not find rowID for valueElement", type: .error)
-                return
+                continue
             }
             var rowCellModels = [TableCellModel]()
             let childrens = rowToChildrenMap[rowID] ?? [:]
@@ -511,14 +510,13 @@ class CollectionViewModel: ObservableObject {
             
             let rootRowModel = RowDataModel(rowID: rowID,
                                           cells: rowCellModels,
-                                          rowType: .row(index: rootIndex + 1),
+                                          rowType: .row(index: displayIndex),
                                             isExpanded: targetSchema != rootSchemaKey ? true : false,
                                           childrens: childrens,
                                           rowWidth: rowWidth(tableDataModel.tableColumns, 0))
             if tableDataModel.shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel) {
                 cellModels.append(rootRowModel)
-                
-                
+                displayIndex += 1
                 // Add all nested rows for this root row
                 if targetSchema != rootSchemaKey {
                     addAllSchemasRecursively(to: &cellModels,
@@ -530,7 +528,6 @@ class CollectionViewModel: ObservableObject {
                 }
             }
         }
-//        tableDataModel.filteredcellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
         updateCollectionWidth()
     }
@@ -538,7 +535,8 @@ class CollectionViewModel: ObservableObject {
     fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel]) {
         // Add all nested rows for this schema
         let nonDeletedChildRows = childValueElements.filter { !($0.deleted ?? false) }
-        for (nestedIndex, childValueElement) in nonDeletedChildRows.enumerated() {
+        var displayIndex = 1
+        for childValueElement in nonDeletedChildRows {
             guard let childRowID = childValueElement.id else { continue }
             
             // Build cells for this nested row
@@ -565,7 +563,7 @@ class CollectionViewModel: ObservableObject {
             let nestedRowModel = RowDataModel(rowID: childRowID,
                                               cells: nestedCells,
                                               rowType: .nestedRow(level: level + 1,
-                                                                  index: nestedIndex + 1,
+                                                                  index: displayIndex,
                                                                   parentID: parentID,
                                                                   parentSchemaKey: childSchemaKey),
                                               isExpanded: targetSchema != childSchemaKey ? true : false,
@@ -573,7 +571,7 @@ class CollectionViewModel: ObservableObject {
                                               rowWidth: rowWidth(filteredTableColumns, level + 1))
             if tableDataModel.shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: nestedRowModel) {
                 cellModels.append(nestedRowModel)
-                
+                displayIndex += 1
                 // Recursively add nested rows for this child (if it has children)
                 if targetSchema != childSchemaKey {
                     addAllSchemasRecursively(to: &cellModels,
@@ -742,7 +740,8 @@ class CollectionViewModel: ObservableObject {
                     !(valueElement.deleted ?? false)
                 } ?? []
                 
-                for (nestedIndex,row) in valueToValueElements.enumerated() {
+                var displayIndex = 1
+                for row in valueToValueElements {
                     let cellDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: filteredTableColumns, row, schemaKey: schemaValue?.0 ?? "")
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
@@ -763,7 +762,7 @@ class CollectionViewModel: ObservableObject {
                     let row = RowDataModel(rowID: row.id ?? "",
                                            cells: subCells,
                                            rowType: .nestedRow(level: level + 1,
-                                                               index: nestedIndex+1,
+                                                               index: displayIndex,
                                                                parentID: parentID,
                                                                parentSchemaKey: schemaValue?.0 ?? ""),
                                            childrens: row.childrens ?? [:],
@@ -771,12 +770,12 @@ class CollectionViewModel: ObservableObject {
                                           )
                    if tableDataModel.shouldShowRowAccToFilters(schemaKey: schemaValue?.0 ?? "", row: row) {
                        cellModels.append(row)
+                        displayIndex += 1
                    }
                 }
             default:
                 break
             }
-//            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
         updateCollectionWidth()
