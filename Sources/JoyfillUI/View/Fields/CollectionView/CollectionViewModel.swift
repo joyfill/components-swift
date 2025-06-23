@@ -874,9 +874,29 @@ class CollectionViewModel: ObservableObject {
                                                                                    nestedKey: nestedKey,
                                                                                    parentRowId: parentRowId)
         self.tableDataModel.valueToValueElements = valueToValueElements
+        
+        var deletedRowLevel: Int?
+        var deletedRowSchemaKey: String?
+        if let firstSelectedRowID = tableDataModel.selectedRows.first,
+           let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) {
+            deletedRowLevel = firstSelectedRow.rowType.level
+            deletedRowSchemaKey = firstSelectedRow.rowType.parentSchemaKey
+        }
+        
         for rowID in tableDataModel.selectedRows {
             if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
                 deleteRow(at: index, rowID: rowID, isNested: true)
+            }
+        }
+        
+        if let level = deletedRowLevel, let schemaKey = deletedRowSchemaKey {
+            for row in tableDataModel.filteredcellModels {
+                if row.rowType.level == level && 
+                   row.rowType.parentSchemaKey == schemaKey && 
+                   (row.rowType.isRow || row.rowType.isNestedRow) {
+                    reIndexingRows(rowDataModel: row)
+                    break
+                }
             }
         }
     }
