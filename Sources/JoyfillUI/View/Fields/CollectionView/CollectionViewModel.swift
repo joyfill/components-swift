@@ -37,7 +37,6 @@ class CollectionViewModel: ObservableObject {
         cellWidthMapping()
         setupCellModels()
         updateCollectionWidth()
-        self.tableDataModel.filterCollectionRowsIfNeeded()
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
@@ -516,16 +515,19 @@ class CollectionViewModel: ObservableObject {
                                             isExpanded: targetSchema != rootSchemaKey ? true : false,
                                           childrens: childrens,
                                           rowWidth: rowWidth(tableDataModel.tableColumns, 0))
-            cellModels.append(rootRowModel)
-            
-            // Add all nested rows for this root row
-            if targetSchema != rootSchemaKey {
-                addAllSchemasRecursively(to: &cellModels,
-                                            parentRowID: rowID,
-                                            level: 0,
-                                            parentSchemaKey: rootSchemaKey,
-                                            parentID: ("", rowID),
-                                            targetSchema: targetSchema)
+            if tableDataModel.shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel) {
+                cellModels.append(rootRowModel)
+                
+                
+                // Add all nested rows for this root row
+                if targetSchema != rootSchemaKey {
+                    addAllSchemasRecursively(to: &cellModels,
+                                             parentRowID: rowID,
+                                             level: 0,
+                                             parentSchemaKey: rootSchemaKey,
+                                             parentID: ("", rowID),
+                                             targetSchema: targetSchema)
+                }
             }
         }
 //        tableDataModel.filteredcellModels = cellModels
@@ -569,16 +571,18 @@ class CollectionViewModel: ObservableObject {
                                               isExpanded: targetSchema != childSchemaKey ? true : false,
                                               childrens: childValueElement.childrens ?? [:],
                                               rowWidth: rowWidth(filteredTableColumns, level + 1))
-            cellModels.append(nestedRowModel)
-            
-            // Recursively add nested rows for this child (if it has children)
-            if targetSchema != childSchemaKey {
-                addAllSchemasRecursively(to: &cellModels,
-                                            parentRowID: childRowID,
-                                            level: level + 1,
-                                            parentSchemaKey: childSchemaKey,
-                                            parentID: ("", childRowID),
-                                            targetSchema: targetSchema)
+            if tableDataModel.shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: nestedRowModel) {
+                cellModels.append(nestedRowModel)
+                
+                // Recursively add nested rows for this child (if it has children)
+                if targetSchema != childSchemaKey {
+                    addAllSchemasRecursively(to: &cellModels,
+                                             parentRowID: childRowID,
+                                             level: level + 1,
+                                             parentSchemaKey: childSchemaKey,
+                                             parentID: ("", childRowID),
+                                             targetSchema: targetSchema)
+                }
             }
         }
     }
@@ -604,36 +608,38 @@ class CollectionViewModel: ObservableObject {
         for childSchemaKey in childrenKeys {
             let rowSchemaID = RowSchemaID(rowID: parentRowID, schemaID: childSchemaKey)
             if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShow {
-                guard let childSchema = tableDataModel.schema[childSchemaKey] else {
-                    continue
+                if tableDataModel.shouldShowSchemaAccToFilters(schemaID: childSchemaKey) {
+                    guard let childSchema = tableDataModel.schema[childSchemaKey] else {
+                        continue
+                    }
+                    
+                    // Add table expander for this schema
+                    let expanderRowID = UUID().uuidString
+                    let filteredTableColumns = tableDataModel.filterTableColumns(key: childSchemaKey)
+                    let expanderRow = RowDataModel(rowID: expanderRowID,
+                                                   cells: [],
+                                                   rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
+                                                                           level: level,
+                                                                           parentID: parentID,
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
+                                                   isExpanded: true, // Mark as expanded since we're showing content
+                                                   rowWidth: rowWidth(filteredTableColumns, level))
+                    cellModels.append(expanderRow)
+                    
+                    // Add header row for the nested table
+                    let headerRowID = UUID().uuidString
+                    let headerRow = RowDataModel(rowID: headerRowID,
+                                                 cells: [],
+                                                 rowType: .header(level: level + 1, tableColumns: filteredTableColumns),
+                                                 rowWidth: rowWidth(filteredTableColumns, level + 1))
+                    cellModels.append(headerRow)
+                    
+                    guard let childValueElements = parentChildren[childSchemaKey]?.valueToValueElements else {
+                        continue
+                    }
+                    
+                    addAllNestedRowsRecursively(childValueElements, filteredTableColumns, childSchemaKey, level, parentID, targetSchema, &cellModels)
                 }
-                
-                // Add table expander for this schema
-                let expanderRowID = UUID().uuidString
-                let filteredTableColumns = tableDataModel.filterTableColumns(key: childSchemaKey)
-                let expanderRow = RowDataModel(rowID: expanderRowID,
-                                               cells: [],
-                                               rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
-                                                                       level: level,
-                                                                       parentID: parentID,
-                                                                       rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
-                                               isExpanded: true, // Mark as expanded since we're showing content
-                                               rowWidth: rowWidth(filteredTableColumns, level))
-                cellModels.append(expanderRow)
-                
-                // Add header row for the nested table
-                let headerRowID = UUID().uuidString
-                let headerRow = RowDataModel(rowID: headerRowID,
-                                             cells: [],
-                                             rowType: .header(level: level + 1, tableColumns: filteredTableColumns),
-                                             rowWidth: rowWidth(filteredTableColumns, level + 1))
-                cellModels.append(headerRow)
-                
-                guard let childValueElements = parentChildren[childSchemaKey]?.valueToValueElements else {
-                    continue
-                }
-                
-                addAllNestedRowsRecursively(childValueElements, filteredTableColumns, childSchemaKey, level, parentID, targetSchema, &cellModels)
             }
         }
     }
