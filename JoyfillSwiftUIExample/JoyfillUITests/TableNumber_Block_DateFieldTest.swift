@@ -1285,7 +1285,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
         app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
         
-        let textField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
+        let textField = app.textViews["EditRowsBarcodeFieldIdentifier"].firstMatch
         XCTAssertTrue(textField.waitForExistence(timeout: 3), "Edit text field not found (initial)")
         textField.tap()
         textField.clearAndEnterText(updatedValue)
