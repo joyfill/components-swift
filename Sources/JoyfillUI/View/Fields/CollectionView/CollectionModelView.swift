@@ -49,6 +49,7 @@ struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
+    @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     var longestBlockText: String = ""
@@ -62,11 +63,16 @@ struct CollectionModalView : View {
         VStack {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true })
+                onEditTap: { showEditMultipleRowsSheetView = true },
+                onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
             }
+            .sheet(isPresented: $showFilterModal) {
+                CollectionFilterModal(viewModel: viewModel)
+            }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
@@ -103,6 +109,10 @@ struct CollectionModalView : View {
             )
         }
     }
+    
+    private var hasActiveFilters: Bool {
+        return !viewModel.tableDataModel.filterModels.allSatisfy { $0.filterText.isEmpty }
+    }
 
     func clearFilter() {
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
@@ -111,56 +121,6 @@ struct CollectionModalView : View {
         }
         viewModel.tableDataModel.emptySelection()
     }
-
-//    func sortRowsIfNeeded() {
-//        if currentSelectedCol != Int.min {
-//            guard viewModel.tableDataModel.sortModel.order != .none else { return }
-//            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowModel1, rowModel2 in
-//                let column1 = rowModel1.cells[currentSelectedCol].data
-//                let column2 = rowModel2.cells[currentSelectedCol].data
-//                switch column1.type {
-//                case .text:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.title ?? "") < (column2.title ?? "")
-//                    case .descending:
-//                        return (column1.title ?? "") > (column2.title ?? "")
-//                    case .none:
-//                        return true
-//                    }
-//                case .dropdown:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.selectedOptionText ?? "") < (column2.selectedOptionText ?? "")
-//                    case .descending:
-//                        return (column1.selectedOptionText ?? "") > (column2.selectedOptionText ?? "")
-//                    case .none:
-//                        return true
-//                    }
-//                case .number:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.number ?? 0) < (column2.number ?? 0)
-//                    case .descending:
-//                        return (column1.number ?? 0) > (column2.number ?? 0)
-//                    case .none:
-//                        return true
-//                    }
-//                case .barcode:
-//                    switch viewModel.tableDataModel.sortModel.order {
-//                    case .ascending:
-//                        return (column1.title ?? "") < (column2.title ?? "")
-//                    case .descending:
-//                        return (column1.title ?? "") > (column2.title ?? "")
-//                    case .none:
-//                        return true
-//                    }
-//                default:
-//                    return false
-//                }
-//            }
-//        }
-//    }
 
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -180,7 +140,7 @@ struct CollectionModalView : View {
             if viewModel.showRowSelector  {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
-                    .foregroundColor(viewModel.tableDataModel.cellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
+                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
                         if !viewModel.tableDataModel.allRowSelected {
                             viewModel.tableDataModel.selectAllRows()
@@ -188,7 +148,7 @@ struct CollectionModalView : View {
                             viewModel.tableDataModel.emptySelection()
                         }
                     }
-                    .disabled(viewModel.tableDataModel.cellModels.count == 0)
+                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied)
                     .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
@@ -285,8 +245,9 @@ struct CollectionExpanderView: View {
 
     var body: some View {
         HStack {
-            if viewModel.tableDataModel.mode != .readonly {
+            if viewModel.tableDataModel.mode != .readonly && viewModel.tableDataModel.filterModels.noFilterApplied {
                 Button(action: {
+//                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
                     viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
@@ -337,7 +298,7 @@ struct RootTitleRowView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if viewModel.tableDataModel.mode != .readonly {
+            if viewModel.tableDataModel.mode != .readonly && viewModel.tableDataModel.filterModels.noFilterApplied {
                 Button(action: {
                     viewModel.addRow()
                 }) {
@@ -488,6 +449,7 @@ struct CollectionRowsHeaderView: View {
                                 Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                     .frame(width: 40, height: 60)
                                     .border(Color.tableCellBorderColor)
+                                    .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
                                     .onTapGesture {
                                         viewModel.expandTables(rowDataModel: rowModel, level: level)
                                     }
@@ -523,7 +485,7 @@ struct CollectionRowsHeaderView: View {
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
-                            viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
                         }
                         .accessibilityIdentifier("selectRowItem\(index)")
                 }
@@ -531,7 +493,7 @@ struct CollectionRowsHeaderView: View {
                 if viewModel.showRowSelector {
                     Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "circle.square.fill" : "square")
                         .frame(width: 40, height: 60)
-                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 ? Color.gray.opacity(0.4) : nil)
+                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied ? Color.gray.opacity(0.4) : nil)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             if !viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) {
@@ -540,7 +502,7 @@ struct CollectionRowsHeaderView: View {
                                 viewModel.tableDataModel.emptySelection()
                             }
                         }
-                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
+                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied)
                         .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):
@@ -550,7 +512,7 @@ struct CollectionRowsHeaderView: View {
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
-                            viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
                         }
                         .accessibilityIdentifier("selectNestedRowItem\(index)")
                 }

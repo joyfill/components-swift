@@ -113,6 +113,13 @@ enum RowType: Equatable {
         return false
     }
     
+    var isNestedRow: Bool {
+        if case .nestedRow = self {
+            return true
+        }
+        return false
+    }
+    
     static func == (lhs: RowType, rhs: RowType) -> Bool {
         switch (lhs, rhs) {
         case (.row, .row),
@@ -142,6 +149,7 @@ struct TableDataModel {
     let documentEditor: DocumentEditor?
     let fieldIdentifier: FieldIdentifier
     let title: String?
+    let fieldType: FieldTypes
     var fieldRequired: Bool = false
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
@@ -151,6 +159,7 @@ struct TableDataModel {
     var fieldPositionSchema: [String : FieldPositionSchema] = [:]
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
+    var schemaChainMap: [String: [String]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -197,9 +206,11 @@ struct TableDataModel {
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
+        self.fieldType = fieldData.fieldType
                 
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
+            buildFullSchemaChainMap()
             self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
                 if value.root == true {
@@ -207,12 +218,12 @@ struct TableDataModel {
                     self.tableColumns = filterTableColumns(key: key)
                     self.childrens = value.children ?? []
                 }
+                for (colIndex, column) in filterTableColumns(key: key).enumerated() {
+                    let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown, schemaKey: key)
+                    self.filterModels.append(filterModel)
+                }
             }
             self.fieldRequired = fieldData.required ?? false
-            for (colIndex, column) in self.tableColumns.enumerated() {
-                let filterModel = FilterModel(colIndex: colIndex, colID: column.id ?? "", type: column.type ?? .unknown)
-                self.filterModels.append(filterModel)
-            }
         } else {
             fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
                 let column = fieldData.tableColumns?.first { $0.id == colID }
@@ -229,6 +240,48 @@ struct TableDataModel {
         }
         setupColumns()
         filterRowsIfNeeded()
+    }
+    
+    mutating func buildFullSchemaChainMap() {
+        func dfs(currentKey: String, currentPath: [String], map: inout [String: [String]]) {
+            let pathToCurrent = currentPath + [currentKey]
+            var result = pathToCurrent
+
+            let children = schema[currentKey]?.children ?? []
+            for child in children {
+                result.append(child)
+                dfs(currentKey: child, currentPath: pathToCurrent, map: &map)
+                if let childChain = map[child] {
+                    result += childChain.filter { !result.contains($0) }
+                }
+            }
+
+            map[currentKey] = result
+        }
+
+        for (key, value) in schema where value.root == true {
+            dfs(currentKey: key, currentPath: [], map: &schemaChainMap)
+        }
+    }
+    
+    func shouldShowSchemaAccToFilters(schemaID: String) -> Bool {
+        guard !filterModels.noFilterApplied else {
+            return true
+        }
+        let activeFilterSchemaID = getActiveFiltersSchemaID() ?? ""
+
+        // If the current schema is the same as the filter schema, allow
+        if schemaID == activeFilterSchemaID {
+            return true
+        }
+
+        // Check if the schema is in the path of the active filter schema
+        if let pathToRoot = schemaChainMap[activeFilterSchemaID] {
+            return pathToRoot.contains(schemaID)
+        }
+
+        // If no path found, assume not visible
+        return false
     }
     
     func filterTableColumns(key: String) -> [FieldTableColumn] {
@@ -249,7 +302,9 @@ struct TableDataModel {
     }
         
     mutating func filterRowsIfNeeded() {
-        filteredcellModels = cellModels
+        if fieldType == .table {
+            filteredcellModels = cellModels
+        }
         guard !filterModels.noFilterApplied else {
             return
         }
@@ -281,6 +336,18 @@ struct TableDataModel {
         }
         
         filteredcellModels = newFiltered
+    }
+    
+    func getActiveFilters() ->[FilterModel] {
+        return filterModels.filter { !$0.filterText.isEmpty }
+    }
+    
+    func getActiveFiltersSchemaID() -> String? {
+        return getActiveFilters().first?.schemaKey
+    }
+    /// Checks if the given schema is the root schema
+    private func isRootSchema(_ schemaKey: String) -> Bool {
+        return schema[schemaKey]?.root == true
     }
 
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
@@ -346,6 +413,65 @@ struct TableDataModel {
     func getDateFormatFromFieldPosition(key: String, columnID: String) -> DateFormatType? {
         let schema = fieldPositionSchema[key]
         return schema?.tableColumns?.first(where: { $0.id == columnID })?.format
+    }
+    
+    func shouldShowRowAccToFilters(schemaKey: String, row: RowDataModel) -> Bool {
+        guard !filterModels.noFilterApplied else {
+            return true
+        }
+        
+        let activeSchema = getActiveFiltersSchemaID() ?? ""
+        
+        // If the current schema is the one being filtered, apply the filter directly
+        if schemaKey == activeSchema {
+            return rowMatchesFilter(row, filters: getActiveFilters())
+        }
+
+        if let chain = schemaChainMap[activeSchema],
+           let index = chain.firstIndex(of: activeSchema) {
+            let rightSide = Array(chain[(index+1)...])
+            if rightSide.contains(schemaKey) {
+                return true
+            }
+        }
+            
+        // Otherwise, check if this schema contains the active schema in its descendant chain
+        // and if any of its children rows pass the filter
+        if let schemaChain = schemaChainMap[schemaKey], schemaChain.contains(activeSchema) {
+            // Look up children from this row and recursively check them
+            for childSchemaKey in schemaChain where childSchemaKey != schemaKey {
+                if let childrens = row.childrens[childSchemaKey]?.valueToValueElements {
+                    let tableColumns = filterTableColumns(key: childSchemaKey)
+                    for (index, child) in childrens.enumerated() {
+                        let cellDataModels = buildAllCellsForNestedRow(tableColumns: tableColumns, child, schemaKey: childSchemaKey)
+                        let cells: [TableCellModel] = cellDataModels.map { cellData in
+                            TableCellModel(
+                                rowID: child.id ?? UUID().uuidString,
+                                data: cellData,
+                                documentEditor: documentEditor,
+                                fieldIdentifier: fieldIdentifier,
+                                viewMode: .modalView,
+                                editMode: mode,
+                                didChange: { _ in }
+                            )
+                        }
+                        let childRowModel = RowDataModel(
+                            rowID: child.id ?? UUID().uuidString,
+                            cells: cells,
+                            rowType: .nestedRow(level: 0, index: index, parentID: row.rowType.parentID, parentSchemaKey: childSchemaKey),
+                            childrens: child.childrens ?? [:]
+                        )
+                        if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: childRowModel) {
+                            return true
+                        }
+                    }
+                }
+            }
+            return false
+        }
+
+        // If schema is unrelated to the active filtered schema, do not show
+        return false
     }
     
     func buildAllCellsForNestedRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String) -> [CellDataModel] {
@@ -461,21 +587,21 @@ struct TableDataModel {
     }
     
     mutating func updateCellModelForNested(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
-        guard let index = cellModels.firstIndex(where: { $0.rowID == rowId }) else {
+        guard let index = filteredcellModels.firstIndex(where: { $0.rowID == rowId }) else {
             return
         }
-        var cellModel = cellModels[index].cells[colIndex]
+        var cellModel = filteredcellModels[index].cells[colIndex]
         cellModel.data = cellDataModel
-        cellModels[index].cells[colIndex] = cellModel
+        filteredcellModels[index].cells[colIndex] = cellModel
         if isBulkEdit {
-            cellModels[index].cells[colIndex].id = UUID()
+            filteredcellModels[index].cells[colIndex].id = UUID()
         }
     }
     
     func childrensForRows(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) -> [Int] {
         var indices: [Int] = []
-        for i in index + 1..<cellModels.count {
-            let nextRow = cellModels[i]
+        for i in index + 1..<filteredcellModels.count {
+            let nextRow = filteredcellModels[i]
             
             if nextRow.rowType.level < rowDataModel.rowType.level {
                 break
@@ -521,8 +647,8 @@ struct TableDataModel {
     func childrensForASpecificRow(_ index: Int, _ rowDataModel: RowDataModel) -> [Int] {
         var indices: [Int] = []
         
-        for i in index + 1..<cellModels.count {
-            let nextRow = cellModels[i]
+        for i in index + 1..<filteredcellModels.count {
+            let nextRow = filteredcellModels[i]
             
             //Stop if find another table expander of same level
             if nextRow.rowType == .tableExpander(level: rowDataModel.rowType.level) {
@@ -556,13 +682,13 @@ struct TableDataModel {
     }
 
     var lastRowSelected: Bool {
-        let cellModels = self.cellModels.filter({ $0.rowType.isRow })
-        return !selectedRows.isEmpty && selectedRows.last == cellModels.last?.rowID
+        let filteredcellModels = self.filteredcellModels.filter({ $0.rowType.isRow })
+        return !selectedRows.isEmpty && selectedRows.last == filteredcellModels.last?.rowID
     }
     
     var firstRowSelected: Bool {
-        let cellModels = self.cellModels.filter({ $0.rowType.isRow })
-        return !selectedRows.isEmpty && selectedRows.first == cellModels.first?.rowID
+        let filteredcellModels = self.filteredcellModels.filter({ $0.rowType.isRow })
+        return !selectedRows.isEmpty && selectedRows.first == filteredcellModels.first?.rowID
     }
     
     var firstNestedRowSelected: Bool {
@@ -570,11 +696,11 @@ struct TableDataModel {
     }
     
     var isFirstNestedRow: Bool {
-        guard let selectedRowID = selectedRows.first, let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }), index > 0 else {
+        guard let selectedRowID = selectedRows.first, let index = filteredcellModels.firstIndex(where: { $0.rowID == selectedRowID }), index > 0 else {
             return false
         }
-        let currentRow = cellModels[index]
-        let previousRow = cellModels[index - 1]
+        let currentRow = filteredcellModels[index]
+        let previousRow = filteredcellModels[index - 1]
         switch previousRow.rowType {
         case .header(level: let level, tableColumns: _):
             if level == currentRow.rowType.level {
@@ -594,11 +720,11 @@ struct TableDataModel {
     
     var isLastNestedRow: Bool {
         guard let selectedRowID = selectedRows.first,
-              let index = cellModels.firstIndex(where: { $0.rowID == selectedRowID }) else {
+              let index = filteredcellModels.firstIndex(where: { $0.rowID == selectedRowID }) else {
             return false
         }
         
-        let selectedRow = cellModels[index]
+        let selectedRow = filteredcellModels[index]
         switch selectedRow.rowType {
         case .row(index: let index):
             return false
@@ -611,11 +737,11 @@ struct TableDataModel {
         let nextIndex = index + childrenIndices.count + 1
         
         // If there's no next row, then this is the last row.
-        guard nextIndex < cellModels.count else {
+        guard nextIndex < filteredcellModels.count else {
             return true
         }
         
-        let nextRow = cellModels[nextIndex]
+        let nextRow = filteredcellModels[nextIndex]
         
         switch nextRow.rowType {
         case .nestedRow(level: let nestedLevel, index: let index, parentID: _, _):
@@ -633,6 +759,14 @@ struct TableDataModel {
         lastRowSelected || !filterModels.noFilterApplied || sortModel.order != .none || lastNestedRowSelected
     }
     
+    var shouldDisableMoveUpFilterActive: Bool {
+        firstRowSelected || sortModel.order != .none || firstNestedRowSelected
+    }
+    
+    var shouldDisableMoveDownFilterActive: Bool {
+        lastRowSelected || sortModel.order != .none || lastNestedRowSelected
+    }
+    
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data.title  = value
@@ -645,8 +779,31 @@ struct TableDataModel {
         return dummyCell
     }
     
+    func getDummyCellForCollectionFilter(column: FieldTableColumn) -> CellDataModel? {
+        guard let columnId = column.id else {
+            Log("Column ID is missing", type: .error)
+            return nil
+        }
+        let optionsLocal = column.options?.map { option in
+            OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+        }
+        
+        return CellDataModel(
+            id: columnId,
+            defaultDropdownSelectedId: column.defaultDropdownSelectedId,
+            options: optionsLocal,
+            valueElements: column.images ?? [],
+            type: column.type,
+            title: column.title,
+            number: column.number,
+            date: column.date,
+            format: column.getFormat(from: fieldPositionTableColumns),
+            multiSelectValues: column.multiSelectValues,
+            multi: column.multi)
+    }
+    
     func getDummyNestedCell(col: Int, isBulkEdit: Bool, rowID: String) -> CellDataModel? {
-        let selectedRow = cellModels.first(where: { $0.rowID == rowID })
+        let selectedRow = filteredcellModels.first(where: { $0.rowID == rowID })
         var cell = selectedRow?.cells[col].data
         if isBulkEdit {
             cell?.title = ""
@@ -723,6 +880,39 @@ struct TableDataModel {
             return nil
         }
         return columnIdToColumnMap[id]?.id
+    }
+    
+    mutating func toggleSelectionForCollection(rowID: String) {
+        guard let currentRow = filteredcellModels.first(where: { $0.rowID == rowID }) else {
+            return
+        }
+        
+        // If no rows are selected yet, simply add the rowID.
+        guard let firstSelectedRowID = selectedRows.first, let firstSelectedRow = getRowByID(rowID: firstSelectedRowID) else {
+            selectedRows.append(rowID)
+            return
+        }
+        
+        // Check if the current row has the same parentID and parentSchemaKey as the first selected row.
+        let sameParent = currentRow.rowType.parentID?.rowID == firstSelectedRow.rowType.parentID?.rowID
+        let sameSchema = currentRow.rowType.parentSchemaKey == firstSelectedRow.rowType.parentSchemaKey
+        
+        guard sameParent, sameSchema else {
+            // Show alert
+            pendingRowID = [rowID]
+            showResetSelectionAlert = true
+            return
+        }
+        
+        if let index = selectedRows.firstIndex(of: rowID) {
+            selectedRows.remove(at: index)
+        } else {
+            if filterModels.noFilterApplied {
+                selectedRows.append(rowID)
+            } else {
+                selectedRows = [rowID]
+            }
+        }
     }
     
     mutating func toggleSelection(rowID: String) {
@@ -812,13 +1002,13 @@ struct TableDataModel {
     func getAllNestedRowsForRow(rowID: String) -> [String] {
         var indices: [String] = []
         if let rowDataModel = getRowByID(rowID: rowID) {
-            guard let index = cellModels.firstIndex(of: rowDataModel) else {
-                Log(" Could not find row \(rowID) in cellModels", type: .error)
+            guard let index = filteredcellModels.firstIndex(of: rowDataModel) else {
+                Log(" Could not find row \(rowID) in filteredcellModels", type: .error)
                 return []
             }
             
-            for i in index..<cellModels.count {
-                let nextRow = cellModels[i]
+            for i in index..<filteredcellModels.count {
+                let nextRow = filteredcellModels[i]
                 if nextRow.rowType.isRow {
                     break
                 }

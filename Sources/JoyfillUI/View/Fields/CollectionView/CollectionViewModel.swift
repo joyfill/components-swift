@@ -18,6 +18,7 @@ class CollectionViewModel: ObservableObject {
     @Published var collectionWidth: CGFloat = 0.0
     @Published var blockLongestTextMap: [String: String] = [:]
     @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
+    @Published var isLoading: Bool = false
     private var requiredColumnIds: [String] = []
     var rootSchemaKey: String = ""
 
@@ -36,14 +37,13 @@ class CollectionViewModel: ObservableObject {
         cellWidthMapping()
         setupCellModels()
         updateCollectionWidth()
-        self.tableDataModel.filterRowsIfNeeded()
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
         
     }
         
-    func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String { 
+    func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
         var longestText = ""
         
         for valueElement in valueElements {
@@ -104,14 +104,14 @@ class CollectionViewModel: ObservableObject {
     
     func selectUpperRow() {
         guard let currentRowID = tableDataModel.selectedRows.first,
-              let currentIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == currentRowID }) else {
+              let currentIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == currentRowID }) else {
             return
         }
         
-        let currentRow = tableDataModel.cellModels[currentIndex]
+        let currentRow = tableDataModel.filteredcellModels[currentIndex]
         
         for i in stride(from: currentIndex - 1, through: 0, by: -1) {
-            let priviousRow = tableDataModel.cellModels[i]
+            let priviousRow = tableDataModel.filteredcellModels[i]
             switch priviousRow.rowType {
             case .row(index: let index):
                 if priviousRow.rowType.level == currentRow.rowType.level {
@@ -131,14 +131,14 @@ class CollectionViewModel: ObservableObject {
 
     func selectBelowRow() {
         guard let currentRowID = tableDataModel.selectedRows.first,
-              let currentIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == currentRowID }) else {
+              let currentIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == currentRowID }) else {
             return
         }
         
-        let currentRow = tableDataModel.cellModels[currentIndex]
+        let currentRow = tableDataModel.filteredcellModels[currentIndex]
         
-        for i in (currentIndex + 1)..<tableDataModel.cellModels.count {
-            let nextRow = tableDataModel.cellModels[i]
+        for i in (currentIndex + 1)..<tableDataModel.filteredcellModels.count {
+            let nextRow = tableDataModel.filteredcellModels[i]
             switch nextRow.rowType {
             case .row(index: let index):
                 if nextRow.rowType.level == currentRow.rowType.level {
@@ -163,7 +163,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func getThreeRowsForQuickView() -> [RowDataModel] {
-        return Array(tableDataModel.cellModels.filter { $0.rowType.isRow }.prefix(3))
+        return Array(tableDataModel.filteredcellModels.filter { $0.rowType.isRow }.prefix(3))
     }
     
     func getTableColumnsForSelectedRows() -> [FieldTableColumn] {
@@ -172,7 +172,7 @@ class CollectionViewModel: ObservableObject {
             return []
         }
         
-        let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == firstSelectedRow } ) ?? 0
+        let indexOfFirstSelectedRow = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRow } ) ?? 0
         
         let tableColumns = getTableColumnsByIndex(indexOfFirstSelectedRow)
         if tableColumns.count > 0 {
@@ -209,6 +209,76 @@ class CollectionViewModel: ObservableObject {
             return false
         }
         return true
+    }
+        
+    func sortRowsIfNeeded() {
+        guard tableDataModel.sortModel.order != .none else { return }
+        guard tableDataModel.sortModel.colID != "" else { return }
+        guard tableDataModel.sortModel.schemaKey != "" else { return }
+        
+        let columns = tableDataModel.filterTableColumns(key: tableDataModel.sortModel.schemaKey)
+        guard let colIndex = columns.firstIndex(where: { $0.id == tableDataModel.sortModel.colID }) else { return }
+
+        tableDataModel.filteredcellModels = tableDataModel.filteredcellModels.sorted { row1, row2 in
+            
+            let sameParent = row1.rowType.parentID?.rowID == row2.rowType.parentID?.rowID
+            let sameSchema = row1.rowType.parentSchemaKey == row2.rowType.parentSchemaKey
+            if sameParent && sameSchema {
+                guard row1.cells.indices.contains(colIndex), row2.cells.indices.contains(colIndex) else {
+                    return false
+                }
+                let cell1 = row1.cells[colIndex].data
+                let cell2 = row2.cells[colIndex].data
+
+                // Only compare if types match
+                guard cell1.type == cell2.type else {
+                    return false
+                }
+
+                switch cell1.type {
+                case .text:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.title ?? "") < (cell2.title ?? "")
+                    case .descending:
+                        return (cell1.title ?? "") > (cell2.title ?? "")
+                    case .none:
+                        return true
+                    }
+                case .dropdown:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.selectedOptionText ?? "") < (cell2.selectedOptionText ?? "")
+                    case .descending:
+                        return (cell1.selectedOptionText ?? "") > (cell2.selectedOptionText ?? "")
+                    case .none:
+                        return true
+                    }
+                case .number:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.number ?? 0) < (cell2.number ?? 0)
+                    case .descending:
+                        return (cell1.number ?? 0) > (cell2.number ?? 0)
+                    case .none:
+                        return true
+                    }
+                case .barcode:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.title ?? "") < (cell2.title ?? "")
+                    case .descending:
+                        return (cell1.title ?? "") > (cell2.title ?? "")
+                    case .none:
+                        return true
+                    }
+                default:
+                    return false
+                }
+            } else {
+                return false
+            }
+        }
     }
         
     private func isRequiredColumnsValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
@@ -305,7 +375,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func updateCollectionWidth() {
-        collectionWidth = tableDataModel.cellModels
+        collectionWidth = tableDataModel.filteredcellModels
             .map { $0.rowWidth }
             .max() ?? 0
     }
@@ -331,15 +401,15 @@ class CollectionViewModel: ObservableObject {
                 }
                 rowCellModels.append(cellModel)
             }
-        if self.tableDataModel.cellModels.count > (index - 1) {
+        if self.tableDataModel.filteredcellModels.count > (index - 1) {
             let rowDataModel = RowDataModel(rowID: rowID,
                                             cells: rowCellModels,
                                             rowType: rowType,
                                             childrens: childrens, rowWidth: rowWidth(columns, level))
             
-            self.tableDataModel.cellModels.insert(rowDataModel, at: index)
+            self.tableDataModel.filteredcellModels.insert(rowDataModel, at: index)
         } else {
-            self.tableDataModel.cellModels.append(RowDataModel(rowID: rowID,
+            self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID,
                                                                cells: rowCellModels,
                                                                rowType: rowType,
                                                                childrens: childrens,
@@ -350,7 +420,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func getProgress(rowId: String) -> (Int, Int) {
-        guard let rowCells = tableDataModel.cellModels
+        guard let rowCells = tableDataModel.filteredcellModels
             .first(where: { $0.rowID == rowId })?.cells else {
             return (0,0)
         }
@@ -363,7 +433,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     func isColumnFilled(columnId: String) -> Bool {
-        for rowDataModel in tableDataModel.cellModels {
+        for rowDataModel in tableDataModel.filteredcellModels {
             if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
                 if !cellDataModel.data.isCellFilled {
                     return false
@@ -402,8 +472,174 @@ class CollectionViewModel: ObservableObject {
             }
             cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count + 1), childrens: childrens, rowWidth: rowWidth(tableDataModel.tableColumns, 0)))
         }
-        tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
+//        tableDataModel.filteredcellModels = cellModels
+    }
+    
+    func setupAllCellModels(targetSchema: String) {
+        tableDataModel.emptySelection()
+        tableDataModel.filteredcellModels = []
+        var cellModels = [RowDataModel]()
+        let rowDataMap = setupRows()
+        let rowToChildrenMap = setupRowsChildrens()
+        
+        let rootRows = tableDataModel.valueToValueElements?.filter { !($0.deleted ?? false) } ?? []
+        var displayIndex = 1
+        for valueElement in rootRows {
+            guard let rowID = valueElement.id else {
+                Log("Could not find rowID for valueElement", type: .error)
+                continue
+            }
+            var rowCellModels = [TableCellModel]()
+            let childrens = rowToChildrenMap[rowID] ?? [:]
+            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
+                let columnModel = rowDataMap[rowID]?[colIndex]
+                if let columnModel = columnModel {
+                    
+                    let cellModel = TableCellModel(rowID: rowID,
+                                                   data: columnModel,
+                                                   documentEditor: tableDataModel.documentEditor,
+                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                   viewMode: .modalView,
+                                                   editMode: tableDataModel.mode) { cellDataModel in
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                    }
+                    rowCellModels.append(cellModel)
+                }
+            }
+            
+            let rootRowModel = RowDataModel(rowID: rowID,
+                                          cells: rowCellModels,
+                                          rowType: .row(index: displayIndex),
+                                            isExpanded: targetSchema != rootSchemaKey ? true : false,
+                                          childrens: childrens,
+                                          rowWidth: rowWidth(tableDataModel.tableColumns, 0))
+            if tableDataModel.shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel) {
+                cellModels.append(rootRowModel)
+                displayIndex += 1
+                // Add all nested rows for this root row
+                if targetSchema != rootSchemaKey {
+                    addAllSchemasRecursively(to: &cellModels,
+                                             parentRowID: rowID,
+                                             level: 0,
+                                             parentSchemaKey: rootSchemaKey,
+                                             parentID: ("", rowID),
+                                             targetSchema: targetSchema)
+                }
+            }
+        }
+        tableDataModel.filteredcellModels = cellModels
+        updateCollectionWidth()
+    }
+    
+    fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel]) {
+        // Add all nested rows for this schema
+        let nonDeletedChildRows = childValueElements.filter { !($0.deleted ?? false) }
+        var displayIndex = 1
+        for childValueElement in nonDeletedChildRows {
+            guard let childRowID = childValueElement.id else { continue }
+            
+            // Build cells for this nested row
+            let cellDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: filteredTableColumns,
+                                                                          childValueElement,
+                                                                          schemaKey: childSchemaKey)
+            var nestedCells: [TableCellModel] = []
+            for cellDataModel in cellDataModels {
+                let cellModel = TableCellModel(rowID: childRowID,
+                                               data: cellDataModel,
+                                               documentEditor: tableDataModel.documentEditor,
+                                               fieldIdentifier: tableDataModel.fieldIdentifier,
+                                               viewMode: .modalView,
+                                               editMode: tableDataModel.mode) { cellDataModel in
+                    let columnIndex = filteredTableColumns.firstIndex(where: { column in
+                        column.id == cellDataModel.id
+                    })
+                    self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: childRowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
+                }
+                nestedCells.append(cellModel)
+            }
+            
+            // Create the nested row
+            let nestedRowModel = RowDataModel(rowID: childRowID,
+                                              cells: nestedCells,
+                                              rowType: .nestedRow(level: level + 1,
+                                                                  index: displayIndex,
+                                                                  parentID: parentID,
+                                                                  parentSchemaKey: childSchemaKey),
+                                              isExpanded: targetSchema != childSchemaKey ? true : false,
+                                              childrens: childValueElement.childrens ?? [:],
+                                              rowWidth: rowWidth(filteredTableColumns, level + 1))
+            if tableDataModel.shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: nestedRowModel) {
+                cellModels.append(nestedRowModel)
+                displayIndex += 1
+                // Recursively add nested rows for this child (if it has children)
+                if targetSchema != childSchemaKey {
+                    addAllSchemasRecursively(to: &cellModels,
+                                             parentRowID: childRowID,
+                                             level: level + 1,
+                                             parentSchemaKey: childSchemaKey,
+                                             parentID: ("", childRowID),
+                                             targetSchema: targetSchema)
+                }
+            }
+        }
+    }
+    
+    /// Recursively adds all nested rows maintaining the proper hierarchical order
+    private func addAllSchemasRecursively(to cellModels: inout [RowDataModel],
+                                           parentRowID: String,
+                                           level: Int, 
+                                           parentSchemaKey: String,
+                                             parentID: (columnID: String, rowID: String),
+                                             targetSchema: String) {
+        
+        // Get the schema for the parent to find its children
+        guard let schema = tableDataModel.schema[parentSchemaKey],
+              let childrenKeys = schema.children, !childrenKeys.isEmpty else {
+            return
+        }
+        
+        // Get the children data for the parent row
+        let parentChildren = getChildren(forRowId: parentRowID, in: tableDataModel.valueToValueElements ?? []) ?? [:]
+        
+        // Process each child schema
+        for childSchemaKey in childrenKeys {
+            let rowSchemaID = RowSchemaID(rowID: parentRowID, schemaID: childSchemaKey)
+            if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShow {
+                if tableDataModel.shouldShowSchemaAccToFilters(schemaID: childSchemaKey) {
+                    guard let childSchema = tableDataModel.schema[childSchemaKey] else {
+                        continue
+                    }
+                    
+                    // Add table expander for this schema
+                    let expanderRowID = UUID().uuidString
+                    let filteredTableColumns = tableDataModel.filterTableColumns(key: childSchemaKey)
+                    let expanderRow = RowDataModel(rowID: expanderRowID,
+                                                   cells: [],
+                                                   rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
+                                                                           level: level,
+                                                                           parentID: parentID,
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
+                                                   isExpanded: true, // Mark as expanded since we're showing content
+                                                   rowWidth: rowWidth(filteredTableColumns, level))
+                    cellModels.append(expanderRow)
+                    
+                    // Add header row for the nested table
+                    let headerRowID = UUID().uuidString
+                    let headerRow = RowDataModel(rowID: headerRowID,
+                                                 cells: [],
+                                                 rowType: .header(level: level + 1, tableColumns: filteredTableColumns),
+                                                 rowWidth: rowWidth(filteredTableColumns, level + 1))
+                    cellModels.append(headerRow)
+                    
+                    guard let childValueElements = parentChildren[childSchemaKey]?.valueToValueElements else {
+                        continue
+                    }
+                    
+                    addAllNestedRowsRecursively(childValueElements, filteredTableColumns, childSchemaKey, level, parentID, targetSchema, &cellModels)
+                }
+            }
+        }
     }
 
     private func setupRows() -> [String: [CellDataModel]] {
@@ -471,19 +707,19 @@ class CollectionViewModel: ObservableObject {
         
         var rowIDsToRemove: Set<String> = []
         for i in indicesToRemoveArray {
-            rowIDsToRemove.insert(tableDataModel.cellModels[i].rowID)
+            rowIDsToRemove.insert(tableDataModel.filteredcellModels[i].rowID)
         }
 
         for i in indicesToRemoveArray.reversed() {
 //            tableDataModel.filteredcellModels.remove(at: i)
-            tableDataModel.cellModels.remove(at: i)
+            tableDataModel.filteredcellModels.remove(at: i)
         }
         //Remove selections for the rows that are removed(Closed) from the table.
         tableDataModel.selectedRows.removeAll(where: { rowIDsToRemove.contains($0) })
     }
     
     func expendSpecificTable(rowDataModel: RowDataModel, parentID: (columnID: String, rowID: String), level: Int) {
-        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             collapseATable(index, rowDataModel)
         } else {
@@ -504,7 +740,8 @@ class CollectionViewModel: ObservableObject {
                     !(valueElement.deleted ?? false)
                 } ?? []
                 
-                for (nestedIndex,row) in valueToValueElements.enumerated() {
+                var displayIndex = 1
+                for row in valueToValueElements {
                     let cellDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: filteredTableColumns, row, schemaKey: schemaValue?.0 ?? "")
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
@@ -522,22 +759,24 @@ class CollectionViewModel: ObservableObject {
                         }
                         subCells.append(cellModel)
                     }
-                    
-                    cellModels.append(RowDataModel(rowID: row.id ?? "",
-                                                   cells: subCells,
-                                                   rowType: .nestedRow(level: level + 1,
-                                                                       index: nestedIndex+1,
-                                                                       parentID: parentID,
-                                                                       parentSchemaKey: schemaValue?.0 ?? ""),
-                                                   childrens: row.childrens ?? [:],
-                                                   rowWidth: rowWidth(filteredTableColumns, level + 1)
-                                                  ))
+                    let row = RowDataModel(rowID: row.id ?? "",
+                                           cells: subCells,
+                                           rowType: .nestedRow(level: level + 1,
+                                                               index: displayIndex,
+                                                               parentID: parentID,
+                                                               parentSchemaKey: schemaValue?.0 ?? ""),
+                                           childrens: row.childrens ?? [:],
+                                           rowWidth: rowWidth(filteredTableColumns, level + 1)
+                                          )
+                   if tableDataModel.shouldShowRowAccToFilters(schemaKey: schemaValue?.0 ?? "", row: row) {
+                       cellModels.append(row)
+                        displayIndex += 1
+                   }
                 }
             default:
                 break
             }
-//            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
-            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
+            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
         }
         updateCollectionWidth()
     }
@@ -547,22 +786,22 @@ class CollectionViewModel: ObservableObject {
            
         var rowIDsToRemove: Set<String> = []
         for i in indicesToRemove {
-            rowIDsToRemove.insert(tableDataModel.cellModels[i].rowID)
+            rowIDsToRemove.insert(tableDataModel.filteredcellModels[i].rowID)
         }
         
         for i in indicesToRemove.reversed() {
 //            tableDataModel.filteredcellModels.remove(at: i)
-            tableDataModel.cellModels.remove(at: i)
+            tableDataModel.filteredcellModels.remove(at: i)
         }
         //Remove selections for the rows that are removed from the table.
         tableDataModel.selectedRows.removeAll(where: { rowIDsToRemove.contains($0) })
     }
             
     func expandTables(rowDataModel: RowDataModel, level: Int) {
-        guard let index = tableDataModel.cellModels.firstIndex(of: rowDataModel) else { return }
+        guard let index = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else { return }
         if rowDataModel.isExpanded {
             collapseTables(index, rowDataModel, level)
-            tableDataModel.cellModels[index].isExpanded.toggle()
+            tableDataModel.filteredcellModels[index].isExpanded.toggle()
         } else {
             var cellModels = [RowDataModel]()
             let parentSchemaKey = rowDataModel.rowType.isRow ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey
@@ -573,39 +812,42 @@ class CollectionViewModel: ObservableObject {
             
             for id in ids {
                 let rowSchemaID = RowSchemaID(rowID: rowDataModel.rowID, schemaID: id)
-                if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShow {
-                    var childrens: [String: Children] = [:]
-                    if let children = parentCellModel?.childrens[id] {
-                        childrens = [id : children]
-                    }
-                    
-                    let newRowID = UUID().uuidString
-                    if let schemaValue = tableDataModel.schema[id] {
-                        let schemaTablecolumns = schemaValue.tableColumns ?? []
-                        let filteredTableColumns = tableDataModel.filterTableColumns(key: id)
-                        var rowDataModel = RowDataModel(rowID: newRowID,
-                                                        cells: rowDataModel.cells,
-                                                        rowType: .tableExpander(schemaValue: (id, schemaValue),
-                                                                                level: level,
-                                                                                parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
-                                                        childrens: childrens,
-                                                        rowWidth: rowWidth(filteredTableColumns, level)
-                        )
-                        rowDataModel.isExpanded = false
-                        cellModels.append(rowDataModel)
+                if let shouldShowAccToLogic = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: rowSchemaID), shouldShowAccToLogic {
+                    if tableDataModel.shouldShowSchemaAccToFilters(schemaID: id) {
+                        var childrens: [String: Children] = [:]
+                        if let children = parentCellModel?.childrens[id] {
+                            childrens = [id : children]
+                        }
                         
+                        let newRowID = UUID().uuidString
+                        if let schemaValue = tableDataModel.schema[id] {
+                            let schemaTablecolumns = schemaValue.tableColumns ?? []
+                            let filteredTableColumns = tableDataModel.filterTableColumns(key: id)
+                            var rowDataModel = RowDataModel(rowID: newRowID,
+                                                            cells: rowDataModel.cells,
+                                                            rowType: .tableExpander(schemaValue: (id, schemaValue),
+                                                                                    level: level,
+                                                                                    parentID: (columnID: "", rowID: rowDataModel.rowID),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
+                                                            childrens: childrens,
+                                                            rowWidth: rowWidth(filteredTableColumns, level)
+                            )
+                            rowDataModel.isExpanded = false
+                            cellModels.append(rowDataModel)
+                            
+                        }
                     }
                 }
             }
 //            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
-            tableDataModel.cellModels.insert(contentsOf: cellModels, at: index+1)
+            tableDataModel.filteredcellModels.insert(contentsOf: cellModels, at: index+1)
             for cellModel in cellModels {
                 expendSpecificTable(rowDataModel: cellModel, parentID: (columnID: "", rowID: cellModel.rowID), level: level)
             }
-            tableDataModel.cellModels[index].isExpanded.toggle()
+            tableDataModel.filteredcellModels[index].isExpanded.toggle()
         }
-        tableDataModel.filterRowsIfNeeded()
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
         updateCollectionWidth()
     }
     
@@ -615,7 +857,7 @@ class CollectionViewModel: ObservableObject {
             return
         }
         
-        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
             return
         }
         switch firstSelectedRow.rowType {
@@ -637,18 +879,38 @@ class CollectionViewModel: ObservableObject {
                                                                                    nestedKey: nestedKey,
                                                                                    parentRowId: parentRowId)
         self.tableDataModel.valueToValueElements = valueToValueElements
+        
+        var deletedRowLevel: Int?
+        var deletedRowSchemaKey: String?
+        if let firstSelectedRowID = tableDataModel.selectedRows.first,
+           let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) {
+            deletedRowLevel = firstSelectedRow.rowType.level
+            deletedRowSchemaKey = firstSelectedRow.rowType.parentSchemaKey
+        }
+        
         for rowID in tableDataModel.selectedRows {
-            if let index = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID }) {
+            if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
                 deleteRow(at: index, rowID: rowID, isNested: true)
+            }
+        }
+        
+        if let level = deletedRowLevel, let schemaKey = deletedRowSchemaKey {
+            for row in tableDataModel.filteredcellModels {
+                if row.rowType.level == level && 
+                   row.rowType.parentSchemaKey == schemaKey && 
+                   (row.rowType.isRow || row.rowType.isNestedRow) {
+                    reIndexingRows(rowDataModel: row)
+                    break
+                }
             }
         }
     }
     
     fileprivate func getTableColumnsByIndex(_ indexOfFirstSelectedRow: Int) -> [FieldTableColumn] {
         for indexOfCurrentRow in stride(from: indexOfFirstSelectedRow, through: 0, by: -1) {
-            switch tableDataModel.cellModels[indexOfCurrentRow].rowType {
+            switch tableDataModel.filteredcellModels[indexOfCurrentRow].rowType {
             case .header(level: let level, tableColumns: let tableColumns):
-                if level == tableDataModel.cellModels[indexOfFirstSelectedRow].rowType.level {
+                if level == tableDataModel.filteredcellModels[indexOfFirstSelectedRow].rowType.level {
                     return tableColumns
                 } else {
                     continue
@@ -665,14 +927,14 @@ class CollectionViewModel: ObservableObject {
             Log("No row selected", type: .error)
             return
         }
-        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
             return
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
             duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey)
         case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            let indexOfFirstSelectedRow = tableDataModel.cellModels.firstIndex(where: { $0.rowID == firstSelectedRowID } ) ?? 0
+            let indexOfFirstSelectedRow = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID } ) ?? 0
             var headerTableColumns: [FieldTableColumn] = tableDataModel.schema[parentSchemaKey]?.tableColumns ?? []
             
             duplicateNestedRow(parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey)
@@ -697,16 +959,16 @@ class CollectionViewModel: ObservableObject {
         let sortedChanges = result.0.sorted { $0.key < $1.key }
         
         let sortedSelectedRows = tableDataModel.selectedRows.sorted { (rowID1, rowID2) in
-            guard let index1 = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID1 }),
-                  let index2 = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID2 }) else {
+            guard let index1 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID1 }),
+                  let index2 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID2 }) else {
                 return false
             }
             return index1 < index2
         }
         
         for (offset, change) in sortedChanges.enumerated() {
-            let startingIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
-            let rowDataModel = tableDataModel.cellModels[startingIndex]
+            let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
+            let rowDataModel = tableDataModel.filteredcellModels[startingIndex]
             let atIndex = startingIndex + 1 + tableDataModel.childrensForRows(startingIndex, rowDataModel, rowDataModel.rowType.level).count
             let valueElement = change.value
             let childrens = change.value.childrens ?? [:]
@@ -729,10 +991,11 @@ class CollectionViewModel: ObservableObject {
                                    rowType: .row(index: rowDataModel.rowType.index + 1),
                                    schemaKey: parentSchemaKey)
             }
-            tableDataModel.filterRowsIfNeeded()
+//            tableDataModel.filterCollectionRowsIfNeeded()
+            sortRowsIfNeeded()
         }
         
-        guard let rowDataModel = tableDataModel.cellModels.first(where: { $0.rowID == sortedSelectedRows[0] }) else {
+        guard let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == sortedSelectedRows[0] }) else {
             Log("Could not find rowDataModel", type: .error)
             return
         }
@@ -743,11 +1006,11 @@ class CollectionViewModel: ObservableObject {
     func reIndexingRows(rowDataModel: RowDataModel) {
         // find upperMost item of this level
         var startingIndex = 0
-        guard let currentIndex = tableDataModel.cellModels.firstIndex(of: rowDataModel) else {
+        guard let currentIndex = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else {
             return
         }
         for i in stride(from: currentIndex, through: 0, by: -1) {
-            let model = tableDataModel.cellModels[i]
+            let model = tableDataModel.filteredcellModels[i]
             
             if model.rowType.level < rowDataModel.rowType.level {
                 break
@@ -759,8 +1022,8 @@ class CollectionViewModel: ObservableObject {
         }
         
         var currentRowIndex = 1
-        for i in startingIndex..<tableDataModel.cellModels.count {
-            var model = tableDataModel.cellModels[i]
+        for i in startingIndex..<tableDataModel.filteredcellModels.count {
+            var model = tableDataModel.filteredcellModels[i]
             //Stop if find another level of rows
             if model.rowType.level < rowDataModel.rowType.level {
                 break
@@ -778,9 +1041,10 @@ class CollectionViewModel: ObservableObject {
             default:
                 break
             }
-            tableDataModel.cellModels[i] = model
+            tableDataModel.filteredcellModels[i] = model
         }
-        tableDataModel.filterRowsIfNeeded()
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     func insertBelow() -> String? {
@@ -789,7 +1053,7 @@ class CollectionViewModel: ObservableObject {
             return nil
         }
         
-        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
             return nil
         }
         switch firstSelectedRow.rowType {
@@ -800,12 +1064,13 @@ class CollectionViewModel: ObservableObject {
         default:
             return nil
         }
-        tableDataModel.filterRowsIfNeeded()
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
         tableDataModel.emptySelection()
     }
     
     func insertRowBelow() -> String? {
-        let cellValues = getCellValues()
+        let cellValues = getCellValues(columns: tableDataModel.tableColumns)
         guard let result = tableDataModel.documentEditor?.insertBelowNestedRow(selectedRowID: tableDataModel.selectedRows[0],
                                                                                cellValues: cellValues,
                                                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -816,10 +1081,10 @@ class CollectionViewModel: ObservableObject {
         let valueElement = result.inserted
         self.tableDataModel.valueToValueElements = result.all
         //updateCellModels
-        guard let selecteRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
+        guard let selecteRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
             return nil
         }
-        let selectedRow = tableDataModel.cellModels[selecteRowIndex]
+        let selectedRow = tableDataModel.filteredcellModels[selecteRowIndex]
         let placeAtIndex = selecteRowIndex + tableDataModel.childrensForRows(selecteRowIndex, selectedRow, selectedRow.rowType.level).count + 1
         guard let newRowID = valueElement.id else {
             return nil
@@ -833,18 +1098,18 @@ class CollectionViewModel: ObservableObject {
                            rowType: .row(index: selecteRowIndex + 1),
                            schemaKey: rootSchemaKey)
         
-        reIndexingRows(rowDataModel: tableDataModel.cellModels[selecteRowIndex])
+        reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[selecteRowIndex])
         return newRowID
     }
     
     func insertNestedBelow(parentRowID: String, nestedKey: String) -> String? {
-        guard let selecteRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
+        guard let selecteRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == tableDataModel.selectedRows[0] }) else {
             return nil
         }
         
         let tableColumns: [FieldTableColumn] = tableDataModel.schema[nestedKey]?.tableColumns ?? []
-        let cellValues = getCellValuesForNested(columns: tableColumns)
-        let selectedRow = tableDataModel.cellModels[selecteRowIndex]
+        let cellValues = getCellValues(columns: tableColumns)
+        let selectedRow = tableDataModel.filteredcellModels[selecteRowIndex]
         
         guard let rowData = tableDataModel.documentEditor?.insertBelowNestedRow(selectedRowID: tableDataModel.selectedRows[0],
                                                                                 cellValues: cellValues,
@@ -872,7 +1137,7 @@ class CollectionViewModel: ObservableObject {
                                                parentID: selectedRow.rowType.parentID, parentSchemaKey: selectedRow.rowType.parentSchemaKey),
                            schemaKey: nestedKey)
         
-        reIndexingRows(rowDataModel: tableDataModel.cellModels[selecteRowIndex])
+        reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[selecteRowIndex])
         return newRowID
     }
 
@@ -882,7 +1147,7 @@ class CollectionViewModel: ObservableObject {
             return
         }
         
-        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
             return
         }
         switch firstSelectedRow.rowType {
@@ -906,7 +1171,7 @@ class CollectionViewModel: ObservableObject {
                                                                                                   rootSchemaKey: rootSchemaKey,
                                                                                                   nestedKey: nestedKey,
                                                                                                   parentRowId: parentRowId)
-        guard let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
+        guard let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
             Log("Could not find the row", type: .error)
             return
         }
@@ -919,7 +1184,7 @@ class CollectionViewModel: ObservableObject {
             return
         }
         
-        guard let firstSelectedRow = tableDataModel.cellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
+        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
             return
         }
         switch firstSelectedRow.rowType {
@@ -943,7 +1208,7 @@ class CollectionViewModel: ObservableObject {
                                                                                                     rootSchemaKey: rootSchemaKey,
                                                                                                     nestedKey: nestedKey,
                                                                                                     parentRowId: parentRowId)
-        guard let lastRowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
+        guard let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
             Log("Unable to find row with ID: \(firstSelectedRowID)", type: .error)
             return
         }
@@ -951,18 +1216,19 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func deleteRow(at index: Int, rowID: String, isNested: Bool) {
-        let currentRow = tableDataModel.cellModels[index]
+        let currentRow = tableDataModel.filteredcellModels[index]
         if currentRow.isExpanded {
             collapseTables(index, currentRow, currentRow.rowType.level)
         }
-        self.tableDataModel.cellModels.remove(at: index)
-        tableDataModel.filterRowsIfNeeded()
+        self.tableDataModel.filteredcellModels.remove(at: index)
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     func getUpperRowIndex(startingIndex: Int) -> Int {
         var upperRowIndex = 0
         for i in stride(from: startingIndex, through: 0, by: -1) {
-            switch tableDataModel.cellModels[i].rowType {
+            switch tableDataModel.filteredcellModels[i].rowType {
             case .row:
                 upperRowIndex = i
                 break
@@ -977,7 +1243,7 @@ class CollectionViewModel: ObservableObject {
     func getUpperNestedRowIndex(startingIndex: Int, level: Int) -> Int {
         var upperRowIndex = 0
         for i in stride(from: startingIndex, through: 0, by: -1) {
-            switch tableDataModel.cellModels[i].rowType {
+            switch tableDataModel.filteredcellModels[i].rowType {
             case .nestedRow(level: let nestedLevel, index: let index, parentID: _, _):
                 if nestedLevel != level {
                     continue
@@ -994,7 +1260,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     fileprivate func moveNestedUP(at index: Int, rowID: String, isNested: Bool) {
-        let currentRow = tableDataModel.cellModels[index]
+        let currentRow = tableDataModel.filteredcellModels[index]
         var currentRowIndicesToMove: [Int] = []
         var upperRowIndicesToMove: [Int] = []
         //we need to count the upper row childrens if upper row is aslo expanded
@@ -1006,37 +1272,39 @@ class CollectionViewModel: ObservableObject {
             upperRowIndex = getUpperRowIndex(startingIndex: index - 1)
         }
         
-        upperRowIndicesToMove = tableDataModel.childrensForRows(upperRowIndex, tableDataModel.cellModels[upperRowIndex], tableDataModel.cellModels[upperRowIndex].rowType.level)
+        upperRowIndicesToMove = tableDataModel.childrensForRows(upperRowIndex, tableDataModel.filteredcellModels[upperRowIndex], tableDataModel.filteredcellModels[upperRowIndex].rowType.level)
         upperRowIndicesToMove.append(upperRowIndex)
         
         if currentRow.isExpanded {
             currentRowIndicesToMove = tableDataModel.childrensForRows(index, currentRow, currentRow.rowType.level)
             currentRowIndicesToMove.append(index)
-            self.tableDataModel.cellModels.moveItems(from: currentRowIndicesToMove.sorted(), to: upperRowIndicesToMove.sorted())
+            self.tableDataModel.filteredcellModels.moveItems(from: currentRowIndicesToMove.sorted(), to: upperRowIndicesToMove.sorted())
         } else {
-            self.tableDataModel.cellModels.moveItems(from: [index], to: upperRowIndicesToMove.sorted())
+            self.tableDataModel.filteredcellModels.moveItems(from: [index], to: upperRowIndicesToMove.sorted())
         }
-        tableDataModel.filterRowsIfNeeded()
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     fileprivate func moveNestedDown(at index: Int, rowID: String) {
-        let currentRow = tableDataModel.cellModels[index]
+        let currentRow = tableDataModel.filteredcellModels[index]
         var currentRowIndicesToMove: [Int] = []
         var lowerRowIndicesToMove: [Int] = []
         
         currentRowIndicesToMove = tableDataModel.childrensForRows(index, currentRow, currentRow.rowType.level)
         currentRowIndicesToMove.append(index)
         
-        let lowerRow = tableDataModel.cellModels[index + currentRowIndicesToMove.count]
+        let lowerRow = tableDataModel.filteredcellModels[index + currentRowIndicesToMove.count]
         lowerRowIndicesToMove = tableDataModel.childrensForRows(index + currentRowIndicesToMove.count, lowerRow, lowerRow.rowType.level)
         lowerRowIndicesToMove.append(index + currentRowIndicesToMove.count)
         
         if currentRow.isExpanded {
-            self.tableDataModel.cellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: currentRowIndicesToMove.sorted())
+            self.tableDataModel.filteredcellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: currentRowIndicesToMove.sorted())
         } else {
-            self.tableDataModel.cellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: [index])
+            self.tableDataModel.filteredcellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: [index])
         }
-        tableDataModel.filterRowsIfNeeded()
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
 
     fileprivate func getChildrensBy(_ schemaKey: String) -> [String : Children] {
@@ -1051,7 +1319,7 @@ class CollectionViewModel: ObservableObject {
     
     func addRow() {
         let id = generateObjectId()
-        let cellValues = getCellValues()
+        let cellValues = getCellValues(columns: tableDataModel.tableColumns)
         
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
                                                                             cellValues: cellValues,
@@ -1059,14 +1327,14 @@ class CollectionViewModel: ObservableObject {
                                                                             schemaKey: rootSchemaKey,
                                                                             childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
                                                                             rootSchemaKey: rootSchemaKey) {
-            let index = tableDataModel.cellModels.count
+            let index = tableDataModel.filteredcellModels.count
             tableDataModel.valueToValueElements = rowData.all
             let valueElement = rowData.inserted
             guard let newRowID = valueElement.id else {
                 Log("Could not find id for new row", type: .error)
                 return
             }
-            let rowIndex = tableDataModel.cellModels.filter({$0.rowType.isRow}).count + 1
+            let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             addNestedCellModel(rowID: newRowID,
                                index: index,
                                valueElement: valueElement,
@@ -1075,7 +1343,8 @@ class CollectionViewModel: ObservableObject {
                                childrens: getChildrensBy(rootSchemaKey),
                                rowType: .row(index: rowIndex),
                                schemaKey: rootSchemaKey)
-            self.tableDataModel.filterRowsIfNeeded()
+//            self.tableDataModel.filterCollectionRowsIfNeeded()
+            sortRowsIfNeeded()
         }
     }
     
@@ -1083,7 +1352,7 @@ class CollectionViewModel: ObservableObject {
         let id = generateObjectId()
         let schemaTableColumns = tableDataModel.schema[schemaKey]?.tableColumns ?? []
         let filteredTableColumns = tableDataModel.filterTableColumns(key: schemaKey)
-        let cellValues = getCellValuesForNested(columns: filteredTableColumns)
+        let cellValues = getCellValues(columns: filteredTableColumns)
                 
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
                                                                             cellValues: cellValues,
@@ -1095,9 +1364,9 @@ class CollectionViewModel: ObservableObject {
             //Update valueToValueElements
             self.tableDataModel.valueToValueElements = rowData.all
             
-            //Index where we append new row in tableDataModel.cellModels
+            //Index where we append new row in tableDataModel.filteredcellModels
             var atNestedIndex = 0
-            let rowDataModel = tableDataModel.cellModels[startingIndex]
+            let rowDataModel = tableDataModel.filteredcellModels[startingIndex]
             var placeAtIndex: Int = tableDataModel.childrensForASpecificRow(startingIndex, rowDataModel).count
             guard let newRowID = rowData.inserted.id else {
                 Log("Could not get new row ID", type: .error)
@@ -1115,27 +1384,14 @@ class CollectionViewModel: ObservableObject {
                                                    parentSchemaKey: schemaKey),
                                schemaKey: schemaKey)
             
-            let rowDataModelForIndexing = tableDataModel.cellModels[startingIndex + 2]
+            let rowDataModelForIndexing = tableDataModel.filteredcellModels[startingIndex + 2]
             reIndexingRows(rowDataModel: rowDataModelForIndexing)
-            self.tableDataModel.filterRowsIfNeeded()
+//            self.tableDataModel.filterCollectionRowsIfNeeded()
+            sortRowsIfNeeded()
         }
     }
     
-    func getCellValuesForNested(columns: [FieldTableColumn]) -> [String: ValueUnion] {
-        var cellValues: [String: ValueUnion] = [:]
-        for column in columns {
-            if let defaultValue = column.value {
-                guard let id = column.id else {
-                    Log("Missing column id", type: .error)
-                    continue
-                }
-                cellValues[id] = defaultValue
-            }
-        }
-        return cellValues
-    }
-    
-    func getCellValues() -> [String: ValueUnion] {
+    func getCellValues(columns: [FieldTableColumn]) -> [String: ValueUnion] {
         var cellValues: [String: ValueUnion] = [:]
         
         for filterModel in tableDataModel.filterModels {
@@ -1144,7 +1400,7 @@ class CollectionViewModel: ObservableObject {
             
             if change.isEmpty {
                 // No filter Applied, Extract default value if present
-                if let defaultValue = tableDataModel.tableColumns.first(where: { $0.id == columnId })?.value {
+                if let defaultValue = columns.first(where: { $0.id == columnId })?.value {
                     cellValues[columnId] = defaultValue
                 }
             } else {
@@ -1177,7 +1433,7 @@ class CollectionViewModel: ObservableObject {
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> [ValueElement] {
         tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
-        let currentRowModel = tableDataModel.cellModels.first(where: { $0.rowID == rowId })
+        let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
                 
         let valueElememts = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
@@ -1195,11 +1451,11 @@ class CollectionViewModel: ObservableObject {
     
     func refreshCollectionSchema(rowID: String) {
         //Close and open the nested table to refresh
-        guard let index = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowID }) else {
+        guard let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) else {
             return
         }
         
-        var rowDataModel = tableDataModel.cellModels[index]
+        var rowDataModel = tableDataModel.filteredcellModels[index]
         
         if rowDataModel.isExpanded {
             expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
@@ -1207,9 +1463,10 @@ class CollectionViewModel: ObservableObject {
             expandTables(rowDataModel: rowDataModel, level: rowDataModel.rowType.level ?? 0)
             rowDataModel.isExpanded = true
             
-            tableDataModel.cellModels[index] = rowDataModel
+            tableDataModel.filteredcellModels[index] = rowDataModel
         }
-        tableDataModel.filterRowsIfNeeded()
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
@@ -1222,9 +1479,9 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.valueToValueElements =  tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         
         for rowId in tableDataModel.selectedRows {
-            let rowIndex = tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             tableColumns.enumerated().forEach { colIndex, column in
-                var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
+                var cellDataModel = tableDataModel.filteredcellModels[rowIndex].cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 
                 switch cellDataModel.type {
@@ -1257,11 +1514,24 @@ class CollectionViewModel: ObservableObject {
                 }
             }
         }
-        tableDataModel.filterRowsIfNeeded()
+//        tableDataModel.filterCollectionRowsIfNeeded()
+        sortRowsIfNeeded()
     }
     
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+    }
+    
+    func getFilteredColumns(for schemaKey: String) -> [FieldTableColumn] {
+        let tableColumns = tableDataModel.filterTableColumns(key: schemaKey)
+        return tableColumns.filter { column in
+            switch column.type {
+            case .text, .dropdown, .multiSelect, .number, .barcode:
+                return true
+            default:
+                return false
+            }
+        }
     }
 }
 
