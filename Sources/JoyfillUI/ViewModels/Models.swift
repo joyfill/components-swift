@@ -461,8 +461,10 @@ struct TableDataModel {
                             rowType: .nestedRow(level: 0, index: index, parentID: row.rowType.parentID, parentSchemaKey: childSchemaKey),
                             childrens: child.childrens ?? [:]
                         )
-                        if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: childRowModel) {
-                            return true
+                        if let shouldShow = documentEditor?.shouldShowSchema(for: fieldIdentifier.fieldID, rowSchemaID: RowSchemaID(rowID: row.rowID, schemaID: childSchemaKey)), shouldShow {
+                            if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: childRowModel) {
+                                return true
+                            }
                         }
                     }
                 }
