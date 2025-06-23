@@ -169,6 +169,7 @@ struct CollectionFilterModal: View {
             VStack(alignment: .leading) {
                 Text("Sort")
                     .font(.system(size: 15, weight: .bold))
+                    .darkLightThemeColor()
                    
                 HStack {
                     Menu {
@@ -205,6 +206,7 @@ struct CollectionFilterModal: View {
                     }, label: {
                         HStack {
                             Text("Sort")
+                                .darkLightThemeColor()
                             Image(systemName: getSortIcon())
                                 .foregroundColor(getIconColor())
                         }
@@ -252,7 +254,7 @@ struct CollectionFilterModal: View {
     func getIconColor() -> Color {
         switch order {
         case .none:
-            return .black
+            return colorScheme == .dark ? .white : .black
         case .ascending, .descending:
             return .blue
         }

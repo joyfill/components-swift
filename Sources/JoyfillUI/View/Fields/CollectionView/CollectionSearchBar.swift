@@ -17,7 +17,6 @@ struct CollectionSearchBar: View {
 
     var body: some View {
         HStack {
-            if !viewModel.tableDataModel.filteredcellModels.isEmpty {
                 let cellDataModel = viewModel.tableDataModel.getDummyCellForCollectionFilter(column: column)
                 if let cellDataModel = cellDataModel {
                     let cellModel = TableCellModel(rowID: "",
@@ -51,6 +50,8 @@ struct CollectionSearchBar: View {
                     switch cellModel.data.type {
                     case .text:
                         TextFieldSearchBar(text: $model.filterText)
+                            .frame(height: 40)
+                            .padding(.trailing, 8)
                     case .dropdown:
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
@@ -60,22 +61,21 @@ struct CollectionSearchBar: View {
                             .font(.system(size: 12))
                             .foregroundColor(.black)
                             .padding(.vertical, 4)
-                            .frame(height: 25)
+                            .frame(height: 30)
                             .background(.white)
                             .cornerRadius(6)
-                            .padding(.leading, 8)
+                            .padding(.horizontal, 8)
                     case .multiSelect:
                         TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
                             .accessibilityIdentifier("SearchBarMultiSelectionFieldIdentifier")
                     case .barcode:
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
                             .font(.system(size: 12))
-                            .foregroundColor(.black)
                             .padding(.vertical, 4)
-                            .frame(height: 25)
-                            .background(.white)
-                            .cornerRadius(6)
+                            .darkLightThemeColor()
+                            .cornerRadius(8)
                             .padding(.leading, 8)
+                            .padding(.trailing, 8)
                     default:
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
@@ -122,7 +122,6 @@ struct CollectionSearchBar: View {
 //
 //                })
 //                .accessibilityIdentifier("HideFilterSearchBar")
-            }
         }
         .frame(height: 40)
         .cornerRadius(8)
