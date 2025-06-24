@@ -87,10 +87,12 @@ struct CollectionFilterModal: View {
                 
                 VStack(alignment: .leading, spacing: 12) {
                     Menu {
-                        ForEach(Array(viewModel.tableDataModel.schema), id: \.key) { key, value in
-                            Button("\(value.title ?? "")") {
+                        ForEach(viewModel.getOrderedSchemaKeys(), id: \.self) { key in
+                            Button(action: {
                                 selectedSchemaKey = key
                                 clearAllFilters()
+                            }) {
+                                Text(viewModel.tableDataModel.schema[key]?.title ?? "")
                             }
                         }
                     } label: {

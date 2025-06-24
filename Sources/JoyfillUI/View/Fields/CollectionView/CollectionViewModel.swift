@@ -69,6 +69,10 @@ class CollectionViewModel: ObservableObject {
         return longestText
     }
     
+    func getOrderedSchemaKeys() -> [String] {
+        return tableDataModel.schemaChainMap[rootSchemaKey] ?? []
+    }
+    
     func cellWidthMapping() {
         var widthMap = [String: CGFloat]()
         
