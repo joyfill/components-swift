@@ -909,12 +909,16 @@ struct TableDataModel {
         if let index = selectedRows.firstIndex(of: rowID) {
             selectedRows.remove(at: index)
         } else {
-            if filterModels.noFilterApplied {
+            if !hasActiveFilters {
                 selectedRows.append(rowID)
             } else {
                 selectedRows = [rowID]
             }
         }
+    }
+    
+    var hasActiveFilters: Bool {
+        return !filterModels.allSatisfy { $0.filterText.isEmpty } || sortModel.order != .none
     }
     
     mutating func toggleSelection(rowID: String) {

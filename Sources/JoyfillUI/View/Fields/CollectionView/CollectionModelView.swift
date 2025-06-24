@@ -109,10 +109,6 @@ struct CollectionModalView : View {
             )
         }
     }
-    
-    private var hasActiveFilters: Bool {
-        return !viewModel.tableDataModel.filterModels.allSatisfy { $0.filterText.isEmpty }
-    }
 
     func clearFilter() {
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
@@ -140,7 +136,7 @@ struct CollectionModalView : View {
             if viewModel.showRowSelector  {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
-                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied ? Color.gray.opacity(0.4) : nil)
+                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 || viewModel.tableDataModel.hasActiveFilters ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
                         if !viewModel.tableDataModel.allRowSelected {
                             viewModel.tableDataModel.selectAllRows()
@@ -148,7 +144,7 @@ struct CollectionModalView : View {
                             viewModel.tableDataModel.emptySelection()
                         }
                     }
-                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied)
+                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0 || viewModel.tableDataModel.hasActiveFilters)
                     .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
@@ -245,7 +241,7 @@ struct CollectionExpanderView: View {
 
     var body: some View {
         HStack {
-            if viewModel.tableDataModel.mode != .readonly && viewModel.tableDataModel.filterModels.noFilterApplied {
+            if viewModel.tableDataModel.mode != .readonly && !viewModel.tableDataModel.hasActiveFilters {
                 Button(action: {
 //                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
@@ -298,7 +294,7 @@ struct RootTitleRowView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if viewModel.tableDataModel.mode != .readonly && viewModel.tableDataModel.filterModels.noFilterApplied {
+            if viewModel.tableDataModel.mode != .readonly && !viewModel.tableDataModel.hasActiveFilters {
                 Button(action: {
                     viewModel.addRow()
                 }) {
@@ -493,7 +489,7 @@ struct CollectionRowsHeaderView: View {
                 if viewModel.showRowSelector {
                     Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "circle.square.fill" : "square")
                         .frame(width: 40, height: 60)
-                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied ? Color.gray.opacity(0.4) : nil)
+                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || viewModel.tableDataModel.hasActiveFilters ? Color.gray.opacity(0.4) : nil)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             if !viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) {
@@ -502,7 +498,7 @@ struct CollectionRowsHeaderView: View {
                                 viewModel.tableDataModel.emptySelection()
                             }
                         }
-                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || !viewModel.tableDataModel.filterModels.noFilterApplied)
+                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || viewModel.tableDataModel.hasActiveFilters)
                         .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):

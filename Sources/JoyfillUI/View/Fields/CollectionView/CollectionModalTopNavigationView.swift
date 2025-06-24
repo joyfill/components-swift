@@ -16,7 +16,7 @@ struct CollectionModalTopNavigationView: View {
     @State private var showingPopover = false
     
     private var hasActiveFilters: Bool {
-        return !viewModel.tableDataModel.filterModels.allSatisfy { $0.filterText.isEmpty } || viewModel.tableDataModel.sortModel.order != .none
+        return viewModel.tableDataModel.hasActiveFilters
     }
 
     var body: some View {
@@ -76,7 +76,7 @@ struct CollectionModalTopNavigationView: View {
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
-                            if viewModel.tableDataModel.selectedRows.count == 1 && viewModel.tableDataModel.filterModels.noFilterApplied {
+                            if viewModel.tableDataModel.selectedRows.count == 1 && !hasActiveFilters {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -130,7 +130,7 @@ struct CollectionModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
-                            if viewModel.tableDataModel.filterModels.noFilterApplied {
+                            if !hasActiveFilters {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.deleteSelectedRow()
@@ -338,7 +338,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         })
                         .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                         .accessibilityIdentifier("LowerRowButtonIdentifier")
-                        if viewModel.tableDataModel.filterModels.noFilterApplied {
+                        if !viewModel.tableDataModel.hasActiveFilters {
                             Button(action: {
                                 viewModel.insertBelowFromBulkEdit()
                             }, label: {
