@@ -66,7 +66,7 @@ struct SearchBar: View {
                             .cornerRadius(6)
                             .padding(.leading, 8)
                     case .multiSelect:
-                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
+                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true, searchValue: model.filterText)
                             .accessibilityIdentifier("SearchBarMultiSelectionFieldIdentifier")
                     case .barcode:
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
