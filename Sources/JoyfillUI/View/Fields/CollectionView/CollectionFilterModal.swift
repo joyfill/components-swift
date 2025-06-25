@@ -116,6 +116,7 @@ struct CollectionFilterModal: View {
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                     }
+                    .accessibilityIdentifier("SelectSchemaTypeIDentifier")
                     if !selectedSchemaKey.isEmpty {
                         sortingView
                         VStack(alignment: .leading) {
@@ -202,6 +203,7 @@ struct CollectionFilterModal: View {
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                     }
+                    .accessibilityIdentifier("CollectionSortColumnSelectorIdentifier")
                     
                     Button(action: {
                         order.next()
@@ -366,6 +368,7 @@ struct FilteringView: View {
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
                 }
+                .accessibilityIdentifier("CollectionFilterColumnSelectorIdentifier")
                 if let index = collectionFilterModels.firstIndex(where: { $0.colID == currentSelectedFilterColumnID && $0.schemaKey == selectedSchemaKey }) {
                     if let column = getSelectedColumn(columnID: currentSelectedFilterColumnID) {
                         CollectionSearchBar(
