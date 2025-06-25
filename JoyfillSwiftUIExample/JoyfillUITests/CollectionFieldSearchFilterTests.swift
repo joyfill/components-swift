@@ -151,27 +151,21 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         return false
     }
     
-    func tapApplyButton() -> Bool {
+    func tapApplyButton() {
         let applyButton = app.buttons["Apply"]
-        guard applyButton.exists else {
+        if !applyButton.exists {
             XCTFail("Apply button should exist")
-            return false
         }
         
         applyButton.tap()
         
-        // Wait for filter to be applied
-        sleep(1)
-        return true
     }
     
-    func tapCancelButton() -> Bool {
+    func tapCancelButton() {
         let cancelButton = app.buttons["Cancel"]
         if cancelButton.exists {
             cancelButton.tap()
-            return true
         }
-        return false
     }
     
     func closeFilterModal() {
@@ -282,7 +276,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let initialRowCount = getVisibleRowCount()
         
         // Apply dropdown filter using helper method
-        let success = applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
+        applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
         
         // Verify filtered results
         let filteredRowCount = getVisibleRowCount()
@@ -314,9 +308,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func testFilterResults_DropdownColumnVerification() {
         goToCollectionDetailField()
-        
-        let initialRowCount = 4
-        
+                
         // Test filtering by "Yes D1"
         applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
         
