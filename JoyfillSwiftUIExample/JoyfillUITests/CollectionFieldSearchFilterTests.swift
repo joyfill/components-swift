@@ -95,12 +95,13 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         schemaOption.tap()
     }
     
-    func selectColumn(_ columnName: String) {
-        let columnSelector = app.buttons["CollectionFilterColumnSelectorIdentifier"]
-        if !columnSelector.exists {
-            XCTFail("Column selector should exist")
-        }
-        
+    func selectColumn(_ columnName: String, selectorIndex: Int = 0) {
+        let selectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
+        let columnSelector = selectors.element(boundBy: selectorIndex)
+        XCTAssertTrue(
+            columnSelector.exists,
+            "Column selector at index \(selectorIndex) should exist"
+        )
         columnSelector.tap()
         
         let columnOption = app.buttons[columnName].firstMatch
@@ -108,9 +109,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             XCTFail("Column option should exist")
         }
         columnOption.tap()
-        
     }
-    
+        
     func enterTextFilter(_ text: String) {
         let searchField = app.textFields["TextFieldSearchBarIdentifier"]
         if searchField.exists {
@@ -123,18 +123,18 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
     }
     
-    func selectDropdownOption(_ optionName: String) -> Bool {
+    func selectDropdownOption(_ optionName: String) {
         let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
         if dropdownFilterButton.exists {
             dropdownFilterButton.tap()
             
-            let option = app.buttons[optionName]
+            let option = app.buttons[optionName].firstMatch
             if option.exists {
                 option.tap()
-                return true
             }
+        } else {
+            XCTFail("Dropdown should exist")
         }
-        return false
     }
     
     func selectMultiSelectOption(_ optionName: String) -> Bool {
@@ -175,9 +175,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func closeFilterModal() {
-        if !tapCancelButton() {
-            dismissSheet()
-        }
+        dismissSheet()
     }
     
     // MARK: - Complete Filter Flow Helper
@@ -193,18 +191,22 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         closeFilterModal()
     }
     
-    func applyDropdownFilter(schema: String? = nil, column: String, option: String) {
+    func tapOnAddMoreFilterButton() {
+        let addButton = app.buttons["AddMoreFilterButtonIdentifier"]
+        if !addButton.exists {
+            XCTFail("Apply button should exist")
+        }
+        
+        addButton.tap()
+    }
+        
+    func applyDropdownFilter(schema: String = "Root Table", column: String, option: String) {
         openFilterModal()
         
         // Select schema if provided
-        if let schema = schema {
-            _ = selectSchema(schema)
-        }
-        
+        selectSchema(schema)
         // Select column
          selectColumn(column)
-            closeFilterModal()
-         
         
         // Select dropdown option
         selectDropdownOption(option)
@@ -280,16 +282,16 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let initialRowCount = getVisibleRowCount()
         
         // Apply dropdown filter using helper method
-        let success = applyDropdownFilter(schema: "Table", column: "Dropdown Column", option: "Yes D1")
+        let success = applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
         
-            // Verify filtered results
-            let filteredRowCount = getVisibleRowCount()
-            XCTAssertTrue(filteredRowCount <= initialRowCount, "Filtered row count should not exceed initial count")
-            
-            
-            // Verify we're back to collection view
-            let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
-            XCTAssertTrue(filterButton.exists, "Should return to collection view")
+        // Verify filtered results
+        let filteredRowCount = getVisibleRowCount()
+        XCTAssertTrue(initialRowCount > filteredRowCount, "Filtered row count should not exceed initial count")
+        
+        
+        // Verify we're back to collection view
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        XCTAssertTrue(filterButton.exists, "Should return to collection view")
     }
     
     // MARK: - Filter Results Verification Tests
@@ -298,22 +300,13 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         // Get initial row count
-        let initialRowCount = getVisibleRowCount()
-        
-        // Test Case 1: Filter by "A" - should match multiple rows
-        applyTextFilter(column: "Text Column", text: "A")
-        
-        let filteredCountA = getVisibleRowCount()
-        XCTAssertTrue(filteredCountA <= initialRowCount, "Filtered results should not exceed initial count")
-        
-        // Test Case 2: Apply more specific filter
-         applyTextFilter(column: "Text Column", text: "AbC")
+         applyTextFilter(column: "Text D1", text: "AbC")
         
         let filteredCountAbC = getVisibleRowCount()
-        XCTAssertTrue(filteredCountAbC <= filteredCountA, "More specific filter should return fewer or equal results")
+        XCTAssertTrue(filteredCountAbC == 1, "More specific filter should return fewer or equal results")
         
         // Test Case 3: Filter that should return no results
-        applyTextFilter(column: "Text Column", text: "NonExistentText123")
+        applyTextFilter(column: "Text D1", text: "NonExistentText123")
         
         let filteredCountEmpty = getVisibleRowCount()
         XCTAssertEqual(filteredCountEmpty, 0, "Filter for non-existent text should return 0 results")
@@ -322,58 +315,68 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     func testFilterResults_DropdownColumnVerification() {
         goToCollectionDetailField()
         
-        let initialRowCount = getVisibleRowCount()
+        let initialRowCount = 4
         
         // Test filtering by "Yes D1"
-        applyDropdownFilter(column: "Dropdown Column", option: "Yes D1")
+        applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
         
         let filteredCountYes = getVisibleRowCount()
-        XCTAssertTrue(filteredCountYes <= initialRowCount, "Filtered results should not exceed initial count")
+        XCTAssertTrue(filteredCountYes == 3, "Filtered results should not exceed initial count")
         
         // Test filtering by "No D1"
-        applyDropdownFilter(column: "Dropdown Column", option: "No D1")
+        applyDropdownFilter(column: "Dropdown D1", option: "No D1")
         
         let filteredCountNo = getVisibleRowCount()
-        XCTAssertTrue(filteredCountNo <= initialRowCount, "No D1 filtered results should not exceed initial count")
+        XCTAssertTrue(filteredCountNo == 1, "No D1 filtered results should not exceed initial count")
     }
     
     // MARK: - Clean Test Cases Using Helper Methods
     
-    func testMultipleFilterTypes_BasedOnJSON() {
+    func testFilterTextRetain() {
         goToCollectionDetailField()
-        let initialRowCount = getVisibleRowCount()
         
         // Test 1: Text Column Filter (from JSON: "Text Column")
-        applyTextFilter(column: "Text Column", text: "A")
-        let textFilterCount = getVisibleRowCount()
+        applyTextFilter(column: "Text D1", text: "A")
+        openFilterModal()
+        let searchField = app.textFields["TextFieldSearchBarIdentifier"]
+        XCTAssertTrue(searchField.exists)
+        XCTAssertEqual(searchField.value as! String, "A")
+    }
+    
+    func testMultipleFilterTypes_BasedOnJSON() {
+        goToCollectionDetailField()
         
-        // Test 2: Dropdown Column Filter (from JSON: "Dropdown Column" with "Yes D1", "No D1")
-        applyDropdownFilter(column: "Dropdown Column", option: "Yes D1")
+        // Test 1: Text Column Filter (from JSON: "Text Column")
+        applyTextFilter(column: "Text D1", text: "b")
+        //Tap on add filter button
+        openFilterModal()
+        
+        tapOnAddMoreFilterButton()
+        //Select ColumnType And Add another Column
+        selectColumn("Dropdown D1", selectorIndex: 1)
+        selectDropdownOption("No D1")
+        tapApplyButton()
+
         let dropdownFilterCount = getVisibleRowCount()
         
-        // Test 3: MultiSelect Column Filter (from JSON: "MultiSelect Column" with "Option 1 D1", "Option 2 D1")
-        applyMultiSelectFilter(column: "MultiSelect Column", option: "Option 1 D1")
-        let multiSelectFilterCount = getVisibleRowCount()
-        
         // All filter counts should be <= initial count
-        XCTAssertTrue(textFilterCount <= initialRowCount, "Text filter results should not exceed initial count")
-        XCTAssertTrue(dropdownFilterCount <= initialRowCount, "Dropdown filter results should not exceed initial count")
-        XCTAssertTrue(multiSelectFilterCount <= initialRowCount, "MultiSelect filter results should not exceed initial count")
+        XCTAssertTrue(dropdownFilterCount == 1, "Dropdown filter results should not exceed initial count")
     }
     
     func testFilterClearAndReapply() {
         goToCollectionDetailField()
-        let initialRowCount = getVisibleRowCount()
+        let initialRowCount = 4
         
         // Apply a restrictive filter
-        applyTextFilter(column: "Text Column", text: "NonExistentText")
+        applyTextFilter(column: "Text D1", text: "NonExistentText")
         let restrictiveCount = getVisibleRowCount()
         XCTAssertEqual(restrictiveCount, 0, "Restrictive filter should return 0 rows")
-        
+        openFilterModal()
         // Apply a broader filter
-        applyTextFilter(column: "Text Column", text: "")
+        enterTextFilter("")
+        tapApplyButton()
         let broadCount = getVisibleRowCount()
-        XCTAssertTrue(broadCount >= restrictiveCount, "Broader filter should show more rows")
+        XCTAssertTrue(broadCount == initialRowCount, "Broader filter should show more rows")
     }
     
     func testFilterModalCancelation() {
@@ -382,7 +385,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         // Open filter modal but cancel without applying
         openFilterModal()
-        selectColumn("Text Column")
+        selectColumn("Text D1")
         enterTextFilter("SomeText")
         
         // Cancel instead of applying
@@ -395,13 +398,13 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func testSequentialFilters_JSON_BasedData() {
         goToCollectionDetailField()
-        let initialRowCount = getVisibleRowCount()
+        let initialRowCount = 4
         
         // Sequential filtering based on JSON structure
         let testCases = [
-            ("Text Column", "A"),      // Should match "A", "AbC", "a B c"
-            ("Text Column", "AbC"),    // Should match "AbC" only
-            ("Text Column", "test"),   // Should match "test" entries
+            ("Text D1", "Ab"),      // Should match "A", "AbC", "a B c"
+            ("Text D1", "AbC"),    // Should match "AbC" only
+            ("Text D1", "test"),   // Should match "test" entries
         ]
         
         var previousCount = initialRowCount
@@ -411,7 +414,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             let currentCount = getVisibleRowCount()
             
             // Each more specific filter should return same or fewer results
-            XCTAssertTrue(currentCount <= previousCount, "More specific filter should not increase row count")
+            XCTAssertTrue(currentCount < previousCount, "More specific filter should not increase row count")
             previousCount = currentCount
         }
     }

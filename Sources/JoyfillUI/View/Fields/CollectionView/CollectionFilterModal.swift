@@ -143,6 +143,7 @@ struct CollectionFilterModal: View {
                                 RoundedRectangle(cornerRadius: 6)
                                     .stroke(shouldEnableAddFilter() ? .gray : .blue, lineWidth: 1)
                             )
+                            .accessibilityIdentifier("AddMoreFilterButtonIdentifier")
                         }
                         .id(refreshID)
                     }
