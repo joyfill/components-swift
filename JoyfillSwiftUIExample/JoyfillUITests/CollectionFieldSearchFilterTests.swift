@@ -40,25 +40,19 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     // MARK: - Helper Functions for Verifying Filter Results
     
     func getVisibleRowCount() -> Int {
-        // Count rows using the row selector identifiers
-        var rowCount = 0
-        var index = 0
-        
-        // Look for rows with identifiers like "selectRowItem0", "selectRowItem1", etc.
-        while index < 25 { // Reasonable upper limit
-            let rowSelector = app.images.matching(identifier: "selectRowItem\(index)")
-            
-            if rowSelector.element.exists {
-                rowCount += 1
-                index += 1
-            } else {
-                index += 1
-            }
-        }
-        
-        return rowCount
+        // Count rows using multiple possible row identifiers
+        return rowCount(baseIdentifier: "selectRowItem")
     }
     
+    func getVisibleNestexRowsCount() -> Int {
+        return rowCount(baseIdentifier: "selectNestedRowItem")
+    }
+    
+    func rowCount(baseIdentifier: String) -> Int {
+        let beginsWith = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
+        return app.images.matching(beginsWith).count
+    }
+        
     func verifyFilteredResults(expectedRowCount: Int, description: String) {
         // Wait a moment for the filter to be applied
         sleep(1)
@@ -137,18 +131,19 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
     }
     
-    func selectMultiSelectOption(_ optionName: String) -> Bool {
+    func selectMultiSelectOption(_ optionName: String) {
         let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
         if multiSelectFilterButton.exists {
             multiSelectFilterButton.tap()
             
-            let option = app.buttons[optionName]
+            let option = app.buttons[optionName].firstMatch
             if option.exists {
                 option.tap()
-                return true
             }
+        } else {
+            XCTFail("MultiSlect filter should exist")
         }
-        return false
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
     }
     
     func tapApplyButton() {
@@ -209,21 +204,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapApplyButton()
     }
     
-    func applyMultiSelectFilter(schema: String? = nil, column: String, option: String) {
+    func applyMultiSelectFilter(schema: String = "Root Table", column: String, option: String) {
          openFilterModal()
         
-        // Select schema if provided
-        if let schema = schema {
-            _ = selectSchema(schema)
-        }
-        
-        // Select column
+        selectSchema(schema)
         selectColumn(column)
-        closeFilterModal()
-        
-        // Select multi-select option
         selectMultiSelectOption(option)
-        closeFilterModal()
         
         tapApplyButton()
     }
@@ -411,7 +397,208 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
     }
     
-    // MARK: - Text Column Filter Tests
+    // MARK: - Nested Schema Filter Tests
+    
+    func testNestedSchemaDiscovery() {
+        goToCollectionDetailField()
+        
+        // Discover available schemas
+        openFilterModal()
+        
+        let schemaSelector = app.buttons.matching(identifier: "SelectSchemaTypeIDentifier")
+        schemaSelector.element.tap()
+        
+        // Verify all actual schema names from real JSON data exist
+        let actualSchemas = ["Root Table", "Depth 2", "Depth 3", "Depth 4", "Depth 5"]
+        var foundSchemas = 0
+        
+        for schemaName in actualSchemas {
+            let schemaOption = app.buttons[schemaName].firstMatch
+            if schemaOption.exists {
+                foundSchemas += 1
+            }
+        }
+        
+        XCTAssertEqual(foundSchemas, actualSchemas.count, "All \(actualSchemas.count) schemas should be discoverable in the UI")
+        
+        closeFilterModal()
+    }
+    
+    func testNestedRowFiltering_ChildSchema() {
+        goToCollectionDetailField()
+        let rootRowCount = 4
+        
+        // Test filtering on nested/child schema using real JSON data
+        applyTextFilter(schema: "Depth 3", column: "Text D3", text: "Ab")
+        
+        let nestedFilteredCount = getVisibleNestexRowsCount()
+        
+        // Nested rows might have different count structure
+        XCTAssertEqual(nestedFilteredCount, 7, "Should handle nested row filtering")
+        
+        // Verify we can return to root schema
+        applyTextFilter(schema: "Root Table", column: "Text D1", text: "A")
+        let backToRootCount = getVisibleRowCount()
+        XCTAssertTrue(backToRootCount == 4, "Should be able to return to root schema")
+        XCTAssertTrue(rootRowCount > 0, "Root schema should have rows")
+    }
+    
+    func testNestedDropdownFiltering() {
+        goToCollectionDetailField()
+        
+        // Apply dropdown filter on nested schema using real JSON data
+        applyDropdownFilter(schema: "Depth 3", column: "Dropdown D3", option: "Yes D3")
+        
+        let nestedDropdownCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(nestedDropdownCount, 9, "Nested dropdown filtering should work")
+        
+        // Test different nested dropdown option
+        applyDropdownFilter(schema: "Depth 3", column: "Dropdown D3", option: "No D3")
+        
+        let differentOptionCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(differentOptionCount, 7, "Nested dropdown filtering should work")
+    }
+    
+    func testMultiLevelSchemaFiltering() {
+        goToCollectionDetailField()
+        
+        // Test filtering across multiple schema levels
+        let testSchemas = [
+            ("Depth 2", "Text D2", "A", 5),        // From JSON: "A", "AbC", "ab", "a B c"
+            ("Depth 3", "Text D3", "A", 13),           // From JSON: "A", "AbC", "a B C"
+            ("Depth 4", "Text D4", "A", 0)            // From JSON: "A", "AbC", "ab", "a B c"
+        ]
+        
+        for (schema, column, text, count) in testSchemas {
+            applyTextFilter(schema: schema, column: column, text: text)
+            let currentCount = getVisibleNestexRowsCount()
+            XCTAssertEqual(currentCount, count, "Schema '\(schema)' filtering should work")
+        }
+    }
+    
+    func testNestedRowIdentifierDiscovery() {
+        goToCollectionDetailField()
+        
+        // Switch to nested schema first using real JSON data
+        applyTextFilter(schema: "Depth 3", column: "Text D3", text: " ")
+        let topLevelRowsCount = getVisibleRowCount()
+        XCTAssertEqual(topLevelRowsCount, 1, "Space filtering should work")
+        
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(nestedRowsCount, 2, "Space filtering should work")
+
+    }
+    
+    func testNestedRowExpanding() {
+        goToCollectionDetailField()
+        
+        applyMultiSelectFilter(schema: "Depth 3", column: "MultiSelect D3", option: "Option 2 D3")
+        let topLevelRowsCount = getVisibleRowCount()
+        XCTAssertEqual(topLevelRowsCount, 2, "Empty filtering should work")
+        
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(nestedRowsCount, 6, "Space filtering should work")
+
+    }
+    
+    func tapSchemaAddRowButton(number: Int) {
+        let buttons = app.buttons.matching(identifier: "collectionSchemaAddRowButton")
+        XCTAssertTrue(buttons.count > 0)
+        buttons.element(boundBy: number).tap()
+    }
+    
+    func expandRow(number: Int) {
+        let expandButton = app.images["CollectionExpandCollapseButton\(number)"]
+        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        expandButton.tap()
+    }
+    
+    func addThreeNestedRows(parentRowNumber: Int) {
+        expandRow(number: parentRowNumber)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("Hello ji")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("Namaste ji")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 6)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123456789")
+    }
+    
+    
+    func testNestedRowCountingAccuracy() {
+        goToCollectionDetailField()
+        addThreeNestedRows(parentRowNumber: 1)
+        applyTextFilter(schema: "Depth 2", column: "Text D2", text: "Hello ji")
+        
+        let parentRowsCount = getVisibleRowCount()
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(parentRowsCount, 1 , "Parent row counting should return valid count")
+        XCTAssertEqual(nestedRowsCount, 1 , "Nested row counting should return valid count")
+       
+    }
+    
+    func testNestedSchemaColumnDiscovery() {
+        goToCollectionDetailField()
+        
+        // Test what columns are available in nested schemas using real JSON data
+        openFilterModal()
+        selectSchema("Depth 3")
+        
+        let columnSelector = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
+        columnSelector.element.tap()
+        
+        // Check for actual nested column names from JSON
+        let actualColumns = [
+            "Text D3", "Dropdown D3", "MultiSelect D3", "Number D3", "Date D3",
+            "Label D3", "Barcode D3", "Signature D3", "Image D3"
+        ]
+        
+        var foundColumns = 0
+        for columnName in actualColumns {
+            let columnOption = app.buttons[columnName].firstMatch
+            if columnOption.exists {
+                foundColumns += 1
+            }
+        }
+        
+        XCTAssertEqual(foundColumns, 5, "Should find at least some nested columns in Depth 3 schema")
+        
+        closeFilterModal()
+    }
+    
+    func testNestedMultipleFiltersWithAddButton() {
+        goToCollectionDetailField()
+        
+        // Start with nested schema filter using real JSON data
+        applyTextFilter(schema: "Depth 3", column: "Text D3", text: "A")
+        
+        // Add additional filter using the add button
+        openFilterModal()
+        tapOnAddMoreFilterButton()
+        
+        // Add second filter on different nested column
+        selectColumn("Dropdown D3", selectorIndex: 1)
+        selectDropdownOption("Yes D3")
+        tapApplyButton()
+        
+        let topLevelRows = getVisibleRowCount()
+        XCTAssertEqual(topLevelRows, 2, "Multiple nested filters should work")
+        
+        let multiNestedFilterCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(multiNestedFilterCount, 9, "Multiple nested filters should work")
+    }
+
     
     func testTextColumnFilter_CaseInsensitive() {
         goToCollectionDetailField()
