@@ -1298,8 +1298,8 @@ extension JoyDoc {
                                row.cells = [
                                    "name": .string("Laptop"),
                                    "price": .double(999.99),
-                                   "category": .string("Electronics"),
-                                   "tags": .array(["Popular", "Sale"]),
+                                   "category": .string("electronics"),
+                                   "tags": .array(["popular", "sale"]),
                                    "images": .array(["https://example.com/laptop1.jpg", "https://example.com/laptop2.jpg"]),
                                    "createdDate": .double(1748750400000), // Jan 1, 2025
                                    "description": .string("Question 1: High-performance laptop"),
@@ -1315,8 +1315,8 @@ extension JoyDoc {
                                row.cells = [
                                    "name": .string(""),
                                    "price": .double(29.99),
-                                   "category": .string("Clothing"),
-                                   "tags": .array(["Popular", "New"]),
+                                   "category": .string("clothing"),
+                                   "tags": .array(["popular", "new"]),
                                    "images": .array(["https://example.com/tshirt.jpg"]),
                                    "createdDate": .double(1748836800000), // Jan 2, 2025
                                    "description": .string("Cotton t-shirt"),
@@ -1332,8 +1332,8 @@ extension JoyDoc {
                                row.cells = [
                                    "name": .string("Jack's Item"),
                                    "price": .double(11),
-                                   "category": .string("Electronics"),
-                                   "tags": .array(["Popular", "Sale", "New"]), // All three options
+                                   "category": .string("electronics"),
+                                   "tags": .array(["popular", "sale", "new"]), // All three options
                                    "images": .array([]), // No images
                                    "createdDate": .double(1748923200000), // Jan 3, 2025
                                    "description": .string("Question 2: Jack's special item"),
@@ -1638,8 +1638,8 @@ extension JoyDoc {
                         row.cells = [
                             "name": .string("Laptop"),
                             "price": .double(999.99),
-                            "category": .string("Electronics"),
-                            "tags": .array(["Popular", "Sale"]),
+                            "category": .string("electronics"),
+                            "tags": .array(["popular", "sale"]),
                             "images": .array(["https://example.com/laptop1.jpg", "https://example.com/laptop2.jpg"]),
                             "createdDate": .double(1748750400000), // Jan 1, 2025
                             "description": .string("Question 1: High-performance laptop"),
@@ -1655,8 +1655,8 @@ extension JoyDoc {
                         row.cells = [
                             "name": .string(""),
                             "price": .double(29.99),
-                            "category": .string("Clothing"),
-                            "tags": .array(["Popular", "New"]),
+                            "category": .string("clothing"),
+                            "tags": .array(["popular", "new"]),
                             "images": .array(["https://example.com/tshirt.jpg"]),
                             "createdDate": .double(1748836800000), // Jan 2, 2025
                             "description": .string("Cotton t-shirt"),
@@ -1672,8 +1672,8 @@ extension JoyDoc {
                         row.cells = [
                             "name": .string("Jack's Item"),
                             "price": .double(11),
-                            "category": .string("Electronics"),
-                            "tags": .array(["Popular", "Sale", "New"]), // All three options
+                            "category": .string("electronics"),
+                            "tags": .array(["popular", "sale", "new"]), // All three options
                             "images": .array([]), // No images
                             "createdDate": .double(1748923200000), // Jan 3, 2025
                             "description": .string("Question 2: Jack's special item"),

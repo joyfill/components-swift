@@ -1160,6 +1160,7 @@ class WisdomTests: XCTestCase {
     // MARK: - Debug Test for Specific Formula Issues
     
     func testSpecificFormulaIssues() {
+        let options = [Option("Popular"), Option("Sale")]
         let document = JoyDoc.addDocument()
             .addFormula(id: "debugMultiSelectFirst", formula: "products.0.tags.0")
             .addFormula(id: "debugImageFirst", formula: "products.0.images.0")
@@ -1173,6 +1174,7 @@ class WisdomTests: XCTestCase {
                         col.id = "tags"
                         col.title = "Tags"
                         col.type = .multiSelect
+                        col.options = options
                         return col
                     }(),
                     {
@@ -1187,7 +1189,7 @@ class WisdomTests: XCTestCase {
                     {
                         var row = ValueElement(id: "row1")
                         row.cells = [
-                            "tags": .array(["Popular", "Sale"]),
+                            "tags": .array(options.compactMap { $0.id }),
                             "images": .array(["https://example.com/laptop1.jpg", "https://example.com/laptop2.jpg"])
                         ]
                         return row

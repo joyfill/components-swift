@@ -1510,51 +1510,106 @@ private class TemporaryVariableContext: EvaluationContext {
     }
 } 
 
-
+//extension JoyDocField {
+//    public var resolvedValue: ValueUnion? {
+//        switch fieldType {
+//        case .multiSelect:
+//            guard let selectedOptions = value?.stringArray else { return value }
+//            print(selectedOptions)
+//            let options = options?.filter { selectedOptions.contains($0.id!)}.map { $0.value! } ?? []
+//            print(options)
+//            return .array(options)
+//            return value
+//        case .text:
+//            return value
+//        case .dropdown:
+//            let text = value?.text
+//            print(text)
+//            let option = options?.first { $0.id == text }
+//            print(option)
+//            return .string(option?.value ?? "") 
+//        case .table:
+//            guard let columns = tableColumns?.filter ({ fieldTableColumn in
+//                fieldTableColumn.type == .dropdown || fieldTableColumn.type == .multiSelect
+//            }) else {
+//                return value
+//            }
+//            guard !columns.isEmpty else { return value }
+//            let valueElements = value!.valueElements!.map { row in
+//                var row  = row
+//                row.cells = row.cells.map { cell in
+//                    guard let columnID = cell.keys.first else { return cell }
+//                    guard let column = columns.first (where: { $0.id == columnID }) else { return cell }
+//                    switch column.type {
+//                    case .dropdown, .multiSelect:
+//                        var cell = cell
+//                        guard let optionValue = column.options?.first { $0.id == cell[columnID]?.text }?.value else { return cell }
+//                        cell[columnID] = .string(optionValue)
+//                        return cell
+//                    default:
+//                        return cell
+//                    }
+//                }
+//                return row
+//            }
+//            return ValueUnion.valueElementArray(valueElements)
+//        case .collection:
+//            return value
+//        default:
+//            return value
+//        }
+//    }
+//}
 
 extension JoyDocField {
     public var resolvedValue: ValueUnion? {
         switch fieldType {
         case .multiSelect:
             guard let selectedOptions = value?.stringArray else { return value }
-            print(selectedOptions)
             let options = options?.filter { selectedOptions.contains($0.id!)}.map { $0.value! } ?? []
-            print(options)
             return .array(options)
-            return value
         case .text:
             return value
         case .dropdown:
             let text = value?.text
-            print(text)
             let option = options?.first { $0.id == text }
-            print(option)
-            return .string(option?.value ?? "") 
+            return .string(option?.value ?? "")
         case .table:
             guard let columns = tableColumns?.filter ({ fieldTableColumn in
                 fieldTableColumn.type == .dropdown || fieldTableColumn.type == .multiSelect
-            }) else {
-                return value
-            }
+            }) else { return value }
             guard !columns.isEmpty else { return value }
+            let needToResolveIDS = columns.map ({ $0.id ?? "no-id" })
             let valueElements = value!.valueElements!.map { row in
-                var row  = row
+                var row = row
                 row.cells = row.cells.map { cell in
-                    guard let columnID = cell.keys.first else { return cell }
-                    guard let column = columns.first (where: { $0.id == columnID }) else { return cell }
-                    switch column.type {
-                    case .dropdown, .multiSelect:
-                        var cell = cell
-                        guard let optionValue = column.options?.first { $0.id == cell[columnID]?.text }?.value else { return cell }
-                        cell[columnID] = .string(optionValue)
-                        return cell
-                    default:
-                        return cell
+                    var cell = cell
+                    for columnID in needToResolveIDS {
+                        if let column = columns.first(where: { $0.id == columnID }) {
+                            switch column.type {
+                            case .dropdown:
+                                let rawValue = cell[columnID]?.text
+                                if let optionValue = column.options?.first(where: { $0.id == rawValue })?.value  {
+                                    cell[columnID] = .string(optionValue)
+                                }
+                            case .multiSelect:
+                                let rawArray = cell[columnID]?.stringArray ?? []
+                                let resolvedOptions = rawArray.compactMap { rawId in
+                                    let resolved = column.options?.first(where: { $0.id == rawId })?.value
+                                    return resolved
+                                }
+                                cell[columnID] = .array(resolvedOptions)
+                            default:
+                                continue
+                            }
+                        }
                     }
+                    return cell
                 }
                 return row
             }
-            return ValueUnion.valueElementArray(valueElements)
+            let result = ValueUnion.valueElementArray(valueElements)
+            return result
         case .collection:
             return value
         default:
@@ -1562,3 +1617,4 @@ extension JoyDocField {
         }
     }
 }
+
