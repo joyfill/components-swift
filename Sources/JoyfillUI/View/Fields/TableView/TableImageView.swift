@@ -71,7 +71,7 @@ import JoyfillModel
     }
      
      func uploadAction() {
-         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier) { urls in
+         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier, multi: isMultiEnabled) { urls in
              var urlsToProcess: [String] = []
              if !isMultiEnabled {
                  if let firstURL = urls.first {

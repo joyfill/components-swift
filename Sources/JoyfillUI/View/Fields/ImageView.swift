@@ -180,7 +180,7 @@ struct ImageView: View {
     }
     
     func uploadAction() {
-        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier) { urls in
+        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, multi: isMultiEnabled) { urls in
             for imageURL in urls {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
