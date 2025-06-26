@@ -34,7 +34,7 @@ struct ImageView: View {
         _listModel = listModel
         switch listModel.wrappedValue.model {
         case .image(let dataMode):
-            self.isMultiEnabled = dataMode.multi ?? true
+            self.isMultiEnabled = dataMode.multi ?? false
             _imageDataModel = State(initialValue: dataMode)
             _valueElements = State(initialValue: dataMode.valueElements ?? [])
         default:
