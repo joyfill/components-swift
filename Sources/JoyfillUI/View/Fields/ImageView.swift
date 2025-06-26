@@ -186,7 +186,7 @@ struct ImageView: View {
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
                     showProgressView = false
                     
-                    if isMultiEnabled == false ?? true {
+                    if isMultiEnabled == false {
                         images = []
                         valueElements = []
                     }
