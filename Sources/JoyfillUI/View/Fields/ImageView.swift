@@ -181,16 +181,22 @@ struct ImageView: View {
     
     func uploadAction() {
         let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, multi: isMultiEnabled) { urls in
-            for imageURL in urls {
+            var urlsToProcess: [String] = []
+            if !isMultiEnabled {
+                if let firstURL = urls.first {
+                    urlsToProcess = [firstURL]
+                }
+                images = []
+                valueElements = []
+            } else {
+                urlsToProcess = urls
+            }
+            
+            for imageURL in urlsToProcess {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
                     showProgressView = false
-                    
-                    if isMultiEnabled == false {
-                        images = []
-                        valueElements = []
-                    }
-                    
+
                     let valueElement = valueElements.first { valueElement in
                         valueElement.url == imageURL
                     } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
