@@ -650,21 +650,19 @@ struct FormBuilderView: View {
                 }
                 
             case .dropdown:
-                let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                 if let formulaRef = field.formulaRef {
                     document = document.addOptionField(
                         identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
-                        options: options,
+                        options: field.options,
                         label: field.label
                     )
                 } else {
                     document = document.addOptionField(
                         identifier: field.id,
-                        value: [options.first ?? ""],
-                        options: options,
-                        label: field.label
+                        options: field.options,
+                        label: field.label,
                     )
                 }
                 
@@ -960,7 +958,7 @@ struct FormBuilderView: View {
             
             fields = [
                 BuilderField(id: "numbers", label: "Numbers Array", fieldType: .text, value: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"),
-                BuilderField(id: "fruits", label: "Fruits", fieldType: .dropdown, value: "apple,banana,cherry,date,elderberry"),
+                BuilderField(id: "fruits", label: "Fruits", fieldType: .dropdown, options: ["apple" , "banana", "cherry", "date", "elderberry"]),
                 BuilderField(id: "sumResult", label: "Array Sum", fieldType: .number, formulaRef: "arraySum"),
                 BuilderField(id: "lengthResult", label: "Array Length", fieldType: .number, formulaRef: "arrayLength"),
                 BuilderField(id: "mapResult", label: "Doubled Numbers", fieldType: .text, formulaRef: "arrayMap"),
@@ -1225,21 +1223,19 @@ struct FormBuilderView: View {
                     )
                 }
             case .dropdown:
-                let options = field.value.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
                 if let formulaRef = field.formulaRef {
                     document = document.addOptionField(
                         identifier: field.id,
                         formulaRef: formulaRef,
                         formulaKey: field.formulaKey,
-                        options: options,
+                        options: field.options,
                         label: field.label
                     )
                 } else {
                     document = document.addOptionField(
                         identifier: field.id,
-                        value: [options.first ?? ""],
-                        options: options,
-                        label: field.label
+                        options: field.options,
+                        label: field.label,
                     )
                 }
             // Add other field types as needed
@@ -1284,6 +1280,7 @@ struct BuilderField: Identifiable {
     var label: String
     var fieldType: FieldTypes
     var valueUnion: ValueUnion?
+    var options = [String]()
     var value: String {
         get {
             return valueUnion?.text ?? ""
@@ -1305,7 +1302,7 @@ struct BuilderField: Identifiable {
         return fieldType == .image || fieldType == .multiSelect
     }
 
-    init(id: String = "", label: String = "", fieldType: FieldTypes, value: String = "", formulaRef: String? = nil, formulaKey: String = "", tableColumns: [FieldTableColumn] = []) {
+    init(id: String = "", label: String = "", fieldType: FieldTypes, value: String = "", formulaRef: String? = nil, formulaKey: String = "", tableColumns: [FieldTableColumn] = [], options: [String] = [String]()) {
         self.id = id
         self.label = label
         self.fieldType = fieldType
@@ -1313,6 +1310,7 @@ struct BuilderField: Identifiable {
         self.formulaRef = formulaRef
         self.formulaKey = formulaKey
         self.tableColumns = tableColumns
+        self.options = options
     }
 }
 
@@ -2807,5 +2805,13 @@ extension ColumnTypes: @retroactive CaseIterable {
     
     var needsOptions: Bool {
         return self == .dropdown || self == .multiSelect
+    }
+}
+
+extension Option {
+    init(_ option: String) {
+        self.init()
+        value = option
+        id = UUID().uuidString
     }
 }

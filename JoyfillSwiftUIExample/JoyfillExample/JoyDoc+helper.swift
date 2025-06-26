@@ -459,15 +459,21 @@ extension JoyDoc {
                       multiselect: Bool = false,
                       label: String? = nil) -> JoyDoc {
         var doc: JoyDoc
-        
+
+        let fieldOptions = options.map { option -> Option in
+            var opt = Option()
+            opt.id = UUID().uuidString
+            opt.value = option
+            return opt
+        }
+
         if multiselect {
-            let selectedValues = value.isEmpty ? [] : [value]
             doc = addField(type: .multiSelect,
                           identifier: identifier,
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
                           id: identifier,
-                          value: .array(value),
+                           value: .array(fieldOptions.filter { value.contains($0.value ?? UUID().uuidString) }.map { $0.id ?? "" }),
                           label: label)
         } else {
             doc = addField(type: .dropdown,
@@ -475,21 +481,13 @@ extension JoyDoc {
                           formulaRef: formulaRef,
                           formulaKey: formulaKey,
                           id: identifier,
-                           value: .string(value.first!),
+                           value: .string(fieldOptions.first { $0.value == value.first }?.id ?? ""),
                           label: label)
         }
         
         // Add options to the field
-        if !options.isEmpty, let index = doc.fields.firstIndex(where: { $0.id == id }) {
-            let fieldOptions = options.map { option -> Option in
-                var opt = Option()
-                opt.id = UUID().uuidString
-                opt.value = option
-                return opt
-            }
-            
+        if !options.isEmpty, let index = doc.fields.firstIndex(where: { $0.id == identifier }) {
             doc.fields[index].options = fieldOptions
-            
             if multiselect {
                 doc.fields[index].multi = true
             }
@@ -529,27 +527,27 @@ extension JoyDoc {
             .addFormula(id: "priceCount", formula: "COUNT(products.price)")
             
             // 5. Array Functions with Columns (5 formulas)
-            .addFormula(id: "expensiveItems", formula: "FILTER(products.price, (p) → p > 50)")
-            .addFormula(id: "doubledPrices", formula: "MAP(products.price, (p) → p * 2)")
-            .addFormula(id: "firstExpensiveItem", formula: "FIND(products.price, (p) → p > 100)")
-            .addFormula(id: "hasExpensiveItems", formula: "SOME(products.price, (p) → p > 100)")
-            .addFormula(id: "allItemsCheap", formula: "EVERY(products.price, (p) → p < 1000)")
+            .addFormula(id: "expensiveItems", formula: "FILTER(products.price, (p) -> p > 50)")
+            .addFormula(id: "doubledPrices", formula: "MAP(products.price, (p) -> p * 2)")
+            .addFormula(id: "firstExpensiveItem", formula: "FIND(products.price, (p) -> p > 100)")
+            .addFormula(id: "hasExpensiveItems", formula: "SOME(products.price, (p) -> p > 100)")
+            .addFormula(id: "allItemsCheap", formula: "EVERY(products.price, (p) -> p < 1000)")
             
             // 6. String Functions with Columns (3 formulas)
-            .addFormula(id: "upperCaseNames", formula: "MAP(products.name, (n) → UPPER(n))")
+            .addFormula(id: "upperCaseNames", formula: "MAP(products.name, (n) -> UPPER(n))")
             .addFormula(id: "nameList", formula: "CONCAT(\"Products: \", JOIN(products.name, \", \"))")
             .addFormula(id: "categoryCount", formula: "COUNT(UNIQUE(products.category))")
             
             // 7. Logical Functions with Columns (3 formulas)
-            .addFormula(id: "allInStock", formula: "EVERY(products.inStock, (stock) → EQUALS(stock, \"Yes\"))")
-            .addFormula(id: "anyInStock", formula: "SOME(products.inStock, (stock) → EQUALS(stock, \"Yes\"))")
-            .addFormula(id: "stockSummary", formula: "CONCAT(\"In Stock: \", COUNT(FILTER(products.inStock, (s) → EQUALS(s, \"Yes\"))), \" / \", COUNT(products))")
+            .addFormula(id: "allInStock", formula: "EVERY(products.inStock, (stock) -> EQUALS(stock, \"Yes\"))")
+            .addFormula(id: "anyInStock", formula: "SOME(products.inStock, (stock) -> EQUALS(stock, \"Yes\"))")
+            .addFormula(id: "stockSummary", formula: "CONCAT(\"In Stock: \", COUNT(FILTER(products.inStock, (s) -> EQUALS(s, \"Yes\"))), \" / \", COUNT(products))")
             
             // 8. Complex Calculations (4 formulas)
             .addFormula(id: "taxRate", formula: "IF(SUM(products.price) > 500, 0.15, 0.10)")
-            .addFormula(id: "pricesWithTax", formula: "MAP(products.price, (p) → p + (p * 0.15))")
-            .addFormula(id: "totalWithTax", formula: "SUM(MAP(products.price, (p) → p + (p * 0.15)))")
-            .addFormula(id: "discountedPrices", formula: "MAP(products.price, (p) → IF(p > 100, p * 0.9, p))")
+            .addFormula(id: "pricesWithTax", formula: "MAP(products.price, (p) -> p + (p * 0.15))")
+            .addFormula(id: "totalWithTax", formula: "SUM(MAP(products.price, (p) -> p + (p * 0.15)))")
+            .addFormula(id: "discountedPrices", formula: "MAP(products.price, (p) -> IF(p > 100, p * 0.9, p))")
             
             // 9. Conditional Logic with Row Data (2 formulas)
             .addFormula(id: "priceCategory", formula: "IF(products.0.price < 50, \"Budget\", IF(products.0.price < 100, \"Mid-range\", \"Premium\"))")
@@ -787,73 +785,73 @@ extension JoyDoc {
             .addFormula(id: "priceCount", formula: "COUNT(products.price)")
             
             // STRING FUNCTIONS
-            .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.name)))")
-            .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) → row.name == \"Laptop\"))")
-            .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) → CONTAINS(LOWER(row.name), \"jack\")))")
-            .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) → CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
-            .addFormula(id: "upperNames", formula: "MAP(products.name, (name) → UPPER(name))")
-            .addFormula(id: "lowerCategories", formula: "MAP(products.category, (cat) → LOWER(cat))")
+            .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) -> EMPTY(row.name)))")
+            .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) -> row.name == \"Laptop\"))")
+            .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(LOWER(row.name), \"jack\")))")
+            .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) -> CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
+            .addFormula(id: "upperNames", formula: "MAP(products.name, (name) -> UPPER(name))")
+            .addFormula(id: "lowerCategories", formula: "MAP(products.category, (cat) -> LOWER(cat))")
             
             // DROPDOWN FUNCTIONS
-            .addFormula(id: "yesDropdownCount", formula: "LENGTH(FILTER(products, (row) → row.category == \"Electronics\"))")
-            .addFormula(id: "notNADropdownCount", formula: "LENGTH(FILTER(products, (row) → row.category != \"N/A\"))")
-            .addFormula(id: "allDropdownsFilled", formula: "EVERY(products, (row) → NOT(EMPTY(row.category)))")
-            .addFormula(id: "dropdownConcat", formula: "REDUCE(products, (acc, row) → CONCAT(acc, \", \", row.category), \"\")")
+            .addFormula(id: "yesDropdownCount", formula: "LENGTH(FILTER(products, (row) -> row.category == \"Electronics\"))")
+            .addFormula(id: "notNADropdownCount", formula: "LENGTH(FILTER(products, (row) -> row.category != \"N/A\"))")
+            .addFormula(id: "allDropdownsFilled", formula: "EVERY(products, (row) -> NOT(EMPTY(row.category)))")
+            .addFormula(id: "dropdownConcat", formula: "REDUCE(products, (acc, row) -> CONCAT(acc, \", \", row.category), \"\")")
             
             // MULTISELECT FUNCTIONS
-            .addFormula(id: "hasOption1Count", formula: "LENGTH(FILTER(products, (row) → SOME(row.tags, (option) → option == \"Popular\")))")
-            .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) → AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\"))))")
-            .addFormula(id: "emptyMultiSelectCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.tags)))")
-            .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) → row.tags)")
-            .addFormula(id: "reducedTags", formula: "REDUCE(FLATMAP(products, (row) → row.tags), (acc, item) → CONCAT(acc, \", \", item), \"\")")
+            .addFormula(id: "hasOption1Count", formula: "LENGTH(FILTER(products, (row) -> SOME(row.tags, (option) -> option == \"Popular\")))")
+            .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) -> AND(SOME(row.tags, (option) -> option == \"Popular\"), SOME(row.tags, (option) -> option == \"Sale\"), SOME(row.tags, (option) -> option == \"New\"))))")
+            .addFormula(id: "emptyMultiSelectCount", formula: "LENGTH(FILTER(products, (row) -> EMPTY(row.tags)))")
+            .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) -> row.tags)")
+            .addFormula(id: "reducedTags", formula: "REDUCE(FLATMAP(products, (row) -> row.tags), (acc, item) -> CONCAT(acc, \", \", item), \"\")")
             
             // IMAGE FUNCTIONS
-            .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.images))))")
-            .addFormula(id: "allHaveImages", formula: "EVERY(products, (row) → NOT(EMPTY(row.images)))")
-            .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) → LENGTH(row.images)))")
+            .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.images))))")
+            .addFormula(id: "allHaveImages", formula: "EVERY(products, (row) -> NOT(EMPTY(row.images)))")
+            .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) -> LENGTH(row.images)))")
             
             // NUMBER FUNCTIONS
-            .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) → row.price > 100))")
-            .addFormula(id: "zeroCount", formula: "LENGTH(FILTER(products, (row) → row.price == 0))")
-            .addFormula(id: "squaredPrices", formula: "MAP(products, (row) → POW(row.price, 2))")
-            .addFormula(id: "evenPrices", formula: "MAP(products, (row) → MOD(row.price, 2) == 0)")
+            .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) -> row.price > 100))")
+            .addFormula(id: "zeroCount", formula: "LENGTH(FILTER(products, (row) -> row.price == 0))")
+            .addFormula(id: "squaredPrices", formula: "MAP(products, (row) -> POW(row.price, 2))")
+            .addFormula(id: "evenPrices", formula: "MAP(products, (row) -> MOD(row.price, 2) == 0)")
             
             // DATE FUNCTIONS
-            .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.createdDate))))")
-            .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) → DAY(row.createdDate) >= 2))")
-            .addFormula(id: "latestDate", formula: "MAX(MAP(products, (row) → row.createdDate))")
-            .addFormula(id: "extractedDays", formula: "MAP(products, (row) → DAY(row.createdDate))")
+            .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.createdDate))))")
+            .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) -> DAY(row.createdDate) >= 2))")
+            .addFormula(id: "latestDate", formula: "MAX(MAP(products, (row) -> row.createdDate))")
+            .addFormula(id: "extractedDays", formula: "MAP(products, (row) -> DAY(row.createdDate))")
             
             // BLOCK FUNCTIONS
-            .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(UPPER(row.description), \"QUESTION\")))")
+            .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(UPPER(row.description), \"QUESTION\")))")
             
             // BARCODE FUNCTIONS
-            .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(row.barcode, \"code\")))")
-            .addFormula(id: "nonEmptyBarcodeCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.barcode))))")
-            .addFormula(id: "scannedLabels", formula: "MAP(products, (row) → CONCAT(\"SCANNED \", row.barcode))")
-            .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) → IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
+            .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(row.barcode, \"code\")))")
+            .addFormula(id: "nonEmptyBarcodeCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.barcode))))")
+            .addFormula(id: "scannedLabels", formula: "MAP(products, (row) -> CONCAT(\"SCANNED \", row.barcode))")
+            .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) -> IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
             
             // SIGNATURE FUNCTIONS
-            .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.signature))))")
-            .addFormula(id: "missingSignatureCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.signature)))")
-            .addFormula(id: "totalSignedRows", formula: "REDUCE(products, (acc, row) → acc + (NOT(EMPTY(row.signature)) ? 1 : 0), 0)")
-            .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) → NOT(EMPTY(row.signature)))")
-            .addFormula(id: "auditTags", formula: "MAP(products, (row, i) → IF(NOT(EMPTY(row.signature)), CONCAT(\"Row \", TOSTRING(i), \" Signed\"), CONCAT(\"Row \", TOSTRING(i), \" Not Signed\")))")
+            .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.signature))))")
+            .addFormula(id: "missingSignatureCount", formula: "LENGTH(FILTER(products, (row) -> EMPTY(row.signature)))")
+            .addFormula(id: "totalSignedRows", formula: "REDUCE(products, (acc, row) -> acc + (NOT(EMPTY(row.signature)) ? 1 : 0), 0)")
+            .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) -> NOT(EMPTY(row.signature)))")
+            .addFormula(id: "auditTags", formula: "MAP(products, (row, i) -> IF(NOT(EMPTY(row.signature)), CONCAT(\"Row \", TOSTRING(i), \" Signed\"), CONCAT(\"Row \", TOSTRING(i), \" Not Signed\")))")
             
             // OPERATORS
-            .addFormula(id: "addTen", formula: "MAP(products, (row) → row.price + 10)")
-            .addFormula(id: "multiplyBySelf", formula: "MAP(products, (row) → row.price * row.price)")
-            .addFormula(id: "divideByTwo", formula: "MAP(products, (row) → row.price / 2)")
-            .addFormula(id: "subtractOne", formula: "MAP(products, (row) → row.price - 1)")
-            .addFormula(id: "equalToThree", formula: "MAP(products, (row) → row.price == 3)")
-            .addFormula(id: "notEqualYes", formula: "MAP(products, (row) → row.category != \"Electronics\")")
-            .addFormula(id: "greaterThanTen", formula: "MAP(products, (row) → row.price > 10)")
-            .addFormula(id: "greaterEqualEleven", formula: "MAP(products, (row) → row.price >= 11)")
-            .addFormula(id: "lessThanThree", formula: "MAP(products, (row) → row.price < 3)")
-            .addFormula(id: "lessEqualTwo", formula: "MAP(products, (row) → row.price <= 2)")
+            .addFormula(id: "addTen", formula: "MAP(products, (row) -> row.price + 10)")
+            .addFormula(id: "multiplyBySelf", formula: "MAP(products, (row) -> row.price * row.price)")
+            .addFormula(id: "divideByTwo", formula: "MAP(products, (row) -> row.price / 2)")
+            .addFormula(id: "subtractOne", formula: "MAP(products, (row) -> row.price - 1)")
+            .addFormula(id: "equalToThree", formula: "MAP(products, (row) -> row.price == 3)")
+            .addFormula(id: "notEqualYes", formula: "MAP(products, (row) -> row.category != \"Electronics\")")
+            .addFormula(id: "greaterThanTen", formula: "MAP(products, (row) -> row.price > 10)")
+            .addFormula(id: "greaterEqualEleven", formula: "MAP(products, (row) -> row.price >= 11)")
+            .addFormula(id: "lessThanThree", formula: "MAP(products, (row) -> row.price < 3)")
+            .addFormula(id: "lessEqualTwo", formula: "MAP(products, (row) -> row.price <= 2)")
             
             // COMPLEX CONDITIONALS
-            .addFormula(id: "complexFilter", formula: "LENGTH(FILTER(products, (row) → AND(IF(CONTAINS(LOWER(row.name), \"laptop\"), true, false), AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\")), OR(row.price == 3, row.price == 4))))")
+            .addFormula(id: "complexFilter", formula: "LENGTH(FILTER(products, (row) -> AND(IF(CONTAINS(LOWER(row.name), \"laptop\"), true, false), AND(SOME(row.tags, (option) -> option == \"Popular\"), SOME(row.tags, (option) -> option == \"Sale\"), SOME(row.tags, (option) -> option == \"New\")), OR(row.price == 3, row.price == 4))))")
             
             // Create comprehensive table with ALL column types
             .addTableField(
@@ -1122,45 +1120,45 @@ extension JoyDoc {
                    .addFormula(id: "basicSignatureAccess", formula: "products.0.signature")
        
                    // STRING FUNCTIONS (as per spec)
-                   .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.name)))")
-                   .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) → row.name == \"Laptop\"))")
-                   .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) → CONTAINS(LOWER(row.name), \"jack\")))")
-                   .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) → CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
+                   .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) -> EMPTY(row.name)))")
+                   .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) -> row.name == \"Laptop\"))")
+                   .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(LOWER(row.name), \"jack\")))")
+                   .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) -> CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
        
                    // MULTISELECT FUNCTIONS (as per spec)
-                   .addFormula(id: "hasPopularCount", formula: "LENGTH(FILTER(products, (row) → SOME(row.tags, (option) → option == \"Popular\")))")
-                   .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) → AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\"))))")
-                   .addFormula(id: "emptyMultiSelectCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.tags)))")
-                   .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) → row.tags)")
+                   .addFormula(id: "hasPopularCount", formula: "LENGTH(FILTER(products, (row) -> SOME(row.tags, (option) -> option == \"Popular\")))")
+                   .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) -> AND(SOME(row.tags, (option) -> option == \"Popular\"), SOME(row.tags, (option) -> option == \"Sale\"), SOME(row.tags, (option) -> option == \"New\"))))")
+                   .addFormula(id: "emptyMultiSelectCount", formula: "LENGTH(FILTER(products, (row) -> EMPTY(row.tags)))")
+                   .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) -> row.tags)")
        
                    // IMAGE FUNCTIONS (as per spec)
-                   .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.images))))")
-                   .addFormula(id: "allHaveImages", formula: "EVERY(products, (row) → NOT(EMPTY(row.images)))")
-                   .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) → LENGTH(row.images)))")
+                   .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.images))))")
+                   .addFormula(id: "allHaveImages", formula: "EVERY(products, (row) -> NOT(EMPTY(row.images)))")
+                   .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) -> LENGTH(row.images)))")
        
                    // NUMBER FUNCTIONS (as per spec)
-                   .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) → row.price > 100))")
-                   .addFormula(id: "squaredPrices", formula: "MAP(products, (row) → POW(row.price, 2))")
-                   .addFormula(id: "evenPrices", formula: "MAP(products, (row) → MOD(row.price, 2) == 0)")
+                   .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) -> row.price > 100))")
+                   .addFormula(id: "squaredPrices", formula: "MAP(products, (row) -> POW(row.price, 2))")
+                   .addFormula(id: "evenPrices", formula: "MAP(products, (row) -> MOD(row.price, 2) == 0)")
        
                    // DATE FUNCTIONS (as per spec)
-                   .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.createdDate))))")
-                   .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) → DAY(row.createdDate) >= 2))")
-                   .addFormula(id: "extractedDays", formula: "MAP(products, (row) → DAY(row.createdDate))")
+                   .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.createdDate))))")
+                   .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) -> DAY(row.createdDate) >= 2))")
+                   .addFormula(id: "extractedDays", formula: "MAP(products, (row) -> DAY(row.createdDate))")
        
                    // BLOCK FUNCTIONS (as per spec)
-                   .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(UPPER(row.description), \"QUESTION\")))")
+                   .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(UPPER(row.description), \"QUESTION\")))")
        
                    // BARCODE FUNCTIONS (as per spec)
-                   .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(row.barcode, \"code\")))")
-                   .addFormula(id: "nonEmptyBarcodeCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.barcode))))")
-                   .addFormula(id: "scannedLabels", formula: "MAP(products, (row) → CONCAT(\"SCANNED \", row.barcode))")
-                   .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) → IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
+                   .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(row.barcode, \"code\")))")
+                   .addFormula(id: "nonEmptyBarcodeCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.barcode))))")
+                   .addFormula(id: "scannedLabels", formula: "MAP(products, (row) -> CONCAT(\"SCANNED \", row.barcode))")
+                   .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) -> IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
        
                    // SIGNATURE FUNCTIONS (as per spec)
-                   .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.signature))))")
-                   .addFormula(id: "missingSignatureCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.signature)))")
-                   .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) → NOT(EMPTY(row.signature)))")
+                   .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.signature))))")
+                   .addFormula(id: "missingSignatureCount", formula: "LENGTH(FILTER(products, (row) -> EMPTY(row.signature)))")
+                   .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) -> NOT(EMPTY(row.signature)))")
        
                    // Create comprehensive table with ALL column types (as per PDF spec)
                    .addTableField(
@@ -1460,47 +1458,47 @@ extension JoyDoc {
             .addFormula(id: "minPrice", formula: "MIN(products.price)")
         
         // STRING FUNCTIONS (from spec)
-            .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) → EMPTY(row.name)))")
-            .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) → row.name == \"Laptop\"))")
-            .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) → CONTAINS(LOWER(row.name), \"jack\")))")
-            .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) → CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
+            .addFormula(id: "emptyTextCount", formula: "LENGTH(FILTER(products, (row) -> EMPTY(row.name)))")
+            .addFormula(id: "exactNameMatch", formula: "LENGTH(FILTER(products, (row) -> row.name == \"Laptop\"))")
+            .addFormula(id: "nameContainsJack", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(LOWER(row.name), \"jack\")))")
+            .addFormula(id: "nameLabels", formula: "MAP(products, (row, i) -> CONCAT(row.name, \" (\", TOSTRING(i), \")\"))")
         
         // MULTISELECT FUNCTIONS (from spec)
-            .addFormula(id: "hasPopularCount", formula: "LENGTH(FILTER(products, (row) → SOME(row.tags, (option) → option == \"Popular\")))")
-            .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) → AND(SOME(row.tags, (option) → option == \"Popular\"), SOME(row.tags, (option) → option == \"Sale\"), SOME(row.tags, (option) → option == \"New\"))))")
-            .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) → row.tags)")
+            .addFormula(id: "hasPopularCount", formula: "LENGTH(FILTER(products, (row) -> SOME(row.tags, (option) -> option == \"Popular\")))")
+            .addFormula(id: "hasAllOptionsCount", formula: "LENGTH(FILTER(products, (row) -> AND(SOME(row.tags, (option) -> option == \"Popular\"), SOME(row.tags, (option) -> option == \"Sale\"), SOME(row.tags, (option) -> option == \"New\"))))")
+            .addFormula(id: "flattenedTags", formula: "FLATMAP(products, (row) -> row.tags)")
         
         // IMAGE FUNCTIONS (from spec)
-            .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.images))))")
-            .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) → LENGTH(row.images)))")
+            .addFormula(id: "hasImageCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.images))))")
+            .addFormula(id: "maxImageCount", formula: "MAX(MAP(products, (row) -> LENGTH(row.images)))")
         
         // NUMBER FUNCTIONS (from spec)
-            .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) → row.price > 100))")
-            .addFormula(id: "squaredPrices", formula: "MAP(products, (row) → POW(row.price, 2))")
-            .addFormula(id: "evenPrices", formula: "MAP(products, (row) → MOD(row.price, 2) == 0)")
+            .addFormula(id: "expensiveCount", formula: "LENGTH(FILTER(products, (row) -> row.price > 100))")
+            .addFormula(id: "squaredPrices", formula: "MAP(products, (row) -> POW(row.price, 2))")
+            .addFormula(id: "evenPrices", formula: "MAP(products, (row) -> MOD(row.price, 2) == 0)")
         
         // DATE FUNCTIONS (from spec)
-            .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.createdDate))))")
-            .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) → DAY(row.createdDate) >= 2))")
-            .addFormula(id: "extractedDays", formula: "MAP(products, (row) → DAY(row.createdDate))")
+            .addFormula(id: "hasDateCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.createdDate))))")
+            .addFormula(id: "dayGte2Count", formula: "LENGTH(FILTER(products, (row) -> DAY(row.createdDate) >= 2))")
+            .addFormula(id: "extractedDays", formula: "MAP(products, (row) -> DAY(row.createdDate))")
         
         // BLOCK FUNCTIONS (from spec)
-            .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(UPPER(row.description), \"QUESTION\")))")
+            .addFormula(id: "questionCount", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(UPPER(row.description), \"QUESTION\")))")
         
         // BARCODE FUNCTIONS (from spec)
-            .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) → CONTAINS(row.barcode, \"code\")))")
-            .addFormula(id: "scannedLabels", formula: "MAP(products, (row) → CONCAT(\"SCANNED \", row.barcode))")
-            .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) → IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
+            .addFormula(id: "codeStartsCount", formula: "LENGTH(FILTER(products, (row) -> CONTAINS(row.barcode, \"code\")))")
+            .addFormula(id: "scannedLabels", formula: "MAP(products, (row) -> CONCAT(\"SCANNED \", row.barcode))")
+            .addFormula(id: "replaceMissingBarcodes", formula: "MAP(products, (row) -> IF(EMPTY(row.barcode), \"MISSING\", row.barcode))")
         
         // SIGNATURE FUNCTIONS (from spec)
-            .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) → NOT(EMPTY(row.signature))))")
-            .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) → NOT(EMPTY(row.signature)))")
+            .addFormula(id: "hasSignatureCount", formula: "LENGTH(FILTER(products, (row) -> NOT(EMPTY(row.signature))))")
+            .addFormula(id: "allHaveSignatures", formula: "EVERY(products, (row) -> NOT(EMPTY(row.signature)))")
         
         // OPERATORS (from spec)
-            .addFormula(id: "addTen", formula: "MAP(products, (row) → row.price + 10)")
-            .addFormula(id: "multiplyBySelf", formula: "MAP(products, (row) → row.price * row.price)")
-            .addFormula(id: "equalToThree", formula: "MAP(products, (row) → row.price == 3)")
-            .addFormula(id: "greaterThanTen", formula: "MAP(products, (row) → row.price > 10)")
+            .addFormula(id: "addTen", formula: "MAP(products, (row) -> row.price + 10)")
+            .addFormula(id: "multiplyBySelf", formula: "MAP(products, (row) -> row.price * row.price)")
+            .addFormula(id: "equalToThree", formula: "MAP(products, (row) -> row.price == 3)")
+            .addFormula(id: "greaterThanTen", formula: "MAP(products, (row) -> row.price > 10)")
         
         // Create comprehensive table with ALL column types
             .addTableField(

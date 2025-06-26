@@ -128,7 +128,7 @@ public class JoyfillDocContext: EvaluationContext {
         }
         
         // Convert the field value to a formula value
-        return convertFieldValueToFormulaValue(field.value)
+        return convertFieldValueToFormulaValue(field.resolvedValue)
     }
     
     /// Creates a new context with added temporary variable
@@ -189,7 +189,7 @@ public class JoyfillDocContext: EvaluationContext {
                 return .failure(.invalidReference("Field with identifier '\(fieldName)' not found for '\(identifier)' reference"))
             }
             
-            let result = convertFieldValueToFormulaValue(field.value)
+            let result = convertFieldValueToFormulaValue(field.resolvedValue)
             return result
         }
         
@@ -238,7 +238,7 @@ public class JoyfillDocContext: EvaluationContext {
         }
         
         // Not a formula field, return the stored value
-        return convertFieldValueToFormulaValue(field.value)
+        return convertFieldValueToFormulaValue(field.resolvedValue)
     }
 
     private func resolveComplexFieldReference(_ pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
@@ -275,7 +275,7 @@ public class JoyfillDocContext: EvaluationContext {
             // This could be a property access or array index reference
 
             // First, resolve the base field value
-            let baseValueResult = convertFieldValueToFormulaValue(field.value)
+            let baseValueResult = convertFieldValueToFormulaValue(field.resolvedValue)
             guard case .success(let baseValue) = baseValueResult else {
                 return baseValueResult
             }
@@ -462,7 +462,7 @@ public class JoyfillDocContext: EvaluationContext {
     
     private func resolveCollectionReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
         // Get the value elements array from the field
-        guard let valueElements = field.value?.valueElements else {
+        guard let valueElements = field.resolvedValue?.valueElements else {
             return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid table"))
         }
         
@@ -1509,3 +1509,56 @@ private class TemporaryVariableContext: EvaluationContext {
         )
     }
 } 
+
+
+
+extension JoyDocField {
+    public var resolvedValue: ValueUnion? {
+        switch fieldType {
+        case .multiSelect:
+            guard let selectedOptions = value?.stringArray else { return value }
+            print(selectedOptions)
+            let options = options?.filter { selectedOptions.contains($0.id!)}.map { $0.value! } ?? []
+            print(options)
+            return .array(options)
+            return value
+        case .text:
+            return value
+        case .dropdown:
+            let text = value?.text
+            print(text)
+            let option = options?.first { $0.id == text }
+            print(option)
+            return .string(option?.value ?? "") 
+        case .table:
+            guard let columns = tableColumns?.filter ({ fieldTableColumn in
+                fieldTableColumn.type == .dropdown || fieldTableColumn.type == .multiSelect
+            }) else {
+                return value
+            }
+            guard !columns.isEmpty else { return value }
+            let valueElements = value!.valueElements!.map { row in
+                var row  = row
+                row.cells = row.cells.map { cell in
+                    guard let columnID = cell.keys.first else { return cell }
+                    guard let column = columns.first (where: { $0.id == columnID }) else { return cell }
+                    switch column.type {
+                    case .dropdown, .multiSelect:
+                        var cell = cell
+                        guard let optionValue = column.options?.first { $0.id == cell[columnID]?.text }?.value else { return cell }
+                        cell[columnID] = .string(optionValue)
+                        return cell
+                    default:
+                        return cell
+                    }
+                }
+                return row
+            }
+            return ValueUnion.valueElementArray(valueElements)
+        case .collection:
+            return value
+        default:
+            return value
+        }
+    }
+}

@@ -673,36 +673,36 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "flatDepth", formula: "flat([numArray, [10, [11, [12]]]], 2)")
             
             // Map
-            .addFormula(id: "map1", formula: "map(numArray, (item) → item * 2)")
-            .addFormula(id: "map2", formula: "map(fruitArray, (item) → concat(\"fruit: \", item))")
+            .addFormula(id: "map1", formula: "map(numArray, (item) -> item * 2)")
+            .addFormula(id: "map2", formula: "map(fruitArray, (item) -> concat(\"fruit: \", item))")
             
             // FlatMap
-            .addFormula(id: "flatMap1", formula: "flatMap(numArray, (item) → [item, item * 2])")
+            .addFormula(id: "flatMap1", formula: "flatMap(numArray, (item) -> [item, item * 2])")
             
             // Filter
-            .addFormula(id: "filter1", formula: "filter(numArray, (item) → item > 3)")
-            .addFormula(id: "filter2", formula: "filter(fruitArray, (item) → contains(item, \"a\"))")
+            .addFormula(id: "filter1", formula: "filter(numArray, (item) -> item > 3)")
+            .addFormula(id: "filter2", formula: "filter(fruitArray, (item) -> contains(item, \"a\"))")
             
             // Reduce
-            .addFormula(id: "reduce1", formula: "reduce(numArray, (acc, item) → acc + item, 0)")
-            .addFormula(id: "reduce2", formula: "reduce(numArray, (acc, item) → acc * item, 1)")
+            .addFormula(id: "reduce1", formula: "reduce(numArray, (acc, item) -> acc + item, 0)")
+            .addFormula(id: "reduce2", formula: "reduce(numArray, (acc, item) -> acc * item, 1)")
             
             // Find
-            .addFormula(id: "find1", formula: "find(numArray, (item) → item > 3)")
-            .addFormula(id: "find2", formula: "find(fruitArray, (item) → contains(item, \"g\"))")
-            .addFormula(id: "find3", formula: "find(numArray, (item) → item > 100)") // No match
+            .addFormula(id: "find1", formula: "find(numArray, (item) -> item > 3)")
+            .addFormula(id: "find2", formula: "find(fruitArray, (item) -> contains(item, \"g\"))")
+            .addFormula(id: "find3", formula: "find(numArray, (item) -> item > 100)") // No match
             
             // Every
-            .addFormula(id: "every1", formula: "every(numArray, (item) → item > 0)")
-            .addFormula(id: "every2", formula: "every(numArray, (item) → item > 3)") // Should be false
+            .addFormula(id: "every1", formula: "every(numArray, (item) -> item > 0)")
+            .addFormula(id: "every2", formula: "every(numArray, (item) -> item > 3)") // Should be false
             
             // Some
-            .addFormula(id: "some1", formula: "some(numArray, (item) → item > 3)")
-            .addFormula(id: "some2", formula: "some(numArray, (item) → item > 10)") // Should be false
+            .addFormula(id: "some1", formula: "some(numArray, (item) -> item > 3)")
+            .addFormula(id: "some2", formula: "some(numArray, (item) -> item > 10)") // Should be false
             
             // Complex array operations
-            .addFormula(id: "complexArray1", formula: "filter(map(numArray, (item) → item * 2), (item) → item > 6)")
-            .addFormula(id: "complexArray2", formula: "reduce(filter(numArray, (item) → item > 2), (acc, item) → acc + item, 0)")
+            .addFormula(id: "complexArray1", formula: "filter(map(numArray, (item) -> item * 2), (item) -> item > 6)")
+            .addFormula(id: "complexArray2", formula: "reduce(filter(numArray, (item) -> item > 2), (acc, item) -> acc + item, 0)")
             
             // Input fields
             .addOptionField(identifier: "fruitArray", value: ["apple", "banana", "orange", "grape"], 
@@ -1495,10 +1495,10 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "complexLogic", formula: "concat(upper(dropdown1), \" users get \", if(equals(dropdown1, \"Premium\"), \"unlimited\", \"limited\"), \" access\")")
             
             // Add dropdown fields with different values
-            .addDropdownField(identifier: "dropdown1", selectedValue: "Premium")
-            .addDropdownField(identifier: "dropdown2", selectedValue: "Basic") 
-            .addDropdownField(identifier: "emptyDropdown", selectedValue: "") // Empty dropdown
-            
+            .addOptionField(identifier: "dropdown1", value: ["Premium"], options: ["Premium"])
+            .addOptionField(identifier: "dropdown2", value: ["Basic"],options: ["Basic"] )
+            .addOptionField(identifier: "emptyDropdown", value: [""], options: ["Premium", "Basic"]) // Empty dropdown
+
             // Add result fields for all formulas
             .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
             .addTextField(identifier: "upperDropdownResult", formulaRef: "upperDropdown")
@@ -1615,31 +1615,31 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "lengthCheck", formula: "length(field1) <= 2")
             
             // Conditionals - Equality: Check if "Option 2" is Selected
-            .addFormula(id: "option2Selected", formula: "some(field1, (item) → item == \"Option 2\")")
+            .addFormula(id: "option2Selected", formula: "some(field1, (item) -> item == \"Option 2\")")
             
             // Conditionals - Not Equal: Enforce "Option 3" Not Selected
-            .addFormula(id: "option3NotSelected", formula: "every(field1, (item) → item != \"Option 3\")")
+            .addFormula(id: "option3NotSelected", formula: "every(field1, (item) -> item != \"Option 3\")")
             
             // Misc - Count Selected Options
             .addFormula(id: "countSelected", formula: "length(field1)")
             
             // Misc - Check if "Option 3" is NOT Selected
-            .addFormula(id: "option3NotSelectedAlt", formula: "not(some(field1, (item) → item == \"Option 3\"))")
+            .addFormula(id: "option3NotSelectedAlt", formula: "not(some(field1, (item) -> item == \"Option 3\"))")
             
             // Misc - Conditional Output for "Option 1"
-            .addFormula(id: "conditionalOption1", formula: "if(some(field1, (item) → item == \"Option 1\"), \"Selected Option 1\", \"Did not select Option 1\")")
+            .addFormula(id: "conditionalOption1", formula: "if(some(field1, (item) -> item == \"Option 1\"), \"Selected Option 1\", \"Did not select Option 1\")")
             
             // Misc - Convert Selected Options to Uppercase
-            .addFormula(id: "uppercaseOptions", formula: "map(field1, (item) → upper(item))")
+            .addFormula(id: "uppercaseOptions", formula: "map(field1, (item) -> upper(item))")
             
             // Misc - Comma-Separated List of Selected Options
-            .addFormula(id: "commaSeparated", formula: "reduce(field1, (acc, item) → if(empty(acc), item, concat(acc, \", \", item)), \"\")")
+            .addFormula(id: "commaSeparated", formula: "reduce(field1, (acc, item) -> if(empty(acc), item, concat(acc, \", \", item)), \"\")")
             
             // Misc - Check if All Options Are Selected
-            .addFormula(id: "allOptionsSelected", formula: "every([\"Option 1\", \"Option 2\", \"Option 3\"], (opt) → some(field1, (item) → item == opt))")
+            .addFormula(id: "allOptionsSelected", formula: "every([\"Option 1\", \"Option 2\", \"Option 3\"], (opt) -> some(field1, (item) -> item == opt))")
             
             // Misc - Filter for "Option 1" Only
-            .addFormula(id: "filterOption1", formula: "filter(field1, (item) → item == \"Option 1\")")
+            .addFormula(id: "filterOption1", formula: "filter(field1, (item) -> item == \"Option 1\")")
             
             // Additional test cases for edge scenarios
             .addFormula(id: "emptyMultiSelectLength", formula: "length(emptyMultiSelect)")
@@ -1649,9 +1649,9 @@ class WisdomTests: XCTestCase {
             
             // Add multiSelect fields with test data matching the spec
             // field1 has ["Option 2", "Option 1"] selected (as per spec examples)
-            .addMultiSelectField(identifier: "field1", selectedValues: ["Option 2", "Option 1"])
-            .addMultiSelectField(identifier: "emptyMultiSelect", selectedValues: []) // Empty multiSelect
-            
+            .addOptionField(identifier: "field1", value: ["Option 2", "Option 1"], options: ["Option 2", "Option 1"], multiselect: true)
+            .addOptionField(identifier: "emptyMultiSelect", value: [], options: ["Option 2", "Option 1"], multiselect: true)
+
             // Add result fields for all formulas
             .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
             .addTextField(identifier: "lengthCheckResult", formulaRef: "lengthCheck")
