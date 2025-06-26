@@ -135,7 +135,8 @@ struct TableDataModel {
                     options: optionsLocal,
                     valueElements: fieldTableColumn.images ?? [],
                     type: fieldTableColumn.type,
-                    title: fieldTableColumn.title
+                    title: fieldTableColumn.title,
+                    multi: fieldTableColumn.multi
                 )
                 columnIdToColumnMap[column] = fieldTableColumnLocal
             }
@@ -164,7 +165,8 @@ struct TableDataModel {
                 valueElements: columnData.images ?? [],
                 type: columnData.type,
                 title: columnData.title,
-                selectedOptionText: selectedOptionText
+                selectedOptionText: selectedOptionText,
+                multi: columnData.multi
             )
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnId) {
                 cells.append(cell)
@@ -250,7 +252,8 @@ struct TableDataModel {
                                          valueElements: column.images ?? [],
                                          type: column.type,
                                          title: column.title,
-                                         selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "")
+                                 selectedOptionText: optionsLocal.filter { $0.id == column.defaultDropdownSelectedId }.first?.value ?? "",
+                                 multi: column.multi)
         }
         guard let rowIndex = rowOrder.firstIndex(of: row) else {
             Log("RowIndex not found in row order", type: .error)
@@ -323,6 +326,7 @@ struct CellDataModel: Hashable, Equatable {
     let type: String?
     var title: String
     var selectedOptionText: String?
+    let multi: Bool?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)
