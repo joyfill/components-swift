@@ -2,6 +2,11 @@ import XCTest
 
 final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "TableNewColumns"
+    }
+    
     func goToTableDetailPage() {
         app.buttons["TableDetailViewIdentifier"].tap()
     }
@@ -39,10 +44,10 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         multiFieldColumnTitleButton.tap()
     }
     
-    func swipeForMultiSelctionField() {
-        let element = app.windows.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
-        element.swipeLeft()
-    }
+//    func swipeForMultiSelctionField() {
+//        let element = app.windows.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
+//        element.swipeLeft()
+//    }
     
     func tapOnSearchBarTextField(value: String) {
         let searchBarTextField = app.textFields["SearchBarNumberIdentifier"]
@@ -587,7 +592,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Change existing value
     func testChangeMultiSelectionOptionValue() throws {
         goToTableDetailPage()
-        swipeForMultiSelctionField()
+        //swipeForMultiSelctionField()
                         
         // Access identifier
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
@@ -621,7 +626,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Bulk Edit - Single Row edit
     func testMultiSelectionBulkEditOnSingleRow() throws {
         goToTableDetailPage()
-        swipeForMultiSelctionField()
+        //swipeForMultiSelctionField()
                         
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
@@ -652,7 +657,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Bulk Edit - All Row edit
     func testMultiSelectionBulkEditOnAllRows() throws {
         goToTableDetailPage()
-        swipeForMultiSelctionField()
+        //swipeForMultiSelctionField()
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
         sleep(1)
@@ -1094,7 +1099,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     
     func testClearExistingSignature() throws {
         goToTableDetailPage()
-        swipeLeftForSignatureColumn()
+        //swipeLeftForSignatureColumn()
         
         let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
         let firstSignatureButton = signatureButtons.element(boundBy: 0)
@@ -1112,7 +1117,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     
     func testSaveNewSignature() throws {
         goToTableDetailPage()
-        swipeLeftForSignatureColumn()
+        //swipeLeftForSignatureColumn()
         
         let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
         let tapOnSignatureButton = signatureButtons.element(boundBy: 1)

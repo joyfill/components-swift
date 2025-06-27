@@ -32,7 +32,10 @@ struct JoyfillExampleApp: App {
             }
         }
         _appState = StateObject(wrappedValue: appState)
-        self.documentEditor = DocumentEditor(document: sampleJSONDocument(), events: eventHandler)
+        
+        // Get JSON file name from launch arguments for UI tests
+        let jsonFileName = Self.getJSONFileNameFromLaunchArguments()
+        self.documentEditor = DocumentEditor(document: sampleJSONDocument(fileName: jsonFileName), events: eventHandler, isPageDuplicateEnabled: true)
     }
 
     var body: some Scene {
@@ -58,6 +61,14 @@ struct JoyfillExampleApp: App {
         }
     }
     
+    private static func getJSONFileNameFromLaunchArguments() -> String? {
+        let arguments = CommandLine.arguments
+        if let jsonFileIndex = arguments.firstIndex(of: "--json-file"),
+           jsonFileIndex + 1 < arguments.count {
+            return arguments[jsonFileIndex + 1]
+        }
+        return nil
+    }
 }
 
 struct KeyboardDismissModifier: ViewModifier {

@@ -3,6 +3,11 @@ import JoyfillModel
 
 final class JoyfillUITests: JoyfillUITestsBaseClass {
 
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "Joydocjson"
+    }
+    
     func testTextFields() throws {
         let textField = app.textFields["Text"]
         XCTAssertEqual("Hello sir", textField.value as! String)
