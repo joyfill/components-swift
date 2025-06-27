@@ -237,8 +237,14 @@ public class JoyfillDocContext: EvaluationContext {
             }
         }
         
-        // Not a formula field, return the stored value
-        return convertFieldValueToFormulaValue(field.resolvedValue)
+        // Not a formula field, handle based on field type
+        if field.fieldType == JoyfillModel.FieldTypes.collection {
+            // For collection fields, use our specialized resolution that adds children property
+            return resolveCollectionReference(field, pathComponents: [])
+        } else {
+            // For other field types, return the stored value
+            return convertFieldValueToFormulaValue(field.resolvedValue)
+        }
     }
 
     private func resolveComplexFieldReference(_ pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
@@ -764,17 +770,18 @@ public class JoyfillDocContext: EvaluationContext {
     private func convertCollectionElementToFormulaValue(_ element: ValueElement, field: JoyDocField) -> FormulaValue {
         var dict: [String: FormulaValue] = [:]
         
-        // Add all cell values
+        // Add all cell values with dropdown/multiselect resolution
         if let cells = element.cells {
             for (key, value) in cells {
-                dict[key] = convertValueUnionToFormulaValue(value)
+                let resolvedValue = resolveDropdownMultiselectValue(value, columnId: key, field: field)
+                dict[key] = convertValueUnionToFormulaValue(resolvedValue)
             }
         }
         
-        // Add children if they exist
+        // Always add children property (even if empty) so lambda functions can access it
+        var childrenDict: [String: FormulaValue] = [:]
+        
         if let childrens = element.childrens, !childrens.isEmpty {
-            var childrenDict: [String: FormulaValue] = [:]
-            
             for (schemaId, children) in childrens {
                 if let childElements = children.valueToValueElements {
                     let childArray = childElements.map { childElement -> FormulaValue in
@@ -785,11 +792,69 @@ public class JoyfillDocContext: EvaluationContext {
                     childrenDict[schemaId] = .array([])
                 }
             }
-            
-            dict["children"] = .dictionary(childrenDict)
+        } else {
+            // Even if no children exist, we need to add empty arrays for all possible schemas
+            // This ensures lambda functions can always access row.children.schemaName
+            if let schemas = field.schema {
+                for (schemaId, schemaInfo) in schemas {
+                    if schemaInfo.root != true { // Only add non-root schemas as children
+                        childrenDict[schemaId] = .array([])
+                    }
+                }
+            }
         }
         
+        dict["children"] = .dictionary(childrenDict)
+        
         return .dictionary(dict)
+    }
+    
+    /// Resolves dropdown/multiselect option IDs to option values for a specific cell value
+    private func resolveDropdownMultiselectValue(_ value: ValueUnion, columnId: String, field: JoyDocField) -> ValueUnion {
+        // Find the column definition for this columnId across all schemas
+        guard let schemas = field.schema else { return value }
+        
+        var columnInfo: (fieldType: ColumnTypes, options: [Option]?)? = nil
+        
+        // Search through all schemas to find the column definition
+        for (_, schema) in schemas {
+            if let tableColumns = schema.tableColumns {
+                for column in tableColumns {
+                    if column.id == columnId && (column.type == .dropdown || column.type == .multiSelect) {
+                        columnInfo = (fieldType: column.type!, options: column.options)
+                        break
+                    }
+                }
+            }
+            if columnInfo != nil { break }
+        }
+        
+        // If no dropdown/multiselect column found, return original value
+        guard let info = columnInfo else { return value }
+        
+        // Resolve based on field type
+        switch info.fieldType {
+        case .dropdown:
+            // Convert option ID to option value
+            if let optionId = value.text,
+               let option = info.options?.first(where: { $0.id == optionId }) {
+                return .string(option.value ?? "")
+            } else {
+                return value
+            }
+        case .multiSelect:
+            // Convert array of option IDs to array of option values
+            if let optionIds = value.stringArray {
+                let optionValues = optionIds.compactMap { optionId in
+                    info.options?.first(where: { $0.id == optionId })?.value
+                }
+                return .array(optionValues)
+            } else {
+                return value
+            }
+        default:
+            return value
+        }
     }
     
     // MARK: - Conversion Methods
@@ -1652,17 +1717,19 @@ private class TemporaryVariableContext: EvaluationContext {
                        ? String(name.dropFirst().dropLast()) 
                        : name
         
-        // Handle property access on temporary variables (e.g., "row.price", "row.children.schemaDepth2")
+        // Handle property access on temporary variables (e.g., "row.price")
         if cleanName.contains(".") {
-            let components = cleanName.split(separator: ".")
-            if components.count >= 2 {
-                let objectName = String(components[0])
-                let propertyPath = Array(components.dropFirst()).map(String.init)
+            let pathComponents = cleanName.split(separator: ".").map(String.init)
+            if pathComponents.count >= 2 {
+                let objectName = pathComponents[0]
+                let propertyPath = Array(pathComponents.dropFirst())
                 
                 // Check if the object is in our temporary variables
                 if let objectValue = additionalVariables[objectName] {
                     // Perform nested property access on the temporary variable
                     return resolveNestedPropertyAccess(on: objectValue, path: propertyPath, objectName: objectName)
+                } else {
+                    return .failure(.invalidReference("Temporary variable '\(objectName)' not found"))
                 }
             }
         }
@@ -1739,8 +1806,131 @@ private class TemporaryVariableContext: EvaluationContext {
 extension JoyDocField {
     
     /// Recursively resolves dropdown/multiselect options in a collection element and its children
-    private func resolveCollectionElement(_ element: ValueElement, columnsToResolve: [String: (fieldType: ColumnTypes, options: [Option]?)]) -> ValueElement {
+    /// This function determines the correct schema for each level and resolves options accordingly
+    private func resolveCollectionElementWithSchemas(_ element: ValueElement, schemas: [String: Schema], isRootLevel: Bool = true) -> ValueElement {
         var resolvedElement = element
+        
+        // Determine which schema to use for this level
+        let schemaToUse: Schema?
+        if isRootLevel {
+            // For root level, find the schema with root: true
+            schemaToUse = schemas.values.first { $0.root == true }
+        } else {
+            // For nested levels, we need to determine which schema based on the context
+            // Since we don't have direct schema context here, we'll use a fallback approach
+            // This is a limitation of the current approach - we might need to pass schema context
+            schemaToUse = schemas.values.first
+        }
+        
+        // Build columns to resolve for this schema level
+        var columnsToResolve: [String: (fieldType: ColumnTypes, options: [Option]?)] = [:]
+        if let schema = schemaToUse, let tableColumns = schema.tableColumns {
+            for column in tableColumns {
+                if column.type == .dropdown || column.type == .multiSelect {
+                    if let columnId = column.id, let columnType = column.type {
+                        columnsToResolve[columnId] = (fieldType: columnType, options: column.options)
+                    }
+                }
+            }
+        }
+        
+        // Resolve dropdown/multiselect values in the element's cells
+        if let cells = element.cells {
+            var resolvedCells: [String: ValueUnion] = [:]
+            
+            for (columnId, cellValue) in cells {
+                if let columnInfo = columnsToResolve[columnId] {
+                    switch columnInfo.fieldType {
+                    case .dropdown:
+                        // Convert option ID to option value
+                        if let optionId = cellValue.text,
+                           let option = columnInfo.options?.first(where: { $0.id == optionId }) {
+                            resolvedCells[columnId] = .string(option.value ?? "")
+                        } else {
+                            resolvedCells[columnId] = cellValue
+                        }
+                    case .multiSelect:
+                        // Convert array of option IDs to array of option values
+                        if let optionIds = cellValue.stringArray {
+                            let optionValues = optionIds.compactMap { optionId in
+                                columnInfo.options?.first(where: { $0.id == optionId })?.value
+                            }
+                            resolvedCells[columnId] = .array(optionValues)
+                        } else {
+                            resolvedCells[columnId] = cellValue
+                        }
+                    default:
+                        resolvedCells[columnId] = cellValue
+                    }
+                } else {
+                    resolvedCells[columnId] = cellValue
+                }
+            }
+            
+            resolvedElement.cells = resolvedCells
+        }
+        
+        // Recursively resolve children with their specific schemas
+        if let childrens = element.childrens {
+            var resolvedChildrens: [String: Children] = [:]
+            
+            for (schemaId, childrenValue) in childrens {
+                if let childElements = childrenValue.valueToValueElements {
+                    let resolvedChildElements = childElements.map { childElement in
+                        // For children, we need to use the specific schema for this schemaId
+                        return resolveCollectionElementForSchema(childElement, schemas: schemas, schemaId: schemaId)
+                    }
+                    var resolvedChildren = Children()
+                    resolvedChildren.value = ValueUnion.valueElementArray(resolvedChildElements)
+                    resolvedChildrens[schemaId] = resolvedChildren
+                } else {
+                    resolvedChildrens[schemaId] = childrenValue
+                }
+            }
+            
+            resolvedElement.childrens = resolvedChildrens
+        }
+        
+        return resolvedElement
+    }
+    
+    /// Resolves a collection element using a specific schema
+    private func resolveCollectionElementForSchema(_ element: ValueElement, schemas: [String: Schema], schemaId: String) -> ValueElement {
+        var resolvedElement = element
+        
+        // Get the specific schema for this level
+        guard let schema = schemas[schemaId], let tableColumns = schema.tableColumns else {
+            // If no schema found, still process children recursively
+            if let childrens = element.childrens {
+                var resolvedChildrens: [String: Children] = [:]
+                
+                for (childSchemaId, childrenValue) in childrens {
+                    if let childElements = childrenValue.valueToValueElements {
+                        let resolvedChildElements = childElements.map { childElement in
+                            return resolveCollectionElementForSchema(childElement, schemas: schemas, schemaId: childSchemaId)
+                        }
+                        var resolvedChildren = Children()
+                        resolvedChildren.value = ValueUnion.valueElementArray(resolvedChildElements)
+                        resolvedChildrens[childSchemaId] = resolvedChildren
+                    } else {
+                        resolvedChildrens[childSchemaId] = childrenValue
+                    }
+                }
+                
+                resolvedElement.childrens = resolvedChildrens
+            }
+            return resolvedElement
+        }
+        
+        // Build columns to resolve for this specific schema
+        var columnsToResolve: [String: (fieldType: ColumnTypes, options: [Option]?)] = [:]
+        for column in tableColumns {
+            if column.type == .dropdown || column.type == .multiSelect {
+                if let columnId = column.id, let columnType = column.type {
+                    columnsToResolve[columnId] = (fieldType: columnType, options: column.options)
+                }
+            }
+        }
         
         // Resolve dropdown/multiselect values in the element's cells
         if let cells = element.cells {
@@ -1782,16 +1972,16 @@ extension JoyDocField {
         if let childrens = element.childrens {
             var resolvedChildrens: [String: Children] = [:]
             
-            for (schemaId, childrenValue) in childrens {
+            for (childSchemaId, childrenValue) in childrens {
                 if let childElements = childrenValue.valueToValueElements {
                     let resolvedChildElements = childElements.map { childElement in
-                        return resolveCollectionElement(childElement, columnsToResolve: columnsToResolve)
+                        return resolveCollectionElementForSchema(childElement, schemas: schemas, schemaId: childSchemaId)
                     }
                     var resolvedChildren = Children()
                     resolvedChildren.value = ValueUnion.valueElementArray(resolvedChildElements)
-                    resolvedChildrens[schemaId] = resolvedChildren
+                    resolvedChildrens[childSchemaId] = resolvedChildren
                 } else {
-                    resolvedChildrens[schemaId] = childrenValue
+                    resolvedChildrens[childSchemaId] = childrenValue
                 }
             }
             
@@ -1853,29 +2043,12 @@ extension JoyDocField {
             // Handle collection fields with dropdown/multiselect option resolution
             guard let valueElements = value?.valueElements else { return value }
             
-            // Get all dropdown/multiselect columns from all schemas
-            var columnsToResolve: [String: (fieldType: ColumnTypes, options: [Option]?)] = [:]
-            
-            if let schemas = schema {
-                for (_, schemaInfo) in schemas {
-                    if let tableColumns = schemaInfo.tableColumns {
-                        for column in tableColumns {
-                            if column.type == .dropdown || column.type == .multiSelect {
-                                if let columnId = column.id, let columnType = column.type {
-                                    columnsToResolve[columnId] = (fieldType: columnType, options: column.options)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // If no columns need resolution, return as-is
-            guard !columnsToResolve.isEmpty else { return value }
+            // Check if we have any schemas with dropdown/multiselect columns
+            guard let schemas = schema else { return value }
             
             // Process all value elements (rows) and their nested children
             let resolvedValueElements = valueElements.map { element in
-                return resolveCollectionElement(element, columnsToResolve: columnsToResolve)
+                return resolveCollectionElementWithSchemas(element, schemas: schemas)
             }
             
             return ValueUnion.valueElementArray(resolvedValueElements)
