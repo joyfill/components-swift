@@ -483,7 +483,8 @@ struct OptionSelectionView: View {
         case formBuilder
         case imageReplacementTest
         case liveViewTest
-        
+        case allFormulaJSONs
+
         var title: String {
             switch self {
             case .token:
@@ -498,6 +499,8 @@ struct OptionSelectionView: View {
                 return "Image Replacement Test"
             case .liveViewTest:
                 return "Formulas"
+            case .allFormulaJSONs:
+                return "All Formula JSONs"
             }
         }
         
@@ -514,6 +517,8 @@ struct OptionSelectionView: View {
             case .imageReplacementTest:
                 return "Test image replacement functionality"
             case .liveViewTest:
+                return "Test formula calculations and expressions"
+            case .allFormulaJSONs:
                 return "Test formula calculations and expressions"
             }
         }
@@ -532,6 +537,8 @@ struct OptionSelectionView: View {
                 return "photo.fill"
             case .liveViewTest:
                 return "function"
+            case .allFormulaJSONs:
+                return "function"
             }
         }
         
@@ -549,6 +556,8 @@ struct OptionSelectionView: View {
                 return .purple
             case .liveViewTest:
                 return .red
+            case .allFormulaJSONs:
+                return .yellow
             }
         }
     }
@@ -674,6 +683,8 @@ struct OptionSelectionView: View {
             AnyView(LiveViewTest())
         case .none:
             AnyView(EmptyView())
+        case .some(.allFormulaJSONs):
+            AllSampleJSONs()
         }
     }
 }

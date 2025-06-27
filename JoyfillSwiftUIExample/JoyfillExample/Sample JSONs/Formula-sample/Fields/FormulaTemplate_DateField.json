@@ -1,0 +1,315 @@
+{
+  "_id": "685dac6615b46a02d3b46239",
+  "identifier": "doc_685dac6615b46a02d3b46239",
+  "name": "New Doc",
+  "files": [
+    {
+      "_id": "685dac66e8a722aea5d16383",
+      "name": "New File",
+      "pageOrder": [
+        "685dac669754239fb4fd8d23"
+      ],
+      "pages": [
+        {
+          "_id": "685dac669754239fb4fd8d23",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "685dac8ad3c191d22f6d78ba",
+              "type": "date",
+              "field": "date1",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number2",
+              "type": "number",
+              "field": "number2",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number3",
+              "type": "number",
+              "field": "number3",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number4",
+              "type": "number",
+              "field": "number4",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "date5",
+              "type": "date",
+              "field": "date5",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 0,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "date6",
+              "type": "date",
+              "field": "date6",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 0,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number7",
+              "type": "number",
+              "field": "number7",
+              "displayType": "original",
+              "x": 0,
+              "y": 48,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "text8",
+              "type": "text",
+              "field": "text8",
+              "displayType": "original",
+              "x": 0,
+              "y": 56,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "text9",
+              "type": "text",
+              "field": "text9",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 0,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "fields": [
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "date1",
+      "type": "date",
+      "title": "Date 1",
+      "identifier": "field_685dac8aeadaf7aabf92038e",
+      "value": 1748797200000
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "number2",
+      "type": "number",
+      "title": "Year Extracted from Date 1",
+      "identifier": "field_2",
+      "value": 0,
+      "formulas": [
+        {
+          "_id": "extractYearApplied",
+          "formula": "extractYear",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "number3",
+      "type": "number",
+      "title": "Month Extracted from Date 1",
+      "identifier": "field_3",
+      "value": 0,
+      "formulas": [
+        {
+          "_id": "extractMonthApplied",
+          "formula": "extractMonth",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "number4",
+      "type": "number",
+      "title": "Day Extracted from Date 1",
+      "identifier": "field_4",
+      "value": 0,
+      "formulas": [
+        {
+          "_id": "extractDayApplied",
+          "formula": "extractDay",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "date5",
+      "type": "date",
+      "title": "Date 1 Plus 5 Days",
+      "identifier": "field_date5",
+      "value": 1748797200000,
+      "formulas": [
+        {
+          "_id": "add5DaysApplied",
+          "formula": "add5Days",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "date6",
+      "type": "date",
+      "title": "Date 1 Minus 2 Weeks",
+      "identifier": "field_date6",
+      "value": 1748797200000,
+      "formulas": [
+        {
+          "_id": "subtract2WeeksApplied",
+          "formula": "subtract2Weeks",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "number7",
+      "type": "number",
+      "title": "Days Between Now and Date 1",
+      "identifier": "field_7",
+      "value": 0,
+      "formulas": [
+        {
+          "_id": "daysBetweenNowApplied",
+          "formula": "daysBetweenNow",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "text8",
+      "type": "text",
+      "title": "Is Date 1 in the Future?",
+      "identifier": "field_8",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "isFutureDateApplied",
+          "formula": "isFutureDate",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "text9",
+      "type": "text",
+      "title": "Label as Past or Upcoming",
+      "identifier": "field_9",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "pastOrUpcomingApplied",
+          "formula": "pastOrUpcoming",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "extractYear",
+      "desc": "Extract year from Date 1",
+      "type": "calc",
+      "scope": "global",
+      "expression": "year(date1)"
+    },
+    {
+      "_id": "extractMonth",
+      "desc": "Extract month from Date 1",
+      "type": "calc",
+      "scope": "global",
+      "expression": "month(date1)"
+    },
+    {
+      "_id": "extractDay",
+      "desc": "Extract day from Date 1",
+      "type": "calc",
+      "scope": "global",
+      "expression": "day(date1)"
+    },
+    {
+      "_id": "add5Days",
+      "desc": "Add 5 days to Date 1",
+      "type": "calc",
+      "scope": "global",
+      "expression": "dateAdd(date1, 5, \"days\")"
+    },
+    {
+      "_id": "subtract2Weeks",
+      "desc": "Subtract 2 weeks from Date 1",
+      "type": "calc",
+      "scope": "global",
+      "expression": "dateSubtract(date1, 2, \"weeks\")"
+    },
+    {
+      "_id": "daysBetweenNow",
+      "desc": "Days between now and Date 1",
+      "type": "calc",
+      "scope": "global",
+      "expression": "(now() - date1) / (1000 * 60 * 60 * 24)"
+    },
+    {
+      "_id": "isFutureDate",
+      "desc": "Check if Date 1 is in the future",
+      "type": "calc",
+      "scope": "global",
+      "expression": "date1 > now()"
+    },
+    {
+      "_id": "pastOrUpcoming",
+      "desc": "Return 'Past' or 'Upcoming' based on Date 1",
+      "type": "calc",
+      "scope": "global",
+      "expression": "if(date1 < now(), \"Past\", \"Upcoming\")"
+    }
+  ]
+}
