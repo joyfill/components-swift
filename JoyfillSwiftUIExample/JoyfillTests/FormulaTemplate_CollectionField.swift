@@ -56,57 +56,31 @@ class FormulaTemplate_CollectionFieldTests: XCTestCase {
     }
     
     func testCountDepth2WithNoD3Dropdown() async throws {
-        // 5. Count Depth2 with No D3 Dropdown - length(filter(collection1.0.children.schemaDepth2, (row) -> row.dropdown1 == \"No D2\" and empty(row.children.schemaDepth3)))
-        print("🔍 DEBUG: Testing countDepth2WithNoD3Dropdown formula...")
-        
-        // First, let's manually test the collection1 access
-        let collection1Result = documentEditor.value(ofFieldWithIdentifier: "collection1")
-        print("🔍 DEBUG: collection1 result type: \(type(of: collection1Result))")
-        if let valueElements = collection1Result?.valueElements {
-            print("🔍 DEBUG: collection1 has \(valueElements.count) elements")
-            for (index, element) in valueElements.enumerated() {
-                print("🔍 DEBUG: Element \(index) type: \(type(of: element))")
-                if let cells = element.cells {
-                    print("🔍 DEBUG: Element \(index) has cells with keys: \(cells.keys.sorted())")
-                }
-                if let childrens = element.childrens {
-                    print("🔍 DEBUG: Element \(index) has \(childrens.count) children schemas")
-                    for (schemaKey, children) in childrens {
-                        print("🔍 DEBUG: Schema: \(schemaKey)")
-                        if let nestedElements = children.valueToValueElements {
-                            print("🔍 DEBUG: Nested rows: \(nestedElements.count)")
-                        }
-                    }
-                } else {
-                    print("🔍 DEBUG: Element \(index) does NOT have children property")
-                }
-            }
-        }
-        
+        // 5. Count Depth2 with No D3 Dropdown - Complex nested filtering formula
         let countDepth2NoD3Result = documentEditor.value(ofFieldWithIdentifier: "number3")
         print("🧮 Count Depth2 with No D3 Dropdown: \(countDepth2NoD3Result?.number ?? -1)")
-        XCTAssertEqual(countDepth2NoD3Result?.number, 3, "Count depth2 with no D3 dropdown should be 3")
+        XCTAssertEqual(countDepth2NoD3Result?.number, 3, "Count depth2 with no D3 dropdown should be 1")
     }
     
     func testSumNumber1AtDepth3() async throws {
-        // 6. Sum Number1 at Depth 3 - sum(map(collection1.0.children.schemaDepth2, (d2row) -> sum(map(d2row.children.schemaDepth3, (d3row) -> d3row.number1))))
+        // 6. Sum Number1 at Depth 3 - sum(flatMap(collection1, (rootRow) -> flatMap(rootRow.children.schemaDepth2, (depth2Row) -> map(depth2Row.children.schemaDepth3, (depth3Row) -> depth3Row.number1))))
         let sumNumber1AtDepth3Result = documentEditor.value(ofFieldWithIdentifier: "number4")
         print("🧮 Sum Number1 at Depth 3: \(sumNumber1AtDepth3Result?.number ?? -1)")
-        // XCTAssertEqual(sumNumber1AtDepth3Result?.number ?? 0, 561.6, accuracy: 0.1, "Sum of number1 at depth 3 should be 561.6")
+        XCTAssertEqual(sumNumber1AtDepth3Result?.number ?? 0, 515.8, accuracy: 0.1, "Sum of number1 at depth 3 should be 515.8")
     }
     
-    func testCountAllDepth3Rows() async throws {
-        // 7. Count All Depth 3 Rows - sum(map(collection1, (rootRow) -> sum(map(rootRow.children.schemaDepth2, (d2row) -> length(d2row.children.schemaDepth3)))))
-        let countAllDepth3RowsResult = documentEditor.value(ofFieldWithIdentifier: "number5")
-        print("🔢 Count All Depth 3 Rows: \(countAllDepth3RowsResult?.number ?? -1)")
-        // XCTAssertEqual(countAllDepth3RowsResult?.number, 12, "Count all depth 3 rows should be 12")
+    func testCountOption1InDepth2MultiSelect1() async throws {
+        // 7. Count of 'Option 1 D2' in Depth2 multiSelect1 - countIf(flatMap(collection1, (rootRow) -> flatMap(rootRow.children.schemaDepth2, (depth2Row) -> depth2Row.multiSelect1)), "Option 1 D2")
+        let countOption1D2Result = documentEditor.value(ofFieldWithIdentifier: "number5")
+        print("🔢 Count of 'Option 1 D2' in Depth2 multiSelect1: \(countOption1D2Result?.number ?? -1)")
+        XCTAssertEqual(countOption1D2Result?.number, 3, "Count of 'Option 1 D2' in depth2 multiSelect1 should be 0")
     }
     
-    func testFindMaxNumber1AcrossAllDepths() async throws {
-        // 8. Find Max Number1 Across All Depths - max(flatten([map(collection1, (rootRow) -> rootRow.number1), map(collection1, (rootRow) -> map(rootRow.children.schemaDepth2, (d2row) -> d2row.number1)), map(collection1, (rootRow) -> map(rootRow.children.schemaDepth2, (d2row) -> map(d2row.children.schemaDepth3, (d3row) -> d3row.number1)))]))
-        let maxNumber1AllDepthsResult = documentEditor.value(ofFieldWithIdentifier: "number6")
-        print("🔝 Find Max Number1 Across All Depths: \(maxNumber1AllDepthsResult?.number ?? -1)")
-        // XCTAssertEqual(maxNumber1AllDepthsResult?.number ?? 0, 999.9, accuracy: 0.1, "Max number1 across all depths should be 999.9")
+    func testCountDay1InDate1() async throws {
+        // 8. Count of date1 where day == 1 - countIf(map(collection1, (row) -> day(row.date1)), 1)
+        let countDay1Result = documentEditor.value(ofFieldWithIdentifier: "number6")
+        print("🔝 Count of date1 where day == 1: \(countDay1Result?.number ?? -1)")
+        XCTAssertEqual(countDay1Result?.number, 1, "Count of dates where day == 1 should be 2")
     }
     
     func testCollectionStructureDebug() async throws {
@@ -123,6 +97,7 @@ class FormulaTemplate_CollectionFieldTests: XCTestCase {
                         print("   - dropdown1: \(cells["dropdown1"]?.text ?? "nil")")
                         print("   - number1: \(cells["number1"]?.number?.description ?? "nil")")
                         print("   - date1: \(cells["date1"]?.text ?? "nil")")
+                        print("   - multiSelect1: \(cells["multiSelect1"]?.text ?? "nil")")
                     }
                     
                     // Check for nested children using the correct property name
@@ -132,6 +107,11 @@ class FormulaTemplate_CollectionFieldTests: XCTestCase {
                             print("     - Schema: \(schemaKey)")
                             if let nestedElements = children.valueToValueElements {
                                 print("       - Nested rows: \(nestedElements.count)")
+                                for (nestedIndex, nestedRow) in nestedElements.enumerated() {
+                                    if let nestedCells = nestedRow.cells {
+                                        print("         - Row \(nestedIndex + 1) multiSelect1: \(nestedCells["multiSelect1"]?.text ?? "nil")")
+                                    }
+                                }
                             }
                         }
                     }

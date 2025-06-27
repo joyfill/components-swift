@@ -773,11 +773,10 @@ public class JoyfillDocContext: EvaluationContext {
         // Add all cell values with dropdown/multiselect resolution
         if let cells = element.cells {
             for (key, value) in cells {
-                let resolvedValue = resolveDropdownMultiselectValue(value, columnId: key, field: field)
-                dict[key] = convertValueUnionToFormulaValue(resolvedValue)
+                dict[key] = convertValueUnionToFormulaValue(value)
             }
         }
-        
+
         // Always add children property (even if empty) so lambda functions can access it
         var childrenDict: [String: FormulaValue] = [:]
         
@@ -808,55 +807,7 @@ public class JoyfillDocContext: EvaluationContext {
         
         return .dictionary(dict)
     }
-    
-    /// Resolves dropdown/multiselect option IDs to option values for a specific cell value
-    private func resolveDropdownMultiselectValue(_ value: ValueUnion, columnId: String, field: JoyDocField) -> ValueUnion {
-        // Find the column definition for this columnId across all schemas
-        guard let schemas = field.schema else { return value }
-        
-        var columnInfo: (fieldType: ColumnTypes, options: [Option]?)? = nil
-        
-        // Search through all schemas to find the column definition
-        for (_, schema) in schemas {
-            if let tableColumns = schema.tableColumns {
-                for column in tableColumns {
-                    if column.id == columnId && (column.type == .dropdown || column.type == .multiSelect) {
-                        columnInfo = (fieldType: column.type!, options: column.options)
-                        break
-                    }
-                }
-            }
-            if columnInfo != nil { break }
-        }
-        
-        // If no dropdown/multiselect column found, return original value
-        guard let info = columnInfo else { return value }
-        
-        // Resolve based on field type
-        switch info.fieldType {
-        case .dropdown:
-            // Convert option ID to option value
-            if let optionId = value.text,
-               let option = info.options?.first(where: { $0.id == optionId }) {
-                return .string(option.value ?? "")
-            } else {
-                return value
-            }
-        case .multiSelect:
-            // Convert array of option IDs to array of option values
-            if let optionIds = value.stringArray {
-                let optionValues = optionIds.compactMap { optionId in
-                    info.options?.first(where: { $0.id == optionId })?.value
-                }
-                return .array(optionValues)
-            } else {
-                return value
-            }
-        default:
-            return value
-        }
-    }
-    
+
     // MARK: - Conversion Methods
     
     private func convertFieldValueToFormulaValue(_ value: ValueUnion?) -> Result<FormulaValue, FormulaError> {
