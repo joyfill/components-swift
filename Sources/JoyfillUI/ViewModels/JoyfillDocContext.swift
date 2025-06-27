@@ -1736,58 +1736,71 @@ private class TemporaryVariableContext: EvaluationContext {
     }
 } 
 
-//extension JoyDocField {
-//    public var resolvedValue: ValueUnion? {
-//        switch fieldType {
-//        case .multiSelect:
-//            guard let selectedOptions = value?.stringArray else { return value }
-//            print(selectedOptions)
-//            let options = options?.filter { selectedOptions.contains($0.id!)}.map { $0.value! } ?? []
-//            print(options)
-//            return .array(options)
-//            return value
-//        case .text:
-//            return value
-//        case .dropdown:
-//            let text = value?.text
-//            print(text)
-//            let option = options?.first { $0.id == text }
-//            print(option)
-//            return .string(option?.value ?? "") 
-//        case .table:
-//            guard let columns = tableColumns?.filter ({ fieldTableColumn in
-//                fieldTableColumn.type == .dropdown || fieldTableColumn.type == .multiSelect
-//            }) else {
-//                return value
-//            }
-//            guard !columns.isEmpty else { return value }
-//            let valueElements = value!.valueElements!.map { row in
-//                var row  = row
-//                row.cells = row.cells.map { cell in
-//                    guard let columnID = cell.keys.first else { return cell }
-//                    guard let column = columns.first (where: { $0.id == columnID }) else { return cell }
-//                    switch column.type {
-//                    case .dropdown, .multiSelect:
-//                        var cell = cell
-//                        guard let optionValue = column.options?.first { $0.id == cell[columnID]?.text }?.value else { return cell }
-//                        cell[columnID] = .string(optionValue)
-//                        return cell
-//                    default:
-//                        return cell
-//                    }
-//                }
-//                return row
-//            }
-//            return ValueUnion.valueElementArray(valueElements)
-//        case .collection:
-//            return value
-//        default:
-//            return value
-//        }
-//    }
-//}
-
 extension JoyDocField {
+    
+    /// Recursively resolves dropdown/multiselect options in a collection element and its children
+    private func resolveCollectionElement(_ element: ValueElement, columnsToResolve: [String: (fieldType: ColumnTypes, options: [Option]?)]) -> ValueElement {
+        var resolvedElement = element
+        
+        // Resolve dropdown/multiselect values in the element's cells
+        if let cells = element.cells {
+            var resolvedCells: [String: ValueUnion] = [:]
+            
+            for (columnId, cellValue) in cells {
+                if let columnInfo = columnsToResolve[columnId] {
+                    switch columnInfo.fieldType {
+                    case .dropdown:
+                        // Convert option ID to option value
+                        if let optionId = cellValue.text,
+                           let option = columnInfo.options?.first(where: { $0.id == optionId }) {
+                            resolvedCells[columnId] = .string(option.value ?? "")
+                        } else {
+                            resolvedCells[columnId] = cellValue
+                        }
+                    case .multiSelect:
+                        // Convert array of option IDs to array of option values
+                        if let optionIds = cellValue.stringArray {
+                            let optionValues = optionIds.compactMap { optionId in
+                                columnInfo.options?.first(where: { $0.id == optionId })?.value
+                            }
+                            resolvedCells[columnId] = .array(optionValues)
+                        } else {
+                            resolvedCells[columnId] = cellValue
+                        }
+                    default:
+                        resolvedCells[columnId] = cellValue
+                    }
+                } else {
+                    resolvedCells[columnId] = cellValue
+                }
+            }
+            
+            resolvedElement.cells = resolvedCells
+        }
+        
+        // Recursively resolve children
+        if let childrens = element.childrens {
+            var resolvedChildrens: [String: Children] = [:]
+            
+            for (schemaId, childrenValue) in childrens {
+                if let childElements = childrenValue.valueToValueElements {
+                    let resolvedChildElements = childElements.map { childElement in
+                        return resolveCollectionElement(childElement, columnsToResolve: columnsToResolve)
+                    }
+                    var resolvedChildren = Children()
+                    resolvedChildren.value = ValueUnion.valueElementArray(resolvedChildElements)
+                    resolvedChildrens[schemaId] = resolvedChildren
+                } else {
+                    resolvedChildrens[schemaId] = childrenValue
+                }
+            }
+            
+            resolvedElement.childrens = resolvedChildrens
+        }
+        
+        return resolvedElement
+    }
+    
     public var resolvedValue: ValueUnion? {
         switch fieldType {
         case .multiSelect:
@@ -1837,7 +1850,35 @@ extension JoyDocField {
             let result = ValueUnion.valueElementArray(valueElements)
             return result
         case .collection:
-            return value
+            // Handle collection fields with dropdown/multiselect option resolution
+            guard let valueElements = value?.valueElements else { return value }
+            
+            // Get all dropdown/multiselect columns from all schemas
+            var columnsToResolve: [String: (fieldType: ColumnTypes, options: [Option]?)] = [:]
+            
+            if let schemas = schema {
+                for (_, schemaInfo) in schemas {
+                    if let tableColumns = schemaInfo.tableColumns {
+                        for column in tableColumns {
+                            if column.type == .dropdown || column.type == .multiSelect {
+                                if let columnId = column.id, let columnType = column.type {
+                                    columnsToResolve[columnId] = (fieldType: columnType, options: column.options)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // If no columns need resolution, return as-is
+            guard !columnsToResolve.isEmpty else { return value }
+            
+            // Process all value elements (rows) and their nested children
+            let resolvedValueElements = valueElements.map { element in
+                return resolveCollectionElement(element, columnsToResolve: columnsToResolve)
+            }
+            
+            return ValueUnion.valueElementArray(resolvedValueElements)
         default:
             return value
         }
