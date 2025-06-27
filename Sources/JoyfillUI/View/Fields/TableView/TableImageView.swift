@@ -9,7 +9,7 @@ import JoyfillModel
      @State var showToast: Bool = false
      @Binding var cellModel: TableCellModel
      @State var images: [ImageState] = []
-     var isMultiEnabled: Bool
+     let isMultiEnabled: Bool
      
      public init(cellModel: Binding<TableCellModel>) {
          _cellModel = cellModel

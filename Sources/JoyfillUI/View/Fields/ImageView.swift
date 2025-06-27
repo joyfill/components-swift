@@ -19,7 +19,7 @@ struct ImageView: View {
     
     @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State var showToast: Bool = false
-    @State var isMultiEnabled: Bool
+    let isMultiEnabled: Bool
     @State var images: [ImageState] = []
     
     @StateObject var imageViewModel = ImageFieldViewModel()
@@ -224,7 +224,7 @@ struct MoreImageView: View {
     @Binding var images: [ImageState]
     @State var selectedImagesIndex: Set<Int> = Set()
     @Binding var valueElements: [ValueElement]
-    @State var isMultiEnabled: Bool
+    let isMultiEnabled: Bool
     @State var showProgressView: Bool = false
     @State var imageDictionary: [String: (ValueElement, UIImage)] = [:]
     @Binding var showToast: Bool
@@ -251,7 +251,7 @@ struct MoreImageView: View {
             }
             
             if !isUploadHidden {
-                UploadDeleteView(imagesArray: $images, selectedImagesIndex: $selectedImagesIndex,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
+                UploadDeleteView(imagesArray: $images, selectedImagesIndex: $selectedImagesIndex, isMultiEnabled: isMultiEnabled, valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
             }
             if showProgressView {
                 ProgressView()
@@ -349,7 +349,7 @@ struct UploadDeleteView: View {
     @Binding var imagesArray: [ImageState]
     @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
-    @Binding var isMultiEnabled: Bool
+    let isMultiEnabled: Bool
     @Binding var valueElements: [ValueElement]
     var uploadAction: () -> Void
     var deleteAction: () -> Void
