@@ -11,6 +11,7 @@ import JoyfillModel
      private var isUsedForBulkEdit = false
      @State var valueElements: [ValueElement] = []
      @State var images: [ImageState] = []
+     let isMultiEnabled: Bool
 
      public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
          _cellModel = cellModel
@@ -19,6 +20,7 @@ import JoyfillModel
          if !isUsedForBulkEdit {
              _valueElements = State(initialValue: cellModel.wrappedValue.data.valueElements)
          }
+         isMultiEnabled = cellModel.wrappedValue.data.multi ?? false
      }
     
     var body: some View {
@@ -36,7 +38,7 @@ import JoyfillModel
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .sheet(isPresented: $showMoreImages2) {
-                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
@@ -64,7 +66,7 @@ import JoyfillModel
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .fullScreenCover(isPresented: $showMoreImages2) {
-                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
@@ -81,8 +83,19 @@ import JoyfillModel
     }
      
      func uploadAction() {
-         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier) { urls in
-             for imageURL in urls {
+         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier, multi: isMultiEnabled) { urls in
+             var urlsToProcess: [String] = []
+             if !isMultiEnabled {
+                 if let firstURL = urls.first {
+                     urlsToProcess = [firstURL]
+                 }
+                 images = []
+                 cellModel.data.valueElements = []
+             } else {
+                 urlsToProcess = urls
+             }
+             
+             for imageURL in urlsToProcess {
                  let valueElement = cellModel.data.valueElements.first { valueElement in
                      if valueElement.url == imageURL {
                          return true
