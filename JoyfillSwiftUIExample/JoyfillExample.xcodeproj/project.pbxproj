@@ -99,6 +99,7 @@
 		369D45732E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45622E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json */; };
 		369D45742E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45632E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json */; };
 		369D45752E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45652E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json */; };
+		369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */; };
 		36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */; };
 		36C6F4C52CEF4CEC001765CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36C6F4C42CEF4CEC001765CF /* JoyfillModel */; };
 		36CE14672DB6680000799B25 /* LiveViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CE14662DB6680000799B25 /* LiveViewTest.swift */; };
@@ -204,6 +205,7 @@
 		369D45642E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolver_LongChainIndirectCircularDependency.json; sourceTree = "<group>"; };
 		369D45652E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolver_SimpleWorking.json; sourceTree = "<group>"; };
 		369D45662E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolverTemplate_ComplexWorking.json; sourceTree = "<group>"; };
+		369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_CollectionField.swift; sourceTree = "<group>"; };
 		36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_TableField.swift; sourceTree = "<group>"; };
 		36CE14662DB6680000799B25 /* LiveViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveViewTest.swift; sourceTree = "<group>"; };
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 				361164D92DD70625003DEB4F /* WisdomTests.swift */,
 				36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */,
+				369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */,
 				369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
 				E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */,
@@ -694,6 +697,7 @@
 				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
 				E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */,
 				36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */,
+				369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */,
 				369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */,
 				E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
 				361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */,
