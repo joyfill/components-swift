@@ -90,6 +90,7 @@ import JoyfillModel
                      urlsToProcess = [firstURL]
                  }
                  images = []
+                 valueElements = []
                  cellModel.data.valueElements = []
              } else {
                  urlsToProcess = urls
