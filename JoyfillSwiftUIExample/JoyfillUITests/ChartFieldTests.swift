@@ -4,10 +4,17 @@ import JoyfillModel
 final class ChartFieldTests: JoyfillUITestsBaseClass {
 
     func goToChartDetailField() {
-        app.swipeUp()
-        app.swipeUp()
-        app.swipeUp()
-        app.buttons["ChartViewIdentifier"].tap()
+        let chartViewButton = app.buttons["ChartViewIdentifier"]
+        
+        var attempts = 0
+        while !chartViewButton.exists && attempts < 5 {
+            app.swipeUp()
+            sleep(1)
+            attempts += 1
+        }
+        
+        XCTAssertTrue(chartViewButton.waitForExistence(timeout: 5), "Chart view button not found")
+        chartViewButton.tap()
     }
 
     func testChartField() {
@@ -28,9 +35,8 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let maxXValuesTextField = app.textFields["MaxX"]
 
         minYValuesTextField.tap()
-        minYValuesTextField.typeText("10")
-        minXValuesTextField.tap()
-        minXValuesTextField.typeText("20")
+        minYValuesTextField.clearAndEnterText("10")
+        minXValuesTextField.clearAndEnterText("20")
         maxYValuesTextField.tap()
         maxYValuesTextField.typeText("30")
         maxXValuesTextField.tap()
@@ -82,9 +88,9 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let maxXValuesTextField = app.textFields["MaxX"]
 
         minYValuesTextField.tap()
-        minYValuesTextField.typeText("10")
+        minYValuesTextField.clearAndEnterText("10")
         minXValuesTextField.tap()
-        minXValuesTextField.typeText("20")
+        minXValuesTextField.clearAndEnterText("20")
         maxYValuesTextField.tap()
         maxYValuesTextField.typeText("30")
         maxXValuesTextField.tap()
@@ -191,32 +197,32 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let horizontalPointsValueIdentifier = app.textFields.matching(identifier: "HorizontalPointsValue")
         let horizontalPointsValue = horizontalPointsValueIdentifier.element(boundBy: 0)
         horizontalPointsValue.tap()
-        horizontalPointsValue.typeText("10")
+        horizontalPointsValue.clearAndEnterText("10")
 
         let horizontalPointsValueIdentifier1 = app.textFields.matching(identifier: "HorizontalPointsValue")
         let horizontalPointsValue1 = horizontalPointsValueIdentifier1.element(boundBy: 1)
         horizontalPointsValue1.tap()
-        horizontalPointsValue1.typeText("20")
+        horizontalPointsValue1.clearAndEnterText("20")
 
         let verticalPointsValueIdentifier = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue = verticalPointsValueIdentifier.element(boundBy: 0)
         verticalPointsValue.tap()
-        verticalPointsValue.typeText("30")
+        verticalPointsValue.clearAndEnterText("30")
 
         let verticalPointsValueIdentifier1 = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue1 = verticalPointsValueIdentifier1.element(boundBy: 1)
         verticalPointsValue1.tap()
-        verticalPointsValue1.typeText("40")
+        verticalPointsValue1.clearAndEnterText("40")
 
         let horizontalPointsValueIdentifier2 = app.textFields.matching(identifier: "HorizontalPointsValue")
         let horizontalPointsValue2 = horizontalPointsValueIdentifier2.element(boundBy: 2)
         horizontalPointsValue2.tap()
-        horizontalPointsValue2.typeText("50")
+        horizontalPointsValue2.clearAndEnterText("50")
 
         let verticalPointsValueIdentifier2 = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue2 = verticalPointsValueIdentifier2.element(boundBy: 2)
         verticalPointsValue2.tap()
-        verticalPointsValue2.typeText("60")
+        verticalPointsValue2.clearAndEnterText("60")
 
         goBack()
 
@@ -266,3 +272,5 @@ extension ValueUnion {
         return (self.dictionary as! [String: Any])["xMax"] as? Double
     }
 }
+
+ 

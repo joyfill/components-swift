@@ -56,10 +56,20 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
     func testDropdownFieldSelect_Unselect() throws {
         app.swipeUp()
         let dropdownButton = app.buttons["Dropdown"]
+        var scrollAttempts = 0
+        while !dropdownButton.exists && scrollAttempts < 5 {
+            app.swipeUp()
+            sleep(1)
+            scrollAttempts += 1
+        }
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 5), "Dropdown button not found on iPad")
+
         XCTAssertEqual("Yes", dropdownButton.label)
         dropdownButton.tap()
+
         var dropdownOptions = app.buttons.matching(identifier: "DropdownoptionIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
+
         var firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         XCTAssertEqual("6628f2e15cea1b971f6a9383", onChangeResultValue().text!)

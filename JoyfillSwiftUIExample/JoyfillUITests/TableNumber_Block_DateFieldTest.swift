@@ -56,7 +56,16 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     func tapOnNumberTextField(atIndex index: Int) -> XCUIElement {
-        return app.children(matching: .window).element(boundBy: 0)
+        // Try simplified method first (assumes iPad or iPhone with identifiers working)
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: index)
+
+        if numberField.exists && numberField.isHittable {
+            numberField.tap()
+            return numberField
+        }
+
+        // If not hittable or missing, fall back to deep traversal (iPhone-specific layout)
+        let deepNumberField = app.children(matching: .window).element(boundBy: 0)
             .children(matching: .other).element
             .children(matching: .other).element
             .children(matching: .other).element
@@ -71,6 +80,10 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
             .children(matching: .other).element
             .children(matching: .textField).matching(identifier: "TabelNumberFieldIdentifier")
             .element(boundBy: index)
+
+        XCTAssertTrue(deepNumberField.waitForExistence(timeout: 5), "Number field at index \(index) not found (deep fallback)")
+        deepNumberField.tap()
+        return deepNumberField
     }
     
     // Number Field test cases
@@ -896,7 +909,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.typeText("Edit Single rows")
+        textField.clearAndEnterText("Edit Single rowsFirst row")
         
 //        app.buttons["ApplyAllButtonIdentifier"].tap()
         dismissSheet()

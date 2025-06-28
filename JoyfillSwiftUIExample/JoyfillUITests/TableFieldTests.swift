@@ -98,18 +98,20 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Hello", firstTableTextField.value as! String)
+        sleep(1)
         firstTableTextField.tap()
-        firstTableTextField.typeText("First")
+        sleep(1)
+        firstTableTextField.clearAndEnterText("FirstHello")
         
         let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("His", secondTableTextField.value as! String)
         secondTableTextField.tap()
-        secondTableTextField.typeText("Second")
+        secondTableTextField.clearAndEnterText("SecondHis")
         
         let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("His", thirdTableTextField.value as! String)
         thirdTableTextField.tap()
-        thirdTableTextField.typeText("Third")
+        thirdTableTextField.clearAndEnterText("ThirdHis")
         
         goBack()
         sleep(2)
@@ -398,7 +400,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.typeText("Edit")
+        textField.clearAndEnterText("App 1Edit")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Yes", dropdownButton.label)
@@ -680,8 +682,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         let dropdownButton = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)
         dropdownButton.tap()
-        
+        sleep(1)
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        sleep(1)
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         
@@ -1212,7 +1215,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.typeText("Edit Inserted Row")
+        textField.clearAndEnterText("Inserted RowEdit Inserted Row")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("No", dropdownButton.label)
@@ -1456,7 +1459,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Apple 2", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("Moved ")
+        enterDateInInsertedField.clearAndEnterText("Moved Apple 2")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
@@ -1483,7 +1486,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("Cat 4", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("Moved ")
+        enterDateInInsertedField.clearAndEnterText("Moved Cat 4")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)

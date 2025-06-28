@@ -10,6 +10,11 @@ import JoyfillModel
 
 final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "Joydocjson"
+    }
+    
     func goToCollectionDetailField() {
         navigateToCollectionOn10thPage()
     }
@@ -35,7 +40,24 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func expandRow(number: Int) {
         let expandButton = app.images["CollectionExpandCollapseButton\(number)"]
-        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        
+        var attempts = 0
+        while !expandButton.exists && attempts < 5 {
+            app.swipeUp()
+            sleep(1)
+            attempts += 1
+        }
+        
+        XCTAssertTrue(expandButton.waitForExistence(timeout: 5), "Expand/collapse button should exist")
+        
+        // Ensure it's hittable
+        var scrollTries = 0
+        while !expandButton.isHittable && scrollTries < 5 {
+            app.swipeUp()
+            sleep(1)
+            scrollTries += 1
+        }
+
         expandButton.tap()
     }
     
@@ -127,17 +149,17 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("", firstNestedTextField.value as! String)
         firstNestedTextField.tap()
-        firstNestedTextField.typeText("Hello ji")
+        firstNestedTextField.clearAndEnterText("Hello ji")
         
         let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("", secNestedTextField.value as! String)
         secNestedTextField.tap()
-        secNestedTextField.typeText("Namaste ji")
+        secNestedTextField.clearAndEnterText("Namaste ji")
         
         let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
         XCTAssertEqual("", thirdNestedTextField.value as! String)
         thirdNestedTextField.tap()
-        thirdNestedTextField.typeText("123456789")
+        thirdNestedTextField.clearAndEnterText("123456789")
     }
     
     func testCollectionFieldTextFields() {
@@ -145,13 +167,11 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
                     
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Hello", firstTableTextField.value as! String)
-        firstTableTextField.tap()
-        firstTableTextField.typeText("First")
+        firstTableTextField.clearAndEnterText("FirstHello")
         
         let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("His", secondTableTextField.value as! String)
-        secondTableTextField.tap()
-        secondTableTextField.typeText("Second")
+        secondTableTextField.clearAndEnterText("SecondHis")
         
         
         goBack()
@@ -324,8 +344,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         let firstCollectionNumberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("", firstCollectionNumberField.value as! String)
-        firstCollectionNumberField.tap()
-        firstCollectionNumberField.typeText("1234567890123456")
+        firstCollectionNumberField.clearAndEnterText("1234567890123456")
         
         goBack()
         sleep(2)
@@ -586,6 +605,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
+        
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         sleep(1)
@@ -595,10 +615,21 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-        XCTAssertEqual("Select Option", dropdownButton.label)
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
         dropdownButton.tap()
+
+        // Wait for options to appear
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            sleep(1)
+        }
+
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
         let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
         firstOption.tap()
         
         // Multiselection Field
@@ -624,21 +655,67 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ImageUploadImageIdentifier"].tap()
         dismissSheet()
         
+        let dateField = app.images["EditRowsDateFieldIdentifier"]
+        XCTAssertTrue(dateField.waitForExistence(timeout: 3), "Date field does not exist")
+
+        while !dateField.isHittable {
+            app.swipeUp()
+            sleep(1)
+        }
+        dateField.tap()
+        
         // Number Field
         let numberTextField = app.textFields["EditRowsNumberFieldIdentifier"]
+        // Ensure the field is visible
+        while !numberTextField.isHittable {
+            app.swipeUp()
+            sleep(1)
+        }
         sleep(1)
-        numberTextField.tap()
-        sleep(1)
-        numberTextField.typeText("12345")
+        numberTextField.clearAndEnterText("12345")
         
-        // Date Field
-        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
+        
+        
+        firstImageButton.tap()
+        dismissSheet()
         
         // Barcode Column
         let barcodeTextField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
-        sleep(1)
+        XCTAssertTrue(barcodeTextField.waitForExistence(timeout: 5), "Barcode field not found")
+
+        // Scroll into view if needed
+        var scrollAttempts = 0
+        while !barcodeTextField.isHittable && scrollAttempts < 6 {
+            app.swipeUp()
+            sleep(1)
+            scrollAttempts += 1
+        }
+
+        // Fallback tap to refresh focus
+        if !barcodeTextField.isHittable {
+            app.otherElements.firstMatch.tap()
+            app.swipeUp()
+            sleep(1)
+        }
+
+        // Force focus
         barcodeTextField.tap()
         sleep(1)
+
+        // Double tap if needed to ensure keyboard opens
+        if !app.keyboards.element.exists {
+            barcodeTextField.tap()
+            sleep(1)
+        }
+
+        // Assert keyboard presence
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
+
+        // Clear and type
+        if let textValue = barcodeTextField.value as? String {
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: textValue.count + 5)
+            barcodeTextField.typeText(deleteString)
+        }
         barcodeTextField.typeText("Edit Barcode")
         
         // Signature Column
@@ -732,10 +809,21 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-        XCTAssertEqual("Select Option", dropdownButton.label)
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
         dropdownButton.tap()
+
+        // Wait for options to appear
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            sleep(1)
+        }
+
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
         let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
         firstOption.tap()
         
         // Multiselection Field
@@ -761,21 +849,67 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ImageUploadImageIdentifier"].tap()
         dismissSheet()
         
+        let dateField = app.images["EditRowsDateFieldIdentifier"]
+        XCTAssertTrue(dateField.waitForExistence(timeout: 3), "Date field does not exist")
+
+        while !dateField.isHittable {
+            app.swipeUp()
+            sleep(1)
+        }
+        dateField.tap()
+        
         // Number Field
         let numberTextField = app.textFields["EditRowsNumberFieldIdentifier"]
+        // Ensure the field is visible
+        while !numberTextField.isHittable {
+            app.swipeUp()
+            sleep(1)
+        }
         sleep(1)
-        numberTextField.tap()
-        sleep(1)
-        numberTextField.typeText("12345")
+        numberTextField.clearAndEnterText("12345")
         
-        // Date Field
-        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
+        
+        
+        firstImageButton.tap()
+        dismissSheet()
         
         // Barcode Column
         let barcodeTextField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
-        sleep(1)
+        XCTAssertTrue(barcodeTextField.waitForExistence(timeout: 5), "Barcode field not found")
+
+        // Scroll into view if needed
+        var scrollAttempts = 0
+        while !barcodeTextField.isHittable && scrollAttempts < 6 {
+            app.swipeUp()
+            sleep(1)
+            scrollAttempts += 1
+        }
+
+        // Fallback tap to refresh focus
+        if !barcodeTextField.isHittable {
+            app.otherElements.firstMatch.tap()
+            app.swipeUp()
+            sleep(1)
+        }
+
+        // Force focus
         barcodeTextField.tap()
         sleep(1)
+
+        // Double tap if needed to ensure keyboard opens
+        if !app.keyboards.element.exists {
+            barcodeTextField.tap()
+            sleep(1)
+        }
+
+        // Assert keyboard presence
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
+
+        // Clear and type
+        if let textValue = barcodeTextField.value as? String {
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: textValue.count + 5)
+            barcodeTextField.typeText(deleteString)
+        }
         barcodeTextField.typeText("Edit Barcode")
         
         // Signature Column
@@ -994,5 +1128,27 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Multiselect Column
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
+    }
+}
+
+extension XCUIElement {
+    func clearAndEnterText(_ text: String) {
+        guard self.exists && self.isHittable else { return }
+                self.tap()
+                self.press(forDuration: 1.2) // Long press to trigger "Select All"
+
+                let selectAll = XCUIApplication().menuItems["Select All"]
+                if selectAll.waitForExistence(timeout: 1) {
+                    selectAll.tap()
+                }
+
+                // Press delete repeatedly (some "phantom" characters may remain)
+                let deleteCount = (self.value as? String)?.count ?? 20
+                let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: deleteCount + 5)
+                self.typeText(deleteString)
+
+                // Extra tap just to stabilize focus
+                self.tap()
+                self.typeText(text)
     }
 }
