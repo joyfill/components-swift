@@ -21,6 +21,11 @@ extension XCUIElement {
 }
 
 final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "CollectionFilter"
+    }
+    
     func goToCollectionDetailField() {
         navigateToCollection()
     }

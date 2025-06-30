@@ -2,6 +2,11 @@ import XCTest
 
 final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "TableNewColumns"
+    }
+    
     func goToTableDetailPage() {
         app.buttons["TableDetailViewIdentifier"].tap()
     }
