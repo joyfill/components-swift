@@ -104,14 +104,6 @@ class CollectionViewModel: ObservableObject {
 
             for column in tableColumns {
                 guard let colID = column.id else { continue }
-//                var longestTextForWidth = ""
-//                if column.type == .block {
-//                    if let rootValueElements = tableDataModel.valueToValueElements {
-//                        longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
-//                    }
-//                }
-               
-//                let format = tableDataModel.getDateFormatFromFieldPosition(key: key, columnID: colID)
                 let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: blockLongestTextMap[colID] ?? "")
                 cellWidthMap[colID] = width
             }
@@ -120,10 +112,6 @@ class CollectionViewModel: ObservableObject {
     
     func updateCellWidthMap(tableColumns: [FieldTableColumn], columnID: String) {
         if let column = tableColumns.first(where: { $0.id == columnID }) {
-//            var longestTextForWidth = ""
-//            if let rootValueElements = tableDataModel.valueToValueElements {
-//                longestTextForWidth = getLongestBlockTextRecursive(columnID: columnID, valueElements: rootValueElements)
-//            }
             let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: blockLongestTextMap[columnID] ?? "")
             cellWidthMap[columnID] = width
         }
@@ -384,7 +372,6 @@ class CollectionViewModel: ObservableObject {
                 childsvalidities.append(true)
                 continue
             }
-//            let children = getChildren(forRowId: rowID, in: valueElements) ?? [:]
             let children = rowToValueElementMap[rowID]?.childrens ?? [:]
             let childValueElements = children[schemaID]?.valueToValueElements ?? []
             if isOnlySchemaValid(schemaID: schemaID, valueElements: childValueElements ?? []) {
@@ -416,9 +403,6 @@ class CollectionViewModel: ObservableObject {
         for column in tableColumns {
             if column.type == .block {
                 longestBlockText = blockLongestTextMap[column.id ?? ""] ?? ""
-//                if let rootValueElements = tableDataModel.valueToValueElements {
-//                    longestBlockText = getLongestBlockTextRecursive(columnID: column.id ?? "", valueElements: rootValueElements)
-//                }
             }
         }
         return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, text: longestBlockText) + Utility.getTotalTableScrollWidth(level: level)
@@ -667,7 +651,6 @@ class CollectionViewModel: ObservableObject {
         }
         
         // Get the children data for the parent row
-//        let parentChildren = getChildren(forRowId: parentRowID, in: tableDataModel.valueToValueElements ?? []) ?? [:]
         let parentChildren = rowToValueElementMap[parentRowID]?.childrens ?? [:]
         
         // Process each child schema
@@ -783,7 +766,6 @@ class CollectionViewModel: ObservableObject {
                                                rowType: .header(level: level + 1,
                                                                 tableColumns: filteredTableColumns),
                                                rowWidth: rowWidth(filteredTableColumns, level + 1)))
-//                let childrens = getChildren(forRowId: parentID?.rowID ?? "", in: tableDataModel.valueToValueElements ?? []) ?? [:]
                 let childrens = rowToValueElementMap[parentID?.rowID ?? ""]?.childrens ?? [:]
                 let valueToValueElements = childrens[schemaValue?.0 ?? ""]?.valueToValueElements?.filter { valueElement in
                     !(valueElement.deleted ?? false)
