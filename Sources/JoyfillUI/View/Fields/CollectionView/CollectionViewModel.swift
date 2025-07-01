@@ -31,6 +31,7 @@ class CollectionViewModel: ObservableObject {
                 self.rootSchemaKey = key
             }
         }
+        buildBlockLongestTextMap()
         self.showRowSelector = tableDataModel.mode == .fill
         self.shouldShowAddRowButton = tableDataModel.mode == .fill
         self.nestedTableCount = tableDataModel.childrens.count
@@ -69,6 +70,26 @@ class CollectionViewModel: ObservableObject {
         return longestText
     }
     
+    func buildBlockLongestTextMap() {
+        for (key, schema) in tableDataModel.schema {
+            let tableColumns = tableDataModel.filterTableColumns(key: key)
+            
+            for column in tableColumns {
+                guard let colID = column.id else { continue }
+                var longestTextForWidth = ""
+                if column.type == .block {
+                    if let rootValueElements = tableDataModel.valueToValueElements {
+                        longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
+                    }
+                    if column.value?.text?.count ?? 0 > longestTextForWidth.count {
+                        longestTextForWidth = column.value?.text ?? ""
+                    }
+                    blockLongestTextMap[colID] = longestTextForWidth
+                }
+            }
+        }
+    }
+    
     func getOrderedSchemaKeys() -> [String] {
         return tableDataModel.schemaChainMap[rootSchemaKey] ?? []
     }
@@ -81,15 +102,15 @@ class CollectionViewModel: ObservableObject {
 
             for column in tableColumns {
                 guard let colID = column.id else { continue }
-                var longestTextForWidth = ""
-                if column.type == .block {
-                    if let rootValueElements = tableDataModel.valueToValueElements {
-                        longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
-                    }
-                }
+//                var longestTextForWidth = ""
+//                if column.type == .block {
+//                    if let rootValueElements = tableDataModel.valueToValueElements {
+//                        longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
+//                    }
+//                }
                
 //                let format = tableDataModel.getDateFormatFromFieldPosition(key: key, columnID: colID)
-                let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: longestTextForWidth)
+                let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: blockLongestTextMap[colID] ?? "")
                 cellWidthMap[colID] = width
             }
         }
@@ -97,11 +118,11 @@ class CollectionViewModel: ObservableObject {
     
     func updateCellWidthMap(tableColumns: [FieldTableColumn], columnID: String) {
         if let column = tableColumns.first(where: { $0.id == columnID }) {
-            var longestTextForWidth = ""
-            if let rootValueElements = tableDataModel.valueToValueElements {
-                longestTextForWidth = getLongestBlockTextRecursive(columnID: columnID, valueElements: rootValueElements)
-            }
-            let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: longestTextForWidth)
+//            var longestTextForWidth = ""
+//            if let rootValueElements = tableDataModel.valueToValueElements {
+//                longestTextForWidth = getLongestBlockTextRecursive(columnID: columnID, valueElements: rootValueElements)
+//            }
+            let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: blockLongestTextMap[columnID] ?? "")
             cellWidthMap[columnID] = width
         }
     }
@@ -370,9 +391,10 @@ class CollectionViewModel: ObservableObject {
         var longestBlockText = ""
         for column in tableColumns {
             if column.type == .block {
-                if let rootValueElements = tableDataModel.valueToValueElements {
-                    longestBlockText = getLongestBlockTextRecursive(columnID: column.id ?? "", valueElements: rootValueElements)
-                }
+                longestBlockText = blockLongestTextMap[column.id ?? ""] ?? ""
+//                if let rootValueElements = tableDataModel.valueToValueElements {
+//                    longestBlockText = getLongestBlockTextRecursive(columnID: column.id ?? "", valueElements: rootValueElements)
+//                }
             }
         }
         return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, text: longestBlockText) + Utility.getTotalTableScrollWidth(level: level)
