@@ -721,39 +721,40 @@ extension DocumentEditor {
         }
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([ValueElement], ValueElement?) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return []
+            return ([], nil)
         }
         var newCell: ValueUnion?
+        var updatedElement: ValueElement? = nil
         switch cellDataModel.type {
         case .text:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .dropdown:
             newCell = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .image:
             newCell = ValueUnion.valueElementArray(cellDataModel.valueElements ?? [])
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .date:
             newCell = cellDataModel.date.map(ValueUnion.double)
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .number:
             newCell = cellDataModel.number.map(ValueUnion.double)
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .multiSelect:
             newCell = cellDataModel.multiSelectValues.map(ValueUnion.array)
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .barcode:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .signature:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         default:
-            return []
+            return ([], nil)
         }
                 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
@@ -768,12 +769,12 @@ extension DocumentEditor {
         ]
         guard let currentField = fieldMap[fieldId] else {
             Log("Failed to find field \(fieldId)", type: .error)
-            return []
+            return ([], nil)
         }
         let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         handleRowCellOnChange(event: changeEvent, currentField: currentField, row: row, parentPath: parentPath, schemaId: nestedKey)
-        
-        return elements
+
+        return (elements, updatedElement)
     }
 
     /// Handles changes in a specific field.
@@ -1106,10 +1107,9 @@ extension DocumentEditor {
         return elements
     }
 
-    private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?) -> Bool {
+    private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
-                // Found the matching row—update its cells.
                 if var cells = elements[i].cells {
                     if let newCell = newCell {
                         cells[cellDataModelId] = newCell
@@ -1120,25 +1120,22 @@ extension DocumentEditor {
                 } else if let newCell = newCell {
                     elements[i].cells = [cellDataModelId: newCell]
                 }
-                return true
+                return elements[i]
             }
-            // If not found, check if this row has nested children.
             if var childrenDict = elements[i].childrens {
-                // For each key in the children dictionary...
                 for (key, var child) in childrenDict {
                     if var nestedElements = child.valueToValueElements {
-                        if recursiveChangeCell(in: &nestedElements, rowId: rowId, cellDataModelId: cellDataModelId, newCell: newCell) {
-                            // Update the child object with the new nested array.
+                        if let updated = recursiveChangeCell(in: &nestedElements, rowId: rowId, cellDataModelId: cellDataModelId, newCell: newCell) {
                             child.value = ValueUnion.valueElementArray(nestedElements)
                             childrenDict[key] = child
                             elements[i].childrens = childrenDict
-                            return true
+                            return updated
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
     
     func onChangeDuplicatePage(view: ModelView? = nil,viewId: String, page: Page, fields: [JoyDocField], fileId: String, targetIndex: Int, newFields: [JoyDocField], viewPage: Page? = nil) {
