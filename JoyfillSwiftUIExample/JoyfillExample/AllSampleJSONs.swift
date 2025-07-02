@@ -33,7 +33,8 @@ struct AllSampleJSONs: View, FormChangeEvent {
         "FormulaTemplate_DropdownField",
         "FormulaTemplate_MultiSelectField",
         "FormulaTemplate_TableField",
-        "FormulaTemplate_Read_ChartField"
+        "FormulaTemplate_Read_ChartField",
+        "FormulaTemplate_Write_ChartField"
     ]
     
     private var allFiles: [String] {

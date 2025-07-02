@@ -1687,8 +1687,14 @@ public class JoyfillDocContext: EvaluationContext {
     private func updateFieldWithFormulaResult(identifier: String, value: FormulaValue, key: String = "value") {
         print("🔧 updateFieldWithFormulaResult called for \(identifier) with value: \(value) and key: \(key)")
         
-        // Convert FormulaValue to ValueUnion
-        let valueUnion = convertFormulaValueToValueUnion(value)
+        // Get the field to determine its type for proper conversion
+        guard let field = docProvider.field(fieldID: identifier) else {
+            print("⚠️ Field \(identifier) not found for formula result update")
+            return
+        }
+        
+        // Convert FormulaValue to ValueUnion with field type context
+        let valueUnion = convertFormulaValueToValueUnion(value, fieldType: field.fieldType)
         print("🔧 Converted to ValueUnion: \(valueUnion)")
         
         // Update the field value in the document
@@ -1706,9 +1712,11 @@ public class JoyfillDocContext: EvaluationContext {
     }
     
     /// Converts a FormulaValue to a ValueUnion
-    /// - Parameter value: The FormulaValue to convert
+    /// - Parameters:
+    ///   - value: The FormulaValue to convert
+    ///   - fieldType: Optional field type for specialized conversion (e.g., chart fields)
     /// - Returns: A ValueUnion representation of the value
-    private func convertFormulaValueToValueUnion(_ value: FormulaValue) -> ValueUnion {
+    private func convertFormulaValueToValueUnion(_ value: FormulaValue, fieldType: JoyfillModel.FieldTypes? = nil) -> ValueUnion {
         switch value {
         case .number(let number):
             // Check if it's an integer
@@ -1722,13 +1730,18 @@ public class JoyfillDocContext: EvaluationContext {
         case .boolean(let bool):
             return .bool(bool)
         case .array(let array):
-            // For arrays, we want to create a string representation that tests can use
-            let stringRepresentation = arrayToString(array)
-            return .string(stringRepresentation)
+            // Special handling for chart fields
+            if let fieldType = fieldType, fieldType == .chart {
+                return convertChartArrayToValueUnion(array)
+            } else {
+                // For other arrays, create a string representation
+                let stringRepresentation = arrayToString(array)
+                return .string(stringRepresentation)
+            }
         case .dictionary(let dict):
             var result: [String: ValueUnion] = [:]
             for (key, value) in dict {
-                result[key] = convertFormulaValueToValueUnion(value)
+                result[key] = convertFormulaValueToValueUnion(value, fieldType: fieldType)
             }
             return .dictionary(result)
         case .null:
@@ -1743,6 +1756,147 @@ public class JoyfillDocContext: EvaluationContext {
         case .lambda(_, _):
             // For lambda values, return null (can't be represented in ValueUnion)
             return .null
+        }
+    }
+    
+    /// Converts a FormulaValue array to ValueUnion for chart fields with proper structure and validation
+    /// - Parameter array: Array of chart lines from formula result
+    /// - Returns: ValueUnion valueElementArray representation for chart field
+    private func convertChartArrayToValueUnion(_ array: [FormulaValue]) -> ValueUnion {
+        print("📊 Converting chart array with \(array.count) lines to ValueUnion")
+        
+        var chartLines: [ValueElement] = []
+        
+        for (lineIndex, lineValue) in array.enumerated() {
+            if case .dictionary(let lineDict) = lineValue {
+                var elementDict: [String: ValueUnion] = [:]
+                
+                // Auto-generate line ID if not provided
+                if let lineId = lineDict["_id"] {
+                    elementDict["_id"] = convertFormulaValueToValueUnion(lineId)
+                } else {
+                    elementDict["_id"] = .string(UUID().uuidString)
+                }
+                
+                // Handle line properties with type validation according to write requirements
+                elementDict["deleted"] = .bool(false) // Default to false
+                
+                // String properties - convert non-strings to proper string equivalent
+                if let title = lineDict["title"] {
+                    elementDict["title"] = convertToStringValueUnion(title)
+                }
+                
+                if let description = lineDict["description"] {
+                    elementDict["description"] = convertToStringValueUnion(description)
+                }
+                
+                // Handle points array
+                if let pointsValue = lineDict["points"], case .array(let pointsArray) = pointsValue {
+                    var convertedPoints: [ValueElement] = []
+                    
+                    for (pointIndex, pointValue) in pointsArray.enumerated() {
+                        if case .dictionary(let pointDict) = pointValue {
+                            var pointElementDict: [String: ValueUnion] = [:]
+                            
+                            // Auto-generate point ID if not provided
+                            if let pointId = pointDict["_id"] {
+                                pointElementDict["_id"] = convertFormulaValueToValueUnion(pointId)
+                            } else {
+                                pointElementDict["_id"] = .string(UUID().uuidString)
+                            }
+                            
+                            // String properties - convert non-strings to proper string equivalent
+                            if let label = pointDict["label"] {
+                                pointElementDict["label"] = convertToStringValueUnion(label)
+                            }
+                            
+                            // Number properties - default to 0 if null, string, or non-number
+                            pointElementDict["x"] = convertToNumberValueUnion(pointDict["x"])
+                            pointElementDict["y"] = convertToNumberValueUnion(pointDict["y"])
+                            
+                            let pointElement = ValueElement(dictionary: [:])
+                            var mutablePointElement = pointElement
+                            mutablePointElement.dictionary = pointElementDict
+                            convertedPoints.append(mutablePointElement)
+                            print("📍 Converted point \(pointIndex): x=\(pointElementDict["x"] ?? .null), y=\(pointElementDict["y"] ?? .null)")
+                        } else {
+                            print("⚠️ Point \(pointIndex) in line \(lineIndex) is not a dictionary, skipping")
+                        }
+                    }
+                    
+                    elementDict["points"] = .valueElementArray(convertedPoints)
+                    print("📈 Converted line \(lineIndex) with \(convertedPoints.count) points")
+                } else {
+                    // Default to empty points array if not provided or invalid
+                    elementDict["points"] = .valueElementArray([])
+                    print("📈 Line \(lineIndex) has no valid points, defaulting to empty array")
+                }
+                
+                let lineElement = ValueElement(dictionary: [:])
+                var mutableLineElement = lineElement
+                mutableLineElement.dictionary = elementDict
+                chartLines.append(mutableLineElement)
+            } else {
+                print("⚠️ Line \(lineIndex) is not a dictionary, skipping")
+            }
+        }
+        
+        print("📊 Successfully converted chart with \(chartLines.count) lines")
+        return .valueElementArray(chartLines)
+    }
+    
+    /// Converts any FormulaValue to a string ValueUnion
+    /// - Parameter value: The FormulaValue to convert
+    /// - Returns: A string ValueUnion representation
+    private func convertToStringValueUnion(_ value: FormulaValue) -> ValueUnion {
+        switch value {
+        case .string(let str):
+            return .string(str)
+        case .number(let num):
+            // Convert numbers to strings maintaining decimal precision
+            if num.truncatingRemainder(dividingBy: 1) == 0 {
+                return .string(String(Int(num)))
+            } else {
+                return .string(String(num))
+            }
+        case .boolean(let bool):
+            return .string(bool ? "true" : "false")
+        case .null:
+            return .string("")
+        default:
+            return .string("")
+        }
+    }
+    
+    /// Converts any FormulaValue to a number ValueUnion
+    /// - Parameter value: The FormulaValue to convert (optional)
+    /// - Returns: A number ValueUnion representation (defaults to 0 for invalid inputs)
+    private func convertToNumberValueUnion(_ value: FormulaValue?) -> ValueUnion {
+        guard let value = value else { return .int(0) }
+        
+        switch value {
+        case .number(let num):
+            // Check if it's an integer
+            if num.truncatingRemainder(dividingBy: 1) == 0 && num <= Double(Int64.max) && num >= Double(Int64.min) {
+                return .int(Int64(num))
+            } else {
+                return .double(num)
+            }
+        case .string(let str):
+            // Try to parse string as number
+            if let intValue = Int64(str) {
+                return .int(intValue)
+            } else if let doubleValue = Double(str) {
+                return .double(doubleValue)
+            } else {
+                return .int(0) // Default to 0 for invalid strings
+            }
+        case .boolean(let bool):
+            return .int(bool ? 1 : 0)
+        case .null:
+            return .int(0)
+        default:
+            return .int(0)
         }
     }
     
