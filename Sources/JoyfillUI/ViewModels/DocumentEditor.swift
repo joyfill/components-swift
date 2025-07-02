@@ -179,17 +179,7 @@ extension DocumentEditor {
     }
     
     public var isMobileViewActive: Bool {
-        guard let firstFile = self.files.first else { return false }
-        
-        var mobileViewActive: Bool = false
-        
-        if let views = firstFile.views, !views.isEmpty, let view = views.first {
-            mobileViewActive = view.type == "mobile"
-        } else {
-            mobileViewActive = false
-        }
-        
-        return mobileViewActive
+        return files.first?.views?.contains(where: { $0.type == "mobile" }) ?? false
     }
     
     public func firstValidPageFor(currentPageID: String) -> Page? {
