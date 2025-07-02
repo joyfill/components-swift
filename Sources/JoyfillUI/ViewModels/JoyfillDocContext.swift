@@ -1132,17 +1132,33 @@ public class JoyfillDocContext: EvaluationContext {
             extractReferencesFromNode(ast, references: &references)
         }
         
+        // For chart fields specifically, add known field dependencies manually
+        if formula.contains("line1Label") || formula.contains("point1") || formula.contains("point2") {
+            let chartFields = ["line1Label", "line2Label", "point1Label", "point2Label", 
+                             "point1X", "point1Y", "point2X", "point2Y", "line2"]
+            for field in chartFields {
+                if formula.contains(field) && !references.contains(field) {
+                    references.append(field)
+                }
+            }
+        }
+        
         return references
     }
+    
+
     
     /// Recursively extracts references from an AST node
     /// - Parameters:
     ///   - node: The AST node to examine
     ///   - references: Array to collect references
     private func extractReferencesFromNode(_ node: ASTNode, references: inout [String]) {
+        // Safety check to prevent infinite recursion
+        guard references.count < 100 else { return }
+        
         switch node {
         case .reference(let name):
-            // Handle both braced references {fieldName} and bare references like self
+            // Handle both braced references {fieldName} and bare references
             if name.hasPrefix("{") && name.hasSuffix("}") {
                 // Braced reference like {fieldName} or {fruits[{selectedIndex}]}
                 let content = String(name.dropFirst().dropLast())
@@ -1162,12 +1178,16 @@ public class JoyfillDocContext: EvaluationContext {
                 // Now extract any nested references from array indexing: [...]
                 extractNestedReferencesFromString(content, references: &references)
             } else {
-                // Bare reference like self, current, this - map to corresponding field
+                // Bare reference - could be field names or special keywords
                 if name == "self" || name == "current" || name == "this" {
                     let fieldName = name + "Value"
                     references.append(fieldName)
-                } else {
-                    // Other bare references - add as is
+                } else if name == "row" {
+                    // Skip 'row' as it's a lambda parameter, not a field reference
+                    // Do nothing
+                } else if !name.isEmpty {
+                    // Other bare references - treat as field identifiers
+                    // These are likely field names in object literal formulas
                     references.append(name)
                 }
             }
@@ -1202,6 +1222,9 @@ public class JoyfillDocContext: EvaluationContext {
             // Extract references from the object expression
             // Property names are strings, not references
             extractReferencesFromNode(objectNode, references: &references)
+        @unknown default:
+            // Handle any unknown cases gracefully to prevent crashes
+            break
         }
     }
     

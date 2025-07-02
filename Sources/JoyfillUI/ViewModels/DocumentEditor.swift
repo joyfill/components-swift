@@ -255,7 +255,7 @@ extension DocumentEditor {
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
             if let identifier = field.id {
-                JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
+                self.JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
             }
         }
     }
