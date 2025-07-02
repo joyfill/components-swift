@@ -72,27 +72,27 @@ class FormulaTemplate_Read_ChartFieldTests: XCTestCase {
     
     private func testAnyYOver50() {
         print("\n🔍 Test 1: Any Y > 50?")
-        print("Formula: chart1.1.points.1.y > 50")
-        print("Expected: true (Line 2, Point 1 has y=60)")
+        print("Formula: some(flatMap(chart1, (line) -> line.points), (pt) -> pt.y > 50)")
+        print("Expected: true (Line 2 has points with y=60 and y=40 which are > 50)")
         
         let result = documentEditor.value(ofFieldWithIdentifier: "text1")
         let resultText = result?.text ?? ""
         print("🎯 Result: '\(resultText)'")
         
-        // Should return "true" since point 3 of line 1 has y=60 which is > 50
-        XCTAssertEqual(resultText, "true", "Should detect y value > 50")
+        // Should return "true" since multiple points have y > 50 (y=60, y=40)
+        XCTAssertEqual(resultText, "true", "Should detect y values > 50 across all chart points")
     }
     
     private func testGetLineTitle() {
-        print("\n📝 Test 2: Get Line Title")
-        print("Formula: chart1.0.title")
-        print("Expected: 'Line 1 Title'")
+        print("\n📝 Test 2: Concatenate Line Titles")
+        print("Formula: concat(map(chart1, (line) -> line.title))")
+        print("Expected: '[Line 1 Title, Line 2 Title]' (concatenated titles)")
         
         let result = documentEditor.value(ofFieldWithIdentifier: "text2")
         let resultText = result?.text ?? ""
         print("🎯 Result: '\(resultText)'")
         
-        XCTAssertEqual(resultText, "Line 1 Title", "Should get first line title")
+        XCTAssertEqual(resultText, "[Line 1 Title, Line 2 Title]", "Should concatenate all line titles")
     }
     
     private func testFirstPointYLine2() {
@@ -108,14 +108,14 @@ class FormulaTemplate_Read_ChartFieldTests: XCTestCase {
     }
     
     private func testArithmeticWithChart() {
-        print("\n📈 Test 4: Arithmetic with Chart Data")
-        print("Formula: chart1.0.points.2.y + chart1.1.points.0.y")
-        print("Expected: 40.0 (30 + 10)")
+        print("\n📈 Test 4: Average Points Per Line")
+        print("Formula: sum(map(chart1, (line) -> length(line.points))) / length(chart1)")
+        print("Expected: 3.0 (average: (3+3)/2 = 3)")
         
         let result = documentEditor.value(ofFieldWithIdentifier: "number2")
         let resultNumber = result?.number ?? -1
         print("🎯 Result: \(resultNumber)")
         
-        XCTAssertEqual(resultNumber, 40.0, "Should return sum of chart values")
+        XCTAssertEqual(resultNumber, 3.0, "Should return average number of points per line")
     }
 }
