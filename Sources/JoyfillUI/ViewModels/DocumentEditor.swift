@@ -178,6 +178,10 @@ extension DocumentEditor {
         return self.firstPage?.id
     }
     
+    public var isMobileViewActive: Bool {
+        return files.first?.views?.contains(where: { $0.type == "mobile" }) ?? false
+    }
+    
     public func firstValidPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID && shouldShow(page: currentPage)
@@ -287,7 +291,14 @@ extension DocumentEditor {
         var dataModelType: FieldListModelType = .none
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+        let shouldShowTitle = !isMobileViewActive || (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+        let fieldHeaderModel = shouldShowTitle ? FieldHeaderModel(
+            title: fieldData?.title,
+            required: fieldData?.required,
+            tipDescription: fieldData?.tipDescription,
+            tipTitle: fieldData?.tipTitle,
+            tipVisible: fieldData?.tipVisible
+        ) : nil
         
         switch fieldPosition.type {
         case .text:
@@ -393,7 +404,7 @@ extension DocumentEditor {
 extension DocumentEditor {
     fileprivate func updatePageFieldModels(_ duplicatedPage: Page, _ newPageID: String, _ fileId: String?) {
         var fieldListModels = [FieldListModel]()
-        let fieldPositions = mapWebViewToMobileView(fieldPositions: duplicatedPage.fieldPositions ?? [])
+        let fieldPositions = isMobileViewActive ? duplicatedPage.fieldPositions ?? [] : mapWebViewToMobileView(fieldPositions: duplicatedPage.fieldPositions ?? [])
         for fieldPosition in fieldPositions ?? [] {
             guard let fieldPositionFieldID = fieldPosition.field else {
                 Log("FieldPositions has nil FieldID", type: .error)
