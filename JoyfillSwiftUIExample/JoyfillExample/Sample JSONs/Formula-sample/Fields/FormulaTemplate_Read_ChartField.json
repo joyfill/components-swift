@@ -212,14 +212,14 @@
       "desc": "Check if any y value across all lines > 50",
       "type": "calc",
       "scope": "private",
-      "expression": "some(flatMap(chart1, (line) => line.points), (pt) => pt.y > 50)"
+      "expression": "some(flatMap(chart1, (line) -> line.points), (pt) -> pt.y > 50)"
     },
     {
       "_id": "concatLineTitles",
       "desc": "Concatenate all line titles from chart1",
       "type": "calc",
       "scope": "private",
-      "expression": "concat(map(chart1, (line) => line.title))"
+      "expression": "concat(map(chart1, (line) -> line.title))"
     },
     {
       "_id": "firstPointY_Line2",
@@ -233,7 +233,7 @@
       "desc": "Average number of points per line",
       "type": "calc",
       "scope": "private",
-      "expression": "sum(map(chart1, (line) => length(line.points))) / length(chart1)"
+      "expression": "sum(map(chart1, (line) -> length(line.points))) / length(chart1)"
     }
   ]
 }
