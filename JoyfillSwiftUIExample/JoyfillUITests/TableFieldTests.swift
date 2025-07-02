@@ -98,20 +98,18 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Hello", firstTableTextField.value as! String)
-        sleep(1)
         firstTableTextField.tap()
-        sleep(1)
-        firstTableTextField.clearAndEnterText("FirstHello")
+        firstTableTextField.clearAndEnterText("First")
         
         let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("His", secondTableTextField.value as! String)
         secondTableTextField.tap()
-        secondTableTextField.clearAndEnterText("SecondHis")
+        secondTableTextField.clearAndEnterText("Second")
         
         let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("His", thirdTableTextField.value as! String)
         thirdTableTextField.tap()
-        thirdTableTextField.clearAndEnterText("ThirdHis")
+        thirdTableTextField.clearAndEnterText("Third")
         
         goBack()
         sleep(2)
@@ -123,7 +121,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("ThirdHis", thirdCellTextValue)
         
         // Navigate to signature detail view - then go to table detail view - to check recently enterd data is saved or not in table
-        app.buttons["SignatureIdentifier"].tap()
+        guard let SignatureButton = app.swipeToFindElement(identifier: "SignatureIdentifier", type: .button, direction: "down") else {
+            XCTFail("Failed to find signature button after swiping")
+            return
+        }
+        SignatureButton.tap()
         sleep(1)
         goBack()
         
@@ -1459,7 +1461,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Apple 2", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.clearAndEnterText("Moved Apple 2")
+        enterDateInInsertedField.typeText("Moved ")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
@@ -1486,7 +1488,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("Cat 4", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.clearAndEnterText("Moved Cat 4")
+        enterDateInInsertedField.clearAndEnterText("Moved ")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)

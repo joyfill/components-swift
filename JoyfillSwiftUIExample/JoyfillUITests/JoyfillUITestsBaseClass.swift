@@ -6,6 +6,10 @@ class JoyfillUITestsBaseClass: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+
+        if app != nil {
+            app.terminate()
+        }
         self.app = XCUIApplication()
         app.launchArguments.append("JoyfillUITests")
         
@@ -14,9 +18,13 @@ class JoyfillUITestsBaseClass: XCTestCase {
         app.launchArguments.append(getJSONFileNameForTest())
         
         app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10), "App did not launch properly")
     }
 
     override func tearDownWithError() throws {
+        if app != nil {
+            app.terminate()
+        }
         app = nil
     }
     

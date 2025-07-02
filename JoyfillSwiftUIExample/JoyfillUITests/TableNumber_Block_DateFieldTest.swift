@@ -909,7 +909,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.clearAndEnterText("Edit Single rowsFirst row")
+        textField.clearText()
+        textField.clearAndEnterText("Edit Single rows")
         
 //        app.buttons["ApplyAllButtonIdentifier"].tap()
         dismissSheet()

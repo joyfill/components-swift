@@ -38,9 +38,9 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         minYValuesTextField.clearAndEnterText("10")
         minXValuesTextField.clearAndEnterText("20")
         maxYValuesTextField.tap()
-        maxYValuesTextField.typeText("30")
+        maxYValuesTextField.clearAndEnterText("10030")
         maxXValuesTextField.tap()
-        maxXValuesTextField.typeText("40")
+        maxXValuesTextField.clearAndEnterText("10040")
 
         goBack()
 
@@ -92,9 +92,9 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         minXValuesTextField.tap()
         minXValuesTextField.clearAndEnterText("20")
         maxYValuesTextField.tap()
-        maxYValuesTextField.typeText("30")
+        maxYValuesTextField.clearAndEnterText("10030")
         maxXValuesTextField.tap()
-        maxXValuesTextField.typeText("40")
+        maxXValuesTextField.clearAndEnterText("10040")
 
         goBack()
 
@@ -139,11 +139,11 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         goToChartDetailField()
         let titleTextFieldIdentifier = app.textFields["TitleTextFieldIdentifier"]
         titleTextFieldIdentifier.tap()
-        titleTextFieldIdentifier.typeText("Line Title")
+        titleTextFieldIdentifier.clearAndEnterText("Line Title")
 
         let descriptionTextFieldIdentifier = app.textFields["DescriptionTextFieldIdentifier"]
         descriptionTextFieldIdentifier.tap()
-        descriptionTextFieldIdentifier.typeText("Line Description")
+        descriptionTextFieldIdentifier.clearAndEnterText("Line Description")
 
         goBack()
 
