@@ -155,7 +155,9 @@ extension DocumentEditor {
         let fieldId = fieldIdentifier.fieldID
         var elements = field(fieldID: fieldId)?.valueToValueElements ?? []
 
-        elements.append(ValueElement(id: id))
+        var newRow = ValueElement(id: id)
+        newRow.cells = [:]
+        elements.append(newRow)
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder?.append(id)
 
