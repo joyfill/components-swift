@@ -431,7 +431,7 @@ extension DocumentEditor {
         for (key, value) in cellValues {
             newRow.cells?[key] = value
         }
-        let children = Children(dictionary: [:])
+        let children = getEmptyChildrenObject()
         var childrens: [String: Children] = [:]
         if let childrenKeys = childrenKeys, !childrenKeys.isEmpty {
             for childrenSchemaKey in childrenKeys {
@@ -520,11 +520,11 @@ extension DocumentEditor {
             if elements[i].id == targetParentId {
                 var children = elements[i].childrens ?? [:]
                 if children.isEmpty {
-                    children = [nestedKey : Children(dictionary: [:])]
+                    children = [nestedKey : getEmptyChildrenObject()]
                 }
                 
                 if children[nestedKey] == nil {
-                    children[nestedKey] = Children(dictionary: [:])
+                    children[nestedKey] = getEmptyChildrenObject()
                 }
                 var nestedElements = children[nestedKey]?.valueToValueElements ?? []
                 nestedElements.append(newRow)
@@ -587,7 +587,7 @@ extension DocumentEditor {
         for (key, value) in cellValues {
             newRow.cells![key] = value
         }
-        let children = Children(dictionary: [:])
+        let children = getEmptyChildrenObject()
         var childrens: [String: Children] = [:]
         if let childrenKeys = childrenKeys, !childrenKeys.isEmpty {
             for childrenSchemaKey in childrenKeys {
@@ -687,6 +687,11 @@ extension DocumentEditor {
         return false
     }
 
+    private func getEmptyChildrenObject() -> Children {
+        return Children(dictionary: [
+            "value": ValueUnion.valueElementArray([])
+        ])
+    }
 
     func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldId: String) -> [ValueElement] {
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
