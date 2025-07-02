@@ -1,0 +1,239 @@
+{
+  "_id": "685dac6615b46a02d3b46239",
+  "identifier": "doc_685dac6615b46a02d3b46239",
+  "name": "New Doc",
+  "files": [
+    {
+      "_id": "685dac66e8a722aea5d16383",
+      "name": "New File",
+      "pageOrder": [
+        "685dac669754239fb4fd8d23"
+      ],
+      "pages": [
+        {
+          "_id": "685dac669754239fb4fd8d23",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "685eef3d2cf218efd0510b46",
+              "type": "chart",
+              "field": "chart1",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 49
+            },
+            {
+              "_id": "fp_text1",
+              "type": "text",
+              "field": "text1",
+              "displayType": "original",
+              "x": 0,
+              "y": 50,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text2",
+              "type": "text",
+              "field": "text2",
+              "displayType": "original",
+              "x": 4,
+              "y": 50,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number1",
+              "type": "number",
+              "field": "number1",
+              "displayType": "original",
+              "x": 0,
+              "y": 58,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number2",
+              "type": "number",
+              "field": "number2",
+              "displayType": "original",
+              "x": 4,
+              "y": 58,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "fields": [
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "chart1",
+      "type": "chart",
+      "title": "Chart",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_685eef3d12d613600a61d1bd",
+      "value": [
+        {
+          "_id": "685eef47c6a37acd020eb48c",
+          "deleted": false,
+          "title": "Line 1 Title",
+          "description": "Line 1 Desc",
+          "points": [
+            {
+              "_id": "685eef47fbadb45b37387083",
+              "label": "Zero",
+              "y": 0,
+              "x": 0
+            },
+            {
+              "_id": "685eef473b5baf06fcda147b",
+              "label": "100%",
+              "y": 20,
+              "x": 40
+            },
+            {
+              "_id": "685eef47c66dc43971d72316",
+              "label": "150%",
+              "y": 30,
+              "x": 80
+            }
+          ]
+        },
+        {
+          "_id": "6861816977d1e5c3f0d5d67d",
+          "deleted": false,
+          "title": "Line 2 Title",
+          "description": "Line 2 Desc",
+          "points": [
+            {
+              "_id": "686181692ecd4f336bace387",
+              "label": "Zero",
+              "y": 10,
+              "x": 0
+            },
+            {
+              "_id": "68618169825d7d8e9eba840d",
+              "label": "100%",
+              "y": 60,
+              "x": 20
+            },
+            {
+              "_id": "68618169ef1a59d2ff09defd",
+              "label": "150%",
+              "y": 40,
+              "x": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "text1",
+      "type": "text",
+      "title": "Any Y > 50?",
+      "identifier": "field_text1",
+      "formulas": [
+        {
+          "_id": "AF_text1",
+          "formula": "checkAnyYOver50",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "text2",
+      "type": "text",
+      "title": "Line Titles",
+      "identifier": "field_text2",
+      "formulas": [
+        {
+          "_id": "AF_text2",
+          "formula": "concatLineTitles",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "number1",
+      "type": "number",
+      "title": "Y of First Point (Line 2)",
+      "identifier": "field_number1",
+      "formulas": [
+        {
+          "_id": "AF_number1",
+          "formula": "firstPointY_Line2",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "number2",
+      "type": "number",
+      "title": "Avg Points per Line",
+      "identifier": "field_number2",
+      "formulas": [
+        {
+          "_id": "AF_number2",
+          "formula": "avgPointsPerLine",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "checkAnyYOver50",
+      "desc": "Check if any y value across all lines > 50",
+      "type": "calc",
+      "scope": "private",
+      "expression": "some(flatMap(chart1, (line) => line.points), (pt) => pt.y > 50)"
+    },
+    {
+      "_id": "concatLineTitles",
+      "desc": "Concatenate all line titles from chart1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "concat(map(chart1, (line) => line.title))"
+    },
+    {
+      "_id": "firstPointY_Line2",
+      "desc": "Y value of first point in second line",
+      "type": "calc",
+      "scope": "private",
+      "expression": "chart1.1.points.0.y"
+    },
+    {
+      "_id": "avgPointsPerLine",
+      "desc": "Average number of points per line",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sum(map(chart1, (line) => length(line.points))) / length(chart1)"
+    }
+  ]
+}

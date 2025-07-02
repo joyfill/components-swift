@@ -241,6 +241,9 @@ public class JoyfillDocContext: EvaluationContext {
         if field.fieldType == JoyfillModel.FieldTypes.collection {
             // For collection fields, use our specialized resolution that adds children property
             return resolveCollectionReference(field, pathComponents: [])
+        } else if field.fieldType == JoyfillModel.FieldTypes.chart {
+            // For chart fields, use our specialized resolution that structures lines and points
+            return resolveChartReference(field, pathComponents: [])
         } else {
             // For other field types, return the stored value
             return convertFieldValueToFormulaValue(field.resolvedValue)
@@ -280,6 +283,9 @@ public class JoyfillDocContext: EvaluationContext {
         } else if field.fieldType == JoyfillModel.FieldTypes.collection {
             // Handle collection-specific reference patterns with nested children support
             return resolveCollectionReference(field, pathComponents: remainingPath)
+        } else if field.fieldType == JoyfillModel.FieldTypes.chart {
+            // Handle chart-specific reference patterns with lines and points
+            return resolveChartReference(field, pathComponents: remainingPath)
         } else if !remainingPath.isEmpty {
             // This could be a property access or array index reference
 
@@ -807,6 +813,158 @@ public class JoyfillDocContext: EvaluationContext {
         
         return .dictionary(dict)
     }
+    
+    /// Resolves chart field references with support for line and point access
+    private func resolveChartReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
+        // Get the chart field value (array of lines)
+        guard let chartValue = field.resolvedValue else {
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid chart"))
+        }
+        
+        // Convert chart field value to lines array
+        let chartArray = convertValueUnionToFormulaValue(chartValue)
+        
+        guard case .array(let lines) = chartArray else {
+            return .failure(.invalidReference("Chart field '\(field.id ?? "unknown")' does not contain an array of lines"))
+        }
+        
+        // If no further path components, return the entire chart (array of lines)
+        if pathComponents.isEmpty {
+            // Convert each line to properly structured FormulaValue with line properties
+            let structuredLines = lines.map { line -> FormulaValue in
+                return convertChartLineToFormulaValue(line)
+            }
+            return .success(.array(structuredLines))
+        }
+        
+        let nextComponent = pathComponents[0]
+        
+        // Check if it's a numeric index for line access (e.g., chart1.0 or chart1.1.points.0.y)
+        if let lineIndex = Int(nextComponent), lineIndex >= 0, lineIndex < lines.count {
+            let line = convertChartLineToFormulaValue(lines[lineIndex])
+            
+            if pathComponents.count == 1 {
+                // Return the entire line: chart1.0
+                return .success(line)
+            } else if pathComponents.count >= 2 {
+                let secondComponent = pathComponents[1]
+                
+                // Handle line property access: chart1.0.title, chart1.0.points, etc.
+                guard case .dictionary(let lineDict) = line else {
+                    return .failure(.invalidReference("Line at index \(lineIndex) is not properly structured"))
+                }
+                
+                if secondComponent == "points" {
+                    // Accessing points array: chart1.0.points
+                    guard let points = lineDict["points"] else {
+                        return .failure(.invalidReference("Points not found in line at index \(lineIndex)"))
+                    }
+                    
+                    if pathComponents.count == 2 {
+                        // Return all points: chart1.0.points
+                        return .success(points)
+                    } else if pathComponents.count >= 3 {
+                        // Point index access: chart1.0.points.0.y
+                        guard case .array(let pointsArray) = points,
+                              let pointIndex = Int(pathComponents[2]),
+                              pointIndex >= 0, pointIndex < pointsArray.count else {
+                            return .failure(.invalidReference("Invalid point index \(pathComponents[2]) in line \(lineIndex)"))
+                        }
+                        
+                        let point = pointsArray[pointIndex]
+                        
+                        if pathComponents.count == 3 {
+                            // Return entire point: chart1.0.points.0
+                            return .success(point)
+                        } else if pathComponents.count == 4 {
+                            // Point property access: chart1.0.points.0.y
+                            let pointProperty = pathComponents[3]
+                            
+                            guard case .dictionary(let pointDict) = point,
+                                  let propertyValue = pointDict[pointProperty] else {
+                                return .failure(.invalidReference("Property '\(pointProperty)' not found in point at index \(pointIndex)"))
+                            }
+                            
+                            return .success(propertyValue)
+                        }
+                    }
+                } else {
+                    // Direct line property access: chart1.0.title, chart1.0.description
+                    guard let propertyValue = lineDict[secondComponent] else {
+                        return .failure(.invalidReference("Property '\(secondComponent)' not found in line at index \(lineIndex)"))
+                    }
+                    
+                    return .success(propertyValue)
+                }
+            }
+        }
+        
+        // If we get here, it's an unsupported reference pattern
+        return .failure(.invalidReference("Unable to resolve chart reference path: \(pathComponents.joined(separator: ".")) in chart '\(field.id ?? "unknown")'"))
+    }
+    
+
+    
+    /// Converts a chart line to a properly structured FormulaValue
+    private func convertChartLineToFormulaValue(_ line: FormulaValue) -> FormulaValue {
+        // If it's already a dictionary, ensure it has the right structure
+        if case .dictionary(let lineDict) = line {
+            var structuredLine: [String: FormulaValue] = [:]
+            
+            // Preserve existing properties
+            structuredLine["_id"] = lineDict["_id"] ?? .null
+            structuredLine["title"] = lineDict["title"] ?? .null
+            structuredLine["description"] = lineDict["description"] ?? .null
+            structuredLine["deleted"] = lineDict["deleted"] ?? .boolean(false)
+            
+            // Ensure points is properly structured
+            if let points = lineDict["points"] {
+                if case .array(let pointsArray) = points {
+                    let structuredPoints = pointsArray.map { point -> FormulaValue in
+                        return convertChartPointToFormulaValue(point)
+                    }
+                    structuredLine["points"] = .array(structuredPoints)
+                } else {
+                    structuredLine["points"] = .array([])
+                }
+            } else {
+                structuredLine["points"] = .array([])
+            }
+            
+            return .dictionary(structuredLine)
+        } else {
+            // If not a dictionary, create a minimal structure
+            return .dictionary([
+                "_id": .null,
+                "title": .null,
+                "description": .null,
+                "deleted": .boolean(false),
+                "points": .array([])
+            ])
+        }
+    }
+    
+    /// Converts a chart point to a properly structured FormulaValue
+    private func convertChartPointToFormulaValue(_ point: FormulaValue) -> FormulaValue {
+        if case .dictionary(let pointDict) = point {
+            var structuredPoint: [String: FormulaValue] = [:]
+            
+            structuredPoint["_id"] = pointDict["_id"] ?? .null
+            structuredPoint["label"] = pointDict["label"] ?? .null
+            structuredPoint["x"] = pointDict["x"] ?? .number(0)
+            structuredPoint["y"] = pointDict["y"] ?? .number(0)
+            
+            return .dictionary(structuredPoint)
+        } else {
+            // If not a dictionary, create a minimal structure
+            return .dictionary([
+                "_id": .null,
+                "label": .null,
+                "x": .number(0),
+                "y": .number(0)
+            ])
+        }
+    }
 
     // MARK: - Conversion Methods
     
@@ -874,11 +1032,20 @@ public class JoyfillDocContext: EvaluationContext {
             // Convert value elements to dictionaries
             return .array(elements.map { element -> FormulaValue in
                 var dict: [String: FormulaValue] = [:]
+                
+                // Try cells first (for collection fields)
                 if let cells = element.cells {
                     for (key, cellValue) in cells {
                         dict[key] = convertValueUnionToFormulaValue(cellValue)
                     }
                 }
+                // Use dictionary (for chart field lines) - always available
+                else {
+                    for (key, cellValue) in element.dictionary {
+                        dict[key] = convertValueUnionToFormulaValue(cellValue)
+                    }
+                }
+                
                 return .dictionary(dict)
             })
         case .dictionary(let dictValues):
