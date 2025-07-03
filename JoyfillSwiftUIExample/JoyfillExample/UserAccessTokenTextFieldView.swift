@@ -172,6 +172,7 @@ struct UserJsonTextFieldView: View {
     @State var scanResults: String = ""
     @State private var isFetching: Bool = false
     @State private var showChangelogView = false
+    @State private var shouldNavigate: Bool = false
     let imagePicker = ImagePicker()
     let enableChangelogs: Bool
     
@@ -253,17 +254,23 @@ struct UserJsonTextFieldView: View {
             
             // Button Section
             VStack(spacing: 16) {
-                NavigationLink(destination: FormDestinationView(
-                    jsonString: jsonString,
-                    changeManager: changeManagerWrapper.changeManager,
-                    showChangelogView: $showChangelogView,
-                    enableChangelogs: enableChangelogs
-                )) {
+                Button(action: {
+                    isFetching = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        isFetching = false
+                        shouldNavigate = true
+                    }
+                }) {
                     HStack {
                         Spacer()
-                        Text("View Form")
-                            .font(.headline)
-                            .fontWeight(.semibold)
+                        if isFetching {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        } else {
+                            Text("View Form")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        }
                         Spacer()
                     }
                     .frame(height: 54)
@@ -277,8 +284,19 @@ struct UserJsonTextFieldView: View {
                     .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
                             radius: 2, x: 0, y: 1)
                 }
-                .disabled(jsonString.isEmpty || errorMessage != nil)
+                .disabled(jsonString.isEmpty || errorMessage != nil || isFetching)
                 
+                NavigationLink(
+                    destination: FormDestinationView(
+                        jsonString: jsonString,
+                        changeManager: changeManagerWrapper.changeManager,
+                        showChangelogView: $showChangelogView,
+                        enableChangelogs: enableChangelogs
+                    ),
+                    isActive: $shouldNavigate
+                ) {
+                    EmptyView()
+                }
                 
                 if !jsonString.isEmpty {
                     Text("JSON length: \(jsonString.count)")
@@ -399,6 +417,7 @@ struct FormDestinationView: View {
             }
             
             Form(documentEditor: documentEditor)
+            SaveButtonView(changeManager: changeManager, documentEditor: documentEditor, showBothButtons: false)
         }
         .sheet(isPresented: $showChangelogView) {
             ChangelogView(changeManager: changeManager)
