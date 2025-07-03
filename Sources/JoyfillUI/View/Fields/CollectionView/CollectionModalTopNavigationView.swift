@@ -576,10 +576,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                                         self.changes[colIndex] = ValueUnion.string(newValue)
                                     }
                                     
-                                    Utility.debounceTextChange(debounceTask: &debounceTask) {
-                                        if !isUsedForBulkEdit {
-                                            viewModel.bulkEdit(changes: changes)
-                                        }
+                                    if !isUsedForBulkEdit {
+                                        viewModel.bulkEdit(changes: changes)
                                     }
                                 }
                             )

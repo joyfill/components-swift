@@ -648,20 +648,20 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
     }
     
-    public func bulkEditForNested(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+    public func bulkEditForNested(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier) -> ([ValueElement], [String : ValueElement]) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            return []
+            return ([],[:])
         }
-        
+        var updatedElements: [String : ValueElement] = [:]
         for rowId in selectedRows {
-            _ = updateCells(for: rowId, with: changes, in: &elements)
+            updatedElements[rowId] = updateCells(for: rowId, with: changes, in: &elements)
         }
         
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
-        return elements
+        return (elements, updatedElements)
     }
 
-    private func updateCells(for rowId: String, with changes: [String: ValueUnion], in elements: inout [ValueElement]) -> Bool {
+    private func updateCells(for rowId: String, with changes: [String: ValueUnion], in elements: inout [ValueElement]) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
                 var cells = elements[i].cells ?? [:]
@@ -669,22 +669,22 @@ extension DocumentEditor {
                     cells[cellDataModelId] = change
                 }
                 elements[i].cells = cells
-                return true
+                return elements[i]
             }
             // If not found at this level, search recursively in children.
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if updateCells(for: rowId, with: changes, in: &nestedElements) {
+                        if let updated = updateCells(for: rowId, with: changes, in: &nestedElements) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return true
+                            return updated
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
 
     private func getEmptyChildrenObject() -> Children {

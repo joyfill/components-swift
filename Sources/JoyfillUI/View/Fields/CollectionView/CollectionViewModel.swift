@@ -1519,8 +1519,11 @@ class CollectionViewModel: ObservableObject {
             guard let cellDataModelId = tableColumns[colIndex].id else { return }
             columnIDChanges[cellDataModelId] = value
         }
-        tableDataModel.valueToValueElements =  tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-        buildRowToValueElementMap()
+        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        tableDataModel.valueToValueElements = result?.0
+        for (key, value) in result?.1 ?? [:] {
+            rowToValueElementMap[key] = value
+        }
         
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
