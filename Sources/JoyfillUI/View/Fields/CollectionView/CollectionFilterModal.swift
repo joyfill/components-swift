@@ -161,6 +161,9 @@ struct CollectionFilterModal: View {
             }
             loadCurrentFilters()
         }
+        .simultaneousGesture(DragGesture().onChanged({ _ in
+            dismissKeyboard()
+        }))
     }
     
     func shouldEnableAddFilter() -> Bool {
