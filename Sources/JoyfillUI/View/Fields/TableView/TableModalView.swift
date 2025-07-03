@@ -232,7 +232,7 @@ struct TableModalView : View {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     HStack {
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id!))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id ?? ""))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
                         
@@ -242,7 +242,7 @@ struct TableModalView : View {
                                 .imageScale(.small)
                         }
                         
-                        if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) {
+                        if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -250,8 +250,8 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id!) ?? .unknown,
-                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id!) ?? .empty,
+                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id ?? "") ?? .unknown,
+                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id ?? "") ?? .empty,
                                                        text: longestBlockText))
                     .frame(minHeight: textHeight)
                     .overlay(
@@ -263,7 +263,7 @@ struct TableModalView : View {
                     )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id!)) || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0)
 //                .disabled(true)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
