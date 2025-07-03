@@ -24,7 +24,7 @@ extension XCUIApplication {
             // Scroll
             switch direction.lowercased() {
             case "up":
-                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
+                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
                 let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
                 start.press(forDuration: 0.3, thenDragTo: end)
             case "down":

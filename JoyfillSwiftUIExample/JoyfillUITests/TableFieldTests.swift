@@ -1148,7 +1148,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
         XCTAssertEqual("Select Option", selectDropdownField.label)
         selectDropdownField.tap()
-        
+        sleep(1)
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         let firstOption = dropdownOptions.element(boundBy: 1)
@@ -1488,7 +1488,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("Cat 4", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.clearAndEnterText("Moved ")
+        enterDateInInsertedField.typeText("Moved ")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)

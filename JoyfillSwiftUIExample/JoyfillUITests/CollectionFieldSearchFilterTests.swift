@@ -51,7 +51,36 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func getVisibleNestexRowsCount() -> Int {
-        return rowCount(baseIdentifier: "selectNestedRowItem")
+        return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
+    }
+    
+    func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
+        let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
+        let scrollView = app.scrollViews.firstMatch
+
+        var previousCount = -1
+        var currentCount = 0
+        var scrollAttempts = 0
+
+        while scrollAttempts < maxScrolls {
+            let matchingElements = app.images.matching(predicate)
+            currentCount = matchingElements.count
+
+            if currentCount == previousCount {
+                break // No new rows loaded
+            }
+
+            previousCount = currentCount
+
+            let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
+            let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+            start.press(forDuration: 0.1, thenDragTo: end)
+
+            sleep(1) // Allow time to load more items
+            scrollAttempts += 1
+        }
+
+        return currentCount
     }
     
     func rowCount(baseIdentifier: String) -> Int {
@@ -464,6 +493,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let differentOptionCount = getVisibleNestexRowsCount()
         XCTAssertEqual(differentOptionCount, 7, "Nested dropdown filtering should work")
     }
+    
     
     func testMultiLevelSchemaFiltering() {
         goToCollectionDetailField()

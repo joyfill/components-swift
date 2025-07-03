@@ -86,6 +86,30 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         return deepNumberField
     }
     
+    func randomCalendarDayLabelInCurrentMonth(excludingToday: Bool = true) -> String? {
+        let calendar = Calendar.current
+        let today = Date()
+        
+        guard let range = calendar.range(of: .day, in: .month, for: today) else { return nil }
+        
+        let todayDay = calendar.component(.day, from: today)
+        
+        // Get all valid days of this month excluding today
+        let possibleDays = range.filter { excludingToday ? $0 != todayDay : true }
+        
+        guard let randomDay = possibleDays.randomElement() else { return nil }
+
+        var components = calendar.dateComponents([.year, .month], from: today)
+        components.day = randomDay
+        
+        guard let randomDate = calendar.date(from: components) else { return nil }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.dateFormat = "EEEE, d MMMM"
+        return formatter.string(from: randomDate)
+    }
+    
     // Number Field test cases
 
     // Enter data in all number textfields
@@ -405,7 +429,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         }
         
        // Remember - ["Sunday 7 April"] - here set the date of current month
-        let specificDayButton = app.buttons["Sunday 7 April"] // The full label of the button
+        let specificDayButton = app.buttons["Sunday, 7 April"] // The full label of the button
         XCTAssertTrue(specificDayButton.exists, "The date 'Sunday 7 April' should be visible in the calendar.")
             specificDayButton.tap()
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
@@ -428,11 +452,14 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         let firstDatePicker = app.datePickers.element(boundBy: 0)
         firstDatePicker.tap()
-        
+        print(app.debugDescription)
        // TODO: Remember - ["Sunday 7 April"] - here set the date of current month
-        let specificDayButton = app.buttons["Sunday 1 June"] // The full label of the button
-        XCTAssertTrue(specificDayButton.exists, "Check current month date is changed or not")
-        specificDayButton.tap()
+        if let randomLabel = randomCalendarDayLabelInCurrentMonth() {
+            let button = app.buttons[randomLabel]
+            XCTAssertTrue(button.waitForExistence(timeout: 5),
+                          "The date \(randomLabel) should be visible and tappable.")
+            button.tap()
+        }
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
         
         goBack()

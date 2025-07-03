@@ -39,6 +39,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func expandRow(number: Int) {
+        sleep(1)
         let identifier = "CollectionExpandCollapseButton\(number)"
         
         guard let expandButton = app.swipeToFindElement(identifier: identifier,
@@ -133,6 +134,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func addThreeNestedRows(parentRowNumber: Int) {
         goToCollectionDetailField()
+        sleep(1)
         expandRow(number: parentRowNumber)
         tapSchemaAddRowButton(number: 0)
         tapSchemaAddRowButton(number: 0)
@@ -152,6 +154,21 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("", thirdNestedTextField.value as! String)
         thirdNestedTextField.tap()
         thirdNestedTextField.typeText("123456789")
+    }
+    
+    func openFilterModalForDismissKeyboard() {
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        if !filterButton.exists {
+            XCTFail("Filter button should exist")
+        }
+        
+        filterButton.tap()
+        
+        // Verify filter modal opened
+        let filterModalExists = app.staticTexts["Filter"].exists
+        XCTAssertTrue(filterModalExists, "Filter modal should be open")
+        
+        dismissSheet()
     }
     
     func testCollectionFieldTextFields() {
@@ -985,9 +1002,13 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
     }
     
+    
     // Test disabled buttons on Row Form for nested rows
     func testSelectOneNestedRow() throws {
         addThreeNestedRows(parentRowNumber: 1)
+        // Make sure collection search filter is on
+        openFilterModalForDismissKeyboard()
+        sleep(1)
         expandRow(number: 2)
         
         selectNestedRow(number: 1)
@@ -1017,6 +1038,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     // Edit Single Nested Row
     func testEditSingleNestedRow() throws {
         addThreeNestedRows(parentRowNumber: 1)
+        // Make sure collection search filter is on
+        openFilterModalForDismissKeyboard()
         expandRow(number: 2)
         
         selectNestedRow(number: 1)
