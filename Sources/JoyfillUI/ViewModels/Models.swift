@@ -703,11 +703,11 @@ struct TableDataModel {
     }
     
     var shouldDisableMoveUpFilterActive: Bool {
-        firstRowSelected || sortModel.order != .none || firstNestedRowSelected
+        firstRowSelected || firstNestedRowSelected
     }
     
     var shouldDisableMoveDownFilterActive: Bool {
-        lastRowSelected || sortModel.order != .none || lastNestedRowSelected
+        lastRowSelected || lastNestedRowSelected
     }
     
     mutating func updateCellModel(rowIndex: Int, colIndex: Int, value: String) {
