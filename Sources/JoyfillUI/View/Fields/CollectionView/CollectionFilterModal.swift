@@ -345,6 +345,9 @@ struct FilteringView: View {
                         }
                     ForEach(columns, id: \.id) { column in
                         Button("\(column.title ?? "")") {
+                            if !currentSelectedFilterColumnID.isEmpty {
+                                clearFilterForColumn(columnID: currentSelectedFilterColumnID, changeFilterCount: false)
+                            }
                             currentSelectedFilterColumnID = column.id ?? ""
                         }
                     }
@@ -382,7 +385,7 @@ struct FilteringView: View {
             }
             
             Button(action: {
-                clearFilterForColumn(columnID: currentSelectedFilterColumnID)
+                clearFilterForColumn(columnID: currentSelectedFilterColumnID, changeFilterCount: true)
                 refreshID = UUID()
             }, label: {
                 Image(systemName: "minus.circle")
@@ -405,13 +408,15 @@ struct FilteringView: View {
         viewModel.getFilteredColumns(for: selectedSchemaKey).first(where: { $0.id == columnID })
     }
     
-    private func clearFilterForColumn(columnID: String) {
+    private func clearFilterForColumn(columnID: String, changeFilterCount: Bool) {
         if let index = collectionFilterModels.firstIndex(where: { $0.colID == columnID && $0.schemaKey == selectedSchemaKey }) {
             collectionFilterModels[index].filterText = ""
         }
-        totalFiltersCount -= 1
-        if totalFiltersCount == 0 {
-            totalFiltersCount = 1
+        if changeFilterCount {
+            totalFiltersCount -= 1
+            if totalFiltersCount == 0 {
+                totalFiltersCount = 1
+            }
         }
         currentSelectedFilterColumnID = ""
     }
