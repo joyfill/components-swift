@@ -278,6 +278,7 @@ struct CollectionEditMultipleRowsSheetView: View {
     let tableColumns: [FieldTableColumn]
     @Environment(\.presentationMode) var presentationMode
     @State var changes = [Int: ValueUnion]()
+    @State private var isLoading = false
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
 
@@ -389,20 +390,38 @@ struct CollectionEditMultipleRowsSheetView: View {
 
                     if viewModel.tableDataModel.selectedRows.count != 1 {
                         Button(action: {
-                            viewModel.bulkEdit(changes: changes)
-                            viewModel.tableDataModel.emptySelection()
-                            presentationMode.wrappedValue.dismiss()
+                            Task {
+                                isLoading = true
+                                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                                
+                                await MainActor.run {
+                                    viewModel.bulkEdit(changes: changes)
+                                    viewModel.tableDataModel.emptySelection()
+                                    isLoading = false
+                                    presentationMode.wrappedValue.dismiss()
+                                }
+                            }
                         }, label: {
-                            Text("Apply All")
-                                .darkLightThemeColor()
-                                .font(.system(size: 14))
-                                .frame(width: 88, height: 27)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
+                            ZStack {
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                                        .frame(width: 88, height: 27)
+                                } else {
+                                    Text("Apply All")
+                                        .darkLightThemeColor()
+                                        .font(.system(size: 14))
+                                        .frame(width: 88, height: 27)
+                                        
+                                }
+                            }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
                         })
                         .accessibilityIdentifier("ApplyAllButtonIdentifier")
+                        .disabled(isLoading)
                         
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
