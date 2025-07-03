@@ -18,7 +18,7 @@ class ValidationHandler {
     func validate() -> Validation {
         var fieldValidities = [FieldValidity]()
         var isValid = true
-        let fieldPositionIDs = documentEditor.mapWebViewToMobileView(fieldPositions: documentEditor.allFieldPositions).map {  $0.field }
+        let fieldPositionIDs = documentEditor.mapWebViewToMobileViewIfNeeded(fieldPositions: documentEditor.allFieldPositions, isMobileViewActive: false).map {  $0.field }
         for id in fieldPositionIDs {
             guard let id = id, let field = documentEditor.fieldMap[id] else {
                 continue
