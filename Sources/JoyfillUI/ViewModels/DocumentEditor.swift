@@ -64,7 +64,7 @@ public class DocumentEditor: ObservableObject {
     }
     
     public func updateFieldPositionMap() {
-        document.fieldPositionsForCurrentView.forEach { fieldPosition in
+        mapWebViewToMobileViewIfNeeded(fieldPositions: document.fieldPositionsForCurrentView, isMobileViewActive: isMobileViewActive).forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
         }
@@ -217,7 +217,10 @@ extension DocumentEditor {
         return "\(pageID)|\(index)"
     }   
 
-    public func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+    public func mapWebViewToMobileViewIfNeeded(fieldPositions: [FieldPosition], isMobileViewActive: Bool) -> [FieldPosition] {
+        guard !isMobileViewActive else {
+            return fieldPositions
+        }
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
             guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
                 return false
@@ -234,7 +237,9 @@ extension DocumentEditor {
         
         for fp in sortedFieldPositions {
             if let field = fp.field, uniqueFields.insert(field).inserted {
-                resultFieldPositions.append(fp)
+                var modifiableFP = fp
+                modifiableFP.titleDisplay = "inline"
+                resultFieldPositions.append(modifiableFP)
             }
         }
         return resultFieldPositions
@@ -291,14 +296,7 @@ extension DocumentEditor {
         var dataModelType: FieldListModelType = .none
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         
-        let shouldShowTitle = !isMobileViewActive || (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
-        let fieldHeaderModel = shouldShowTitle ? FieldHeaderModel(
-            title: fieldData?.title,
-            required: fieldData?.required,
-            tipDescription: fieldData?.tipDescription,
-            tipTitle: fieldData?.tipTitle,
-            tipVisible: fieldData?.tipVisible
-        ) : nil
+        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
         
         switch fieldPosition.type {
         case .text:
@@ -404,7 +402,7 @@ extension DocumentEditor {
 extension DocumentEditor {
     fileprivate func updatePageFieldModels(_ duplicatedPage: Page, _ newPageID: String, _ fileId: String?) {
         var fieldListModels = [FieldListModel]()
-        let fieldPositions = isMobileViewActive ? duplicatedPage.fieldPositions ?? [] : mapWebViewToMobileView(fieldPositions: duplicatedPage.fieldPositions ?? [])
+        let fieldPositions = mapWebViewToMobileViewIfNeeded(fieldPositions: duplicatedPage.fieldPositions ?? [], isMobileViewActive: isMobileViewActive)
         for fieldPosition in fieldPositions ?? [] {
             guard let fieldPositionFieldID = fieldPosition.field else {
                 Log("FieldPositions has nil FieldID", type: .error)
