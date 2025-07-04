@@ -12,6 +12,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func goToCollectionDetailField() {
         navigateToCollectionOn10thPage()
+        sleep(1)
     }
     
     func dismissSheet() {

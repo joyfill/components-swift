@@ -23,6 +23,7 @@ extension XCUIElement {
 final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     func goToCollectionDetailField() {
         navigateToCollection()
+        sleep(1)
     }
     
     func dismissSheet() {

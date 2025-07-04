@@ -412,7 +412,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         firstDatePicker.tap()
         
        // TODO: Remember - ["Sunday 7 April"] - here set the date of current month
-        let specificDayButton = app.buttons["Sunday 1 June"] // The full label of the button
+        let specificDayButton = app.buttons["Wednesday 2 July"] // The full label of the button
         XCTAssertTrue(specificDayButton.exists, "Check current month date is changed or not")
         specificDayButton.tap()
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
