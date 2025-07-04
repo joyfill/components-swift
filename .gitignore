@@ -9,6 +9,5 @@ Package.resolved
 JoyfillUIKitExample/JoyfillUIKitExample/JoyfillUIKitExample.xcodeproj/project.xcworkspace/xcuserdata/vishnudutt.xcuserdatad/UserInterfaceState.xcuserstate
 JoyfillUIKitExample/JoyfillUIKitExample.xcodeproj/xcuserdata/vikash.xcuserdatad/xcschemes/xcschememanagement.plist
 /.build
-*.json
 /.build
 *.xcbkptlist
