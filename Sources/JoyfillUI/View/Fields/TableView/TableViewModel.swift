@@ -35,9 +35,9 @@ class TableViewModel: ObservableObject {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { cellDataModel in
-                    if let colIndex = self.tableDataModel.columns.firstIndex(of: rowDataModel.id) {
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                                               editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                    if let colIndex = self?.tableDataModel.columns.firstIndex(of: rowDataModel.id) {
+                        self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -64,8 +64,8 @@ class TableViewModel: ObservableObject {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
+                                                   editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                        self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel)
                     }
                     rowCellModels.append(cellModel)
                 }
