@@ -91,6 +91,7 @@ struct CollectionFilterModal: View {
                             Button(action: {
                                 selectedSchemaKey = key
                                 clearAllFilters()
+                                refreshID = UUID()
                             }) {
                                 Text(viewModel.tableDataModel.schema[key]?.title ?? "")
                             }
@@ -145,11 +146,11 @@ struct CollectionFilterModal: View {
                             )
                             .accessibilityIdentifier("AddMoreFilterButtonIdentifier")
                         }
-                        .id(refreshID)
                     }
                     
                     Spacer()
                 }
+                .id(refreshID)
                 .padding(.all, 16)
             }
             .background(colorScheme == .dark ? Color.black : Color.white)
@@ -313,9 +314,10 @@ struct CollectionFilterModal: View {
 
     private func clearAllFilters() {
         // Clear filter models for the selected schema only
-        for i in 0..<collectionFilterModels.count {
-            collectionFilterModels[i].filterText = ""
+        for i in 0..<viewModel.tableDataModel.filterModels.count {
+            viewModel.tableDataModel.filterModels[i].filterText = ""
         }
+        collectionFilterModels = viewModel.tableDataModel.filterModels
         viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels
         selectedSortedColumnID = ""
         totalFiltersCount = 1

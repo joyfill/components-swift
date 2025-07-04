@@ -100,6 +100,7 @@ struct SearchBar: View {
 
                 Button(action: {
                     model.filterText = ""
+                    sortModel.order = .none
                     selectedColumnIndex = Int.min
                 }, label: {
                     Image(systemName: "xmark")
