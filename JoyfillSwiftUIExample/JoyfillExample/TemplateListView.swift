@@ -22,10 +22,12 @@ public struct TemplateListView: View {
     @State private var hasMoreTemplates: Bool = true
     @State private var searchText: String = ""
     var isAlreadyToken: Bool
+    let enableChangelogs: Bool
     let imagePicker = ImagePicker()
     
-    init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool) {
+    init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool, enableChangelogs: Bool = true) {
         self.isAlreadyToken = isAlreadyToken
+        self.enableChangelogs = enableChangelogs
         if isAlreadyToken {
             self.apiService = APIService(accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk",
                                          baseURL: "https://api-joy.joyfill.io/v1")
@@ -71,8 +73,10 @@ public struct TemplateListView: View {
                             ForEach(filteredTemplates) { template in
                                 VStack(alignment: .trailing) {
                                     NavigationLink {
-                                        DocumentSubmissionsListView(apiService: apiService, identifier: template.identifier,
-                                                                    title: String(template.identifier.suffix(8)))
+                                        DocumentSubmissionsListView(apiService: apiService,
+                                                                    identifier: template.identifier,
+                                                                    title: String(template.identifier.suffix(8)),
+                                                                    enableChangelogs: enableChangelogs)
                                     } label: {
                                         HStack {
                                             Image(systemName: "doc")
@@ -82,7 +86,7 @@ public struct TemplateListView: View {
                                     }
                                     
                                     if showNewSubmission {
-                                        NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
+                                        NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager, enableChangelogs: enableChangelogs), isActive: $showNewSubmission)
                                     }
                                     
                                     Button(action: {

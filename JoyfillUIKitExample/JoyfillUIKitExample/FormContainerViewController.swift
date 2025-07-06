@@ -75,7 +75,11 @@ class FormContainerViewController: UIViewController {
 
 class ChangeHandler: FormChangeEvent {
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!.fieldId)
+        if let firstChange = changes.first {
+            print(">>>>>>>>onChange", firstChange.fieldId ?? "")
+        } else {
+            print(">>>>>>>>onChange: no changes")
+        }
     }
 
     func onFocus(event: FieldIdentifier) {

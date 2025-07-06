@@ -27,14 +27,16 @@ struct DocumentSubmissionsListView: View {
     @State private var hasMoreDocuments: Bool = true
     @State private var currentUploadHandler: (([String]) -> Void)?
     let imagePicker = ImagePicker()
+    let enableChangelogs: Bool
 
     let title: String
     private let apiService: APIService
     
-    init(apiService: APIService, identifier: String, title: String) {
+    init(apiService: APIService, identifier: String, title: String, enableChangelogs: Bool = true) {
         self.apiService = apiService
         self.title = title
         self.identifier = identifier
+        self.enableChangelogs = enableChangelogs
     }
     
     var body: some View {
@@ -48,7 +50,7 @@ struct DocumentSubmissionsListView: View {
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
-                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
+                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager, enableChangelogs: enableChangelogs), isActive: $showDocumentDetails)
                 }
                 List {
                     Section(header: Text("Documents")
@@ -311,11 +313,11 @@ class ImagePicker {
                     }
                     
                     guard let image = object as? UIImage,
-                          let imageUrl = self?.saveImageToTemporaryDirectory(image) else {
+                          let imageUrl = self?.saveImageToDocuments(image) else {
                         return
                     }
                     
-                    imageUrls.append(imageUrl.absoluteString)
+                    imageUrls.append(imageUrl)
                 }
             }
             
@@ -324,15 +326,29 @@ class ImagePicker {
             }
         }
         
-        private func saveImageToTemporaryDirectory(_ image: UIImage) -> URL? {
+        private func saveImageToDocuments(_ image: UIImage) -> String? {
             guard let imageData = image.jpegData(compressionQuality: 0.8) else { return nil }
             
+            let fileManager = FileManager.default
+            guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+            let imagesDirectory = documentsDirectory.appendingPathComponent("JoyfillImages", isDirectory: true)
+            
+            // Create directory if it doesn't exist
+            if !fileManager.fileExists(atPath: imagesDirectory.path) {
+                do {
+                    try fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
+                } catch {
+                    print("Error creating directory: \(error)")
+                    return nil
+                }
+            }
+            
             let fileName = UUID().uuidString + ".jpg"
-            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            let fileURL = imagesDirectory.appendingPathComponent(fileName)
             
             do {
                 try imageData.write(to: fileURL)
-                return fileURL
+                return fileURL.absoluteString  // This returns a file:/// URL
             } catch {
                 print("Error saving image: \(error.localizedDescription)")
                 return nil
@@ -351,9 +367,8 @@ class ImagePicker {
             picker.dismiss(animated: true)
 
             if let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
-                // Save image to temporary directory and get URL
-                if let imageUrl = saveImageToTemporaryDirectory(image) {
-                    uploadHandler([imageUrl.absoluteString])
+                if let imageUrl = saveImageToDocuments(image) {
+                    uploadHandler([imageUrl])
                 }
             }
         }
@@ -362,15 +377,29 @@ class ImagePicker {
             picker.dismiss(animated: true)
         }
 
-        private func saveImageToTemporaryDirectory(_ image: UIImage) -> URL? {
+        private func saveImageToDocuments(_ image: UIImage) -> String? {
             guard let imageData = image.jpegData(compressionQuality: 0.8) else { return nil }
-
+            
+            let fileManager = FileManager.default
+            guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+            let imagesDirectory = documentsDirectory.appendingPathComponent("JoyfillImages", isDirectory: true)
+            
+            // Create directory if it doesn't exist
+            if !fileManager.fileExists(atPath: imagesDirectory.path) {
+                do {
+                    try fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
+                } catch {
+                    print("Error creating directory: \(error)")
+                    return nil
+                }
+            }
+            
             let fileName = UUID().uuidString + ".jpg"
-            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-
+            let fileURL = imagesDirectory.appendingPathComponent(fileName)
+            
             do {
                 try imageData.write(to: fileURL)
-                return fileURL
+                return fileURL.absoluteString  // This returns a file:/// URL
             } catch {
                 print("Error saving image: \(error.localizedDescription)")
                 return nil

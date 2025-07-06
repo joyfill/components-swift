@@ -10,7 +10,6 @@ import JoyfillModel
 
 struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
-    private let screenWidth = UIScreen.main.bounds.width
     @ObservedObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
@@ -18,6 +17,7 @@ struct CollectionQuickView : View {
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
     @State private var refreshID = UUID()
+    @State private var isLoadingCollectionView = false
     
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
         self.viewModel = CollectionViewModel(tableDataModel: tableDataModel)
@@ -43,7 +43,7 @@ struct CollectionQuickView : View {
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
                 .frame(maxHeight:
-                        (CGFloat((viewModel.tableDataModel.cellModels.isEmpty ? 2:  viewModel.tableDataModel.cellModels.count)) * rowHeight + rowHeight)
+                        (CGFloat((viewModel.tableDataModel.filteredcellModels.isEmpty ? 2:  viewModel.tableDataModel.filteredcellModels.count)) * rowHeight + rowHeight)
                 )
             }
             .overlay(
@@ -52,21 +52,31 @@ struct CollectionQuickView : View {
             )
             
             Button(action: {
-                isTableModalViewPresented.toggle()
-                eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+                isLoadingCollectionView = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isLoadingCollectionView = false
+                    isTableModalViewPresented = true
+                    eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+                }
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
-                    Text("Collection View")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.blue)
-                    
-                    Image(systemName: "chevron.forward")
-                        .foregroundStyle(.blue)
-                        .font(.system(size: 8, weight: .heavy))
-                        .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
-                    
-                    Text(viewModel.tableDataModel.viewMoreText)
-                        .font(.system(size: 16))
+                    if isLoadingCollectionView {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .frame(height: 20)
+                    } else {
+                        Text("Collection View")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.blue)
+
+                        Image(systemName: "chevron.forward")
+                            .foregroundStyle(.blue)
+                            .font(.system(size: 8, weight: .heavy))
+                            .padding(.horizontal, 4)
+
+                        Text(viewModel.tableDataModel.collectionRowsCount)
+                            .font(.system(size: 16))
+                    }
                 }
                 .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
@@ -77,6 +87,7 @@ struct CollectionQuickView : View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
+            .disabled(isLoadingCollectionView)
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
@@ -89,6 +100,13 @@ struct CollectionQuickView : View {
         .onAppear() {
             refreshID = UUID()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            // Handle orientation changes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                offset = CGPoint.zero // Reset scroll offset on rotation
+                refreshID = UUID() // Force refresh of table
+            }
+        }
     }
     
     var colsHeader: some View {
@@ -98,11 +116,11 @@ struct CollectionQuickView : View {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                         .padding(.horizontal, 4)
                 }
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
+                .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
             }
         }
     }
@@ -128,7 +146,7 @@ struct CollectionQuickView : View {
                                 .foregroundColor(Color.tableCellBorderColor)
                             CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
                         }
-                        .frame(width: (screenWidth / 3) - 8, height: rowHeight)
+                        .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
                     }
                 }
             }
@@ -137,4 +155,3 @@ struct CollectionQuickView : View {
         .disabled(true)
     }
 }
-

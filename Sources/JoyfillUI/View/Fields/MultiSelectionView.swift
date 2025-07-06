@@ -13,7 +13,7 @@ struct MultiSelectionView: View {
         self.eventHandler = eventHandler
         self.multiSelectionDataModel = multiSelectionDataModel
         self.currentFocusedFielsID = currentFocusedFieldsDataId
-        if multiSelectionDataModel.multi ?? true {
+        if multiSelectionDataModel.multi ?? false {
             if let values = multiSelectionDataModel.multiSelector {
                 _multiSelectedOptionArray = State(initialValue: values)
             }
@@ -34,7 +34,7 @@ struct MultiSelectionView: View {
                         let isSelected = multiSelectionDataModel.multiSelector?.first(where: {
                             $0 == options[index].id
                         }) != nil
-                        if multiSelectionDataModel.multi ?? true {
+                        if multiSelectionDataModel.multi ?? false {
                             MultiSelection(option: optionValue,
                                            isSelected: isSelected,
                                            multiSelectedOptionArray: $multiSelectedOptionArray,

@@ -2816,7 +2816,8 @@
                         {
                             "_id": "6805b644fb566d50704a9e2c",
                             "type": "image",
-                            "title": "Image"
+                            "title": "Image",
+                            "multi": true
                         },
                         {
                             "_id": "6805b7796ac9ce35b30e9b7c",
