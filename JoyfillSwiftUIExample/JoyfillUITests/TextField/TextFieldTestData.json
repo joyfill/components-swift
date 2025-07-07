@@ -1,0 +1,94 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686bbffc8e9cdd8c3ceeed2d",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_686bc000238ce635c382fbe7",
+      "value": "test"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686bc007ff08c3beb2e93e99",
+      "type": "textarea",
+      "title": "Multiline Text",
+      "identifier": "field_686bc00ed2ad0abf3233b7d2",
+      "value": "test",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bbffc8e9cdd8c3ceeed2d",
+            "condition": "=",
+            "value": "HELLO"
+          }
+        ]
+      }
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686bc000b6539ca7ff945674",
+              "type": "text",
+              "field": "686bbffc8e9cdd8c3ceeed2d",
+              "displayType": "original",
+              "x": 1,
+              "y": 0,
+              "width": 5,
+              "height": 25
+            },
+            {
+              "_id": "686bc00e68daaaf240bf394c",
+              "type": "textarea",
+              "field": "686bc007ff08c3beb2e93e99",
+              "displayType": "original",
+              "x": 2,
+              "y": 25,
+              "width": 4,
+              "height": 23
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}

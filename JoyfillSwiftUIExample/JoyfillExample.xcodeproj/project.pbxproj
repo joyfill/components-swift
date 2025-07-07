@@ -54,6 +54,7 @@
 		E26130332E0ABC5E0024B2FA /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = E26130322E0ABC5E0024B2FA /* CollectionFilter.json */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
 		E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54652DFADD72006E05E9 /* JoyfillModel */; };
+		E26A6D662E1C00DD00D6B829 /* TextFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E26A6D642E1C00B800D6B829 /* TextFieldTestData.json */; };
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E27E13152E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */; };
@@ -69,6 +70,7 @@
 		E2E38B2D2E1B707000D6EEDE /* UITestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E38B2B2E1B707000D6EEDE /* UITestHelpers.swift */; };
 		E2E38B2F2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E38B2E2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift */; };
 		E2E38B312E1BC41A00D6EEDE /* MultiSelectFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E38B302E1BC41A00D6EEDE /* MultiSelectFieldTestData.json */; };
+		E2E38B3A2E1BF8CA00D6EEDE /* TextFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E38B392E1BF8CA00D6EEDE /* TextFieldUITestCases.swift */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
 		FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAED2BA4C1F300ABD018 /* Joyfill */; };
@@ -138,6 +140,7 @@
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E26130322E0ABC5E0024B2FA /* CollectionFilter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionFilter.json; sourceTree = "<group>"; };
+		E26A6D642E1C00B800D6B829 /* TextFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TextFieldTestData.json; sourceTree = "<group>"; };
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
 		E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldSearchFilterTests.swift; sourceTree = "<group>"; };
@@ -151,6 +154,7 @@
 		E2E38B2B2E1B707000D6EEDE /* UITestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHelpers.swift; sourceTree = "<group>"; };
 		E2E38B2E2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSelectFieldUITestCases.swift; sourceTree = "<group>"; };
 		E2E38B302E1BC41A00D6EEDE /* MultiSelectFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MultiSelectFieldTestData.json; sourceTree = "<group>"; };
+		E2E38B392E1BF8CA00D6EEDE /* TextFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldUITestCases.swift; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
 		FA28C9682BB4356000A2D65C /* SaveButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonView.swift; sourceTree = "<group>"; };
 		FA28C96A2BB4359600A2D65C /* ChangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeManager.swift; sourceTree = "<group>"; };
@@ -220,6 +224,7 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				E2E38B372E1BF88500D6EEDE /* TextField */,
 				E2E38B322E1BDDC000D6EEDE /* MultiSelect */,
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
 				362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */,
@@ -278,6 +283,16 @@
 			);
 			path = MultiSelect;
 			sourceTree = "<group>";
+		};
+		E2E38B372E1BF88500D6EEDE /* TextField */ = {
+			isa = PBXGroup;
+			children = (
+				E26A6D642E1C00B800D6B829 /* TextFieldTestData.json */,
+				E2E38B392E1BF8CA00D6EEDE /* TextFieldUITestCases.swift */,
+			);
+			name = TextField;
+			path = JoyfillUITests/TextField;
+			sourceTree = SOURCE_ROOT;
 		};
 		FA529C412BA1D251000200F5 = {
 			isa = PBXGroup;
@@ -507,6 +522,7 @@
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
 				045B41842D19BD8500F3D6C1 /* TableNewColumns.json in Resources */,
+				E26A6D662E1C00DD00D6B829 /* TextFieldTestData.json in Resources */,
 				E26130332E0ABC5E0024B2FA /* CollectionFilter.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -533,6 +549,7 @@
 				1338AB962BEE38DD0001C203 /* TableFieldTests.swift in Sources */,
 				1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */,
 				133EBABB2BF48804009B73AB /* SignatureFieldTests.swift in Sources */,
+				E2E38B3A2E1BF8CA00D6EEDE /* TextFieldUITestCases.swift in Sources */,
 				13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */,
 				362A56112BEE36CE00B54C14 /* DateTimeFieldTests.swift in Sources */,
 				362A560F2BEE359400B54C14 /* ChartFieldTests.swift in Sources */,
