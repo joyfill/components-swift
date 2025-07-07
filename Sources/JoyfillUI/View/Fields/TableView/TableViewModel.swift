@@ -323,6 +323,13 @@ class TableViewModel: ObservableObject {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         }
         
+        // Fire row update event
+        tableDataModel.documentEditor?.rowUpdateEvent(
+            fieldIdentifier: tableDataModel.fieldIdentifier,
+            rowID: rowId
+        )
+        
+        // Update form data
         return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldId: tableDataModel.fieldIdentifier.fieldID) ?? []
     }
 
