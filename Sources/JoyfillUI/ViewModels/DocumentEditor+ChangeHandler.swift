@@ -250,6 +250,19 @@ extension DocumentEditor {
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
     
+    public func rowUpdateEvent(fieldIdentifier: FieldIdentifier, rowID: String) {
+        let fieldId = fieldIdentifier.fieldID
+        guard var rowOrder = fieldMap[fieldId]?.rowOrder else {
+            return
+        }
+        guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
+            Log("Row index not found: \(rowID)", type: .error)
+            return
+        }
+        
+        fireEventOnRowUpdate(fieldIdentifier: fieldIdentifier, rowID: rowID, rowIndex: rowIndex)
+    }
+    
     public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
@@ -962,6 +975,28 @@ extension DocumentEditor {
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
+    }
+    
+    private func fireEventOnRowUpdate(fieldIdentifier: FieldIdentifier, rowID: String, rowIndex: Int) {
+        guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
+        
+        var change = Change(v: 1,
+                            sdk: "swift",
+                            target: "field.value.rowUpdate",
+                            _id: context.documentID,
+                            identifier: context.documentIdentifier,
+                            fileId: context.fileID,
+                            pageId: context.pageID,
+                            fieldId: fieldIdentifier.fieldID,
+                            fieldIdentifier: context.fieldIdentifier,
+                            fieldPositionId: context.fieldPositionID,
+                            change: [
+                                "rowId": rowID,
+                                "targetRowIndex": rowIndex,
+                            ],
+                            createdOn: Date().timeIntervalSince1970)
+        
+        events?.onChange(changes: [change], document: document)
     }
     
     private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {
