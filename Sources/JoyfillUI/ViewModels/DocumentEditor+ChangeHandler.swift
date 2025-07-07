@@ -260,7 +260,7 @@ extension DocumentEditor {
             return
         }
         
-        fireEventOnRowUpdate(fieldIdentifier: fieldIdentifier, rowID: rowID, rowIndex: rowIndex)
+        sendRowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowID, rowIndex: rowIndex)
     }
     
     public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
@@ -977,7 +977,7 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
-    private func fireEventOnRowUpdate(fieldIdentifier: FieldIdentifier, rowID: String, rowIndex: Int) {
+    private func sendRowUpdateEvent(fieldIdentifier: FieldIdentifier, rowID: String, rowIndex: Int) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         var change = Change(v: 1,
