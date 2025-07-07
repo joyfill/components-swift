@@ -258,7 +258,7 @@ struct CollectionExpanderView: View {
                 .accessibilityIdentifier("collectionSchemaAddRowButton")
             }
             let rowID = parentID.rowID
-            let children = viewModel.getChildren(forRowId: rowID, in: viewModel.tableDataModel.valueToValueElements ?? [])
+            let children = viewModel.rowToValueElementMap[rowID]?.childrens
 
             let schemaID = schemaValue?.0 ?? ""
             let childValueElements = children?[schemaID]?.valueToValueElements
