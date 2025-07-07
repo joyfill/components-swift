@@ -1,0 +1,1432 @@
+{
+  "_id": "6862c0a88790e36e807614b6",
+  "identifier": "doc_6862c0a88790e36e807614b6",
+  "name": "Arithmetic Operators",
+  "files": [
+    {
+      "_id": "6862c0a8c6527ade308d20ed",
+      "name": "Arithmetic Operators",
+      "pageOrder": [
+        "6862c0a8c657275515c79965"
+      ],
+      "pages": [
+        {
+          "_id": "6862c0a8c657275515c79965",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "fp_number1",
+              "type": "number",
+              "field": "number1",
+              "displayType": "original",
+              "x": 1,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number2",
+              "type": "number",
+              "field": "number2",
+              "displayType": "original",
+              "x": 1,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number3",
+              "type": "number",
+              "field": "number3",
+              "displayType": "original",
+              "x": 1,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number4",
+              "type": "number",
+              "field": "number4",
+              "displayType": "original",
+              "x": 1,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number5",
+              "type": "number",
+              "field": "number5",
+              "displayType": "original",
+              "x": 1,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number6",
+              "type": "number",
+              "field": "number6",
+              "displayType": "original",
+              "x": 1,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number7",
+              "type": "number",
+              "field": "number7",
+              "displayType": "original",
+              "x": 1,
+              "y": 48,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number8",
+              "type": "number",
+              "field": "number8",
+              "displayType": "original",
+              "x": 1,
+              "y": 56,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number9",
+              "type": "number",
+              "field": "number9",
+              "displayType": "original",
+              "x": 1,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number10",
+              "type": "number",
+              "field": "number10",
+              "displayType": "original",
+              "x": 1,
+              "y": 72,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number11",
+              "type": "number",
+              "field": "number11",
+              "displayType": "original",
+              "x": 1,
+              "y": 80,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number12",
+              "type": "number",
+              "field": "number12",
+              "displayType": "original",
+              "x": 1,
+              "y": 88,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number13",
+              "type": "number",
+              "field": "number13",
+              "displayType": "original",
+              "x": 1,
+              "y": 96,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number14",
+              "type": "number",
+              "field": "number14",
+              "displayType": "original",
+              "x": 1,
+              "y": 104,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number15",
+              "type": "number",
+              "field": "number15",
+              "displayType": "original",
+              "x": 1,
+              "y": 112,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number16",
+              "type": "number",
+              "field": "number16",
+              "displayType": "original",
+              "x": 1,
+              "y": 120,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number17",
+              "type": "number",
+              "field": "number17",
+              "displayType": "original",
+              "x": 1,
+              "y": 128,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number18",
+              "type": "number",
+              "field": "number18",
+              "displayType": "original",
+              "x": 1,
+              "y": 136,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number19",
+              "type": "number",
+              "field": "number19",
+              "displayType": "original",
+              "x": 1,
+              "y": 144,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number20",
+              "type": "number",
+              "field": "number20",
+              "displayType": "original",
+              "x": 1,
+              "y": 152,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number21",
+              "type": "number",
+              "field": "number21",
+              "displayType": "original",
+              "x": 1,
+              "y": 160,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number22",
+              "type": "number",
+              "field": "number22",
+              "displayType": "original",
+              "x": 1,
+              "y": 168,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number23",
+              "type": "number",
+              "field": "number23",
+              "displayType": "original",
+              "x": 1,
+              "y": 176,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number24",
+              "type": "number",
+              "field": "number24",
+              "displayType": "original",
+              "x": 1,
+              "y": 184,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number25",
+              "type": "number",
+              "field": "number25",
+              "displayType": "original",
+              "x": 1,
+              "y": 192,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number26",
+              "type": "number",
+              "field": "number26",
+              "displayType": "original",
+              "x": 1,
+              "y": 200,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number27",
+              "type": "number",
+              "field": "number27",
+              "displayType": "original",
+              "x": 1,
+              "y": 208,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number28",
+              "type": "number",
+              "field": "number28",
+              "displayType": "original",
+              "x": 1,
+              "y": 216,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number29",
+              "type": "number",
+              "field": "number29",
+              "displayType": "original",
+              "x": 1,
+              "y": 224,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number30",
+              "type": "number",
+              "field": "number30",
+              "displayType": "original",
+              "x": 1,
+              "y": 232,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number31",
+              "type": "number",
+              "field": "number31",
+              "displayType": "original",
+              "x": 1,
+              "y": 240,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number32",
+              "type": "number",
+              "field": "number32",
+              "displayType": "original",
+              "x": 1,
+              "y": 248,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number33",
+              "type": "number",
+              "field": "number33",
+              "displayType": "original",
+              "x": 1,
+              "y": 256,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number34",
+              "type": "number",
+              "field": "number34",
+              "displayType": "original",
+              "x": 1,
+              "y": 264,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number35",
+              "type": "number",
+              "field": "number35",
+              "displayType": "original",
+              "x": 1,
+              "y": 272,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number36",
+              "type": "number",
+              "field": "number36",
+              "displayType": "original",
+              "x": 1,
+              "y": 280,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number37",
+              "type": "number",
+              "field": "number37",
+              "displayType": "original",
+              "x": 1,
+              "y": 288,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number38",
+              "type": "number",
+              "field": "number38",
+              "displayType": "original",
+              "x": 1,
+              "y": 296,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number39",
+              "type": "number",
+              "field": "number39",
+              "displayType": "original",
+              "x": 1,
+              "y": 304,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number40",
+              "type": "number",
+              "field": "number40",
+              "displayType": "original",
+              "x": 1,
+              "y": 312,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number41",
+              "type": "number",
+              "field": "number41",
+              "displayType": "original",
+              "x": 1,
+              "y": 320,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number42",
+              "type": "number",
+              "field": "number42",
+              "displayType": "original",
+              "x": 1,
+              "y": 328,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number43",
+              "type": "number",
+              "field": "number43",
+              "displayType": "original",
+              "x": 1,
+              "y": 336,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number44",
+              "type": "number",
+              "field": "number44",
+              "displayType": "original",
+              "x": 1,
+              "y": 344,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number45",
+              "type": "number",
+              "field": "number45",
+              "displayType": "original",
+              "x": 1,
+              "y": 352,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "fields": [
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number1",
+      "type": "number",
+      "title": "Adding two integers",
+      "identifier": "field_number1",
+      "formulas": [
+        {
+          "_id": "addingTwoIntegers",
+          "formula": "addingTwoIntegers",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number2",
+      "type": "number",
+      "title": "Adding zero",
+      "identifier": "field_number2",
+      "formulas": [
+        {
+          "_id": "addingZero",
+          "formula": "addingZero",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number3",
+      "type": "number",
+      "title": "Negative and positive",
+      "identifier": "field_number3",
+      "formulas": [
+        {
+          "_id": "negativeAndPositive",
+          "formula": "negativeAndPositive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number4",
+      "type": "number",
+      "title": "Decimal addition",
+      "identifier": "field_number4",
+      "formulas": [
+        {
+          "_id": "decimalAddition",
+          "formula": "decimalAddition",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number5",
+      "type": "number",
+      "title": "Negative plus positive",
+      "identifier": "field_number5",
+      "formulas": [
+        {
+          "_id": "negativePlusPositive",
+          "formula": "negativePlusPositive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number6",
+      "type": "number",
+      "title": "Positive plus negative (explicit)",
+      "identifier": "field_number6",
+      "formulas": [
+        {
+          "_id": "positivePlusNegativeExplicit",
+          "formula": "positivePlusNegativeExplicit",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number7",
+      "type": "number",
+      "title": "Sum of two negative numbers",
+      "identifier": "field_number7",
+      "formulas": [
+        {
+          "_id": "sumOfTwoNegativeNumbers",
+          "formula": "sumOfTwoNegativeNumbers",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number8",
+      "type": "number",
+      "title": "Zero plus negative",
+      "identifier": "field_number8",
+      "formulas": [
+        {
+          "_id": "zeroPlusNegative",
+          "formula": "zeroPlusNegative",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number9",
+      "type": "number",
+      "title": "Basic subtraction",
+      "identifier": "field_number9",
+      "formulas": [
+        {
+          "_id": "basicSubtraction",
+          "formula": "basicSubtraction",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number10",
+      "type": "number",
+      "title": "Subtracting from zero",
+      "identifier": "field_number10",
+      "formulas": [
+        {
+          "_id": "subtractingFromZero",
+          "formula": "subtractingFromZero",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number11",
+      "type": "number",
+      "title": "Subtracting from a negative number",
+      "identifier": "field_number11",
+      "formulas": [
+        {
+          "_id": "subtractingFromANegativeNumber",
+          "formula": "subtractingFromANegativeNumber",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number12",
+      "type": "number",
+      "title": "Decimal subtraction",
+      "identifier": "field_number12",
+      "formulas": [
+        {
+          "_id": "decimalSubtraction",
+          "formula": "decimalSubtraction",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number13",
+      "type": "number",
+      "title": "Subtracting a negative (becomes addition)",
+      "identifier": "field_number13",
+      "formulas": [
+        {
+          "_id": "subtractingANegativeBecomesAddition",
+          "formula": "subtractingANegativeBecomesAddition",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number14",
+      "type": "number",
+      "title": "Negative minus positive",
+      "identifier": "field_number14",
+      "formulas": [
+        {
+          "_id": "negativeMinusPositive",
+          "formula": "negativeMinusPositive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number15",
+      "type": "number",
+      "title": "Negative minus negative",
+      "identifier": "field_number15",
+      "formulas": [
+        {
+          "_id": "negativeMinusNegative",
+          "formula": "negativeMinusNegative",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number16",
+      "type": "number",
+      "title": "Zero minus negative",
+      "identifier": "field_number16",
+      "formulas": [
+        {
+          "_id": "zeroMinusNegative",
+          "formula": "zeroMinusNegative",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number17",
+      "type": "number",
+      "title": "Basic multiplication",
+      "identifier": "field_number17",
+      "formulas": [
+        {
+          "_id": "basicMultiplication",
+          "formula": "basicMultiplication",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number18",
+      "type": "number",
+      "title": "Multiplying by zero",
+      "identifier": "field_number18",
+      "formulas": [
+        {
+          "_id": "multiplyingByZero",
+          "formula": "multiplyingByZero",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number19",
+      "type": "number",
+      "title": "Negative times positive",
+      "identifier": "field_number19",
+      "formulas": [
+        {
+          "_id": "negativeTimesPositive",
+          "formula": "negativeTimesPositive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number20",
+      "type": "number",
+      "title": "Decimal multiplication",
+      "identifier": "field_number20",
+      "formulas": [
+        {
+          "_id": "decimalMultiplication",
+          "formula": "decimalMultiplication",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number21",
+      "type": "number",
+      "title": "Negative times positive",
+      "identifier": "field_number21",
+      "formulas": [
+        {
+          "_id": "negativeTimesPositive1",
+          "formula": "negativeTimesPositive1",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number22",
+      "type": "number",
+      "title": "Positive times negative",
+      "identifier": "field_number22",
+      "formulas": [
+        {
+          "_id": "positiveTimesNegative",
+          "formula": "positiveTimesNegative",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number23",
+      "type": "number",
+      "title": "Negative times negative (produces positive)",
+      "identifier": "field_number23",
+      "formulas": [
+        {
+          "_id": "negativeTimesNegativeProducesPositive",
+          "formula": "negativeTimesNegativeProducesPositive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number24",
+      "type": "number",
+      "title": "Multiplication by zero with a negative",
+      "identifier": "field_number24",
+      "formulas": [
+        {
+          "_id": "multiplicationByZeroWithANegative",
+          "formula": "multiplicationByZeroWithANegative",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number25",
+      "type": "number",
+      "title": "Even division",
+      "identifier": "field_number25",
+      "formulas": [
+        {
+          "_id": "evenDivision",
+          "formula": "evenDivision",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number26",
+      "type": "number",
+      "title": "Clean integer result",
+      "identifier": "field_number26",
+      "formulas": [
+        {
+          "_id": "cleanIntegerResult",
+          "formula": "cleanIntegerResult",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number27",
+      "type": "number",
+      "title": "Division with decimal result",
+      "identifier": "field_number27",
+      "formulas": [
+        {
+          "_id": "divisionWithDecimalResult",
+          "formula": "divisionWithDecimalResult",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number28",
+      "type": "number",
+      "title": "Division by zero",
+      "identifier": "field_number28",
+      "formulas": [
+        {
+          "_id": "divisionByZero",
+          "formula": "divisionByZero",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number29",
+      "type": "number",
+      "title": "Negative dividend, positive divisor",
+      "identifier": "field_number29",
+      "formulas": [
+        {
+          "_id": "negativeDividendPositiveDivisor",
+          "formula": "negativeDividendPositiveDivisor",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number30",
+      "type": "number",
+      "title": "Positive dividend, negative divisor",
+      "identifier": "field_number30",
+      "formulas": [
+        {
+          "_id": "positiveDividendNegativeDivisor",
+          "formula": "positiveDividendNegativeDivisor",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number31",
+      "type": "number",
+      "title": "Negative divided by negative (positive result)",
+      "identifier": "field_number31",
+      "formulas": [
+        {
+          "_id": "negativeDividedByNegativePositiveResult",
+          "formula": "negativeDividedByNegativePositiveResult",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number32",
+      "type": "number",
+      "title": "Zero divided by negative number",
+      "identifier": "field_number32",
+      "formulas": [
+        {
+          "_id": "zeroDividedByNegativeNumber",
+          "formula": "zeroDividedByNegativeNumber",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number33",
+      "type": "number",
+      "title": "Mix of negative addition and multiplication",
+      "identifier": "field_number33",
+      "formulas": [
+        {
+          "_id": "mixOfNegativeAdditionAndMultiplication",
+          "formula": "mixOfNegativeAdditionAndMultiplication",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number34",
+      "type": "number",
+      "title": "Negative grouping and multiplication",
+      "identifier": "field_number34",
+      "formulas": [
+        {
+          "_id": "negativeGroupingAndMultiplication",
+          "formula": "negativeGroupingAndMultiplication",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number35",
+      "type": "number",
+      "title": "Subtraction and multiplication w/ negation",
+      "identifier": "field_number35",
+      "formulas": [
+        {
+          "_id": "subtractionAndMultiplicationWNegation",
+          "formula": "subtractionAndMultiplicationWNegation",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number36",
+      "type": "number",
+      "title": "Division of a negative sum",
+      "identifier": "field_number36",
+      "formulas": [
+        {
+          "_id": "divisionOfANegativeSum",
+          "formula": "divisionOfANegativeSum",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number37",
+      "type": "number",
+      "title": "Multiplication before addition (operator precedence)",
+      "identifier": "field_number37",
+      "formulas": [
+        {
+          "_id": "multiplicationBeforeAdditionOperatorPrecedence",
+          "formula": "multiplicationBeforeAdditionOperatorPrecedence",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number38",
+      "type": "number",
+      "title": "Parentheses override precedence",
+      "identifier": "field_number38",
+      "formulas": [
+        {
+          "_id": "parenthesesOverridePrecedence",
+          "formula": "parenthesesOverridePrecedence",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number39",
+      "type": "number",
+      "title": "Division before subtraction",
+      "identifier": "field_number39",
+      "formulas": [
+        {
+          "_id": "divisionBeforeSubtraction",
+          "formula": "divisionBeforeSubtraction",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number40",
+      "type": "number",
+      "title": "Parentheses affect order",
+      "identifier": "field_number40",
+      "formulas": [
+        {
+          "_id": "parenthesesAffectOrder",
+          "formula": "parenthesesAffectOrder",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number41",
+      "type": "number",
+      "title": "Multiply results of two grouped expressions",
+      "identifier": "field_number41",
+      "formulas": [
+        {
+          "_id": "multiplyResultsOfTwoGroupedExpressions",
+          "formula": "multiplyResultsOfTwoGroupedExpressions",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number42",
+      "type": "number",
+      "title": "Nested operations with multiple steps",
+      "identifier": "field_number42",
+      "formulas": [
+        {
+          "_id": "nestedOperationsWithMultipleSteps",
+          "formula": "nestedOperationsWithMultipleSteps",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number43",
+      "type": "number",
+      "title": "Division with inner grouping",
+      "identifier": "field_number43",
+      "formulas": [
+        {
+          "_id": "divisionWithInnerGrouping",
+          "formula": "divisionWithInnerGrouping",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number44",
+      "type": "number",
+      "title": "Combines all operators with proper grouping",
+      "identifier": "field_number44",
+      "formulas": [
+        {
+          "_id": "combinesAllOperatorsWithProperGrouping",
+          "formula": "combinesAllOperatorsWithProperGrouping",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6862c0a8c6527ade308d20ed",
+      "_id": "number45",
+      "type": "number",
+      "title": "Deeply nested expression testing full order of operations",
+      "identifier": "field_number45",
+      "formulas": [
+        {
+          "_id": "deeplyNestedExpressionTestingFullOrderOfOperations",
+          "formula": "deeplyNestedExpressionTestingFullOrderOfOperations",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "addingTwoIntegers",
+      "desc": "Adding two integers",
+      "type": "calc",
+      "scope": "private",
+      "expression": "5 + 3"
+    },
+    {
+      "_id": "addingZero",
+      "desc": "Adding zero",
+      "type": "calc",
+      "scope": "private",
+      "expression": "0 + 10"
+    },
+    {
+      "_id": "negativeAndPositive",
+      "desc": "Negative and positive",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-4 + 6"
+    },
+    {
+      "_id": "decimalAddition",
+      "desc": "Decimal addition",
+      "type": "calc",
+      "scope": "private",
+      "expression": "2.5 + 4.1"
+    },
+    {
+      "_id": "negativePlusPositive",
+      "desc": "Negative plus positive",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-5 + 3"
+    },
+    {
+      "_id": "positivePlusNegativeExplicit",
+      "desc": "Positive plus negative (explicit)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "4 + (-6)"
+    },
+    {
+      "_id": "sumOfTwoNegativeNumbers",
+      "desc": "Sum of two negative numbers",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-4 + (-3)"
+    },
+    {
+      "_id": "zeroPlusNegative",
+      "desc": "Zero plus negative",
+      "type": "calc",
+      "scope": "private",
+      "expression": "0 + (-7)"
+    },
+    {
+      "_id": "basicSubtraction",
+      "desc": "Basic subtraction",
+      "type": "calc",
+      "scope": "private",
+      "expression": "9 - 4"
+    },
+    {
+      "_id": "subtractingFromZero",
+      "desc": "Subtracting from zero",
+      "type": "calc",
+      "scope": "private",
+      "expression": "0 - 7"
+    },
+    {
+      "_id": "subtractingFromANegativeNumber",
+      "desc": "Subtracting from a negative number",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-3 - 2"
+    },
+    {
+      "_id": "decimalSubtraction",
+      "desc": "Decimal subtraction",
+      "type": "calc",
+      "scope": "private",
+      "expression": "5.0 - 2.2"
+    },
+    {
+      "_id": "subtractingANegativeBecomesAddition",
+      "desc": "Subtracting a negative (becomes addition)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "5 - (-3)"
+    },
+    {
+      "_id": "negativeMinusPositive",
+      "desc": "Negative minus positive",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-5 - 3"
+    },
+    {
+      "_id": "negativeMinusNegative",
+      "desc": "Negative minus negative",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-7 - (-2)"
+    },
+    {
+      "_id": "zeroMinusNegative",
+      "desc": "Zero minus negative",
+      "type": "calc",
+      "scope": "private",
+      "expression": "0 - (-4)"
+    },
+    {
+      "_id": "basicMultiplication",
+      "desc": "Basic multiplication",
+      "type": "calc",
+      "scope": "private",
+      "expression": "3 * 4"
+    },
+    {
+      "_id": "multiplyingByZero",
+      "desc": "Multiplying by zero",
+      "type": "calc",
+      "scope": "private",
+      "expression": "0 * 9"
+    },
+    {
+      "_id": "negativeTimesPositive",
+      "desc": "Negative times positive",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-2 * 5"
+    },
+    {
+      "_id": "decimalMultiplication",
+      "desc": "Decimal multiplication",
+      "type": "calc",
+      "scope": "private",
+      "expression": "1.5 * 2"
+    },
+    {
+      "_id": "negativeTimesPositive1",
+      "desc": "Negative times positive",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-4 * 2"
+    },
+    {
+      "_id": "positiveTimesNegative",
+      "desc": "Positive times negative",
+      "type": "calc",
+      "scope": "private",
+      "expression": "3 * (-5)"
+    },
+    {
+      "_id": "negativeTimesNegativeProducesPositive",
+      "desc": "Negative times negative (produces positive)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-3 * (-6)"
+    },
+    {
+      "_id": "multiplicationByZeroWithANegative",
+      "desc": "Multiplication by zero with a negative",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-7 * 0"
+    },
+    {
+      "_id": "evenDivision",
+      "desc": "Even division",
+      "type": "calc",
+      "scope": "private",
+      "expression": "10 / 2"
+    },
+    {
+      "_id": "cleanIntegerResult",
+      "desc": "Clean integer result",
+      "type": "calc",
+      "scope": "private",
+      "expression": "9 / 3"
+    },
+    {
+      "_id": "divisionWithDecimalResult",
+      "desc": "Division with decimal result",
+      "type": "calc",
+      "scope": "private",
+      "expression": "7 / 2"
+    },
+    {
+      "_id": "divisionByZero",
+      "desc": "Division by zero",
+      "type": "calc",
+      "scope": "private",
+      "expression": "5 / 0"
+    },
+    {
+      "_id": "negativeDividendPositiveDivisor",
+      "desc": "Negative dividend, positive divisor",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-10 / 2"
+    },
+    {
+      "_id": "positiveDividendNegativeDivisor",
+      "desc": "Positive dividend, negative divisor",
+      "type": "calc",
+      "scope": "private",
+      "expression": "10 / (-2)"
+    },
+    {
+      "_id": "negativeDividedByNegativePositiveResult",
+      "desc": "Negative divided by negative (positive result)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-12 / (-3)"
+    },
+    {
+      "_id": "zeroDividedByNegativeNumber",
+      "desc": "Zero divided by negative number",
+      "type": "calc",
+      "scope": "private",
+      "expression": "0 / (-4)"
+    },
+    {
+      "_id": "mixOfNegativeAdditionAndMultiplication",
+      "desc": "Mix of negative addition and multiplication",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-3 + 5 * -2"
+    },
+    {
+      "_id": "negativeGroupingAndMultiplication",
+      "desc": "Negative grouping and multiplication",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(-4 + 2) * (-3)"
+    },
+    {
+      "_id": "subtractionAndMultiplicationWNegation",
+      "desc": "Subtraction and multiplication w/ negation",
+      "type": "calc",
+      "scope": "private",
+      "expression": "-10 - (-5) * 2"
+    },
+    {
+      "_id": "divisionOfANegativeSum",
+      "desc": "Division of a negative sum",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(-12 + 4) / -2"
+    },
+    {
+      "_id": "multiplicationBeforeAdditionOperatorPrecedence",
+      "desc": "Multiplication before addition (operator precedence)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "2 + 3 * 4"
+    },
+    {
+      "_id": "parenthesesOverridePrecedence",
+      "desc": "Parentheses override precedence",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(2 + 3) * 4"
+    },
+    {
+      "_id": "divisionBeforeSubtraction",
+      "desc": "Division before subtraction",
+      "type": "calc",
+      "scope": "private",
+      "expression": "10 - 6 / 2"
+    },
+    {
+      "_id": "parenthesesAffectOrder",
+      "desc": "Parentheses affect order",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(10 - 6) / 2"
+    },
+    {
+      "_id": "multiplyResultsOfTwoGroupedExpressions",
+      "desc": "Multiply results of two grouped expressions",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(5 + 3) * (2 - 1)"
+    },
+    {
+      "_id": "nestedOperationsWithMultipleSteps",
+      "desc": "Nested operations with multiple steps",
+      "type": "calc",
+      "scope": "private",
+      "expression": "((4 + 2) * 3) - 5"
+    },
+    {
+      "_id": "divisionWithInnerGrouping",
+      "desc": "Division with inner grouping",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(12 / (2 + 4)) + 1"
+    },
+    {
+      "_id": "combinesAllOperatorsWithProperGrouping",
+      "desc": "Combines all operators with proper grouping",
+      "type": "calc",
+      "scope": "private",
+      "expression": "((8 + 2) * 3 - 4) / 2"
+    },
+    {
+      "_id": "deeplyNestedExpressionTestingFullOrderOfOperations",
+      "desc": "Deeply nested expression testing full order of operations",
+      "type": "calc",
+      "scope": "private",
+      "expression": "7 + 3 * (10 / (12 / (3 + 1) - 1))"
+    }
+  ]
+}

@@ -29,6 +29,10 @@
 		13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */; };
 		13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
 		13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */; };
+		36006C052E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */; };
+		36006C092E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
+		36006C0A2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
+		36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		360BC7F62C3E88E500735516 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F52C3E88E500735516 /* JoyfillAPIService */; };
 		360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F82C3E896D00735516 /* JoyfillModel */; };
 		361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361164D92DD70625003DEB4F /* WisdomTests.swift */; };
@@ -186,6 +190,8 @@
 		13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalLogicTests.swift; sourceTree = "<group>"; };
 		13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditinalPageLogicTests.swift; sourceTree = "<group>"; };
 		13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestFormContainerView.swift; sourceTree = "<group>"; };
+		36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ArithmeticTests.swift; sourceTree = "<group>"; };
+		36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_Arithmetic.json; sourceTree = "<group>"; };
 		3607877F2BE900C400D9A187 /* JoyfillUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillUITests.xctestplan; sourceTree = "<group>"; };
 		360787802BE911C400D9A187 /* JoyfillExample.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillExample.xctestplan; sourceTree = "<group>"; };
 		361164D92DD70625003DEB4F /* WisdomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WisdomTests.swift; sourceTree = "<group>"; };
@@ -335,6 +341,7 @@
 				361164D92DD70625003DEB4F /* WisdomTests.swift */,
 				36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */,
 				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
+				36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */,
 				3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */,
 				369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */,
 				369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */,
@@ -375,6 +382,7 @@
 				369D45632E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json */,
 				369D45642E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json */,
 				369D45652E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json */,
+				36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */,
 				369D45662E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json */,
 			);
 			path = Resolver;
@@ -631,6 +639,7 @@
 				369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				369D454C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
+				36006C092E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -656,6 +665,7 @@
 				369D45392E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D453B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				369D453C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
+				36006C0A2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -671,6 +681,7 @@
 				369D45262E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
 				369D45272E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
 				369D45282E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
+				36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D45712E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D45722E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				369D45732E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
@@ -724,6 +735,7 @@
 				369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
 				E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
+				36006C052E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift in Sources */,
 				361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */,
 				1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */,
 				0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */,
