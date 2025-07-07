@@ -66,6 +66,9 @@
 		E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */; };
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
+		E2E38B2D2E1B707000D6EEDE /* UITestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E38B2B2E1B707000D6EEDE /* UITestHelpers.swift */; };
+		E2E38B2F2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E38B2E2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift */; };
+		E2E38B312E1BC41A00D6EEDE /* MultiSelectFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E38B302E1BC41A00D6EEDE /* MultiSelectFieldTestData.json */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
 		FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAED2BA4C1F300ABD018 /* Joyfill */; };
@@ -145,6 +148,9 @@
 		E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
 		E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSearchView.swift; sourceTree = "<group>"; };
+		E2E38B2B2E1B707000D6EEDE /* UITestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHelpers.swift; sourceTree = "<group>"; };
+		E2E38B2E2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiSelectFieldUITestCases.swift; sourceTree = "<group>"; };
+		E2E38B302E1BC41A00D6EEDE /* MultiSelectFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MultiSelectFieldTestData.json; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
 		FA28C9682BB4356000A2D65C /* SaveButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonView.swift; sourceTree = "<group>"; };
 		FA28C96A2BB4359600A2D65C /* ChangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeManager.swift; sourceTree = "<group>"; };
@@ -214,11 +220,13 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				E2E38B322E1BDDC000D6EEDE /* MultiSelect */,
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
 				362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */,
 				362A560A2BEE2EE600B54C14 /* ImageFieldTests.swift */,
 				133EBABA2BF48804009B73AB /* SignatureFieldTests.swift */,
 				362A560E2BEE359400B54C14 /* ChartFieldTests.swift */,
+				E2E38B2C2E1B707000D6EEDE /* Helper */,
 				E2A684382DCA40D100385FE1 /* CollectionFieldTests.swift */,
 				E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */,
 				1338AB952BEE38DD0001C203 /* TableFieldTests.swift */,
@@ -252,6 +260,23 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E2E38B2C2E1B707000D6EEDE /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				E2E38B2B2E1B707000D6EEDE /* UITestHelpers.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		E2E38B322E1BDDC000D6EEDE /* MultiSelect */ = {
+			isa = PBXGroup;
+			children = (
+				E2E38B302E1BC41A00D6EEDE /* MultiSelectFieldTestData.json */,
+				E2E38B2E2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift */,
+			);
+			path = MultiSelect;
 			sourceTree = "<group>";
 		};
 		FA529C412BA1D251000200F5 = {
@@ -477,6 +502,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2E38B312E1BC41A00D6EEDE /* MultiSelectFieldTestData.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
@@ -499,6 +525,8 @@
 				04814A062CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift in Sources */,
 				04814A072CDA912F0061FBDC /* SelectionFieldLogicTests.swift in Sources */,
 				13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */,
+				E2E38B2F2E1B9D1C00D6EEDE /* MultiSelectFieldUITestCases.swift in Sources */,
+				E2E38B2D2E1B707000D6EEDE /* UITestHelpers.swift in Sources */,
 				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
 				362A560B2BEE2EE600B54C14 /* ImageFieldTests.swift in Sources */,
 				E2A684392DCA40D100385FE1 /* CollectionFieldTests.swift in Sources */,
