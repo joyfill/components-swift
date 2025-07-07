@@ -701,14 +701,20 @@ extension DocumentEditor {
     }
 
 
-    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldId: String) -> [ValueElement] {
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+        
+        guard let fieldId = fieldIdentifier.fileID,
+              var elements = field(fieldID: fieldId)?.valueToValueElements
+        else {
             return []
         }
-
+        
         guard let rowIndex = elements.firstIndex(where: { $0.id == rowId }) else {
             return []
         }
+        
+        // Fire row update event
+        rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId)
 
         switch cellDataModel.type {
         case .text:
