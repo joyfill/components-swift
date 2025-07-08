@@ -180,7 +180,7 @@ struct ImageView: View {
     }
     
     func uploadAction() {
-        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, multi: isMultiEnabled) { urls in
+        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, multi: isMultiEnabled, uploadHandler: { urls in
             var urlsToProcess: [String] = []
             if !isMultiEnabled {
                 if let firstURL = urls.first {
@@ -191,7 +191,7 @@ struct ImageView: View {
             } else {
                 urlsToProcess = urls
             }
-            
+
             for imageURL in urlsToProcess {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
@@ -200,7 +200,7 @@ struct ImageView: View {
                     let valueElement = valueElements.first { valueElement in
                         valueElement.url == imageURL
                     } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-                    
+
                     if let image = image {
                         self.imageDictionary[valueElement] = image
                         valueElements.append(valueElement)
@@ -214,7 +214,7 @@ struct ImageView: View {
                     }
                 })
             }
-        }
+        })
         eventHandler.onUpload(event: uploadEvent)
     }
 }

@@ -89,6 +89,12 @@ public class DocumentEditor: ObservableObject {
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
     }
+
+    public func change(changes: [Change]) {
+        // TODO:
+        // 1. Update JSON
+        // 2. Update UI
+    }
 }
 
 fileprivate extension JoyDoc {
