@@ -27,8 +27,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         return "CollectionFilter"
     }
     
-    func goToCollectionDetailField() {
-        navigateToCollection()
+    func goToCollectionDetailField(index: Int = 0) {
+        navigateToCollection(index: index)
         sleep(1)
     }
     
@@ -38,9 +38,9 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
     }
     
-    func navigateToCollection() {
+    func navigateToCollection(index: Int) {
         let goToTableDetailView = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
-        let tapOnSecondTableView = goToTableDetailView.element(boundBy: 0)
+        let tapOnSecondTableView = goToTableDetailView.element(boundBy: index)
         tapOnSecondTableView.tap()
     }
     
@@ -248,6 +248,69 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         selectMultiSelectOption(option)
         
         tapApplyButton()
+    }
+    
+    func getFieldPositionsCountFromLabel() -> Int? {
+        let app = XCUIApplication()
+        let resultLabel = app.staticTexts["resultfield"].label
+
+        guard let data = resultLabel.data(using: .utf8) else {
+            XCTFail("Failed to convert label to data")
+            return nil
+        }
+
+        do {
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                for obj in jsonArray {
+                    if obj["target"] as? String == "page.create",
+                       let change = obj["change"] as? [String: Any],
+                       let page = change["page"] as? [String: Any],
+                       let fieldPositions = page["fieldPositions"] as? [[String: Any]] {
+                        return fieldPositions.count
+                    }
+                }
+            }
+        } catch {
+            XCTFail("Failed to parse label JSON: \(error)")
+        }
+
+        return nil
+    }
+    
+    func assertImageCount(for cellId: String, expectedCount: Int) {
+        let actualCount = imageURLCount(for: cellId)
+        XCTAssertEqual(actualCount, expectedCount, "Expected \(expectedCount) image(s), found \(actualCount)")
+    }
+    
+    func imageURLCount(for cellId: String) -> Int {
+         let result = onChangeResult().dictionary
+              let change = result["change"] as? [String: Any]
+        let rowAny = change?["row"] as? Any
+              let row = rowAny as? [String: Any]
+        let cellsAny = row?["cells"] as? Any
+              let cells = cellsAny as? [String: Any]
+        let imageArray = cells?[cellId] as? [[String: Any]]
+
+        return imageArray?.count ?? 0
+    }
+    
+    func imageURLCountFromValueArray(for cellId: String) -> Int {
+        guard
+            let result = onChangeResult().dictionary["change"] as? [String: Any],
+            let valueArray = result["value"] as? [[String: Any]],
+            let firstItem = valueArray.first,
+            let cells = firstItem["cells"] as? [String: Any],
+            let imageArray = cells[cellId] as? [[String: Any]]
+        else {
+            return 0
+        }
+        
+        return imageArray.count
+    }
+
+    func assertImageCountFromValueArray(for cellId: String, expectedCount: Int) {
+        let actualCount = imageURLCountFromValueArray(for: cellId)
+        XCTAssertEqual(actualCount, expectedCount, "Expected \(expectedCount) image(s) for \(cellId), but found \(actualCount)")
     }
     
     func testopenCollection() {
@@ -1232,5 +1295,107 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             dismissSheet()
             XCTAssertTrue(filterButton.exists, "Should return to collection view")
         }
+    }
+    
+    func testCollectionPageDuplicate() throws {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 0)
+        originalPageButton.tap()
+        
+        goToCollectionDetailField()
+        goBack()
+        
+        pageSelectionButton.tap()
+        let pageDuplicateButton = app.buttons.matching(identifier: "PageDuplicateIdentifier")
+        let duplicatePageButton = pageDuplicateButton.element(boundBy: 0)
+        duplicatePageButton.tap()
+        if let count = getFieldPositionsCountFromLabel() {
+            XCTAssertEqual(count, 3, "Expected 2 field positions")
+        } else {
+            XCTFail("Could not retrieve field position count")
+        }
+        
+        let duplicatedPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        duplicatedPageButton.tap()
+        goToCollectionDetailField()
+        
+        let TableAddRowIdentifier = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        TableAddRowIdentifier.tap()
+        let actualRowCount = getVisibleRowCount()
+        XCTAssertEqual(actualRowCount, 5, "Expected 5 rows count")
+        
+        goBack()
+        
+        pageSelectionButton.tap()
+        originalPageButton.tap()
+        goToCollectionDetailField()
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("A", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.clearText()
+        firstNestedTextField.typeText("Hello ji")
+        goBack()
+        pageSelectionButton.tap()
+        duplicatedPageButton.tap()
+        goToCollectionDetailField()
+        let firstNestedTextFieldDup = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("A", firstNestedTextFieldDup.value as! String)
+        goBack()
+    }
+    
+    
+    func testCollectionImageUpload() throws {
+        app.swipeUp()
+        goToCollectionDetailField(index: 1)
+
+        let uploadButton = app.staticTexts["Upload"]
+        let imageButtonIdentifier = "TableImageIdentifier"
+
+        let imageButtons = app.buttons.matching(identifier: imageButtonIdentifier)
+        XCTAssertEqual(imageButtons.count, 3, "Expected 3 image buttons")
+
+        // Multi Image Upload (Index 0)
+        let multiImageButton = imageButtons.element(boundBy: 0)
+        XCTAssertTrue(multiImageButton.exists, "Multi-image button does not exist")
+        multiImageButton.tap()
+
+        XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
+        uploadButton.tap()
+        uploadButton.tap()
+        
+        assertImageCount(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
+
+        dismissSheet()
+        app.swipeLeft()
+        // Single Image Upload - Column 2 (Index 1)
+        let singleImageButton1 = imageButtons.element(boundBy: 1)
+        XCTAssertTrue(singleImageButton1.exists, "Single image button 1 does not exist")
+        singleImageButton1.tap()
+        XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
+        uploadButton.doubleTap()
+        uploadButton.tap()
+        
+        assertImageCount(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
+        
+        dismissSheet()
+        app.swipeLeft()
+        // Single Image Upload - Column 3 (Index 2)
+        let singleImageButton2 = imageButtons.element(boundBy: 2)
+        XCTAssertTrue(singleImageButton2.exists, "Single image button 2 does not exist")
+        singleImageButton2.tap()
+        XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
+        uploadButton.doubleTap()
+        uploadButton.tap()
+        assertImageCount(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+        dismissSheet()
+ 
+        goBack()
+        sleep(1)
+        assertImageCountFromValueArray(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
+        assertImageCountFromValueArray(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
+        assertImageCountFromValueArray(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
     }
 }
