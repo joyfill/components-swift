@@ -11,15 +11,17 @@ import Joyfill
 import SwiftUI
 
 var documentEditor2: DocumentEditor!
-
 struct OnChangeHandlerTest: View, FormChangeEvent {
     let imagePicker = ImagePicker()
     init() {
-            var document = sampleJSONDocument(fileName: "FieldTemplate_TableCollection_Populated")
-            document.id = UUID().uuidString
-            documentEditor = DocumentEditor(document: document, events: self)
-            document.id = UUID().uuidString
-            documentEditor2 = DocumentEditor(document: document, events: self)
+        //        fileName: "FieldTemplate_TableCollection_Poplated"
+        var document = sampleJSONDocument()
+        document.id = UUID().uuidString
+        print("documentEditor1", document.id)
+        documentEditor = DocumentEditor(document: document, events: self)
+        document.id = UUID().uuidString
+        print("documentEditor2", document.id)
+        documentEditor2 = DocumentEditor(document: document, events: self)
     }
     
     var body: some View {
@@ -29,12 +31,13 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
                     .tint(.red)
             }
             NavigationView {
-                Form(documentEditor: documentEditor)
+                Form(documentEditor: documentEditor2)
             }
         }
     }
 
     func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+        print("onChange documentID:", document.id)
         if document.id == documentEditor.documentID {
             // documentEditor changes
             documentEditor2.change(changes: changes)

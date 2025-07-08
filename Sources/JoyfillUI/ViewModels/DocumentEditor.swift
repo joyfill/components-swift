@@ -94,7 +94,28 @@ public class DocumentEditor: ObservableObject {
         // TODO:
         // 1. Update JSON
         // 2. Update UI
+        for change in changes {
+            if change.target == "field.update" {
+                if let fieldID = change.fieldId {
+                    if let value = change.change?["value"] as? Any {
+                        if let valueUnion = ValueUnion(value: value) {
+                            print("documentID:", documentID, "fieldID:", fieldID, "value:", value)
+                            updateValue(for: fieldID, value: valueUnion)
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    public func updateValue(for fieldID: String, value: JoyfillModel.ValueUnion) {
+          guard var field = fieldMap[fieldID] else {
+              return
+          }
+           field.value = value
+           fieldMap[fieldID] = field
+           refreshField(fieldId: fieldID)
+       }
 }
 
 fileprivate extension JoyDoc {
