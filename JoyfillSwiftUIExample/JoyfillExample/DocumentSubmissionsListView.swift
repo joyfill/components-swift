@@ -251,7 +251,7 @@ class ImagePicker {
             for result in results {
                 dispatchGroup.enter()
                 
-                result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
+                result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                     defer { dispatchGroup.leave() }
                     
                     if let error = error {
@@ -260,7 +260,7 @@ class ImagePicker {
                     }
                     
                     guard let image = object as? UIImage,
-                          let imageUrl = self?.saveImageToDocuments(image) else {
+                          let imageUrl = self.saveImageToDocuments(image) else {
                         return
                     }
                     
@@ -268,8 +268,8 @@ class ImagePicker {
                 }
             }
             
-            dispatchGroup.notify(queue: .main) { [weak self] in
-                self?.uploadHandler(imageUrls)
+            dispatchGroup.notify(queue: .main) {
+                self.uploadHandler(imageUrls)
             }
         }
         
