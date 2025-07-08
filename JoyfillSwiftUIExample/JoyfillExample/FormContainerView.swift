@@ -50,7 +50,7 @@ struct FormContainerView: View {
             }
             
             Form(documentEditor: documentEditor)
-            SaveButtonView(changeManager: changeManager, documentEditor: documentEditor)
+            SaveButtonView(changeManager: changeManager, documentEditor: documentEditor, showBothButtons: true)
         }
         .sheet(isPresented: $showChangelogView) {
             if enableChangelogs {

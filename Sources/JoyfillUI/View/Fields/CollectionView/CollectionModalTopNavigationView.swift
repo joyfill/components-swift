@@ -11,8 +11,13 @@ import JoyfillModel
 struct CollectionModalTopNavigationView: View {
     @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
+    var onFilterTap: (() -> Void)?
     
     @State private var showingPopover = false
+    
+    private var hasActiveFilters: Bool {
+        return viewModel.tableDataModel.hasActiveFilters
+    }
 
     var body: some View {
         HStack {
@@ -22,6 +27,39 @@ struct CollectionModalTopNavigationView: View {
             }
 
             Spacer()
+            
+            // Filter button
+            Button(action: {
+                onFilterTap?()
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                        .foregroundColor(hasActiveFilters ? .blue : .gray)
+                }
+                .font(.system(size: 14))
+                .frame(height: 27)
+                .padding(.horizontal, 12)
+                .overlay(RoundedRectangle(cornerRadius: 6)
+                    .stroke(hasActiveFilters ? Color.blue : Color.buttonBorderColor, lineWidth: 1))
+            }
+            .accessibilityIdentifier("CollectionFilterButtonIdentifier")
+            
+            if hasActiveFilters {
+                Button(action: {
+                    clearFilter()
+                }, label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            .frame(width: 27, height: 27)
+                        
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 10, height: 10)
+                            .darkLightThemeColor()
+                    }
+                })
+            }
 
             if !viewModel.tableDataModel.selectedRows.isEmpty {
                 Button(action: {
@@ -38,7 +76,7 @@ struct CollectionModalTopNavigationView: View {
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
-                            if viewModel.tableDataModel.selectedRows.count == 1 {
+                            if viewModel.tableDataModel.selectedRows.count == 1 && !hasActiveFilters {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -92,20 +130,20 @@ struct CollectionModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
-                            
-                            Button(action: {
-                                showingPopover = false
-                                viewModel.deleteSelectedRow()
-                            }) {
-                                Text("Delete \(rowTitle)")
-                                    .foregroundStyle(.red)
-                                    .font(.system(size: 14))
-                                    .frame(height: 27)
+                            if !hasActiveFilters {
+                                Button(action: {
+                                    showingPopover = false
+                                    viewModel.deleteSelectedRow()
+                                }) {
+                                    Text("Delete \(rowTitle)")
+                                        .foregroundStyle(.red)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 10)
+                                .accessibilityIdentifier("TableDeleteRowIdentifier")
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 10)
-                            .accessibilityIdentifier("TableDeleteRowIdentifier")
-                            
 //                            Button(action: {
 //                                showingPopover = false
 //                                viewModel.duplicateRow()
@@ -213,6 +251,22 @@ struct CollectionModalTopNavigationView: View {
 
         }
     }
+    
+    fileprivate func clearSorting() {
+        viewModel.tableDataModel.sortModel.order = .none
+        viewModel.tableDataModel.sortModel.colID = ""
+        viewModel.tableDataModel.sortModel.schemaKey = ""
+    }
+    
+    func clearFilter() {
+//        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
+        viewModel.setupCellModels()
+        for i in 0..<viewModel.tableDataModel.filterModels.count {
+            viewModel.tableDataModel.filterModels[i].filterText = ""
+        }
+        clearSorting()
+        viewModel.tableDataModel.emptySelection()
+    }
 
     var rowTitle: String {
         "\(viewModel.tableDataModel.selectedRows.count) " + (viewModel.tableDataModel.selectedRows.count > 1 ? "rows": "row")
@@ -224,6 +278,7 @@ struct CollectionEditMultipleRowsSheetView: View {
     let tableColumns: [FieldTableColumn]
     @Environment(\.presentationMode) var presentationMode
     @State var changes = [Int: ValueUnion]()
+    @State private var isLoading = false
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
 
@@ -257,14 +312,14 @@ struct CollectionEditMultipleRowsSheetView: View {
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
+                                    .stroke(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue, lineWidth: 1)
                                     .frame(width: 27, height: 27)
                                 
                                 Image(systemName: "chevron.left")
-                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue)
                             }
                         })
-                        .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                        .disabled(viewModel.tableDataModel.shouldDisableMoveUpFilterActive)
                         .accessibilityIdentifier("UpperRowButtonIdentifier")
                         
                         Spacer()
@@ -275,29 +330,30 @@ struct CollectionEditMultipleRowsSheetView: View {
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
+                                    .stroke(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue, lineWidth: 1)
                                     .frame(width: 27, height: 27)
                                 
                                 Image(systemName: "chevron.right")
-                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue)
                             }
                         })
-                        .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                        .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                         .accessibilityIdentifier("LowerRowButtonIdentifier")
-                        
-                        Button(action: {
-                            viewModel.insertBelowFromBulkEdit()
-                        }, label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(.blue, lineWidth: 1)
-                                    .frame(width: 27, height: 27)
-                                
-                                Image(systemName: "plus")
-                                    .foregroundStyle(.blue)
-                            }
-                        })
-                        .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                        if !viewModel.tableDataModel.hasActiveFilters {
+                            Button(action: {
+                                viewModel.insertBelowFromBulkEdit()
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(.blue, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "plus")
+                                        .foregroundStyle(.blue)
+                                }
+                            })
+                            .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                        }
                         
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
@@ -334,20 +390,38 @@ struct CollectionEditMultipleRowsSheetView: View {
 
                     if viewModel.tableDataModel.selectedRows.count != 1 {
                         Button(action: {
-                            viewModel.bulkEdit(changes: changes)
-                            viewModel.tableDataModel.emptySelection()
-                            presentationMode.wrappedValue.dismiss()
+                            Task {
+                                isLoading = true
+                                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                                
+                                await MainActor.run {
+                                    viewModel.bulkEdit(changes: changes)
+                                    viewModel.tableDataModel.emptySelection()
+                                    isLoading = false
+                                    presentationMode.wrappedValue.dismiss()
+                                }
+                            }
                         }, label: {
-                            Text("Apply All")
-                                .darkLightThemeColor()
-                                .font(.system(size: 14))
-                                .frame(width: 88, height: 27)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
+                            ZStack {
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                                        .frame(width: 88, height: 27)
+                                } else {
+                                    Text("Apply All")
+                                        .darkLightThemeColor()
+                                        .font(.system(size: 14))
+                                        .frame(width: 88, height: 27)
+                                        
+                                }
+                            }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
                         })
                         .accessibilityIdentifier("ApplyAllButtonIdentifier")
+                        .disabled(isLoading)
                         
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
@@ -521,10 +595,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                                         self.changes[colIndex] = ValueUnion.string(newValue)
                                     }
                                     
-                                    Utility.debounceTextChange(debounceTask: &debounceTask) {
-                                        if !isUsedForBulkEdit {
-                                            viewModel.bulkEdit(changes: changes)
-                                        }
+                                    if !isUsedForBulkEdit {
+                                        viewModel.bulkEdit(changes: changes)
                                     }
                                 }
                             )

@@ -51,6 +51,7 @@ struct SearchBar: View {
                     switch cellModel.data.type {
                     case .text:
                         TextFieldSearchBar(text: $model.filterText)
+                            .frame(height: 25)
                     case .dropdown:
                         TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, selectedDropdownValue: model.filterText)
                             .accessibilityIdentifier("SearchBarDropdownIdentifier")
@@ -65,7 +66,7 @@ struct SearchBar: View {
                             .cornerRadius(6)
                             .padding(.leading, 8)
                     case .multiSelect:
-                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true)
+                        TableMultiSelectView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, isSearching: true, searchValue: model.filterText)
                             .accessibilityIdentifier("SearchBarMultiSelectionFieldIdentifier")
                     case .barcode:
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
@@ -99,6 +100,7 @@ struct SearchBar: View {
 
                 Button(action: {
                     model.filterText = ""
+                    sortModel.order = .none
                     selectedColumnIndex = Int.min
                 }, label: {
                     Image(systemName: "xmark")
