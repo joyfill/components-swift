@@ -106,7 +106,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
 
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US")
-        formatter.dateFormat = "EEEE, d MMMM"
+        formatter.dateFormat = "EEEE d MMMM"
         return formatter.string(from: randomDate)
     }
     
@@ -429,7 +429,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         }
         
        // Remember - ["Sunday 7 April"] - here set the date of current month
-        let specificDayButton = app.buttons["Sunday, 7 April"] // The full label of the button
+        let specificDayButton = app.buttons["Sunday 7 April"] // The full label of the button
         XCTAssertTrue(specificDayButton.exists, "The date 'Sunday 7 April' should be visible in the calendar.")
             specificDayButton.tap()
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
@@ -452,7 +452,6 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         let firstDatePicker = app.datePickers.element(boundBy: 0)
         firstDatePicker.tap()
-        print(app.debugDescription)
        // TODO: Remember - ["Sunday 7 April"] - here set the date of current month
         if let randomLabel = randomCalendarDayLabelInCurrentMonth() {
             let button = app.buttons[randomLabel]
@@ -937,7 +936,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         textField.tap()
         sleep(1)
         textField.clearText()
-        textField.clearAndEnterText("Edit Single rows")
+        textField.typeText("Edit Single rows")
         
 //        app.buttons["ApplyAllButtonIdentifier"].tap()
         dismissSheet()
