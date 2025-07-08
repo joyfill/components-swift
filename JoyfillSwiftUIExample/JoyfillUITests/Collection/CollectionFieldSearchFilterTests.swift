@@ -224,6 +224,20 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         addButton.tap()
     }
+    
+    func isAddMoreFilterButtonEnabled() -> Bool {
+        let addButton = app.buttons["AddMoreFilterButtonIdentifier"]
+        return addButton.exists && addButton.isEnabled
+    }
+    
+    func tapOnMoreButton() {
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        if !moreButton.exists {
+            XCTFail("More button should exist")
+        }
+        
+        moreButton.tap()
+    }
         
     func applyDropdownFilter(schema: String = "Root Table", column: String, option: String) {
         openFilterModal()
@@ -1397,5 +1411,192 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         assertImageCountFromValueArray(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
         assertImageCountFromValueArray(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
         assertImageCountFromValueArray(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+    }
+    
+    func testFilterApply_BB_NoResult_ThenA_ThenClearAndVerify() {
+        goToCollectionDetailField()
+        
+        let initialRowCount = getVisibleRowCount()
+        
+        // Step 1: Apply filter with "BB" (expected to return 0)
+        applyTextFilter(column: "Text D1", text: "BB")
+        let filteredCountBB = getVisibleRowCount()
+        XCTAssertEqual(filteredCountBB, 0, "Filter with 'BB' should return 0 rows")
+
+        // Step 2: Apply filter with "A"
+        applyTextFilter(column: "Text D1", text: "A")
+        let filteredCountA = getVisibleRowCount()
+        XCTAssertEqual(filteredCountA, initialRowCount, "Filter with 'A' should return initial row count")
+
+        // Step 3: Clear filter
+        openFilterModal()
+        enterTextFilter("")
+        tapApplyButton()
+        
+        // Step 4: Verify that row count after clearing matches initial
+        let finalRowCount = getVisibleRowCount()
+        XCTAssertEqual(finalRowCount, initialRowCount, "Row count after clearing filter should match initial")
+    }
+    
+    func testAddRowEnterTextAndFilter() {
+        goToCollectionDetailField()
+
+        // Add new row
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
+        addRowButton.tap()
+
+        // Enter "Testing Demo" in newly added row (last text field)
+        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        let newTextField = textFields.element(boundBy: textFields.count - 1)
+        XCTAssertTrue(newTextField.exists, "New text field should exist")
+        newTextField.tap()
+        newTextField.clearText()
+        newTextField.typeText("Testing Demo")
+
+        // Go back and return to detail view
+        goBack()
+        goToCollectionDetailField()
+
+        // Apply filter for "Testing Demo"
+        applyTextFilter(column: "Text D1", text: "Testing Demo")
+
+        // Verify filtered count is 1
+        let filteredCount = getVisibleRowCount()
+        XCTAssertEqual(filteredCount, 1, "Filter should return 1 row for 'Testing Demo'")
+    }
+    
+    func testAddRowAddSubRowsAndApplyAllFilters() {
+        goToCollectionDetailField()
+
+        // Step 1: Add a new root row
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
+        addRowButton.tap()
+
+        // Step 2: Expand the newly added row
+        let newRowIndex = getVisibleRowCount() - 1
+        let expandButton = app.images["CollectionExpandCollapseButton\(newRowIndex)"]
+        XCTAssertTrue(expandButton.exists, "Expand button for new row should exist")
+        expandButton.tap()
+
+        // Step 3: Add 2 sub rows under this row
+        let nestedAddButton = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 0)
+        XCTAssertTrue(nestedAddButton.exists, "Nested add row button should exist")
+        nestedAddButton.tap()
+        nestedAddButton.tap()
+
+        // Step 4: Open filter modal
+        openFilterModal()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectSchema("Root Table")
+        selectColumn("Text D1", selectorIndex: 0)
+        enterTextFilter("A")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Dropdown D1", selectorIndex: 1)
+        selectDropdownOption("Yes D1")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("MultiSelect  D1", selectorIndex: 2)
+        selectMultiSelectOption("Option 1 D1")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Number  D1", selectorIndex: 3)
+        let element = app/*@START_MENU_TOKEN@*/.textFields["SearchBarNumberIdentifier"]/*[[".otherElements.textFields[\"SearchBarNumberIdentifier\"]",".textFields",".textFields[\"SearchBarNumberIdentifier\"]"],[[[-1,2],[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.firstMatch
+        element.tap()
+        element.typeText("2")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Barcode  D1", selectorIndex: 4)
+        let barcodeField = app/*@START_MENU_TOKEN@*/.textViews["TableBarcodeFieldIdentifier"].firstMatch/*[[".otherElements.textViews[\"TableBarcodeFieldIdentifier\"].firstMatch",".textViews",".containing(.other, identifier: nil).firstMatch",".containing(.other, identifier: \"Vertical scroll bar, 2 pages\").firstMatch",".firstMatch",".textViews[\"TableBarcodeFieldIdentifier\"].firstMatch"],[[[-1,5],[-1,1,1],[-1,0]],[[-1,4],[-1,3],[-1,2]]],[0]]@END_MENU_TOKEN@*/
+        barcodeField.tap()
+        barcodeField.typeText("2")
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        tapApplyButton()
+        closeFilterModal()
+        let parentRowsCount = getVisibleRowCount()
+        XCTAssertEqual(parentRowsCount, 0, "Expected 0 parent row matching")
+        
+        
+    }
+    
+    func testDeleteAllRowsApplyFiltersThenReAddAndFilterDepth2() {
+        goToCollectionDetailField()
+        
+        // Step 1: Delete all rows
+        app/*@START_MENU_TOKEN@*/.images["SelectParentAllRowSelectorButton"]/*[[".otherElements",".images[\"Square\"]",".images[\"SelectParentAllRowSelectorButton\"]"],[[[-1,2],[-1,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.firstMatch.tap()
+        tapOnMoreButton()
+        app.buttons["TableDeleteRowIdentifier"].firstMatch.tap()
+        
+        // Step 2: Apply a filter after all rows are deleted
+        applyTextFilter(column: "Text D1", text: "Test")
+        let filteredCount = getVisibleRowCount()
+        XCTAssertEqual(filteredCount, 0, "Filtered count should be 0 after deleting all rows")
+        
+        // Clear existing filters before deleting
+        openFilterModal()
+        enterTextFilter("")
+        tapApplyButton()
+        
+        // Step 3: Add 3 new root rows
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        addRowButton.tap()
+        addRowButton.tap()
+        addRowButton.tap()
+        
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("Hello ji")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy:2)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("Namaste ji")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123456789")
+        
+        // Step 7: Apply filter in Depth 2 for text "Hello"
+        applyTextFilter(schema: "Depth 2", column: "Text D2", text: "Hello")
+        
+        // Step 8: Validate filtered results
+        let parentRowsCount = getVisibleRowCount()
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(parentRowsCount, 1, "Expected 1 parent row matching 'Hello'")
+        XCTAssertEqual(nestedRowsCount, 1, "Expected 1 nested row matching 'Hello'")
+        
     }
 }
