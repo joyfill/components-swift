@@ -21,7 +21,8 @@ struct AllSampleJSONs: View, FormChangeEvent {
         "JoyfillResolver_LongChainIndirectCircularDependency", 
         "JoyfillResolver_IndirectCircularError",
         "JoyfillResolverTemplate_ComplexWorking",
-        "JoyfillResolver_SimpleWorking"
+        "JoyfillResolver_SimpleWorking",
+        "FormulaTemplate_Arithmetic"
     ]
     
     private let fieldFiles = [
