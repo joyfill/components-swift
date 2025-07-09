@@ -8,14 +8,25 @@
 import Foundation
 import JoyfillModel
 
+// Weak wrapper to hold multiple delegates without causing retain cycles
+public class WeakDocumentEditorDelegate {
+    weak var value: DocumentEditorDelegate?
+    init(_ value: DocumentEditorDelegate) { self.value = value }
+}
+
+public protocol DocumentEditorDelegate: AnyObject {
+    func applyRowEditChanges(change: Change)
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
-    @Published var currentPageOrder: [String] = [] 
+    @Published var currentPageOrder: [String] = []
     
     public var mode: Mode
     public var isPageDuplicateEnabled: Bool
     public var showPageNavigationView: Bool
+    public var collectionDelegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
         didSet {
@@ -56,6 +67,10 @@ public class DocumentEditor: ObservableObject {
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
+    public func registerDelegate(_ delegate: DocumentEditorDelegate, forCollectionField fieldID: String) {
+        collectionDelegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
+    }
+    
     public func updateFieldMap() {
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
@@ -89,6 +104,39 @@ public class DocumentEditor: ObservableObject {
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
     }
+
+    public func change(changes: [Change]) {
+        // TODO:
+        // 1. Update JSON
+        // 2. Update UI
+        for change in changes {
+            if let fieldID = change.fieldId, let field = fieldMap[fieldID], field.fieldType == .collection {
+                if change.target == "field.value.rowUpdate" {
+                    collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+                }
+            } else {
+                if change.target == "field.update" {
+                    if let fieldID = change.fieldId {
+                        if let value = change.change?["value"] as? Any {
+                            if let valueUnion = ValueUnion(value: value) {
+                                print("documentID:", documentID, "fieldID:", fieldID, "value:", value)
+                                updateValue(for: fieldID, value: valueUnion)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public func updateValue(for fieldID: String, value: JoyfillModel.ValueUnion) {
+          guard var field = fieldMap[fieldID] else {
+              return
+          }
+           field.value = value
+           fieldMap[fieldID] = field
+           refreshField(fieldId: fieldID)
+       }
 }
 
 fileprivate extension JoyDoc {

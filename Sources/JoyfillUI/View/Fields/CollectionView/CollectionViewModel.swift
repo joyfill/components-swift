@@ -43,7 +43,7 @@ class CollectionViewModel: ObservableObject {
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
-        
+        tableDataModel.documentEditor?.registerDelegate(self, forCollectionField: tableDataModel.fieldIdentifier.fieldID)
     }
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
@@ -1473,7 +1473,7 @@ class CollectionViewModel: ObservableObject {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> ([ValueElement], ValueElement?) {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true) -> ([ValueElement], ValueElement?) {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
@@ -1483,7 +1483,8 @@ class CollectionViewModel: ObservableObject {
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                   rootSchemaKey: rootSchemaKey,
                                                                   nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
-                                                                  parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "") ?? ([], nil)
+                                                                        parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "",
+                                                                        callOnChange: callOnChange) ?? ([], nil)
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
@@ -1678,5 +1679,93 @@ extension Array {
                 insert(elements[i], at: insertionIndex)
             }
         }
+    }
+}
+extension CollectionViewModel: DocumentEditorDelegate {
+    /// Merges the change payload into a cached ValueElement, returning the updated row.
+    private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement, schemaID: String) -> ValueElement {
+        var updatedRow = existingRow
+        guard let rowDict = change.change?["row"] as? [String: Any],
+              let cellsDict = rowDict["cells"] as? [String: Any] else {
+            return updatedRow
+        }
+        var cellMap = updatedRow.cells ?? [:]
+        let columns = tableDataModel.filterTableColumns(key: schemaID)
+        for (colID, rawValue) in cellsDict {
+            guard let column = columns.first(where: { $0.id == colID }) else {
+                continue
+            }
+            let vUnion: ValueUnion
+            switch column.type {
+            case .text, .barcode, .signature, .block, .dropdown:
+                if let stringvalue = rawValue as? String {
+                    vUnion = .string(stringvalue)
+                } else {
+                    vUnion = .null
+                }
+            case .number, .date:
+                if let doubleValue = rawValue as? Double {
+                    vUnion = .double(doubleValue)
+                } else {
+                    vUnion = .null
+                }
+            case .multiSelect:
+                vUnion = .array(rawValue as? [String] ?? [])
+            case .image:
+                if let dictArray = rawValue as? [[String: Any]],
+                   let jsonData = try? JSONSerialization.data(withJSONObject: dictArray, options: []),
+                   let elements = try? JSONDecoder().decode([ValueElement].self, from: jsonData) {
+                    vUnion = .valueElementArray(elements)
+                } else {
+                    vUnion = .null
+                }
+            default:
+                vUnion = .null
+            }
+            cellMap[colID] = vUnion
+        }
+        updatedRow.cells = cellMap
+        return updatedRow
+    }
+
+    /// Updates UI models for a given ValueElement row.
+    private func updateUIModels(for rowID: String, schemaID: String, using row: ValueElement) {
+        let columns = tableDataModel.filterTableColumns(key: schemaID)
+        let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, row)
+        for cell in cellDataModels {
+            let colIndex = columns.firstIndex(where: { $0.id == cell.id }) ?? 0
+            tableDataModel.updateCellModelForNested(
+                rowId: rowID,
+                colIndex: colIndex,
+                cellDataModel: cell,
+                isBulkEdit: true
+            )
+            let result = cellDidChange(
+                rowId: rowID,
+                colIndex: colIndex,
+                cellDataModel: cell,
+                isNestedCell: true,
+                callOnChange: false
+            )
+            tableDataModel.valueToValueElements = result.0
+            if let element = result.1 {
+                rowToValueElementMap[rowID] = element
+            }
+        }
+    }
+
+    func applyRowEditChanges(change: JoyfillModel.Change) {
+        guard let rowID = change.change?["rowId"] as? String,
+              let existingRow = rowToValueElementMap[rowID] else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        let associatedSchemaID: String = change.change?["schemaId"] as! String
+        // Merge payload into model
+        let merged = mergedRow(from: change, existingRow: existingRow, schemaID: associatedSchemaID == "" ? rootSchemaKey : associatedSchemaID)
+        rowToValueElementMap[rowID] = merged
+        // Update UI based on merged model
+        updateUIModels(for: rowID, schemaID: associatedSchemaID == "" ? rootSchemaKey : associatedSchemaID, using: merged)
+        uuid = UUID()
     }
 }

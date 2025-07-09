@@ -250,6 +250,36 @@ extension DocumentEditor {
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
     
+    func rowUpdateEvent(
+        fieldIdentifier: FieldIdentifier,
+        rowID: String,
+        cellDataModel: CellDataModel
+    ) {
+        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder
+        else { return }
+        guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
+            Log("Row index not found: \(rowID)", type: .error)
+            return
+        }
+        guard let newCell = getNewCellValue(for: cellDataModel) else {
+            Log("New cell not found: \(rowID)", type: .error)
+            return
+        }
+        guard let dictionary = newCell.dictionary else {
+            Log("dictionary not found from new cell: \(rowID)", type: .error)
+            return
+        }
+        
+        let cells = [
+            cellDataModel.id: dictionary
+        ]
+        let row: [String : Any] = [
+            "_id" : rowID,
+            "cells" : cells
+        ]
+        sendRowUpdateEvent(for: fieldIdentifier, with: row, rowID: rowID, rowIndex: rowIndex)
+    }
+    
     public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
@@ -693,14 +723,18 @@ extension DocumentEditor {
         ])
     }
 
-    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldId: String) -> [ValueElement] {
+    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+        let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
         }
-
+        
         guard let rowIndex = elements.firstIndex(where: { $0.id == rowId }) else {
             return []
         }
+        
+        // Fire row update event
+        rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel)
 
         switch cellDataModel.type {
         case .text:
@@ -726,7 +760,32 @@ extension DocumentEditor {
         }
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([ValueElement], ValueElement?) {
+    private func getNewCellValue(for cellDataModel: CellDataModel) -> ValueUnion? {
+        var newCell: ValueUnion?
+        switch cellDataModel.type {
+        case .text:
+            newCell = ValueUnion.string(cellDataModel.title ?? "")
+        case .dropdown:
+            newCell = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
+        case .image:
+            newCell = ValueUnion.valueElementArray(cellDataModel.valueElements ?? [])
+        case .date:
+            newCell = cellDataModel.date.map(ValueUnion.double)
+        case .number:
+            newCell = cellDataModel.number.map(ValueUnion.double)
+        case .multiSelect:
+            newCell = cellDataModel.multiSelectValues.map(ValueUnion.array)
+        case .barcode:
+            newCell = ValueUnion.string(cellDataModel.title ?? "")
+        case .signature:
+            newCell = ValueUnion.string(cellDataModel.title ?? "")
+        default:
+            break
+        }
+        return newCell
+    }
+    
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool) -> ([ValueElement], ValueElement?) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return ([], nil)
@@ -763,21 +822,22 @@ extension DocumentEditor {
         }
                 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-        let cells = [
-            cellDataModel.id: newCell?.dictionary!
-        ]
-        let row: [String : Any] = [
-            "_id" : rowId,
-            "cells" : cells
-        ]
-        guard let currentField = fieldMap[fieldId] else {
-            Log("Failed to find field \(fieldId)", type: .error)
-            return ([], nil)
+        if callOnChange {
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+            let cells = [
+                cellDataModel.id: newCell?.dictionary!
+            ]
+            let row: [String : Any] = [
+                "_id" : rowId,
+                "cells" : cells
+            ]
+            guard let currentField = fieldMap[fieldId] else {
+                Log("Failed to find field \(fieldId)", type: .error)
+                return ([], nil)
+            }
+            let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+            handleRowCellOnChange(event: changeEvent, currentField: currentField, row: row, parentPath: parentPath, schemaId: nestedKey)
         }
-        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        handleRowCellOnChange(event: changeEvent, currentField: currentField, row: row, parentPath: parentPath, schemaId: nestedKey)
 
         return (elements, updatedElement)
     }
@@ -968,6 +1028,33 @@ extension DocumentEditor {
             changes.append(change)
         }
         events?.onChange(changes: changes, document: document)
+    }
+    
+    private func sendRowUpdateEvent(
+        for fieldIdentifier: FieldIdentifier,
+        with row: [String : Any],
+        rowID: String,
+        rowIndex: Int
+    ) {
+        guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
+        
+        var change = Change(v: 1,
+                            sdk: "swift",
+                            target: "field.value.rowUpdate",
+                            _id: context.documentID,
+                            identifier: context.documentIdentifier,
+                            fileId: context.fileID,
+                            pageId: context.pageID,
+                            fieldId: fieldIdentifier.fieldID,
+                            fieldIdentifier: context.fieldIdentifier,
+                            fieldPositionId: context.fieldPositionID,
+                            change: [
+                                "rowId": rowID,
+                                "row": row,
+                            ],
+                            createdOn: Date().timeIntervalSince1970)
+        
+        events?.onChange(changes: [change], document: document)
     }
     
     private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {
