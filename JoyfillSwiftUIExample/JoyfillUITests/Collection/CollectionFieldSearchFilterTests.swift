@@ -1520,7 +1520,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             XCTFail("Add More Filter button should be disabled")
         }
         selectColumn("Number  D1", selectorIndex: 3)
-        let element = app/*@START_MENU_TOKEN@*/.textFields["SearchBarNumberIdentifier"]/*[[".otherElements.textFields[\"SearchBarNumberIdentifier\"]",".textFields",".textFields[\"SearchBarNumberIdentifier\"]"],[[[-1,2],[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.firstMatch
+        let element = app.textFields["SearchBarNumberIdentifier"].firstMatch
         element.tap()
         element.typeText("2")
         if !isAddMoreFilterButtonEnabled() {
