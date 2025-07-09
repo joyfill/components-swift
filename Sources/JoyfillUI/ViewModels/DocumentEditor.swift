@@ -110,9 +110,22 @@ public class DocumentEditor: ObservableObject {
         // 1. Update JSON
         // 2. Update UI
         for change in changes {
-            if let fieldID = change.fieldId, let field = fieldMap[fieldID], field.fieldType == .collection {
+            if let fieldID = change.fieldId {
                 if change.target == "field.value.rowUpdate" {
-                    collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+                    if let field = fieldMap[fieldID], field.fieldType == .collection {
+                        collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+                    } else {
+                        guard var elements = field(fieldID: fieldID)?.valueToValueElements else { return }
+                        guard let rowID = change.change?["rowId"] as? String else { return }
+                        guard let rowIndex = elements.firstIndex(where: { $0.id == rowID }) else { return }
+                        guard let rowDict = change.change?["row"] as? [String: Any],
+                              let cellsDict = rowDict["cells"] as? [String: Any] else {
+                            return
+                        }
+                        elements[rowIndex] = ValueElement(dictionary: rowDict)
+                        let value = ValueUnion.valueElementArray(elements)
+                        updateValue(for: fieldID, value: value)
+                    }
                 }
             } else {
                 if change.target == "field.update" {
@@ -130,13 +143,13 @@ public class DocumentEditor: ObservableObject {
     }
 
     public func updateValue(for fieldID: String, value: JoyfillModel.ValueUnion) {
-          guard var field = fieldMap[fieldID] else {
-              return
-          }
-           field.value = value
-           fieldMap[fieldID] = field
-           refreshField(fieldId: fieldID)
-       }
+        guard var field = fieldMap[fieldID] else {
+            return
+        }
+        field.value = value
+        fieldMap[fieldID] = field
+        refreshField(fieldId: fieldID)
+    }
 }
 
 fileprivate extension JoyDoc {
