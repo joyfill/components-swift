@@ -99,17 +99,20 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Hello", firstTableTextField.value as! String)
         firstTableTextField.tap()
-        firstTableTextField.clearAndEnterText("First")
+        firstTableTextField.clearText()
+        firstTableTextField.typeText("First")
         
         let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("His", secondTableTextField.value as! String)
         secondTableTextField.tap()
-        secondTableTextField.clearAndEnterText("Second")
+        secondTableTextField.clearText()
+        secondTableTextField.typeText("Second")
         
         let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("His", thirdTableTextField.value as! String)
         thirdTableTextField.tap()
-        thirdTableTextField.clearAndEnterText("Third")
+        thirdTableTextField.clearText()
+        thirdTableTextField.typeText("Third")
         
         goBack()
         sleep(2)
@@ -402,7 +405,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.clearAndEnterText("App 1Edit")
+        textField.clearText()
+        sleep(1)
+        textField.typeText("App 1Edit")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Yes", dropdownButton.label)
@@ -1217,7 +1222,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.clearAndEnterText("Inserted RowEdit Inserted Row")
+        textField.clearText()
+        sleep(1)
+        textField.typeText("Inserted RowEdit Inserted Row")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("No", dropdownButton.label)

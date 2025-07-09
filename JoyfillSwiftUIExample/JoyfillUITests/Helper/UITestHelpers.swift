@@ -4,6 +4,7 @@ extension XCUIApplication {
     func swipeToFindElement(identifier: String,
                             type: XCUIElement.ElementType,
                             direction: String = "up",
+                            index: Int = 0,
                             maxAttempts: Int = 6) -> XCUIElement? {
         
         let scrollView = self.scrollViews.firstMatch
@@ -14,7 +15,7 @@ extension XCUIApplication {
 
         var attempts = 0
         var elementQuery = self.descendants(matching: type).matching(identifier: identifier)
-        var targetElement = elementQuery.element(boundBy: 0)
+        var targetElement = elementQuery.element(boundBy: index)
 
         while attempts < maxAttempts {
             if targetElement.exists && targetElement.isHittable {
@@ -101,53 +102,19 @@ extension XCUIElement {
         self.tap()
     }
     
-    /// Waits for element to exist, then types text
-    func waitAndTypeText(_ text: String, timeout: TimeInterval = 5, message: String? = nil) {
-        let waitMessage = message ?? "Element '\(self.identifier)' did not appear in time"
-        XCTAssertTrue(self.waitForExistence(timeout: timeout), waitMessage)
-        XCTAssertTrue(self.isHittable, "Element '\(self.identifier)' is not hittable")
-        self.tap()
-        self.typeText(text)
-    }
-    
     /// Waits for element to exist, then clears and types text
     func waitAndClearAndTypeText(_ text: String, timeout: TimeInterval = 5, message: String? = nil) {
         let waitMessage = message ?? "Element '\(self.identifier)' did not appear in time"
         XCTAssertTrue(self.waitForExistence(timeout: timeout), waitMessage)
         XCTAssertTrue(self.isHittable, "Element '\(self.identifier)' is not hittable")
         self.tap()
-        self.clearAndEnterText(text)
-    }
-    
-    /// Waits for element to exist and be enabled
-    func waitForEnabled(timeout: TimeInterval = 5, message: String? = nil) {
-        let waitMessage = message ?? "Element '\(self.identifier)' did not become enabled in time"
-        XCTAssertTrue(self.waitForExistence(timeout: timeout), waitMessage)
-        XCTAssertTrue(self.isEnabled, "Element '\(self.identifier)' is not enabled")
+        self.clearText()
+        self.typeText(text)
     }
     
     /// Waits for navigation to complete (waits for navigation bar to be ready)
     func waitForNavigation(timeout: TimeInterval = 5) {
         let navigationBar = XCUIApplication().navigationBars.firstMatch
         XCTAssertTrue(navigationBar.waitForExistence(timeout: timeout), "Navigation did not complete in time")
-    }
-}
-
-extension XCUIApplication {
-    /// Waits for a specific element to appear after navigation
-    func waitForElementAfterNavigation(identifier: String, type: XCUIElement.ElementType = .any, timeout: TimeInterval = 5) -> XCUIElement {
-        let element = self.descendants(matching: type).matching(identifier: identifier).firstMatch
-        XCTAssertTrue(element.waitForExistence(timeout: timeout), "Element '\(identifier)' did not appear after navigation")
-        return element
-    }
-    
-    /// Waits for keyboard to appear
-    func waitForKeyboard(timeout: TimeInterval = 5) {
-        XCTAssertTrue(self.keyboards.element.waitForExistence(timeout: timeout), "Keyboard did not appear")
-    }
-    
-    /// Waits for keyboard to disappear
-    func waitForKeyboardToDisappear(timeout: TimeInterval = 5) {
-        XCTAssertFalse(self.keyboards.element.waitForExistence(timeout: timeout), "Keyboard did not disappear")
     }
 }
