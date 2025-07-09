@@ -785,7 +785,7 @@ extension DocumentEditor {
         return newCell
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([ValueElement], ValueElement?) {
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool) -> ([ValueElement], ValueElement?) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return ([], nil)
@@ -822,21 +822,22 @@ extension DocumentEditor {
         }
                 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
-        let cells = [
-            cellDataModel.id: newCell?.dictionary!
-        ]
-        let row: [String : Any] = [
-            "_id" : rowId,
-            "cells" : cells
-        ]
-        guard let currentField = fieldMap[fieldId] else {
-            Log("Failed to find field \(fieldId)", type: .error)
-            return ([], nil)
+        if callOnChange {
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+            let cells = [
+                cellDataModel.id: newCell?.dictionary!
+            ]
+            let row: [String : Any] = [
+                "_id" : rowId,
+                "cells" : cells
+            ]
+            guard let currentField = fieldMap[fieldId] else {
+                Log("Failed to find field \(fieldId)", type: .error)
+                return ([], nil)
+            }
+            let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+            handleRowCellOnChange(event: changeEvent, currentField: currentField, row: row, parentPath: parentPath, schemaId: nestedKey)
         }
-        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        handleRowCellOnChange(event: changeEvent, currentField: currentField, row: row, parentPath: parentPath, schemaId: nestedKey)
 
         return (elements, updatedElement)
     }

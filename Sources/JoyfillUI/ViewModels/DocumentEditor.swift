@@ -8,14 +8,25 @@
 import Foundation
 import JoyfillModel
 
+// Weak wrapper to hold multiple delegates without causing retain cycles
+public class WeakDocumentEditorDelegate {
+    weak var value: DocumentEditorDelegate?
+    init(_ value: DocumentEditorDelegate) { self.value = value }
+}
+
+public protocol DocumentEditorDelegate: AnyObject {
+    func applyRowEditChanges(change: Change)
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
-    @Published var currentPageOrder: [String] = [] 
+    @Published var currentPageOrder: [String] = []
     
     public var mode: Mode
     public var isPageDuplicateEnabled: Bool
     public var showPageNavigationView: Bool
+    public var collectionDelegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
         didSet {
@@ -54,6 +65,10 @@ public class DocumentEditor: ObservableObject {
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
          
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
+    }
+    
+    public func registerDelegate(_ delegate: DocumentEditorDelegate, forCollectionField fieldID: String) {
+        collectionDelegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
     }
     
     public func updateFieldMap() {
@@ -95,12 +110,18 @@ public class DocumentEditor: ObservableObject {
         // 1. Update JSON
         // 2. Update UI
         for change in changes {
-            if change.target == "field.update" {
-                if let fieldID = change.fieldId {
-                    if let value = change.change?["value"] as? Any {
-                        if let valueUnion = ValueUnion(value: value) {
-                            print("documentID:", documentID, "fieldID:", fieldID, "value:", value)
-                            updateValue(for: fieldID, value: valueUnion)
+            if let fieldID = change.fieldId, let field = fieldMap[fieldID], field.fieldType == .collection {
+                if change.target == "field.value.rowUpdate" {
+                    collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+                }
+            } else {
+                if change.target == "field.update" {
+                    if let fieldID = change.fieldId {
+                        if let value = change.change?["value"] as? Any {
+                            if let valueUnion = ValueUnion(value: value) {
+                                print("documentID:", documentID, "fieldID:", fieldID, "value:", value)
+                                updateValue(for: fieldID, value: valueUnion)
+                            }
                         }
                     }
                 }
