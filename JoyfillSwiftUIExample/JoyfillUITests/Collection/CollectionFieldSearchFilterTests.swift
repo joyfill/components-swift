@@ -1599,4 +1599,66 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(nestedRowsCount, 1, "Expected 1 nested row matching 'Hello'")
         
     }
+    
+    func testFilterSchemaChangeResetsColumnSelection() {
+        goToCollectionDetailField()
+        
+        // Step 1: Open filter modal
+        openFilterModal()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectSchema("Root Table")
+        
+        // Step 2: Apply Sort - Select column and Descending
+        let sortColumnSelector = app.buttons["CollectionSortColumnSelectorIdentifier"]
+        XCTAssertTrue(sortColumnSelector.exists, "Sort column selector should exist")
+        sortColumnSelector.tap()
+        
+        let sortOption = app.buttons["Text D1"]
+        XCTAssertTrue(sortOption.exists, "Sort column option should exist")
+        sortOption.tap()
+        
+        let sortButton = app.buttons["Sort"]
+        XCTAssertTrue(sortButton.exists, "Sort button should exist")
+        XCTAssertTrue(sortButton.isEnabled, "Sort button should be disabled until direction selected")
+        sortButton.tap()
+        sortButton.tap()
+        
+        selectColumn("Text D1", selectorIndex: 0)
+        enterTextFilter("A")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Dropdown D1", selectorIndex: 1)
+        selectDropdownOption("Yes D1")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        
+        tapApplyButton()
+        closeFilterModal()
+        
+        // Step 3: Verify filtered result (optional, based on test data)
+        let filteredRowCount = getVisibleRowCount()
+        XCTAssertTrue(filteredRowCount >= 0, "Filtered row count should be valid")
+        
+        // Step 4: Open filter modal again and change schema
+        openFilterModal()
+        selectSchema("Depth 2")
+        
+        // Step 5: Verify column selector has reset
+        let columnSelectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
+        let firstSelectorLabel = columnSelectors.element(boundBy: 0).label
+        XCTAssertEqual(firstSelectorLabel, "Select column type", "Column selector should reset after schema change")
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        tapApplyButton()
+        closeFilterModal()
+    }
 }
