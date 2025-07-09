@@ -1290,6 +1290,10 @@ extension DocumentEditor {
         )
         events?.onChange(changes: newFieldsArray, document: document)
     }
+    
+    func change(_ changes: [Change]) {
+        // TODO: handle changes
+    }
 }
 extension DocumentEditor {
     func makeFieldChangeContext(for fieldIdentifier: FieldIdentifier) -> FieldChangeContext? {
