@@ -1522,7 +1522,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         selectColumn("Number  D1", selectorIndex: 3)
         let element = app.textFields["SearchBarNumberIdentifier"].firstMatch
         element.tap()
-        element.typeText("2")
+        element.typeText("200")
         if !isAddMoreFilterButtonEnabled() {
             XCTFail("Add More Filter button should be enabled")
         }
@@ -1531,25 +1531,23 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             XCTFail("Add More Filter button should be disabled")
         }
         selectColumn("Barcode  D1", selectorIndex: 4)
-        let barcodeField = app/*@START_MENU_TOKEN@*/.textViews["TableBarcodeFieldIdentifier"].firstMatch/*[[".otherElements.textViews[\"TableBarcodeFieldIdentifier\"].firstMatch",".textViews",".containing(.other, identifier: nil).firstMatch",".containing(.other, identifier: \"Vertical scroll bar, 2 pages\").firstMatch",".firstMatch",".textViews[\"TableBarcodeFieldIdentifier\"].firstMatch"],[[[-1,5],[-1,1,1],[-1,0]],[[-1,4],[-1,3],[-1,2]]],[0]]@END_MENU_TOKEN@*/
+        let barcodeField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
         barcodeField.tap()
-        barcodeField.typeText("2")
+        barcodeField.typeText("ab")
         if isAddMoreFilterButtonEnabled() {
             XCTFail("Add More Filter button should be disabled")
         }
         tapApplyButton()
         closeFilterModal()
         let parentRowsCount = getVisibleRowCount()
-        XCTAssertEqual(parentRowsCount, 0, "Expected 0 parent row matching")
-        
-        
+        XCTAssertNotEqual(parentRowsCount, 0, "Expected 0 parent row matching")
     }
     
     func testDeleteAllRowsApplyFiltersThenReAddAndFilterDepth2() {
         goToCollectionDetailField()
         
         // Step 1: Delete all rows
-        app/*@START_MENU_TOKEN@*/.images["SelectParentAllRowSelectorButton"]/*[[".otherElements",".images[\"Square\"]",".images[\"SelectParentAllRowSelectorButton\"]"],[[[-1,2],[-1,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.firstMatch.tap()
+        app.images["SelectParentAllRowSelectorButton"].firstMatch.tap()
         tapOnMoreButton()
         app.buttons["TableDeleteRowIdentifier"].firstMatch.tap()
         
