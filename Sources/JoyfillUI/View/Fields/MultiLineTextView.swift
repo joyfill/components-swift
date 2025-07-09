@@ -1,25 +1,36 @@
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct MultiLineTextView: View {
-    @State var multilineText: String = ""
+    @State private var displayText: String = ""
+    @State private var lastModelText: String?
     @State private var debounceTask: Task<Void, Never>?
     private var multiLineDataModel: MultiLineDataModel
-    @FocusState private var isFocused: Bool 
+    @FocusState private var isFocused: Bool
     let eventHandler: FieldChangeEvents
 
     public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
         self.multiLineDataModel = multiLineDataModel
-        if let multilineText = multiLineDataModel.multilineText {
-            _multilineText = State(initialValue: multilineText)
-        }
+        // Don't initialize state variables here - moved to onAppear
     }
-    
+
     var body: some View {
-        VStack(alignment: .leading) {
+        // Create a custom binding that gives us more control
+        let textBinding = Binding<String>(
+            get: { displayText },
+            set: { newValue in
+                // Only update if really changing to avoid triggering unnecessary redraws
+                if displayText != newValue {
+                    displayText = newValue
+                }
+            }
+        )
+
+        return VStack(alignment: .leading) {
             FieldHeaderView(multiLineDataModel.fieldHeaderModel)
-            TextEditor(text: $multilineText)
+            TextEditor(text: textBinding)
                 .accessibilityIdentifier("MultilineTextFieldIdentifier")
                 .disabled(multiLineDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
@@ -38,20 +49,40 @@ struct MultiLineTextView: View {
                         updateFieldValue()
                     }
                 }
-                .onChange(of: multilineText, perform: debounceTextChange)
+                .onChange(of: displayText) { newValue in
+                    if isFocused {
+                        debounceTextChange(newValue: newValue)
+                    }
+                }
+        }
+        .onAppear {
+            // Initialize on first appear
+            if displayText.isEmpty {
+                displayText = multiLineDataModel.multilineText ?? ""
+            }
+            lastModelText = multiLineDataModel.multilineText
+        }
+        .onChange(of: multiLineDataModel.multilineText) { newValue in
+            // Only update if not focused and value has actually changed
+            if !isFocused && lastModelText != newValue {
+                if displayText != (newValue ?? "") {
+                    displayText = newValue ?? ""
+                }
+                lastModelText = newValue
+            }
         }
     }
-    
+
     private func updateFieldValue() {
-        let newValue = ValueUnion.string(multilineText)
+        let newValue = ValueUnion.string(displayText)
         let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
         eventHandler.onChange(event: fieldEvent)
     }
-    
+
     private func debounceTextChange(newValue: String) {
-        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask?.cancel()
         debounceTask = Task {
-            try? await Task.sleep(nanoseconds: Utility.DEBOUNCE_TIME_IN_NANOSECONDS) // 1 seconds
+            try? await Task.sleep(nanoseconds: Utility.DEBOUNCE_TIME_IN_NANOSECONDS)
             if !Task.isCancelled {
                 await MainActor.run {
                     updateFieldValue()
@@ -60,4 +91,5 @@ struct MultiLineTextView: View {
         }
     }
 }
+
 

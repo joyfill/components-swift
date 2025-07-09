@@ -1,8 +1,10 @@
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct TextView: View {
-    @State var enterText: String = ""
+    @State private var displayText: String = ""
+    @State private var lastModelText: String?
     @State private var debounceTask: Task<Void, Never>?
     @FocusState private var isFocused: Bool
     private var textDataModel: TextDataModel
@@ -11,15 +13,21 @@ struct TextView: View {
     public init(textDataModel: TextDataModel, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
         self.textDataModel = textDataModel
-        if let text = textDataModel.text {
-            _enterText = State(initialValue: text)
-        }
     }
-    
+
     var body: some View {
-        VStack(alignment: .leading) {
+        let textBinding = Binding<String>(
+            get: { displayText },
+            set: { newValue in
+                if displayText != newValue {
+                    displayText = newValue
+                }
+            }
+        )
+
+        return VStack(alignment: .leading) {
             FieldHeaderView(textDataModel.fieldHeaderModel)
-            TextField("", text: $enterText)
+            TextField("", text: textBinding)
                 .accessibilityIdentifier("Text")
                 .disabled(textDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
@@ -37,12 +45,30 @@ struct TextView: View {
                         updateFieldValue()
                     }
                 }
-                .onChange(of: enterText, perform: debounceTextChange)
+                .onChange(of: displayText) { newValue in
+                    if isFocused {
+                        debounceTextChange(newValue: newValue)
+                    }
+                }
+        }
+        .onAppear {
+            if displayText.isEmpty {
+                displayText = textDataModel.text ?? ""
+            }
+            lastModelText = textDataModel.text
+        }
+        .onChange(of: textDataModel.text) { newValue in
+            if !isFocused && lastModelText != newValue {
+                if displayText != (newValue ?? "") {
+                    displayText = newValue ?? ""
+                }
+                lastModelText = newValue
+            }
         }
     }
-    
+
     private func debounceTextChange(newValue: String) {
-        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask?.cancel()
         debounceTask = Task {
             try? await Task.sleep(nanoseconds: Utility.DEBOUNCE_TIME_IN_NANOSECONDS)
             if !Task.isCancelled {
@@ -52,11 +78,12 @@ struct TextView: View {
             }
         }
     }
-    
+
     private func updateFieldValue() {
-        let newText = ValueUnion.string(enterText)
+        let newText = ValueUnion.string(displayText)
         let fieldEvent = FieldChangeData(fieldIdentifier: textDataModel.fieldIdentifier, updateValue: newText)
         eventHandler.onChange(event: fieldEvent)
     }
 }
+
 
