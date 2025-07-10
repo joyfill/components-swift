@@ -277,7 +277,7 @@ extension DocumentEditor {
             "_id" : rowID,
             "cells" : cells
         ]
-        sendRowUpdateEvent(for: fieldIdentifier, with: row, rowID: rowID, rowIndex: rowIndex)
+        sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
     
     public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
@@ -649,6 +649,22 @@ extension DocumentEditor {
         return (elements, newRow)
     }
 
+    fileprivate func updateValueElementsForBulk(_ changes: [String : ValueUnion], _ elements: inout [ValueElement], _ rowID: String) {
+        for cellDataModelId in changes.keys {
+            if let change = changes[cellDataModelId] {
+                guard let index = elements.firstIndex(where: { $0.id == rowID }) else {
+                    return
+                }
+                if var cells = elements[index].cells {
+                    cells[cellDataModelId] = change
+                    elements[index].cells = cells
+                } else {
+                    elements[index].cells = [cellDataModelId : change]
+                }
+            }
+        }
+    }
+    
     /// Performs bulk editing on specified rows in a table field.
     /// - Parameters:
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
@@ -659,23 +675,26 @@ extension DocumentEditor {
             Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
             return
         }
-        for rowId in selectedRows {
-            for cellDataModelId in changes.keys {
-                if let change = changes[cellDataModelId] {
-                    guard let index = elements.firstIndex(where: { $0.id == rowId }) else {
-                        return
-                    }
-                    if var cells = elements[index].cells {
-                        cells[cellDataModelId] = change
-                        elements[index].cells = cells
-                    } else {
-                        elements[index].cells = [cellDataModelId : change]
-                    }
-                }
-            }
+        var rows: [[String : Any]] = []
+        var changesToSend: [String: Any] = [:]
+        
+        for change in changes {
+            changesToSend[change.key] = change.value.dictionary
+        }
+        
+        for rowID in selectedRows {
+            let row: [String : Any] = [
+                "_id" : rowID,
+                "cells" : changesToSend
+            ]
+            rows.append(row)
+            
+            updateValueElementsForBulk(changes, &elements, rowID)
         }
 
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+        
+        sendRowUpdateEvent(for: fieldIdentifier, with: rows)
     }
     
     public func bulkEditForNested(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier, parentRowId: String,nestedKey: String, rootSchemaKey: String ) -> ([ValueElement], [String : ValueElement]) {
@@ -1054,29 +1073,29 @@ extension DocumentEditor {
     
     private func sendRowUpdateEvent(
         for fieldIdentifier: FieldIdentifier,
-        with row: [String : Any],
-        rowID: String,
-        rowIndex: Int
+        with rows: [[String : Any]]
     ) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
-        
-        var change = Change(v: 1,
-                            sdk: "swift",
-                            target: "field.value.rowUpdate",
-                            _id: context.documentID,
-                            identifier: context.documentIdentifier,
-                            fileId: context.fileID,
-                            pageId: context.pageID,
-                            fieldId: fieldIdentifier.fieldID,
-                            fieldIdentifier: context.fieldIdentifier,
-                            fieldPositionId: context.fieldPositionID,
-                            change: [
-                                "rowId": rowID,
-                                "row": row,
-                            ],
-                            createdOn: Date().timeIntervalSince1970)
-        
-        events?.onChange(changes: [change], document: document)
+        var changes: [Change] = []
+        for row in rows {
+            changes.append(Change(v: 1,
+                                  sdk: "swift",
+                                  target: "field.value.rowUpdate",
+                                  _id: context.documentID,
+                                  identifier: context.documentIdentifier,
+                                  fileId: context.fileID,
+                                  pageId: context.pageID,
+                                  fieldId: fieldIdentifier.fieldID,
+                                  fieldIdentifier: context.fieldIdentifier,
+                                  fieldPositionId: context.fieldPositionID,
+                                  change: [
+                                    "rowId": row["_id"],
+                                    "row": row,
+                                  ],
+                                  createdOn: Date().timeIntervalSince1970)
+            )
+        }
+        events?.onChange(changes: changes, document: document)
     }
     
     private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {
