@@ -1113,4 +1113,31 @@ extension ValidationTestCase {
 
         XCTAssertEqual(result.status, .invalid)
     }
+    
+    // Hidden Field Test cases - result always - valid
+    func testRequiredHiddenTextFieldWithoutValue() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTextField()
+            .setRequiredNumberHiddenFieldWithoutValue()
+            .setRequiredSingleChoiceFieldWithoutValue()
+            .setRequiredNumberHiddenFieldWithoutValuePositionInMobile()
+            .setRequiredTextFieldInMobile()
+            .setSingleSelectPosition()
+            .setTextField(hidden: true,value: .string(""), required: true)
+        
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+        
+        XCTAssertEqual(validationResult.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
+        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+    }
 }

@@ -2344,7 +2344,7 @@ extension JoyDoc {
         return document
     }
     
-    func setTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setTextField(hidden: Bool, value: ValueUnion, required: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "text"
         field.id = "66aa2865da10ac1c7b7acb1d"
@@ -2357,6 +2357,7 @@ extension JoyDoc {
         field.tipVisible = false
         field.file = "66a0fdb2acd89d30121053b9"
         field.hidden = hidden
+        field.required = required
         var document = self
         document.fields.append(field)
         return document
