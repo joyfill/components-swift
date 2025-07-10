@@ -1694,48 +1694,15 @@ extension Array {
 }
 extension CollectionViewModel: DocumentEditorDelegate {
     /// Merges the change payload into a cached ValueElement, returning the updated row.
-    private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement, schemaID: String) -> ValueElement {
+    private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
         guard let rowDict = change.change?["row"] as? [String: Any],
               let cellsDict = rowDict["cells"] as? [String: Any] else {
             return updatedRow
         }
-        var cellMap = updatedRow.cells ?? [:]
-        let columns = tableDataModel.filterTableColumns(key: schemaID)
-        for (colID, rawValue) in cellsDict {
-            guard let column = columns.first(where: { $0.id == colID }) else {
-                continue
-            }
-            let vUnion: ValueUnion
-            switch column.type {
-            case .text, .barcode, .signature, .block, .dropdown:
-                if let stringvalue = rawValue as? String {
-                    vUnion = .string(stringvalue)
-                } else {
-                    vUnion = .null
-                }
-            case .number, .date:
-                if let doubleValue = rawValue as? Double {
-                    vUnion = .double(doubleValue)
-                } else {
-                    vUnion = .null
-                }
-            case .multiSelect:
-                vUnion = .array(rawValue as? [String] ?? [])
-            case .image:
-                if let dictArray = rawValue as? [[String: Any]],
-                   let jsonData = try? JSONSerialization.data(withJSONObject: dictArray, options: []),
-                   let elements = try? JSONDecoder().decode([ValueElement].self, from: jsonData) {
-                    vUnion = .valueElementArray(elements)
-                } else {
-                    vUnion = .null
-                }
-            default:
-                vUnion = .null
-            }
-            cellMap[colID] = vUnion
+        for (key, value) in cellsDict {
+            updatedRow.cells?[key] = ValueUnion(value: value)
         }
-        updatedRow.cells = cellMap
         return updatedRow
     }
 
@@ -1773,7 +1740,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
         }
         let associatedSchemaID: String = change.change?["schemaId"] as! String
         // Merge payload into model
-        let merged = mergedRow(from: change, existingRow: existingRow, schemaID: associatedSchemaID == "" ? rootSchemaKey : associatedSchemaID)
+        let merged = mergedRow(from: change, existingRow: existingRow)
         rowToValueElementMap[rowID] = merged
         // Update UI based on merged model
         updateUIModels(for: rowID, schemaID: associatedSchemaID == "" ? rootSchemaKey : associatedSchemaID, using: merged)
