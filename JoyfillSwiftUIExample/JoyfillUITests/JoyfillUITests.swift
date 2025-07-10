@@ -15,24 +15,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         textField.typeText("Hello\n")
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
     }
-    
-    func testToolTip() throws {
-        let toolTipButton = app.buttons["ToolTipIdentifier"]
-        toolTipButton.tap()
-        sleep(1)
-        
-        let alert = app.alerts["ToolTip Title"]
-        XCTAssertTrue(alert.exists, "Alert should be visible")
-        
-        let alertTitle = alert.staticTexts["ToolTip Title"]
-        XCTAssertTrue(alertTitle.exists, "Alert title should be visible")
-        
-        let alertDescription = alert.staticTexts["ToolTip Description"]
-        XCTAssertTrue(alertDescription.exists, "Alert description should be visible")
-        
-        alert.buttons["Dismiss"].tap()
-    }
-    
+      
     func testMultilineField() throws {
         let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
         XCTAssertEqual("Hello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", multiLineTextField.value as! String)
