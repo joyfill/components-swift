@@ -152,7 +152,11 @@ public class DocumentEditor: ObservableObject {
                   let cellsDict = rowDict["cells"] as? [String: Any] else {
                 return
             }
-            elements[rowIndex] = ValueElement(dictionary: rowDict)
+            var updatedElement = elements[rowIndex]
+            for (key, value) in cellsDict {
+                updatedElement.cells?[key] = ValueUnion(value: value)
+            }
+            elements[rowIndex] = updatedElement
             let value = ValueUnion.valueElementArray(elements)
             updateValue(for: fieldID, value: value)
         }
