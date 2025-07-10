@@ -678,16 +678,38 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
     }
     
-    public func bulkEditForNested(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier) -> ([ValueElement], [String : ValueElement]) {
+    public func bulkEditForNested(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier, parentRowId: String,nestedKey: String, rootSchemaKey: String ) -> ([ValueElement], [String : ValueElement]) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             return ([],[:])
         }
         var updatedElements: [String : ValueElement] = [:]
+        var rows: [[String : Any]] = []
+        var changesToSend: [String: Any] = [:]
+        
+        for change in changes {
+            changesToSend[change.key] = change.value.dictionary
+        }
+        
         for rowId in selectedRows {
+            let row: [String : Any] = [
+                "_id" : rowId,
+                "cells" : changesToSend
+            ]
+            rows.append(row)
             updatedElements[rowId] = updateCells(for: rowId, with: changes, in: &elements)
         }
         
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+        
+        let fieldID = fieldIdentifier.fieldID
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldID]?.value)
+
+        guard let currentField = fieldMap[fieldID] else {
+            Log("Failed to find field \(fieldID)", type: .error)
+            return ([], [:])
+        }
+        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        handleRowCellOnChange(event: changeEvent, currentField: currentField, rows: rows, parentPath: parentPath, schemaId: nestedKey)
         return (elements, updatedElements)
     }
 
@@ -836,7 +858,7 @@ extension DocumentEditor {
                 return ([], nil)
             }
             let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-            handleRowCellOnChange(event: changeEvent, currentField: currentField, row: row, parentPath: parentPath, schemaId: nestedKey)
+            handleRowCellOnChange(event: changeEvent, currentField: currentField, rows: [row], parentPath: parentPath, schemaId: nestedKey)
         }
 
         return (elements, updatedElement)
@@ -1085,32 +1107,35 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
-    private func handleRowCellOnChange(event: FieldChangeData, currentField: JoyDocField, row: [String: Any], parentPath: String, schemaId: String) {
+    private func handleRowCellOnChange(event: FieldChangeData, currentField: JoyDocField, rows: [[String: Any]], parentPath: String, schemaId: String) {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
-        
-        guard let rowId = row["_id"] else {
-            Log("Row ID is missing for row cell change", type: .error)
-            return
+        var changes = [Change]()
+        for row in rows {
+            guard let rowId = row["_id"] else {
+                Log("Row ID is missing for row cell change", type: .error)
+                return
+            }
+            changes.append(
+                Change(v: 1,
+                       sdk: "swift",
+                       target: "field.value.rowUpdate",
+                       _id: context.documentID,
+                       identifier: context.documentIdentifier,
+                       fileId: context.fileID,
+                       pageId: context.pageID,
+                       fieldId: event.fieldIdentifier.fieldID,
+                       fieldIdentifier: context.fieldIdentifier,
+                       fieldPositionId: context.fieldPositionID,
+                       change: [
+                        "parentPath": parentPath,
+                        "schemaId": schemaId,
+                        "rowId": rowId,
+                        "row": row // Row object with only changed cell
+                       ],
+                       createdOn: Date().timeIntervalSince1970)
+            )
         }
-        
-        var change = Change(v: 1,
-                            sdk: "swift",
-                            target: "field.value.rowUpdate",
-                            _id: context.documentID,
-                            identifier: context.documentIdentifier,
-                            fileId: context.fileID,
-                            pageId: context.pageID,
-                            fieldId: event.fieldIdentifier.fieldID,
-                            fieldIdentifier: context.fieldIdentifier,
-                            fieldPositionId: context.fieldPositionID,
-                            change: [
-                                "parentPath": parentPath,
-                                "schemaId": schemaId,
-                                "rowId": rowId,
-                                "row": row // Row object with only changed cell
-                            ],
-                            createdOn: Date().timeIntervalSince1970)
-        events?.onChange(changes: [change], document: document)
+        events?.onChange(changes: changes, document: document)
     }
 
     private func handleFieldsOnChange(event: FieldChangeData, currentField: JoyDocField) {

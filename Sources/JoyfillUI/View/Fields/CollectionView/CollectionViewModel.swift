@@ -639,7 +639,7 @@ class CollectionViewModel: ObservableObject {
     /// Recursively adds all nested rows maintaining the proper hierarchical order
     private func addAllSchemasRecursively(to cellModels: inout [RowDataModel],
                                            parentRowID: String,
-                                           level: Int, 
+                                           level: Int,
                                            parentSchemaKey: String,
                                              parentID: (columnID: String, rowID: String),
                                              targetSchema: String) {
@@ -932,8 +932,8 @@ class CollectionViewModel: ObservableObject {
         
         if let level = deletedRowLevel, let schemaKey = deletedRowSchemaKey {
             for row in tableDataModel.filteredcellModels {
-                if row.rowType.level == level && 
-                   row.rowType.parentSchemaKey == schemaKey && 
+                if row.rowType.level == level &&
+                   row.rowType.parentSchemaKey == schemaKey &&
                    (row.rowType.isRow || row.rowType.isNestedRow) {
                     reIndexingRows(rowDataModel: row)
                     break
@@ -1520,16 +1520,16 @@ class CollectionViewModel: ObservableObject {
             guard let cellDataModelId = tableColumns[colIndex].id else { return }
             columnIDChanges[cellDataModelId] = value
         }
-        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-        tableDataModel.valueToValueElements = result?.0
-        for (key, value) in result?.1 ?? [:] {
-            rowToValueElementMap[key] = value
-        }
         
+        var parentRowID = ""
+        var nestedSchemaKey = ""
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             tableColumns.enumerated().forEach { colIndex, column in
-                var cellDataModel = tableDataModel.filteredcellModels[rowIndex].cells[colIndex].data
+                let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+                parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
+                nestedSchemaKey = rowDataModel.rowType.parentSchemaKey ?? ""
+                var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 
                 switch cellDataModel.type {
@@ -1562,6 +1562,17 @@ class CollectionViewModel: ObservableObject {
                 }
             }
         }
+        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
+                                                                      selectedRows: tableDataModel.selectedRows,
+                                                                      fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                      parentRowId: parentRowID,
+                                                                      nestedKey: nestedSchemaKey,
+                                                                      rootSchemaKey: rootSchemaKey)
+        tableDataModel.valueToValueElements = result?.0
+        for (key, value) in result?.1 ?? [:] {
+            rowToValueElementMap[key] = value
+        }
+        
 //        tableDataModel.filterCollectionRowsIfNeeded()
         sortRowsIfNeeded()
     }
