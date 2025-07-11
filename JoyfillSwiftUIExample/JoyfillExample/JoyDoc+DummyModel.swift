@@ -526,7 +526,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredImagefieldsWithoutValue() -> JoyDoc {
+    func setRequiredImagefieldsWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "image"
         field.id = "6629fab36e8925135f0cdd4f"
@@ -546,6 +546,7 @@ extension JoyDoc {
         field.tipVisible = false
         field.multi = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
@@ -2433,7 +2434,7 @@ extension JoyDoc {
     }
     
     //Set multiline field
-    func setMultilineTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setMultilineTextField(hidden: Bool, value: ValueUnion, required: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "textarea"
         field.id = "6629fb2b9a487ce1c1f35f6c"
@@ -2442,7 +2443,7 @@ extension JoyDoc {
         field.hidden = hidden
         field.description = ""
         field.value = value
-        field.required = false
+        field.required = required
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false

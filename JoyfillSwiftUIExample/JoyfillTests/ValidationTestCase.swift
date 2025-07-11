@@ -1130,6 +1130,7 @@ extension ValidationTestCase {
             .setRequiredTextFieldInMobile()
             .setSingleSelectPosition()
             .setTextField(hidden: true,value: .string(""), required: true)
+            .setRequiredImagefieldsWithoutValue(hidden: true)
         
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
