@@ -1,0 +1,349 @@
+{
+  "_id": "67fa8d7805eb82ed29fff882",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_67fa8d780ee252702a043dc2",
+  "name": "Hint and Deficiency Demo",
+  "createdOn": 1744473464047,
+  "files": [
+    {
+      "_id": "67fa8d789ae291ded87f04a0",
+      "metadata": {},
+      "name": "Hint and Deficiency Demo",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "67fa934adb227917c3399f29",
+              "type": "table",
+              "field": "67fa934a0d0062e14617252f",
+              "displayType": "original",
+              "tableColumns": {},
+              "x": 0,
+              "y": 8,
+              "width": 8,
+              "height": 25,
+              "titleDisplay": "inline"
+            },
+            {
+              "_id": "67fa94a4c9bf62b36427c27f",
+              "type": "text",
+              "field": "67fa94a1b378ad9e0b2d764b",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870d6e43c06691b090d6434",
+              "type": "collection",
+              "field": "68709da5086e134b6f81017d",
+              "displayType": "original",
+              "x": 0,
+              "y": 33,
+              "width": 8,
+              "height": 15
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "67fa8d78a51f7a3c45fdb360",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "67fa8d78a51f7a3c45fdb360"
+      ],
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "67fa8d789ae291ded87f04a0",
+      "_id": "67fa934a0d0062e14617252f",
+      "type": "table",
+      "title": "Hints",
+      "tableColumns": [
+        {
+          "_id": "67fa8e20c0bf00d7dcb01486",
+          "type": "dropdown",
+          "title": "Device Type",
+          "width": 0,
+          "options": [
+            {
+              "_id": "67fa8e20d2fdf29c35b03197",
+              "value": "Heat Detector",
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "67fa8e203a194a611282478d",
+              "value": "Smoke Detector",
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "67fa8e2035bf0cc58bc4687f",
+              "value": "Horn/Strobe",
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "67fa91afe6c7c8b8a8c06fc9",
+              "value": "Pull Station",
+              "metadata": {}
+            }
+          ],
+          "identifier": "field_column_67fa8e2ba266d510daf1c516"
+        },
+        {
+          "_id": "67fa9262c014f71619c540bf",
+          "type": "block",
+          "title": "Visual Inspection Hint",
+          "width": 0
+        },
+        {
+          "_id": "67fa9277716cd4bd455398b9",
+          "type": "block",
+          "title": "Functional Test Hint",
+          "width": 0
+        }
+      ],
+      "value": [
+        {
+          "_id": "67fa8e20de42e614f137a9cf",
+          "cells": {
+            "67fa8e20c0bf00d7dcb01486": "67fa8e20d2fdf29c35b03197",
+            "67fa9262c014f71619c540bf": "HD VI",
+            "67fa9277716cd4bd455398b9": "HD FT"
+          }
+        },
+        {
+          "_id": "67fa8e20a3e98cac7724d1c7",
+          "cells": {
+            "67fa8e20c0bf00d7dcb01486": "67fa8e203a194a611282478d",
+            "67fa9262c014f71619c540bf": "SD VI",
+            "67fa9277716cd4bd455398b9": "SD FT"
+          }
+        },
+        {
+          "_id": "67fa8e20f78ab0f8921da0bd",
+          "cells": {
+            "67fa8e20c0bf00d7dcb01486": "67fa8e2035bf0cc58bc4687f",
+            "67fa9262c014f71619c540bf": "HS VI",
+            "67fa9277716cd4bd455398b9": "HS FT"
+          }
+        },
+        {
+          "_id": "67fa9377cbe87670717a2704",
+          "cells": {
+            "67fa8e20c0bf00d7dcb01486": "67fa91afe6c7c8b8a8c06fc9",
+            "67fa9262c014f71619c540bf": "PS VI",
+            "67fa9277716cd4bd455398b9": "PS FT"
+          }
+        }
+      ],
+      "identifier": "servicetrade_assets_alarm_devices_hints",
+      "tableColumnOrder": [
+        "67fa8e20c0bf00d7dcb01486",
+        "67fa9262c014f71619c540bf",
+        "67fa9277716cd4bd455398b9"
+      ],
+      "rowOrder": [
+        "67fa8e20de42e614f137a9cf",
+        "67fa8e20a3e98cac7724d1c7",
+        "67fa8e20f78ab0f8921da0bd",
+        "67fa9377cbe87670717a2704"
+      ],
+      "hidden": true
+    },
+    {
+      "file": "67fa8d789ae291ded87f04a0",
+      "_id": "67fa94a1b378ad9e0b2d764b",
+      "type": "text",
+      "title": "Location Name",
+      "identifier": "field_67fa94a4d6f03ec808aea6e6",
+      "value": "Example Field 67fa94a4d6f03ec808aea6e6"
+    },
+    {
+      "file": "67fa8d789ae291ded87f04a0",
+      "_id": "68709da5086e134b6f81017d",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "6870d733af59c361b1bf4d75",
+          "cells": {
+            "67fa8e20ac59169cdcf7506e": "Street 11"
+          },
+          "children": {}
+        },
+        {
+          "_id": "6870d737e63b1f32434d344a",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6870d739d15b9db057c0f6ca",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6870d73c2c6e83c9d700fb9a",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "67fa8e20c0bf00d7dcb01486",
+              "type": "dropdown",
+              "title": "Device Type",
+              "width": 0,
+              "options": [
+                {
+                  "_id": "67fa8e20d2fdf29c35b03197",
+                  "value": "Heat Detector",
+                  "styles": {
+                    "backgroundColor": null
+                  }
+                },
+                {
+                  "_id": "67fa8e203a194a611282478d",
+                  "value": "Smoke Detector",
+                  "styles": {
+                    "backgroundColor": null
+                  }
+                },
+                {
+                  "_id": "67fa8e2035bf0cc58bc4687f",
+                  "value": "Horn/Strobe",
+                  "styles": {
+                    "backgroundColor": null
+                  }
+                },
+                {
+                  "_id": "67fa91afe6c7c8b8a8c06fc9",
+                  "value": "Pull Station",
+                  "metadata": {}
+                }
+              ],
+              "identifier": "field_column_67fa8e2ba266d510daf1c516",
+              "metadata": {
+                "_hint_device_type": true
+              }
+            },
+            {
+              "_id": "67fa8e20ac59169cdcf7506e",
+              "type": "text",
+              "title": "Address",
+              "width": 0,
+              "identifier": "field_column_67fa8e2b5cc1cea945a163a5"
+            },
+            {
+              "_id": "67fa91e4a5f01c417a60a3fa",
+              "type": "dropdown",
+              "title": "Visual Inspection",
+              "width": 0,
+              "options": [
+                {
+                  "_id": "67fa91e44dfc6e4f14acd711",
+                  "value": "Pass",
+                  "styles": {
+                    "backgroundColor": null
+                  }
+                },
+                {
+                  "_id": "67fa91e45daa80324794e12d",
+                  "value": "Fail",
+                  "styles": {
+                    "backgroundColor": null
+                  },
+                  "metadata": {
+                    "_deficiency": true
+                  }
+                },
+                {
+                  "_id": "67fa91e4895ac6e3a4e8fed4",
+                  "value": "N/A",
+                  "styles": {
+                    "backgroundColor": null
+                  }
+                }
+              ]
+            },
+            {
+              "_id": "67fa91e9d090ad0e3a1d0113",
+              "type": "dropdown",
+              "title": "Functional Test",
+              "width": 0,
+              "options": [
+                {
+                  "_id": "67fa91e9679555dec67ec2ae",
+                  "value": "Pass",
+                  "styles": {
+                    "backgroundColor": null
+                  }
+                },
+                {
+                  "_id": "67fa91e92a050065cba36bca",
+                  "value": "Fail",
+                  "styles": {
+                    "backgroundColor": null
+                  },
+                  "metadata": {
+                    "_deficiency": true
+                  }
+                },
+                {
+                  "_id": "67fa91e911efde8c90fb2d6c",
+                  "value": "N/A",
+                  "styles": {
+                    "backgroundColor": null
+                  }
+                }
+              ]
+            },
+            {
+              "_id": "67fa9262c014f71619c540bf",
+              "type": "text",
+              "title": "Visual Inspection Hint",
+              "width": 0
+            },
+            {
+              "_id": "67fa9277716cd4bd455398b9",
+              "type": "text",
+              "title": "Functional Test Hint",
+              "width": 0
+            }
+          ]
+        }
+      },
+      "identifier": "field_6870d6e48b5ac13f8fab2077"
+    }
+  ],
+  "categories": []
+}
