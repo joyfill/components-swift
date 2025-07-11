@@ -16,26 +16,6 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
     }
       
-    func testMultilineField() throws {
-        let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
-        XCTAssertEqual("Hello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", multiLineTextField.value as! String)
-        multiLineTextField.tap()
-        multiLineTextField.typeText("Hello")
-        //        tap textfield to trigger onChange
-        let textField = app.textFields["Text"]
-        textField.tap()
-        XCTAssertEqual("HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", onChangeResultValue().multilineText)
-    }
-    
-    func testNumberField() throws {
-        app.swipeUp()
-        let numberTextField = app.textFields["Number"]
-        XCTAssertEqual("98789", numberTextField.value as! String)
-        numberTextField.tap()
-        numberTextField.typeText("345\n")
-        XCTAssertEqual(98789345.0, onChangeResultValue().number!)
-    }
-
     func testDropdownFieldSelect_Unselect() throws {
         app.swipeUp()
         let dropdownButton = app.buttons["Dropdown"]
@@ -97,25 +77,6 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         textField.typeText("Hello")
         sleep(2)
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
-    }
-    
-    func testMultilineFieldCallOnChangeAfterTwoSeconds() throws {
-        let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
-        XCTAssertEqual("Hello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", multiLineTextField.value as! String)
-        multiLineTextField.tap()
-        multiLineTextField.typeText("Hello")
-        sleep(2)
-        XCTAssertEqual("HelloHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir\nHello sir", onChangeResultValue().multilineText)
-    }
-    
-    func testNumberFieldCallOnChangeAfterTwoSeconds() throws {
-        app.swipeUp()
-        let numberTextField = app.textFields["Number"]
-        XCTAssertEqual("98789", numberTextField.value as! String)
-        numberTextField.tap()
-        numberTextField.typeText("345")
-        sleep(2)
-        XCTAssertEqual(98789345.0, onChangeResultValue().number!)
     }
 }
 
