@@ -46,7 +46,7 @@ extension DocumentEditor {
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
     
-    public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
+    public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         guard !rowIDs.isEmpty else { return [] }
         let fieldId = fieldIdentifier.fieldID
         guard var field = fieldMap[fieldId] else {
@@ -57,14 +57,13 @@ extension DocumentEditor {
         
         for row in rowIDs {
             if let index = elements.firstIndex(where: { $0.id == row }) {
-                var element = elements[index]
-                element.setDeleted()
-                elements[index] = element
+                elements.remove(at: index)
             } else {
                 _ = deleteRowRecursively(rowId: row, in: &elements)
             }
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
+        guard shouldSendEvent else { return elements }
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
@@ -74,9 +73,7 @@ extension DocumentEditor {
     private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> Bool {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
-                var element = elements[i]
-                element.setDeleted()
-                elements[i] = element
+                elements.remove(at: i)
                 return true
             }
             if var children = elements[i].childrens {
@@ -280,7 +277,7 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
     
-    public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
+    public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
         var parentPath: String = ""
@@ -297,6 +294,7 @@ extension DocumentEditor {
                 targetRows = [TargetRowModel(id: rowID, index: newIndex)]
             }
         }
+        guard shouldSendEvent else { return elements }
         parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveNestedRowOnChange(event: changeEvent, targetRowIndexes: targetRows, parentPath: parentPath, schemaId: nestedKey)
@@ -354,7 +352,7 @@ extension DocumentEditor {
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
     }
     
-    public func moveNestedRowDown(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> [ValueElement] {
+    public func moveNestedRowDown(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
         var parentPath: String = ""
@@ -371,6 +369,7 @@ extension DocumentEditor {
                 targetRows = [TargetRowModel(id: rowID, index: newIndex)]
             }
         }
+        guard shouldSendEvent else { return elements }
         parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveNestedRowOnChange(event: changeEvent, targetRowIndexes: targetRows, parentPath: parentPath, schemaId: nestedKey)

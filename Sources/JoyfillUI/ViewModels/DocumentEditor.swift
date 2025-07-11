@@ -9,8 +9,13 @@ import Foundation
 import JoyfillModel
 
 private enum ChnageTargetType: String {
-    case fieldRowUpdate = "field.value.rowUpdate"
     case fieldUpdate = "field.update"
+
+    case fieldValueRowCreate = "field.value.rowCreate"
+    case fieldValueRowUpdate = "field.value.rowUpdate"
+    case fieldValueRowDelete = "field.value.rowDelete"
+    case fieldValueRowMove = "field.value.rowMove"
+    
     case unknown
 }
 
@@ -22,6 +27,9 @@ public class WeakDocumentEditorDelegate {
 
 public protocol DocumentEditorDelegate: AnyObject {
     func applyRowEditChanges(change: Change)
+    func insertRow(for change: Change)
+    func deleteRow(for change: Change)
+    func moveRow(for change: Change)
 }
 
 public class DocumentEditor: ObservableObject {
@@ -124,17 +132,23 @@ public class DocumentEditor: ObservableObject {
             }
             
             switch target {
-            case .fieldRowUpdate:
-                updateRowIfNeeded(for: change)
             case .fieldUpdate:
-                updateValueIfNeeded(for: change)
+                handleFieldUpdate(for: change)
+            case .fieldValueRowCreate:
+                handleFieldValueRowCreate(for: change)
+            case .fieldValueRowUpdate:
+                handleFieldValueRowUpdate(for: change)
+            case .fieldValueRowDelete:
+                handleFieldValueRowDelete(for: change)
+            case .fieldValueRowMove:
+                handleFieldValueRowMove(for: change)
             case .unknown:
                 break
             }
         }
     }
     
-    private func updateRowIfNeeded(for change: Change) {
+    private func handleFieldValueRowUpdate(for change: Change) {
         guard let fieldID = change.fieldId,
               let field = fieldMap[fieldID]
         else {
@@ -162,9 +176,64 @@ public class DocumentEditor: ObservableObject {
         }
     }
     
-    private func updateValueIfNeeded(for change: Change) {
+    private func handleFieldValueRowCreate(for change: Change) {
         guard let fieldID = change.fieldId,
-              let value = change.change?["value"] as? Any,
+              let field = fieldMap[fieldID]
+        else {
+            logChangeError(for: change)
+            return
+        }
+        switch field.fieldType {
+        case .collection:
+            collectionDelegateMap[fieldID]?.value?.insertRow(for: change)
+        default:
+            //TODO: Add impl
+            break
+        }
+    }
+
+    private func handleFieldValueRowDelete(for change: Change) {
+        guard let fieldID = change.fieldId,
+              let field = fieldMap[fieldID]
+        else {
+            logChangeError(for: change)
+            return
+        }
+        switch field.fieldType {
+        case .collection:
+            collectionDelegateMap[fieldID]?.value?.deleteRow(for: change)
+        default:
+            //TODO: Add impl
+            break
+        }
+    }
+    
+    private func handleFieldValueRowMove(for change: Change) {
+        guard let fieldID = change.fieldId,
+              let field = fieldMap[fieldID]
+        else {
+            logChangeError(for: change)
+            return
+        }
+        switch field.fieldType {
+        case .collection:
+            collectionDelegateMap[fieldID]?.value?.moveRow(for: change)
+        default:
+            //TODO: Add impl
+            break
+        }
+    }
+    
+    private func handleFieldUpdate(for change: Change) {
+        //TODO: Remove fieldType != .collection if we are removing back button update json functionality
+        guard let fieldID = change.fieldId,
+              let fieldType = fieldMap[fieldID]?.fieldType,
+              fieldType != .collection
+        else {
+            logChangeError(for: change)
+            return
+        }
+        guard let value = change.change?["value"] as? Any,
               let valueUnion = ValueUnion(value: value)
         else {
             logChangeError(for: change)
@@ -198,10 +267,16 @@ public class DocumentEditor: ObservableObject {
         let target = ChnageTargetType(rawValue: targetValue) ?? .unknown
         
         switch target {
-        case .fieldRowUpdate:
-            logEventForNilObject(fieldMap[fieldId], message: "field not found for change: \(changeId)")
         case .fieldUpdate:
             logEventForNilObject(change.change?["value"], message: "value not found for change: \(changeId)")
+        case .fieldValueRowCreate:
+            break
+        case .fieldValueRowUpdate:
+            logEventForNilObject(fieldMap[fieldId], message: "field not found for change: \(changeId)")
+        case .fieldValueRowDelete:
+            break
+        case .fieldValueRowMove:
+            break
         case .unknown:
             break
         }

@@ -907,24 +907,26 @@ class CollectionViewModel: ObservableObject {
         tableDataModel.emptySelection()
     }
     
-    func deleteSelectedNestedRow(parentRowId: String, nestedKey: String) {
-        let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: tableDataModel.selectedRows,
+    func deleteSelectedNestedRow(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, shouldSendEvent: Bool = true) {
+        let selectedRows = rowIDs ?? tableDataModel.selectedRows
+        let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: selectedRows,
                                                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                                    rootSchemaKey: rootSchemaKey,
                                                                                    nestedKey: nestedKey,
-                                                                                   parentRowId: parentRowId)
+                                                                                   parentRowId: parentRowId,
+                                                                                   shouldSendEvent: shouldSendEvent)
         self.tableDataModel.valueToValueElements = valueToValueElements
         buildRowToValueElementMap()
         
         var deletedRowLevel: Int?
         var deletedRowSchemaKey: String?
-        if let firstSelectedRowID = tableDataModel.selectedRows.first,
+        if let firstSelectedRowID = selectedRows.first,
            let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) {
             deletedRowLevel = firstSelectedRow.rowType.level
             deletedRowSchemaKey = firstSelectedRow.rowType.parentSchemaKey
         }
         
-        for rowID in tableDataModel.selectedRows {
+        for rowID in selectedRows {
             if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
                 deleteRow(at: index, rowID: rowID, isNested: true)
             }
@@ -1180,8 +1182,9 @@ class CollectionViewModel: ObservableObject {
         return newRowID
     }
 
-    func moveUP() {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+    func moveUP(rowIDs: [String]? = nil, shouldSendEvent: Bool = true) {
+        let selectedRows = rowIDs ?? tableDataModel.selectedRows
+        guard let firstSelectedRowID = selectedRows.first else {
             Log("No row selected", type: .error)
             return
         }
@@ -1191,17 +1194,18 @@ class CollectionViewModel: ObservableObject {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            moveNestedUP(parentRowId: "", nestedKey: rootSchemaKey, isNested: false)
+            moveNestedUP(rowIDs: selectedRows, parentRowId: "", nestedKey: rootSchemaKey, isNested: false, shouldSendEvent: shouldSendEvent)
         case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            moveNestedUP(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey, isNested: true)
+            moveNestedUP(rowIDs: selectedRows, parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey, isNested: true, shouldSendEvent: shouldSendEvent)
         default:
             return
         }
         reIndexingRows(rowDataModel: firstSelectedRow)
     }
     
-    func moveNestedUP(parentRowId: String, nestedKey: String, isNested: Bool) {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+    func moveNestedUP(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, isNested: Bool, shouldSendEvent: Bool = true) {
+        let selectedRows = rowIDs ?? tableDataModel.selectedRows
+        guard let firstSelectedRowID = selectedRows.first else {
             Log("No row selected", type: .error)
             return
         }
@@ -1209,7 +1213,8 @@ class CollectionViewModel: ObservableObject {
                                                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                                                   rootSchemaKey: rootSchemaKey,
                                                                                                   nestedKey: nestedKey,
-                                                                                                  parentRowId: parentRowId)
+                                                                                                  parentRowId: parentRowId,
+                                                                                                  shouldSendEvent: shouldSendEvent)
         buildRowToValueElementMap()
         guard let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
             Log("Could not find the row", type: .error)
@@ -1218,8 +1223,9 @@ class CollectionViewModel: ObservableObject {
         moveNestedUP(at: lastRowIndex, rowID: firstSelectedRowID, isNested: isNested)
     }
 
-    func moveDown() {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+    func moveDown(rowIDs: [String]? = nil, shouldSendEvent: Bool = true) {
+        let selectedRows = rowIDs ?? tableDataModel.selectedRows
+        guard let firstSelectedRowID = selectedRows.first else {
             Log("No row selected", type: .error)
             return
         }
@@ -1229,17 +1235,19 @@ class CollectionViewModel: ObservableObject {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            moveNestedDown(parentRowId: "", nestedKey: rootSchemaKey)
+            moveNestedDown(rowIDs: selectedRows, parentRowId: "", nestedKey: rootSchemaKey, shouldSendEvent: shouldSendEvent)
         case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            moveNestedDown(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey)
+            moveNestedDown(rowIDs: selectedRows, parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey, shouldSendEvent: shouldSendEvent)
         default:
             return
         }
         reIndexingRows(rowDataModel: firstSelectedRow)
     }
     
-    func moveNestedDown(parentRowId: String, nestedKey: String) {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+    func moveNestedDown(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, shouldSendEvent: Bool = true) {
+        let selectedRows = rowIDs ?? tableDataModel.selectedRows
+
+        guard let firstSelectedRowID = selectedRows.first else {
             Log("No row selected", type: .error)
             return
         }
@@ -1247,7 +1255,8 @@ class CollectionViewModel: ObservableObject {
                                                                                                     fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                                                     rootSchemaKey: rootSchemaKey,
                                                                                                     nestedKey: nestedKey,
-                                                                                                    parentRowId: parentRowId)
+                                                                                                    parentRowId: parentRowId,
+                                                                                                    shouldSendEvent: shouldSendEvent)
         buildRowToValueElementMap()
         guard let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
             Log("Unable to find row with ID: \(firstSelectedRowID)", type: .error)
@@ -1745,5 +1754,43 @@ extension CollectionViewModel: DocumentEditorDelegate {
         // Update UI based on merged model
         updateUIModels(for: rowID, schemaID: associatedSchemaID == "" ? rootSchemaKey : associatedSchemaID, using: merged)
         uuid = UUID()
+    }
+    
+    func insertRow(for change: Change) {
+        //TODO: add insert row implementation
+    }
+
+    func deleteRow(for change: Change) {
+        guard let rowID = change.change?["rowId"] as? String
+        else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        deleteSelectedNestedRow(rowIDs: [rowID], parentRowId: "", nestedKey: "", shouldSendEvent: false)
+    }
+    
+    func moveRow(for change: Change) {
+        guard let rowID = change.change?["rowId"] as? String
+        else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        
+        guard var targetRowIndex = change.change?["targetRowIndex"] as? Int else { return }
+        guard var rowIndex = tableDataModel.valueToValueElements?.firstIndex(where: { element in
+            element.id == rowID
+        }) else { return }
+        
+        if targetRowIndex > rowIndex {
+            while targetRowIndex > rowIndex {
+                rowIndex += 1
+                moveDown(rowIDs: [rowID], shouldSendEvent: false)
+            }
+        } else if targetRowIndex < rowIndex {
+            while targetRowIndex < rowIndex {
+                rowIndex -= 1
+                moveUP(rowIDs: [rowID], shouldSendEvent: false)
+            }
+        }
     }
 }
