@@ -270,9 +270,6 @@
 				13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */,
 				13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */,
 				362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */,
-				04814A022CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift */,
-				04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */,
-				04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */,
 				1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */,
 				9E7018092E20C4AB003651A4 /* NumberField */,
 				9E70180F2E20FF60003651A4 /* MultilineTextField */,
@@ -333,6 +330,9 @@
 			children = (
 				9E70181A2E220F7A003651A4 /* DropdownFieldTestData.json */,
 				9E70181B2E220F7A003651A4 /* DropdownFieldUITestCases.swift */,
+				04814A042CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift */,
+				04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */,
+				04814A022CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift */,
 			);
 			path = DropdownField;
 			sourceTree = "<group>";
