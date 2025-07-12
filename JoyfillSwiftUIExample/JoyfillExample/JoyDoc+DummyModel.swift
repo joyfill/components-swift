@@ -1199,7 +1199,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredSignatureFieldWithoutValue() -> JoyDoc {
+    func setRequiredSignatureFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "signature"
         field.id = "6629fbb8cd16c0c4d308a252"
@@ -1212,6 +1212,7 @@ extension JoyDoc {
         field.tipDescription = ""
         field.tipVisible = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
