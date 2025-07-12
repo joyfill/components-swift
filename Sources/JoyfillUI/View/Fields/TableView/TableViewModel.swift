@@ -28,6 +28,7 @@ class TableViewModel: ObservableObject {
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
+        tableDataModel.documentEditor?.registerDelegate(self, forField: tableDataModel.fieldIdentifier.fieldID)
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
@@ -316,14 +317,14 @@ class TableViewModel: ObservableObject {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool) -> [ValueElement] {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true) -> [ValueElement] {
         if isNestedCell {
             tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         } else {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         }
         
-        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier) ?? []
+        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange) ?? []
     }
 
     func bulkEdit(changes: [Int: ValueUnion]) {
@@ -370,4 +371,72 @@ class TableViewModel: ObservableObject {
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
     }
+}
+
+extension TableViewModel: DocumentEditorDelegate {
+    
+    private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement) -> ValueElement {
+        var updatedRow = existingRow
+        guard let rowDict = change.change?["row"] as? [String: Any],
+              let cellsDict = rowDict["cells"] as? [String: Any] else {
+            return updatedRow
+        }
+        for (key, value) in cellsDict {
+            updatedRow.cells?[key] = ValueUnion(value: value)
+        }
+        return updatedRow
+    }
+    
+    private func updateUIModels(for rowID: String, using row: ValueElement) {
+        let columns = tableDataModel.tableColumns
+        let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, row)
+        for cell in cellDataModels {
+            let colIndex = columns.firstIndex(where: { $0.id == cell.id }) ?? 0
+            tableDataModel.updateCellModelForNested(
+                rowId: rowID,
+                colIndex: colIndex,
+                cellDataModel: cell,
+                isBulkEdit: true
+            )
+            cellDidChange(
+                rowId: rowID,
+                colIndex: colIndex,
+                cellDataModel: cell,
+                isNestedCell: true,
+                callOnChange: false
+            )
+        }
+    }
+    
+    func applyRowEditChanges(change: JoyfillModel.Change) {
+        guard let rowID = change.change?["rowId"] as? String,
+              let existingRowIndex = tableDataModel.valueToValueElements?.firstIndex(where: {$0.id == rowID }) else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        // Merge payload into model
+        guard let existingRow: ValueElement = tableDataModel.valueToValueElements?[existingRowIndex] else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        let merged = mergedRow(from: change, existingRow: existingRow)
+        tableDataModel.valueToValueElements?[existingRowIndex] = merged
+        // Update UI based on merged model
+        updateUIModels(for: rowID, using: merged)
+        uuid = UUID()
+    }
+    
+    func insertRow(for change: JoyfillModel.Change) {
+        
+    }
+    
+    func deleteRow(for change: JoyfillModel.Change) {
+        
+    }
+    
+    func moveRow(for change: JoyfillModel.Change) {
+        
+    }
+    
+    
 }

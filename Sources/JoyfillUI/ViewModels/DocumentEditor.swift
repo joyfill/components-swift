@@ -81,7 +81,7 @@ public class DocumentEditor: ObservableObject {
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
-    public func registerDelegate(_ delegate: DocumentEditorDelegate, forCollectionField fieldID: String) {
+    public func registerDelegate(_ delegate: DocumentEditorDelegate, forField fieldID: String) {
         collectionDelegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
     }
     
@@ -156,7 +156,7 @@ public class DocumentEditor: ObservableObject {
             return
         }
         switch field.fieldType {
-        case .collection:
+        case .collection, .table:
             DispatchQueue.main.async(execute: {
                 self.collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
             })

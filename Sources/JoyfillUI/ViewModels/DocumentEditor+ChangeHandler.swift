@@ -763,7 +763,7 @@ extension DocumentEditor {
         ])
     }
 
-    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier) -> [ValueElement] {
+    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, callOnChange: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
@@ -774,7 +774,9 @@ extension DocumentEditor {
         }
         
         // Fire row update event
-        rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel)
+        if callOnChange {
+            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel)
+        }
 
         switch cellDataModel.type {
         case .text:
