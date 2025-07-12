@@ -989,7 +989,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredDropdownFieldWithoutValue() -> JoyDoc {
+    func setRequiredDropdownFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "dropdown"
         field.id = "6629fb77593e3791638628bb"
@@ -998,6 +998,7 @@ extension JoyDoc {
         field.description = ""
         field.value = .string("")
         field.required = true
+        field.hidden = hidden
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false

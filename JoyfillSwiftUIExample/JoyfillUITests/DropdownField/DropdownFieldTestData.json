@@ -13,7 +13,7 @@
       "value": "test",
       "logic": {
         "action": "hide",
-        "eval": "and",
+        "eval": "or",
         "conditions": [
           {
             "file": "66a14ced9dc829a95e272506",
@@ -21,6 +21,26 @@
             "field": "686dfcbda4eede35bd882f73",
             "condition": "=",
             "value": "686de9ba91350da2a4d4d614"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "6871e1934491c5bb454e0cf2",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "6871e2072fa3de32e334a6a6",
+            "condition": "=",
+            "value": "686de9ba71b3be77e6c1d2c7"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "6871e2072fa3de32e334a6a6",
+            "condition": "null=",
+            "value": "6871e2a66baf75014270e06e"
           }
         ]
       }
@@ -45,10 +65,175 @@
           "_id": "686de9ba91350da2a4d4d614",
           "value": "N/A",
           "deleted": false
+        },
+        {
+          "_id": "6871e35071239b23d1dde467",
+          "value": "Hindi: नमस्ते दुनिया | Chinese: 你好，世界 | Arabic: مرحبا بالعالم 🌍",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e388de33fbbf48af2126",
+          "value": "This is a very long option label used for testing overflow or wrapping behavior in dropdown fields\"\n3. Special Characters: \"!@#$%^&*()_+-=[]{}|;':\\\",.<>/?`~",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e39b9a6c029d536cb4c6",
+          "value": "✅ Done 🎉 Success 🚀 Launch 🌟 Favorite",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e3dbbc8ebcb9c7e10c67",
+          "value": "\"default\": { \"label\": \"Option1\", \"value\": \"1\" }",
+          "width": 100,
+          "deleted": false
         }
       ],
       "identifier": "field_686e0d9cf0fb90914e468030",
-      "value": ""
+      "value": "6871e3dbbc8ebcb9c7e10c67",
+      "required": true,
+      "tipVisible": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Dropdown"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6871e1934491c5bb454e0cf2",
+      "type": "dropdown",
+      "title": "This dropdown is readonly with\n'readonly' default value",
+      "options": [
+        {
+          "_id": "686de9ba0e870181427371e6",
+          "value": "readonly",
+          "deleted": false
+        },
+        {
+          "_id": "686de9ba71b3be77e6c1d2c7",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "686de9ba91350da2a4d4d614",
+          "value": "N/A",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_6871e1cbf3bd13002f4bc86f",
+      "disabled": true,
+      "value": "686de9ba0e870181427371e6",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bc007ff08c3beb2e93e99",
+            "condition": "=",
+            "value": "test"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "6871e2072fa3de32e334a6a6",
+            "condition": "=",
+            "value": "6871e268aa510a5c91d1e3e0"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6871e2072fa3de32e334a6a6",
+      "type": "dropdown",
+      "title": "",
+      "options": [
+        {
+          "_id": "686de9ba0e870181427371e6",
+          "value": "Dropdown without header",
+          "deleted": false
+        },
+        {
+          "_id": "686de9ba71b3be77e6c1d2c7",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "686de9ba91350da2a4d4d614",
+          "value": "N/A",
+          "deleted": false
+        },
+        {
+          "_id": "6871e243a48a01a88458d6fd",
+          "value": "one",
+          "width": 200,
+          "deleted": false
+        },
+        {
+          "_id": "6871e268aa510a5c91d1e3e0",
+          "value": "two",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e26bc1936d67e4aa2527",
+          "value": "three",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e26f400e7b602b36cdc5",
+          "value": "four",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e274c2b04ef4799241c3",
+          "value": "five",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e277bf2db2c3a4893700",
+          "value": "six",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e27cc58ac3ae00fb1c26",
+          "value": "seven",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e284bda05e7578b6ef5c",
+          "value": "eight",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e28994239eff647d7415",
+          "value": "niine",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e28c19fe53c5570c3949",
+          "value": "ten",
+          "width": 100,
+          "deleted": false
+        },
+        {
+          "_id": "6871e2a66baf75014270e06e",
+          "value": "this is long text for testing how it works",
+          "width": 100,
+          "deleted": false
+        }
+      ],
+      "identifier": "field_6871e22b1c8070ed82729aee",
+      "value": "686de9ba0e870181427371e6"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -94,6 +279,28 @@
               "targetValue": "686de9ba0e870181427371e6",
               "x": 2,
               "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6871e1cb056fab5a3ce0c16d",
+              "type": "dropdown",
+              "field": "6871e1934491c5bb454e0cf2",
+              "displayType": "original",
+              "targetValue": "686de9ba0e870181427371e6",
+              "x": 2,
+              "y": 31,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6871e22b97dec0bfe2c8efe7",
+              "type": "dropdown",
+              "field": "6871e2072fa3de32e334a6a6",
+              "displayType": "original",
+              "targetValue": "686de9ba0e870181427371e6",
+              "x": 2,
+              "y": 39,
               "width": 4,
               "height": 8
             }
