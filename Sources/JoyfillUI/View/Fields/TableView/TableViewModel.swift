@@ -409,8 +409,28 @@ extension TableViewModel: DocumentEditorDelegate {
     }
     
     func applyRowEditChanges(change: JoyfillModel.Change) {
-        guard let rowID = change.change?["rowId"] as? String,
-              let existingRowIndex = tableDataModel.valueToValueElements?.firstIndex(where: {$0.id == rowID }) else {
+        let target = ChnageTargetType(rawValue: change.target ?? "")
+        
+        switch target {
+        case .fieldValueRowUpdate:
+            rowUpdate(change: change)
+        case .fieldValueRowCreate:
+            rowCreate(change: change)
+        default :
+            return
+        }
+    }
+    
+    func rowCreate(change: JoyfillModel.Change) {
+        
+    }
+    
+    func rowUpdate(change: JoyfillModel.Change) {
+        guard let rowID = change.change?["rowId"] as? String else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        guard let existingRowIndex = tableDataModel.valueToValueElements?.firstIndex(where: {$0.id == rowID }) else {
             Log("RowID not found or no cached ValueElement", type: .error)
             return
         }

@@ -8,7 +8,7 @@
 import Foundation
 import JoyfillModel
 
-private enum ChnageTargetType: String {
+public enum ChnageTargetType: String {
     case fieldUpdate = "field.update"
 
     case fieldValueRowCreate = "field.value.rowCreate"
