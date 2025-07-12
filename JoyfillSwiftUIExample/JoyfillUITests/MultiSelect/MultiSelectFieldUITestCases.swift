@@ -78,4 +78,74 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         let finalSingleOptionCount = getOptionsButtonsCount(identifier: "SingleSelectionIdentifier")
         XCTAssertEqual(3, finalSingleOptionCount)
     }
+    
+    // MARK: — Required Asterisk Persists
+    func testRequiredMultiselectAsteriskPersistsAfterSelection() {
+        // required field is the first multi-select
+        let requiredLabel = app.staticTexts["Multiple Choice"]
+        XCTAssertTrue(requiredLabel.exists)
+        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        XCTAssertTrue(asteriskIcon.exists, "Asterisk should be visible before selection")
+
+        // make a selection
+        let firstOption = app.buttons.matching(identifier: "MultiSelectionIdenitfier").element(boundBy: 0)
+        firstOption.tap()
+        sleep(1)
+
+        // asterisk should still be there
+        XCTAssertTrue(asteriskIcon.exists, "Asterisk should remain after making a selection")
+    }
+
+    // MARK: — Retain Value After Scroll
+    func testMultiselectRetainsValueAfterScroll() {
+        let multi = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
+        multi.element(boundBy: 2).tap()
+
+        // scroll up/down
+        app.swipeUp()
+        app.swipeDown()
+        sleep(1)
+
+        // verify label(s) still selected in payload
+        let result = onChangeResultValue()
+        XCTAssertEqual(Set(result.multiSelector ?? []),
+                       Set(["686b854528a03e7759da506c", "686b854514dfef2c5bb24eed"]),
+                       "Selections should persist after scrolling")
+    }
+ 
+
+    // MARK: — Header Rendering
+    func testMultiselectFieldHeaderRendering() {
+        // small header (second field)
+        let small = app.staticTexts["Multiple Choice"]
+        XCTAssertTrue(small.exists)
+
+        // multiline header (third field)
+        let multiline = app.staticTexts["This Multiple Choice is for\ntesting multiline header text."]
+        XCTAssertTrue(multiline.exists)
+
+        app.swipeUp()
+        // no-header field (fourth multi-select)
+        let noHeader = app.buttons.matching(identifier: "MultiSelectionIdenitfier").element(boundBy: 2)
+        // we expect no static text for its header
+        XCTAssertTrue(noHeader.exists)
+    }
+
+    // MARK: — Tooltip Display
+    func testToolTip() throws {
+        let toolTipButton = app.buttons["ToolTipIdentifier"]
+        toolTipButton.tap()
+        sleep(1)
+        
+        let alert = app.alerts["Tooltip Title"]
+        XCTAssertTrue(alert.exists, "Alert should be visible")
+        
+        let alertTitle = alert.staticTexts["Tooltip Title"]
+        XCTAssertTrue(alertTitle.exists, "Alert title should be visible")
+        
+        let alertDescription = alert.staticTexts["Tooltip Description"]
+        XCTAssertTrue(alertDescription.exists, "Alert description should be visible")
+        
+        alert.buttons["Dismiss"].tap()
+    }
 }
