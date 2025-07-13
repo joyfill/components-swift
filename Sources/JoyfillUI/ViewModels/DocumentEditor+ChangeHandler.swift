@@ -523,7 +523,7 @@ extension DocumentEditor {
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
-    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ValueElement? {
+    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement) {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
@@ -538,11 +538,11 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
         
-        guard shouldSendEvent else { return newRow }
+        guard shouldSendEvent else { return (elements,newRow) }
         
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
-        return newRow
+        return (elements,newRow)
     }
     
     private func insertNestedRow(in elements: inout [ValueElement],

@@ -44,7 +44,7 @@ class TableViewModel: ObservableObject {
                     if let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -96,7 +96,7 @@ class TableViewModel: ObservableObject {
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -279,16 +279,17 @@ class TableViewModel: ObservableObject {
         tableDataModel.emptySelection()
     }
 
-    func addRow(with cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
-        let id = generateObjectId()
+    func addRow(with cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true, rowID: String = "") {
+        let id = rowID == "" ? generateObjectId() : rowID
         let cellValues = cellValues ?? getCellValues()
         
-        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(
+        if let result = tableDataModel.documentEditor?.insertRowWithFilter(
             id: id, cellValues: cellValues,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent
         ) {
-            updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
+            tableDataModel.valueToValueElements = result.0
+            updateRow(valueElement: result.1, at: tableDataModel.rowOrder.count)
         } else {
             Log("Row data is nil", type: .error)
             return
@@ -395,8 +396,12 @@ extension TableViewModel: DocumentEditorDelegate {
     
     func insertRow(for change: Change) {
         var cellValues: [String: ValueUnion] = [:]
+        var newRowDict = change.change?["row"]
+        var newRow = ValueElement(dictionary: newRowDict as! [String : Any])
+        guard let newRowID = newRow.id else { return }
+
         //TODO: add values
-        addRow(with: cellValues, shouldSendEvent: false)
+        addRow(with: newRow.cells, shouldSendEvent: false, rowID: newRowID)
     }
 
     func deleteRow(for change: Change) {
@@ -455,11 +460,11 @@ extension TableViewModel: DocumentEditorDelegate {
                 cellDataModel: cell,
                 isBulkEdit: true
             )
-            cellDidChange(
+            self.tableDataModel.valueToValueElements = cellDidChange(
                 rowId: rowID,
                 colIndex: colIndex,
                 cellDataModel: cell,
-                isNestedCell: true,
+                isNestedCell: false,
                 callOnChange: false
             )
         }
