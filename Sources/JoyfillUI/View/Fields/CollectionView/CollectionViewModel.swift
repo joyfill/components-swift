@@ -1367,8 +1367,8 @@ class CollectionViewModel: ObservableObject {
         return childrens
     }
     
-    func addRow(with cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
-        let id = generateObjectId()
+    func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
+        let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues(columns: tableDataModel.tableColumns)
         
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
@@ -1763,9 +1763,10 @@ extension CollectionViewModel: DocumentEditorDelegate {
     
     func insertRow(for change: Change) {
         var cellValues: [String: ValueUnion] = [:]
-        //TODO: add values
-        addRow(with: cellValues, shouldSendEvent: false)
-//        addNestedRow(schemaKey: <#T##String#>, level: <#T##Int#>, startingIndex: <#T##Int#>, parentID: <#T##(columnID: String, rowID: String)#>)
+        var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
+        let newRow = ValueElement(dictionary: newRowDict)
+        guard let newRowID = newRow.id else { return }
+        addRow(with: newRowID, and: cellValues, shouldSendEvent: false)
     }
 
     func deleteRow(for change: Change) {

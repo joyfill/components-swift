@@ -279,8 +279,8 @@ class TableViewModel: ObservableObject {
         tableDataModel.emptySelection()
     }
 
-    func addRow(with cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true, rowID: String = "") {
-        let id = rowID == "" ? generateObjectId() : rowID
+    func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
+        let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues()
         
         if let result = tableDataModel.documentEditor?.insertRowWithFilter(
@@ -396,12 +396,10 @@ extension TableViewModel: DocumentEditorDelegate {
     
     func insertRow(for change: Change) {
         var cellValues: [String: ValueUnion] = [:]
-        var newRowDict = change.change?["row"]
-        var newRow = ValueElement(dictionary: newRowDict as! [String : Any])
+        var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
+        let newRow = ValueElement(dictionary: newRowDict)
         guard let newRowID = newRow.id else { return }
-
-        //TODO: add values
-        addRow(with: newRow.cells, shouldSendEvent: false, rowID: newRowID)
+        addRow(with: newRowID, and: newRow.cells, shouldSendEvent: false)
     }
 
     func deleteRow(for change: Change) {
