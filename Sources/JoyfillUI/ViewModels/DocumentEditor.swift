@@ -32,10 +32,6 @@ public protocol DocumentEditorDelegate: AnyObject {
     func moveRow(for change: Change)
 }
 
-public extension DocumentEditorDelegate {
-    func applyRowEditChanges(change: Change) { }
-}
-
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
@@ -44,8 +40,7 @@ public class DocumentEditor: ObservableObject {
     public var mode: Mode
     public var isPageDuplicateEnabled: Bool
     public var showPageNavigationView: Bool
-    public var tableDelegateMap: [String: WeakDocumentEditorDelegate] = [:]
-    public var collectionDelegateMap: [String: WeakDocumentEditorDelegate] = [:]
+    public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
         didSet {
@@ -86,12 +81,8 @@ public class DocumentEditor: ObservableObject {
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
-    public func registerDelegate(_ delegate: DocumentEditorDelegate, forCollectionField fieldID: String) {
-        collectionDelegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
-    }
-    
-    public func registerDelegate(_ delegate: DocumentEditorDelegate, forTableField fieldID: String) {
-        tableDelegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
+    public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {
+        delegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
     }
     
     public func updateFieldMap() {
@@ -143,14 +134,19 @@ public class DocumentEditor: ObservableObject {
             switch target {
             case .fieldUpdate:
                 handleFieldUpdate(for: change)
+                
             case .fieldValueRowCreate:
                 handleFieldValueRowCreate(for: change)
+                
             case .fieldValueRowUpdate:
                 handleFieldValueRowUpdate(for: change)
+                
             case .fieldValueRowDelete:
                 handleFieldValueRowDelete(for: change)
+                
             case .fieldValueRowMove:
                 handleFieldValueRowMove(for: change)
+                
             case .unknown:
                 break
             }
@@ -165,9 +161,9 @@ public class DocumentEditor: ObservableObject {
             return
         }
         switch field.fieldType {
-        case .collection:
+        case .table, .collection:
             DispatchQueue.main.async(execute: {
-                self.collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+                self.delegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
             })
             
         default:
@@ -196,10 +192,8 @@ public class DocumentEditor: ObservableObject {
             return
         }
         switch field.fieldType {
-        case .collection:
-            collectionDelegateMap[fieldID]?.value?.insertRow(for: change)
-        case .table:
-            tableDelegateMap[fieldID]?.value?.insertRow(for: change)
+        case  .table, .collection:
+            delegateMap[fieldID]?.value?.insertRow(for: change)
         default:
             //TODO: Add impl
             break
@@ -214,10 +208,8 @@ public class DocumentEditor: ObservableObject {
             return
         }
         switch field.fieldType {
-        case .collection:
-            collectionDelegateMap[fieldID]?.value?.deleteRow(for: change)
-        case .table:
-            tableDelegateMap[fieldID]?.value?.deleteRow(for: change)
+        case .table, .collection:
+            delegateMap[fieldID]?.value?.deleteRow(for: change)
         default:
             //TODO: Add impl
             break
@@ -232,10 +224,8 @@ public class DocumentEditor: ObservableObject {
             return
         }
         switch field.fieldType {
-        case .collection:
-            collectionDelegateMap[fieldID]?.value?.moveRow(for: change)
-        case .table:
-            tableDelegateMap[fieldID]?.value?.moveRow(for: change)
+        case .table, .collection:
+            delegateMap[fieldID]?.value?.moveRow(for: change)
         default:
             //TODO: Add impl
             break

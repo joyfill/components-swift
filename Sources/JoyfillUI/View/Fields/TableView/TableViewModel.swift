@@ -28,7 +28,7 @@ class TableViewModel: ObservableObject {
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
-        tableDataModel.documentEditor?.registerDelegate(self, forTableField: tableDataModel.fieldIdentifier.fieldID)
+        tableDataModel.documentEditor?.registerDelegate(self, for: tableDataModel.fieldIdentifier.fieldID)
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
@@ -392,6 +392,11 @@ class TableViewModel: ObservableObject {
 
 // MARK: - DocumentEditorDelegate methods
 extension TableViewModel: DocumentEditorDelegate {
+    
+    func applyRowEditChanges(change: Change) {
+        //TODO: Add impl
+    }
+    
     func insertRow(for change: Change) {
         var cellValues: [String: ValueUnion] = [:]
         //TODO: add values

@@ -43,7 +43,7 @@ class CollectionViewModel: ObservableObject {
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
-        tableDataModel.documentEditor?.registerDelegate(self, forCollectionField: tableDataModel.fieldIdentifier.fieldID)
+        tableDataModel.documentEditor?.registerDelegate(self, for: tableDataModel.fieldIdentifier.fieldID)
     }
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
