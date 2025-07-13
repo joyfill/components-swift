@@ -166,7 +166,10 @@ public class DocumentEditor: ObservableObject {
         }
         switch field.fieldType {
         case .collection:
-            collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+            DispatchQueue.main.async(execute: {
+                self.collectionDelegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+            })
+            
         default:
             guard var elements = field.valueToValueElements else { return }
             guard let rowID = change.change?["rowId"] as? String else { return }

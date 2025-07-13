@@ -64,6 +64,8 @@
 		E2A684392DCA40D100385FE1 /* CollectionFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A684382DCA40D100385FE1 /* CollectionFieldTests.swift */; };
 		E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */; };
 		E2A6843D2DCA41F000385FE1 /* JoyDoc+helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */; };
+		E2A6929E2E20D2EA005AD17B /* ManipulateDataOnChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A6929D2E20D29C005AD17B /* ManipulateDataOnChangeView.swift */; };
+		E2A692A02E20F199005AD17B /* hint_and_deficiency_demo.json in Resources */ = {isa = PBXBuildFile; fileRef = E2A6929F2E20F199005AD17B /* hint_and_deficiency_demo.json */; };
 		E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */; };
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
@@ -145,6 +147,8 @@
 		E2A684382DCA40D100385FE1 /* CollectionFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldTests.swift; sourceTree = "<group>"; };
 		E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageReplacementTest.swift; sourceTree = "<group>"; };
 		E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
+		E2A6929D2E20D29C005AD17B /* ManipulateDataOnChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManipulateDataOnChangeView.swift; sourceTree = "<group>"; };
+		E2A6929F2E20F199005AD17B /* hint_and_deficiency_demo.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hint_and_deficiency_demo.json; sourceTree = "<group>"; };
 		E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
 		E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSearchView.swift; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
@@ -295,7 +299,9 @@
 				E27C87E22D394387008EA35C /* CameraScanner.swift */,
 				E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */,
 				36E088BD2E1D84570048A303 /* OnChangeHandlerTest.swift */,
+				E2A6929D2E20D29C005AD17B /* ManipulateDataOnChangeView.swift */,
 				36E088BF2E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json */,
+				E2A6929F2E20F199005AD17B /* hint_and_deficiency_demo.json */,
 				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
 				E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */,
 				04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */,
@@ -480,6 +486,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2A692A02E20F199005AD17B /* hint_and_deficiency_demo.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				36E088C02E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
@@ -540,6 +547,7 @@
 				E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */,
 				E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */,
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,
+				E2A6929E2E20D2EA005AD17B /* ManipulateDataOnChangeView.swift in Sources */,
 				E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */,
 				FA28C9672BB4345C00A2D65C /* FormContainerView.swift in Sources */,
 				FA28C96B2BB4359600A2D65C /* ChangeManager.swift in Sources */,
