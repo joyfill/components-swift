@@ -1367,16 +1367,17 @@ class CollectionViewModel: ObservableObject {
         return childrens
     }
     
-    func addRow() {
+    func addRow(with cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
         let id = generateObjectId()
-        let cellValues = getCellValues(columns: tableDataModel.tableColumns)
+        let cellValues = cellValues ?? getCellValues(columns: tableDataModel.tableColumns)
         
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id,
                                                                             cellValues: cellValues,
                                                                             fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                             schemaKey: rootSchemaKey,
                                                                             childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
-                                                                            rootSchemaKey: rootSchemaKey) {
+                                                                            rootSchemaKey: rootSchemaKey,
+                                                                            shouldSendEvent: shouldSendEvent) {
             let index = tableDataModel.filteredcellModels.count
             tableDataModel.valueToValueElements = rowData.all
             buildRowToValueElementMap()
@@ -1701,7 +1702,7 @@ extension Array {
         }
     }
 }
-extension CollectionViewModel: DocumentEditorDelegate {
+extension CollectionViewModel {
     /// Merges the change payload into a cached ValueElement, returning the updated row.
     private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
@@ -1740,7 +1741,11 @@ extension CollectionViewModel: DocumentEditorDelegate {
             }
         }
     }
+}
 
+// MARK: - DocumentEditorDelegate methods
+extension CollectionViewModel: DocumentEditorDelegate {
+    
     func applyRowEditChanges(change: JoyfillModel.Change) {
         guard let rowID = change.change?["rowId"] as? String,
               let existingRow = rowToValueElementMap[rowID] else {
@@ -1757,7 +1762,10 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
     
     func insertRow(for change: Change) {
-        //TODO: add insert row implementation
+        var cellValues: [String: ValueUnion] = [:]
+        //TODO: add values
+        addRow(with: cellValues, shouldSendEvent: false)
+//        addNestedRow(schemaKey: <#T##String#>, level: <#T##Int#>, startingIndex: <#T##Int#>, parentID: <#T##(columnID: String, rowID: String)#>)
     }
 
     func deleteRow(for change: Change) {

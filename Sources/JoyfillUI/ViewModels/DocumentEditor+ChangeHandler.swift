@@ -13,7 +13,7 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be deleted.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) {
+    public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) {
         guard !rowIDs.isEmpty else {
             Log("No rows to delete", type: .warning)
             return
@@ -43,6 +43,7 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
+        guard shouldSendEvent else { return }
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
     }
     
@@ -222,7 +223,7 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowID: The String identifier of the row to be moved up.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier) {
+    public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
@@ -242,6 +243,7 @@ extension DocumentEditor {
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
+        guard shouldSendEvent else { return }
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
@@ -327,7 +329,7 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowID: The String identifier of the row to be moved down.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier) {
+    public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
@@ -347,6 +349,7 @@ extension DocumentEditor {
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
+        guard shouldSendEvent else { return }
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
@@ -520,7 +523,7 @@ extension DocumentEditor {
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
-    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> ValueElement? {
+    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ValueElement? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
@@ -534,6 +537,8 @@ extension DocumentEditor {
         
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldIdentifier.fieldID]?.rowOrder?.append(id)
+        
+        guard shouldSendEvent else { return newRow }
         
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
@@ -605,7 +610,8 @@ extension DocumentEditor {
                                     parentRowId: String? = nil,
                                     schemaKey: String? = nil,
                                     childrenKeys: [String]? = nil,
-                                    rootSchemaKey: String) -> (all: [ValueElement], inserted: ValueElement)? {
+                                    rootSchemaKey: String,
+                                    shouldSendEvent: Bool = true) -> (all: [ValueElement], inserted: ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
         var parentPath = ""
         var newRow = ValueElement(id: id)
@@ -639,6 +645,8 @@ extension DocumentEditor {
         
         // Update the field's stored value.
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+        
+        guard shouldSendEvent else { return (elements, newRow) }
         
         // Fire off a change event.
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))

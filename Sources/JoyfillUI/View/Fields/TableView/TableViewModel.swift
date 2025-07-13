@@ -28,6 +28,7 @@ class TableViewModel: ObservableObject {
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
+        tableDataModel.documentEditor?.registerDelegate(self, forTableField: tableDataModel.fieldIdentifier.fieldID)
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
@@ -130,9 +131,14 @@ class TableViewModel: ObservableObject {
         "\(tableDataModel.selectedRows.count) " + (tableDataModel.selectedRows.count > 1 ? "rows": "row")
     }
     
-    func deleteSelectedRow() {
-        tableDataModel.documentEditor?.deleteRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-        for rowID in tableDataModel.selectedRows {
+    func deleteSelectedRow(_ rows: [String]? = nil, shouldSendEvent: Bool = true) {
+        let selectedRows: [String] =  rows ?? tableDataModel.selectedRows
+        tableDataModel.documentEditor?.deleteRows(
+            rowIDs: selectedRows,
+            fieldIdentifier: tableDataModel.fieldIdentifier,
+            shouldSendEvent: shouldSendEvent
+        )
+        for rowID in selectedRows {
             if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
                 deleteRow(at: index, rowID: rowID)
             }
@@ -205,12 +211,16 @@ class TableViewModel: ObservableObject {
         tableDataModel.selectedRows = [prevRowID]
     }
 
-    func moveUP() {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+    func moveUP(rowIDs: [String]? = nil, shouldSendEvent: Bool = true) {
+        let selectedRows = rowIDs ?? tableDataModel.selectedRows
+        guard let firstSelectedRowID = selectedRows.first else {
             Log("No selected row", type: .error)
             return
         }
-        tableDataModel.documentEditor?.moveRowUp(rowID: firstSelectedRowID, fieldIdentifier: tableDataModel.fieldIdentifier)
+        tableDataModel.documentEditor?.moveRowUp(
+            rowID: firstSelectedRowID,
+            fieldIdentifier: tableDataModel.fieldIdentifier,
+            shouldSendEvent: shouldSendEvent)
         guard let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: firstSelectedRowID) else {
             Log("RowID not found in rowOrder", type: .error)
             return
@@ -218,12 +228,16 @@ class TableViewModel: ObservableObject {
         moveUP(at: lastRowIndex, rowID: firstSelectedRowID)
     }
 
-    func moveDown() {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
+    func moveDown(rowIDs: [String]? = nil, shouldSendEvent: Bool = true) {
+        let selectedRows = rowIDs ?? tableDataModel.selectedRows
+        guard let firstSelectedRowID = selectedRows.first else {
             Log("No selected row", type: .error)
             return
         }
-        tableDataModel.documentEditor?.moveRowDown(rowID: firstSelectedRowID, fieldIdentifier: tableDataModel.fieldIdentifier)
+        tableDataModel.documentEditor?.moveRowDown(
+            rowID: firstSelectedRowID,
+            fieldIdentifier: tableDataModel.fieldIdentifier,
+            shouldSendEvent: shouldSendEvent)
         guard let lastRowIndex = tableDataModel.rowOrder.firstIndex(of: firstSelectedRowID) else {
             Log("RowID not found in rowOrder", type: .error)
             return
@@ -265,11 +279,15 @@ class TableViewModel: ObservableObject {
         tableDataModel.emptySelection()
     }
 
-    func addRow() {
+    func addRow(with cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
         let id = generateObjectId()
-        let cellValues = getCellValues()
-
-        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier) {
+        let cellValues = cellValues ?? getCellValues()
+        
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(
+            id: id, cellValues: cellValues,
+            fieldIdentifier: tableDataModel.fieldIdentifier,
+            shouldSendEvent: shouldSendEvent
+        ) {
             updateRow(valueElement: rowData, at: tableDataModel.rowOrder.count)
         } else {
             Log("Row data is nil", type: .error)
@@ -369,5 +387,47 @@ class TableViewModel: ObservableObject {
     
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+    }
+}
+
+// MARK: - DocumentEditorDelegate methods
+extension TableViewModel: DocumentEditorDelegate {
+    func insertRow(for change: Change) {
+        var cellValues: [String: ValueUnion] = [:]
+        //TODO: add values
+        addRow(with: cellValues, shouldSendEvent: false)
+    }
+
+    func deleteRow(for change: Change) {
+        guard let rowID = change.change?["rowId"] as? String
+        else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        deleteSelectedRow([rowID], shouldSendEvent: false)
+    }
+    
+    func moveRow(for change: Change) {
+        guard let rowID = change.change?["rowId"] as? String
+        else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        
+        guard var targetRowIndex = change.change?["targetRowIndex"] as? Int else { return }
+        guard var rowIndex = tableDataModel.valueToValueElements?.firstIndex(where: { element in
+            element.id == rowID
+        }) else { return }
+        if targetRowIndex > rowIndex {
+            while targetRowIndex > rowIndex {
+                rowIndex += 1
+                moveDown(rowIDs: [rowID], shouldSendEvent: false)
+            }
+        } else if targetRowIndex < rowIndex {
+            while targetRowIndex < rowIndex {
+                rowIndex -= 1
+                moveUP(rowIDs: [rowID], shouldSendEvent: false)
+            }
+        }
     }
 }
