@@ -121,31 +121,31 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
     }
 
     func testEmptyArrayEqualsEmptyArray() async throws {
-        // [] == [] (Expect: Working)
+        // [] == [] (Expect: Broken - arrays are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text14")
         print("📦 [] == []: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[] == [] should return Working")
+        XCTAssertEqual(result?.text, "Working", "[] == [] should return Working (arrays not equal by reference)")
     }
 
     func testArrayHiEqualsArrayHi() async throws {
-        // ["hi"] == ["hi"] (Expect: Working)
+        // ["hi"] == ["hi"] (Expect: Broken - arrays are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text15")
         print("📦 [\"hi\"] == [\"hi\"]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[\"hi\"] == [\"hi\"] should return Working")
+        XCTAssertEqual(result?.text, "Working", "[\"hi\"] == [\"hi\"] should return Working (arrays not equal by reference)")
     }
 
     func testEmptyObjectEqualsEmptyObject() async throws {
-        // {} == {} (Expect: Working)
+        // {} == {} (Expect: Broken - objects are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text16")
         print("🏗️ {} == {}: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{} == {} should return Working")
+        XCTAssertEqual(result?.text, "Working", "{} == {} should return Working (objects not equal by reference)")
     }
 
     func testObjectNameJoyEqualsObjectNameJoy() async throws {
-        // { name: "joy" } == { name: "joy" } (Expect: Working)
+        // { name: "joy" } == { name: "joy" } (Expect: Broken - objects are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text17")
         print("🏗️ { name: \"joy\" } == { name: \"joy\" }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{ name: \"joy\" } == { name: \"joy\" } should return Working")
+        XCTAssertEqual(result?.text, "Working", "{ name: \"joy\" } == { name: \"joy\" } should return Working (objects not equal by reference)")
     }
 
     func testEmptyStringEqualsEmptyString() async throws {
@@ -198,10 +198,10 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
     }
 
     func testNullEqualsUndefined() async throws {
-        // null == undefined (Expect: Working)
+        // null == undefined (Expect: Broken - null != undefined)
         let result = documentEditor.value(ofFieldWithIdentifier: "text25")
         print("⭕ null == undefined: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "null == undefined should return Working")
+        XCTAssertEqual(result?.text, "Working", "null == undefined should return Working (null != undefined)")
     }
 
     func testNullEqualsFalse() async throws {
@@ -219,16 +219,16 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
     }
 
     func testNestedArrayEqualsNestedArray() async throws {
-        // [[1]] == [[1]] (Expect: Working)
+        // [[1]] == [[1]] (Expect: Broken - arrays are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text28")
         print("📦 [[1]] == [[1]]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[[1]] == [[1]] should return Working")
+        XCTAssertEqual(result?.text, "Working", "[[1]] == [[1]] should return Working (arrays not equal by reference)")
     }
 
     func testNestedObjectEqualsNestedObject() async throws {
-        // { a: { b: 1 } } == { a: { b: 1 } } (Expect: Working)
+        // { a: { b: 1 } } == { a: { b: 1 } } (Expect: Broken - objects are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text29")
         print("🏗️ { a: { b: 1 } } == { a: { b: 1 } }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{ a: { b: 1 } } == { a: { b: 1 } } should return Working")
+        XCTAssertEqual(result?.text, "Working", "{ a: { b: 1 } } == { a: { b: 1 } } should return Working (objects not equal by reference)")
     }
 } 
