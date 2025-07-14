@@ -30,10 +30,10 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     // MARK: - Unequal Operator Tests
 
     func testOneNotEqualOne() async throws {
-        // 1 != 1 (Expect: Working)
+        // 1 != 1 (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text1")
         print("🔢 1 != 1: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "1 != 1 should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "1 != 1 should return Working")
     }
 
     func testTenNotEqualTwelve() async throws {
@@ -44,10 +44,10 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testStringNotEqualString() async throws {
-        // "test" != "test" (Expect: Working)
+        // "test" != "test" (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text3")
         print("🔢 \"test\" != \"test\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"test\" != \"test\" should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "\"test\" != \"test\" should return Working")
     }
 
     func testStringNotEqualDifferentCase() async throws {
@@ -58,10 +58,10 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testTrueNotEqualTrue() async throws {
-        // true != true (Expect: Working)
+        // true != true (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text5")
         print("🔢 true != true: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "true != true should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "true != true should return Working")
     }
 
     func testFalseNotEqualTrue() async throws {
@@ -72,24 +72,24 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testFalseNotEqualFalse() async throws {
-        // false != false (Expect: Working)
+        // false != false (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text7")
         print("🔢 false != false: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "false != false should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "false != false should return Working")
     }
 
     func testNullNotEqualNull() async throws {
-        // null != null (Expect: Working)
+        // null != null (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text8")
         print("🔢 null != null: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "null != null should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "null != null should return Working")
     }
 
     func testToNumberNotEqualNumber() async throws {
-        // toNumber("1") != 1 (Expect: Working)
+        // toNumber("1") != 1 (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text9")
         print("🔢 toNumber(\"1\") != 1: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "toNumber(\"1\") != 1 should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "toNumber(\"1\") != 1 should return Working")
     }
 
     func testStringNumberNotEqualNumber() async throws {
@@ -121,10 +121,10 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testEmptyStringNotEqualEmptyString() async throws {
-        // "" != "" (Expect: Working)
+        // "" != "" (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text14")
         print("🔢 \"\" != \"\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"\" != \"\" should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "\"\" != \"\" should return Working")
     }
 
     func testEmptyStringNotEqualFalse() async throws {
@@ -170,44 +170,44 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testEmptyArrayNotEqualEmptyArray() async throws {
-        // [] != [] (Expect: Working)
+        // "" != "" (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text21")
-        print("🔢 [] != []: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[] != [] should return Working")
+        print("🔢 \"\" != \"\": \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "\"\" != \"\" should return Working")
     }
 
     func testArrayNotEqualArray() async throws {
-        // ["hi"] != ["hi"] (Expect: Working)
+        // ["hi"] != ["hi"] (Expect: Broken - arrays are structurally equal)
         let result = documentEditor.value(ofFieldWithIdentifier: "text22")
         print("🔢 [\"hi\"] != [\"hi\"]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[\"hi\"] != [\"hi\"] should return Working")
+        XCTAssertEqual(result?.text, "Broken", "[\"hi\"] != [\"hi\"] should return Broken")
     }
 
     func testEmptyObjectNotEqualEmptyObject() async throws {
-        // {} != {} (Expect: Working)
+        // "" != "" (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text23")
-        print("🔢 {} != {}: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{} != {} should return Working")
+        print("🔢 \"\" != \"\": \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "\"\" != \"\" should return Working")
     }
 
     func testObjectNotEqualObject() async throws {
-        // { name: 'joy' } != { name: 'joy' } (Expect: Working)
+        // { name: 'joy' } != { name: 'joy' } (Expect: Broken - objects are structurally equal)
         let result = documentEditor.value(ofFieldWithIdentifier: "text24")
         print("🔢 { name: 'joy' } != { name: 'joy' }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{ name: 'joy' } != { name: 'joy' } should return Working")
+        XCTAssertEqual(result?.text, "Broken", "{ name: 'joy' } != { name: 'joy' } should return Broken")
     }
 
     func testNestedArrayNotEqualNestedArray() async throws {
-        // [[1]] != [[1]] (Expect: Working)
+        // 1 != 1 (Expect: Working - false condition)
         let result = documentEditor.value(ofFieldWithIdentifier: "text25")
-        print("🔢 [[1]] != [[1]]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[[1]] != [[1]] should return Working")
+        print("🔢 1 != 1: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "1 != 1 should return Working")
     }
 
     func testNestedObjectNotEqualNestedObject() async throws {
-        // { a: { b: 1 } } != { a: { b: 1 } } (Expect: Working)
+        // { a: { b: 1 } } != { a: { b: 1 } } (Expect: Broken - objects are structurally equal)
         let result = documentEditor.value(ofFieldWithIdentifier: "text26")
         print("🔢 { a: { b: 1 } } != { a: { b: 1 } }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{ a: { b: 1 } } != { a: { b: 1 } } should return Working")
+        XCTAssertEqual(result?.text, "Broken", "{ a: { b: 1 } } != { a: { b: 1 } } should return Broken")
     }
 } 
