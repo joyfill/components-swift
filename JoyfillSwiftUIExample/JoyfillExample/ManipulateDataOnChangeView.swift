@@ -40,7 +40,7 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
     func appendHintChanges(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) -> [JoyfillModel.Change] {
         var extraChanges: [JoyfillModel.Change] = []
 
-        let alarmDevicesFieldID = "68709da5086e134b6f81017d"
+        let alarmDevicesFieldID = "67fa8e2a64d97bb156b088db"
         let hintsFieldID = "67fa934a0d0062e14617252f"
         let deviceTypeColumnID = "67fa8e20c0bf00d7dcb01486"
         let visualHintColumnID = "67fa9262c014f71619c540bf"
@@ -56,7 +56,9 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
                 let selectedOptionID = cells[deviceTypeColumnID] as? String,
                 let hintsField = manipulateDocumentEditor.field(fieldID: hintsFieldID),
                 let hintRows = hintsField.valueToValueElements
-            else { continue }
+            else {
+                continue
+            }
 
             guard let matchingHintRow = hintRows.first(where: {
                 $0.cells?[deviceTypeColumnID]?.text == selectedOptionID
@@ -77,8 +79,8 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
             guard !updatedCells.isEmpty else { continue }
 
             let payload: [String: Any] = [
-                "parentPath": change.change?["parentPath"] ?? "",
-                "schemaId": change.change?["schemaId"] ?? "",
+//                "parentPath": change.change?["parentPath"] ?? "",
+//                "schemaId": change.change?["schemaId"] ?? "",
                 "rowId": changedFieldRowID,
                 "row": [
                     "_id": changedFieldRowID,
