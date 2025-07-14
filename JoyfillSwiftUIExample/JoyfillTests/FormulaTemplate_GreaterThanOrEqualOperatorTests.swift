@@ -100,100 +100,100 @@ class FormulaTemplate_GreaterThanOrEqualOperatorTests: XCTestCase {
     }
 
     func testStringTenGreaterThanOrEqualFive() async throws {
-        // "10" >= 5 (Expect: empty string due to type mismatch)
+        // "10" >= 5 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text11")
         print("🔢 \"10\" >= 5: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "\"10\" >= 5 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "\"10\" >= 5 should return Working")
     }
 
     func testStringFiveGreaterThanOrEqualStringOne() async throws {
-        // "5" >= "1" (Expect: Broken - string comparison works)
+        // "5" >= "1" (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text12")
         print("🔢 \"5\" >= \"1\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "\"5\" >= \"1\" should return Broken (string comparison)")
+        XCTAssertEqual(result?.text, "Working", "\"5\" >= \"1\" should return Working")
     }
 
     func testHelloGreaterThanOrEqualAbc() async throws {
-        // "hello" >= "abc" (Expect: Broken - string comparison works)
+        // "hello" >= "abc" (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text13")
         print("🔢 \"hello\" >= \"abc\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "\"hello\" >= \"abc\" should return Broken (string comparison)")
+        XCTAssertEqual(result?.text, "Working", "\"hello\" >= \"abc\" should return Working")
     }
 
     func testTrueGreaterThanOrEqualFalse() async throws {
-        // true >= false (Expect: empty string due to type mismatch)
+        // true >= false (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text14")
         print("🔢 true >= false: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "true >= false should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "true >= false should return Working")
     }
 
     func testFalseGreaterThanOrEqualTrue() async throws {
-        // false >= true (Expect: empty string due to type mismatch)
+        // false >= true (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text15")
         print("🔢 false >= true: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "false >= true should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "false >= true should return Working")
     }
 
     func testTrueGreaterThanOrEqualOne() async throws {
-        // true >= 1 (Expect: empty string due to type mismatch)
+        // true >= 1 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text16")
         print("🔢 true >= 1: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "true >= 1 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "true >= 1 should return Working")
     }
 
     func testNullGreaterThanOrEqualZero() async throws {
-        // null >= 0 (Expect: empty string due to type mismatch)
+        // null >= 0 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text17")
         print("🔢 null >= 0: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "null >= 0 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "null >= 0 should return Working")
     }
 
     func testNullGreaterThanOrEqualNull() async throws {
-        // null >= null (Expect: empty string due to type mismatch)
+        // null >= null (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text18")
         print("🔢 null >= null: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "null >= null should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "null >= null should return Working")
     }
 
     func testEmptyStringGreaterThanOrEqualZero() async throws {
-        // "" >= 0 (Expect: empty string due to type mismatch)
+        // "" >= 0 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text19")
         print("🔢 \"\" >= 0: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "\"\" >= 0 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "\"\" >= 0 should return Working")
     }
 
     func testAbcGreaterThanOrEqualZero() async throws {
-        // "abc" >= 0 (Expect: empty string due to type mismatch)
+        // "abc" >= 0 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text20")
         print("🔢 \"abc\" >= 0: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "\"abc\" >= 0 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "\"abc\" >= 0 should return Working")
     }
 
     func testEmptyArrayGreaterThanOrEqualOne() async throws {
-        // [] >= 1 (Expect: empty string due to type mismatch)
+        // [] >= 1 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text21")
         print("🔢 [] >= 1: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "[] >= 1 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "[] >= 1 should return Working")
     }
 
     func testArrayOneGreaterThanOrEqualZero() async throws {
-        // [1] >= 0 (Expect: Working - false condition in JSON)
+        // [1] >= 0 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text22")
         print("🔢 [1] >= 0: \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "[1] >= 0 should return Working")
     }
 
     func testEmptyObjectGreaterThanOrEqualOne() async throws {
-        // {} >= 1 (Expect: empty string due to type mismatch)
+        // {} >= 1 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text23")
         print("🔢 {} >= 1: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "{} >= 1 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "{} >= 1 should return Working")
     }
 
     func testObjectGreaterThanOrEqualOne() async throws {
-        // { a: 1 } >= 1 (Expect: empty string due to type mismatch)
+        // { a: 1 } >= 1 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text24")
         print("🔢 { a: 1 } >= 1: \(result?.text ?? "nil")")
-        XCTAssert(result?.text == nil || result?.text == "", "{ a: 1 } >= 1 should return nil or empty string (type mismatch)")
+        XCTAssertEqual(result?.text, "Working", "{ a: 1 } >= 1 should return Working")
     }
 } 
