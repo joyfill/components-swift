@@ -76,28 +76,7 @@
       "logic": {
         "action": "hide",
         "eval": "or",
-        "conditions": [
-          {
-            "file": "66a14ced9dc829a95e272506",
-            "page": "66a14ced15a9dc96374e091e",
-            "field": "686b8caac1c10cb7f16c1c9c",
-            "condition": "=",
-            "value": "686b905d0fe4f86919203f5b"
-          },
-          {
-            "file": "66a14ced9dc829a95e272506",
-            "page": "66a14ced15a9dc96374e091e",
-            "field": "686b9f2bd97ed4818c085df8",
-            "condition": "null="
-          },
-          {
-            "file": "66a14ced9dc829a95e272506",
-            "page": "66a14ced15a9dc96374e091e",
-            "field": "686b8caac1c10cb7f16c1c9c",
-            "condition": "=",
-            "value": "686b854514dfef2c5bb24eed"
-          }
-        ]
+        "conditions": []
       }
     },
     {
@@ -184,7 +163,34 @@
       "value": [
         "686de9bacc6b427c75617fe2"
       ],
-      "disabled": true
+      "disabled": true,
+      "logic": {
+        "action": "hide",
+        "eval": "or",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b8caac1c10cb7f16c1c9c",
+            "condition": "=",
+            "value": "686b905d0fe4f86919203f5b"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b9f2bd97ed4818c085df8",
+            "condition": "=",
+            "value": "686b854514dfef2c5bb24eed"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b9e4baa2ceb69dee2894f",
+            "condition": "=",
+            "value": "686b8545517347ed0544e012"
+          }
+        ]
+      }
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",

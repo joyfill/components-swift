@@ -610,7 +610,7 @@ final class ValidationTestCase: XCTestCase {
             .setRequiredNumberHiddenFieldWithoutValuePositionInMobile()
             .setRequiredTextFieldInMobile()
             .setSingleSelectPosition()
-            .setMultilineTextField(hidden: false, value: .string(""), required: true)
+            .setMultilineTextField(hidden: true, value: .string(""), required: true)
         
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
