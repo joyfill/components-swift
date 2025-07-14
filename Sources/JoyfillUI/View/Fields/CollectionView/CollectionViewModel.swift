@@ -1760,13 +1760,70 @@ extension CollectionViewModel: DocumentEditorDelegate {
         updateUIModels(for: rowID, schemaID: associatedSchemaID == "" ? rootSchemaKey : associatedSchemaID, using: merged)
         uuid = UUID()
     }
+
+    func decodeParentPath(parentPath: String) -> String? {
+        let parts = parentPath.split(separator: ".").map(String.init)
+        
+        guard let rootIndex = Int(parts.first ?? "") else {
+            return nil
+        }
+        
+        let trimmed = Array(parts.dropFirst(2).dropLast(2))
+        
+        guard let rootElements = tableDataModel.valueToValueElements,
+              rootIndex >= 0, rootIndex < rootElements.count else {
+            return nil
+        }
+        
+        var currentNode: ValueElement? = rootElements[rootIndex]
+        
+        for offset in stride(from: 0, to: trimmed.count, by: 2) {
+            guard let childIndex = Int(trimmed[offset]) else {
+                break
+            }
+            let schemaKey = trimmed[offset + 1]
+            guard let branch = currentNode?.childrens?[schemaKey],
+                  childIndex >= 0, childIndex < branch.valueToValueElements?.count ?? 0 else {
+                break
+            }
+            currentNode = branch.valueToValueElements?[childIndex]
+        }
+        
+        return currentNode?.id
+    }
+    
+    fileprivate func addRowForNested(_ newRowID: String, _ cellValues: [String : ValueUnion], _ parentID: String?, _ schemaID: String) {
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: newRowID,
+                                                                            cellValues: cellValues,
+                                                                            fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                            parentRowId: parentID,
+                                                                            schemaKey: schemaID,
+                                                                            childrenKeys: tableDataModel.schema[schemaID]?.children,
+                                                                            rootSchemaKey: rootSchemaKey, shouldSendEvent: false) {
+            self.tableDataModel.valueToValueElements = rowData.all
+            buildRowToValueElementMap()
+            
+            if let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == parentID }) {
+                if rowDataModel.isExpanded {
+                    refreshCollectionSchema(rowID: parentID ?? "")
+                }
+            }
+        }
+    }
     
     func insertRow(for change: Change) {
         var cellValues: [String: ValueUnion] = [:]
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
         guard let newRowID = newRow.id else { return }
-        addRow(with: newRowID, and: cellValues, shouldSendEvent: false)
+        if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
+            let parentPath = change.change?["parentPath"] as? String ?? ""
+            let parentID = decodeParentPath(parentPath: parentPath)
+            
+            addRowForNested(newRowID, cellValues, parentID, schemaID)
+        } else {
+            addRow(with: newRowID, and: cellValues, shouldSendEvent: false)
+        }
     }
 
     func deleteRow(for change: Change) {
