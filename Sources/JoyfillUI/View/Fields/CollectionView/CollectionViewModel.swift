@@ -1835,18 +1835,43 @@ extension CollectionViewModel: DocumentEditorDelegate {
         deleteSelectedNestedRow(rowIDs: [rowID], parentRowId: "", nestedKey: "", shouldSendEvent: false)
     }
     
-    func moveRow(for change: Change) {
-        guard let rowID = change.change?["rowId"] as? String
-        else {
-            Log("RowID not found or no cached ValueElement", type: .error)
-            return
+    fileprivate func moveNestedRows(_ targetRowIndex: Int, _ rowIndex: inout Int, _ rowID: String, _ schemaID: String, _ parentID: String) {
+        if targetRowIndex > rowIndex {
+            while targetRowIndex > rowIndex {
+                rowIndex += 1
+                self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowDown(rowID: rowID,
+                                                                                                            fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                                                            rootSchemaKey: rootSchemaKey,
+                                                                                                            nestedKey: schemaID,
+                                                                                                            parentRowId: parentID,
+                                                                                                            shouldSendEvent: false)
+                buildRowToValueElementMap()
+                if let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == parentID }) {
+                    if rowDataModel.isExpanded {
+                        refreshCollectionSchema(rowID: parentID ?? "")
+                    }
+                }
+            }
+        } else if targetRowIndex < rowIndex {
+            while targetRowIndex < rowIndex {
+                rowIndex -= 1
+                self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: rowID,
+                                                                                                          fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                                                          rootSchemaKey: rootSchemaKey,
+                                                                                                          nestedKey: schemaID,
+                                                                                                          parentRowId: parentID,
+                                                                                                          shouldSendEvent: false)
+                buildRowToValueElementMap()
+                if let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == parentID }) {
+                    if rowDataModel.isExpanded {
+                        refreshCollectionSchema(rowID: parentID ?? "")
+                    }
+                }
+            }
         }
-        
-        guard var targetRowIndex = change.change?["targetRowIndex"] as? Int else { return }
-        guard var rowIndex = tableDataModel.valueToValueElements?.firstIndex(where: { element in
-            element.id == rowID
-        }) else { return }
-        
+    }
+    
+    fileprivate func moveRootRows(_ targetRowIndex: Int, _ rowIndex: inout Int, _ rowID: String) {
         if targetRowIndex > rowIndex {
             while targetRowIndex > rowIndex {
                 rowIndex += 1
@@ -1857,6 +1882,31 @@ extension CollectionViewModel: DocumentEditorDelegate {
                 rowIndex -= 1
                 moveUP(rowIDs: [rowID], shouldSendEvent: false)
             }
+        }
+    }
+    
+    func moveRow(for change: Change) {
+        guard let rowID = change.change?["rowId"] as? String else {
+            Log("RowID not found or no cached ValueElement", type: .error)
+            return
+        }
+        
+        guard var targetRowIndex = change.change?["targetRowIndex"] as? Int else { return }
+        
+        let schemaID = change.change?["schemaId"] as? String ?? rootSchemaKey
+        let parentPath = change.change?["parentPath"] as? String ?? ""
+        let parentID = decodeParentPath(parentPath: parentPath) ?? ""
+        
+        let targetElement = rowToValueElementMap[parentID]
+        var rowIndex: Int?
+        if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
+            rowIndex = targetElement?.childrens?[schemaID]?.valueToValueElements?.firstIndex(where: { $0.id == rowID })
+            guard var rowIndex = rowIndex else { return }
+            moveNestedRows(targetRowIndex, &rowIndex, rowID, schemaID, parentID)
+        } else {
+            rowIndex = tableDataModel.valueToValueElements?.firstIndex(where: { $0.id == rowID })
+            guard var rowIndex = rowIndex else { return }
+            moveRootRows(targetRowIndex, &rowIndex, rowID)
         }
     }
 }
