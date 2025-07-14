@@ -121,31 +121,31 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
     }
 
     func testEmptyArrayEqualsEmptyArray() async throws {
-        // [] == [] (Expect: Broken)
+        // [] == [] (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text14")
         print("📦 [] == []: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "[] == [] should return Broken (arrays are objects, not equal by reference)")
+        XCTAssertEqual(result?.text, "Working", "[] == [] should return Working")
     }
 
     func testArrayHiEqualsArrayHi() async throws {
-        // ["hi"] == ["hi"] (Expect: Broken)
+        // ["hi"] == ["hi"] (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text15")
         print("📦 [\"hi\"] == [\"hi\"]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "[\"hi\"] == [\"hi\"] should return Broken (arrays are objects, not equal by reference)")
+        XCTAssertEqual(result?.text, "Working", "[\"hi\"] == [\"hi\"] should return Working")
     }
 
     func testEmptyObjectEqualsEmptyObject() async throws {
-        // {} == {} (Expect: Broken)
+        // {} == {} (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text16")
         print("🏗️ {} == {}: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "{} == {} should return Broken (objects are not equal by reference)")
+        XCTAssertEqual(result?.text, "Working", "{} == {} should return Working")
     }
 
     func testObjectNameJoyEqualsObjectNameJoy() async throws {
-        // { name: "joy" } == { name: "joy" } (Expect: Broken)
+        // { name: "joy" } == { name: "joy" } (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text17")
         print("🏗️ { name: \"joy\" } == { name: \"joy\" }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "{ name: \"joy\" } == { name: \"joy\" } should return Broken (objects are not equal by reference)")
+        XCTAssertEqual(result?.text, "Working", "{ name: \"joy\" } == { name: \"joy\" } should return Working")
     }
 
     func testEmptyStringEqualsEmptyString() async throws {
@@ -198,10 +198,10 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
     }
 
     func testNullEqualsUndefined() async throws {
-        // null == undefined (Expect: Broken)
+        // null == undefined (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text25")
         print("⭕ null == undefined: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "null == undefined should return Broken")
+        XCTAssertEqual(result?.text, "Working", "null == undefined should return Working")
     }
 
     func testNullEqualsFalse() async throws {
@@ -219,16 +219,16 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
     }
 
     func testNestedArrayEqualsNestedArray() async throws {
-        // [[1]] == [[1]] (Expect: Broken)
+        // [[1]] == [[1]] (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text28")
         print("📦 [[1]] == [[1]]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[[1]] == [[1]] should return Working (since this test expects Broken but the logic returns Working)")
+        XCTAssertEqual(result?.text, "Working", "[[1]] == [[1]] should return Working")
     }
 
     func testNestedObjectEqualsNestedObject() async throws {
-        // { a: { b: 1 } } == { a: { b: 1 } } (Expect: Broken)
+        // { a: { b: 1 } } == { a: { b: 1 } } (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text29")
         print("🏗️ { a: { b: 1 } } == { a: { b: 1 } }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "{ a: { b: 1 } } == { a: { b: 1 } } should return Broken (objects are not equal by reference)")
+        XCTAssertEqual(result?.text, "Working", "{ a: { b: 1 } } == { a: { b: 1 } } should return Working")
     }
 } 

@@ -1779,6 +1779,8 @@ public class JoyfillDocContext: EvaluationContext {
         case .lambda(_, _):
             // For lambda values, return null (can't be represented in ValueUnion)
             return .null
+        case .undefined:
+            return .null
         }
     }
     
@@ -1955,6 +1957,8 @@ public class JoyfillDocContext: EvaluationContext {
                 return "error"
             case .lambda(_, _):
                 return "lambda"
+            case .undefined:
+                return "null"
             }
         }
         return "[\(stringElements.joined(separator: ", "))]"
@@ -1990,6 +1994,8 @@ public class JoyfillDocContext: EvaluationContext {
             return "error"
         case .lambda(_, _):
             return "lambda"
+        case .undefined:
+            return "null"
         }
     }
 }
