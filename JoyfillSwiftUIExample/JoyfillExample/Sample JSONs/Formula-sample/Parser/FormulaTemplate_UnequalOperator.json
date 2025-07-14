@@ -1,0 +1,869 @@
+{
+  "_id": "inequality_operator_doc",
+  "identifier": "doc_inequality_operator_doc",
+  "name": "Inequality Operator",
+  "type": "document",
+  "files": [
+    {
+      "_id": "file1",
+      "name": "Main File",
+      "pageOrder": [
+        "page1"
+      ],
+      "pages": [
+        {
+          "_id": "page1",
+          "name": "Page 1",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "fieldPositions": [
+            {
+              "_id": "fp_text1",
+              "type": "text",
+              "field": "text1",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text2",
+              "type": "text",
+              "field": "text2",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text3",
+              "type": "text",
+              "field": "text3",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text4",
+              "type": "text",
+              "field": "text4",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text5",
+              "type": "text",
+              "field": "text5",
+              "displayType": "original",
+              "x": 0,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text6",
+              "type": "text",
+              "field": "text6",
+              "displayType": "original",
+              "x": 0,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text7",
+              "type": "text",
+              "field": "text7",
+              "displayType": "original",
+              "x": 0,
+              "y": 48,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text8",
+              "type": "text",
+              "field": "text8",
+              "displayType": "original",
+              "x": 0,
+              "y": 56,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text9",
+              "type": "text",
+              "field": "text9",
+              "displayType": "original",
+              "x": 0,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text10",
+              "type": "text",
+              "field": "text10",
+              "displayType": "original",
+              "x": 0,
+              "y": 72,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text11",
+              "type": "text",
+              "field": "text11",
+              "displayType": "original",
+              "x": 0,
+              "y": 80,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text12",
+              "type": "text",
+              "field": "text12",
+              "displayType": "original",
+              "x": 0,
+              "y": 88,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text13",
+              "type": "text",
+              "field": "text13",
+              "displayType": "original",
+              "x": 0,
+              "y": 96,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text14",
+              "type": "text",
+              "field": "text14",
+              "displayType": "original",
+              "x": 0,
+              "y": 104,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text15",
+              "type": "text",
+              "field": "text15",
+              "displayType": "original",
+              "x": 0,
+              "y": 112,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text16",
+              "type": "text",
+              "field": "text16",
+              "displayType": "original",
+              "x": 0,
+              "y": 120,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text17",
+              "type": "text",
+              "field": "text17",
+              "displayType": "original",
+              "x": 0,
+              "y": 128,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text18",
+              "type": "text",
+              "field": "text18",
+              "displayType": "original",
+              "x": 0,
+              "y": 136,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text19",
+              "type": "text",
+              "field": "text19",
+              "displayType": "original",
+              "x": 0,
+              "y": 144,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text20",
+              "type": "text",
+              "field": "text20",
+              "displayType": "original",
+              "x": 0,
+              "y": 152,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text21",
+              "type": "text",
+              "field": "text21",
+              "displayType": "original",
+              "x": 0,
+              "y": 160,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text22",
+              "type": "text",
+              "field": "text22",
+              "displayType": "original",
+              "x": 0,
+              "y": 168,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text23",
+              "type": "text",
+              "field": "text23",
+              "displayType": "original",
+              "x": 0,
+              "y": 176,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text24",
+              "type": "text",
+              "field": "text24",
+              "displayType": "original",
+              "x": 0,
+              "y": 184,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text25",
+              "type": "text",
+              "field": "text25",
+              "displayType": "original",
+              "x": 0,
+              "y": 192,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text26",
+              "type": "text",
+              "field": "text26",
+              "displayType": "original",
+              "x": 0,
+              "y": 200,
+              "width": 4,
+              "height": 8
+            }
+          ]
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "fields": [
+    {
+      "file": "file1",
+      "_id": "text1",
+      "type": "text",
+      "title": "1 != 1 (Expect: Working)",
+      "identifier": "field_text1",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text1Formula",
+          "formula": "if1NotEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text2",
+      "type": "text",
+      "title": "10 != 12 (Expect: Working)",
+      "identifier": "field_text2",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text2Formula",
+          "formula": "if10NotEqual12Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text3",
+      "type": "text",
+      "title": "\"test\" != \"test\" (Expect: Working)",
+      "identifier": "field_text3",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text3Formula",
+          "formula": "iftestNotEqualtestWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text4",
+      "type": "text",
+      "title": "\"TEST\" != \"test\" (Expect: Working)",
+      "identifier": "field_text4",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text4Formula",
+          "formula": "ifTESTNotEqualtestWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text5",
+      "type": "text",
+      "title": "true != true (Expect: Working)",
+      "identifier": "field_text5",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text5Formula",
+          "formula": "iftrueNotEqualtrueWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text6",
+      "type": "text",
+      "title": "false != true (Expect: Working)",
+      "identifier": "field_text6",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text6Formula",
+          "formula": "iffalseNotEqualtrueWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text7",
+      "type": "text",
+      "title": "false != false (Expect: Working)",
+      "identifier": "field_text7",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text7Formula",
+          "formula": "iffalseNotEqualfalseWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text8",
+      "type": "text",
+      "title": "null != null (Expect: Working)",
+      "identifier": "field_text8",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text8Formula",
+          "formula": "ifnullNotEqualnullWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text9",
+      "type": "text",
+      "title": "toNumber(\"1\") != 1 (Expect: Working)",
+      "identifier": "field_text9",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text9Formula",
+          "formula": "iftoNumber1NotEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text10",
+      "type": "text",
+      "title": "\"1\" != 1 (Expect: Working)",
+      "identifier": "field_text10",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text10Formula",
+          "formula": "if1NotEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text11",
+      "type": "text",
+      "title": "\"true\" != true (Expect: Working)",
+      "identifier": "field_text11",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text11Formula",
+          "formula": "iftrueNotEqualtrueWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text12",
+      "type": "text",
+      "title": "0 != false (Expect: Working)",
+      "identifier": "field_text12",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text12Formula",
+          "formula": "if0NotEqualfalseWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text13",
+      "type": "text",
+      "title": "false != \"\" (Expect: Working)",
+      "identifier": "field_text13",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text13Formula",
+          "formula": "iffalseNotEqualWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text14",
+      "type": "text",
+      "title": "\"\" != \"\" (Expect: Working)",
+      "identifier": "field_text14",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text14Formula",
+          "formula": "ifNotEqualWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text15",
+      "type": "text",
+      "title": "\"\" != false (Expect: Working)",
+      "identifier": "field_text15",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text15Formula",
+          "formula": "ifNotEqualfalseWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text16",
+      "type": "text",
+      "title": "\"\" != null (Expect: Working)",
+      "identifier": "field_text16",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text16Formula",
+          "formula": "ifNotEqualnullWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text17",
+      "type": "text",
+      "title": "\"false\" != false (Expect: Working)",
+      "identifier": "field_text17",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text17Formula",
+          "formula": "iffalseNotEqualfalseWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text18",
+      "type": "text",
+      "title": "null != \"\" (Expect: Working)",
+      "identifier": "field_text18",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text18Formula",
+          "formula": "ifnullNotEqualWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text19",
+      "type": "text",
+      "title": "null != false (Expect: Working)",
+      "identifier": "field_text19",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text19Formula",
+          "formula": "ifnullNotEqualfalseWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text20",
+      "type": "text",
+      "title": "null != 0 (Expect: Working)",
+      "identifier": "field_text20",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text20Formula",
+          "formula": "ifnullNotEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text21",
+      "type": "text",
+      "title": "[] != [] (Expect: Working)",
+      "identifier": "field_text21",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text21Formula",
+          "formula": "ifNotEqualWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text22",
+      "type": "text",
+      "title": "[\"hi\"] != [\"hi\"] (Expect: Working)",
+      "identifier": "field_text22",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text22Formula",
+          "formula": "ifhiNotEqualhiWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text23",
+      "type": "text",
+      "title": "{} != {} (Expect: Working)",
+      "identifier": "field_text23",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text23Formula",
+          "formula": "ifNotEqualWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text24",
+      "type": "text",
+      "title": "{ name: 'joy' } != { name: 'joy' } (Expect: Working)",
+      "identifier": "field_text24",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text24Formula",
+          "formula": "ifnamejoyNotEqualnamejoyWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text25",
+      "type": "text",
+      "title": "[[1]] != [[1]] (Expect: Working)",
+      "identifier": "field_text25",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text25Formula",
+          "formula": "if1NotEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text26",
+      "type": "text",
+      "title": "{ a: { b: 1 } } != { a: { b: 1 } } (Expect: Working)",
+      "identifier": "field_text26",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text26Formula",
+          "formula": "ifab1NotEqualab1Working",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "formulas": [
+    {
+      "_id": "if1NotEqual1Working",
+      "desc": "Evaluate: 1 != 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(1 != 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if10NotEqual12Working",
+      "desc": "Evaluate: 10 != 12",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(10 != 12, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "iftestNotEqualtestWorking",
+      "desc": "Evaluate: \"test\" != \"test\"",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"test\" != \"test\", \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifTESTNotEqualtestWorking",
+      "desc": "Evaluate: \"TEST\" != \"test\"",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"TEST\" != \"test\", \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "iftrueNotEqualtrueWorking",
+      "desc": "Evaluate: true != true",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(true != true, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iffalseNotEqualtrueWorking",
+      "desc": "Evaluate: false != true",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(false != true, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "iffalseNotEqualfalseWorking",
+      "desc": "Evaluate: false != false",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(false != false, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifnullNotEqualnullWorking",
+      "desc": "Evaluate: null != null",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null != null, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iftoNumber1NotEqual1Working",
+      "desc": "Evaluate: toNumber(\"1\") != 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(toNumber(\"1\") != 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if1NotEqual1Working",
+      "desc": "Evaluate: \"1\" != 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"1\" != 1, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "iftrueNotEqualtrueWorking",
+      "desc": "Evaluate: \"true\" != true",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"true\" != true, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if0NotEqualfalseWorking",
+      "desc": "Evaluate: 0 != false",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(0 != false, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "iffalseNotEqualWorking",
+      "desc": "Evaluate: false != \"\"",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(false != \"\", \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifNotEqualWorking",
+      "desc": "Evaluate: \"\" != \"\"",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"\" != \"\", \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifNotEqualfalseWorking",
+      "desc": "Evaluate: \"\" != false",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"\" != false, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifNotEqualnullWorking",
+      "desc": "Evaluate: \"\" != null",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"\" != null, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "iffalseNotEqualfalseWorking",
+      "desc": "Evaluate: \"false\" != false",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"false\" != false, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifnullNotEqualWorking",
+      "desc": "Evaluate: null != \"\"",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null != \"\", \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifnullNotEqualfalseWorking",
+      "desc": "Evaluate: null != false",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null != false, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifnullNotEqual0Working",
+      "desc": "Evaluate: null != 0",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null != 0, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifNotEqualWorking",
+      "desc": "Evaluate: [] != []",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if([] != [], \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifhiNotEqualhiWorking",
+      "desc": "Evaluate: [\"hi\"] != [\"hi\"]",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if([\"hi\"] != [\"hi\"], \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifNotEqualWorking",
+      "desc": "Evaluate: {} != {}",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if({} != {}, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifnamejoyNotEqualnamejoyWorking",
+      "desc": "Evaluate: { name: 'joy' } != { name: 'joy' }",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if({ name: 'joy' } != { name: 'joy' }, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if1NotEqual1Working",
+      "desc": "Evaluate: [[1]] != [[1]]",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if([[1]] != [[1]], \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "ifab1NotEqualab1Working",
+      "desc": "Evaluate: { a: { b: 1 } } != { a: { b: 1 } }",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if({ a: { b: 1 } } != { a: { b: 1 } }, \"Working\", \"Broken\")"
+    }
+  ]
+}

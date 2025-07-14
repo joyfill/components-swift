@@ -41,6 +41,24 @@
 		361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361164D92DD70625003DEB4F /* WisdomTests.swift */; };
 		361164DC2DD70A09003DEB4F /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 361164DB2DD70A09003DEB4F /* JoyfillModel */; };
 		362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 3622113F2BCEB10200BD98B5 /* JoyfillAPIService */; };
+		3627464B2E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */; };
+		3627464C2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */; };
+		3627464D2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */; };
+		3627464E2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */; };
+		3627464F2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */; };
+		362746502E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */; };
+		362746512E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */; };
+		362746522E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */; };
+		362746532E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */; };
+		362746542E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */; };
+		362746552E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */; };
+		362746562E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */; };
+		362746572E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */; };
+		362746582E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */; };
+		362746592E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */; };
+		3627465A2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */; };
+		3627465B2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */; };
+		3627465C2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */; };
 		36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F192BD67884006C03A6 /* JoyfillModel */; };
 		36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F1C2BD67FC4006C03A6 /* JoyfillAPIService */; };
 		362A560B2BEE2EE600B54C14 /* ImageFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362A560A2BEE2EE600B54C14 /* ImageFieldTests.swift */; };
@@ -199,6 +217,12 @@
 		3607877F2BE900C400D9A187 /* JoyfillUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillUITests.xctestplan; sourceTree = "<group>"; };
 		360787802BE911C400D9A187 /* JoyfillExample.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillExample.xctestplan; sourceTree = "<group>"; };
 		361164D92DD70625003DEB4F /* WisdomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WisdomTests.swift; sourceTree = "<group>"; };
+		362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_EqualityOperator.json; sourceTree = "<group>"; };
+		362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_GreaterThanOperator.json; sourceTree = "<group>"; };
+		362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_GreaterThanOrEqualOperator.json; sourceTree = "<group>"; };
+		362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_LessThanOperator.json; sourceTree = "<group>"; };
+		362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_LessThanOrEqualOperator.json; sourceTree = "<group>"; };
+		3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_UnequalOperator.json; sourceTree = "<group>"; };
 		362A560A2BEE2EE600B54C14 /* ImageFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFieldTests.swift; sourceTree = "<group>"; };
 		362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsBaseClass.swift; sourceTree = "<group>"; };
 		362A560E2BEE359400B54C14 /* ChartFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartFieldTests.swift; sourceTree = "<group>"; };
@@ -362,6 +386,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		362746442E24F0BF005B0FA7 /* Parser */ = {
+			isa = PBXGroup;
+			children = (
+				362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */,
+				362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */,
+				362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */,
+				362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */,
+				362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */,
+				3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */,
+			);
+			path = Parser;
+			sourceTree = "<group>";
+		};
 		369D45112E0E51AC00677280 /* Fields */ = {
 			isa = PBXGroup;
 			children = (
@@ -396,6 +433,7 @@
 		369D45182E0E51AC00677280 /* Formula-sample */ = {
 			isa = PBXGroup;
 			children = (
+				362746442E24F0BF005B0FA7 /* Parser */,
 				369D45112E0E51AC00677280 /* Fields */,
 				369D45172E0E51AC00677280 /* Resolver */,
 			);
@@ -645,6 +683,12 @@
 				369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				369D454C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
+				362746512E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
+				362746522E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
+				362746532E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
+				362746542E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
+				362746552E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */,
+				362746562E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */,
 				36006C092E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -672,6 +716,12 @@
 				369D45392E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D453B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				369D453C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
+				3627464B2E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
+				3627464C2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
+				3627464D2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
+				3627464E2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
+				3627464F2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */,
+				362746502E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */,
 				36006C0A2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -681,6 +731,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
+				362746572E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
+				362746582E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
+				362746592E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
+				3627465A2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
+				3627465B2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */,
+				3627465C2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */,
 				369D45222E0E51AC00677280 /* TableNewColumns.json in Resources */,
 				369D45232E0E51AC00677280 /* Joydocjson.json in Resources */,
 				369D45242E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,

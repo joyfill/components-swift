@@ -38,8 +38,17 @@ struct AllSampleJSONs: View, FormChangeEvent {
         "FormulaTemplate_Write_ChartField"
     ]
     
+    private let parserFiles = [
+        "FormulaTemplate_EqualityOperator",
+        "FormulaTemplate_GreaterThanOperator",
+        "FormulaTemplate_GreaterThanOrEqualOperator",
+        "FormulaTemplate_UnequalOperator",
+        "FormulaTemplate_LessThanOperator",
+        "FormulaTemplate_LessThanOrEqualOperator"
+    ]
+    
     private var allFiles: [String] {
-        resolverFiles + fieldFiles
+        resolverFiles + fieldFiles + parserFiles
     }
     
     init() {
@@ -66,6 +75,13 @@ struct AllSampleJSONs: View, FormChangeEvent {
                         
                         Section("Field Files") {
                             ForEach(fieldFiles, id: \.self) { fileName in
+                                Text(fileName)
+                                    .tag(fileName)
+                            }
+                        }
+
+                        Section("Parser Files") {
+                            ForEach(parserFiles, id: \.self) { fileName in
                                 Text(fileName)
                                     .tag(fileName)
                             }
