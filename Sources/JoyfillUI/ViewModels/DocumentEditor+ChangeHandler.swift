@@ -805,6 +805,8 @@ extension DocumentEditor {
             return changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
         case .signature:
             return changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+        case .block:
+            return changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
         default:
             return []
         }
@@ -865,6 +867,9 @@ extension DocumentEditor {
             newCell = ValueUnion.string(cellDataModel.title ?? "")
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         case .signature:
+            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+        case .block:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
         default:
