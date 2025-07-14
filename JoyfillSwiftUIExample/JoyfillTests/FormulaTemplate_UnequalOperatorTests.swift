@@ -177,10 +177,10 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testArrayNotEqualArray() async throws {
-        // ["hi"] != ["hi"] (Expect: Broken - arrays are structurally equal)
+        // ["hi"] != ["hi"] (Expect: Working - arrays are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text22")
         print("🔢 [\"hi\"] != [\"hi\"]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "[\"hi\"] != [\"hi\"] should return Broken")
+        XCTAssertEqual(result?.text, "Working", "[\"hi\"] != [\"hi\"] should return Working")
     }
 
     func testEmptyObjectNotEqualEmptyObject() async throws {
@@ -191,10 +191,10 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testObjectNotEqualObject() async throws {
-        // { name: 'joy' } != { name: 'joy' } (Expect: Broken - objects are structurally equal)
+        // { name: 'joy' } != { name: 'joy' } (Expect: Working - objects are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text24")
         print("🔢 { name: 'joy' } != { name: 'joy' }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "{ name: 'joy' } != { name: 'joy' } should return Broken")
+        XCTAssertEqual(result?.text, "Working", "{ name: 'joy' } != { name: 'joy' } should return Working")
     }
 
     func testNestedArrayNotEqualNestedArray() async throws {
@@ -205,9 +205,9 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     }
 
     func testNestedObjectNotEqualNestedObject() async throws {
-        // { a: { b: 1 } } != { a: { b: 1 } } (Expect: Broken - objects are structurally equal)
+        // { a: { b: 1 } } != { a: { b: 1 } } (Expect: Working - objects are not equal by reference)
         let result = documentEditor.value(ofFieldWithIdentifier: "text26")
         print("🔢 { a: { b: 1 } } != { a: { b: 1 } }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Broken", "{ a: { b: 1 } } != { a: { b: 1 } } should return Broken")
+        XCTAssertEqual(result?.text, "Working", "{ a: { b: 1 } } != { a: { b: 1 } } should return Working")
     }
 } 
