@@ -1763,7 +1763,7 @@ extension DocumentEditor {
         return FieldIdentifier(fieldID: field!.id!, pageID: "", fileID: field!.file)
     }
 
-    func value(ofFieldWithIdentifier identifier: String) -> ValueUnion? {
-        self.field(fieldID: identifier)?.value
+    func value(ofFieldWithIdentifier fieldID: String) -> ValueUnion? {
+        self.field(fieldID: fieldID)?.value
     }
 }

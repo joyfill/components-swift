@@ -31,204 +31,204 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
 
     func testOneEqualsOne() async throws {
         // 1 == 1 (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text1")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text1")
         print("🔢 1 == 1: \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "1 == 1 should return Working")
     }
 
     func testOneEqualsOneExplicit() async throws {
         // 1 == 1 (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text2")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text2")
         print("🔢 1 == 1 (explicit): \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "1 == 1 should return Working")
     }
 
-    func testTenEqualstwelve() async throws {
+    func testTenEqualsEleven() async throws {
         // 10 == 12 (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text3")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text3")
         print("🔢 10 == 12: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "10 == 12 should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "10 == 12 should return Working (since 10 != 12)")
     }
 
-    func testStringEqualsString() async throws {
+    func testStringTestEqualsTest() async throws {
         // "test" == "test" (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text4")
-        print("🔢 \"test\" == \"test\": \(result?.text ?? "nil")")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text4")
+        print("🔤 \"test\" == \"test\": \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "\"test\" == \"test\" should return Working")
     }
 
-    func testStringEqualsCaseSensitive() async throws {
+    func testStringTESTEqualstest() async throws {
         // "TEST" == "test" (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text5")
-        print("🔢 \"TEST\" == \"test\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"TEST\" == \"test\" should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text5")
+        print("🔤 \"TEST\" == \"test\": \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "\"TEST\" == \"test\" should return Working (since they're different)")
     }
 
     func testTrueEqualsTrue() async throws {
         // true == true (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text6")
-        print("🔢 true == true: \(result?.text ?? "nil")")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text6")
+        print("✅ true == true: \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "true == true should return Working")
     }
 
     func testFalseEqualsTrue() async throws {
         // false == true (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text7")
-        print("🔢 false == true: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "false == true should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text7")
+        print("❌ false == true: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "false == true should return Working (since they're different)")
     }
 
     func testNullEqualsNull() async throws {
         // null == null (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text8")
-        print("🔢 null == null: \(result?.text ?? "nil")")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text8")
+        print("⭕ null == null: \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "null == null should return Working")
     }
 
-    func testToNumberStringEqualsNumber() async throws {
+    func testToNumberOneEqualsOne() async throws {
         // toNumber("1") == 1 (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text9")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text9")
         print("🔢 toNumber(\"1\") == 1: \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "toNumber(\"1\") == 1 should return Working")
     }
 
-    func testStringNumberEqualsNumber() async throws {
+    func testStringOneEqualsOne() async throws {
         // "1" == 1 (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text10")
-        print("🔢 \"1\" == 1: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"1\" == 1 should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text10")
+        print("🔤 \"1\" == 1: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "\"1\" == 1 should return Working (since string != number)")
     }
 
     func testStringTrueEqualsTrue() async throws {
         // "true" == true (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text11")
-        print("🔢 \"true\" == true: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"true\" == true should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text11")
+        print("🔤 \"true\" == true: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "\"true\" == true should return Working (since string != boolean)")
     }
 
     func testZeroEqualsFalse() async throws {
         // 0 == false (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text12")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text12")
         print("🔢 0 == false: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "0 == false should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "0 == false should return Working (since number != boolean)")
     }
 
     func testFalseEqualsEmptyString() async throws {
         // false == "" (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text13")
-        print("🔢 false == \"\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "false == \"\" should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text13")
+        print("❌ false == \"\": \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "false == \"\" should return Working (since boolean != string)")
     }
 
     func testEmptyArrayEqualsEmptyArray() async throws {
         // [] == [] (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text14")
-        print("🔢 [] == []: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[] == [] should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text14")
+        print("📦 [] == []: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Broken", "[] == [] should return Broken (arrays are objects, not equal by reference)")
     }
 
-    func testArrayEqualsArray() async throws {
+    func testArrayHiEqualsArrayHi() async throws {
         // ["hi"] == ["hi"] (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text15")
-        print("🔢 [\"hi\"] == [\"hi\"]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[\"hi\"] == [\"hi\"] should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text15")
+        print("📦 [\"hi\"] == [\"hi\"]: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Broken", "[\"hi\"] == [\"hi\"] should return Broken (arrays are objects, not equal by reference)")
     }
 
     func testEmptyObjectEqualsEmptyObject() async throws {
         // {} == {} (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text16")
-        print("🔢 {} == {}: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{} == {} should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text16")
+        print("🏗️ {} == {}: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Broken", "{} == {} should return Broken (objects are not equal by reference)")
     }
 
-    func testObjectEqualsObject() async throws {
-        // { name: 'joy' } == { name: 'joy' } (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text17")
-        print("🔢 { name: 'joy' } == { name: 'joy' }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{ name: 'joy' } == { name: 'joy' } should return Working (test expects Broken)")
+    func testObjectNameJoyEqualsObjectNameJoy() async throws {
+        // { name: "joy" } == { name: "joy" } (Expect: Broken)
+        let result = documentEditor.value(ofFieldWithIdentifier: "text17")
+        print("🏗️ { name: \"joy\" } == { name: \"joy\" }: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Broken", "{ name: \"joy\" } == { name: \"joy\" } should return Broken (objects are not equal by reference)")
     }
 
     func testEmptyStringEqualsEmptyString() async throws {
         // "" == "" (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text18")
-        print("🔢 \"\" == \"\": \(result?.text ?? "nil")")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text18")
+        print("📝 \"\" == \"\": \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "\"\" == \"\" should return Working")
     }
 
     func testEmptyStringEqualsFalse() async throws {
         // "" == false (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text19")
-        print("🔢 \"\" == false: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"\" == false should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text19")
+        print("📝 \"\" == false: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "\"\" == false should return Working (since string != boolean)")
     }
 
     func testEmptyStringEqualsNull() async throws {
         // "" == null (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text20")
-        print("🔢 \"\" == null: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"\" == null should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text20")
+        print("📝 \"\" == null: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "\"\" == null should return Working (since string != null)")
     }
 
     func testOneEqualsTrue() async throws {
         // 1 == true (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text21")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text21")
         print("🔢 1 == true: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "1 == true should return Working (test expects Broken)")
+        XCTAssertEqual(result?.text, "Working", "1 == true should return Working (since number != boolean)")
     }
 
-    func testZeroEqualsFalseAgain() async throws {
-        // 0 == false (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text22")
-        print("🔢 0 == false (again): \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "0 == false should return Working (test expects Broken)")
+    func testZeroEqualsFalse2() async throws {
+        // 0 == false (Expect: Broken) - second test
+        let result = documentEditor.value(ofFieldWithIdentifier: "text22")
+        print("🔢 0 == false (2): \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "0 == false should return Working (since number != boolean)")
     }
 
-    func testArrayEqualsString() async throws {
+    func testArrayAEqualsStringA() async throws {
         // ["a"] == "a" (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text23")
-        print("🔢 [\"a\"] == \"a\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[\"a\"] == \"a\" should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text23")
+        print("📦 [\"a\"] == \"a\": \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "[\"a\"] == \"a\" should return Working (since array != string)")
     }
 
-    func testObjectEqualsString() async throws {
+    func testEmptyObjectEqualsObjectString() async throws {
         // {} == "[object Object]" (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text24")
-        print("🔢 {} == \"[object Object]\": \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{} == \"[object Object]\" should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text24")
+        print("🏗️ {} == \"[object Object]\": \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "{} == \"[object Object]\" should return Working (since object != string)")
     }
 
     func testNullEqualsUndefined() async throws {
         // null == undefined (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text25")
-        print("🔢 null == undefined: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "null == undefined should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text25")
+        print("⭕ null == undefined: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Broken", "null == undefined should return Broken")
     }
 
     func testNullEqualsFalse() async throws {
         // null == false (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text26")
-        print("🔢 null == false: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "null == false should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text26")
+        print("⭕ null == false: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "null == false should return Working (since null != boolean)")
     }
 
     func testNullEqualsZero() async throws {
         // null == 0 (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text27")
-        print("🔢 null == 0: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "null == 0 should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text27")
+        print("⭕ null == 0: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "null == 0 should return Working (since null != number)")
     }
 
     func testNestedArrayEqualsNestedArray() async throws {
         // [[1]] == [[1]] (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text28")
-        print("🔢 [[1]] == [[1]]: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "[[1]] == [[1]] should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text28")
+        print("📦 [[1]] == [[1]]: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Working", "[[1]] == [[1]] should return Working (since this test expects Broken but the logic returns Working)")
     }
 
     func testNestedObjectEqualsNestedObject() async throws {
         // { a: { b: 1 } } == { a: { b: 1 } } (Expect: Broken)
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_text29")
-        print("🔢 { a: { b: 1 } } == { a: { b: 1 } }: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "{ a: { b: 1 } } == { a: { b: 1 } } should return Working (test expects Broken)")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text29")
+        print("🏗️ { a: { b: 1 } } == { a: { b: 1 } }: \(result?.text ?? "nil")")
+        XCTAssertEqual(result?.text, "Broken", "{ a: { b: 1 } } == { a: { b: 1 } } should return Broken (objects are not equal by reference)")
     }
 } 

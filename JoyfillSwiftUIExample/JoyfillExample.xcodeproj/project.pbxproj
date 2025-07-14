@@ -59,6 +59,12 @@
 		3627465A2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */; };
 		3627465B2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */; };
 		3627465C2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */; };
+		362746632E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3627465E2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift */; };
+		362746642E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */; };
+		362746652E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3627465F2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */; };
+		362746662E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362746612E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */; };
+		362746672E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362746602E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift */; };
+		362746682E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362746622E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift */; };
 		36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F192BD67884006C03A6 /* JoyfillModel */; };
 		36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F1C2BD67FC4006C03A6 /* JoyfillAPIService */; };
 		362A560B2BEE2EE600B54C14 /* ImageFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362A560A2BEE2EE600B54C14 /* ImageFieldTests.swift */; };
@@ -223,6 +229,12 @@
 		362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_LessThanOperator.json; sourceTree = "<group>"; };
 		362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_LessThanOrEqualOperator.json; sourceTree = "<group>"; };
 		3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_UnequalOperator.json; sourceTree = "<group>"; };
+		3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_EqualityOperatorTests.swift; sourceTree = "<group>"; };
+		3627465E2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_GreaterThanOperatorTests.swift; sourceTree = "<group>"; };
+		3627465F2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_GreaterThanOrEqualOperatorTests.swift; sourceTree = "<group>"; };
+		362746602E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_LessThanOperatorTests.swift; sourceTree = "<group>"; };
+		362746612E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_LessThanOrEqualOperatorTests.swift; sourceTree = "<group>"; };
+		362746622E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_UnequalOperatorTests.swift; sourceTree = "<group>"; };
 		362A560A2BEE2EE600B54C14 /* ImageFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFieldTests.swift; sourceTree = "<group>"; };
 		362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsBaseClass.swift; sourceTree = "<group>"; };
 		362A560E2BEE359400B54C14 /* ChartFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartFieldTests.swift; sourceTree = "<group>"; };
@@ -371,6 +383,12 @@
 				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
 				36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */,
 				3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */,
+				3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */,
+				3627465E2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift */,
+				3627465F2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */,
+				362746602E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift */,
+				362746612E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */,
+				362746622E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift */,
 				369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */,
 				369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
@@ -797,6 +815,12 @@
 				36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */,
 				369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */,
 				369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */,
+				362746632E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift in Sources */,
+				362746642E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift in Sources */,
+				362746652E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift in Sources */,
+				362746662E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift in Sources */,
+				362746672E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift in Sources */,
+				362746682E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
 				E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
 				36006C052E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift in Sources */,
