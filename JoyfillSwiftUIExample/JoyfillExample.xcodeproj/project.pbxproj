@@ -38,7 +38,6 @@
 		36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F192BD67884006C03A6 /* JoyfillModel */; };
 		36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F1C2BD67FC4006C03A6 /* JoyfillAPIService */; };
 		362A560D2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */; };
-		362A560F2BEE359400B54C14 /* ChartFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362A560E2BEE359400B54C14 /* ChartFieldTests.swift */; };
 		362A56112BEE36CE00B54C14 /* DateTimeFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */; };
 		363AEF702C510DF00082359B /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363AEF6F2C510DF00082359B /* JoyfillAPIService */; };
 		364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EC2C510BEC00BA870F /* JoyfillAPIService */; };
@@ -149,7 +148,6 @@
 		3607877F2BE900C400D9A187 /* JoyfillUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillUITests.xctestplan; sourceTree = "<group>"; };
 		360787802BE911C400D9A187 /* JoyfillExample.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillExample.xctestplan; sourceTree = "<group>"; };
 		362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsBaseClass.swift; sourceTree = "<group>"; };
-		362A560E2BEE359400B54C14 /* ChartFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartFieldTests.swift; sourceTree = "<group>"; };
 		362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldTests.swift; sourceTree = "<group>"; };
 		366190942BF23EAB006ED7CF /* JoyfillTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillTests.xctestplan; sourceTree = "<group>"; };
 		9E484FB42E1FE1A00027C9CD /* CollectionFilter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionFilter.json; sourceTree = "<group>"; };
@@ -195,6 +193,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9E22F32D2E25063A008B5D47 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ChartFieldTestData.json,
+			);
+			target = FA529C492BA1D251000200F5 /* JoyfillExample */;
+		};
 		9E70182D2E2265E4003651A4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -222,6 +227,7 @@
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		9E22F3252E2503E1008B5D47 /* ChartField */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9E22F32D2E25063A008B5D47 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChartField; sourceTree = "<group>"; };
 		9E7018262E226180003651A4 /* SignatureField */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9E7018302E2265ED003651A4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 9E70182D2E2265E4003651A4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 9E70182E2E2265E4003651A4 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SignatureField; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -284,6 +290,7 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				9E22F3252E2503E1008B5D47 /* ChartField */,
 				9E7018262E226180003651A4 /* SignatureField */,
 				E2E38B372E1BF88500D6EEDE /* TextField */,
 				E2E38B322E1BDDC000D6EEDE /* MultiSelect */,
@@ -493,6 +500,7 @@
 				1307CF202BE36ECE00B19FBA /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				9E22F3252E2503E1008B5D47 /* ChartField */,
 				9E7018262E226180003651A4 /* SignatureField */,
 			);
 			name = JoyfillUITests;
@@ -690,7 +698,6 @@
 				E2E38B3A2E1BF8CA00D6EEDE /* TextFieldUITestCases.swift in Sources */,
 				13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */,
 				362A56112BEE36CE00B54C14 /* DateTimeFieldTests.swift in Sources */,
-				362A560F2BEE359400B54C14 /* ChartFieldTests.swift in Sources */,
 				9E70181E2E220F7B003651A4 /* DropdownFieldUITestCases.swift in Sources */,
 				362A560D2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift in Sources */,
 			);
