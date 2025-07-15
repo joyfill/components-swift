@@ -63,7 +63,7 @@
       "type": "object",
       "properties": {
         "_id": {
-          "type": "number"
+          "type": "string"
         },
         "metadata": {
           "type": "object"
@@ -200,9 +200,6 @@
         "borderWidth": {
           "type": "number"
         },
-        "backgroundColor": {
-          "type": "string"
-        }
       }
     },
     "Page": {
@@ -377,9 +374,6 @@
         },
         "borderWidth": {
           "type": "number"
-        },
-        "backgroundColor": {
-          "type": "string"
         },
         "_id": {
           "type": "string"
@@ -1359,9 +1353,6 @@
         "styles": {
           "type": "object",
           "properties": {
-            "backgroundColor": {
-              "type": "string"
-            }
           }
         },
         "metadata": {

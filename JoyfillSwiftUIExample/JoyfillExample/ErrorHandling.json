@@ -1,0 +1,141 @@
+{
+  "_id": "67fa8d7805eb82ed29fff882",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "deleted": false,
+  "identifier": "template_67fa8d780ee252702a043dc2",
+  "name": "Hint and Deficiency Demo",
+  "createdOn": 1744473464047,
+  "files": [
+    {
+      "_id": "67fa8d789ae291ded87f04a0",
+      "metadata": {},
+      "name": "Hint and Deficiency Demo",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "687657cf40491fc5c66f63e2",
+              "type": "table",
+              "field": "687657cb139667e5576eeedd",
+              "displayType": "original",
+              "tableColumns": {},
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 15
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "67fa8d78a51f7a3c45fdb360",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "67fa8d78a51f7a3c45fdb360"
+      ],
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "67fa8d789ae291ded87f04a0",
+      "_id": "687657cb139667e5576eeedd",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "687372260e03183abd31f7a0",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_687657cf3775be492c82542a"
+        },
+        {
+          "_id": "68765867491fc1e4d2e17886",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0
+        },
+        {
+          "_id": "687658a5b6a28b219f4cdb2f",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "options": [
+            {
+              "_id": "687658a5515b478fb9f6fed1",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "687658a5ea5aa8057358303d",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "687658a5c30119250ec00332",
+              "value": "N/A",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            }
+          ]
+        }
+      ],
+      "value": [
+        {
+          "_id": "6873722690c8dc353bc63e34",
+          "deleted": false,
+          "cells": {
+            "687372260e03183abd31f7a0": "hi"
+          }
+        },
+        {
+          "_id": "6876588c8fc8cbe206b54d12",
+          "deleted": false,
+          "cells": {
+            "687372260e03183abd31f7a0": "",
+            "68765867491fc1e4d2e17886": ""
+          }
+        },
+        {
+          "_id": "687658aa290caa246041bf2f",
+          "deleted": true,
+          "cells": {
+            "687372260e03183abd31f7a0": "",
+            "68765867491fc1e4d2e17886": "",
+            "687658a5b6a28b219f4cdb2f": ""
+          }
+        }
+      ],
+      "identifier": "field_687657cf86f6f902d7c5b104",
+      "tableColumnOrder": [
+        "687372260e03183abd31f7a0",
+        "68765867491fc1e4d2e17886",
+        "687658a5b6a28b219f4cdb2f"
+      ],
+      "rowOrder": [
+        "6873722690c8dc353bc63e34",
+        "6876588c8fc8cbe206b54d12"
+      ]
+    }
+  ],
+  "categories": []
+}
