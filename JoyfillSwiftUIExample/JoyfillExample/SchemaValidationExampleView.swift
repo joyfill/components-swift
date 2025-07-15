@@ -19,8 +19,9 @@ struct SchemaValidationExampleView: View, FormChangeEvent {
     // MARK: - Validate Document
         func validate() {
             do {
-                let result = try JSONSchema.validate(sampleJSONDocument(fileName: "Joydocjson").dictionary, schema: sampleJSONDocument(fileName: "joyfill-schema 2").dictionary)
+                let result = try JSONSchema.validate(sampleJSONDocument(fileName: "ErrorHandling").dictionary, schema: sampleJSONDocument(fileName: "joyfill-schema 2").dictionary)
                 if result.valid {
+                    print("🔸 JSON is valid! 🌍")
                     return
                 } else {
                     for error in result.errors ?? [] {
