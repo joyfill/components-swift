@@ -18,14 +18,8 @@ struct SchemaValidationExampleView: View, FormChangeEvent {
 
     // MARK: - Validate Document
         func validate() {
-            guard let schemaURL = Bundle.main.url(forResource: "joyfill-schema 2", withExtension: "json"),
-                  let schemaData = try? Data(contentsOf: schemaURL),
-                  let schema = try? JSONSerialization.jsonObject(with: schemaData) as? [String: Any] else {
-                print("❌ Failed to load or parse schema file 'joyfill-schema.json'")
-                return
-            }
             do {
-                let result = try JSONSchema.validate(sampleJSONDocument(fileName: "Joydocjson").dictionary, schema: schema)
+                let result = try JSONSchema.validate(sampleJSONDocument(fileName: "Joydocjson").dictionary, schema: sampleJSONDocument(fileName: "joyfill-schema 2").dictionary)
                 if result.valid {
                     return
                 } else {
