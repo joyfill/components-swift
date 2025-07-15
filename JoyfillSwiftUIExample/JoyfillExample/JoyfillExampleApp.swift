@@ -54,7 +54,8 @@ struct JoyfillExampleApp: App {
 //                OptionSelectionView()
 //            }
 //            OnChangeHandlerTest()
-            ManipulateDataOnChangeView()
+//            ManipulateDataOnChangeView()
+            SchemaValidationExampleView()
             .navigationViewStyle(StackNavigationViewStyle())
         }
     }

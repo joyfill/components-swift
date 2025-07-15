@@ -58,6 +58,10 @@
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E27E13152E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */; };
+		E285E2DB2E2638AE00CB75BD /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E285E2DA2E2638AE00CB75BD /* JSONSchema */; };
+		E285E2DF2E264E3000CB75BD /* SchemaValidationExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E285E2DE2E264E3000CB75BD /* SchemaValidationExampleView.swift */; };
+		E285E2E12E265FF400CB75BD /* joyfill-schema 2.json in Resources */ = {isa = PBXBuildFile; fileRef = E285E2E02E265FF400CB75BD /* joyfill-schema 2.json */; };
+		E285E2E32E26A25900CB75BD /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = E285E2E22E26A25900CB75BD /* ErrorHandling.json */; };
 		E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */; };
 		E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */; };
 		E2A684372DCA40AF00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */; };
@@ -142,6 +146,9 @@
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
 		E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldSearchFilterTests.swift; sourceTree = "<group>"; };
+		E285E2DE2E264E3000CB75BD /* SchemaValidationExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationExampleView.swift; sourceTree = "<group>"; };
+		E285E2E02E265FF400CB75BD /* joyfill-schema 2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "joyfill-schema 2.json"; sourceTree = "<group>"; };
+		E285E2E22E26A25900CB75BD /* ErrorHandling.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ErrorHandling.json; sourceTree = "<group>"; };
 		E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2A684382DCA40D100385FE1 /* CollectionFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldTests.swift; sourceTree = "<group>"; };
@@ -195,6 +202,7 @@
 				FA1FEAF12BA4C34800ABD018 /* Joyfill in Frameworks */,
 				36C6F4C52CEF4CEC001765CF /* JoyfillModel in Frameworks */,
 				FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */,
+				E285E2DB2E2638AE00CB75BD /* JSONSchema in Frameworks */,
 				360BC7F62C3E88E500735516 /* JoyfillAPIService in Frameworks */,
 				FA28C96E2BB4456300A2D65C /* JoyfillAPIService in Frameworks */,
 				E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */,
@@ -298,8 +306,11 @@
 				E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */,
 				E27C87E22D394387008EA35C /* CameraScanner.swift */,
 				E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */,
+				E285E2E02E265FF400CB75BD /* joyfill-schema 2.json */,
 				36E088BD2E1D84570048A303 /* OnChangeHandlerTest.swift */,
+				E285E2E22E26A25900CB75BD /* ErrorHandling.json */,
 				E2A6929D2E20D29C005AD17B /* ManipulateDataOnChangeView.swift */,
+				E285E2DE2E264E3000CB75BD /* SchemaValidationExampleView.swift */,
 				36E088BF2E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json */,
 				E2A6929F2E20F199005AD17B /* hint_and_deficiency_demo.json */,
 				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
@@ -412,6 +423,7 @@
 				E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */,
 				E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */,
 				E26A54632DFADD04006E05E9 /* JoyfillModel */,
+				E285E2DA2E2638AE00CB75BD /* JSONSchema */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -453,6 +465,7 @@
 				132493782BA570F9002C6ADC /* XCLocalSwiftPackageReference ".." */,
 				E2B5F75D2D75E5F30057FD85 /* XCLocalSwiftPackageReference "../../JoyfillAPIService" */,
 				E26A54622DFADD04006E05E9 /* XCLocalSwiftPackageReference "../../JoyfillModel" */,
+				E285E2D92E2638AE00CB75BD /* XCRemoteSwiftPackageReference "JSONSchema.swift" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -487,9 +500,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2A692A02E20F199005AD17B /* hint_and_deficiency_demo.json in Resources */,
+				E285E2E32E26A25900CB75BD /* ErrorHandling.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				36E088C02E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
+				E285E2E12E265FF400CB75BD /* joyfill-schema 2.json in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
 				045B41842D19BD8500F3D6C1 /* TableNewColumns.json in Resources */,
 			);
@@ -548,6 +563,7 @@
 				E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */,
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,
 				E2A6929E2E20D2EA005AD17B /* ManipulateDataOnChangeView.swift in Sources */,
+				E285E2DF2E264E3000CB75BD /* SchemaValidationExampleView.swift in Sources */,
 				E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */,
 				FA28C9672BB4345C00A2D65C /* FormContainerView.swift in Sources */,
 				FA28C96B2BB4359600A2D65C /* ChangeManager.swift in Sources */,
@@ -925,6 +941,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		E285E2D92E2638AE00CB75BD /* XCRemoteSwiftPackageReference "JSONSchema.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kylef/JSONSchema.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		048149F92CDA8F8E0061FBDC /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -998,6 +1025,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E26A54622DFADD04006E05E9 /* XCLocalSwiftPackageReference "../../JoyfillModel" */;
 			productName = JoyfillModel;
+		};
+		E285E2DA2E2638AE00CB75BD /* JSONSchema */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E285E2D92E2638AE00CB75BD /* XCRemoteSwiftPackageReference "JSONSchema.swift" */;
+			productName = JSONSchema;
 		};
 		E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
