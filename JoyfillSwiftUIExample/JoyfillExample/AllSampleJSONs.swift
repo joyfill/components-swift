@@ -125,7 +125,9 @@ struct AllSampleJSONs: View, FormChangeEvent {
         }
     }
 
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {}
+    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+        print("->>>>>>>>", changes)
+    }
     func onFocus(event: JoyfillModel.FieldIdentifier) { }
     func onBlur(event: JoyfillModel.FieldIdentifier) { }
     func onCapture(event: JoyfillModel.CaptureEvent) { }

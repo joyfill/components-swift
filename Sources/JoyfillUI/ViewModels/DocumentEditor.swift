@@ -10,7 +10,7 @@ import JoyfillModel
 
 public class DocumentEditor: ObservableObject, JoyDocProvider {
     public func currentFieldIdentifier() -> String? {
-        "asdas"
+        nil
     }
     
     public func setFieldHidden(_ hidden: Bool, for identifier: String) {
@@ -39,6 +39,8 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
         field.value = value
         fieldMap[fieldID] = field
         refreshField(fieldId: fieldID)
+        // TODO: Neet to add pageid and cleanup here
+        handleFieldsOnChange(fieldIdentifier: FieldIdentifier(fieldID: field.id!, pageID: "", fileID: document.files.first?.id), currentField: field)
     }
     
     private(set) public var document: JoyDoc
