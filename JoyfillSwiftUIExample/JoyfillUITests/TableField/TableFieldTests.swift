@@ -77,21 +77,21 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     }
     
     // Test case for check dropdown is in First Place or not - because check column order work fine or not
-//    func testSearchFilterForDropdownFieldPageFirst() throws {
-//        goToTableDetailPage()
-//        let dropdownFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
-//        dropdownFieldColumnTitleButton.tap()
-//        
-//        tapOnDropdownFieldFilter()
-//        
-//        // Check dropdown data after search
-//        let checkSearchDataOnFirstDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-//        XCTAssertEqual("Yes", checkSearchDataOnFirstDropdownField.element(boundBy: 0).label)
-//        
-//        // Check field text data after search
-//        let checkSearchDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("Hello", checkSearchDataOnFirstTextField.value as! String)
-//    }
+    func testSearchFilterForDropdownFieldPageFirst() throws {
+        goToTableDetailPage()
+        let dropdownFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        dropdownFieldColumnTitleButton.tap()
+        
+        tapOnDropdownFieldFilter()
+        
+        // Check dropdown data after search
+        let checkSearchDataOnFirstDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnFirstDropdownField.element(boundBy: 0).label)
+        
+        // Check field text data after search
+        let checkSearchDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Hello", checkSearchDataOnFirstTextField.value as! String)
+    }
     
     func testTableTextFields() throws {
         goToTableDetailPage()

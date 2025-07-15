@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */; };
 		045B41842D19BD8500F3D6C1 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 045B41832D19BD8500F3D6C1 /* TableNewColumns.json */; };
-		045B41862D19BEAB00F3D6C1 /* TableNumber_Block_DateFieldTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045B41852D19BEAB00F3D6C1 /* TableNumber_Block_DateFieldTest.swift */; };
 		048149FA2CDA8F8E0061FBDC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048149F92CDA8F8E0061FBDC /* JoyfillModel */; };
 		048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048149FC2CDA8F9A0061FBDC /* JoyfillAPIService */; };
 		048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */; };
@@ -25,7 +24,6 @@
 		1321F1782BECEC9400594112 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */; };
 		1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 132493792BA570F9002C6ADC /* Joyfill */; };
 		1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 1324937C2BAD5A42002C6ADC /* JoyfillModel */; };
-		1338AB962BEE38DD0001C203 /* TableFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1338AB952BEE38DD0001C203 /* TableFieldTests.swift */; };
 		134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 134FC0792BDA82E9008B7030 /* JoyfillTests.swift */; };
 		136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */; };
 		13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */; };
@@ -126,7 +124,6 @@
 /* Begin PBXFileReference section */
 		0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTestCase.swift; sourceTree = "<group>"; };
 		045B41832D19BD8500F3D6C1 /* TableNewColumns.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TableNewColumns.json; sourceTree = "<group>"; };
-		045B41852D19BEAB00F3D6C1 /* TableNumber_Block_DateFieldTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableNumber_Block_DateFieldTest.swift; sourceTree = "<group>"; };
 		048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccessTokenTextFieldView.swift; sourceTree = "<group>"; };
 		04814A022CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldHidePageLogicTests.swift; sourceTree = "<group>"; };
 		04814A032CDA912F0061FBDC /* SelectionFieldLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFieldLogicTests.swift; sourceTree = "<group>"; };
@@ -138,7 +135,6 @@
 		1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITests.swift; sourceTree = "<group>"; };
 		1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		1338AB952BEE38DD0001C203 /* TableFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableFieldTests.swift; sourceTree = "<group>"; };
 		134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		134FC0792BDA82E9008B7030 /* JoyfillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillTests.swift; sourceTree = "<group>"; };
 		136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageNavigationFieldTest.swift; sourceTree = "<group>"; };
@@ -200,6 +196,13 @@
 			);
 			target = FA529C492BA1D251000200F5 /* JoyfillExample */;
 		};
+		9E22F3332E25FFB0008B5D47 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				TableFieldTestData.json,
+			);
+			target = FA529C492BA1D251000200F5 /* JoyfillExample */;
+		};
 		9E70182D2E2265E4003651A4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -228,6 +231,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9E22F3252E2503E1008B5D47 /* ChartField */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9E22F32D2E25063A008B5D47 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ChartField; sourceTree = "<group>"; };
+		9E22F32E2E25FF74008B5D47 /* TableField */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9E22F3332E25FFB0008B5D47 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TableField; sourceTree = "<group>"; };
 		9E7018262E226180003651A4 /* SignatureField */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (9E7018302E2265ED003651A4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 9E70182D2E2265E4003651A4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 9E70182E2E2265E4003651A4 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SignatureField; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -290,6 +294,7 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				9E22F32E2E25FF74008B5D47 /* TableField */,
 				9E22F3252E2503E1008B5D47 /* ChartField */,
 				9E7018262E226180003651A4 /* SignatureField */,
 				E2E38B372E1BF88500D6EEDE /* TextField */,
@@ -300,8 +305,6 @@
 				E2A692992E1ECE13005AD17B /* ImageField */,
 				362A560E2BEE359400B54C14 /* ChartFieldTests.swift */,
 				E2E38B2C2E1B707000D6EEDE /* Helper */,
-				1338AB952BEE38DD0001C203 /* TableFieldTests.swift */,
-				045B41852D19BEAB00F3D6C1 /* TableNumber_Block_DateFieldTest.swift */,
 				136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */,
 				13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */,
 				13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */,
@@ -501,6 +504,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				9E22F3252E2503E1008B5D47 /* ChartField */,
+				9E22F32E2E25FF74008B5D47 /* TableField */,
 				9E7018262E226180003651A4 /* SignatureField */,
 			);
 			name = JoyfillUITests;
@@ -678,7 +682,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
-				045B41862D19BEAB00F3D6C1 /* TableNumber_Block_DateFieldTest.swift in Sources */,
 				04814A052CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift in Sources */,
 				04814A062CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift in Sources */,
 				04814A072CDA912F0061FBDC /* SelectionFieldLogicTests.swift in Sources */,
@@ -687,7 +690,6 @@
 				E2E38B2D2E1B707000D6EEDE /* UITestHelpers.swift in Sources */,
 				9E7018182E22039F003651A4 /* DisplayTextFieldUITestCases.swift in Sources */,
 				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
-				1338AB962BEE38DD0001C203 /* TableFieldTests.swift in Sources */,
 				E2A6929B2E1ECE13005AD17B /* ImageFieldUITestCases.swift in Sources */,
 				E2A6929C2E1ECE13005AD17B /* ImageFieldTests.swift in Sources */,
 				E2A6928D2E1ECDB6005AD17B /* CollectionFieldSearchFilterTests.swift in Sources */,
