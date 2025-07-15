@@ -65,20 +65,46 @@ class FormulaTemplate_DateFieldTests: XCTestCase {
     }
 
     func testDaysBetweenNowAndDate1() async throws {
-        // (now() - date1) / (1000 * 60 * 60 * 24) (Expect: approximately 25.38, but varies with current time)
-        // NOTE: This test is currently failing due to a formula engine issue with date arithmetic.
-        // The formula engine throws: typeMismatch(expected: "Numbers for '-'", actual: "Date and Date")
-        // This should be fixed in the formula engine to properly handle date subtraction.
-
+        // Instead of testing against a fixed date (June 1, 2025), 
+        // let's test the formula logic by comparing calculated vs expected values
+        
+        // Get the actual date1 value from the JSON
+        let date1Result = documentEditor.value(ofFieldWithIdentifier: "date1")
+        guard let date1Timestamp = date1Result?.number else {
+            XCTFail("Could not get date1 timestamp from field")
+            return
+        }
+        
+        // Convert timestamp to Date (assuming milliseconds)
+        let date1 = Date(timeIntervalSince1970: date1Timestamp / 1000.0)
+        let now = Date()
+        
+        // Calculate expected days difference manually
+        let timeDifferenceSeconds = now.timeIntervalSince(date1)
+        let expectedDaysDifference = timeDifferenceSeconds / (60 * 60 * 24) // Convert to days
+        
+        // Now test the formula result
         let result = documentEditor.value(ofFieldWithIdentifier: "number7")
         print("📅 Days between now and Date 1: \(result?.number ?? 0)")
+        print("📅 Expected days difference: \(expectedDaysDifference)")
+        print("📅 Date1: \(date1)")
+        print("📅 Now: \(now)")
         
-        // Since this depends on current time, we'll verify it's a reasonable positive number
-        // The spec suggests around 25.38 days, so we'll allow a range
-        let daysDifference = result?.number ?? 0
-        XCTAssertGreaterThan(daysDifference, 0, "Days between now and date1 should be positive (date1 is in the past)")
-        XCTAssertLessThan(daysDifference, 100, "Days between now and date1 should be reasonable (less than 100 days)")
-
+        XCTAssertNotNil(result?.number, "Should return a number representing days")
+        
+        if let formulaDaysDiff = result?.number {
+            // Test that the formula result is close to our manual calculation
+            // Allow for small timing differences (within 1 day tolerance)
+            let tolerance = 1.0
+            XCTAssertTrue(
+                abs(formulaDaysDiff - expectedDaysDifference) < tolerance,
+                "Formula result (\(formulaDaysDiff)) should be close to expected calculation (\(expectedDaysDifference)) within \(tolerance) days"
+            )
+            
+            // Also verify the result is reasonable (not negative, not extremely large)
+            XCTAssertTrue(formulaDaysDiff > -1, "Days difference should not be strongly negative")
+            XCTAssertTrue(formulaDaysDiff < 10000, "Days difference should be reasonable (less than 10000 days)")
+        }
     }
 
     func testIsDate1InFuture() async throws {
