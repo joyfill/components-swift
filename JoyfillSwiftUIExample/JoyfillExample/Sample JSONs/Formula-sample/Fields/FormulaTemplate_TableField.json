@@ -36,7 +36,7 @@
       "desc": "Count number of rows where dropdown1 == 'Yes D1'",
       "type": "calc",
       "scope": "private",
-      "expression": "sum(length(filter(table1, (row) -> row.dropdown1 == \"Yes D1\")))"
+      "expression": "length(filter(table1, (row) -> row.dropdown1 == \"Yes D1\"))"
     }
   ],
   "files": [
@@ -417,3 +417,4 @@
   ],
   "type": "document"
 }
+

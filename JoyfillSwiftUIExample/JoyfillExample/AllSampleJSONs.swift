@@ -17,32 +17,34 @@ struct AllSampleJSONs: View, FormChangeEvent {
     
     // All available JSON files from Formula-sample directory
     private let resolverFiles = [
-        "JoyfillResolver_DirectSelfCircularReference",
-        "JoyfillResolver_LongChainIndirectCircularDependency", 
-        "JoyfillResolver_IndirectCircularError",
-        "JoyfillResolverTemplate_ComplexWorking",
         "JoyfillResolver_SimpleWorking",
+        "JoyfillResolverTemplate_ComplexWorking",
+        "JoyfillResolver_IndirectCircularError",
+        "JoyfillResolver_LongChainIndirectCircularDependency",
+        "JoyfillResolver_DirectSelfCircularReference",
         "FormulaTemplate_Arithmetic"
     ]
     
     private let fieldFiles = [
-        "FormulaTemplate_TextareaField",
-        "FormulaTemplate_DateField",
-        "FormulaTemplate_NumberField", 
-        "FormulaTemplate_TextField",
-        "FormulaTemplate_CollectionField",
         "FormulaTemplate_DropdownField",
+        "FormulaTemplate_TextField",
+        "FormulaTemplate_NumberField",
         "FormulaTemplate_MultiSelectField",
         "FormulaTemplate_TableField",
+        "FormulaTemplate_CollectionField",
+        "FormulaTemplate_TextareaField",
+        "FormulaTemplate_DateField",
+        "FormulaTemplate_BlockField",
+        "FormulaTemplate_SignatureField",
         "FormulaTemplate_Read_ChartField",
         "FormulaTemplate_Write_ChartField"
     ]
     
     private let parserFiles = [
         "FormulaTemplate_EqualityOperator",
+        "FormulaTemplate_UnequalOperator",
         "FormulaTemplate_GreaterThanOperator",
         "FormulaTemplate_GreaterThanOrEqualOperator",
-        "FormulaTemplate_UnequalOperator",
         "FormulaTemplate_LessThanOperator",
         "FormulaTemplate_LessThanOrEqualOperator"
     ]
