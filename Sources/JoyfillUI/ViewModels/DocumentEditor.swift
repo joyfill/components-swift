@@ -39,6 +39,7 @@ public class DocumentEditor: ObservableObject, JoyDocProvider {
         field.value = value
         fieldMap[fieldID] = field
         refreshField(fieldId: fieldID)
+        refreshDependent(for: fieldID)
         // TODO: Neet to add pageid and cleanup here
         handleFieldsOnChange(fieldIdentifier: FieldIdentifier(fieldID: field.id!, pageID: "", fileID: document.files.first?.id), currentField: field)
     }
