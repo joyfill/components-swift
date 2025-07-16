@@ -13,7 +13,6 @@ import SwiftUI
 var documentEditor2: DocumentEditor!
 struct OnChangeHandlerTest: View, FormChangeEvent {
     func onError(error: Joyfill.JoyfillError) {
-        
     }
     
     let imagePicker = ImagePicker()

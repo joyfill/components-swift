@@ -57,15 +57,8 @@ extension ChangeManager: FormChangeEvent {
         switch error {
         case .schemaValidationError(let schemaError):
             print("❌ Schema Error: \(schemaError)")
-//            DispatchQueue.main.async {
-//                self.validationMessage = "❌ Schema Error: \(schemaError.code) - \(schemaError.message)"
-//            }
         case .schemaVersionError(let versionError):
             print("❌ Schema Error: \(versionError)")
-
-//            DispatchQueue.main.async {
-//                self.validationMessage = "❌ Version Error: \(versionError.code) - \(versionError.message)"
-//            }
         }
         print("Error occurred: \(error)")
     }

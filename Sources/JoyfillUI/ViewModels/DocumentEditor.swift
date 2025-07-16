@@ -9,7 +9,7 @@ import Foundation
 import JoyfillModel
 import JSONSchema
 
-private enum ChnageTargetType: String {
+private enum ChangeTargetType: String {
     case fieldUpdate = "field.update"
 
     case fieldValueRowCreate = "field.value.rowCreate"
@@ -34,7 +34,7 @@ public protocol DocumentEditorDelegate: AnyObject {
 }
 
 public class DocumentEditor: ObservableObject {
-    private(set) public var document: JoyDoc!
+    private(set) public var document: JoyDoc
     var schemaError: SchemaValidationError?
     @Published public var currentPageID: String = ""
     @Published var currentPageOrder: [String] = []
@@ -66,7 +66,8 @@ public class DocumentEditor: ObservableObject {
         if let schemaError = schemaManager.validateSchema(document: document) {
             // Schema validation failed - store error and return early
             self.schemaError = schemaError
-            self.document = document
+            // Set empty document
+            self.document = JoyDoc()
             self.mode = mode
             self.isPageDuplicateEnabled = isPageDuplicateEnabled
             self.showPageNavigationView = navigation
@@ -147,7 +148,7 @@ public class DocumentEditor: ObservableObject {
         // 2. Update UI
         for change in changes {
             guard let targetValue = change.target,
-                  let target = ChnageTargetType(rawValue: targetValue)
+                  let target = ChangeTargetType(rawValue: targetValue)
             else {
                 logChangeError(for: change)
                 return
@@ -294,7 +295,7 @@ public class DocumentEditor: ObservableObject {
             return logEventForNilObject(message: "fieldID not found for change: \(changeId)")
         }
         
-        let target = ChnageTargetType(rawValue: targetValue) ?? .unknown
+        let target = ChangeTargetType(rawValue: targetValue) ?? .unknown
         
         switch target {
         case .fieldUpdate:
