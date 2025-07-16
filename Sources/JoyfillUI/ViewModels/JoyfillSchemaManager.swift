@@ -48,7 +48,7 @@ public class JoyfillSchemaManager {
     
     // MARK: - Version Validation (Phase 2)
     
-    private func validateVersion(document: JoyDoc) -> SchemaVersionError? {
+    private func validateVersion(document: JoyDoc) -> SchemaValidationError? {
         let documentVersion = document.version
         let detectedVersion = documentVersion ?? "1.0.0" // Undefined version = v1.x.x
         
@@ -57,9 +57,9 @@ public class JoyfillSchemaManager {
         
         // Check if major version is supported
         if majorVersion > supportedMajorVersion {
-            return SchemaVersionError(
-                code: "ERROR_SCHEMA_VERSION", 
-                message: "Unsupported JoyDoc version detected. This SDK supports v\(supportedMajorVersion).x.x, but document version is v\(detectedVersion)",
+            return SchemaValidationError(
+                code: "ERROR_SCHEMA_VERSION",
+                message: "Unsupported JoyDoc version detected. This SDK supports v\(supportedMajorVersion).x.x, but document version is v\(detectedVersion)", error: [],
                 details: .init(
                     schemaVersion: detectedVersion,
                     sdkVersion: sdkVersion

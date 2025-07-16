@@ -15,16 +15,19 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/joyfill/JoyfillModel", branch: "collection-development"),
+        .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
     ],
     targets: [
         .target(
             name: "Joyfill",
             dependencies: [
+                .product(name: "JSONSchema", package: "JSONSchema.swift"),
                 "JoyfillModel",
             ]
         ),
         .testTarget(
             name: "JoyfillTests",
-            dependencies: ["Joyfill"]),
+            dependencies: ["Joyfill"]
+        ),
     ]
 )
