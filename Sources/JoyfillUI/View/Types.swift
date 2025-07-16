@@ -235,6 +235,7 @@ public protocol FormChangeEvent {
 
 public enum JoyfillError: Error {
     case schemaValidationError(error: SchemaValidationError)
+    case schemaVersionError(error: SchemaVersionError)
 }
 
 public struct SchemaValidationError: Error {
@@ -246,6 +247,11 @@ public struct SchemaValidationError: Error {
     public struct Details {
         public let schemaVersion: String
         public let sdkVersion: String
+        
+        public init(schemaVersion: String, sdkVersion: String) {
+            self.schemaVersion = schemaVersion
+            self.sdkVersion = sdkVersion
+        }
     }
 
     public init(
@@ -257,6 +263,32 @@ public struct SchemaValidationError: Error {
         self.code = code
         self.message = message
         self.error = error
+        self.details = details
+    }
+}
+
+public struct SchemaVersionError: Error {
+    public let code: String
+    public let message: String
+    public let details: Details
+
+    public struct Details {
+        public let schemaVersion: String
+        public let sdkVersion: String
+        
+        public init(schemaVersion: String, sdkVersion: String) {
+            self.schemaVersion = schemaVersion
+            self.sdkVersion = sdkVersion
+        }
+    }
+
+    public init(
+        code: String,
+        message: String,
+        details: Details
+    ) {
+        self.code = code
+        self.message = message
         self.details = details
     }
 }

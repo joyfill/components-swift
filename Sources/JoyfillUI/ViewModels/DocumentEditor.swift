@@ -59,35 +59,48 @@ public class DocumentEditor: ObservableObject {
     private var conditionalLogicHandler: ConditionalLogicHandler!
     
     public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false) {
-        let schemaValidationResult = JoyfillSchemaManager().validateSchema(document: document)
-        switch schemaValidationResult {
-        case .success(_):
+        // Perform schema validation first
+        let schemaManager = JoyfillSchemaManager()
+        
+        // Check for schema validation errors
+        if let schemaError = schemaManager.validateSchema(document: document) {
+            // Schema validation failed - store error and return early
+            self.schemaError = schemaError
             self.document = document
             self.mode = mode
             self.isPageDuplicateEnabled = isPageDuplicateEnabled
             self.showPageNavigationView = navigation
             self.currentPageID = ""
             self.events = events
-            updateFieldMap()
-            updateFieldPositionMap()
+            
+            // Trigger onError callback if events handler is available
+            events?.onError(error: .schemaValidationError(error: schemaError))
+            return
+        }
+        
+        // Schema validation passed - proceed with normal initialization
+        self.document = document
+        self.mode = mode
+        self.isPageDuplicateEnabled = isPageDuplicateEnabled
+        self.showPageNavigationView = navigation
+        self.currentPageID = ""
+        self.events = events
+        updateFieldMap()
+        updateFieldPositionMap()
 
-            guard let firstFile = files.first, let fileID = firstFile.id else {
-                return
-            }
-
-            for page in document.pagesForCurrentView {
-                guard let pageID = page.id else { return }
-                updatePageFieldModels(page, pageID, fileID)
-            }
-            self.validationHandler = ValidationHandler(documentEditor: self)
-            self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
-            self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
-
-            self.currentPageOrder = document.pageOrderForCurrentView ?? []
-        case .failure(let error):
-            schemaError = error
+        guard let firstFile = files.first, let fileID = firstFile.id else {
+            return
         }
 
+        for page in document.pagesForCurrentView {
+            guard let pageID = page.id else { return }
+            updatePageFieldModels(page, pageID, fileID)
+        }
+        self.validationHandler = ValidationHandler(documentEditor: self)
+        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
+
+        self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
     public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {

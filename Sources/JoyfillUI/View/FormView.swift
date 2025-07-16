@@ -16,7 +16,7 @@ public struct Form: View {
 
     public var body: some View {
         if let error = documentEditor.schemaError {
-            SchemaErrorView(errorCode: error.code, sdkVersion: error.details.sdkVersion, schemaVersion: error.details.schemaVersion)
+            SchemaErrorView(error: error)
         } else {
             FilesView(documentEditor: documentEditor, files: documentEditor.files)
         }
@@ -24,9 +24,7 @@ public struct Form: View {
 }
 
 struct SchemaErrorView: View {
-    let errorCode: String
-    let sdkVersion: String
-    let schemaVersion: String
+    let error: SchemaValidationError
     
     var body: some View {
         VStack(spacing: 20) {
@@ -38,7 +36,7 @@ struct SchemaErrorView: View {
                 .foregroundColor(.black)
             
             // Main Error Message
-            Text("Error detected during\nschema validation.")
+            Text(getDisplayMessage())
                 .font(.title2)
                 .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
@@ -46,17 +44,17 @@ struct SchemaErrorView: View {
             
             VStack(spacing: 8) {
                 // Error Code
-                Text(errorCode)
+                Text(error.code)
                     .font(.body)
                     .foregroundColor(.gray)
                 
                 // SDK Version
-                Text("SDK Version: \(sdkVersion)")
+                Text("SDK Version: \(error.details.sdkVersion)")
                     .font(.body)
                     .foregroundColor(.gray)
                 
                 // Schema Version
-                Text("Schema Version: \(schemaVersion)")
+                Text("Schema Version: \(error.details.schemaVersion)")
                     .font(.body)
                     .foregroundColor(.gray)
             }
@@ -66,6 +64,17 @@ struct SchemaErrorView: View {
         .padding()
         .background(Color.white)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func getDisplayMessage() -> String {
+        switch error.code {
+        case "ERROR_SCHEMA_VERSION":
+            return "Unsupported document version.\nThis SDK version does not support\nthe document's schema version."
+        case "ERROR_SCHEMA_VALIDATION":
+            return "Error detected during\nschema validation."
+        default:
+            return "An error occurred while\nprocessing the document."
+        }
     }
 }
 

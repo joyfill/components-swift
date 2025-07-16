@@ -4,24 +4,37 @@ import JSONSchema
 import JoyfillModel
 import Foundation
 
-struct SchemaValidationExampleView: View, FormChangeEvent {
+struct SchemaValidationExampleView: View {
+    @State private var documentEditor: DocumentEditor
+    @State private var validationMessage: String = "Loading..."
+    let changeManagerWraper = ChangeManagerWrapper()
 
     init() {
         let document = sampleJSONDocument(fileName: "ErrorHandling")
-        documentEditor = DocumentEditor(document: document, events: self)
+        self.documentEditor = DocumentEditor(document: JoyDoc(), events: changeManagerWraper.changeManager)
+
+        // Test the new schema validation functionality
+        let schemaManager = JoyfillSchemaManager()
+        if let error = schemaManager.validateSchema(document: document) {
+            validationMessage = "Validation failed: \(error.code) - \(error.message)"
+        } else {
+            validationMessage = "✅ Schema validation passed!"
+        }
     }
 
     public var body: some View {
         NavigationView {
-            Form(documentEditor: documentEditor)
+            VStack {
+                // Display validation status
+                Text(validationMessage)
+                    .padding()
+                    .background(validationMessage.contains("failed") ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
+                    .cornerRadius(8)
+                    .padding()
+                
+                Form(documentEditor: documentEditor)
+            }
         }
     }
 
-    // MARK: - Validate Document
-    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {}
-    func onFocus(event: FieldIdentifier) {}
-    func onBlur(event: FieldIdentifier) {}
-    func onUpload(event: UploadEvent) {}
-    func onCapture(event: CaptureEvent) {}
-    func onError(error: Joyfill.JoyfillError) {}
 }
