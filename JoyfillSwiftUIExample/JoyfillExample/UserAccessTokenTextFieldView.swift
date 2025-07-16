@@ -499,7 +499,10 @@ struct OptionSelectionView: View {
         case token
         case jsonToForm
         case testingChangelogs
-        
+        case schemaValidationExampleView
+        case oChangeHandlerTest
+        case manipulateDataOnChangeView
+
         var title: String {
             switch self {
             case .token:
@@ -508,6 +511,12 @@ struct OptionSelectionView: View {
                 return "JSON to Form"
             case .testingChangelogs:
                 return "Testing Changelogs"
+            case .schemaValidationExampleView:
+                return "Schema Validation"
+            case .manipulateDataOnChangeView:
+                return "Data Manipulation"
+            case .oChangeHandlerTest:
+                return "Change Handler Test"
             }
         }
         
@@ -519,6 +528,12 @@ struct OptionSelectionView: View {
                 return "Input JSON data to create forms directly"
             case .testingChangelogs:
                 return "Use both token and JSON with changelog testing"
+            case .schemaValidationExampleView:
+                return "Test schema validation and error handling features"
+            case .manipulateDataOnChangeView:
+                return "Test real-time data manipulation and form updates"
+            case .oChangeHandlerTest:
+                return "Test change event handling and validation workflows"
             }
         }
         
@@ -530,6 +545,12 @@ struct OptionSelectionView: View {
                 return "doc.text.fill"
             case .testingChangelogs:
                 return "testtube.2"
+            case .schemaValidationExampleView:
+                return "checkmark.seal.fill"
+            case .manipulateDataOnChangeView:
+                return "slider.horizontal.3"
+            case .oChangeHandlerTest:
+                return "arrow.triangle.2.circlepath"
             }
         }
         
@@ -541,89 +562,95 @@ struct OptionSelectionView: View {
                 return .green
             case .testingChangelogs:
                 return .orange
+            case .schemaValidationExampleView:
+                return .red
+            case .manipulateDataOnChangeView:
+                return .purple
+            case .oChangeHandlerTest:
+                return .teal
             }
         }
     }
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 32) {
-                // Header Section
-                VStack(spacing: 16) {
-                    Image(systemName: "app.badge")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-                    
-                    Text("Joyfill Example")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                    
-                    Text("Choose how you'd like to get started")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.top, 32)
-                
-                // Options Section
-                VStack(spacing: 16) {
-                    ForEach(OptionType.allCases, id: \.self) { option in
-                        OptionCard(
-                            option: option,
-                            isSelected: selectedOption == option
-                        ) {
-                            selectedOption = option
-                        }
+            ScrollView {
+                VStack(spacing: 32) {
+                    // Header Section
+                    VStack(spacing: 16) {
+                        Image(systemName: "app.badge")
+                            .font(.system(size: 60))
+                            .foregroundColor(.blue)
+                        
+                        Text("Joyfill Example")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                        
+                        Text("Choose how you'd like to get started")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
                     }
-                }
-                .padding(.horizontal, 20)
-                
-                Spacer()
-                
-                // Continue Button
-                NavigationLink(
-                    destination: destinationView(),
-                    isActive: Binding(
-                        get: { isNavigating },
-                        set: { newValue in
-                            isNavigating = newValue
-                            if !newValue {
-                                // Reset selectedOption when navigation is dismissed
-                                selectedOption = nil
+                    .padding(.top, 32)
+                    
+                    // Options Section
+                    VStack(spacing: 16) {
+                        ForEach(OptionType.allCases, id: \.self) { option in
+                            OptionCard(
+                                option: option,
+                                isSelected: selectedOption == option
+                            ) {
+                                selectedOption = option
                             }
                         }
-                    )
-                ) {
-                    Button(action: {
-                        if selectedOption != nil {
-                            isNavigating = true
-                        }
-                    }) {
-                        HStack {
-                            Spacer()
-                            Text("Continue")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                            Spacer()
-                        }
-                        .frame(height: 54)
-                        .background(
-                            selectedOption == nil
-                            ? Color.gray.opacity(0.3)
-                            : Color.blue
-                        )
-                        .cornerRadius(16)
-                        .shadow(
-                            color: selectedOption == nil ? .clear : .black.opacity(0.1),
-                            radius: 2, x: 0, y: 1
-                        )
                     }
-                    .disabled(selectedOption == nil)
+                    .padding(.horizontal, 20)
+                    
+                    // Continue Button
+                    NavigationLink(
+                        destination: destinationView(),
+                        isActive: Binding(
+                            get: { isNavigating },
+                            set: { newValue in
+                                isNavigating = newValue
+                                if !newValue {
+                                    // Reset selectedOption when navigation is dismissed
+                                    selectedOption = nil
+                                }
+                            }
+                        )
+                    ) {
+                        Button(action: {
+                            if selectedOption != nil {
+                                isNavigating = true
+                            }
+                        }) {
+                            HStack {
+                                Spacer()
+                                Text("Continue")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .frame(height: 54)
+                            .background(
+                                selectedOption == nil
+                                ? Color.gray.opacity(0.3)
+                                : Color.blue
+                            )
+                            .cornerRadius(16)
+                            .shadow(
+                                color: selectedOption == nil ? .clear : .black.opacity(0.1),
+                                radius: 2, x: 0, y: 1
+                            )
+                        }
+                        .disabled(selectedOption == nil)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 32)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 32)
             }
             .navigationBarHidden(true)
         }
@@ -649,6 +676,12 @@ struct OptionSelectionView: View {
             .modifier(KeyboardDismissModifier())
         case .testingChangelogs:
             TestingChangelogsView()
+        case .schemaValidationExampleView:
+            SchemaValidationExampleView()
+        case .manipulateDataOnChangeView:
+            ManipulateDataOnChangeView()
+        case .oChangeHandlerTest:
+            OnChangeHandlerTest()
         case .none:
             EmptyView()
         }
