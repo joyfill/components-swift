@@ -8,42 +8,7 @@
 import Foundation
 import JoyfillModel
 
-public class DocumentEditor: ObservableObject, JoyDocProvider {
-    public func currentFieldIdentifier() -> String? {
-        nil
-    }
-    
-    public func setFieldHidden(_ hidden: Bool, for identifier: String) {
-        print("setFieldHidden >>>>>", hidden, identifier)
-        guard var field = allFields.first(where: { $0.id == identifier }) else {
-            return
-        }
-        conditionalLogicHandler.showFieldMap[field.id!] = hidden
-        refreshField(fieldId: field.id!)
-    }
-    
-    public func formula(with id: String) -> JoyfillModel.Formula? {
-        document.formulas.first { $0.id == id }
-    }
-    
-    public func allFormulsFields() -> [JoyfillModel.JoyDocField] {
-        allFields.filter { $0.formulas != nil }
-    }
-    
-    public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
-        print("updateValue called >>>>>>>", value)
-       guard var field = allFields.first(where: { $0.id == identifier }) else {
-           return
-       }
-        guard let fieldID = field.id else { return }
-        field.value = value
-        fieldMap[fieldID] = field
-        refreshField(fieldId: fieldID)
-        refreshDependent(for: fieldID)
-        // TODO: Neet to add pageid and cleanup here
-        handleFieldsOnChange(fieldIdentifier: FieldIdentifier(fieldID: field.id!, pageID: "", fileID: document.files.first?.id), currentField: field)
-    }
-    
+public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = [] 
@@ -669,5 +634,42 @@ extension DocumentEditor {
             }
             onChangeDuplicatePage(viewId: "", page: duplicatedPage, fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: targetIdnex, newFields: newFields)
         }
+    }
+}
+
+extension DocumentEditor: JoyDocProvider {
+    public func currentFieldIdentifier() -> String? {
+        nil
+    }
+
+    public func setFieldHidden(_ hidden: Bool, for identifier: String) {
+        print("setFieldHidden >>>>>", hidden, identifier)
+        guard var field = allFields.first(where: { $0.id == identifier }) else {
+            return
+        }
+        conditionalLogicHandler.showFieldMap[field.id!] = hidden
+        refreshField(fieldId: field.id!)
+    }
+
+    public func formula(with id: String) -> JoyfillModel.Formula? {
+        document.formulas.first { $0.id == id }
+    }
+
+    public func allFormulsFields() -> [JoyfillModel.JoyDocField] {
+        allFields.filter { $0.formulas != nil }
+    }
+
+    public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
+        print("updateValue called >>>>>>>", value)
+        guard var field = allFields.first(where: { $0.id == identifier }) else {
+            return
+        }
+        guard let fieldID = field.id else { return }
+        field.value = value
+        fieldMap[fieldID] = field
+        refreshField(fieldId: fieldID)
+        refreshDependent(for: fieldID)
+        // TODO: Neet to add pageid and cleanup here
+        handleFieldsOnChange(fieldIdentifier: FieldIdentifier(fieldID: field.id!, pageID: "", fileID: document.files.first?.id), currentField: field)
     }
 }
