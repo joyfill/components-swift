@@ -20,30 +20,6 @@ private enum ChnageTargetType: String {
     case unknown
 }
 
-public struct SchemaValidationError: Error {
-    public let code: String
-    public let message: String
-    public let error: [JSONSchema.ValidationError]?
-    public let details: Details
-
-    public struct Details {
-        public let schemaVersion: String
-        public let sdkVersion: String
-    }
-
-    public init(
-        code: String,
-        message: String,
-        error: [JSONSchema.ValidationError]?,
-        details: Details
-    ) {
-        self.code = code
-        self.message = message
-        self.error = error
-        self.details = details
-    }
-}
-
 // Weak wrapper to hold multiple delegates without causing retain cycles
 public class WeakDocumentEditorDelegate {
     weak var value: DocumentEditorDelegate?

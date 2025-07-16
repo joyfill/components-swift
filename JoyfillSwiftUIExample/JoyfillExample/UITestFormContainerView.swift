@@ -49,7 +49,7 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         self.setResult = setResult
     }
     
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         didReceiveChange = true
         uploadCallback?(didReceiveUploadEvent, didReceiveChange)
         let dictionary = changes.map { $0.dictionary }
@@ -62,22 +62,24 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         }
     }
     
-    func onFocus(event: JoyfillModel.FieldIdentifier) {
+    func onFocus(event: FieldIdentifier) {
         
     }
     
-    func onBlur(event: JoyfillModel.FieldIdentifier) {
+    func onBlur(event: FieldIdentifier) {
         
     }
     
-    func onUpload(event: JoyfillModel.UploadEvent) {
+    func onUpload(event: UploadEvent) {
         didReceiveUploadEvent = true
         uploadCallback?(didReceiveUploadEvent, didReceiveChange)
         //Comment this upload in some test cases
         event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
     }
     
-    func onCapture(event: JoyfillModel.CaptureEvent) {
+    func onCapture(event: CaptureEvent) {
         event.captureHandler(.string("Scan Button Clicked"))
     }
+    func onError(error: JoyfillError) {}
+
 }

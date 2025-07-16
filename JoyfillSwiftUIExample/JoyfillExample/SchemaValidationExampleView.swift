@@ -5,6 +5,7 @@ import JoyfillModel
 import Foundation
 
 struct SchemaValidationExampleView: View, FormChangeEvent {
+
     init() {
         let document = sampleJSONDocument(fileName: "ErrorHandling")
         documentEditor = DocumentEditor(document: document, events: self)
@@ -17,9 +18,10 @@ struct SchemaValidationExampleView: View, FormChangeEvent {
     }
 
     // MARK: - Validate Document
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {}
-    func onFocus(event: JoyfillModel.FieldIdentifier) {}
-    func onBlur(event: JoyfillModel.FieldIdentifier) {}
-    func onUpload(event: JoyfillModel.UploadEvent) {}
-    func onCapture(event: JoyfillModel.CaptureEvent) {}
+    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {}
+    func onFocus(event: FieldIdentifier) {}
+    func onBlur(event: FieldIdentifier) {}
+    func onUpload(event: UploadEvent) {}
+    func onCapture(event: CaptureEvent) {}
+    func onError(error: Joyfill.JoyfillError) {}
 }

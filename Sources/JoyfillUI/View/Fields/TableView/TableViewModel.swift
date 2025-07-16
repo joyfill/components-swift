@@ -435,7 +435,7 @@ extension TableViewModel: DocumentEditorDelegate {
         }
     }
     
-    private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement) -> ValueElement {
+    private func mergedRow(from change: Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
         guard let rowDict = change.change?["row"] as? [String: Any],
               let cellsDict = rowDict["cells"] as? [String: Any] else {
@@ -468,7 +468,7 @@ extension TableViewModel: DocumentEditorDelegate {
         }
     }
     
-    func applyRowEditChanges(change: JoyfillModel.Change) {
+    func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String else {
             Log("RowID not found or no cached ValueElement", type: .error)
             return

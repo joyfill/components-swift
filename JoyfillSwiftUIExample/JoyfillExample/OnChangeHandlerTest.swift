@@ -12,6 +12,10 @@ import SwiftUI
 
 var documentEditor2: DocumentEditor!
 struct OnChangeHandlerTest: View, FormChangeEvent {
+    func onError(error: Joyfill.JoyfillError) {
+        
+    }
+    
     let imagePicker = ImagePicker()
     init() {
         //
@@ -36,7 +40,7 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
         }
     }
 
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         print("onChange documentID:", document.id)
         if document.id == documentEditor.documentID {
             // documentEditor changes
@@ -48,10 +52,10 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
         }
     }
 
-    func onFocus(event: JoyfillModel.FieldIdentifier) { }
-    func onBlur(event: JoyfillModel.FieldIdentifier) { }
-    func onCapture(event: JoyfillModel.CaptureEvent) { }
-    func onUpload(event: JoyfillModel.UploadEvent) {
+    func onFocus(event: FieldIdentifier) { }
+    func onBlur(event:  FieldIdentifier) { }
+    func onCapture(event: CaptureEvent) { }
+    func onUpload(event: UploadEvent) {
         event.uploadHandler(["https://app.joyfill.io/static/img/joyfill_logo_w.png"])
     }
 }
