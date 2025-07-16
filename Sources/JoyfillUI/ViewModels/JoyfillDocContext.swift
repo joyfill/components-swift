@@ -3,7 +3,7 @@ import JoyfillModel
 import JoyfillFormulas
 
 /// Protocol that provides access to JoyDoc data without direct dependency
-public protocol JoyDocProvider {
+ protocol JoyDocProvider {
     func field(fieldID: String?) -> JoyDocField?
     func allFormulsFields() -> [JoyDocField]
     func formula(with id: String) -> Formula?
@@ -14,7 +14,7 @@ public protocol JoyDocProvider {
 
 /// Application-level implementation of EvaluationContext that resolves references against a JoyDoc
 /// This implementation handles the requirements outlined in the Reference Resolution PRD.
-public class JoyfillDocContext: EvaluationContext {
+class JoyfillDocContext: EvaluationContext {
     private let docProvider: JoyDocProvider
     private var temporaryVariables: [String: FormulaValue] = [:]
     
@@ -35,7 +35,7 @@ public class JoyfillDocContext: EvaluationContext {
     
     /// Initialize with a JoyDocProvider instance
     /// - Parameter docProvider: The provider to resolve references against
-    public init(docProvider: JoyDocProvider) {
+    init(docProvider: JoyDocProvider) {
         self.docProvider = docProvider
         buildDependencyGraph()
         evaluateAllFormulas()

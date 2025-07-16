@@ -638,11 +638,19 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor: JoyDocProvider {
-    public func currentFieldIdentifier() -> String? {
+    func currentFieldIdentifier() -> String? {
         nil
     }
 
-    public func setFieldHidden(_ hidden: Bool, for identifier: String) {
+    func formula(with id: String) -> JoyfillModel.Formula? {
+        document.formulas.first { $0.id == id }
+    }
+
+    func allFormulsFields() -> [JoyfillModel.JoyDocField] {
+        allFields.filter { $0.formulas != nil }
+    }
+
+    func setFieldHidden(_ hidden: Bool, for identifier: String) {
         print("setFieldHidden >>>>>", hidden, identifier)
         guard var field = allFields.first(where: { $0.id == identifier }) else {
             return
@@ -651,15 +659,7 @@ extension DocumentEditor: JoyDocProvider {
         refreshField(fieldId: field.id!)
     }
 
-    public func formula(with id: String) -> JoyfillModel.Formula? {
-        document.formulas.first { $0.id == id }
-    }
-
-    public func allFormulsFields() -> [JoyfillModel.JoyDocField] {
-        allFields.filter { $0.formulas != nil }
-    }
-
-    public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
+    func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
         print("updateValue called >>>>>>>", value)
         guard var field = allFields.first(where: { $0.id == identifier }) else {
             return
