@@ -15,7 +15,18 @@ public struct Form: View {
     }
 
     public var body: some View {
-        FilesView(documentEditor: documentEditor, files: documentEditor.files)
+        let schemaValidationResult = documentEditor.validateSchema(document: documentEditor.document)
+        if schemaValidationResult.error == nil {
+            FilesView(documentEditor: documentEditor, files: documentEditor.files)
+        } else {
+            SchemaErrorView()
+        }
+    }
+}
+
+struct SchemaErrorView: View {
+    var body: some View {
+        Text("Schema validation error")
     }
 }
 

@@ -1,4 +1,6 @@
-{
+
+let joyfillSchema = """
+  {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
@@ -200,6 +202,9 @@
         "borderWidth": {
           "type": "number"
         },
+        "backgroundColor": {
+          "type": "string"
+        }
       }
     },
     "Page": {
@@ -374,6 +379,9 @@
         },
         "borderWidth": {
           "type": "number"
+        },
+        "backgroundColor": {
+          "type": "string"
         },
         "_id": {
           "type": "string"
@@ -1353,6 +1361,9 @@
         "styles": {
           "type": "object",
           "properties": {
+            "backgroundColor": {
+              "type": "string"
+            }
           }
         },
         "metadata": {
@@ -2189,3 +2200,4 @@
   },
   "$joyfillSchemaVersion": "1.0.0"
 }
+"""

@@ -7,6 +7,7 @@
 
 import Foundation
 import JoyfillModel
+import JSONSchema
 
 private enum ChnageTargetType: String {
     case fieldUpdate = "field.update"
@@ -17,6 +18,30 @@ private enum ChnageTargetType: String {
     case fieldValueRowMove = "field.value.rowMove"
     
     case unknown
+}
+
+public struct SchemaValidationResult {
+    public let code: String
+    public let message: String
+    public let error: [JSONSchema.ValidationError]?
+    public let details: Details
+
+    public struct Details {
+        public let schemaVersion: String
+        public let sdkVersion: String
+    }
+
+    public init(
+        code: String,
+        message: String,
+        error: [JSONSchema.ValidationError]?,
+        details: Details
+    ) {
+        self.code = code
+        self.message = message
+        self.error = error
+        self.details = details
+    }
 }
 
 // Weak wrapper to hold multiple delegates without causing retain cycles
@@ -117,6 +142,53 @@ public class DocumentEditor: ObservableObject {
     
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+    }
+    
+    public func validateSchema(document: JoyDoc) -> SchemaValidationResult {
+        guard let schemaData = joyfillSchema.data(using: .utf8),
+              let schemaDict = try? JSONSerialization.jsonObject(with: schemaData, options: []) as? [String: Any] else {
+            Log("Failed to parse embedded schema", type: .error)
+            return SchemaValidationResult(
+                code: "ERROR_SCHEMA_VALIDATION",
+                message: "Unable to load embedded schema",
+                error: nil,
+                details: .init(schemaVersion: "embedded", sdkVersion: "1.0.0")
+            )
+        }
+        do {
+            let validationResult = try JSONSchema.validate(document.dictionary, schema: schemaDict)
+            if validationResult.valid {
+                return SchemaValidationResult(
+                    code: "SUCCESS",
+                    message: "Schema validation succeeded",
+                    error: nil,
+                    details: .init(
+                        schemaVersion: "",
+                        sdkVersion: "1.0.0"
+                    )
+                )
+            } else {
+                return SchemaValidationResult(
+                    code: "ERROR_SCHEMA_VALIDATION",
+                    message: "Error detected during schema validation",
+                    error: validationResult.errors,
+                    details: .init(
+                        schemaVersion: "",
+                        sdkVersion: "1.0.0"
+                    )
+                )
+            }
+        } catch {
+            return SchemaValidationResult(
+                code: "ERROR_SCHEMA_VALIDATION",
+                message: "Error detected during schema validation: \(error.localizedDescription)",
+                error: nil,
+                details: .init(
+                    schemaVersion: "unknown",
+                    sdkVersion: "1.0.0"
+                )
+            )
+        }
     }
     
     public func change(changes: [Change]) {
