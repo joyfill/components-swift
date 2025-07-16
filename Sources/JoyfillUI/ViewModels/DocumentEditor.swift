@@ -65,7 +65,7 @@ public class DocumentEditor: ObservableObject {
     }
     
     public func updateFieldPositionMap() {
-        document.fieldPositionsForCurrentView.forEach { fieldPosition in
+        mapWebViewToMobileViewIfNeeded(fieldPositions: document.fieldPositionsForCurrentView, isMobileViewActive: isMobileViewActive).forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
             self.fieldPositionMap[fieldID] =  fieldPosition
         }
@@ -182,6 +182,10 @@ extension DocumentEditor {
         return self.firstPage?.id
     }
     
+    public var isMobileViewActive: Bool {
+        return files.first?.views?.contains(where: { $0.type == "mobile" }) ?? false
+    }
+    
     public func firstValidPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID && shouldShow(page: currentPage)
@@ -248,7 +252,10 @@ extension DocumentEditor {
         return "\(pageID)|\(index)"
     }   
 
-    public func mapWebViewToMobileView(fieldPositions: [FieldPosition]) -> [FieldPosition] {
+    public func mapWebViewToMobileViewIfNeeded(fieldPositions: [FieldPosition], isMobileViewActive: Bool) -> [FieldPosition] {
+        guard !isMobileViewActive else {
+            return fieldPositions
+        }
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
             guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
                 return false
@@ -265,7 +272,9 @@ extension DocumentEditor {
         
         for fp in sortedFieldPositions {
             if let field = fp.field, uniqueFields.insert(field).inserted {
-                resultFieldPositions.append(fp)
+                var modifiableFP = fp
+                modifiableFP.titleDisplay = "inline"
+                resultFieldPositions.append(modifiableFP)
             }
         }
         return resultFieldPositions
@@ -436,7 +445,7 @@ extension DocumentEditor {
 extension DocumentEditor {
     fileprivate func updatePageFieldModels(_ duplicatedPage: Page, _ newPageID: String, _ fileId: String?) {
         var fieldListModels = [FieldListModel]()
-        let fieldPositions = mapWebViewToMobileView(fieldPositions: duplicatedPage.fieldPositions ?? [])
+        let fieldPositions = mapWebViewToMobileViewIfNeeded(fieldPositions: duplicatedPage.fieldPositions ?? [], isMobileViewActive: isMobileViewActive)
         for fieldPosition in fieldPositions ?? [] {
             guard let fieldPositionFieldID = fieldPosition.field else {
                 Log("FieldPositions has nil FieldID", type: .error)

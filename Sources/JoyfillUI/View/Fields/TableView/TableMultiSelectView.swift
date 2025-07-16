@@ -33,7 +33,7 @@ struct TableMultiSelectView: View {
         return Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255)
     }
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, isSearching: Bool = false) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, isSearching: Bool = false, searchValue: String? = nil) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
         self.isSearching = isSearching
@@ -44,6 +44,11 @@ struct TableMultiSelectView: View {
                 _multiSelectedOptionArray = State(initialValue: values)
             } else {
                 _singleSelectedOptionArray = State(initialValue: values)
+            }
+        }
+        if isSearching {
+            if let searchValue = searchValue {
+                _singleSelectedOptionArray = State(initialValue: [searchValue])
             }
         }
     }

@@ -39,7 +39,6 @@
 		360BC7F62C3E88E500735516 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F52C3E88E500735516 /* JoyfillAPIService */; };
 		360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F82C3E896D00735516 /* JoyfillModel */; };
 		361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361164D92DD70625003DEB4F /* WisdomTests.swift */; };
-		361164DC2DD70A09003DEB4F /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 361164DB2DD70A09003DEB4F /* JoyfillModel */; };
 		362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 3622113F2BCEB10200BD98B5 /* JoyfillAPIService */; };
 		3627464B2E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */; };
 		3627464C2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */; };
@@ -84,9 +83,6 @@
 		3656F8992DF076DA001590B2 /* FormBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3656F8982DF076DA001590B2 /* FormBuilderView.swift */; };
 		3661908A2BF239BD006ED7CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 366190892BF239BD006ED7CF /* JoyfillModel */; };
 		366FD1472DD35C9100F9BE3E /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 366FD1462DD35C9100F9BE3E /* JoyfillAPIService */; };
-		366FD14A2DD35D8600F9BE3E /* Examples in Frameworks */ = {isa = PBXBuildFile; productRef = 366FD1492DD35D8600F9BE3E /* Examples */; };
-		366FD14C2DD35D8600F9BE3E /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 366FD14B2DD35D8600F9BE3E /* JoyfillFormulas */; };
-		366FD14E2DD35D8600F9BE3E /* FormulaRunner in Frameworks */ = {isa = PBXBuildFile; productRef = 366FD14D2DD35D8600F9BE3E /* FormulaRunner */; };
 		3682A4C02E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4BF2E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json */; };
 		3682A4C12E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4BF2E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json */; };
 		3682A4C22E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4BF2E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json */; };
@@ -96,6 +92,10 @@
 		3682A4CA2E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4C72E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json */; };
 		3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */; };
 		369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */; };
+		3697A95D2E27837600FA87E3 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A95C2E27837600FA87E3 /* JoyfillModel */; };
+		3697A9602E27839100FA87E3 /* Examples in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A95F2E27839100FA87E3 /* Examples */; };
+		3697A9622E27839100FA87E3 /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A9612E27839100FA87E3 /* JoyfillFormulas */; };
+		3697A9642E27839100FA87E3 /* FormulaRunner in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A9632E27839100FA87E3 /* FormulaRunner */; };
 		369D45042E0E4C3F00677280 /* AllSampleJSONs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369D45032E0E4C2600677280 /* AllSampleJSONs.swift */; };
 		369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */; };
 		369D45222E0E51AC00677280 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D451B2E0E51AC00677280 /* TableNewColumns.json */; };
@@ -154,8 +154,12 @@
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */; };
+		E26130332E0ABC5E0024B2FA /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = E26130322E0ABC5E0024B2FA /* CollectionFilter.json */; };
+		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
+		E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54652DFADD72006E05E9 /* JoyfillModel */; };
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
+		E27E13152E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */; };
 		E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */; };
 		E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */; };
 		E2A684372DCA40AF00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */; };
@@ -165,8 +169,6 @@
 		E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */; };
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
-		E2F8A2112DCC7A0F00D3E124 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2F8A2102DCC7A0F00D3E124 /* JoyfillModel */; };
-		E2F8A2132DCC7A2D00D3E124 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2F8A2122DCC7A2D00D3E124 /* JoyfillModel */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
 		FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAED2BA4C1F300ABD018 /* Joyfill */; };
@@ -279,8 +281,10 @@
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
+		E26130322E0ABC5E0024B2FA /* CollectionFilter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionFilter.json; sourceTree = "<group>"; };
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
+		E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldSearchFilterTests.swift; sourceTree = "<group>"; };
 		E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2A684382DCA40D100385FE1 /* CollectionFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldTests.swift; sourceTree = "<group>"; };
@@ -305,7 +309,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E2F8A2132DCC7A2D00D3E124 /* JoyfillModel in Frameworks */,
+				E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,7 +317,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				361164DC2DD70A09003DEB4F /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,22 +328,24 @@
 				36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */,
 				1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */,
 				048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */,
+				3697A9602E27839100FA87E3 /* Examples in Frameworks */,
 				362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */,
 				36CFA0532CE2068300B7DE34 /* JoyfillModel in Frameworks */,
 				364300F02C510C4200BA870F /* JoyfillModel in Frameworks */,
 				E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */,
 				36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */,
-				366FD14C2DD35D8600F9BE3E /* JoyfillFormulas in Frameworks */,
-				366FD14E2DD35D8600F9BE3E /* FormulaRunner in Frameworks */,
 				FA1FEAF12BA4C34800ABD018 /* Joyfill in Frameworks */,
+				3697A9642E27839100FA87E3 /* FormulaRunner in Frameworks */,
 				36C6F4C52CEF4CEC001765CF /* JoyfillModel in Frameworks */,
 				FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */,
 				360BC7F62C3E88E500735516 /* JoyfillAPIService in Frameworks */,
 				366FD1472DD35C9100F9BE3E /* JoyfillAPIService in Frameworks */,
 				FA28C96E2BB4456300A2D65C /* JoyfillAPIService in Frameworks */,
-				E2F8A2112DCC7A0F00D3E124 /* JoyfillModel in Frameworks */,
+				E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */,
+				3697A9622E27839100FA87E3 /* JoyfillFormulas in Frameworks */,
 				364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */,
 				3661908A2BF239BD006ED7CF /* JoyfillModel in Frameworks */,
+				3697A95D2E27837600FA87E3 /* JoyfillModel in Frameworks */,
 				FA28C95F2BB18F1600A2D65C /* JoyfillAPIService in Frameworks */,
 				FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */,
 				FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */,
@@ -348,7 +353,6 @@
 				FA28C9712BB4456D00A2D65C /* JoyfillModel in Frameworks */,
 				360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */,
 				1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */,
-				366FD14A2DD35D8600F9BE3E /* Examples in Frameworks */,
 				FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */,
 				E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */,
 				FA529C822BA1D2D2000200F5 /* Joyfill in Frameworks */,
@@ -368,6 +372,7 @@
 				133EBABA2BF48804009B73AB /* SignatureFieldTests.swift */,
 				362A560E2BEE359400B54C14 /* ChartFieldTests.swift */,
 				E2A684382DCA40D100385FE1 /* CollectionFieldTests.swift */,
+				E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */,
 				1338AB952BEE38DD0001C203 /* TableFieldTests.swift */,
 				045B41852D19BEAB00F3D6C1 /* TableNumber_Block_DateFieldTest.swift */,
 				136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */,
@@ -532,6 +537,7 @@
 				36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */,
 				048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */,
 				13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */,
+				E26130322E0ABC5E0024B2FA /* CollectionFilter.json */,
 				FA529C512BA1D253000200F5 /* Assets.xcassets */,
 				FA529C532BA1D253000200F5 /* JoyfillExample.entitlements */,
 				FA529C542BA1D253000200F5 /* Preview Content */,
@@ -565,7 +571,7 @@
 			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
-				E2F8A2122DCC7A2D00D3E124 /* JoyfillModel */,
+				E26A54652DFADD72006E05E9 /* JoyfillModel */,
 			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
@@ -586,7 +592,6 @@
 			);
 			name = JoyfillTests;
 			packageProductDependencies = (
-				361164DB2DD70A09003DEB4F /* JoyfillModel */,
 			);
 			productName = JoyfillTests;
 			productReference = 134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */;
@@ -633,9 +638,12 @@
 				36C6F4C42CEF4CEC001765CF /* JoyfillModel */,
 				E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */,
 				366FD1462DD35C9100F9BE3E /* JoyfillAPIService */,
-				366FD1492DD35D8600F9BE3E /* Examples */,
-				366FD14B2DD35D8600F9BE3E /* JoyfillFormulas */,
-				366FD14D2DD35D8600F9BE3E /* FormulaRunner */,
+				E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */,
+				E26A54632DFADD04006E05E9 /* JoyfillModel */,
+				3697A95C2E27837600FA87E3 /* JoyfillModel */,
+				3697A95F2E27839100FA87E3 /* Examples */,
+				3697A9612E27839100FA87E3 /* JoyfillFormulas */,
+				3697A9632E27839100FA87E3 /* FormulaRunner */,
 			);
 			productName = JoyfillExample;
 			productReference = FA529C4A2BA1D251000200F5 /* JoyfillExample.app */;
@@ -675,9 +683,9 @@
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
 				132493782BA570F9002C6ADC /* XCLocalSwiftPackageReference ".." */,
-				E2C9BB252D8F2AAF006A9047 /* XCRemoteSwiftPackageReference "JoyfillModel" */,
 				366FD1452DD35C9100F9BE3E /* XCRemoteSwiftPackageReference "JoyfillAPIService" */,
-				366FD1482DD35D8600F9BE3E /* XCRemoteSwiftPackageReference "Swift-Formulas" */,
+				3697A95B2E27837600FA87E3 /* XCLocalSwiftPackageReference "../../JoyfillModel" */,
+				3697A95E2E27839100FA87E3 /* XCLocalSwiftPackageReference "../../../Swift-Formulas" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -795,6 +803,7 @@
 				369D452C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
+				E26130332E0ABC5E0024B2FA /* CollectionFilter.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -807,6 +816,7 @@
 			files = (
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
 				045B41862D19BEAB00F3D6C1 /* TableNumber_Block_DateFieldTest.swift in Sources */,
+				E27E13152E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift in Sources */,
 				04814A052CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift in Sources */,
 				04814A062CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift in Sources */,
 				04814A072CDA912F0061FBDC /* SelectionFieldLogicTests.swift in Sources */,
@@ -1235,6 +1245,14 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ..;
 		};
+		3697A95B2E27837600FA87E3 /* XCLocalSwiftPackageReference "../../JoyfillModel" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../JoyfillModel;
+		};
+		3697A95E2E27839100FA87E3 /* XCLocalSwiftPackageReference "../../../Swift-Formulas" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../Swift-Formulas";
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -1244,22 +1262,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.1;
-			};
-		};
-		366FD1482DD35D8600F9BE3E /* XCRemoteSwiftPackageReference "Swift-Formulas" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:joyfill/Swift-Formulas.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		E2C9BB252D8F2AAF006A9047 /* XCRemoteSwiftPackageReference "JoyfillModel" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/joyfill/JoyfillModel.git";
-			requirement = {
-				branch = "collection-development";
-				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1287,11 +1289,6 @@
 		};
 		360BC7F82C3E896D00735516 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = JoyfillModel;
-		};
-		361164DB2DD70A09003DEB4F /* JoyfillModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E2C9BB252D8F2AAF006A9047 /* XCRemoteSwiftPackageReference "JoyfillModel" */;
 			productName = JoyfillModel;
 		};
 		3622113F2BCEB10200BD98B5 /* JoyfillAPIService */ = {
@@ -1327,19 +1324,20 @@
 			package = 366FD1452DD35C9100F9BE3E /* XCRemoteSwiftPackageReference "JoyfillAPIService" */;
 			productName = JoyfillAPIService;
 		};
-		366FD1492DD35D8600F9BE3E /* Examples */ = {
+		3697A95C2E27837600FA87E3 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 366FD1482DD35D8600F9BE3E /* XCRemoteSwiftPackageReference "Swift-Formulas" */;
+			productName = JoyfillModel;
+		};
+		3697A95F2E27839100FA87E3 /* Examples */ = {
+			isa = XCSwiftPackageProductDependency;
 			productName = Examples;
 		};
-		366FD14B2DD35D8600F9BE3E /* JoyfillFormulas */ = {
+		3697A9612E27839100FA87E3 /* JoyfillFormulas */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 366FD1482DD35D8600F9BE3E /* XCRemoteSwiftPackageReference "Swift-Formulas" */;
 			productName = JoyfillFormulas;
 		};
-		366FD14D2DD35D8600F9BE3E /* FormulaRunner */ = {
+		3697A9632E27839100FA87E3 /* FormulaRunner */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 366FD1482DD35D8600F9BE3E /* XCRemoteSwiftPackageReference "Swift-Formulas" */;
 			productName = FormulaRunner;
 		};
 		36C6F4C42CEF4CEC001765CF /* JoyfillModel */ = {
@@ -1354,6 +1352,14 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillAPIService;
 		};
+		E26A54632DFADD04006E05E9 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
+		E26A54652DFADD72006E05E9 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
 		E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillModel;
@@ -1361,14 +1367,6 @@
 		E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillAPIService;
-		};
-		E2F8A2102DCC7A0F00D3E124 /* JoyfillModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = JoyfillModel;
-		};
-		E2F8A2122DCC7A2D00D3E124 /* JoyfillModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = JoyfillModel;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;

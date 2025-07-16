@@ -19,7 +19,7 @@ struct ImageView: View {
     
     @State private var imageDictionary: [ValueElement: UIImage] = [:]
     @State var showToast: Bool = false
-    @State var isMultiEnabled: Bool
+    let isMultiEnabled: Bool
     @State var images: [ImageState] = []
     
     @StateObject var imageViewModel = ImageFieldViewModel()
@@ -34,7 +34,7 @@ struct ImageView: View {
         _listModel = listModel
         switch listModel.wrappedValue.model {
         case .image(let dataMode):
-            self.isMultiEnabled = dataMode.multi ?? true
+            self.isMultiEnabled = dataMode.multi ?? false
             _imageDataModel = State(initialValue: dataMode)
             _valueElements = State(initialValue: dataMode.valueElements ?? [])
         default:
@@ -180,17 +180,23 @@ struct ImageView: View {
     }
     
     func uploadAction() {
-        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier) { urls in
-            for imageURL in urls {
+        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, multi: isMultiEnabled) { urls in
+            var urlsToProcess: [String] = []
+            if !isMultiEnabled {
+                if let firstURL = urls.first {
+                    urlsToProcess = [firstURL]
+                }
+                images = []
+                valueElements = []
+            } else {
+                urlsToProcess = urls
+            }
+            
+            for imageURL in urlsToProcess {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
                     showProgressView = false
-                    
-                    if isMultiEnabled == false ?? true {
-                        images = []
-                        valueElements = []
-                    }
-                    
+
                     let valueElement = valueElements.first { valueElement in
                         valueElement.url == imageURL
                     } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
@@ -218,7 +224,7 @@ struct MoreImageView: View {
     @Binding var images: [ImageState]
     @State var selectedImagesIndex: Set<Int> = Set()
     @Binding var valueElements: [ValueElement]
-    @State var isMultiEnabled: Bool
+    let isMultiEnabled: Bool
     @State var showProgressView: Bool = false
     @State var imageDictionary: [String: (ValueElement, UIImage)] = [:]
     @Binding var showToast: Bool
@@ -243,7 +249,7 @@ struct MoreImageView: View {
             }
             
             if !isUploadHidden {
-                UploadDeleteView(imagesArray: $images, selectedImagesIndex: $selectedImagesIndex,isMultiEnabled: $isMultiEnabled,valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
+                UploadDeleteView(imagesArray: $images, selectedImagesIndex: $selectedImagesIndex, isMultiEnabled: isMultiEnabled, valueElements: $valueElements, uploadAction: uploadAction, deleteAction: deleteSelectedImages)
             }
             if showProgressView {
                 ProgressView()
@@ -341,7 +347,7 @@ struct UploadDeleteView: View {
     @Binding var imagesArray: [ImageState]
     @Binding var selectedImagesIndex: Set<Int>
     @StateObject var imageViewModel = ImageFieldViewModel()
-    @Binding var isMultiEnabled: Bool
+    let isMultiEnabled: Bool
     @Binding var valueElements: [ValueElement]
     var uploadAction: () -> Void
     var deleteAction: () -> Void
