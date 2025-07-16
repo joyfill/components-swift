@@ -6,28 +6,16 @@ import Foundation
 
 struct SchemaValidationExampleView: View {
     @State private var documentEditor: DocumentEditor
-    @State private var validationMessage: String = "Loading..."
+    @State private var validationMessage: String = ""
     @State private var validationDetails: String = ""
     @State private var jsonString: String = ""
     @State private var jsonErrorMessage: String? = nil
     @State private var useCustomJSON: Bool = false
+    @State private var showForm: Bool = false
     let changeManagerWraper = ChangeManagerWrapper()
 
     init() {
         let document = sampleJSONDocument(fileName: "ErrorHandling")
-        
-        // Test the new schema validation functionality first
-        let schemaManager = JoyfillSchemaManager()
-        if let error = schemaManager.validateSchema(document: document) {
-            validationMessage = "❌ Schema Error: \(error.code) - \(error.message)"
-            validationDetails = formatValidationErrors(error: error)
-        } else {
-            validationMessage = "✅ Schema validation passed!"
-            validationDetails = "Document conforms to schema v\(document.version ?? "undefined")"
-        }
-        
-        // Use the same document for DocumentEditor (even if it has validation errors)
-        // The DocumentEditor will handle the errors gracefully
         self.documentEditor = DocumentEditor(document: document, events: changeManagerWraper.changeManager)
         
         // Initialize with the sample document JSON
@@ -39,14 +27,14 @@ struct SchemaValidationExampleView: View {
 
     public var body: some View {
         NavigationView {
-            VStack {
+            VStack(spacing: 16) {
                 // Toggle between sample and custom JSON
                 Picker("Document Source", selection: $useCustomJSON) {
                     Text("Sample Document").tag(false)
                     Text("Custom JSON").tag(true)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .padding()
+                .padding(.horizontal)
                 
                 if useCustomJSON {
                     // JSON Input Section
@@ -54,10 +42,6 @@ struct SchemaValidationExampleView: View {
                         Text("JSON Input")
                             .font(.headline)
                             .foregroundColor(.primary)
-                        
-                        Text("Enter your JoyDoc JSON data below")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
                         
                         if let jsonErrorMessage = jsonErrorMessage {
                             HStack(spacing: 6) {
@@ -68,101 +52,133 @@ struct SchemaValidationExampleView: View {
                                     .foregroundColor(.red)
                             }
                         }
-                    }
-                    .padding(.horizontal)
-                    
-                    // JSON TextEditor
-                    VStack(spacing: 0) {
-                        ZStack(alignment: .trailing) {
+                        
+                        // JSON TextEditor
+                        ZStack(alignment: .topTrailing) {
                             TextEditor(text: $jsonString)
                                 .font(.system(.caption, design: .monospaced))
                                 .frame(height: 120)
-                                .padding(12)
+                                .padding(8)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12)
+                                    RoundedRectangle(cornerRadius: 8)
                                         .fill(Color.gray.opacity(0.05))
                                 )
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
+                                    RoundedRectangle(cornerRadius: 8)
                                         .stroke(Color.gray.opacity(0.15), lineWidth: 1)
                                 )
                                 .onChange(of: jsonString) { _ in
-                                    validateAndTestJSON()
+                                    validateJSONSyntax()
                                 }
                             
                             if !jsonString.isEmpty {
                                 Button(action: {
                                     jsonString = ""
                                     jsonErrorMessage = nil
-                                    resetToSampleDocument()
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundColor(.blue)
                                         .background(Circle().fill(.white))
                                         .imageScale(.medium)
-                                        .padding(12)
+                                        .padding(8)
                                 }
                             }
                         }
-                        
-                        if !jsonString.isEmpty {
-                            Text("JSON length: \(jsonString.count)")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .padding(.horizontal)
-                        }
                     }
                     .padding(.horizontal)
-                    
-                    // Validate JSON Button
+                }
+                
+                // Action Buttons
+                HStack(spacing: 12) {
+                    // Validate Schema Button
                     Button(action: {
-                        validateAndTestJSON()
+                        validateSchema()
                     }) {
                         HStack {
                             Image(systemName: "checkmark.shield")
                             Text("Validate Schema")
                         }
-                        .font(.headline)
+                        .font(.subheadline)
                         .foregroundStyle(.white)
                         .frame(height: 44)
                         .frame(maxWidth: .infinity)
                         .background(
-                            jsonString.isEmpty || jsonErrorMessage != nil
+                            (useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
                             ? Color.gray.opacity(0.3)
                             : Color.blue
                         )
-                        .cornerRadius(12)
+                        .cornerRadius(8)
                     }
-                    .disabled(jsonString.isEmpty || jsonErrorMessage != nil)
+                    .disabled(useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
+                    
+                    // Show Form Button
+                    Button(action: {
+                        showForm = true
+                    }) {
+                        HStack {
+                            Image(systemName: "doc.text")
+                            Text("Show Form")
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                        .frame(height: 44)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            (useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
+                            ? Color.gray.opacity(0.3)
+                            : Color.green
+                        )
+                        .cornerRadius(8)
+                    }
+                    .disabled(useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
+                }
+                .padding(.horizontal)
+                
+                // Validation Results
+                if !validationMessage.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(validationMessage)
+                            .font(.headline)
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(validationMessage.contains("❌") ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
+                            .cornerRadius(8)
+                        
+                        if !validationDetails.isEmpty {
+                            ScrollView {
+                                Text(validationDetails)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .frame(maxHeight: 100)
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                            .background(Color.gray.opacity(0.05))
+                            .cornerRadius(8)
+                        }
+                    }
                     .padding(.horizontal)
                 }
                 
-                // Display validation status
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(validationMessage)
-                        .font(.headline)
-                        .padding()
-                        .background(validationMessage.contains("❌") ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
-                        .cornerRadius(8)
-                    
-                    if !validationDetails.isEmpty {
-                        ScrollView {
-                            Text(validationDetails)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal)
-                        }
-                        .frame(maxHeight: useCustomJSON ? 100 : 150)
-                    }
-                }
-                .padding()
-                
-                if !useCustomJSON || (jsonErrorMessage == nil && !jsonString.isEmpty) {
-                    Form(documentEditor: documentEditor)
-                }
-                
                 Spacer()
+            }
+            .navigationTitle("Schema Validation")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .sheet(isPresented: $showForm) {
+            NavigationView {
+                Form(documentEditor: getCurrentDocumentEditor())
+                    .navigationTitle("Document Form")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Done") {
+                                showForm = false
+                            }
+                        }
+                    }
             }
         }
         .onChange(of: useCustomJSON) { newValue in
@@ -172,9 +188,9 @@ struct SchemaValidationExampleView: View {
         }
     }
     
-    private func validateAndTestJSON() {
+    private func validateJSONSyntax() {
         guard !jsonString.isEmpty else {
-            jsonErrorMessage = "Please enter a JSON object"
+            jsonErrorMessage = nil
             return
         }
         
@@ -185,55 +201,57 @@ struct SchemaValidationExampleView: View {
         
         do {
             let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]
-            guard let jsonDict = jsonObject else {
+            guard jsonObject != nil else {
                 jsonErrorMessage = "JSON must be an object"
                 return
             }
-            
             jsonErrorMessage = nil
-            
-            // Create JoyDoc from the JSON and test schema validation
-            let customDocument = JoyDoc(dictionary: jsonDict)
-            let schemaManager = JoyfillSchemaManager()
-            
-            if let error = schemaManager.validateSchema(document: customDocument) {
-                validationMessage = "❌ Schema Error: \(error.code) - \(error.message)"
-                validationDetails = formatValidationErrors(error: error)
-            } else {
-                validationMessage = "✅ Schema validation passed!"
-                validationDetails = "Document conforms to schema v\(customDocument.version ?? "undefined")"
-            }
-            
-            // Update the DocumentEditor with the new document
-            self.documentEditor = DocumentEditor(document: customDocument, events: changeManagerWraper.changeManager)
-            
         } catch {
             jsonErrorMessage = "Invalid JSON format: \(error.localizedDescription)"
         }
     }
     
-    private func resetToSampleDocument() {
-        let document = sampleJSONDocument(fileName: "ErrorHandling")
+    private func validateSchema() {
+        let document = getCurrentDocument()
         
-        // Reset validation with sample document
         let schemaManager = JoyfillSchemaManager()
         if let error = schemaManager.validateSchema(document: document) {
-            validationMessage = "❌ Schema Error: \(error.code) - \(error.message)"
+            validationMessage = "❌ Schema validation failed"
             validationDetails = formatValidationErrors(error: error)
         } else {
             validationMessage = "✅ Schema validation passed!"
             validationDetails = "Document conforms to schema v\(document.version ?? "undefined")"
         }
+    }
+    
+    private func getCurrentDocument() -> JoyDoc {
+        if useCustomJSON {
+            guard let jsonData = jsonString.data(using: .utf8),
+                  let jsonDict = try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] else {
+                return sampleJSONDocument(fileName: "ErrorHandling")
+            }
+            return JoyDoc(dictionary: jsonDict)
+        } else {
+            return sampleJSONDocument(fileName: "ErrorHandling")
+        }
+    }
+    
+    private func getCurrentDocumentEditor() -> DocumentEditor {
+        let document = getCurrentDocument()
+        return DocumentEditor(document: document, events: changeManagerWraper.changeManager)
+    }
+    
+    private func resetToSampleDocument() {
+        let document = sampleJSONDocument(fileName: "ErrorHandling")
         
-        self.documentEditor = DocumentEditor(document: document, events: changeManagerWraper.changeManager)
-        
-        // Reset JSON string to sample document
         if let jsonData = try? JSONSerialization.data(withJSONObject: document.dictionary, options: .prettyPrinted),
            let jsonStr = String(data: jsonData, encoding: .utf8) {
             self.jsonString = jsonStr
         }
         
         jsonErrorMessage = nil
+        validationMessage = ""
+        validationDetails = ""
     }
 }
 
