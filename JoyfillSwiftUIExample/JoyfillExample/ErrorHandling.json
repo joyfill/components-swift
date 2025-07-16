@@ -1,4 +1,5 @@
 {
+    "v": "2",
     "createdOn": 31232313,
     "deleted": false,
     "_id": "685750eff3216b45ffe73c80",
@@ -1141,6 +1142,6 @@
             "identifier": "field_68575112847f32f878c77daf"
         }
     ],
-    "type": "document"
+    "type": "document",
 }
 
