@@ -19,14 +19,54 @@ public struct Form: View {
         if schemaValidationResult.error == nil {
             FilesView(documentEditor: documentEditor, files: documentEditor.files)
         } else {
-            SchemaErrorView()
+            SchemaErrorView(errorCode: schemaValidationResult.code, sdkVersion: schemaValidationResult.details.sdkVersion, schemaVersion: schemaValidationResult.details.schemaVersion)
         }
     }
 }
 
 struct SchemaErrorView: View {
+    let errorCode: String
+    let sdkVersion: String
+    let schemaVersion: String
+    
     var body: some View {
-        Text("Schema validation error")
+        VStack(spacing: 20) {
+            Spacer()
+            
+            // Warning Icon
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 60))
+                .foregroundColor(.black)
+            
+            // Main Error Message
+            Text("Error detected during\nschema validation.")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.black)
+            
+            VStack(spacing: 8) {
+                // Error Code
+                Text(errorCode)
+                    .font(.body)
+                    .foregroundColor(.gray)
+                
+                // SDK Version
+                Text("SDK Version: \(sdkVersion)")
+                    .font(.body)
+                    .foregroundColor(.gray)
+                
+                // Schema Version
+                Text("Schema Version: \(schemaVersion)")
+                    .font(.body)
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
