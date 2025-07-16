@@ -15,11 +15,10 @@ public struct Form: View {
     }
 
     public var body: some View {
-        let schemaValidationResult = documentEditor.validateSchema(document: documentEditor.document)
-        if schemaValidationResult.error == nil {
-            FilesView(documentEditor: documentEditor, files: documentEditor.files)
+        if let error = documentEditor.schemaError {
+            SchemaErrorView(errorCode: error.code, sdkVersion: error.details.sdkVersion, schemaVersion: error.details.schemaVersion)
         } else {
-            SchemaErrorView(errorCode: schemaValidationResult.code, sdkVersion: schemaValidationResult.details.sdkVersion, schemaVersion: schemaValidationResult.details.schemaVersion)
+            FilesView(documentEditor: documentEditor, files: documentEditor.files)
         }
     }
 }

@@ -20,7 +20,7 @@ private enum ChnageTargetType: String {
     case unknown
 }
 
-public struct SchemaValidationResult {
+public struct SchemaValidationError: Error {
     public let code: String
     public let message: String
     public let error: [JSONSchema.ValidationError]?
@@ -58,13 +58,14 @@ public protocol DocumentEditorDelegate: AnyObject {
 }
 
 public class DocumentEditor: ObservableObject {
-    private(set) public var document: JoyDoc
-    @Published public var currentPageID: String
+    private(set) public var document: JoyDoc!
+    var schemaError: SchemaValidationError?
+    @Published public var currentPageID: String = ""
     @Published var currentPageOrder: [String] = []
-    
-    public var mode: Mode
-    public var isPageDuplicateEnabled: Bool
-    public var showPageNavigationView: Bool
+
+    public var mode: Mode = .fill
+    public var isPageDuplicateEnabled: Bool = true
+    public var showPageNavigationView: Bool = true
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -82,28 +83,35 @@ public class DocumentEditor: ObservableObject {
     private var conditionalLogicHandler: ConditionalLogicHandler!
     
     public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false) {
-        self.document = document
-        self.mode = mode
-        self.isPageDuplicateEnabled = isPageDuplicateEnabled
-        self.showPageNavigationView = navigation
-        self.currentPageID = ""
-        self.events = events
-        updateFieldMap()
-        updateFieldPositionMap()
-        
-        guard let firstFile = files.first, let fileID = firstFile.id else {
-            return
+        let schemaValidationResult = JoyfillSchemaManager().validateSchema(document: document)
+        switch schemaValidationResult {
+        case .success(_):
+            self.document = document
+            self.mode = mode
+            self.isPageDuplicateEnabled = isPageDuplicateEnabled
+            self.showPageNavigationView = navigation
+            self.currentPageID = ""
+            self.events = events
+            updateFieldMap()
+            updateFieldPositionMap()
+
+            guard let firstFile = files.first, let fileID = firstFile.id else {
+                return
+            }
+
+            for page in document.pagesForCurrentView {
+                guard let pageID = page.id else { return }
+                updatePageFieldModels(page, pageID, fileID)
+            }
+            self.validationHandler = ValidationHandler(documentEditor: self)
+            self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+            self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
+
+            self.currentPageOrder = document.pageOrderForCurrentView ?? []
+        case .failure(let error):
+            schemaError = error
         }
-        
-        for page in document.pagesForCurrentView {
-            guard let pageID = page.id else { return }
-            updatePageFieldModels(page, pageID, fileID)
-        }
-        self.validationHandler = ValidationHandler(documentEditor: self)
-        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
-        self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
-        
-        self.currentPageOrder = document.pageOrderForCurrentView ?? []
+
     }
     
     public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {
@@ -142,53 +150,6 @@ public class DocumentEditor: ObservableObject {
     
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
-    }
-    
-    public func validateSchema(document: JoyDoc) -> SchemaValidationResult {
-        guard let schemaData = joyfillSchema.data(using: .utf8),
-              let schemaDict = try? JSONSerialization.jsonObject(with: schemaData, options: []) as? [String: Any] else {
-            Log("Failed to parse embedded schema", type: .error)
-            return SchemaValidationResult(
-                code: "ERROR_SCHEMA_VALIDATION",
-                message: "Unable to load embedded schema",
-                error: nil,
-                details: .init(schemaVersion: "embedded", sdkVersion: "1.0.0")
-            )
-        }
-        do {
-            let validationResult = try JSONSchema.validate(document.dictionary, schema: schemaDict)
-            if validationResult.valid {
-                return SchemaValidationResult(
-                    code: "SUCCESS",
-                    message: "Schema validation succeeded",
-                    error: nil,
-                    details: .init(
-                        schemaVersion: "",
-                        sdkVersion: "1.0.0"
-                    )
-                )
-            } else {
-                return SchemaValidationResult(
-                    code: "ERROR_SCHEMA_VALIDATION",
-                    message: "Error detected during schema validation",
-                    error: validationResult.errors,
-                    details: .init(
-                        schemaVersion: "",
-                        sdkVersion: "1.0.0"
-                    )
-                )
-            }
-        } catch {
-            return SchemaValidationResult(
-                code: "ERROR_SCHEMA_VALIDATION",
-                message: "Error detected during schema validation: \(error.localizedDescription)",
-                error: nil,
-                details: .init(
-                    schemaVersion: "unknown",
-                    sdkVersion: "1.0.0"
-                )
-            )
-        }
     }
     
     public func change(changes: [Change]) {
