@@ -48,8 +48,8 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
 
         let uploadFlag = app.staticTexts["uploadflag"]
         XCTAssertEqual(uploadFlag.label, "true")
-//        let onChangeFlag = app.staticTexts["onChangeFlag"]
-//        XCTAssertEqual(onChangeFlag.label, "false")
+        let onChangeFlag = app.staticTexts["onChangeFlag"]
+        XCTAssertEqual(onChangeFlag.label, "false")
     }
     
     func testUploadWithoutCallingHandlerForMultiFalse() {
@@ -64,8 +64,8 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
 
         let uploadFlag = app.staticTexts["uploadflag"]
         XCTAssertEqual(uploadFlag.label, "true")
-//        let onChangeFlag = app.staticTexts["onChangeFlag"]
-//        XCTAssertEqual(onChangeFlag.label, "false")
+        let onChangeFlag = app.staticTexts["onChangeFlag"]
+        XCTAssertEqual(onChangeFlag.label, "false")
     }
     
     func testImageUploadFromDetailPageToMultiFalse() {

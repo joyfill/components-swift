@@ -1,0 +1,230 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6874cddd8d6de916f42bba2e",
+      "type": "chart",
+      "title": "This is first chart\nand testing multiline\nalong with tooltip.",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6874cde17db802ff4f0eeb67",
+      "value": [
+        {
+          "_id": "6874cdf2e2ed2b69ce12fcc4",
+          "deleted": false,
+          "title": "This is title",
+          "description": "this is detail",
+          "points": [
+            {
+              "_id": "6874cdf2d8c62383cc4cd969",
+              "label": "Label 1",
+              "y": 12,
+              "x": 5
+            },
+            {
+              "_id": "6874cdf21bc423c61fbeb27f",
+              "label": "Label 2",
+              "y": 24,
+              "x": 24
+            },
+            {
+              "_id": "6874cdf2040e5bb71c76bc56",
+              "label": "Label 3",
+              "y": 65,
+              "x": 10
+            }
+          ]
+        }
+      ],
+      "required": true,
+      "tipVisible": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6874ce4ed1a00dd0af34fcb3",
+      "type": "chart",
+      "title": "Chart",
+      "yTitle": "Vertical Title",
+      "yMax": 90,
+      "yMin": 10,
+      "xTitle": "Horizontal Title",
+      "xMax": 250,
+      "xMin": 5,
+      "identifier": "field_6874ce5e9c7e49dfaaacc5a0",
+      "value": [
+        {
+          "_id": "6874ce84cbef150ade7e31a1",
+          "deleted": false,
+          "title": "one",
+          "description": "two",
+          "points": [
+            {
+              "_id": "6874ce8451290bee22464c30",
+              "label": "First",
+              "y": 20,
+              "x": 60
+            },
+            {
+              "_id": "6874ce843e810e37a1f53470",
+              "label": "Second",
+              "y": 30,
+              "x": 150
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6874d995ce931e4e0d1a09af",
+      "type": "chart",
+      "title": "This is readonly chart",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6874d9a72c73bdb37adbb367",
+      "disabled": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6874d9bcef497800fd3006b3",
+      "type": "chart",
+      "title": "",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6874e3e6895b9ebadf2fdba9",
+      "value": [
+        {
+          "_id": "6874e4769a35f6b016a00b02",
+          "deleted": false,
+          "title": "",
+          "description": "",
+          "points": [
+            {
+              "_id": "6874e4766b37bbbf69caeee6",
+              "label": "[\"A\", \"B\", \"C\"]",
+              "y": 10,
+              "x": 20
+            },
+            {
+              "_id": "6874e4767252d9b6d516ebeb",
+              "label": "{ \"foo\": \"bar\" }",
+              "y": 30,
+              "x": 40
+            },
+            {
+              "_id": "6874e54f9ab932a4654340d1",
+              "label": "<div>HTML Tag</div>",
+              "y": 50,
+              "x": 60
+            },
+            {
+              "_id": "6874e5505bfa60e0ed92e62c",
+              "label": "Emoji 🎉🚀",
+              "y": 60,
+              "x": 25
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "6874cde1456a8c72d3dc2529",
+              "type": "chart",
+              "field": "6874cddd8d6de916f42bba2e",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 1,
+              "y": 0,
+              "width": 4,
+              "height": 27
+            },
+            {
+              "_id": "6874ce5e0f4584d460af760f",
+              "type": "chart",
+              "field": "6874ce4ed1a00dd0af34fcb3",
+              "displayType": "original",
+              "primaryDisplayOnly": false,
+              "x": 1,
+              "y": 27,
+              "width": 5,
+              "height": 51
+            },
+            {
+              "_id": "6874d9a73701cb2e09c46620",
+              "type": "chart",
+              "field": "6874d995ce931e4e0d1a09af",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 2,
+              "y": 78,
+              "width": 4,
+              "height": 27
+            },
+            {
+              "_id": "6874e3e6c13261ad33465281",
+              "type": "chart",
+              "field": "6874d9bcef497800fd3006b3",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 1,
+              "y": 105,
+              "width": 4,
+              "height": 27
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}

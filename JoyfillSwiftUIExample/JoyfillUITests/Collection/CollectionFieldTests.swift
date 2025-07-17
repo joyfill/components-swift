@@ -689,7 +689,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             return
         }
         barcodeTextField.tap()
-        barcodeTextField.clearAndEnterText("Edit Barcode")
+        barcodeTextField.clearText()
+        barcodeTextField.typeText("Edit Barcode")
         
         // Number Field
         guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
@@ -697,7 +698,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             return
         }
         
-        numberTextField.clearAndEnterText("12345")
+        numberTextField.clearText()
+        numberTextField.typeText("12345")
         app.dismissKeyboardIfVisible()
         
         // Signature Column
@@ -843,7 +845,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             return
         }
         
-        numberTextField.clearAndEnterText("12345")
+        numberTextField.clearText()
+        numberTextField.typeText("12345")
         firstImageButton.tap()
         dismissSheet()
          
@@ -1094,28 +1097,3 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
 }
 
-extension XCUIElement {
-    func clearAndEnterText(_ text: String) {
-        guard self.exists && self.isHittable else { return }
-        
-        self.tap()
-        sleep(1)
-        self.tap() // Second tap ensures focus
-        
-        // Attempt delete based on current value
-        if let currentValue = self.value as? String, !currentValue.isEmpty {
-            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: currentValue.count + 5)
-            self.typeText(deleteString)
-        } else {
-            self.press(forDuration: 1.2)
-            let selectAll = XCUIApplication().menuItems["Select All"]
-            if selectAll.waitForExistence(timeout: 1) {
-                selectAll.tap()
-                self.typeText(XCUIKeyboardKey.delete.rawValue)
-            }
-        }
-        
-        self.tap()
-        self.typeText(text)
-    }
-}

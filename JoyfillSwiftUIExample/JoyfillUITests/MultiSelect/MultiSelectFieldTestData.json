@@ -42,7 +42,11 @@
       "identifier": "field_686b8cacc48fbf9cb93a98c9",
       "value": [
         "686b854528a03e7759da506c"
-      ]
+      ],
+      "required": true,
+      "tipVisible": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description"
     },
     {
       "file": "66a14ced9dc829a95e272506",
@@ -71,23 +75,15 @@
       "identifier": "field_686b9ef69e86157996ba85e4",
       "logic": {
         "action": "hide",
-        "eval": "and",
-        "conditions": [
-          {
-            "file": "66a14ced9dc829a95e272506",
-            "page": "66a14ced15a9dc96374e091e",
-            "field": "686b8caac1c10cb7f16c1c9c",
-            "condition": "=",
-            "value": "686b905d0fe4f86919203f5b"
-          }
-        ]
+        "eval": "or",
+        "conditions": []
       }
     },
     {
       "file": "66a14ced9dc829a95e272506",
       "_id": "686b9f2bd97ed4818c085df8",
       "type": "multiSelect",
-      "title": "Multiple Choice",
+      "title": "This Multiple Choice is for\ntesting multiline header text.",
       "multi": false,
       "options": [
         {
@@ -106,7 +102,95 @@
           "deleted": false
         }
       ],
-      "identifier": "field_686b9f304e4e684399bfae7b"
+      "identifier": "field_686b9f304e4e684399bfae7b",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b8caac1c10cb7f16c1c9c",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b9e4baa2ceb69dee2894f",
+            "condition": "*="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b9e4baa2ceb69dee2894f",
+            "condition": "=",
+            "value": "686b9f03f418eae9bd533100"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b9e4baa2ceb69dee2894f",
+            "condition": "!=",
+            "value": "686b8545517347ed0544e012"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "687242e21e7c60629c3ce538",
+      "type": "multiSelect",
+      "title": "",
+      "multi": true,
+      "options": [
+        {
+          "_id": "686de9badee8e8f53a5c22e1",
+          "value": "Yes",
+          "deleted": false
+        },
+        {
+          "_id": "686de9bacc6b427c75617fe2",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "686de9baabcaae40d5b957a3",
+          "value": "N/A",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_687242ebbd1d4212925fcc87",
+      "value": [
+        "686de9bacc6b427c75617fe2"
+      ],
+      "disabled": true,
+      "logic": {
+        "action": "hide",
+        "eval": "or",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b8caac1c10cb7f16c1c9c",
+            "condition": "=",
+            "value": "686b905d0fe4f86919203f5b"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b9f2bd97ed4818c085df8",
+            "condition": "=",
+            "value": "686b854514dfef2c5bb24eed"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686b9e4baa2ceb69dee2894f",
+            "condition": "=",
+            "value": "686b8545517347ed0544e012"
+          }
+        ]
+      }
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -164,6 +248,17 @@
               "targetValue": "686b85454ac2c55af987d4bb",
               "x": 2,
               "y": 15,
+              "width": 4,
+              "height": 15
+            },
+            {
+              "_id": "687242ebf720fe6c2b8832c5",
+              "type": "multiSelect",
+              "field": "687242e21e7c60629c3ce538",
+              "displayType": "original",
+              "targetValue": "686de9badee8e8f53a5c22e1",
+              "x": 2,
+              "y": 35,
               "width": 4,
               "height": 15
             }

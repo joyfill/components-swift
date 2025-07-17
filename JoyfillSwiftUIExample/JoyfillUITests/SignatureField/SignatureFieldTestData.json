@@ -1,0 +1,138 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68722bf19c672bea4f559b57",
+      "type": "signature",
+      "title": "Signature",
+      "identifier": "field_68722bf903d0b4dec6baeb1a",
+      "required": true,
+      "tipVisible": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68722bf96bcbd3fe1610ea5d",
+      "type": "signature",
+      "title": "",
+      "identifier": "field_68722bfcc9af407b7af2800b"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68722bfc1a416a885669f3fa",
+      "type": "signature",
+      "title": "This signature field is\nreadonly and testing for \nmultiline header.",
+      "identifier": "field_68722c02798510758a8206ea",
+      "disabled": true,
+      "logic": {
+        "action": "hide",
+        "eval": "or",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "68722c3db920f59bef3f95eb",
+            "condition": "=",
+            "value": "hide"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "68722c3db920f59bef3f95eb",
+            "condition": "?=",
+            "value": "xyz"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68722c3db920f59bef3f95eb",
+      "type": "text",
+      "title": "Enter hide for hide readonly field",
+      "identifier": "field_68722c5190cecaae0917b979"
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "68722bf9f8f55c7e44903770",
+              "type": "signature",
+              "field": "68722bf19c672bea4f559b57",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "68722bfce06704157212e392",
+              "type": "signature",
+              "field": "68722bf96bcbd3fe1610ea5d",
+              "displayType": "original",
+              "x": 2,
+              "y": 23,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "68722c02d3b59a20aa633d27",
+              "type": "signature",
+              "field": "68722bfc1a416a885669f3fa",
+              "displayType": "original",
+              "x": 2,
+              "y": 46,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "68722c51e033f6e31b465dab",
+              "type": "text",
+              "field": "68722c3db920f59bef3f95eb",
+              "displayType": "original",
+              "x": 2,
+              "y": 69,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}

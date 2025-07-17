@@ -8,9 +8,13 @@
       "file": "66a14ced9dc829a95e272506",
       "_id": "686bbffc8e9cdd8c3ceeed2d",
       "type": "text",
-      "title": "Text",
+      "title": "Please input your test data here for thorough evaluation and analysis—let's ensure everything runs smoothly and efficiently.",
       "identifier": "field_686bc000238ce635c382fbe7",
-      "value": "test"
+      "value": "test",
+      "tipTitle": "ToolTip Title",
+      "tipVisible": true,
+      "tipDescription": "ToolTip Description",
+      "required": true
     },
     {
       "file": "66a14ced9dc829a95e272506",
@@ -29,6 +33,104 @@
             "field": "686bbffc8e9cdd8c3ceeed2d",
             "condition": "=",
             "value": "HELLO"
+          }
+        ]
+      },
+      "required": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f7b746e1bdcf5ba77db8d",
+      "type": "block",
+      "title": "Display Text",
+      "value": "Display text will be hidden when text is 'hide' and multiline should not 'show'",
+      "identifier": "field_686f7b7b39fbaf70e85de0eb",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bbffc8e9cdd8c3ceeed2d",
+            "condition": "=",
+            "value": "hide"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bc007ff08c3beb2e93e99",
+            "condition": "!=",
+            "value": "show"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f7c99a1f0d7528e92a262",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_686f7ca2960a3267579eb9d8",
+      "value": "This text box is readonly",
+      "disabled": true,
+      "logic": {
+        "action": "hide",
+        "eval": "or",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bbffc8e9cdd8c3ceeed2d",
+            "condition": "!=",
+            "value": "qqqq"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bc007ff08c3beb2e93e99",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bbffc8e9cdd8c3ceeed2d",
+            "condition": "=",
+            "value": "readonly"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bc007ff08c3beb2e93e99",
+            "condition": "!=",
+            "value": "hide"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bbffc8e9cdd8c3ceeed2d",
+            "condition": "?=",
+            "value": "abcd"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f8f4c73541201d302f6d9",
+      "type": "text",
+      "title": "",
+      "identifier": "field_686f90934c97a0a504b11ffa",
+      "value": "This text box is without heading and hidden if first text box is not filled",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686bbffc8e9cdd8c3ceeed2d",
+            "condition": "null="
           }
         ]
       }
@@ -67,17 +169,48 @@
               "x": 1,
               "y": 0,
               "width": 5,
-              "height": 25
+              "height": 11
             },
             {
               "_id": "686bc00e68daaaf240bf394c",
               "type": "textarea",
               "field": "686bc007ff08c3beb2e93e99",
               "displayType": "original",
-              "x": 2,
-              "y": 25,
-              "width": 4,
-              "height": 23
+              "x": 1,
+              "y": 32,
+              "width": 5,
+              "height": 21,
+              "titleDisplay": "inline"
+            },
+            {
+              "_id": "686f7b7b042fe056e237d78a",
+              "type": "block",
+              "field": "686f7b746e1bdcf5ba77db8d",
+              "displayType": "original",
+              "x": 1,
+              "y": 11,
+              "width": 5,
+              "height": 5
+            },
+            {
+              "_id": "686f7ca2d355752848a07f95",
+              "type": "text",
+              "field": "686f7c99a1f0d7528e92a262",
+              "displayType": "original",
+              "x": 1,
+              "y": 16,
+              "width": 5,
+              "height": 8
+            },
+            {
+              "_id": "686f90934ddcf21d3c6355bd",
+              "type": "text",
+              "field": "686f8f4c73541201d302f6d9",
+              "displayType": "original",
+              "x": 1,
+              "y": 24,
+              "width": 5,
+              "height": 8
             }
           ],
           "hidden": false,
