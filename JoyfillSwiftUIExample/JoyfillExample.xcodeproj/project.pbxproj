@@ -58,6 +58,8 @@
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E27E13152E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */; };
+		E285E2E82E27C12300CB75BD /* OnChangeHandlerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E285E2E72E27C12300CB75BD /* OnChangeHandlerUITests.swift */; };
+		E285E2EB2E27C23600CB75BD /* OnChangeTestJSON.json in Resources */ = {isa = PBXBuildFile; fileRef = E285E2EA2E27C23600CB75BD /* OnChangeTestJSON.json */; };
 		E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */; };
 		E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */; };
 		E2A684372DCA40AF00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */; };
@@ -142,6 +144,8 @@
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
 		E27E13142E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldSearchFilterTests.swift; sourceTree = "<group>"; };
+		E285E2E72E27C12300CB75BD /* OnChangeHandlerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerUITests.swift; sourceTree = "<group>"; };
+		E285E2EA2E27C23600CB75BD /* OnChangeTestJSON.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = OnChangeTestJSON.json; sourceTree = "<group>"; };
 		E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2A684382DCA40D100385FE1 /* CollectionFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldTests.swift; sourceTree = "<group>"; };
@@ -222,6 +226,7 @@
 			children = (
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
 				362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */,
+				E285E2E92E27C15300CB75BD /* ChangeUITests */,
 				362A560A2BEE2EE600B54C14 /* ImageFieldTests.swift */,
 				133EBABA2BF48804009B73AB /* SignatureFieldTests.swift */,
 				362A560E2BEE359400B54C14 /* ChartFieldTests.swift */,
@@ -258,6 +263,15 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E285E2E92E27C15300CB75BD /* ChangeUITests */ = {
+			isa = PBXGroup;
+			children = (
+				E285E2EA2E27C23600CB75BD /* OnChangeTestJSON.json */,
+				E285E2E72E27C12300CB75BD /* OnChangeHandlerUITests.swift */,
+			);
+			path = ChangeUITests;
 			sourceTree = "<group>";
 		};
 		FA529C412BA1D251000200F5 = {
@@ -470,6 +484,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E285E2EB2E27C23600CB75BD /* OnChangeTestJSON.json in Resources */,
 				1321F1782BECEC9400594112 /* Joydocjson.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -507,6 +522,7 @@
 				E27E13152E0AC1A000BA734D /* CollectionFieldSearchFilterTests.swift in Sources */,
 				04814A052CDA912F0061FBDC /* SelectionFieldHidePageLogicTests.swift in Sources */,
 				04814A062CDA912F0061FBDC /* SelectionFieldShowPageLogicTests.swift in Sources */,
+				E285E2E82E27C12300CB75BD /* OnChangeHandlerUITests.swift in Sources */,
 				04814A072CDA912F0061FBDC /* SelectionFieldLogicTests.swift in Sources */,
 				13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */,
 				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
