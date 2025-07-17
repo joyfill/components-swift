@@ -53,7 +53,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
     
     //Conditional logic case insensitive UI test cases
     //In json we have logic using "HELLO" and we are testing this with "hello" case insensitive logic
-    func testConditonalLogicWithMultiSelect() throws {
+    func testConditionalLogicWithMultiSelect() throws {
         let textField = app.textFields.element(boundBy: 0)
         XCTAssertEqual("test", textField.value as! String)
         
