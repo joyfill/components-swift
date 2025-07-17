@@ -148,10 +148,9 @@ public class DocumentEditor: ObservableObject {
         // 2. Update UI
         for change in changes {
             guard let targetValue = change.target,
-                  let target = ChangeTargetType(rawValue: targetValue)
-            else {
+                  let target = ChangeTargetType(rawValue: targetValue) else {
                 logChangeError(for: change)
-                return
+                continue
             }
             
             switch target {
