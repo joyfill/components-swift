@@ -943,11 +943,11 @@ extension DocumentEditor {
         events?.onBlur(event: event)
     }
 
-    func onUpload(event: JoyfillModel.UploadEvent) {
+    func onUpload(event: UploadEvent) {
         events?.onUpload(event: event)
     }
     
-    func onCapture(event: JoyfillModel.CaptureEvent) {
+    func onCapture(event: CaptureEvent) {
         events?.onCapture(event: event)
     }
 }

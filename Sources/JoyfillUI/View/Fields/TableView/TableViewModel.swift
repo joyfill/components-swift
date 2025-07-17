@@ -40,11 +40,11 @@ class TableViewModel: ObservableObject {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { cellDataModel in
-                    if let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+                                               editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                    if let colIndex = self?.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
-                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -95,8 +95,8 @@ class TableViewModel: ObservableObject {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { cellDataModel in
-                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                                                   editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                        self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -435,7 +435,7 @@ extension TableViewModel: DocumentEditorDelegate {
         }
     }
     
-    private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement) -> ValueElement {
+    private func mergedRow(from change: Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
         guard let rowDict = change.change?["row"] as? [String: Any],
               let cellsDict = rowDict["cells"] as? [String: Any] else {
@@ -468,7 +468,7 @@ extension TableViewModel: DocumentEditorDelegate {
         }
     }
     
-    func applyRowEditChanges(change: JoyfillModel.Change) {
+    func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String else {
             Log("RowID not found or no cached ValueElement", type: .error)
             return

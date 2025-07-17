@@ -13,6 +13,10 @@ import SwiftUI
 var manipulateDocumentEditor: DocumentEditor!
 
 struct ManipulateDataOnChangeView: View, FormChangeEvent {
+    func onError(error: Joyfill.JoyfillError) {
+
+    }
+    
     let imagePicker = ImagePicker()
     init() {
         //
@@ -31,14 +35,14 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
         }
     }
 
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         print("onChange documentID:", document.id)
         let extraChanges = appendHintChanges(changes: changes, document: document)
         manipulateDocumentEditor.change(changes: extraChanges)
     }
 
-    func appendHintChanges(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) -> [JoyfillModel.Change] {
-        var additionalChanges: [JoyfillModel.Change] = []
+    func appendHintChanges(changes: [Change], document: JoyfillModel.JoyDoc) -> [Change] {
+        var additionalChanges: [Change] = []
 
         let sourceTableFieldID = "67fa8e2a64d97bb156b088db"
         let hintLookupTableFieldID = "67fa934a0d0062e14617252f"
@@ -90,7 +94,7 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
     
     // MARK: - Helper Methods
     
-    private func extractRowUpdateInfo(from change: JoyfillModel.Change, sourceFieldID: String) -> (rowID: String, updatedCells: [String: Any])? {
+    private func extractRowUpdateInfo(from change: Change, sourceFieldID: String) -> (rowID: String, updatedCells: [String: Any])? {
         guard change.target == "field.value.rowUpdate",
               change.fieldId == sourceFieldID,
               let rowID = change.change?["rowId"] as? String,
@@ -125,11 +129,11 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
     }
     
     private func createRowUpdateChange(
-        from originalChange: JoyfillModel.Change,
+        from originalChange: Change,
         document: JoyfillModel.JoyDoc,
         rowID: String,
         updatedCells: [String: Any]
-    ) -> JoyfillModel.Change {
+    ) -> Change {
         let payload: [String: Any] = [
             "rowId": rowID,
             "row": [
@@ -138,7 +142,7 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
             ]
         ]
 
-        return JoyfillModel.Change(
+        return Change(
             v: 1,
             sdk: "swift",
             target: "field.value.rowUpdate",
@@ -154,10 +158,10 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
         )
     }
 
-    func onFocus(event: JoyfillModel.FieldIdentifier) { }
-    func onBlur(event: JoyfillModel.FieldIdentifier) { }
-    func onCapture(event: JoyfillModel.CaptureEvent) { }
-    func onUpload(event: JoyfillModel.UploadEvent) {
+    func onFocus(event: FieldIdentifier) { }
+    func onBlur(event: FieldIdentifier) { }
+    func onCapture(event: CaptureEvent) { }
+    func onUpload(event: UploadEvent) {
         event.uploadHandler(["https://app.joyfill.io/static/img/joyfill_logo_w.png"])
     }
 }

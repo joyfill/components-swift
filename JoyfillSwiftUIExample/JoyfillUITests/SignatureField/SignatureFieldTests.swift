@@ -3,9 +3,15 @@ import XCTest
 final class SignatureFieldTests: JoyfillUITestsBaseClass {
     
     func testSaveSignature() throws {
-        app.swipeUp()
-        app.swipeUp()
         let signatureDetailButton = app.buttons["SignatureIdentifier"]
+        var attempts = 0
+        while !signatureDetailButton.exists && attempts < 5 {
+            app.swipeUp()
+            sleep(1)
+            attempts += 1
+        }
+        
+        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
         signatureDetailButton.tap()
         drawSignatureLine()
         app.buttons["SaveSignatureIdentifier"].tap()
@@ -14,9 +20,17 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
     }
     
     func testClearSignature() throws {
-        app.swipeUp()
-        app.swipeUp()
         let signatureDetailButton = app.buttons["SignatureIdentifier"]
+        
+        var attempts = 0
+        while !signatureDetailButton.exists && attempts < 5 {
+            app.swipeUp()
+            sleep(1)
+            attempts += 1
+        }
+        
+        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
+        
         signatureDetailButton.tap()
         drawSignatureLine()
         app.buttons["ClearSignatureIdentifier"].tap()
@@ -26,9 +40,16 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
     }
     
     func testSaveEmptySignature() throws {
-        app.swipeUp()
-        app.swipeUp()
         let signatureDetailButton = app.buttons["SignatureIdentifier"]
+        
+        var attempts = 0
+        while !signatureDetailButton.exists && attempts < 5 {
+            app.swipeUp()
+            sleep(1)
+            attempts += 1
+        }
+        
+        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
         signatureDetailButton.tap()
         app.buttons["SaveSignatureIdentifier"].tap()
         XCTAssertEqual("Add Signature", signatureDetailButton.label)

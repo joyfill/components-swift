@@ -1,0 +1,138 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686e205f779bc2a989ef0401",
+      "type": "image",
+      "title": "Image",
+      "identifier": "field_686e29c75d5345859568b24c",
+      "required": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description",
+      "tipVisible": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686e2af7a567c8c84ac46984",
+      "type": "image",
+      "title": "Image",
+      "identifier": "field_686e2af9af14616ca67c3de9",
+      "multi": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686e2af98562d4f9fda69653",
+      "type": "image",
+      "title": "",
+      "identifier": "field_686e2afbe0d283933156d253",
+      "multi": false
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6870ec0d0f2ad10060776879",
+      "type": "image",
+      "title": "Image",
+      "identifier": "field_6870ec0edc0c28d3c971fa38",
+      "hidden": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6870ec112370f126d7eb755a",
+      "type": "image",
+      "title": "This image is read only and testing for multiline header text.",
+      "identifier": "field_6870ec160cff292d8700d295",
+      "disabled": true
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686e29c7dcb0658c92bb7d42",
+              "type": "image",
+              "field": "686e205f779bc2a989ef0401",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 2,
+              "height": 23
+            },
+            {
+              "_id": "686e2af9ec5c52c3b1dc7b90",
+              "type": "image",
+              "field": "686e2af7a567c8c84ac46984",
+              "displayType": "original",
+              "x": 3,
+              "y": 0,
+              "width": 2,
+              "height": 23
+            },
+            {
+              "_id": "686e2afb418ce1a1abc54a1c",
+              "type": "image",
+              "field": "686e2af98562d4f9fda69653",
+              "displayType": "original",
+              "x": 6,
+              "y": 0,
+              "width": 2,
+              "height": 23
+            },
+            {
+              "_id": "6870ec0e834af4987d4b16d5",
+              "type": "image",
+              "field": "6870ec0d0f2ad10060776879",
+              "displayType": "original",
+              "x": 0,
+              "y": 46,
+              "width": 2,
+              "height": 23
+            },
+            {
+              "_id": "6870ec1691c700458c487e98",
+              "type": "image",
+              "field": "6870ec112370f126d7eb755a",
+              "displayType": "original",
+              "x": 0,
+              "y": 23,
+              "width": 2,
+              "height": 23
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,12 @@
 import XCTest
 
 final class TableFieldTests: JoyfillUITestsBaseClass {
+    
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "Joydocjson"
+    }
+    
     func goToTableDetailPage() {
         app.swipeUp()
         app.swipeUp()
@@ -71,21 +77,21 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     }
     
     // Test case for check dropdown is in First Place or not - because check column order work fine or not
-//    func testSearchFilterForDropdownFieldPageFirst() throws {
-//        goToTableDetailPage()
-//        let dropdownFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
-//        dropdownFieldColumnTitleButton.tap()
-//        
-//        tapOnDropdownFieldFilter()
-//        
-//        // Check dropdown data after search
-//        let checkSearchDataOnFirstDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-//        XCTAssertEqual("Yes", checkSearchDataOnFirstDropdownField.element(boundBy: 0).label)
-//        
-//        // Check field text data after search
-//        let checkSearchDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("Hello", checkSearchDataOnFirstTextField.value as! String)
-//    }
+    func testSearchFilterForDropdownFieldPageFirst() throws {
+        goToTableDetailPage()
+        let dropdownFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        dropdownFieldColumnTitleButton.tap()
+        
+        tapOnDropdownFieldFilter()
+        
+        // Check dropdown data after search
+        let checkSearchDataOnFirstDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes", checkSearchDataOnFirstDropdownField.element(boundBy: 0).label)
+        
+        // Check field text data after search
+        let checkSearchDataOnFirstTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Hello", checkSearchDataOnFirstTextField.value as! String)
+    }
     
     func testTableTextFields() throws {
         goToTableDetailPage()
@@ -93,16 +99,19 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Hello", firstTableTextField.value as! String)
         firstTableTextField.tap()
+        firstTableTextField.clearText()
         firstTableTextField.typeText("First")
         
         let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("His", secondTableTextField.value as! String)
         secondTableTextField.tap()
+        secondTableTextField.clearText()
         secondTableTextField.typeText("Second")
         
         let thirdTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("His", thirdTableTextField.value as! String)
         thirdTableTextField.tap()
+        thirdTableTextField.clearText()
         thirdTableTextField.typeText("Third")
         
         goBack()
@@ -115,7 +124,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("ThirdHis", thirdCellTextValue)
         
         // Navigate to signature detail view - then go to table detail view - to check recently enterd data is saved or not in table
-        app.buttons["SignatureIdentifier"].tap()
+        guard let SignatureButton = app.swipeToFindElement(identifier: "SignatureIdentifier", type: .button, direction: "down") else {
+            XCTFail("Failed to find signature button after swiping")
+            return
+        }
+        SignatureButton.tap()
         sleep(1)
         goBack()
         
@@ -392,7 +405,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.typeText("Edit")
+        textField.clearText()
+        sleep(1)
+        textField.typeText("App 1Edit")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Yes", dropdownButton.label)
@@ -674,8 +689,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         let dropdownButton = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)
         dropdownButton.tap()
-        
+        sleep(1)
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        sleep(1)
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         
@@ -1137,7 +1153,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
         XCTAssertEqual("Select Option", selectDropdownField.label)
         selectDropdownField.tap()
-        
+        sleep(1)
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         XCTAssertGreaterThan(dropdownOptions.count, 0)
         let firstOption = dropdownOptions.element(boundBy: 1)
@@ -1206,7 +1222,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.typeText("Edit Inserted Row")
+        textField.clearText()
+        sleep(1)
+        textField.typeText("Inserted RowEdit Inserted Row")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("No", dropdownButton.label)

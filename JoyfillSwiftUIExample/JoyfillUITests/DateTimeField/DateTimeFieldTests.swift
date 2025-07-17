@@ -17,9 +17,16 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
     }
 
     func testDateTimePicker() {
-        app.swipeUp()
         let datePicker = app.datePickers.element(boundBy: 2)
-        XCTAssertTrue(datePicker.exists)
+
+        var attempts = 0
+        while !datePicker.exists && attempts < 5 {
+            app.swipeUp()
+            sleep(1)
+            attempts += 1
+        }
+
+        XCTAssertTrue(datePicker.waitForExistence(timeout: 5), "Date picker not found on screen")
         XCTAssertEqual(datePicker.label, "")
     }
 

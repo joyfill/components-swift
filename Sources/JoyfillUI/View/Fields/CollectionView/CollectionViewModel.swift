@@ -1704,7 +1704,7 @@ extension Array {
 }
 extension CollectionViewModel {
     /// Merges the change payload into a cached ValueElement, returning the updated row.
-    private func mergedRow(from change: JoyfillModel.Change, existingRow: ValueElement) -> ValueElement {
+    private func mergedRow(from change: Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
         guard let rowDict = change.change?["row"] as? [String: Any],
               let cellsDict = rowDict["cells"] as? [String: Any] else {
@@ -1746,7 +1746,7 @@ extension CollectionViewModel {
 // MARK: - DocumentEditorDelegate methods
 extension CollectionViewModel: DocumentEditorDelegate {
     
-    func applyRowEditChanges(change: JoyfillModel.Change) {
+    func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String,
               let existingRow = rowToValueElementMap[rowID] else {
             Log("RowID not found or no cached ValueElement", type: .error)

@@ -1,0 +1,184 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686e4c08a1d568dfc28eb1bf",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Checkbox is true",
+      "identifier": "field_686e4c1754c54c3abcebc8fa",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686e4cb7466fe9a6070d79be",
+            "condition": "=",
+            "value": "686de9badfd75c7b17b254aa"
+          }
+        ]
+      },
+      "hidden": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686e4c346969c588069ba6f1",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Checkbox is false",
+      "identifier": "field_686e4c3718b0956d8596fa12",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686e4cb7466fe9a6070d79be",
+            "condition": "=",
+            "value": "686de9ba20dae4339fa96e21"
+          }
+        ]
+      },
+      "hidden": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686e4cb7466fe9a6070d79be",
+      "type": "multiSelect",
+      "title": "Single Choice",
+      "multi": false,
+      "options": [
+        {
+          "_id": "686de9badfd75c7b17b254aa",
+          "value": "Yes",
+          "deleted": false
+        },
+        {
+          "_id": "686de9ba20dae4339fa96e21",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "686de9ba934f8e89c6ee45d4",
+          "value": "N/A",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_686e4cd9299f54cbf536c72f",
+      "value": [
+        "686de9ba934f8e89c6ee45d4"
+      ]
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686e4d12a51c98236bbb0ce1",
+      "type": "block",
+      "title": "Display Text",
+      "value": "N/A selected in single choice",
+      "identifier": "field_686e4d197672ad523078160c",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686e4cb7466fe9a6070d79be",
+            "condition": "=",
+            "value": "686de9ba934f8e89c6ee45d4"
+          }
+        ]
+      },
+      "hidden": true
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686e4c170e45a5944c6aedbe",
+              "type": "block",
+              "field": "686e4c08a1d568dfc28eb1bf",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 1,
+              "y": 15,
+              "width": 3,
+              "height": 6
+            },
+            {
+              "_id": "686e4c37812cd5c19f24273e",
+              "type": "block",
+              "field": "686e4c346969c588069ba6f1",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 1,
+              "y": 21,
+              "width": 4,
+              "height": 5
+            },
+            {
+              "_id": "686e4cd94c2899fe536ccc32",
+              "type": "multiSelect",
+              "field": "686e4cb7466fe9a6070d79be",
+              "displayType": "original",
+              "targetValue": "686de9badfd75c7b17b254aa",
+              "x": 1,
+              "y": 0,
+              "width": 4,
+              "height": 15
+            },
+            {
+              "_id": "686e4d195288847c25006eda",
+              "type": "block",
+              "field": "686e4d12a51c98236bbb0ce1",
+              "displayType": "original",
+              "x": 1,
+              "y": 26,
+              "width": 4,
+              "height": 5
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}
