@@ -105,10 +105,7 @@
 		3697A9642E27839100FA87E3 /* FormulaRunner in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A9632E27839100FA87E3 /* FormulaRunner */; };
 		369D45042E0E4C3F00677280 /* AllSampleJSONs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369D45032E0E4C2600677280 /* AllSampleJSONs.swift */; };
 		369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */; };
-		369D45222E0E51AC00677280 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D451B2E0E51AC00677280 /* TableNewColumns.json */; };
-		369D45232E0E51AC00677280 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D451A2E0E51AC00677280 /* Joydocjson.json */; };
 		369D45242E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45092E0E51AC00677280 /* FormulaTemplate_CollectionField.json */; };
-		369D45252E0E51AC00677280 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45192E0E51AC00677280 /* 3000-fields.json */; };
 		369D45262E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450D2E0E51AC00677280 /* FormulaTemplate_NumberField.json */; };
 		369D45272E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450B2E0E51AC00677280 /* FormulaTemplate_DropdownField.json */; };
 		369D45282E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450A2E0E51AC00677280 /* FormulaTemplate_DateField.json */; };
@@ -116,10 +113,7 @@
 		369D452B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450E2E0E51AC00677280 /* FormulaTemplate_TableField.json */; };
 		369D452C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450F2E0E51AC00677280 /* FormulaTemplate_TextareaField.json */; };
 		369D452E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */; };
-		369D45322E0E51AC00677280 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D451B2E0E51AC00677280 /* TableNewColumns.json */; };
-		369D45332E0E51AC00677280 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D451A2E0E51AC00677280 /* Joydocjson.json */; };
 		369D45342E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45092E0E51AC00677280 /* FormulaTemplate_CollectionField.json */; };
-		369D45352E0E51AC00677280 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45192E0E51AC00677280 /* 3000-fields.json */; };
 		369D45362E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450D2E0E51AC00677280 /* FormulaTemplate_NumberField.json */; };
 		369D45372E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450B2E0E51AC00677280 /* FormulaTemplate_DropdownField.json */; };
 		369D45382E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450A2E0E51AC00677280 /* FormulaTemplate_DateField.json */; };
@@ -127,10 +121,7 @@
 		369D453B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450E2E0E51AC00677280 /* FormulaTemplate_TableField.json */; };
 		369D453C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450F2E0E51AC00677280 /* FormulaTemplate_TextareaField.json */; };
 		369D453E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */; };
-		369D45422E0E51AC00677280 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D451B2E0E51AC00677280 /* TableNewColumns.json */; };
-		369D45432E0E51AC00677280 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D451A2E0E51AC00677280 /* Joydocjson.json */; };
 		369D45442E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45092E0E51AC00677280 /* FormulaTemplate_CollectionField.json */; };
-		369D45452E0E51AC00677280 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45192E0E51AC00677280 /* 3000-fields.json */; };
 		369D45462E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450D2E0E51AC00677280 /* FormulaTemplate_NumberField.json */; };
 		369D45472E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450B2E0E51AC00677280 /* FormulaTemplate_DropdownField.json */; };
 		369D45482E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450A2E0E51AC00677280 /* FormulaTemplate_DateField.json */; };
@@ -158,6 +149,33 @@
 		36A5EF1A2E296E160059C2A6 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36A5EF192E296E160059C2A6 /* Joyfill */; };
 		36A5EF1C2E296E1B0059C2A6 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36A5EF1B2E296E1B0059C2A6 /* Joyfill */; };
 		36A5EF1F2E296E590059C2A6 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = 36A5EF1E2E296E590059C2A6 /* JSONSchema */; };
+		36A5EF312E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
+		36A5EF322E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
+		36A5EF332E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
+		36A5EF342E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */; };
+		36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF272E29725B0059C2A6 /* CollectionFilter.json */; };
+		36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */; };
+		36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
+		36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
+		36A5EF3A2E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
+		36A5EF3B2E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
+		36A5EF3C2E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
+		36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
+		36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */; };
+		36A5EF402E29725B0059C2A6 /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF272E29725B0059C2A6 /* CollectionFilter.json */; };
+		36A5EF412E29725B0059C2A6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */; };
+		36A5EF422E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
+		36A5EF432E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
+		36A5EF442E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
+		36A5EF452E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
+		36A5EF462E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
+		36A5EF472E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
+		36A5EF482E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */; };
+		36A5EF4A2E29725B0059C2A6 /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF272E29725B0059C2A6 /* CollectionFilter.json */; };
+		36A5EF4B2E29725B0059C2A6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */; };
+		36A5EF4C2E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
+		36A5EF4D2E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
+		36A5EF4E2E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
 		36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */; };
 		36C6F4C52CEF4CEC001765CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36C6F4C42CEF4CEC001765CF /* JoyfillModel */; };
 		36CE14672DB6680000799B25 /* LiveViewTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CE14662DB6680000799B25 /* LiveViewTest.swift */; };
@@ -282,15 +300,21 @@
 		369D450E2E0E51AC00677280 /* FormulaTemplate_TableField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_TableField.json; sourceTree = "<group>"; };
 		369D450F2E0E51AC00677280 /* FormulaTemplate_TextareaField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_TextareaField.json; sourceTree = "<group>"; };
 		369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_TextField.json; sourceTree = "<group>"; };
-		369D45192E0E51AC00677280 /* 3000-fields.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "3000-fields.json"; sourceTree = "<group>"; };
-		369D451A2E0E51AC00677280 /* Joydocjson.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Joydocjson.json; sourceTree = "<group>"; };
-		369D451B2E0E51AC00677280 /* TableNewColumns.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TableNewColumns.json; sourceTree = "<group>"; };
 		369D45622E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolver_DirectSelfCircularReference.json; sourceTree = "<group>"; };
 		369D45632E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolver_IndirectCircularError.json; sourceTree = "<group>"; };
 		369D45642E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolver_LongChainIndirectCircularDependency.json; sourceTree = "<group>"; };
 		369D45652E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolver_SimpleWorking.json; sourceTree = "<group>"; };
 		369D45662E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = JoyfillResolverTemplate_ComplexWorking.json; sourceTree = "<group>"; };
 		369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_CollectionField.swift; sourceTree = "<group>"; };
+		36A5EF262E29725B0059C2A6 /* 3000-fields.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "3000-fields.json"; sourceTree = "<group>"; };
+		36A5EF272E29725B0059C2A6 /* CollectionFilter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionFilter.json; sourceTree = "<group>"; };
+		36A5EF282E29725B0059C2A6 /* ErrorHandling.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ErrorHandling.json; sourceTree = "<group>"; };
+		36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTemplate_TableCollection_Poplated.json; sourceTree = "<group>"; };
+		36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FirstPageHidden.json; sourceTree = "<group>"; };
+		36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hint_and_deficiency_demo.json; sourceTree = "<group>"; };
+		36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Joydocjson.json; sourceTree = "<group>"; };
+		36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TableNewColumns.json; sourceTree = "<group>"; };
+		36A5EF2F2E29725B0059C2A6 /* testrow.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testrow.json; sourceTree = "<group>"; };
 		36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_TableField.swift; sourceTree = "<group>"; };
 		36CE14662DB6680000799B25 /* LiveViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveViewTest.swift; sourceTree = "<group>"; };
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
@@ -502,12 +526,26 @@
 		369D451C2E0E51AC00677280 /* Sample JSONs */ = {
 			isa = PBXGroup;
 			children = (
+				36A5EF302E29725B0059C2A6 /* others */,
 				369D45182E0E51AC00677280 /* Formula-sample */,
-				369D45192E0E51AC00677280 /* 3000-fields.json */,
-				369D451A2E0E51AC00677280 /* Joydocjson.json */,
-				369D451B2E0E51AC00677280 /* TableNewColumns.json */,
 			);
 			path = "Sample JSONs";
+			sourceTree = "<group>";
+		};
+		36A5EF302E29725B0059C2A6 /* others */ = {
+			isa = PBXGroup;
+			children = (
+				36A5EF262E29725B0059C2A6 /* 3000-fields.json */,
+				36A5EF272E29725B0059C2A6 /* CollectionFilter.json */,
+				36A5EF282E29725B0059C2A6 /* ErrorHandling.json */,
+				36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */,
+				36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */,
+				36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */,
+				36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */,
+				36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */,
+				36A5EF2F2E29725B0059C2A6 /* testrow.json */,
+			);
+			path = others;
 			sourceTree = "<group>";
 		};
 		FA529C412BA1D251000200F5 = {
@@ -740,15 +778,21 @@
 				369D45672E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D45682E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				369D45692E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
+				36A5EF312E29725B0059C2A6 /* TableNewColumns.json in Resources */,
+				36A5EF322E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
+				36A5EF332E29725B0059C2A6 /* testrow.json in Resources */,
+				36A5EF342E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
+				36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
+				36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */,
+				36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */,
+				36A5EF3A2E29725B0059C2A6 /* Joydocjson.json in Resources */,
 				369D456A2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
 				369D456B2E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
 				369D453E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
-				369D45422E0E51AC00677280 /* TableNewColumns.json in Resources */,
-				369D45432E0E51AC00677280 /* Joydocjson.json in Resources */,
 				3682A4C12E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
 				36006C0D2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D45442E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
-				369D45452E0E51AC00677280 /* 3000-fields.json in Resources */,
 				369D45462E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
 				369D45472E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
 				369D45482E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
@@ -775,15 +819,21 @@
 				369D456C2E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D456D2E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				369D456E2E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
+				36A5EF3B2E29725B0059C2A6 /* TableNewColumns.json in Resources */,
+				36A5EF3C2E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
+				36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */,
+				36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
+				36A5EF402E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				36A5EF412E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
+				36A5EF422E29725B0059C2A6 /* 3000-fields.json in Resources */,
+				36A5EF432E29725B0059C2A6 /* ErrorHandling.json in Resources */,
+				36A5EF442E29725B0059C2A6 /* Joydocjson.json in Resources */,
 				369D456F2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
 				369D45702E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
 				369D452E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
-				369D45322E0E51AC00677280 /* TableNewColumns.json in Resources */,
-				369D45332E0E51AC00677280 /* Joydocjson.json in Resources */,
 				3682A4C22E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
 				36006C0F2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D45342E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
-				369D45352E0E51AC00677280 /* 3000-fields.json in Resources */,
 				369D45362E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
 				369D45372E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
 				369D45382E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
@@ -815,12 +865,18 @@
 				3627465A2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
 				3627465B2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */,
 				3627465C2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */,
-				369D45222E0E51AC00677280 /* TableNewColumns.json in Resources */,
-				369D45232E0E51AC00677280 /* Joydocjson.json in Resources */,
 				369D45242E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
-				369D45252E0E51AC00677280 /* 3000-fields.json in Resources */,
 				369D45262E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
 				369D45272E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
+				36A5EF452E29725B0059C2A6 /* TableNewColumns.json in Resources */,
+				36A5EF462E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
+				36A5EF472E29725B0059C2A6 /* testrow.json in Resources */,
+				36A5EF482E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
+				36A5EF4A2E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				36A5EF4B2E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
+				36A5EF4C2E29725B0059C2A6 /* 3000-fields.json in Resources */,
+				36A5EF4D2E29725B0059C2A6 /* ErrorHandling.json in Resources */,
+				36A5EF4E2E29725B0059C2A6 /* Joydocjson.json in Resources */,
 				369D45282E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
 				36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D45712E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
