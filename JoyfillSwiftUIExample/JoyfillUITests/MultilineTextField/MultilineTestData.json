@@ -1,0 +1,195 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f34ed19d09ee38cc0070c",
+      "type": "textarea",
+      "title": "Multiline Text",
+      "identifier": "field_686f34f806b47c8397b9b3fe",
+      "value": "",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f3647096edf9c8dc06458",
+            "condition": "=",
+            "value": "hide first"
+          }
+        ]
+      },
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description",
+      "tipVisible": true,
+      "required": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f34f8c3e6f9d3c6a9df2a",
+      "type": "block",
+      "title": "Display Text",
+      "value": "This displayed text will be hidden if the multiline text is \"The quick brown fox jumps over the lazy dog\".",
+      "identifier": "field_686f35315e845df63a418399",
+      "logic": {
+        "action": "hide",
+        "eval": "or",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f34ed19d09ee38cc0070c",
+            "condition": "=",
+            "value": "The quick brown fox jumps over the lazy dog"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f3647096edf9c8dc06458",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f3647096edf9c8dc06458",
+            "condition": "=",
+            "value": "hide second"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f34ed19d09ee38cc0070c",
+            "condition": "!=",
+            "value": "hide"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f3647096edf9c8dc06458",
+            "condition": "?=",
+            "value": "abcd"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f3647096edf9c8dc06458",
+      "type": "textarea",
+      "title": "This is multiline text. Enter 'hide first' for hide first multiline",
+      "identifier": "field_686f39ff610afb215f917b1c",
+      "value": "A very long paragraph\nthat spans multiple\nlines and exceeds\nthe visible area.",
+      "tipTitle": "",
+      "tipDescription": ""
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6870c872078332603c6c98cf",
+      "type": "textarea",
+      "title": "",
+      "identifier": "field_6870c87be419d6a8a2b99f1b",
+      "disabled": true,
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f34ed19d09ee38cc0070c",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686f3647096edf9c8dc06458",
+            "condition": "?=",
+            "value": "xyz"
+          }
+        ]
+      }
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686f34f8ed9ba0b32295b17f",
+              "type": "textarea",
+              "field": "686f34ed19d09ee38cc0070c",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "686f3531c19769864f9ec3e8",
+              "type": "block",
+              "field": "686f34f8c3e6f9d3c6a9df2a",
+              "displayType": "original",
+              "x": 2,
+              "y": 23,
+              "width": 4,
+              "height": 11
+            },
+            {
+              "_id": "686f39ff427629440ccb594e",
+              "type": "textarea",
+              "field": "686f3647096edf9c8dc06458",
+              "displayType": "original",
+              "x": 2,
+              "y": 34,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "6870c87bf90980c5a35572de",
+              "type": "textarea",
+              "field": "6870c872078332603c6c98cf",
+              "displayType": "original",
+              "x": 2,
+              "y": 57,
+              "width": 4,
+              "height": 23
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Multiline Text",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}

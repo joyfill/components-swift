@@ -7,13 +7,31 @@ class JoyfillUITestsBaseClass: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+
+        if app != nil {
+            app.terminate()
+        }
         self.app = XCUIApplication()
         app.launchArguments.append("JoyfillUITests")
+        
+        // Pass the JSON file name to the app via launch arguments
+        app.launchArguments.append("--json-file")
+        app.launchArguments.append(getJSONFileNameForTest())
+        
         app.launch()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10), "App did not launch properly")
     }
 
     override func tearDownWithError() throws {
+        if app != nil {
+            app.terminate()
+        }
         app = nil
+    }
+    
+    // Override this method in test classes to specify a custom JSON file
+    func getJSONFileNameForTest() -> String {
+        return "Joydocjson" // Default JSON file
     }
     
     func goBack() {
