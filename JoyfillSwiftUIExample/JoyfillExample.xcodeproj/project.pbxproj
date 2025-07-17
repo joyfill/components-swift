@@ -64,6 +64,8 @@
 		9E7018232E224692003651A4 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018202E224692003651A4 /* DateTimeFieldTestData.json */; };
 		9E7018242E224692003651A4 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7018212E224692003651A4 /* DateTimeFieldUITestCases.swift */; };
 		9E7018252E2246A6003651A4 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018202E224692003651A4 /* DateTimeFieldTestData.json */; };
+		36E088BE2E1D84570048A303 /* OnChangeHandlerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E088BD2E1D84570048A303 /* OnChangeHandlerTest.swift */; };
+		36E088C02E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36E088BF2E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
@@ -81,6 +83,8 @@
 		E2A6929A2E1ECE13005AD17B /* ImageFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2A692962E1ECE13005AD17B /* ImageFieldTestData.json */; };
 		E2A6929B2E1ECE13005AD17B /* ImageFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A692982E1ECE13005AD17B /* ImageFieldUITestCases.swift */; };
 		E2A6929C2E1ECE13005AD17B /* ImageFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A692972E1ECE13005AD17B /* ImageFieldTests.swift */; };
+		E2A6929E2E20D2EA005AD17B /* ManipulateDataOnChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A6929D2E20D29C005AD17B /* ManipulateDataOnChangeView.swift */; };
+		E2A692A02E20F199005AD17B /* hint_and_deficiency_demo.json in Resources */ = {isa = PBXBuildFile; fileRef = E2A6929F2E20F199005AD17B /* hint_and_deficiency_demo.json */; };
 		E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */; };
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
@@ -163,6 +167,10 @@
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E26A6D642E1C00B800D6B829 /* TextFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TextFieldTestData.json; sourceTree = "<group>"; };
+		36E088BD2E1D84570048A303 /* OnChangeHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerTest.swift; sourceTree = "<group>"; };
+		36E088BF2E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTemplate_TableCollection_Poplated.json; sourceTree = "<group>"; };
+		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
+		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
 		E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
@@ -175,6 +183,8 @@
 		E2A692962E1ECE13005AD17B /* ImageFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ImageFieldTestData.json; sourceTree = "<group>"; };
 		E2A692972E1ECE13005AD17B /* ImageFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFieldTests.swift; sourceTree = "<group>"; };
 		E2A692982E1ECE13005AD17B /* ImageFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFieldUITestCases.swift; sourceTree = "<group>"; };
+		E2A6929D2E20D29C005AD17B /* ManipulateDataOnChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManipulateDataOnChangeView.swift; sourceTree = "<group>"; };
+		E2A6929F2E20F199005AD17B /* hint_and_deficiency_demo.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hint_and_deficiency_demo.json; sourceTree = "<group>"; };
 		E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
 		E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSearchView.swift; sourceTree = "<group>"; };
 		E2E38B2B2E1B707000D6EEDE /* UITestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHelpers.swift; sourceTree = "<group>"; };
@@ -475,6 +485,10 @@
 				E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */,
 				E27C87E22D394387008EA35C /* CameraScanner.swift */,
 				E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */,
+				36E088BD2E1D84570048A303 /* OnChangeHandlerTest.swift */,
+				E2A6929D2E20D29C005AD17B /* ManipulateDataOnChangeView.swift */,
+				36E088BF2E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json */,
+				E2A6929F2E20F199005AD17B /* hint_and_deficiency_demo.json */,
 				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
 				E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */,
 				04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */,
@@ -676,9 +690,11 @@
 			files = (
 				9E7018192E2203A8003651A4 /* DisplayTextFieldTestData.json in Resources */,
 				E2E38B312E1BC41A00D6EEDE /* MultiSelectFieldTestData.json in Resources */,
+				E2A692A02E20F199005AD17B /* hint_and_deficiency_demo.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				9E484FB52E1FE1A00027C9CD /* CollectionFilter.json in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
+				36E088C02E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
 				9E7018252E2246A6003651A4 /* DateTimeFieldTestData.json in Resources */,
 				045B41842D19BD8500F3D6C1 /* TableNewColumns.json in Resources */,
@@ -687,7 +703,10 @@
 				9E70181F2E220F83003651A4 /* DropdownFieldTestData.json in Resources */,
 				9E7018132E21213D003651A4 /* ImageFieldTestData.json in Resources */,
 				9E7018122E210528003651A4 /* MultilineTestData.json in Resources */,
-			);
+
+
+
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
@@ -742,10 +761,12 @@
 				13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */,
 				E2A6843D2DCA41F000385FE1 /* JoyDoc+helper.swift in Sources */,
 				E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */,
+				36E088BE2E1D84570048A303 /* OnChangeHandlerTest.swift in Sources */,
 				13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */,
 				E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */,
 				E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */,
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,
+				E2A6929E2E20D2EA005AD17B /* ManipulateDataOnChangeView.swift in Sources */,
 				E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */,
 				FA28C9672BB4345C00A2D65C /* FormContainerView.swift in Sources */,
 				FA28C96B2BB4359600A2D65C /* ChangeManager.swift in Sources */,
@@ -997,7 +1018,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
 				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1038,7 +1058,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
 				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

@@ -30,21 +30,16 @@ struct CollectionQuickView : View {
             FieldHeaderView(tableDataModel.fieldHeaderModel)
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
-                    ScrollView([.horizontal]) {
-                        colsHeader
-                            .offset(x: offset.x)
-                    }
-                    .disabled(true)
-                    .background(Color.clear)
-                    .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
+                    colsHeader
+                        .disabled(true)
+                        .background(.clear)
+                        .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
+                        .frame(height: rowHeight)
                     
                     collection
-                        .id(refreshID)
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
-                .frame(maxHeight:
-                        (CGFloat((viewModel.tableDataModel.filteredcellModels.isEmpty ? 2:  viewModel.tableDataModel.filteredcellModels.count)) * rowHeight + rowHeight)
-                )
+                .frame(height: min(CGFloat(viewModel.tableDataModel.filteredcellModels.count), 3) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -97,61 +92,55 @@ struct CollectionQuickView : View {
             .frame(width: 0, height: 0)
             .hidden()
         }
-        .onAppear() {
-            refreshID = UUID()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-            // Handle orientation changes
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                offset = CGPoint.zero // Reset scroll offset on rotation
-                refreshID = UUID() // Force refresh of table
-            }
-        }
     }
     
     var colsHeader: some View {
-        HStack(alignment: .top, spacing: 0) {
-            ForEach(viewModel.tableDataModel.tableColumns.prefix(3), id: \.id) { col in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                        .padding(.horizontal, 4)
+        GeometryReader { geometry in
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(viewModel.tableDataModel.tableColumns.prefix(3), id: \.id) { col in
+                    ZStack {
+                        Rectangle()
+                            .stroke()
+                            .foregroundColor(Color.tableCellBorderColor)
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
+                            .padding(.horizontal, 4)
+                    }
+                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                    .frame(width: geometry.size.width / 3, height: rowHeight)
                 }
-                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
             }
         }
     }
     
     var collection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            let rowsDataModels = viewModel.getThreeRowsForQuickView()
-            ForEach(rowsDataModels, id: \.self) { rowDataModel in
-                HStack(alignment: .top, spacing: 0) {
-                    ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
-                        let cell = rowDataModel.cells[index]
-                        
-                        let cellModel = TableCellModel(rowID: cell.rowID,
-                                                       data: cell.data,
-                                                       documentEditor: viewModel.tableDataModel.documentEditor,
-                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                       viewMode: .quickView,
-                                                       editMode: viewModel.tableDataModel.mode,
-                                                       didChange: nil)
-                        ZStack {
-                            Rectangle()
-                                .stroke()
-                                .foregroundColor(Color.tableCellBorderColor)
-                            CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 0) {
+                let rowsDataModels = viewModel.getThreeRowsForQuickView()
+                ForEach(rowsDataModels, id: \.self) { rowDataModel in
+                    HStack(alignment: .top, spacing: 0) {
+                        ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
+                            let cell = rowDataModel.cells[index]
+                            
+                            let cellModel = TableCellModel(rowID: cell.rowID,
+                                                           data: cell.data,
+                                                           documentEditor: viewModel.tableDataModel.documentEditor,
+                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                           viewMode: .quickView,
+                                                           editMode: viewModel.tableDataModel.mode,
+                                                           didChange: nil)
+                            ZStack {
+                                Rectangle()
+                                    .stroke()
+                                    .foregroundColor(Color.tableCellBorderColor)
+                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
+                            }
+                            .frame(width: geometry.size.width / 3, height: rowHeight)
                         }
-                        .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
                     }
                 }
             }
+            .id(viewModel.uuid)
+            .disabled(true)
         }
-        .id(viewModel.uuid)
-        .disabled(true)
     }
 }
