@@ -40,25 +40,23 @@ struct JoyfillExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            if joyfillUITestsMode {
-//                NavigationView {
-//                    UITestFormContainerView(documentEditor: documentEditor)
-//                }
-//                .navigationViewStyle(StackNavigationViewStyle())
-//                Text(appState.changeResult)
-//                    .accessibilityIdentifier("resultfield")
-//                    .frame(height: 10)
-//            } else if useQuickTestMode {
-                // Quick test mode: directly open template list with default token
-//                NavigationView {
-//                    UserAccessTokenTextFieldView(isAlreadyToken: true, enableChangelogs: false)
-//                }
-//            } else {
-//                OptionSelectionView()
-//            }
-//            OnChangeHandlerTest()
-            ManipulateDataOnChangeView()
-            .navigationViewStyle(StackNavigationViewStyle())
+            if joyfillUITestsMode {
+                NavigationView {
+                    UITestFormContainerView(documentEditor: documentEditor)
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+                Text(appState.changeResult)
+                    .accessibilityIdentifier("resultfield")
+                    .frame(height: 10)
+            } else if useQuickTestMode {
+//                 Quick test mode: directly open template list with default token
+                NavigationView {
+                    UserAccessTokenTextFieldView(isAlreadyToken: true, enableChangelogs: false)
+                }
+            } else {
+                OptionSelectionView()
+                .navigationViewStyle(StackNavigationViewStyle())
+            }
         }
     }
     

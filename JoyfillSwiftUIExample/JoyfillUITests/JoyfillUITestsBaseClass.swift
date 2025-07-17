@@ -1,4 +1,5 @@
 import XCTest
+import Joyfill
 import JoyfillModel
 
 class JoyfillUITestsBaseClass: XCTestCase {

@@ -7,8 +7,9 @@
 
 import Foundation
 import JoyfillModel
+import JSONSchema
 
-private enum ChnageTargetType: String {
+private enum ChangeTargetType: String {
     case fieldUpdate = "field.update"
 
     case fieldValueRowCreate = "field.value.rowCreate"
@@ -34,12 +35,13 @@ public protocol DocumentEditorDelegate: AnyObject {
 
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
+    public var schemaError: SchemaValidationError?
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = []
-    
-    public var mode: Mode
-    public var isPageDuplicateEnabled: Bool
-    public var showPageNavigationView: Bool
+
+    public var mode: Mode = .fill
+    public var isPageDuplicateEnabled: Bool = true
+    public var showPageNavigationView: Bool = true
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -57,6 +59,27 @@ public class DocumentEditor: ObservableObject {
     private var conditionalLogicHandler: ConditionalLogicHandler!
     
     public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false) {
+        // Perform schema validation first
+        let schemaManager = JoyfillSchemaManager()
+        
+        // Check for schema validation errors
+        if let schemaError = schemaManager.validateSchema(document: document) {
+            // Schema validation failed - store error and return early
+            self.schemaError = schemaError
+            // Set empty document
+            self.document = JoyDoc()
+            self.mode = mode
+            self.isPageDuplicateEnabled = isPageDuplicateEnabled
+            self.showPageNavigationView = navigation
+            self.currentPageID = ""
+            self.events = events
+            
+            // Trigger onError callback if events handler is available
+            events?.onError(error: .schemaValidationError(error: schemaError))
+            return
+        }
+        
+        // Schema validation passed - proceed with normal initialization
         self.document = document
         self.mode = mode
         self.isPageDuplicateEnabled = isPageDuplicateEnabled
@@ -65,11 +88,11 @@ public class DocumentEditor: ObservableObject {
         self.events = events
         updateFieldMap()
         updateFieldPositionMap()
-        
+
         guard let firstFile = files.first, let fileID = firstFile.id else {
             return
         }
-        
+
         for page in document.pagesForCurrentView {
             guard let pageID = page.id else { return }
             updatePageFieldModels(page, pageID, fileID)
@@ -77,7 +100,7 @@ public class DocumentEditor: ObservableObject {
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
-        
+
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
@@ -125,7 +148,7 @@ public class DocumentEditor: ObservableObject {
         // 2. Update UI
         for change in changes {
             guard let targetValue = change.target,
-                  let target = ChnageTargetType(rawValue: targetValue) else {
+                  let target = ChangeTargetType(rawValue: targetValue) else {
                 logChangeError(for: change)
                 continue
             }
@@ -271,7 +294,7 @@ public class DocumentEditor: ObservableObject {
             return logEventForNilObject(message: "fieldID not found for change: \(changeId)")
         }
         
-        let target = ChnageTargetType(rawValue: targetValue) ?? .unknown
+        let target = ChangeTargetType(rawValue: targetValue) ?? .unknown
         
         switch target {
         case .fieldUpdate:

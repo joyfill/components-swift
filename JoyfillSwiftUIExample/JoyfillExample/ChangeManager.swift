@@ -5,6 +5,7 @@
 import Foundation
 import JoyfillModel
 import JoyfillAPIService
+import Joyfill
 
 class ChangeManager: ObservableObject {
     private let apiService: APIService
@@ -52,6 +53,16 @@ class ChangeManager: ObservableObject {
 }
 
 extension ChangeManager: FormChangeEvent {
+    func onError(error: Joyfill.JoyfillError) {
+        switch error {
+        case .schemaValidationError(let schemaError):
+            print("❌ Schema Error: \(schemaError)")
+        case .schemaVersionError(let versionError):
+            print("❌ Schema Error: \(versionError)")
+        }
+        print("Error occurred: \(error)")
+    }
+
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         if let firstChange = changes.first {
             print(">>>>>>>>onChange", firstChange.fieldId ?? "")
