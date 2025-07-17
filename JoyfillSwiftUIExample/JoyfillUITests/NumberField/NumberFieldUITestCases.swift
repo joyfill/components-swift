@@ -297,7 +297,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.typeText("12345")
         sleep(2) // simulate delay before blur
         app.otherElements.firstMatch.tap() // dismiss keyboard
-        XCTAssertEqual(onChangeResultValue().text! as String?, "1012345.0")
+        XCTAssertEqual(onChangeResultValue().text!, "1012345.0")
     }
     
     func testRequiredFieldAsteriskPresence() {
