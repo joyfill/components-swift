@@ -40,7 +40,7 @@ class TableViewModel: ObservableObject {
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
                                                editMode: tableDataModel.mode) { [weak self] cellDataModel in
-                    if let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+                    if let colIndex = self?.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
                         self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
