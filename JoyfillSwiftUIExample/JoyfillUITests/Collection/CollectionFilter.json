@@ -26,7 +26,7 @@
               "x": 0,
               "y": 0,
               "width": 8,
-              "height": 48
+              "height": 47
             },
             {
               "_id": "68575112158ff5dbaa9f78e1",
@@ -34,7 +34,7 @@
               "field": "6857510fbfed1553e168161b",
               "displayType": "original",
               "x": 0,
-              "y": 48,
+              "y": 47,
               "width": 8,
               "height": 189
             },
@@ -44,7 +44,7 @@
               "field": "686b8e23e9b4c893b641f481",
               "displayType": "original",
               "x": 0,
-              "y": 237,
+              "y": 236,
               "width": 8,
               "height": 15
             }
@@ -281,7 +281,7 @@
       "file": "685750ef698da1ab427761ba",
       "_id": "6857510fbfed1553e168161b",
       "type": "collection",
-      "title": "Collection",
+      "title": "This is collection\nwith multiline header\ntest.",
       "value": [
         {
           "_id": "68575bb9cdb3707c78d6b2ff",
@@ -795,7 +795,42 @@
               "width": 0,
               "deleted": false
             }
-          ]
+          ],
+          "logic": {
+            "action": "hide",
+            "eval": "and",
+            "conditions": [
+              {
+                "schema": "collectionSchemaId",
+                "column": "684c3fedb0afd867adaeb3b4",
+                "condition": "=",
+                "value": "hide depth2"
+              },
+              {
+                "schema": "collectionSchemaId",
+                "column": "684c3fed52b1d1145f1e2790",
+                "condition": "!=",
+                "value": "684c3fedb1399740f90a0e3e"
+              },
+              {
+                "schema": "collectionSchemaId",
+                "column": "685753044b333dd442ea29d4",
+                "condition": ">",
+                "value": 900
+              },
+              {
+                "schema": "collectionSchemaId",
+                "column": "68575312d8c5679a05ee29e0",
+                "condition": "?=",
+                "value": "567"
+              },
+              {
+                "schema": "collectionSchemaId",
+                "column": "6857530158fb7edb102344fa",
+                "condition": "*="
+              }
+            ]
+          }
         },
         "685753be00360cf5d545a89e": {
           "title": "Depth 3",
@@ -1027,7 +1062,36 @@
               "width": 0,
               "deleted": false
             }
-          ]
+          ],
+          "logic": {
+            "action": "hide",
+            "eval": "or",
+            "conditions": [
+              {
+                "schema": "685753be00360cf5d545a89e",
+                "column": "685753be581f231c08d8f11c",
+                "condition": "=",
+                "value": "conditional"
+              },
+              {
+                "schema": "685753be00360cf5d545a89e",
+                "column": "685753c1b072d80a56f775b7",
+                "condition": "=",
+                "value": "6857679167952237cfee0d70"
+              },
+              {
+                "schema": "685753be00360cf5d545a89e",
+                "column": "685753ca9756907c2dd4fdca",
+                "condition": ">",
+                "value": 1000
+              },
+              {
+                "schema": "685753be00360cf5d545a89e",
+                "column": "685753c51f0af9f46eacdb40",
+                "condition": "null="
+              }
+            ]
+          }
         },
         "6857542f10ffa297cd488f74": {
           "title": "Depth 5",
@@ -1146,13 +1210,17 @@
           ]
         }
       },
-      "identifier": "field_68575112847f32f878c77daf"
+      "identifier": "field_68575112847f32f878c77daf",
+      "required": true,
+      "tipVisible": true,
+      "tipTitle": "ToolTip Title",
+      "tipDescription": "ToolTip Description"
     },
     {
       "file": "685750ef698da1ab427761ba",
       "_id": "686b8e23e9b4c893b641f481",
       "type": "collection",
-      "title": "Collection",
+      "title": "",
       "value": [
         {
           "_id": "686b8e3c5ac043086542628d",
