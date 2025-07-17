@@ -40,11 +40,11 @@ class TableViewModel: ObservableObject {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { cellDataModel in
-                    if let colIndex = self.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
+                                               editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                    if let colIndex = self?.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
-                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -95,8 +95,8 @@ class TableViewModel: ObservableObject {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { cellDataModel in
-                        self.tableDataModel.valueToValueElements = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                                                   editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                        self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
