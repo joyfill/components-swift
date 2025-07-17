@@ -1,0 +1,156 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f4e36557902657597794c",
+      "type": "date",
+      "title": "Date",
+      "identifier": "field_686f4e3b58a0861ac3f1ebfa",
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description",
+      "required": true,
+      "tipVisible": true,
+      "value": 1752517800000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f5ae34e3d328d3224b943",
+      "type": "date",
+      "title": "Time",
+      "identifier": "field_686f5ae75b39cdb0fccc5a10",
+      "value": 1752312911475
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f5af19075d01b7489230c",
+      "type": "date",
+      "title": "Date Time",
+      "identifier": "field_686f5af63327f3a6a334bff7",
+      "value": 1752575400000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f5af6d292e19280c7774a",
+      "type": "date",
+      "title": "This is default date with readonly\nfield and testing multiline header.",
+      "identifier": "field_686f5b1060a2faef953d7776",
+      "value": 1752085800000,
+      "disabled": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "68721080e84b3106eae979dc",
+            "condition": "=",
+            "value": "readonly"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68721080e84b3106eae979dc",
+      "type": "text",
+      "title": "enter readonly and hide readonly field ",
+      "identifier": "field_687210ac61b669a82c6898d1"
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686f4e3b613b3abcf155d775",
+              "type": "date",
+              "field": "686f4e36557902657597794c",
+              "displayType": "original",
+              "format": "MM/DD/YYYY",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686f5ae7c8cf1920cf4b6325",
+              "type": "date",
+              "field": "686f5ae34e3d328d3224b943",
+              "displayType": "original",
+              "format": "hh:mma",
+              "x": 2,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686f5af68ac5e5771e099ec4",
+              "type": "date",
+              "field": "686f5af19075d01b7489230c",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 2,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686f5b100101116523be3dc4",
+              "type": "date",
+              "field": "686f5af6d292e19280c7774a",
+              "displayType": "original",
+              "format": "MM/DD/YYYY",
+              "x": 2,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "687210acc0392886229b463a",
+              "type": "text",
+              "field": "68721080e84b3106eae979dc",
+              "displayType": "original",
+              "x": 2,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}

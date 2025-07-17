@@ -52,22 +52,22 @@
 		9E484FAE2E1FE1040027C9CD /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 9E484FAD2E1FE1040027C9CD /* JoyfillAPIService */; };
 		9E484FB12E1FE1110027C9CD /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 9E484FB02E1FE1110027C9CD /* JoyfillModel */; };
 		9E484FB52E1FE1A00027C9CD /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E484FB42E1FE1A00027C9CD /* CollectionFilter.json */; };
-		9E70180A2E20C4AB003651A4 /* NumberFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018072E20C4AB003651A4 /* NumberFieldTestData.json */; };
 		9E70180B2E20C4AB003651A4 /* NumberFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7018082E20C4AB003651A4 /* NumberFieldUITestCases.swift */; };
-		9E70180C2E20C4C6003651A4 /* NumberFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018072E20C4AB003651A4 /* NumberFieldTestData.json */; };
 		9E7018102E20FF60003651A4 /* MultilineTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E70180D2E20FF60003651A4 /* MultilineTestData.json */; };
 		9E7018112E20FF60003651A4 /* MultilineTextFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E70180E2E20FF60003651A4 /* MultilineTextFieldUITestCases.swift */; };
 		9E7018122E210528003651A4 /* MultilineTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E70180D2E20FF60003651A4 /* MultilineTestData.json */; };
 		9E7018132E21213D003651A4 /* ImageFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2A692962E1ECE13005AD17B /* ImageFieldTestData.json */; };
-		9E7018172E22039F003651A4 /* DisplayTextFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018142E22039F003651A4 /* DisplayTextFieldTestData.json */; };
 		9E7018182E22039F003651A4 /* DisplayTextFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7018152E22039F003651A4 /* DisplayTextFieldUITestCases.swift */; };
-		9E7018192E2203A8003651A4 /* DisplayTextFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018142E22039F003651A4 /* DisplayTextFieldTestData.json */; };
 		9E70181D2E220F7B003651A4 /* DropdownFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E70181A2E220F7A003651A4 /* DropdownFieldTestData.json */; };
 		9E70181E2E220F7B003651A4 /* DropdownFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E70181B2E220F7A003651A4 /* DropdownFieldUITestCases.swift */; };
 		9E70181F2E220F83003651A4 /* DropdownFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E70181A2E220F7A003651A4 /* DropdownFieldTestData.json */; };
-		9E7018232E224692003651A4 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018202E224692003651A4 /* DateTimeFieldTestData.json */; };
 		9E7018242E224692003651A4 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7018212E224692003651A4 /* DateTimeFieldUITestCases.swift */; };
-		9E7018252E2246A6003651A4 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018202E224692003651A4 /* DateTimeFieldTestData.json */; };
+		E223B7EF2E291299002ACB19 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E223B7EE2E291299002ACB19 /* DateTimeFieldTestData.json */; };
+		E223B7F12E2912B2002ACB19 /* DisplayTextFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E223B7F02E2912B2002ACB19 /* DisplayTextFieldTestData.json */; };
+		E223B7F22E2912B2002ACB19 /* DisplayTextFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E223B7F02E2912B2002ACB19 /* DisplayTextFieldTestData.json */; };
+		E223B7F42E2912F1002ACB19 /* NumberFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E223B7F32E2912F1002ACB19 /* NumberFieldTestData.json */; };
+		E223B7F52E2912F1002ACB19 /* NumberFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E223B7F32E2912F1002ACB19 /* NumberFieldTestData.json */; };
+		E223B7FA2E291318002ACB19 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E223B7F92E291318002ACB19 /* JoyfillModel */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
@@ -158,16 +158,16 @@
 		36E088BD2E1D84570048A303 /* OnChangeHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerTest.swift; sourceTree = "<group>"; };
 		36E088BF2E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTemplate_TableCollection_Poplated.json; sourceTree = "<group>"; };
 		9E484FB42E1FE1A00027C9CD /* CollectionFilter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionFilter.json; sourceTree = "<group>"; };
-		9E7018072E20C4AB003651A4 /* NumberFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NumberFieldTestData.json; sourceTree = "<group>"; };
 		9E7018082E20C4AB003651A4 /* NumberFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFieldUITestCases.swift; sourceTree = "<group>"; };
 		9E70180D2E20FF60003651A4 /* MultilineTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MultilineTestData.json; sourceTree = "<group>"; };
 		9E70180E2E20FF60003651A4 /* MultilineTextFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTextFieldUITestCases.swift; sourceTree = "<group>"; };
-		9E7018142E22039F003651A4 /* DisplayTextFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DisplayTextFieldTestData.json; sourceTree = "<group>"; };
 		9E7018152E22039F003651A4 /* DisplayTextFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayTextFieldUITestCases.swift; sourceTree = "<group>"; };
 		9E70181A2E220F7A003651A4 /* DropdownFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DropdownFieldTestData.json; sourceTree = "<group>"; };
 		9E70181B2E220F7A003651A4 /* DropdownFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropdownFieldUITestCases.swift; sourceTree = "<group>"; };
-		9E7018202E224692003651A4 /* DateTimeFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DateTimeFieldTestData.json; sourceTree = "<group>"; };
 		9E7018212E224692003651A4 /* DateTimeFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldUITestCases.swift; sourceTree = "<group>"; };
+		E223B7EE2E291299002ACB19 /* DateTimeFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DateTimeFieldTestData.json; sourceTree = "<group>"; };
+		E223B7F02E2912B2002ACB19 /* DisplayTextFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DisplayTextFieldTestData.json; sourceTree = "<group>"; };
+		E223B7F32E2912F1002ACB19 /* NumberFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NumberFieldTestData.json; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E26A6D642E1C00B800D6B829 /* TextFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TextFieldTestData.json; sourceTree = "<group>"; };
@@ -255,6 +255,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E223B7FA2E291318002ACB19 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -356,7 +357,7 @@
 		9E7018092E20C4AB003651A4 /* NumberField */ = {
 			isa = PBXGroup;
 			children = (
-				9E7018072E20C4AB003651A4 /* NumberFieldTestData.json */,
+				E223B7F32E2912F1002ACB19 /* NumberFieldTestData.json */,
 				9E7018082E20C4AB003651A4 /* NumberFieldUITestCases.swift */,
 			);
 			path = NumberField;
@@ -374,7 +375,7 @@
 		9E7018162E22039F003651A4 /* DisplayTextField */ = {
 			isa = PBXGroup;
 			children = (
-				9E7018142E22039F003651A4 /* DisplayTextFieldTestData.json */,
+				E223B7F02E2912B2002ACB19 /* DisplayTextFieldTestData.json */,
 				9E7018152E22039F003651A4 /* DisplayTextFieldUITestCases.swift */,
 			);
 			path = DisplayTextField;
@@ -395,7 +396,7 @@
 		9E7018222E224692003651A4 /* DateTimeField */ = {
 			isa = PBXGroup;
 			children = (
-				9E7018202E224692003651A4 /* DateTimeFieldTestData.json */,
+				E223B7EE2E291299002ACB19 /* DateTimeFieldTestData.json */,
 				9E7018212E224692003651A4 /* DateTimeFieldUITestCases.swift */,
 				362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */,
 			);
@@ -539,6 +540,7 @@
 			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
+				E223B7F92E291318002ACB19 /* JoyfillModel */,
 			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
@@ -669,14 +671,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9E7018172E22039F003651A4 /* DisplayTextFieldTestData.json in Resources */,
+				E223B7F12E2912B2002ACB19 /* DisplayTextFieldTestData.json in Resources */,
+				E223B7EF2E291299002ACB19 /* DateTimeFieldTestData.json in Resources */,
 				9E7018102E20FF60003651A4 /* MultilineTestData.json in Resources */,
 				1321F1782BECEC9400594112 /* Joydocjson.json in Resources */,
 				9E70181D2E220F7B003651A4 /* DropdownFieldTestData.json in Resources */,
 				E2A6929A2E1ECE13005AD17B /* ImageFieldTestData.json in Resources */,
-				9E7018232E224692003651A4 /* DateTimeFieldTestData.json in Resources */,
 				E2A6928C2E1ECDB6005AD17B /* CollectionFilter.json in Resources */,
-				9E70180A2E20C4AB003651A4 /* NumberFieldTestData.json in Resources */,
+				E223B7F52E2912F1002ACB19 /* NumberFieldTestData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -692,18 +694,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9E7018192E2203A8003651A4 /* DisplayTextFieldTestData.json in Resources */,
 				E2E38B312E1BC41A00D6EEDE /* MultiSelectFieldTestData.json in Resources */,
 				E2A692A02E20F199005AD17B /* hint_and_deficiency_demo.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
+				E223B7F22E2912B2002ACB19 /* DisplayTextFieldTestData.json in Resources */,
 				9E484FB52E1FE1A00027C9CD /* CollectionFilter.json in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				36E088C02E1D95F70048A303 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
 				1307CF0E2BDBC77600B19FBA /* Joydocjson.json in Resources */,
-				9E7018252E2246A6003651A4 /* DateTimeFieldTestData.json in Resources */,
+				E223B7F42E2912F1002ACB19 /* NumberFieldTestData.json in Resources */,
 				045B41842D19BD8500F3D6C1 /* TableNewColumns.json in Resources */,
 				E26A6D662E1C00DD00D6B829 /* TextFieldTestData.json in Resources */,
-				9E70180C2E20C4C6003651A4 /* NumberFieldTestData.json in Resources */,
 				9E70181F2E220F83003651A4 /* DropdownFieldTestData.json in Resources */,
 				9E7018132E21213D003651A4 /* ImageFieldTestData.json in Resources */,
 				9E7018122E210528003651A4 /* MultilineTestData.json in Resources */,
@@ -1228,6 +1229,11 @@
 		};
 		9E484FB02E1FE1110027C9CD /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
+		E223B7F92E291318002ACB19 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 367F26062E28F74A00561997 /* XCLocalSwiftPackageReference "../../JoyfillModel" */;
 			productName = JoyfillModel;
 		};
 		E26A54632DFADD04006E05E9 /* JoyfillModel */ = {
