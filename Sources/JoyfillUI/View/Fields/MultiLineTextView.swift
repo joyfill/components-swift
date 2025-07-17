@@ -7,7 +7,7 @@ struct MultiLineTextView: View {
     @State private var lastModelText: String?
     @State private var debounceTask: Task<Void, Never>?
     private var multiLineDataModel: MultiLineDataModel
-    @FocusState private var isFocused: Bool 
+    @FocusState private var isFocused: Bool
     let eventHandler: FieldChangeEvents
 
     public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
@@ -15,7 +15,7 @@ struct MultiLineTextView: View {
         self.multiLineDataModel = multiLineDataModel
         // Don't initialize state variables here - moved to onAppear
     }
-    
+
     var body: some View {
         // Create a custom binding that gives us more control
         let textBinding = Binding<String>(
@@ -27,7 +27,6 @@ struct MultiLineTextView: View {
                 }
             }
         )
-        
         return VStack(alignment: .leading) {
             FieldHeaderView(multiLineDataModel.fieldHeaderModel)
             TextEditor(text: textBinding)
@@ -49,7 +48,7 @@ struct MultiLineTextView: View {
                         updateFieldValue()
                     }
                 }
-                .onChange(of: displayText) { newValue in 
+                .onChange(of: displayText) { newValue in
                     if isFocused {
                         debounceTextChange(newValue: newValue)
                     }
@@ -72,13 +71,13 @@ struct MultiLineTextView: View {
             }
         }
     }
-    
+
     private func updateFieldValue() {
         let newValue = ValueUnion.string(displayText)
         let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
         eventHandler.onChange(event: fieldEvent)
     }
-    
+
     private func debounceTextChange(newValue: String) {
         debounceTask?.cancel()
         debounceTask = Task {
@@ -91,4 +90,5 @@ struct MultiLineTextView: View {
         }
     }
 }
+
 

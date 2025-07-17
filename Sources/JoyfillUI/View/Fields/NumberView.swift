@@ -7,12 +7,11 @@ struct NumberView: View {
     private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
     let eventHandler: FieldChangeEvents
-    
     // Use local state for value tracking instead of frequent model updates
     @State private var displayText: String = ""
     @State private var lastModelValue: Double?
     @State private var debounceTask: Task<Void, Never>?
-    
+
     public init(numberDataModel: NumberDataModel, eventHandler: FieldChangeEvents) {
         self.numberDataModel = numberDataModel
         self.eventHandler = eventHandler
@@ -30,7 +29,7 @@ struct NumberView: View {
         
         return formatter.string(from: NSNumber(value: number)) ?? ""
     }
-    
+
     var body: some View {
         // Create a custom binding that gives us more control
         let textBinding = Binding<String>(
@@ -42,10 +41,9 @@ struct NumberView: View {
                 }
             }
         )
-        
+
         return VStack(alignment: .leading) {
             FieldHeaderView(numberDataModel.fieldHeaderModel)
-            
             // Use the custom binding for more controlled updates
             TextField("", text: textBinding)
                 .accessibilityIdentifier("Number")
@@ -66,7 +64,7 @@ struct NumberView: View {
                         updateFieldValue()
                     }
                 }
-                .onChange(of: displayText) { newValue in 
+                .onChange(of: displayText) { newValue in
                     if isFocused {
                         debounceTextChange(newValue: newValue)
                     }
@@ -91,7 +89,7 @@ struct NumberView: View {
             }
         }
     }
-    
+
     private func updateFieldValue() {
         let newValue: ValueUnion
         if !displayText.isEmpty, let doubleValue = Double(displayText) {
@@ -102,7 +100,7 @@ struct NumberView: View {
         let event = FieldChangeData(fieldIdentifier: numberDataModel.fieldIdentifier, updateValue: newValue)
         eventHandler.onChange(event: event)
     }
-    
+
     private func debounceTextChange(newValue: String) {
         debounceTask?.cancel()
         debounceTask = Task {
@@ -115,3 +113,4 @@ struct NumberView: View {
         }
     }
 }
+

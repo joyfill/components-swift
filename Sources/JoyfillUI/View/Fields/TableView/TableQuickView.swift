@@ -17,7 +17,6 @@ struct TableQuickView : View {
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
-    @State private var refreshID = UUID()
 
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
         self.viewModel = TableViewModel(tableDataModel: tableDataModel)
@@ -30,20 +29,16 @@ struct TableQuickView : View {
             FieldHeaderView(tableDataModel.fieldHeaderModel)
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
-                    ScrollView([.horizontal]) {
-                        colsHeader
-                            .offset(x: offset.x)
-                    }
-                    .disabled(true)
-                    .background(Color.clear)
-                    .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
+                    colsHeader
+                        .disabled(true)
+                        .background(Color.clear)
+                        .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
+                        .frame(height: rowHeight)
+                    
                     table
-                        .id(refreshID)
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
-                .frame(maxHeight:
-                        (CGFloat((viewModel.tableDataModel.rowOrder.isEmpty ? 2:  viewModel.tableDataModel.rowOrder.count)) * rowHeight + rowHeight)
-                       )
+                .frame(height: min(CGFloat(viewModel.tableDataModel.filteredcellModels.count), 3) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -85,64 +80,58 @@ struct TableQuickView : View {
             .frame(width: 0, height: 0)
             .hidden()
         }
-        .onAppear() {
-            refreshID = UUID()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-            // Handle orientation changes
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                offset = CGPoint.zero // Reset scroll offset on rotation
-                refreshID = UUID() // Force refresh of table
-            }
-        }
     }
     
     var colsHeader: some View {
-        HStack(alignment: .top, spacing: 0) {
-            ForEach(viewModel.tableDataModel.tableColumns.prefix(3), id: \.id) { col in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
-                        .padding(.horizontal, 4)
+        GeometryReader { geometry in
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(viewModel.tableDataModel.tableColumns.prefix(3), id: \.id) { col in
+                    ZStack {
+                        Rectangle()
+                            .stroke()
+                            .foregroundColor(Color.tableCellBorderColor)
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
+                            .padding(.horizontal, 4)
+                    }
+                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                    .frame(width: geometry.size.width / 3, height: rowHeight)
                 }
-                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
             }
         }
     }
     
     var table: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            let rows = (viewModel.tableDataModel.rowOrder.prefix(3).count != 0) ? viewModel.tableDataModel.rowOrder.prefix(3) : ["Dummy-rowID"]
-            ForEach(rows, id: \.self) { row in
-                HStack(alignment: .top, spacing: 0) {
-                    ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
-                        // Cell
-                        let cell = viewModel.tableDataModel.getQuickFieldTableColumn(row: row, col: index)
-                        if let cell = cell {
-                            let cellModel = TableCellModel(rowID: row,
-                                                           data: cell,
-                                                           documentEditor: viewModel.tableDataModel.documentEditor,
-                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                           viewMode: .quickView,
-                                                           editMode: viewModel.tableDataModel.mode,
-                                                           didChange: nil)
-                            ZStack {
-                                Rectangle()
-                                    .stroke()
-                                    .foregroundColor(Color.tableCellBorderColor)
-                                TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 0) {
+                let rows = (viewModel.tableDataModel.rowOrder.prefix(3).count != 0) ? viewModel.tableDataModel.rowOrder.prefix(3) : ["Dummy-rowID"]
+                ForEach(rows, id: \.self) { row in
+                    HStack(alignment: .top, spacing: 0) {
+                        ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
+                            // Cell
+                            let cell = viewModel.tableDataModel.getQuickFieldTableColumn(row: row, col: index)
+                            if let cell = cell {
+                                let cellModel = TableCellModel(rowID: row,
+                                                               data: cell,
+                                                               documentEditor: viewModel.tableDataModel.documentEditor,
+                                                               fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                               viewMode: .quickView,
+                                                               editMode: viewModel.tableDataModel.mode,
+                                                               didChange: nil)
+                                ZStack {
+                                    Rectangle()
+                                        .stroke()
+                                        .foregroundColor(Color.tableCellBorderColor)
+                                    TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
+                                }
+                                .frame(width: geometry.size.width / 3, height: rowHeight)
                             }
-                            .frame(width: (UIScreen.main.bounds.width / 3) - 8, height: rowHeight)
                         }
                     }
                 }
             }
+            .id(viewModel.uuid)
+            .disabled(true)
         }
-        .id(viewModel.uuid)
-        .disabled(true)
     }
 }
 

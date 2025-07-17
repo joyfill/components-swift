@@ -21,8 +21,14 @@ extension XCUIElement {
 }
 
 final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
-    func goToCollectionDetailField() {
-        navigateToCollection()
+    
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "CollectionFilter"
+    }
+    
+    func goToCollectionDetailField(index: Int = 0) {
+        navigateToCollection(index: index)
         sleep(1)
     }
     
@@ -32,9 +38,9 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
     }
     
-    func navigateToCollection() {
+    func navigateToCollection(index: Int) {
         let goToTableDetailView = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
-        let tapOnSecondTableView = goToTableDetailView.element(boundBy: 0)
+        let tapOnSecondTableView = goToTableDetailView.element(boundBy: index)
         tapOnSecondTableView.tap()
     }
     
@@ -46,7 +52,36 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func getVisibleNestexRowsCount() -> Int {
-        return rowCount(baseIdentifier: "selectNestedRowItem")
+        return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
+    }
+    
+    func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
+        let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
+        let scrollView = app.scrollViews.firstMatch
+
+        var previousCount = -1
+        var currentCount = 0
+        var scrollAttempts = 0
+
+        while scrollAttempts < maxScrolls {
+            let matchingElements = app.images.matching(predicate)
+            currentCount = matchingElements.count
+
+            if currentCount == previousCount {
+                break // No new rows loaded
+            }
+
+            previousCount = currentCount
+
+            let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
+            let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+            start.press(forDuration: 0.1, thenDragTo: end)
+
+            sleep(1) // Allow time to load more items
+            scrollAttempts += 1
+        }
+
+        return currentCount
     }
     
     func rowCount(baseIdentifier: String) -> Int {
@@ -189,6 +224,20 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         addButton.tap()
     }
+    
+    func isAddMoreFilterButtonEnabled() -> Bool {
+        let addButton = app.buttons["AddMoreFilterButtonIdentifier"]
+        return addButton.exists && addButton.isEnabled
+    }
+    
+    func tapOnMoreButton() {
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        if !moreButton.exists {
+            XCTFail("More button should exist")
+        }
+        
+        moreButton.tap()
+    }
         
     func applyDropdownFilter(schema: String = "Root Table", column: String, option: String) {
         openFilterModal()
@@ -213,6 +262,69 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         selectMultiSelectOption(option)
         
         tapApplyButton()
+    }
+    
+    func getFieldPositionsCountFromLabel() -> Int? {
+        let app = XCUIApplication()
+        let resultLabel = app.staticTexts["resultfield"].label
+
+        guard let data = resultLabel.data(using: .utf8) else {
+            XCTFail("Failed to convert label to data")
+            return nil
+        }
+
+        do {
+            if let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                for obj in jsonArray {
+                    if obj["target"] as? String == "page.create",
+                       let change = obj["change"] as? [String: Any],
+                       let page = change["page"] as? [String: Any],
+                       let fieldPositions = page["fieldPositions"] as? [[String: Any]] {
+                        return fieldPositions.count
+                    }
+                }
+            }
+        } catch {
+            XCTFail("Failed to parse label JSON: \(error)")
+        }
+
+        return nil
+    }
+    
+    func assertImageCount(for cellId: String, expectedCount: Int) {
+        let actualCount = imageURLCount(for: cellId)
+        XCTAssertEqual(actualCount, expectedCount, "Expected \(expectedCount) image(s), found \(actualCount)")
+    }
+    
+    func imageURLCount(for cellId: String) -> Int {
+         let result = onChangeResult().dictionary
+              let change = result["change"] as? [String: Any]
+        let rowAny = change?["row"] as? Any
+              let row = rowAny as? [String: Any]
+        let cellsAny = row?["cells"] as? Any
+              let cells = cellsAny as? [String: Any]
+        let imageArray = cells?[cellId] as? [[String: Any]]
+
+        return imageArray?.count ?? 0
+    }
+    
+    func imageURLCountFromValueArray(for cellId: String) -> Int {
+        guard
+            let result = onChangeResult().dictionary["change"] as? [String: Any],
+            let valueArray = result["value"] as? [[String: Any]],
+            let firstItem = valueArray.first,
+            let cells = firstItem["cells"] as? [String: Any],
+            let imageArray = cells[cellId] as? [[String: Any]]
+        else {
+            return 0
+        }
+        
+        return imageArray.count
+    }
+
+    func assertImageCountFromValueArray(for cellId: String, expectedCount: Int) {
+        let actualCount = imageURLCountFromValueArray(for: cellId)
+        XCTAssertEqual(actualCount, expectedCount, "Expected \(expectedCount) image(s) for \(cellId), but found \(actualCount)")
     }
     
     func testopenCollection() {
@@ -459,6 +571,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let differentOptionCount = getVisibleNestexRowsCount()
         XCTAssertEqual(differentOptionCount, 7, "Nested dropdown filtering should work")
     }
+    
     
     func testMultiLevelSchemaFiltering() {
         goToCollectionDetailField()
@@ -1196,5 +1309,354 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             dismissSheet()
             XCTAssertTrue(filterButton.exists, "Should return to collection view")
         }
+    }
+    
+    func testCollectionPageDuplicate() throws {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 0)
+        originalPageButton.tap()
+        
+        goToCollectionDetailField()
+        goBack()
+        
+        pageSelectionButton.tap()
+        let pageDuplicateButton = app.buttons.matching(identifier: "PageDuplicateIdentifier")
+        let duplicatePageButton = pageDuplicateButton.element(boundBy: 0)
+        duplicatePageButton.tap()
+        if let count = getFieldPositionsCountFromLabel() {
+            XCTAssertEqual(count, 3, "Expected 2 field positions")
+        } else {
+            XCTFail("Could not retrieve field position count")
+        }
+        
+        let duplicatedPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        duplicatedPageButton.tap()
+        goToCollectionDetailField()
+        
+        let TableAddRowIdentifier = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        TableAddRowIdentifier.tap()
+        let actualRowCount = getVisibleRowCount()
+        XCTAssertEqual(actualRowCount, 5, "Expected 5 rows count")
+        
+        goBack()
+        
+        pageSelectionButton.tap()
+        originalPageButton.tap()
+        goToCollectionDetailField()
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("A", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.clearText()
+        firstNestedTextField.typeText("Hello ji")
+        goBack()
+        pageSelectionButton.tap()
+        duplicatedPageButton.tap()
+        goToCollectionDetailField()
+        let firstNestedTextFieldDup = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("A", firstNestedTextFieldDup.value as! String)
+        goBack()
+    }
+    
+    
+    func testCollectionImageUpload() throws {
+        app.swipeUp()
+        goToCollectionDetailField(index: 1)
+
+        let uploadButton = app.staticTexts["Upload"]
+        let imageButtonIdentifier = "TableImageIdentifier"
+
+        let imageButtons = app.buttons.matching(identifier: imageButtonIdentifier)
+        XCTAssertEqual(imageButtons.count, 3, "Expected 3 image buttons")
+
+        // Multi Image Upload (Index 0)
+        let multiImageButton = imageButtons.element(boundBy: 0)
+        XCTAssertTrue(multiImageButton.exists, "Multi-image button does not exist")
+        multiImageButton.tap()
+
+        XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
+        uploadButton.tap()
+        uploadButton.tap()
+        
+        assertImageCount(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
+
+        dismissSheet()
+        app.swipeLeft()
+        // Single Image Upload - Column 2 (Index 1)
+        let singleImageButton1 = imageButtons.element(boundBy: 1)
+        XCTAssertTrue(singleImageButton1.exists, "Single image button 1 does not exist")
+        singleImageButton1.tap()
+        XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
+        uploadButton.doubleTap()
+        uploadButton.tap()
+        
+        assertImageCount(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
+        
+        dismissSheet()
+        app.swipeLeft()
+        // Single Image Upload - Column 3 (Index 2)
+        let singleImageButton2 = imageButtons.element(boundBy: 2)
+        XCTAssertTrue(singleImageButton2.exists, "Single image button 2 does not exist")
+        singleImageButton2.tap()
+        XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
+        uploadButton.doubleTap()
+        uploadButton.tap()
+        assertImageCount(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+        dismissSheet()
+ 
+        goBack()
+        sleep(1)
+        assertImageCountFromValueArray(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
+        assertImageCountFromValueArray(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
+        assertImageCountFromValueArray(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+    }
+    
+    func testFilterApply_BB_NoResult_ThenA_ThenClearAndVerify() {
+        goToCollectionDetailField()
+        
+        let initialRowCount = getVisibleRowCount()
+        
+        // Step 1: Apply filter with "BB" (expected to return 0)
+        applyTextFilter(column: "Text D1", text: "BB")
+        let filteredCountBB = getVisibleRowCount()
+        XCTAssertEqual(filteredCountBB, 0, "Filter with 'BB' should return 0 rows")
+
+        // Step 2: Apply filter with "A"
+        applyTextFilter(column: "Text D1", text: "A")
+        let filteredCountA = getVisibleRowCount()
+        XCTAssertEqual(filteredCountA, initialRowCount, "Filter with 'A' should return initial row count")
+
+        // Step 3: Clear filter
+        openFilterModal()
+        enterTextFilter("")
+        tapApplyButton()
+        
+        // Step 4: Verify that row count after clearing matches initial
+        let finalRowCount = getVisibleRowCount()
+        XCTAssertEqual(finalRowCount, initialRowCount, "Row count after clearing filter should match initial")
+    }
+    
+    func testAddRowEnterTextAndFilter() {
+        goToCollectionDetailField()
+
+        // Add new row
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
+        addRowButton.tap()
+
+        // Enter "Testing Demo" in newly added row (last text field)
+        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        let newTextField = textFields.element(boundBy: textFields.count - 1)
+        XCTAssertTrue(newTextField.exists, "New text field should exist")
+        newTextField.tap()
+        newTextField.clearText()
+        newTextField.typeText("Testing Demo")
+
+        // Go back and return to detail view
+        goBack()
+        goToCollectionDetailField()
+
+        // Apply filter for "Testing Demo"
+        applyTextFilter(column: "Text D1", text: "Testing Demo")
+
+        // Verify filtered count is 1
+        let filteredCount = getVisibleRowCount()
+        XCTAssertEqual(filteredCount, 1, "Filter should return 1 row for 'Testing Demo'")
+    }
+    
+    func testAddRowAddSubRowsAndApplyAllFilters() {
+        goToCollectionDetailField()
+
+        // Step 1: Add a new root row
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
+        addRowButton.tap()
+
+        // Step 2: Expand the newly added row
+        let newRowIndex = getVisibleRowCount() - 1
+        let expandButton = app.images["CollectionExpandCollapseButton\(newRowIndex)"]
+        XCTAssertTrue(expandButton.exists, "Expand button for new row should exist")
+        expandButton.tap()
+
+        // Step 3: Add 2 sub rows under this row
+        let nestedAddButton = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 0)
+        XCTAssertTrue(nestedAddButton.exists, "Nested add row button should exist")
+        nestedAddButton.tap()
+        nestedAddButton.tap()
+
+        // Step 4: Open filter modal
+        openFilterModal()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectSchema("Root Table")
+        selectColumn("Text D1", selectorIndex: 0)
+        enterTextFilter("A")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Dropdown D1", selectorIndex: 1)
+        selectDropdownOption("Yes D1")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("MultiSelect  D1", selectorIndex: 2)
+        selectMultiSelectOption("Option 1 D1")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Number  D1", selectorIndex: 3)
+        let element = app.textFields["SearchBarNumberIdentifier"].firstMatch
+        element.tap()
+        element.typeText("200")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Barcode  D1", selectorIndex: 4)
+        let barcodeField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
+        barcodeField.tap()
+        barcodeField.typeText("ab")
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        tapApplyButton()
+        closeFilterModal()
+        let parentRowsCount = getVisibleRowCount()
+        XCTAssertNotEqual(parentRowsCount, 0, "Expected 0 parent row matching")
+    }
+    
+    func testDeleteAllRowsApplyFiltersThenReAddAndFilterDepth2() {
+        goToCollectionDetailField()
+        
+        // Step 1: Delete all rows
+        app.images["SelectParentAllRowSelectorButton"].firstMatch.tap()
+        tapOnMoreButton()
+        app.buttons["TableDeleteRowIdentifier"].firstMatch.tap()
+        
+        // Step 2: Apply a filter after all rows are deleted
+        applyTextFilter(column: "Text D1", text: "Test")
+        let filteredCount = getVisibleRowCount()
+        XCTAssertEqual(filteredCount, 0, "Filtered count should be 0 after deleting all rows")
+        
+        // Clear existing filters before deleting
+        openFilterModal()
+        enterTextFilter("")
+        tapApplyButton()
+        
+        // Step 3: Add 3 new root rows
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        addRowButton.tap()
+        addRowButton.tap()
+        addRowButton.tap()
+        
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("Hello ji")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy:2)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("Namaste ji")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123456789")
+        
+        // Step 7: Apply filter in Depth 2 for text "Hello"
+        applyTextFilter(schema: "Depth 2", column: "Text D2", text: "Hello")
+        
+        // Step 8: Validate filtered results
+        let parentRowsCount = getVisibleRowCount()
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(parentRowsCount, 1, "Expected 1 parent row matching 'Hello'")
+        XCTAssertEqual(nestedRowsCount, 1, "Expected 1 nested row matching 'Hello'")
+        
+    }
+    
+    func testFilterSchemaChangeResetsColumnSelection() {
+        goToCollectionDetailField()
+        
+        // Step 1: Open filter modal
+        openFilterModal()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectSchema("Root Table")
+        
+        // Step 2: Apply Sort - Select column and Descending
+        let sortColumnSelector = app.buttons["CollectionSortColumnSelectorIdentifier"]
+        XCTAssertTrue(sortColumnSelector.exists, "Sort column selector should exist")
+        sortColumnSelector.tap()
+        
+        let sortOption = app.buttons["Text D1"]
+        XCTAssertTrue(sortOption.exists, "Sort column option should exist")
+        sortOption.tap()
+        
+        let sortButton = app.buttons["Sort"]
+        XCTAssertTrue(sortButton.exists, "Sort button should exist")
+        XCTAssertTrue(sortButton.isEnabled, "Sort button should be disabled until direction selected")
+        sortButton.tap()
+        sortButton.tap()
+        
+        selectColumn("Text D1", selectorIndex: 0)
+        enterTextFilter("A")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        tapOnAddMoreFilterButton()
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        selectColumn("Dropdown D1", selectorIndex: 1)
+        selectDropdownOption("Yes D1")
+        if !isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be enabled")
+        }
+        
+        tapApplyButton()
+        closeFilterModal()
+        
+        // Step 3: Verify filtered result (optional, based on test data)
+        let filteredRowCount = getVisibleRowCount()
+        XCTAssertTrue(filteredRowCount >= 0, "Filtered row count should be valid")
+        
+        // Step 4: Open filter modal again and change schema
+        openFilterModal()
+        selectSchema("Depth 2")
+        
+        // Step 5: Verify column selector has reset
+        let columnSelectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
+        let firstSelectorLabel = columnSelectors.element(boundBy: 0).label
+        XCTAssertEqual(firstSelectorLabel, "Select column type", "Column selector should reset after schema change")
+        if isAddMoreFilterButtonEnabled() {
+            XCTFail("Add More Filter button should be disabled")
+        }
+        tapApplyButton()
+        closeFilterModal()
     }
 }

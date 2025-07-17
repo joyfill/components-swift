@@ -527,7 +527,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredImagefieldsWithoutValue() -> JoyDoc {
+    func setRequiredImagefieldsWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "image"
         field.id = "6629fab36e8925135f0cdd4f"
@@ -547,6 +547,7 @@ extension JoyDoc {
         field.tipVisible = false
         field.multi = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
@@ -971,7 +972,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredDropdownFieldWithoutValue() -> JoyDoc {
+    func setRequiredDropdownFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "dropdown"
         field.id = "6629fb77593e3791638628bb"
@@ -980,6 +981,7 @@ extension JoyDoc {
         field.description = ""
         field.value = .string("")
         field.required = true
+        field.hidden = hidden
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false
@@ -1180,7 +1182,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredSignatureFieldWithoutValue() -> JoyDoc {
+    func setRequiredSignatureFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "signature"
         field.id = "6629fbb8cd16c0c4d308a252"
@@ -1193,6 +1195,7 @@ extension JoyDoc {
         field.tipDescription = ""
         field.tipVisible = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
@@ -2329,7 +2332,7 @@ extension JoyDoc {
         return document
     }
     
-    func setTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setTextField(hidden: Bool, value: ValueUnion, required: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "text"
         field.id = "66aa2865da10ac1c7b7acb1d"
@@ -2342,6 +2345,7 @@ extension JoyDoc {
         field.tipVisible = false
         field.file = "66a0fdb2acd89d30121053b9"
         field.hidden = hidden
+        field.required = required
         var document = self
         document.fields.append(field)
         return document
@@ -2417,7 +2421,7 @@ extension JoyDoc {
     }
     
     //Set multiline field
-    func setMultilineTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setMultilineTextField(hidden: Bool, value: ValueUnion, required: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "textarea"
         field.id = "6629fb2b9a487ce1c1f35f6c"
@@ -2426,7 +2430,7 @@ extension JoyDoc {
         field.hidden = hidden
         field.description = ""
         field.value = value
-        field.required = false
+        field.required = required
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false

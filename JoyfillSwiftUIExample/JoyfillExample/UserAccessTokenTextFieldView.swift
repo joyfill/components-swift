@@ -503,6 +503,9 @@ struct OptionSelectionView: View {
         case imageReplacementTest
         case liveViewTest
         case allFormulaJSONs
+        case schemaValidationExampleView
+        case oChangeHandlerTest
+        case manipulateDataOnChangeView
 
         var title: String {
             switch self {
@@ -520,6 +523,12 @@ struct OptionSelectionView: View {
                 return "Formulas"
             case .allFormulaJSONs:
                 return "All Formula JSONs"
+            case .schemaValidationExampleView:
+                return "Schema Validation"
+            case .manipulateDataOnChangeView:
+                return "Data Manipulation"
+            case .oChangeHandlerTest:
+                return "Change Handler Test"
             }
         }
         
@@ -539,6 +548,12 @@ struct OptionSelectionView: View {
                 return "Test formula calculations and expressions"
             case .allFormulaJSONs:
                 return "Test formula calculations and expressions"
+            case .schemaValidationExampleView:
+                return "Test schema validation and error handling features"
+            case .manipulateDataOnChangeView:
+                return "Test real-time data manipulation and form updates"
+            case .oChangeHandlerTest:
+                return "Test change event handling and validation workflows"
             }
         }
         
@@ -558,6 +573,12 @@ struct OptionSelectionView: View {
                 return "function"
             case .allFormulaJSONs:
                 return "function"
+            case .schemaValidationExampleView:
+                return "checkmark.seal.fill"
+            case .manipulateDataOnChangeView:
+                return "slider.horizontal.3"
+            case .oChangeHandlerTest:
+                return "arrow.triangle.2.circlepath"
             }
         }
         
@@ -577,34 +598,39 @@ struct OptionSelectionView: View {
                 return .red
             case .allFormulaJSONs:
                 return .yellow
+            case .schemaValidationExampleView:
+                return .red
+            case .manipulateDataOnChangeView:
+                return .purple
+            case .oChangeHandlerTest:
+                return .teal
             }
         }
     }
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Header Section
-                VStack(spacing: 16) {
-                    Image(systemName: "app.badge")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
+            ScrollView {
+                VStack(spacing: 32) {
+                    // Header Section
+                    VStack(spacing: 16) {
+                        Image(systemName: "app.badge")
+                            .font(.system(size: 60))
+                            .foregroundColor(.blue)
+                        
+                        Text("Joyfill Example")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                        
+                        Text("Choose how you'd like to get started")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.top, 32)
                     
-                    Text("Joyfill Example")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                    
-                    Text("Choose how you'd like to get started")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.top, 32)
-                .padding(.bottom, 24)
-                
-                // Scrollable Options Section
-                ScrollView {
+                    // Options Section
                     VStack(spacing: 16) {
                         ForEach(OptionType.allCases, id: \.self) { option in
                             OptionCard(
@@ -616,11 +642,7 @@ struct OptionSelectionView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 100) // Add padding to account for the Continue button
-                }
-                
-                // Continue Button - Fixed at bottom
-                VStack {
+                    // Continue Button
                     NavigationLink(
                         destination: destinationView(),
                         isActive: Binding(
@@ -661,10 +683,9 @@ struct OptionSelectionView: View {
                         }
                         .disabled(selectedOption == nil)
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 32)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 32)
-                .background(Color(UIColor.systemBackground))
             }
             .navigationBarHidden(true)
         }
@@ -700,6 +721,13 @@ struct OptionSelectionView: View {
             AnyView(ImageReplacementTest())
         case .liveViewTest:
             AnyView(LiveViewTest())
+            TestingChangelogsView()
+        case .schemaValidationExampleView:
+            SchemaValidationExampleView()
+        case .manipulateDataOnChangeView:
+            ManipulateDataOnChangeView()
+        case .oChangeHandlerTest:
+            OnChangeHandlerTest()
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):

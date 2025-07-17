@@ -14,7 +14,7 @@ struct TextView: View {
         self.eventHandler = eventHandler
         self.textDataModel = textDataModel
     }
-    
+
     var body: some View {
         let textBinding = Binding<String>(
             get: { displayText },
@@ -24,7 +24,6 @@ struct TextView: View {
                 }
             }
         )
-        
         return VStack(alignment: .leading) {
             FieldHeaderView(textDataModel.fieldHeaderModel)
             TextField("", text: textBinding)
@@ -45,7 +44,7 @@ struct TextView: View {
                         updateFieldValue()
                     }
                 }
-                .onChange(of: displayText) { newValue in 
+                .onChange(of: displayText) { newValue in
                     if isFocused {
                         debounceTextChange(newValue: newValue)
                     }
@@ -66,7 +65,7 @@ struct TextView: View {
             }
         }
     }
-    
+
     private func debounceTextChange(newValue: String) {
         debounceTask?.cancel()
         debounceTask = Task {
@@ -78,11 +77,10 @@ struct TextView: View {
             }
         }
     }
-    
+
     private func updateFieldValue() {
         let newText = ValueUnion.string(displayText)
         let fieldEvent = FieldChangeData(fieldIdentifier: textDataModel.fieldIdentifier, updateValue: newText)
         eventHandler.onChange(event: fieldEvent)
     }
 }
-

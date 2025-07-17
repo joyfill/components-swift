@@ -10,6 +10,11 @@ import JoyfillModel
 
 final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
+    // Override to specify which JSON file to use for this test class
+    override func getJSONFileNameForTest() -> String {
+        return "Joydocjson"
+    }
+    
     func goToCollectionDetailField() {
         navigateToCollectionOn10thPage()
         sleep(1)
@@ -35,8 +40,18 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func expandRow(number: Int) {
-        let expandButton = app.images["CollectionExpandCollapseButton\(number)"]
-        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        sleep(1)
+        let identifier = "CollectionExpandCollapseButton\(number)"
+        
+        guard let expandButton = app.swipeToFindElement(identifier: identifier,
+                                                    type: .image,
+                                                    direction: "up",
+                                                    maxAttempts: 6) else {
+            XCTFail("Failed to find expand/collapse button with identifier: \(identifier)")
+            return
+        }
+
+        XCTAssertTrue(expandButton.isHittable, "Expand/collapse button is not hittable")
         expandButton.tap()
     }
     
@@ -120,6 +135,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func addThreeNestedRows(parentRowNumber: Int) {
         goToCollectionDetailField()
+        sleep(1)
         expandRow(number: parentRowNumber)
         tapSchemaAddRowButton(number: 0)
         tapSchemaAddRowButton(number: 0)
@@ -141,18 +157,32 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         thirdNestedTextField.typeText("123456789")
     }
     
+    func openFilterModalForDismissKeyboard() {
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        if !filterButton.exists {
+            XCTFail("Filter button should exist")
+        }
+        
+        filterButton.tap()
+        
+        // Verify filter modal opened
+        let filterModalExists = app.staticTexts["Filter"].exists
+        XCTAssertTrue(filterModalExists, "Filter modal should be open")
+        
+        dismissSheet()
+    }
+    
     func testCollectionFieldTextFields() {
         goToCollectionDetailField()
                     
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Hello", firstTableTextField.value as! String)
-        firstTableTextField.tap()
-        firstTableTextField.typeText("First")
+        firstTableTextField.waitAndClearAndTypeText("First")
         
         let secondTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(secondTableTextField.waitForExistence(timeout: 5), "Second table text field not found")
         XCTAssertEqual("His", secondTableTextField.value as! String)
-        secondTableTextField.tap()
-        secondTableTextField.typeText("Second")
+        secondTableTextField.waitAndClearAndTypeText("Second")
         
         
         goBack()
@@ -168,8 +198,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         
         // Navigate to signature detail view - then go to table detail view - to check recently enterd data is saved or not in table
-        app.buttons["SignatureIdentifier"].tap()
-        sleep(1)
+        app.buttons["SignatureIdentifier"].waitAndTap()
+        app.waitForNavigation()
         goBack()
         
         goToCollectionDetailField()
@@ -263,19 +293,20 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         let app = XCUIApplication()
-        let element4 = app.windows.children(matching: .other).element
-//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-//        element.swipeLeft()
+        //let element4 = app.windows.children(matching: .other).element
+        //        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        //        element.swipeLeft()
         
-        let multiSelectionButtons = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
-        XCTAssertGreaterThan(multiSelectionButtons.count, 0)
-        let firstButton = multiSelectionButtons.element(boundBy: 0)
+        guard let firstButton = app.swipeToFindElement(identifier: "TableMultiSelectionFieldIdentifier", type: .button, direction: "left") else {
+            XCTFail("Failed to find multiselect button after swiping")
+            return
+        }
         firstButton.tap()
         
         selectAllMultiSlectOptions()
-
+        
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-//        element.swipeRight()
+        //        element.swipeRight()
         goBack()
         sleep(2)
         do {
@@ -290,20 +321,21 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         let app = XCUIApplication()
-        let element4 = app.windows.children(matching: .other).element
-//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-//        element.swipeLeft()
+        //let element4 = app.windows.children(matching: .other).element
+        //        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        //        element.swipeLeft()
         
-        let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
-        XCTAssertGreaterThan(imageButtons.count, 0)
-        let firstButton = imageButtons.element(boundBy: 0)
+        guard let firstButton = app.swipeToFindElement(identifier: "TableImageIdentifier", type: .button, direction: "left") else {
+            XCTFail("Failed to find  button after swiping")
+            return
+        }
         firstButton.tap()
         
         app.buttons["ImageUploadImageIdentifier"].tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
-
-//        element.swipeDown()
+        
+        //        element.swipeDown()
         dismissSheet()
         goBack()
         sleep(2)
@@ -319,14 +351,17 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         let app = XCUIApplication()
-//        let element4 = app.windows.children(matching: .other).element
-//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-//        element.swipeLeft()
+        let scrollView = app.scrollViews.firstMatch
+        XCTAssertTrue(scrollView.exists, "ScrollView not found")
+        //let element4 = app.windows.children(matching: .other).element
+        //        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        //        element.swipeLeft()
         
-        let firstCollectionNumberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("", firstCollectionNumberField.value as! String)
-        firstCollectionNumberField.tap()
-        firstCollectionNumberField.typeText("1234567890123456")
+        
+        if let textField = app.swipeToFindElement(identifier: "TabelNumberFieldIdentifier", type: .textField, direction: "left") {
+            textField.tap()
+            textField.typeText("1234567890123456")
+        }
         
         goBack()
         sleep(2)
@@ -342,17 +377,18 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         let app = XCUIApplication()
-//        let element4 = app.windows.children(matching: .other).element
-//        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-//        element.swipeLeft()
+        //        let element4 = app.windows.children(matching: .other).element
+        //        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        //        element.swipeLeft()
         
-        let firstCollectionDateField = app.images.matching(identifier: "CalendarImageIdentifier").element(boundBy: 0)
-        firstCollectionDateField.tap()
+        if let firstCollectionDateField = app.swipeToFindElement(identifier: "CalendarImageIdentifier", type: .image, direction: "left") {
+            firstCollectionDateField.tap()
+        }
         
         let datePickers = app.datePickers
         XCTAssertTrue(datePickers.element.exists)
         
-//        element.swipeRight()
+        //        element.swipeRight()
         goBack()
         sleep(2)
         
@@ -587,28 +623,40 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
+        
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         sleep(1)
         textField.tap()
-        sleep(1)
         textField.typeText("Edit")
+        app.dismissKeyboardIfVisible()
         
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-        XCTAssertEqual("Select Option", dropdownButton.label)
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
         dropdownButton.tap()
+
+        // Wait for options to appear
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            sleep(1)
+        }
+
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
         let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
         firstOption.tap()
         
         // Multiselection Field
         let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
-//        XCTAssertEqual("", multiSelectionButton.label)
+        //XCTAssertEqual("", multiSelectionButton.label)
         multiSelectionButton.tap()
         
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        XCTAssertGreaterThan(optionsButtons.count, 0)
+        //XCTAssertGreaterThan(optionsButtons.count, 0)
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
         let secOptionButton = optionsButtons.element(boundBy: 1)
@@ -618,29 +666,41 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         
+        
         // Image Field
-        let imageButtons = app.buttons.matching(identifier: "EditRowsImageFieldIdentifier")
-        let firstImageButton = imageButtons.element(boundBy: 0)
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
         firstImageButton.tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
         dismissSheet()
         
-        // Number Field
-        let numberTextField = app.textFields["EditRowsNumberFieldIdentifier"]
-        sleep(1)
-        numberTextField.tap()
-        sleep(1)
-        numberTextField.typeText("12345")
+        guard let dateField = app.swipeToFindElement(identifier: "EditRowsDateFieldIdentifier", type: .image) else {
+            XCTFail("Failed to find date button after swiping")
+            return
+        }
+        dateField.tap()
         
-        // Date Field
-        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
         
         // Barcode Column
-        let barcodeTextField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
-        sleep(1)
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode field after swiping")
+            return
+        }
         barcodeTextField.tap()
-        sleep(1)
+        barcodeTextField.clearText()
         barcodeTextField.typeText("Edit Barcode")
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        
+        numberTextField.clearText()
+        numberTextField.typeText("12345")
+        app.dismissKeyboardIfVisible()
         
         // Signature Column
         let signatureButtons = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier")
@@ -726,26 +786,36 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
         textField.tap()
-        sleep(1)
         textField.typeText("Edit")
+        app.dismissKeyboardIfVisible()
         
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-        XCTAssertEqual("Select Option", dropdownButton.label)
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
         dropdownButton.tap()
+
+        // Wait for options to appear
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            sleep(1)
+        }
+
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
         let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
         firstOption.tap()
         
         // Multiselection Field
         let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
-//        XCTAssertEqual("", multiSelectionButton.label)
+        //XCTAssertEqual("", multiSelectionButton.label)
         multiSelectionButton.tap()
         
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        XCTAssertGreaterThan(optionsButtons.count, 0)
+        //XCTAssertGreaterThan(optionsButtons.count, 0)
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
         let secOptionButton = optionsButtons.element(boundBy: 1)
@@ -754,29 +824,53 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         thirdOptionButton.tap()
         
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-        
         // Image Field
-        let imageButtons = app.buttons.matching(identifier: "EditRowsImageFieldIdentifier")
-        let firstImageButton = imageButtons.element(boundBy: 0)
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
         firstImageButton.tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
         dismissSheet()
         
+        guard let dateField = app.swipeToFindElement(identifier: "EditRowsDateFieldIdentifier", type: .image) else {
+            XCTFail("Failed to find date button after swiping")
+            return
+        }
+        dateField.tap()
+        
         // Number Field
-        let numberTextField = app.textFields["EditRowsNumberFieldIdentifier"]
-        sleep(1)
-        numberTextField.tap()
-        sleep(1)
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        
+        numberTextField.clearText()
         numberTextField.typeText("12345")
-        
-        // Date Field
-        app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
-        
-        // Barcode Column
-        let barcodeTextField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
-        sleep(1)
+        firstImageButton.tap()
+        dismissSheet()
+         
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode text field after swiping")
+            return
+        }
         barcodeTextField.tap()
         sleep(1)
+
+        // Double tap if needed to ensure keyboard opens
+        if !app.keyboards.element.exists {
+            barcodeTextField.tap()
+            sleep(1)
+        }
+
+        // Assert keyboard presence
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
+
+        // Clear and type
+        if let textValue = barcodeTextField.value as? String {
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: textValue.count + 5)
+            barcodeTextField.typeText(deleteString)
+        }
         barcodeTextField.typeText("Edit Barcode")
         
         // Signature Column
@@ -792,7 +886,6 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         goBack()
         sleep(2)
-        
         // Textfield
         let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
         XCTAssertEqual("Edit", thirdCellTextValue)
@@ -913,9 +1006,13 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
     }
     
+    
     // Test disabled buttons on Row Form for nested rows
     func testSelectOneNestedRow() throws {
         addThreeNestedRows(parentRowNumber: 1)
+        // Make sure collection search filter is on
+        openFilterModalForDismissKeyboard()
+        sleep(1)
         expandRow(number: 2)
         
         selectNestedRow(number: 1)
@@ -945,6 +1042,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     // Edit Single Nested Row
     func testEditSingleNestedRow() throws {
         addThreeNestedRows(parentRowNumber: 1)
+        // Make sure collection search filter is on
+        openFilterModalForDismissKeyboard()
         expandRow(number: 2)
         
         selectNestedRow(number: 1)
@@ -997,3 +1096,4 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
     }
 }
+

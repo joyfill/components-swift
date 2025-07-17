@@ -9,8 +9,8 @@ import JoyfillModel
 import SwiftUI
 
 class Utility {
-    
-    static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 1
+
+    static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 00
     static let singleColumnWidth: CGFloat = 170
     
     static func getCellWidth(type: ColumnTypes, format: DateFormatType, text: String) -> CGFloat {

@@ -13,6 +13,7 @@ import SwiftUI
 var documentEditor: DocumentEditor!
 
 struct ImageReplacementTest: View, FormChangeEvent {
+
     let imagePicker = ImagePicker()
     init() {
         let document = JoyDoc.addDocument()
@@ -25,12 +26,12 @@ struct ImageReplacementTest: View, FormChangeEvent {
                 .tint(.red)
     }
 
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {}
-    func onFocus(event: JoyfillModel.FieldIdentifier) { }
-    func onBlur(event: JoyfillModel.FieldIdentifier) { }
-    func onCapture(event: JoyfillModel.CaptureEvent) { }
-
-    func onUpload(event: JoyfillModel.UploadEvent) {
+    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {}
+    func onFocus(event: FieldIdentifier) { }
+    func onBlur(event: FieldIdentifier) { }
+    func onCapture(event: CaptureEvent) { }
+    func onError(error: JoyfillError) { }
+    func onUpload(event: UploadEvent) {
         imagePicker.showPickerOptions { urls in
             let imageURL = urls.first!
             event.uploadHandler([imageURL])
