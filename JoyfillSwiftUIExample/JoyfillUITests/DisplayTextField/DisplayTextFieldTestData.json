@@ -1,0 +1,277 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f24331c4e0540698ccc0d",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "#26e652 Color Heading ",
+      "identifier": "field_686f243ea0e690330fa17808"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f2bf06b659cee7989bec7",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Red Color Heading",
+      "identifier": "field_686f2bf604dd0f408977353c",
+      "logic": {
+        "action": "hide",
+        "eval": "or",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "6871cddae17726a2eb93b4a6",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "6871cddae17726a2eb93b4a6",
+            "condition": "=",
+            "value": "hide red color heading"
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "6871cddae17726a2eb93b4a6",
+            "condition": "?=",
+            "value": "xyz"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f2c091a2a1eb9d8b91813",
+      "type": "block",
+      "title": "Empty Space",
+      "identifier": "field_686f2c180462825d279c17f7",
+      "value": "This is empty space with #1548b7 color"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f2c24954a7e014411fe0b",
+      "type": "block",
+      "title": "Display Text",
+      "value": "This is yellow color display text\nwith multiline ",
+      "identifier": "field_686f2c46bc90b9b50ce0e4e5"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f2c6a47f270c325296b01",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Final Brown Color Heading",
+      "identifier": "field_686f2c7776ad68e7e96ab2e4"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f2e6d106305101e82faac",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Small heading with italic text",
+      "identifier": "field_686f2e73f7d75093826bd769"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f2ee4386cdebd98b2cbb9",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Bold and underline heading",
+      "identifier": "field_686f2eec9827094f2240f316"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686f2effb9ca28ea65742aea",
+      "type": "block",
+      "title": "Display Text",
+      "value": "Multiline display text\nline 1\nline 2\nline 3",
+      "identifier": "field_686f2f09ae99bfa624dea0c7"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6871cddae17726a2eb93b4a6",
+      "type": "text",
+      "title": "Type 'hide red color' or clear text to hide red color heading",
+      "identifier": "field_6871dd91b6b208366dbc6f02",
+      "value": "Default Value"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6871e0b9d6f19105dee00b56",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Hindi: नमस्ते दुनिया | Chinese: 你好，世界 | Arabic: مرحبا بالعالم 🌍",
+      "identifier": "field_6871e0c17537420b1acc7043"
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686f243e615f5aca8d8fb0c3",
+              "type": "block",
+              "field": "686f24331c4e0540698ccc0d",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 2,
+              "y": 0,
+              "width": 5,
+              "height": 5,
+              "fontColor": "#26e652",
+              "textTransform": "uppercase",
+              "textDecoration": "none"
+            },
+            {
+              "_id": "686f2bf62716df9ca84b146a",
+              "type": "block",
+              "field": "686f2bf06b659cee7989bec7",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 2,
+              "y": 5,
+              "width": 4,
+              "height": 6,
+              "fontColor": "#d01818"
+            },
+            {
+              "_id": "686f2c18a9b0af169a74493e",
+              "type": "block",
+              "field": "686f2c091a2a1eb9d8b91813",
+              "displayType": "original",
+              "borderColor": "transparent",
+              "backgroundColor": "transparent",
+              "x": 2,
+              "y": 11,
+              "width": 4,
+              "height": 5,
+              "fontColor": "#1548b7"
+            },
+            {
+              "_id": "686f2c4606539fca992e9eec",
+              "type": "block",
+              "field": "686f2c24954a7e014411fe0b",
+              "displayType": "original",
+              "x": 2,
+              "y": 16,
+              "width": 4,
+              "height": 11,
+              "fontColor": "#f8ff00",
+              "fontSize": 23
+            },
+            {
+              "_id": "686f2c77a342c7b18e4c8c00",
+              "type": "block",
+              "field": "686f2c6a47f270c325296b01",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 2,
+              "y": 27,
+              "width": 4,
+              "height": 9,
+              "fontColor": "#aa7e1e"
+            },
+            {
+              "_id": "686f2e73f78743c64c833692",
+              "type": "block",
+              "field": "686f2e6d106305101e82faac",
+              "displayType": "original",
+              "fontSize": 20,
+              "fontWeight": "normal",
+              "x": 2,
+              "y": 36,
+              "width": 4,
+              "height": 11,
+              "fontStyle": "italic",
+              "textDecoration": "none"
+            },
+            {
+              "_id": "686f2eecf6af96b66eb6dbb5",
+              "type": "block",
+              "field": "686f2ee4386cdebd98b2cbb9",
+              "displayType": "original",
+              "fontSize": 22,
+              "fontWeight": "bold",
+              "x": 2,
+              "y": 47,
+              "width": 4,
+              "height": 5,
+              "textDecoration": "underline"
+            },
+            {
+              "_id": "686f2f09a2eb934225f47c44",
+              "type": "block",
+              "field": "686f2effb9ca28ea65742aea",
+              "displayType": "original",
+              "x": 2,
+              "y": 52,
+              "width": 4,
+              "height": 9,
+              "fontColor": "#4dc436"
+            },
+            {
+              "_id": "6871dd91cd57d50799bce1a8",
+              "type": "text",
+              "field": "6871cddae17726a2eb93b4a6",
+              "displayType": "original",
+              "x": 2,
+              "y": 61,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6871e0c13a13c9522ffd2786",
+              "type": "block",
+              "field": "6871e0b9d6f19105dee00b56",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "normal",
+              "x": 2,
+              "y": 69,
+              "width": 4,
+              "height": 17
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Display Text",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}
