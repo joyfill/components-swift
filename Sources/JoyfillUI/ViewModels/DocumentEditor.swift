@@ -36,7 +36,7 @@ public protocol DocumentEditorDelegate: AnyObject {
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
-    @Published public var currentPageID: String = ""
+    @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = []
 
     public var mode: Mode = .fill
