@@ -252,6 +252,7 @@ struct TableMultiSelection: View {
             .background(color)
         })
         .accessibilityIdentifier("TableMultiSelectOptionsSheetIdentifier")
+        .accessibilityValue(Text(isSelected ? "Selected" : "Not selected"))
         .frame(maxWidth: .infinity)
     }
 }
