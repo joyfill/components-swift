@@ -125,14 +125,14 @@ struct AllSampleJSONs: View, FormChangeEvent {
         }
     }
 
-    func onChange(changes: [JoyfillModel.Change], document: JoyfillModel.JoyDoc) {
+    func onChange(changes: [Change], document: JoyDoc) {
         print("->>>>>>>>", changes)
     }
-    func onFocus(event: JoyfillModel.FieldIdentifier) { }
-    func onBlur(event: JoyfillModel.FieldIdentifier) { }
-    func onCapture(event: JoyfillModel.CaptureEvent) { }
+    func onFocus(event: FieldIdentifier) { }
+    func onBlur(event: FieldIdentifier) { }
+    func onCapture(event: CaptureEvent) { }
 
-    func onUpload(event: JoyfillModel.UploadEvent) {
+    func onUpload(event: UploadEvent) {
         imagePicker.showPickerOptions { urls in
             let imageURL = urls.first!
             event.uploadHandler([imageURL])
@@ -142,4 +142,6 @@ struct AllSampleJSONs: View, FormChangeEvent {
             }
         }
     }
+
+    func onError(error: JoyfillError) { }
 }

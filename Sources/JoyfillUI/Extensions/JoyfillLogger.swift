@@ -53,7 +53,6 @@ public final class JoyfillLogger {
             print("Critical error logged: \(logMessage)") // Log error in production builds
             #endif
         }
-        #endif
     }
 }
 

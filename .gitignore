@@ -10,3 +10,4 @@ JoyfillUIKitExample/JoyfillUIKitExample/JoyfillUIKitExample.xcodeproj/project.xc
 JoyfillUIKitExample/JoyfillUIKitExample.xcodeproj/xcuserdata/vikash.xcuserdatad/xcschemes/xcschememanagement.plist
 /.build
 *.xcbkptlist
+/JoyfillSwiftUIExample/build
