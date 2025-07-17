@@ -1,11 +1,11 @@
 
-let joyfillSchema = """
+public var joyfillSchema = """
   {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
       "_id": {
-        "type": "string"
+        "type": "number"
       },
       "type": {
         "type": "string",
@@ -2194,3 +2194,16 @@ let joyfillSchema = """
   }
 
 """
+private let defaultJoyfillSchema = joyfillSchema
+public func getCurrentSchema() -> String {
+    return joyfillSchema
+}
+
+public func setCustomSchema(_ customSchemaJson: String) {
+    joyfillSchema = customSchemaJson
+}
+
+public func resetJoyfillSchemaToDefault() {
+    joyfillSchema = defaultJoyfillSchema
+}
+

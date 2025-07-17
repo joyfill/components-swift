@@ -84,7 +84,7 @@ public class JoyfillSchemaManager {
     // MARK: - JSON Schema Validation (Phase 1)
     
     private func performJSONSchemaValidation(document: JoyDoc) -> SchemaValidationError? {
-        guard let schemaData = joyfillSchema.data(using: .utf8),
+        guard let schemaData = getCurrentSchema().data(using: .utf8),
               let schemaDict = try? JSONSerialization.jsonObject(with: schemaData, options: []) as? [String: Any] else {
             Log("Failed to parse embedded schema", type: .error)
             return SchemaValidationError(

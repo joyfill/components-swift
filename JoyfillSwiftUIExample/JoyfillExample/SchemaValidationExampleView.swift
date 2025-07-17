@@ -9,6 +9,7 @@ struct SchemaValidationExampleView: View {
     @State private var validationMessage: String = ""
     @State private var validationDetails: String = ""
     @State private var jsonString: String = ""
+    @State private var jsonSchema: String = ""
     @State private var jsonErrorMessage: String? = nil
     @State private var useCustomJSON: Bool = false
     @State private var showForm: Bool = false
@@ -84,6 +85,36 @@ struct SchemaValidationExampleView: View {
                                 }
                             }
                         }
+                        Text("JSONSchema Input")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        // JSON TextEditor
+                        ZStack(alignment: .topTrailing) {
+                            TextEditor(text: $jsonSchema)
+                                .font(.system(.caption, design: .monospaced))
+                                .frame(height: 120)
+                                .padding(8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.gray.opacity(0.05))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+                                )
+                            
+                            if !jsonSchema.isEmpty {
+                                Button(action: {
+                                    jsonSchema = ""
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.blue)
+                                        .background(Circle().fill(.white))
+                                        .imageScale(.medium)
+                                        .padding(8)
+                                }
+                            }
+                        }
                     }
                     .padding(.horizontal)
                 }
@@ -103,13 +134,13 @@ struct SchemaValidationExampleView: View {
                         .frame(height: 44)
                         .frame(maxWidth: .infinity)
                         .background(
-                            (useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
+                            (useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
                             ? Color.gray.opacity(0.3)
                             : Color.blue
                         )
                         .cornerRadius(8)
                     }
-                    .disabled(useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
+                    .disabled(useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
                     
                     // Show Form Button
                     Button(action: {
@@ -124,13 +155,13 @@ struct SchemaValidationExampleView: View {
                         .frame(height: 44)
                         .frame(maxWidth: .infinity)
                         .background(
-                            (useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
+                            (useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
                             ? Color.gray.opacity(0.3)
                             : Color.green
                         )
                         .cornerRadius(8)
                     }
-                    .disabled(useCustomJSON && (jsonString.isEmpty || jsonErrorMessage != nil))
+                    .disabled(useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
                 }
                 .padding(.horizontal)
                 
@@ -213,7 +244,7 @@ struct SchemaValidationExampleView: View {
     
     private func validateSchema() {
         let document = getCurrentDocument()
-        
+        setCurrentJSONSchema()
         let schemaManager = JoyfillSchemaManager()
         if let error = schemaManager.validateSchema(document: document) {
             validationMessage = "❌ Schema validation failed"
@@ -233,6 +264,14 @@ struct SchemaValidationExampleView: View {
             return JoyDoc(dictionary: jsonDict)
         } else {
             return sampleJSONDocument(fileName: "ErrorHandling")
+        }
+    }
+    
+    private func setCurrentJSONSchema() {
+        if useCustomJSON {
+            setCustomSchema(jsonSchema)
+        } else {
+            resetJoyfillSchemaToDefault()
         }
     }
     
