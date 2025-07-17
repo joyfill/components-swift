@@ -800,6 +800,11 @@ struct TableDataModel {
         let topLevelCellModelsOnly = cellModels.filter { rowDataModel in
             rowDataModel.rowType.isRow
         }
+        guard rowIndex < topLevelCellModelsOnly.count,
+              col < topLevelCellModelsOnly[rowIndex].cells.count else {
+            Log("Index out of range", type: .error)
+            return nil
+        }
         return topLevelCellModelsOnly[rowIndex].cells[col].data
     }
     

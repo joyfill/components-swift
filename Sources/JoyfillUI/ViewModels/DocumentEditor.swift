@@ -8,14 +8,39 @@
 import Foundation
 import JoyfillModel
 
+private enum ChnageTargetType: String {
+    case fieldUpdate = "field.update"
+
+    case fieldValueRowCreate = "field.value.rowCreate"
+    case fieldValueRowUpdate = "field.value.rowUpdate"
+    case fieldValueRowDelete = "field.value.rowDelete"
+    case fieldValueRowMove = "field.value.rowMove"
+    
+    case unknown
+}
+
+// Weak wrapper to hold multiple delegates without causing retain cycles
+public class WeakDocumentEditorDelegate {
+    weak var value: DocumentEditorDelegate?
+    init(_ value: DocumentEditorDelegate) { self.value = value }
+}
+
+public protocol DocumentEditorDelegate: AnyObject {
+    func applyRowEditChanges(change: Change)
+    func insertRow(for change: Change)
+    func deleteRow(for change: Change)
+    func moveRow(for change: Change)
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     @Published public var currentPageID: String
-    @Published var currentPageOrder: [String] = [] 
+    @Published var currentPageOrder: [String] = []
     
     public var mode: Mode
     public var isPageDuplicateEnabled: Bool
     public var showPageNavigationView: Bool
+    public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
         didSet {
@@ -40,7 +65,7 @@ public class DocumentEditor: ObservableObject {
         self.events = events
         updateFieldMap()
         updateFieldPositionMap()
-         
+        
         guard let firstFile = files.first, let fileID = firstFile.id else {
             return
         }
@@ -52,8 +77,12 @@ public class DocumentEditor: ObservableObject {
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
-         
+        
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
+    }
+    
+    public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {
+        delegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
     }
     
     public func updateFieldMap() {
@@ -88,6 +117,182 @@ public class DocumentEditor: ObservableObject {
     
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
+    }
+    
+    public func change(changes: [Change]) {
+        // TODO:
+        // 1. Update JSON
+        // 2. Update UI
+        for change in changes {
+            guard let targetValue = change.target,
+                  let target = ChnageTargetType(rawValue: targetValue) else {
+                logChangeError(for: change)
+                continue
+            }
+            
+            switch target {
+            case .fieldUpdate:
+                handleFieldUpdate(for: change)
+                
+            case .fieldValueRowCreate:
+                handleFieldValueRowCreate(for: change)
+                
+            case .fieldValueRowUpdate:
+                handleFieldValueRowUpdate(for: change)
+                
+            case .fieldValueRowDelete:
+                handleFieldValueRowDelete(for: change)
+                
+            case .fieldValueRowMove:
+                handleFieldValueRowMove(for: change)
+                
+            case .unknown:
+                break
+            }
+        }
+    }
+    
+    private func handleFieldValueRowUpdate(for change: Change) {
+        guard let fieldID = change.fieldId,
+              let field = fieldMap[fieldID]
+        else {
+            logChangeError(for: change)
+            return
+        }
+        switch field.fieldType {
+        case .table, .collection:
+            DispatchQueue.main.async(execute: {
+                self.delegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+            })
+            
+        default:
+            guard var elements = field.valueToValueElements else { return }
+            guard let rowID = change.change?["rowId"] as? String else { return }
+            guard let rowIndex = elements.firstIndex(where: { $0.id == rowID }) else { return }
+            guard let rowDict = change.change?["row"] as? [String: Any],
+                  let cellsDict = rowDict["cells"] as? [String: Any] else {
+                return
+            }
+            var updatedElement = elements[rowIndex]
+            for (key, value) in cellsDict {
+                updatedElement.cells?[key] = ValueUnion(value: value)
+            }
+            elements[rowIndex] = updatedElement
+            let value = ValueUnion.valueElementArray(elements)
+            updateValue(for: fieldID, value: value)
+        }
+    }
+    
+    private func handleFieldValueRowCreate(for change: Change) {
+        guard let fieldID = change.fieldId,
+              let field = fieldMap[fieldID]
+        else {
+            logChangeError(for: change)
+            return
+        }
+        switch field.fieldType {
+        case  .table, .collection:
+            delegateMap[fieldID]?.value?.insertRow(for: change)
+        default:
+            //TODO: Add impl
+            break
+        }
+    }
+
+    private func handleFieldValueRowDelete(for change: Change) {
+        guard let fieldID = change.fieldId,
+              let field = fieldMap[fieldID]
+        else {
+            logChangeError(for: change)
+            return
+        }
+        switch field.fieldType {
+        case .table, .collection:
+            delegateMap[fieldID]?.value?.deleteRow(for: change)
+        default:
+            //TODO: Add impl
+            break
+        }
+    }
+    
+    private func handleFieldValueRowMove(for change: Change) {
+        guard let fieldID = change.fieldId,
+              let field = fieldMap[fieldID]
+        else {
+            logChangeError(for: change)
+            return
+        }
+        switch field.fieldType {
+        case .table, .collection:
+            delegateMap[fieldID]?.value?.moveRow(for: change)
+        default:
+            //TODO: Add impl
+            break
+        }
+    }
+    
+    private func handleFieldUpdate(for change: Change) {
+        //TODO: Remove fieldType != .collection if we are removing back button update json functionality
+        guard let fieldID = change.fieldId,
+              let fieldType = fieldMap[fieldID]?.fieldType,
+              fieldType != .collection
+        else {
+            logChangeError(for: change)
+            return
+        }
+        guard let value = change.change?["value"] as? Any,
+              let valueUnion = ValueUnion(value: value)
+        else {
+            logChangeError(for: change)
+            return
+        }
+        updateValue(for: fieldID, value: valueUnion)
+    }
+    
+    public func updateValue(for fieldID: String, value: JoyfillModel.ValueUnion) {
+        guard var field = fieldMap[fieldID] else {
+            return
+        }
+        field.value = value
+        fieldMap[fieldID] = field
+        refreshField(fieldId: fieldID)
+    }
+    
+    private func logChangeError(for change: Change) {
+        guard let targetValue = change.target else {
+            return logEventForNilObject(message: "Change target not found")
+        }
+        
+        guard let changeId = change.id else {
+            return logEventForNilObject(message: "Change id not found")
+        }
+        
+        guard let fieldId = change.fieldId else {
+            return logEventForNilObject(message: "fieldID not found for change: \(changeId)")
+        }
+        
+        let target = ChnageTargetType(rawValue: targetValue) ?? .unknown
+        
+        switch target {
+        case .fieldUpdate:
+            logEventForNilObject(change.change?["value"], message: "value not found for change: \(changeId)")
+        case .fieldValueRowCreate:
+            break
+        case .fieldValueRowUpdate:
+            logEventForNilObject(fieldMap[fieldId], message: "field not found for change: \(changeId)")
+        case .fieldValueRowDelete:
+            break
+        case .fieldValueRowMove:
+            break
+        case .unknown:
+            break
+        }
+    }
+    
+    private func logEventForNilObject(_ object: Any? = nil, message: String) {
+        if object == nil {
+            return Log(message)
+        }
     }
 }
 
@@ -208,7 +413,7 @@ extension DocumentEditor {
     }
     
     func shouldRefreshSchema(for collectionFieldID: String, columnID: String) -> Bool {
-       return conditionalLogicHandler.shouldRefreshSchema(for: collectionFieldID, columnID: columnID)
+        return conditionalLogicHandler.shouldRefreshSchema(for: collectionFieldID, columnID: columnID)
     }
     
     public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
@@ -243,11 +448,11 @@ extension DocumentEditor {
         }
         return nil
     }
-
+    
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
         return "\(pageID)|\(index)"
-    }   
-
+    }
+    
     public func mapWebViewToMobileViewIfNeeded(fieldPositions: [FieldPosition], isMobileViewActive: Bool) -> [FieldPosition] {
         guard !isMobileViewActive else {
             return fieldPositions
@@ -420,7 +625,7 @@ extension DocumentEditor {
                                           documentEditor: self,
                                           fieldIdentifier: fieldIdentifier) {
                 dataModelType = .collection(model)
-        }
+            }
         case .image:
             let model = ImageDataModel(fieldIdentifier: fieldIdentifier,
                                        multi: fieldData?.multi,
