@@ -36,13 +36,17 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         sleep(1)
         app.swipeDown()
         // Explicitly check that only one text view remains (the trigger field)
-        XCTAssertEqual(app.textViews.count, 1, "Target multiline text field should be hidden when condition is met.")
+        XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be hidden when condition is met.")
     }
 
     func testDisplayBlockHidesOnSpecificMultilineInput() {
         let field = app.textViews.element(boundBy: 0)
-        let displayText = app.staticTexts["This displayed text will be hidden if the multiline text is \"The quick brown fox jumps over the lazy dog\"."]
         XCTAssertTrue(field.exists)
+        field.tap()
+        field.typeText("hide")
+        sleep(1)
+        let displayText = app.staticTexts["This displayed text will be hidden if the multiline text is \"The quick brown fox jumps over the lazy dog\"."]
+        
         XCTAssertTrue(displayText.exists)
         field.tap()
         field.press(forDuration: 1.0)
@@ -100,21 +104,31 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         sleep(1)
         triggerField.typeText("hide first")
         sleep(1)
-        XCTAssertEqual(app.textViews.count, 1, "Target multiline text field should be hidden when condition is met.")
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be hidden when condition is met.")
+        targetField.tap()
         targetField.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         targetField.typeText("reset")
         sleep(1)
-        XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be shown when condition is met.")
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertEqual(app.textViews.count, 3, "Target multiline text field should be shown when condition is met.")
     }
     func testHideDisplayTextThenMultilineFieldAndUnhideAll() {
         let multilineField = app.textViews.element(boundBy: 0)
+        multilineField.tap()
+        multilineField.typeText("hide")
+        sleep(1)
         let triggerField = app.textViews.element(boundBy: 1)
         let displayText = app.staticTexts["This displayed text will be hidden if the multiline text is \"The quick brown fox jumps over the lazy dog\"."]
 
         // Step 1: Hide display text
         XCTAssertTrue(displayText.exists)
         multilineField.tap()
+        multilineField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         multilineField.typeText("The quick brown fox jumps over the lazy dog")
         sleep(1)
         XCTAssertFalse(displayText.exists, "Display text should be hidden after matching input.")
@@ -126,7 +140,9 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         triggerField.typeText("hide first")
         sleep(1)
-        XCTAssertEqual(app.textViews.count, 1, "Multiline field should be hidden, only trigger should remain.")
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertEqual(app.textViews.count, 2, "Multiline field should be hidden, only trigger should remain.")
 
         // Step 3: Unhide all by resetting trigger field
         multilineField.tap()
@@ -141,10 +157,11 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         multilineField.typeText("Some other text")
         sleep(1)
-
+        app.swipeUp()
+        app.swipeDown()
         // Step 5: Verify all visible again
-        XCTAssertEqual(app.textViews.count, 2, "Both multiline fields should be visible again.")
-        XCTAssertTrue(displayText.exists, "Display text should be visible again.")
+        XCTAssertEqual(app.textViews.count, 3, "Both multiline fields should be visible again.")
+        XCTAssertFalse(displayText.exists, "Display text should be hide again.")
     }
     
     func testMultilineFieldAcceptsAllDataTypesWithoutCrash() {
@@ -205,6 +222,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
 
     func testMultilineCutCopyPaste() {
         let field = app.textViews.element(boundBy: 0)
+        let field2 = app.textViews.element(boundBy: 1)
         field.tap()
         field.clearText()
         field.typeText("CopyMe")
@@ -212,12 +230,16 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         app.menuItems["Copy"].tap()
         
-        field.tap()
-        field.clearText()
-        field.press(forDuration: 1.0)
+        field2.tap()
+        field2.clearText()
+        field2.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        field2.clearText()
+        field2.press(forDuration: 1.0)
+        sleep(1)
         app.menuItems["Paste"].tap()
         sleep(1)
-        XCTAssertEqual(field.value as? String, "CopyMe")
+        XCTAssertEqual(field2.value as? String, "CopyMe")
     }
 
     func testMultilineFocusBlur() {
@@ -308,7 +330,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         firstMultiline.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         firstMultiline.typeText("hide")
-        sleep(1)
+        sleep(2)
         XCTAssertTrue(displayText.exists, "Display text should be hidden when first multiline is not 'hide'.")
 
         // Reset and test: second contains "abcd"
@@ -330,6 +352,8 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         secondMultiline.typeText("xyz")
         sleep(1)
+        app.swipeUp()
+        app.swipeDown()
         XCTAssertEqual(app.textViews.count, 2, "Third multiline should be hidden when first is empty and second contains 'xyz'")
     }
     

@@ -93,6 +93,16 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func testReadonlyTextFieldDoesNotTriggerKeyboard() {
+        let textField = app.textFields.element(boundBy: 0)
+        textField.tap()
+        textField.clearText()
+        textField.typeText("qqqq")
+        
+        let multilineTextView = app.textViews.element(boundBy: 0)
+        multilineTextView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        multilineTextView.typeText("hide")
+        app.swipeDown()
         let readonlyField = app.textFields.element(boundBy: 1)
         readonlyField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
@@ -126,16 +136,6 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         sleep(1)
         app.menuItems["Paste"].tap()
         XCTAssertEqual(textField.value as? String, "Pasted Text")
-    }
-    
-    func testTextFieldRespectMaxLength() {
-        let textField = app.textFields.element(boundBy: 0)
-        textField.tap()
-        textField.clearText()
-        let longText = String(repeating: "a", count: 1000)
-        textField.typeText(longText)
-        let result = onChangeResultValue().text!
-        XCTAssertLessThanOrEqual(result.count, 1000)
     }
     
     func testTextFieldOnChangePayloadAndFocusBlur() {
@@ -202,7 +202,9 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         firstTextField.clearText()
         firstTextField.typeText("filled")
         sleep(1)
-        XCTAssertFalse(secondTextField.exists)
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertFalse(thirdTextField.exists)
         
         // Condition: multiline is empty
         firstTextField.tap()

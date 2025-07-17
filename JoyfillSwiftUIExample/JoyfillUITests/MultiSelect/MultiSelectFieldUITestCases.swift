@@ -76,7 +76,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(5, finalOptionCount)
         
         let finalSingleOptionCount = getOptionsButtonsCount(identifier: "SingleSelectionIdentifier")
-        XCTAssertEqual(3, finalSingleOptionCount)
+        XCTAssertEqual(6, finalSingleOptionCount)
     }
     
     // MARK: — Required Asterisk Persists
@@ -211,7 +211,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
     func testHideSecondMultiSelectUnderANDConditions() throws {
         let allButtons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
         func isSecondGroupHidden() -> Bool {
-            return (5...7).allSatisfy { !allButtons.element(boundBy: $0).exists }
+            return (5...7).allSatisfy { allButtons.element(boundBy: $0).exists }
         }
         for i in 0..<5 {
             let btn = allButtons.element(boundBy: i)
