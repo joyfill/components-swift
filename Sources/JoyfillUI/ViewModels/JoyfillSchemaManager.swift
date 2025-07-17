@@ -59,7 +59,7 @@ public class JoyfillSchemaManager {
         if majorVersion > supportedMajorVersion {
             return SchemaValidationError(
                 code: "ERROR_SCHEMA_VERSION",
-                message: "Unsupported JoyDoc version detected. This SDK supports v\(supportedMajorVersion).x.x, but document version is v\(detectedVersion)", error: [],
+                message: "Unsupported JoyDoc version detected. This SDK supports v\(supportedMajorVersion).x.x, but document version is v\(detectedVersion)", error: nil,
                 details: .init(
                     schemaVersion: detectedVersion,
                     sdkVersion: sdkVersion
