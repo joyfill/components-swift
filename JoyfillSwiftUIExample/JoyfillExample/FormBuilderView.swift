@@ -662,7 +662,7 @@ struct FormBuilderView: View {
                     document = document.addOptionField(
                         identifier: field.id,
                         options: field.options,
-                        label: field.label,
+                        label: field.label
                     )
                 }
                 
@@ -1235,7 +1235,7 @@ struct FormBuilderView: View {
                     document = document.addOptionField(
                         identifier: field.id,
                         options: field.options,
-                        label: field.label,
+                        label: field.label
                     )
                 }
             // Add other field types as needed
