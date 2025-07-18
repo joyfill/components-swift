@@ -880,7 +880,7 @@ extension DocumentEditor {
         if callOnChange {
             let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
             let cells = [
-                cellDataModel.id: newCell?.dictionary!
+                cellDataModel.id : newCell?.dictionary
             ]
             let row: [String : Any] = [
                 "_id" : rowId,
