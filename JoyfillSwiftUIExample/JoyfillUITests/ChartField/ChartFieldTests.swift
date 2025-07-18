@@ -222,7 +222,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         verticalPointsValue.tap()
         verticalPointsValue.clearText()
         verticalPointsValue.typeText("30")
-
+        app.swipeUp()
         let verticalPointsValueIdentifier1 = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue1 = verticalPointsValueIdentifier1.element(boundBy: 1)
         verticalPointsValue1.tap()

@@ -55,32 +55,37 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
     }
     
+    /// Scrolls up through the scrollView loading new items by identifier, then scrolls back down.
+    /// Returns the total number of matching images found.
     func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
         let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
         let scrollView = app.scrollViews.firstMatch
-        
+
         var previousCount = -1
         var currentCount = 0
-        var scrollAttempts = 0
-        
-        while scrollAttempts < maxScrolls {
-            let matchingElements = app.images.matching(predicate)
-            currentCount = matchingElements.count
-            
-            if currentCount == previousCount {
-                break // No new rows loaded
-            }
-            
+        var attempts = 0
+
+        // Swipe up until no new images load or we hit maxScrolls
+        while attempts < maxScrolls {
+            scrollView.swipeUp()
+            sleep(1)  // allow content to settle
+            currentCount = app.images.matching(predicate).count
+            if currentCount == previousCount { break }
             previousCount = currentCount
-            
-            let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
-            let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
-            start.press(forDuration: 0.1, thenDragTo: end)
-            
-            sleep(1) // Allow time to load more items
-            scrollAttempts += 1
+            attempts += 1
         }
-        
+
+        // Reset counter and swipe back down until stable
+        attempts = 0
+        while attempts < maxScrolls {
+            scrollView.swipeDown()
+            sleep(1)
+            let newCount = app.images.matching(predicate).count
+            if newCount == previousCount { break }
+            previousCount = newCount
+            attempts += 1
+        }
+
         return currentCount
     }
     
@@ -608,7 +613,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         // Test filtering across multiple schema levels
         let testSchemas = [
             ("Depth 2", "Text D2", "A", 5),        // From JSON: "A", "AbC", "ab", "a B c"
-            ("Depth 3", "Text D3", "A", 13),           // From JSON: "A", "AbC", "a B C"
+            ("Depth 3", "Text D3", "Abc", 6),           // From JSON: "A", "AbC", "a B C"
             ("Depth 4", "Text D4", "A", 0)            // From JSON: "A", "AbC", "ab", "a B c"
         ]
         

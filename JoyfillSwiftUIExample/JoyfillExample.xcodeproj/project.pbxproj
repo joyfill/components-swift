@@ -63,6 +63,9 @@
 		9E7018232E224692003651A4 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018202E224692003651A4 /* DateTimeFieldTestData.json */; };
 		9E7018242E224692003651A4 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7018212E224692003651A4 /* DateTimeFieldUITestCases.swift */; };
 		9E7018252E2246A6003651A4 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E7018202E224692003651A4 /* DateTimeFieldTestData.json */; };
+		9E76A6D62E2A480C00EFAF7F /* SingleChoiceFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E76A6D42E2A480C00EFAF7F /* SingleChoiceFieldUITestCases.swift */; };
+		9E76A6D72E2A480C00EFAF7F /* SingleChoiceFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E76A6D32E2A480C00EFAF7F /* SingleChoiceFieldTestData.json */; };
+		9E76A6D82E2A481600EFAF7F /* SingleChoiceFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E76A6D32E2A480C00EFAF7F /* SingleChoiceFieldTestData.json */; };
 		9E83E4912E291C54003DED33 /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E83E4902E291C54003DED33 /* CollectionFilter.json */; };
 		9E83E4922E291C63003DED33 /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E83E4902E291C54003DED33 /* CollectionFilter.json */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
@@ -159,6 +162,8 @@
 		9E70181B2E220F7A003651A4 /* DropdownFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropdownFieldUITestCases.swift; sourceTree = "<group>"; };
 		9E7018202E224692003651A4 /* DateTimeFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DateTimeFieldTestData.json; sourceTree = "<group>"; };
 		9E7018212E224692003651A4 /* DateTimeFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldUITestCases.swift; sourceTree = "<group>"; };
+		9E76A6D32E2A480C00EFAF7F /* SingleChoiceFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SingleChoiceFieldTestData.json; sourceTree = "<group>"; };
+		9E76A6D42E2A480C00EFAF7F /* SingleChoiceFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceFieldUITestCases.swift; sourceTree = "<group>"; };
 		9E83E4902E291C54003DED33 /* CollectionFilter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionFilter.json; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
@@ -317,6 +322,7 @@
 				9E7018162E22039F003651A4 /* DisplayTextField */,
 				9E70181C2E220F7A003651A4 /* DropdownField */,
 				9E7018222E224692003651A4 /* DateTimeField */,
+				9E76A6D52E2A480C00EFAF7F /* SingleChoiceField */,
 			);
 			path = JoyfillUITests;
 			sourceTree = "<group>";
@@ -387,6 +393,15 @@
 				362A56102BEE36CE00B54C14 /* DateTimeFieldTests.swift */,
 			);
 			path = DateTimeField;
+			sourceTree = "<group>";
+		};
+		9E76A6D52E2A480C00EFAF7F /* SingleChoiceField */ = {
+			isa = PBXGroup;
+			children = (
+				9E76A6D32E2A480C00EFAF7F /* SingleChoiceFieldTestData.json */,
+				9E76A6D42E2A480C00EFAF7F /* SingleChoiceFieldUITestCases.swift */,
+			);
+			path = SingleChoiceField;
 			sourceTree = "<group>";
 		};
 		E2A6928B2E1ECDB6005AD17B /* Collection */ = {
@@ -652,6 +667,7 @@
 				9E7018172E22039F003651A4 /* DisplayTextFieldTestData.json in Resources */,
 				9E7018102E20FF60003651A4 /* MultilineTestData.json in Resources */,
 				1321F1782BECEC9400594112 /* Joydocjson.json in Resources */,
+				9E76A6D72E2A480C00EFAF7F /* SingleChoiceFieldTestData.json in Resources */,
 				9E70181D2E220F7B003651A4 /* DropdownFieldTestData.json in Resources */,
 				E2A6929A2E1ECE13005AD17B /* ImageFieldTestData.json in Resources */,
 				9E7018232E224692003651A4 /* DateTimeFieldTestData.json in Resources */,
@@ -684,6 +700,7 @@
 				9E70181F2E220F83003651A4 /* DropdownFieldTestData.json in Resources */,
 				9E7018132E21213D003651A4 /* ImageFieldTestData.json in Resources */,
 				9E7018122E210528003651A4 /* MultilineTestData.json in Resources */,
+				9E76A6D82E2A481600EFAF7F /* SingleChoiceFieldTestData.json in Resources */,
 				9E83E4922E291C63003DED33 /* CollectionFilter.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -705,6 +722,7 @@
 				9E7018182E22039F003651A4 /* DisplayTextFieldUITestCases.swift in Sources */,
 				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
 				E2A6929B2E1ECE13005AD17B /* ImageFieldUITestCases.swift in Sources */,
+				9E76A6D62E2A480C00EFAF7F /* SingleChoiceFieldUITestCases.swift in Sources */,
 				E2A6929C2E1ECE13005AD17B /* ImageFieldTests.swift in Sources */,
 				9E7018242E224692003651A4 /* DateTimeFieldUITestCases.swift in Sources */,
 				E2A6928D2E1ECDB6005AD17B /* CollectionFieldSearchFilterTests.swift in Sources */,
