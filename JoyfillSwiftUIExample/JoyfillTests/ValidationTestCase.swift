@@ -1133,6 +1133,7 @@ extension ValidationTestCase {
             .setRequiredImagefieldsWithoutValue(hidden: true)
             .setRequiredDropdownFieldWithoutValue(hidden: true)
             .setRequiredSignatureFieldWithoutValue(hidden: true)
+            .setRequiredDateFieldWithoutValue(hidden: true)
         
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()

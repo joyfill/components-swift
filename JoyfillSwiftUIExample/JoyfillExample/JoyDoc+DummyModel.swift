@@ -817,7 +817,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredDateFieldWithoutValue() -> JoyDoc {
+    func setRequiredDateFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "date"
         field.id = "6629fb44c79bb16ce072d233"
@@ -830,6 +830,7 @@ extension JoyDoc {
         field.tipDescription = ""
         field.tipVisible = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
