@@ -5,7 +5,7 @@ public var joyfillSchema = """
     "type": "object",
     "properties": {
       "_id": {
-        "type": "number"
+        "type": "string"
       },
       "type": {
         "type": "string",
