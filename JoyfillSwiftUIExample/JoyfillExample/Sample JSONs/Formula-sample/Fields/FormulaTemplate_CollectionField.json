@@ -19,34 +19,94 @@
           "cols": 8,
           "fieldPositions": [
             {
-              "_id": "6857510f4313cfbfb43c516c",
-              "type": "table",
-              "field": "685750f0489567f18eb8a9ec",
+              "_id": "68575112158ff5dbaa9f78e1",
+              "type": "collection",
+              "field": "collection1",
               "displayType": "original",
               "x": 0,
               "y": 0,
               "width": 8,
-              "height": 47
-            },
-            {
-              "_id": "68575112158ff5dbaa9f78e1",
-              "type": "collection",
-              "field": "6857510fbfed1553e168161b",
-              "displayType": "original",
-              "x": 0,
-              "y": 47,
-              "width": 8,
               "height": 189
             },
             {
-              "_id": "686b8e37c84aaeb1da8a17e2",
-              "type": "collection",
-              "field": "686b8e23e9b4c893b641f481",
+              "_id": "number1",
+              "type": "number",
+              "field": "number1",
               "displayType": "original",
               "x": 0,
-              "y": 236,
-              "width": 8,
-              "height": 15
+              "y": 200,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "text1",
+              "type": "text",
+              "field": "text1",
+              "displayType": "original",
+              "x": 4,
+              "y": 200,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "text2",
+              "type": "text",
+              "field": "text2",
+              "displayType": "original",
+              "x": 0,
+              "y": 208,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number2",
+              "type": "number",
+              "field": "number2",
+              "displayType": "original",
+              "x": 4,
+              "y": 208,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number3",
+              "type": "number",
+              "field": "number3",
+              "displayType": "original",
+              "x": 0,
+              "y": 216,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number4",
+              "type": "number",
+              "field": "number4",
+              "displayType": "original",
+              "x": 4,
+              "y": 216,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number5",
+              "type": "number",
+              "field": "number5",
+              "displayType": "original",
+              "x": 0,
+              "y": 224,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number6",
+              "type": "number",
+              "field": "number6",
+              "displayType": "original",
+              "x": 4,
+              "y": 224,
+              "width": 4,
+              "height": 8
             }
           ],
           "layout": "grid",
@@ -62,299 +122,82 @@
   "fields": [
     {
       "file": "685750ef698da1ab427761ba",
-      "_id": "685750f0489567f18eb8a9ec",
-      "type": "table",
-      "title": "Table",
-      "tableColumns": [
-        {
-          "_id": "684c3fedce82027a49234dd3",
-          "type": "text",
-          "title": "Text Column",
-          "width": 0,
-          "deleted": false,
-          "identifier": "field_column_6857510f1b43ec08d37d3476"
-        },
-        {
-          "_id": "684c3feda4ab2268f6ac00c8",
-          "type": "dropdown",
-          "title": "Dropdown Column",
-          "deleted": false,
-          "width": 0,
-          "options": [
-            {
-              "_id": "684c3fed91eca8d6b90e6893",
-              "value": "Yes D1",
-              "deleted": false,
-              "styles": {
-                "backgroundColor": null
-              }
-            },
-            {
-              "_id": "684c3fed30e4ee677ad0defe",
-              "value": "No D1",
-              "deleted": false,
-              "styles": {
-                "backgroundColor": null
-              }
-            },
-            {
-              "_id": "684c3fed8d7758091f4ccde2",
-              "value": "N/A",
-              "deleted": true,
-              "styles": {
-                "backgroundColor": null
-              }
-            }
-          ],
-          "identifier": "field_column_6857510ff9efe6d589b6bb66"
-        },
-        {
-          "_id": "685752c9b183f6583d205cc6",
-          "type": "multiSelect",
-          "title": "MultiSelect Column",
-          "deleted": false,
-          "width": 0,
-          "options": [
-            {
-              "_id": "685752c91cb4780a9fb7382a",
-              "value": "Option 1",
-              "deleted": false,
-              "styles": {
-                "backgroundColor": "#f0f0f0"
-              }
-            },
-            {
-              "_id": "685752c9df4d8863fda1d24d",
-              "value": "Option 2",
-              "deleted": false,
-              "styles": {
-                "backgroundColor": "#f0f0f0"
-              }
-            },
-            {
-              "_id": "685752c903c9a5c96e9a4549",
-              "value": "Option 3",
-              "deleted": false,
-              "styles": {
-                "backgroundColor": "#f0f0f0"
-              }
-            }
-          ]
-        },
-        {
-          "_id": "685752ccb197136e681cb109",
-          "type": "image",
-          "title": "Image Column",
-          "deleted": false
-        },
-        {
-          "_id": "685752cf6a8d05a425d48836",
-          "type": "number",
-          "title": "Number Column",
-          "deleted": false,
-          "width": 0
-        },
-        {
-          "_id": "685752d25e1a696143804841",
-          "type": "date",
-          "title": "Date Column",
-          "deleted": false,
-          "width": 0
-        },
-        {
-          "_id": "685752d4d306a951c162fd2e",
-          "type": "block",
-          "title": "Block Column",
-          "width": 0,
-          "deleted": false
-        },
-        {
-          "_id": "685752d672047e707b378e18",
-          "type": "barcode",
-          "title": "Barcode Column",
-          "width": 0,
-          "deleted": false
-        },
-        {
-          "_id": "685752d83e855988e864d7da",
-          "type": "signature",
-          "title": "Signature Column",
-          "width": 0,
-          "deleted": false
-        }
-      ],
-      "value": [
-        {
-          "_id": "684c3fedfed2b76677110b19",
-          "deleted": false,
-          "cells": {
-            "684c3fedce82027a49234dd3": "A",
-            "684c3feda4ab2268f6ac00c8": "684c3fed91eca8d6b90e6893",
-            "685752c9b183f6583d205cc6": [
-              "685752c91cb4780a9fb7382a"
-            ],
-            "685752ccb197136e681cb109": [
-              {
-                "_id": "68575b6663714e23d85f4fca",
-                "url": "https://s3.amazonaws.com/docspace.production.documents/6702de67c6ba43a423ca035f/documents/template_680bc498b6890a1324423764/680fbf96e97c7b42ec58f988-1745862550459.jpg"
-              }
-            ],
-            "685752cf6a8d05a425d48836": 12.2,
-            "685752d25e1a696143804841": 1748750400000,
-            "685752d4d306a951c162fd2e": "A",
-            "685752d672047e707b378e18": "A"
-          }
-        },
-        {
-          "_id": "68575b4059f586b81549fc07",
-          "deleted": false,
-          "cells": {
-            "684c3fedce82027a49234dd3": "AbC",
-            "684c3feda4ab2268f6ac00c8": "684c3fed91eca8d6b90e6893",
-            "685752c9b183f6583d205cc6": [
-              "685752c9df4d8863fda1d24d"
-            ],
-            "685752ccb197136e681cb109": "",
-            "685752cf6a8d05a425d48836": 22,
-            "685752d25e1a696143804841": 1748836800000,
-            "685752d4d306a951c162fd2e": "AbC",
-            "685752d672047e707b378e18": "AbC",
-            "685752d83e855988e864d7da": ""
-          }
-        },
-        {
-          "_id": "68575b41d49ad2d821193a3d",
-          "deleted": false,
-          "cells": {
-            "684c3fedce82027a49234dd3": "ab",
-            "684c3feda4ab2268f6ac00c8": "684c3fed91eca8d6b90e6893",
-            "685752c9b183f6583d205cc6": [
-              "685752c91cb4780a9fb7382a",
-              "685752c9df4d8863fda1d24d"
-            ],
-            "685752ccb197136e681cb109": "",
-            "685752cf6a8d05a425d48836": 200,
-            "685752d25e1a696143804841": 1748923200000,
-            "685752d4d306a951c162fd2e": "ab",
-            "685752d672047e707b378e18": "ab",
-            "685752d83e855988e864d7da": ""
-          }
-        },
-        {
-          "_id": "68599845cb06457892ce27b4",
-          "deleted": false,
-          "cells": {
-            "684c3fedce82027a49234dd3": "a B c",
-            "684c3feda4ab2268f6ac00c8": "684c3fed30e4ee677ad0defe",
-            "685752c9b183f6583d205cc6": [
-              "685752c91cb4780a9fb7382a"
-            ],
-            "685752ccb197136e681cb109": "",
-            "685752cf6a8d05a425d48836": 22.2,
-            "685752d25e1a696143804841": "",
-            "685752d4d306a951c162fd2e": "a B c",
-            "685752d672047e707b378e18": "a B c",
-            "685752d83e855988e864d7da": ""
-          }
-        }
-      ],
-      "identifier": "field_6857510f0b31d28d169b83d8",
-      "tableColumnOrder": [
-        "684c3fedce82027a49234dd3",
-        "684c3feda4ab2268f6ac00c8",
-        "685752c9b183f6583d205cc6",
-        "685752ccb197136e681cb109",
-        "685752cf6a8d05a425d48836",
-        "685752d25e1a696143804841",
-        "685752d4d306a951c162fd2e",
-        "685752d672047e707b378e18",
-        "685752d83e855988e864d7da"
-      ],
-      "rowOrder": [
-        "684c3fedfed2b76677110b19",
-        "68575b4059f586b81549fc07",
-        "68575b41d49ad2d821193a3d",
-        "68599845cb06457892ce27b4"
-      ]
-    },
-    {
-      "file": "685750ef698da1ab427761ba",
-      "_id": "6857510fbfed1553e168161b",
+      "_id": "collection1",
       "type": "collection",
-      "title": "This is collection\nwith multiline header\ntest.",
+      "title": "Collection",
       "value": [
         {
           "_id": "68575bb9cdb3707c78d6b2ff",
           "cells": {
-            "684c3fedb0afd867adaeb3b4": "A",
-            "684c3fed52b1d1145f1e2790": "684c3fedb1399740f90a0e3e",
-            "6857530158fb7edb102344fa": [
+            "text1": "A",
+            "dropdown1": "684c3fedb1399740f90a0e3e",
+            "multiSelect1": [
               "68575301e490d0ce22ae5e7b"
             ],
-            "685753044b333dd442ea29d4": 12.2,
-            "68575306e1f4dc7da46e671b": 1748750400000,
-            "68575778911bb981dcaa9db8": "A",
-            "68575312d8c5679a05ee29e0": "A"
+            "number1": 12.2,
+            "date1": 1748750400000,
+            "block1": "A",
+            "barcode1": "A"
           },
           "children": {
-            "685753949107b403e2e4a949": {
+            "schemaDepth2": {
               "value": [
                 {
                   "_id": "68575bc1921b69c15fad6c3f",
                   "cells": {
-                    "68575394ffa57501fba78c4c": "A",
-                    "68575398c1d277366371b0bc": "685753986c86639323aaf229",
-                    "6857539adf3433e7a7fce78b": [
+                    "text1": "A",
+                    "dropdown1": "685753986c86639323aaf229",
+                    "multiSelect1": [
                       "6857539a50b790d5e336aff0"
                     ],
-                    "685753a695c6fca4cf517568": 12.2,
-                    "685753aa819f24007995a5c4": 1748750400000,
-                    "685753acbf3b2fd52280faba": "A",
-                    "685753b0ad64c7acd03c92bd": "A"
+                    "number1": 12.2,
+                    "date1": 1748750400000,
+                    "block1": "A",
+                    "barcode1": "A"
                   },
                   "children": {
-                    "685753be00360cf5d545a89e": {
+                    "schemaDepth3": {
                       "value": [
                         {
                           "_id": "685766454b8dfcaa7f2a512d",
                           "cells": {
-                            "685753be581f231c08d8f11c": "A",
-                            "685753c1b072d80a56f775b7": "685753c1372bdec00abf169b",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "A",
+                            "dropdown1": "685753c1372bdec00abf169b",
+                            "multiSelect1": [
                               "685753c5265c32e4ff94cfa4"
                             ],
-                            "685753ca9756907c2dd4fdca": 12.2,
-                            "685753cb9f6ba585df048173": 1748836800000,
-                            "685753ce949e66c62c746f62": "A",
-                            "685753cd582979929e70d64e": "A"
+                            "number1": 12.2,
+                            "date1": 1748836800000,
+                            "barcode1": "A",
+                            "block1": "A"
                           },
                           "children": {}
                         },
                         {
                           "_id": "68599574605e6ac42eda4cb1",
                           "cells": {
-                            "685753be581f231c08d8f11c": "AbC",
-                            "685753c1b072d80a56f775b7": "685753c14ae34ea35d94555f",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "AbC",
+                            "dropdown1": "685753c14ae34ea35d94555f",
+                            "multiSelect1": [
                               "685753c5265c32e4ff94cfa4"
                             ],
-                            "685753ca9756907c2dd4fdca": 23,
-                            "685753cd582979929e70d64e": "AbC",
-                            "685753ce949e66c62c746f62": "AbC"
+                            "number1": 23,
+                            "block1": "AbC",
+                            "barcode1": "AbC"
                           },
                           "children": {}
                         },
                         {
                           "_id": "6859957846d24f95d8ee02b6",
                           "cells": {
-                            "685753be581f231c08d8f11c": "ab",
-                            "685753c1b072d80a56f775b7": "685753c14ae34ea35d94555f",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "ab",
+                            "dropdown1": "685753c14ae34ea35d94555f",
+                            "multiSelect1": [
                               "685753c50f069f0ae0719ae5"
                             ],
-                            "685753ca9756907c2dd4fdca": 200,
-                            "685753cd582979929e70d64e": "ab",
-                            "685753ce949e66c62c746f62": "ab"
+                            "number1": 200,
+                            "block1": "ab",
+                            "barcode1": "ab"
                           },
                           "children": {}
                         }
@@ -365,44 +208,44 @@
                 {
                   "_id": "6857668821728a326dd1bd13",
                   "cells": {
-                    "68575394ffa57501fba78c4c": "AbC",
-                    "68575398c1d277366371b0bc": "685753986c86639323aaf229",
-                    "6857539adf3433e7a7fce78b": [
+                    "text1": "AbC",
+                    "dropdown1": "685753986c86639323aaf229",
+                    "multiSelect1": [
                       "6857539acdb2537ead9146a5"
                     ],
-                    "685753a695c6fca4cf517568": 22,
-                    "685753aa819f24007995a5c4": 1748836800000,
-                    "685753b0ad64c7acd03c92bd": "AbC",
-                    "685753acbf3b2fd52280faba": "AbC"
+                    "number1": 22,
+                    "date1": 1748836800000,
+                    "barcode1": "AbC",
+                    "block1": "AbC"
                   },
                   "children": {
-                    "685753be00360cf5d545a89e": {
+                    "schemaDepth3": {
                       "value": [
                         {
                           "_id": "68599641c7be60f9abb0c4f2",
                           "cells": {
-                            "685753be581f231c08d8f11c": "A",
-                            "685753c1b072d80a56f775b7": "685753c1372bdec00abf169b",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "A",
+                            "dropdown1": "685753c1372bdec00abf169b",
+                            "multiSelect1": [
                               "685753c5265c32e4ff94cfa4"
                             ],
-                            "685753ca9756907c2dd4fdca": 12.2,
-                            "685753cd582979929e70d64e": "A",
-                            "685753ce949e66c62c746f62": "A"
+                            "number1": 12.2,
+                            "block1": "A",
+                            "barcode1": "A"
                           },
                           "children": {}
                         },
                         {
                           "_id": "68599643a49a5715d336c01e",
                           "cells": {
-                            "685753be581f231c08d8f11c": "AbC",
-                            "685753c1b072d80a56f775b7": "685753c14ae34ea35d94555f",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "AbC",
+                            "dropdown1": "685753c14ae34ea35d94555f",
+                            "multiSelect1": [
                               "685753c50f069f0ae0719ae5"
                             ],
-                            "685753ca9756907c2dd4fdca": 22,
-                            "685753cd582979929e70d64e": "AbC",
-                            "685753ce949e66c62c746f62": "AbC"
+                            "number1": 22,
+                            "block1": "AbC",
+                            "barcode1": "AbC"
                           },
                           "children": {}
                         }
@@ -413,14 +256,14 @@
                 {
                   "_id": "685995d7bc8c35f73c92cebe",
                   "cells": {
-                    "68575394ffa57501fba78c4c": "a B C",
-                    "68575398c1d277366371b0bc": "685753986c86639323aaf229",
-                    "6857539adf3433e7a7fce78b": [
+                    "text1": "a B C",
+                    "dropdown1": "685753986c86639323aaf229",
+                    "multiSelect1": [
                       "6857539acdb2537ead9146a5"
                     ],
-                    "685753a695c6fca4cf517568": 200,
-                    "685753acbf3b2fd52280faba": "a B c",
-                    "685753b0ad64c7acd03c92bd": "a B c"
+                    "number1": 200,
+                    "block1": "a B c",
+                    "barcode1": "a B c"
                   },
                   "children": {}
                 }
@@ -431,18 +274,18 @@
         {
           "_id": "685765dcf190077e95796c41",
           "cells": {
-            "684c3fedb0afd867adaeb3b4": "AbC",
-            "684c3fed52b1d1145f1e2790": "684c3fedb1399740f90a0e3e",
-            "6857530158fb7edb102344fa": [
+            "text1": "AbC",
+            "dropdown1": "684c3fedb1399740f90a0e3e",
+            "multiSelect1": [
               "68575301acf418342f1b05a4"
             ],
-            "685753044b333dd442ea29d4": 22,
-            "68575306e1f4dc7da46e671b": 1748836800000,
-            "68575312d8c5679a05ee29e0": "AbC",
-            "68575778911bb981dcaa9db8": "AbC"
+            "number1": 22,
+            "date1": 1748836800000,
+            "barcode1": "AbC",
+            "block1": "AbC"
           },
           "children": {
-            "685753949107b403e2e4a949": {
+            "schemaDepth2": {
               "value": []
             }
           }
@@ -450,45 +293,45 @@
         {
           "_id": "68582dd76e0e93dd2017372a",
           "cells": {
-            "684c3fedb0afd867adaeb3b4": "ab",
-            "684c3fed52b1d1145f1e2790": "684c3fedb1399740f90a0e3e",
-            "6857530158fb7edb102344fa": [
+            "text1": "ab",
+            "dropdown1": "684c3fedb1399740f90a0e3e",
+            "multiSelect1": [
               "68575301e490d0ce22ae5e7b",
               "68575301acf418342f1b05a4"
             ],
-            "685753044b333dd442ea29d4": 200,
-            "68575778911bb981dcaa9db8": "ab",
-            "68575312d8c5679a05ee29e0": "ab"
+            "number1": 200,
+            "block1": "ab",
+            "barcode1": "ab"
           },
           "children": {
-            "685753949107b403e2e4a949": {
+            "schemaDepth2": {
               "value": [
                 {
                   "_id": "685996fcf5d831dffdec11bd",
                   "cells": {
-                    "68575394ffa57501fba78c4c": "A",
-                    "68575398c1d277366371b0bc": "685753986c86639323aaf229",
-                    "6857539adf3433e7a7fce78b": [
+                    "text1": "A",
+                    "dropdown1": "685753986c86639323aaf229",
+                    "multiSelect1": [
                       "6857539a50b790d5e336aff0"
                     ],
-                    "685753a695c6fca4cf517568": 12.2,
-                    "685753acbf3b2fd52280faba": "A",
-                    "685753b0ad64c7acd03c92bd": "A"
+                    "number1": 12.2,
+                    "block1": "A",
+                    "barcode1": "A"
                   },
                   "children": {
-                    "685753be00360cf5d545a89e": {
+                    "schemaDepth3": {
                       "value": [
                         {
                           "_id": "685997288aabc6600055e5eb",
                           "cells": {
-                            "685753be581f231c08d8f11c": "A",
-                            "685753c1b072d80a56f775b7": "685753c1372bdec00abf169b",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "A",
+                            "dropdown1": "685753c1372bdec00abf169b",
+                            "multiSelect1": [
                               "685753c5265c32e4ff94cfa4"
                             ],
-                            "685753ca9756907c2dd4fdca": 12.2,
-                            "685753cd582979929e70d64e": "A",
-                            "685753ce949e66c62c746f62": "A"
+                            "number1": 12.2,
+                            "block1": "A",
+                            "barcode1": "A"
                           },
                           "children": {}
                         }
@@ -499,58 +342,58 @@
                 {
                   "_id": "685997248bb46dfa16785eca",
                   "cells": {
-                    "68575394ffa57501fba78c4c": "AbC",
-                    "68575398c1d277366371b0bc": "685753986c86639323aaf229",
-                    "6857539adf3433e7a7fce78b": [
+                    "text1": "AbC",
+                    "dropdown1": "685753986c86639323aaf229",
+                    "multiSelect1": [
                       "6857539a50b790d5e336aff0"
                     ],
-                    "685753a695c6fca4cf517568": 22,
-                    "685753acbf3b2fd52280faba": "AbC",
-                    "685753b0ad64c7acd03c92bd": "AbC"
+                    "number1": 22,
+                    "block1": "AbC",
+                    "barcode1": "AbC"
                   },
                   "children": {
-                    "685753be00360cf5d545a89e": {
+                    "schemaDepth3": {
                       "value": [
                         {
                           "_id": "6859978e18a1e6acfa11fb3f",
                           "cells": {
-                            "685753be581f231c08d8f11c": "a B c",
-                            "685753c1b072d80a56f775b7": "685753c1372bdec00abf169b",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "a B c",
+                            "dropdown1": "685753c1372bdec00abf169b",
+                            "multiSelect1": [
                               "685753c5265c32e4ff94cfa4"
                             ],
-                            "685753ca9756907c2dd4fdca": 12.2,
-                            "685753cd582979929e70d64e": "a B c",
-                            "685753ce949e66c62c746f62": "a B c"
+                            "number1": 12.2,
+                            "block1": "a B c",
+                            "barcode1": "a B c"
                           },
                           "children": {}
                         },
                         {
                           "_id": "6859978fc43377a6bb50e7df",
                           "cells": {
-                            "685753be581f231c08d8f11c": "AbC",
-                            "685753c1b072d80a56f775b7": "685753c14ae34ea35d94555f",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "AbC",
+                            "dropdown1": "685753c14ae34ea35d94555f",
+                            "multiSelect1": [
                               "685753c5265c32e4ff94cfa4",
                               "685753c50f069f0ae0719ae5"
                             ],
-                            "685753ca9756907c2dd4fdca": 22,
-                            "685753cd582979929e70d64e": "AbC",
-                            "685753ce949e66c62c746f62": "AbC"
+                            "number1": 22,
+                            "block1": "AbC",
+                            "barcode1": "AbC"
                           },
                           "children": {}
                         },
                         {
                           "_id": "68599790e8593d6d76c3a09f",
                           "cells": {
-                            "685753be581f231c08d8f11c": "A",
-                            "685753c1b072d80a56f775b7": "685753c1372bdec00abf169b",
-                            "685753c51f0af9f46eacdb40": [
+                            "text1": "A",
+                            "dropdown1": "685753c1372bdec00abf169b",
+                            "multiSelect1": [
                               "685753c5265c32e4ff94cfa4"
                             ],
-                            "685753ca9756907c2dd4fdca": 200,
-                            "685753cd582979929e70d64e": "A",
-                            "685753ce949e66c62c746f62": "A"
+                            "number1": 200,
+                            "block1": "A",
+                            "barcode1": "A"
                           },
                           "children": {}
                         }
@@ -565,33 +408,33 @@
         {
           "_id": "68582dde1b30a59b4272a5c7",
           "cells": {
-            "684c3fedb0afd867adaeb3b4": "a B c",
-            "684c3fed52b1d1145f1e2790": "684c3fedf47cc0fea6bca947",
-            "6857530158fb7edb102344fa": [
+            "text1": "a B c",
+            "dropdown1": "684c3fedf47cc0fea6bca947",
+            "multiSelect1": [
               "68575301e490d0ce22ae5e7b"
             ],
-            "685753044b333dd442ea29d4": 22.2,
-            "68575778911bb981dcaa9db8": "a B c",
-            "68575312d8c5679a05ee29e0": "a B c"
+            "number1": 22.2,
+            "block1": "a B c",
+            "barcode1": "a B c"
           },
           "children": {}
         }
       ],
       "schema": {
-        "collectionSchemaId": {
+        "schemaDepth1": {
           "title": "Root Table",
           "root": true,
           "children": [
-            "685753949107b403e2e4a949"
+            "schemaDepth2"
           ],
           "tableColumns": [
             {
-              "_id": "684c3fedb0afd867adaeb3b4",
+              "_id": "text1",
               "type": "text",
               "title": "Text D1"
             },
             {
-              "_id": "684c3fed52b1d1145f1e2790",
+              "_id": "dropdown1",
               "type": "dropdown",
               "title": "Dropdown D1",
               "options": [
@@ -610,7 +453,7 @@
               ]
             },
             {
-              "_id": "6857530158fb7edb102344fa",
+              "_id": "multiSelect1",
               "type": "multiSelect",
               "title": "MultiSelect  D1",
               "deleted": false,
@@ -639,41 +482,41 @@
               ]
             },
             {
-              "_id": "684c3fedad4a18cff0707ac3",
+              "_id": "image1",
               "type": "image",
               "title": "Image  D1",
               "width": 0
             },
             {
-              "_id": "685753044b333dd442ea29d4",
+              "_id": "number1",
               "type": "number",
               "title": "Number  D1",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "68575306e1f4dc7da46e671b",
+              "_id": "date1",
               "type": "date",
               "title": "Date  D1",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "68575778911bb981dcaa9db8",
+              "_id": "block1",
               "type": "block",
               "title": "Label Column",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "68575312d8c5679a05ee29e0",
+              "_id": "barcode1",
               "type": "barcode",
               "title": "Barcode  D1",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "68575314229c21f699cb6bc3",
+              "_id": "signature1",
               "type": "signature",
               "title": "Signature  D1",
               "width": 0,
@@ -681,22 +524,22 @@
             }
           ]
         },
-        "685753949107b403e2e4a949": {
+        "schemaDepth2": {
           "title": "Depth 2",
           "children": [
-            "685753be00360cf5d545a89e"
+            "schemaDepth3"
           ],
           "hidden": false,
           "tableColumns": [
             {
-              "_id": "68575394ffa57501fba78c4c",
+              "_id": "text1",
               "type": "text",
               "title": "Text D2",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "68575398c1d277366371b0bc",
+              "_id": "dropdown1",
               "type": "dropdown",
               "title": "Dropdown D2",
               "deleted": false,
@@ -725,7 +568,7 @@
               ]
             },
             {
-              "_id": "6857539adf3433e7a7fce78b",
+              "_id": "multiSelect1",
               "type": "multiSelect",
               "title": "MultiSelect D2",
               "deleted": false,
@@ -754,100 +597,65 @@
               ]
             },
             {
-              "_id": "685753a081e92cb29da00f05",
+              "_id": "image1",
               "type": "image",
               "title": "Image D2",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685753a695c6fca4cf517568",
+              "_id": "number1",
               "type": "number",
               "title": "Number  D2",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685753aa819f24007995a5c4",
+              "_id": "date1",
               "type": "date",
               "title": "Date D2",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685753acbf3b2fd52280faba",
+              "_id": "block1",
               "type": "block",
               "title": "Label  D2",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685753b0ad64c7acd03c92bd",
+              "_id": "barcode1",
               "type": "barcode",
               "title": "Barcode  D2",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685753b48377bdd12b981be3",
+              "_id": "signature1",
               "type": "signature",
               "title": "Signature  D2",
               "width": 0,
               "deleted": false
             }
-          ],
-          "logic": {
-            "action": "hide",
-            "eval": "and",
-            "conditions": [
-              {
-                "schema": "collectionSchemaId",
-                "column": "684c3fedb0afd867adaeb3b4",
-                "condition": "=",
-                "value": "hide depth2"
-              },
-              {
-                "schema": "collectionSchemaId",
-                "column": "684c3fed52b1d1145f1e2790",
-                "condition": "!=",
-                "value": "684c3fedb1399740f90a0e3e"
-              },
-              {
-                "schema": "collectionSchemaId",
-                "column": "685753044b333dd442ea29d4",
-                "condition": ">",
-                "value": 900
-              },
-              {
-                "schema": "collectionSchemaId",
-                "column": "68575312d8c5679a05ee29e0",
-                "condition": "?=",
-                "value": "567"
-              },
-              {
-                "schema": "collectionSchemaId",
-                "column": "6857530158fb7edb102344fa",
-                "condition": "*="
-              }
-            ]
-          }
+          ]
         },
-        "685753be00360cf5d545a89e": {
+        "schemaDepth3": {
           "title": "Depth 3",
           "children": [
-            "685753db2562a8d0c0085910"
+            "schemaDepth4"
           ],
           "hidden": false,
           "tableColumns": [
             {
-              "_id": "685753be581f231c08d8f11c",
+              "_id": "text1",
               "type": "text",
               "title": "Text D3",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685753c1b072d80a56f775b7",
+              "_id": "dropdown1",
               "type": "dropdown",
               "title": "Dropdown D3",
               "deleted": false,
@@ -876,7 +684,7 @@
               ]
             },
             {
-              "_id": "685753c51f0af9f46eacdb40",
+              "_id": "multiSelect1",
               "type": "multiSelect",
               "title": "MultiSelect D3",
               "deleted": false,
@@ -905,42 +713,42 @@
               ]
             },
             {
-              "_id": "685753c79f2f26b2e1e5ea7f",
+              "_id": "image1",
               "type": "image",
               "title": "Image D3",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685753ca9756907c2dd4fdca",
+              "_id": "number1",
               "type": "number",
               "title": "Number D3",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685753cb9f6ba585df048173",
+              "_id": "date1",
               "type": "date",
               "title": "Date D3",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685753cd582979929e70d64e",
+              "_id": "block1",
               "type": "block",
               "title": "Label D3",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685753ce949e66c62c746f62",
+              "_id": "barcode1",
               "type": "barcode",
               "title": "Barcode D3",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685753d19cc6b6d14388c50d",
+              "_id": "signature1",
               "type": "signature",
               "title": "Signature D3",
               "width": 0,
@@ -948,22 +756,22 @@
             }
           ]
         },
-        "685753db2562a8d0c0085910": {
+        "schemaDepth4": {
           "title": "Depth 4",
           "children": [
-            "6857542f10ffa297cd488f74"
+            "schemaDepth5"
           ],
           "hidden": false,
           "tableColumns": [
             {
-              "_id": "685753dbb4cc39cc14e56105",
+              "_id": "text1",
               "type": "text",
               "title": "Text D4",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685753ded8411f3a2e47753f",
+              "_id": "dropdown1",
               "type": "dropdown",
               "title": "Dropdown D4",
               "deleted": false,
@@ -992,7 +800,7 @@
               ]
             },
             {
-              "_id": "685753e0f9ca01576c7a70e0",
+              "_id": "multiSelect1",
               "type": "multiSelect",
               "title": "MultiSelect D4",
               "deleted": false,
@@ -1021,92 +829,63 @@
               ]
             },
             {
-              "_id": "685753e152c310fd6edafe91",
+              "_id": "image1",
               "type": "image",
               "title": "Image D4",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685753e8c803d7c8dd71b683",
+              "_id": "number1",
               "type": "number",
               "title": "Number D4",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "685754120a90f9beeb38eb3a",
+              "_id": "date1",
               "type": "date",
               "title": "Date D4",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "68575416c531e75d009ebb85",
+              "_id": "block1",
               "type": "block",
               "title": "Label D4",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685754238aea3e64c9c8eddc",
+              "_id": "barcode1",
               "type": "barcode",
               "title": "Barcode D4",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "6857541ae145a86f6463d319",
+              "_id": "signature1",
               "type": "signature",
               "title": "Signature D4",
               "width": 0,
               "deleted": false
             }
-          ],
-          "logic": {
-            "action": "hide",
-            "eval": "or",
-            "conditions": [
-              {
-                "schema": "685753be00360cf5d545a89e",
-                "column": "685753be581f231c08d8f11c",
-                "condition": "=",
-                "value": "conditional"
-              },
-              {
-                "schema": "685753be00360cf5d545a89e",
-                "column": "685753c1b072d80a56f775b7",
-                "condition": "=",
-                "value": "6857679167952237cfee0d70"
-              },
-              {
-                "schema": "685753be00360cf5d545a89e",
-                "column": "685753ca9756907c2dd4fdca",
-                "condition": ">",
-                "value": 1000
-              },
-              {
-                "schema": "685753be00360cf5d545a89e",
-                "column": "685753c51f0af9f46eacdb40",
-                "condition": "null="
-              }
-            ]
-          }
+          ]
         },
-        "6857542f10ffa297cd488f74": {
+        "schemaDepth5": {
           "title": "Depth 5",
           "children": [],
           "hidden": false,
           "tableColumns": [
             {
-              "_id": "6857542f20209b645d28bfed",
+              "_id": "text1",
               "type": "text",
               "title": "Text D5",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685754310a450578373b37f6",
+              "_id": "dropdown1",
               "type": "dropdown",
               "title": "Dropdown D5",
               "deleted": false,
@@ -1137,7 +916,7 @@
               ]
             },
             {
-              "_id": "685754342cfc1e41d10d2ef9",
+              "_id": "multiSelect1",
               "type": "multiSelect",
               "title": "MultiSelect D5",
               "deleted": false,
@@ -1166,42 +945,42 @@
               ]
             },
             {
-              "_id": "68575436bdbc097474a575af",
+              "_id": "image1",
               "type": "image",
               "title": "Image D5",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "6857543870aef9ad7aee8173",
+              "_id": "number1",
               "type": "number",
               "title": "Number D5",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "6857543b986b6e0c0c94c4b5",
+              "_id": "date1",
               "type": "date",
               "title": "Date D5",
               "deleted": false,
               "width": 0
             },
             {
-              "_id": "6857543ea7167bd697753f1d",
+              "_id": "block1",
               "type": "block",
               "title": "Label D5",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "685754401b798a9e58742b47",
+              "_id": "barcode1",
               "type": "barcode",
               "title": "Barcode D5",
               "width": 0,
               "deleted": false
             },
             {
-              "_id": "68575443618fcd9409b1b563",
+              "_id": "signature1",
               "type": "signature",
               "title": "Signature D5",
               "width": 0,
@@ -1210,65 +989,171 @@
           ]
         }
       },
-      "identifier": "field_68575112847f32f878c77daf",
-      "required": true,
-      "tipVisible": true,
-      "tipTitle": "ToolTip Title",
-      "tipDescription": "ToolTip Description"
+      "identifier": "field_68575112847f32f878c77daf"
     },
     {
-      "file": "685750ef698da1ab427761ba",
-      "_id": "686b8e23e9b4c893b641f481",
-      "type": "collection",
-      "title": "",
-      "value": [
+      "_id": "number1",
+      "type": "number",
+      "title": "Count of collection1 rows",
+      "identifier": "field_auto_collection_row_count",
+      "formulas": [
         {
-          "_id": "686b8e3c5ac043086542628d",
-          "cells": {},
-          "children": {}
+          "_id": "F001",
+          "formula": "rootTotalRowCount",
+          "key": "value"
         }
-      ],
-      "schema": {
-        "collectionSchemaId": {
-          "title": "Main Collection",
-          "root": true,
-          "children": [],
-          "tableColumns": [
-            {
-              "_id": "6813008e76da519a97819c69",
-              "type": "text",
-              "title": "Text"
-            },
-            {
-              "_id": "6813008ea26d706f2a5db2d5",
-              "type": "image",
-              "title": "Image",
-              "multi": true
-            },
-            {
-              "_id": "686b8f0caa36b1d9e6bbd544",
-              "type": "image",
-              "title": "Image Column",
-              "deleted": false,
-              "width": 0,
-              "maxImageWidth": 190,
-              "maxImageHeight": 120,
-              "multi": false
-            },
-            {
-              "_id": "686b8f0f6c1c6a51b85ccf1f",
-              "type": "image",
-              "title": "Image Column",
-              "deleted": false,
-              "width": 0,
-              "maxImageWidth": 190,
-              "maxImageHeight": 120
-            }
-          ]
+      ]
+    },
+    {
+      "_id": "text1",
+      "type": "text",
+      "title": "Root first row text1 value",
+      "identifier": "field_auto_display_first_text1",
+      "formulas": [
+        {
+          "_id": "F002",
+          "formula": "rootFirstRowText1Value",
+          "key": "value"
         }
-      },
-      "identifier": "field_686b8e3722af3d4b17f57927"
+      ]
+    },
+    {
+      "_id": "text2",
+      "type": "text",
+      "title": "Schema depth 3 first row text1 value",
+      "identifier": "field_auto_display_nested_text1",
+      "formulas": [
+        {
+          "_id": "F003",
+          "formula": "schemaDepth3FirstRowText1Value",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "number2",
+      "type": "number",
+      "title": "Schema depth 3 row count",
+      "identifier": "field_auto_display_schema_depth_3_row_count",
+      "formulas": [
+        {
+          "_id": "F004",
+          "formula": "schemaDepth3RowCount",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "number3",
+      "type": "number",
+      "title": "Count of Depth2 rows with any Depth3 dropdown == 'No D3'",
+      "identifier": "field_auto_count_depth2_with_no_d3",
+      "formulas": [
+        {
+          "_id": "F005",
+          "formula": "countDepth2WithNoD3Dropdown",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "number4",
+      "type": "number",
+      "title": "Sum of number1 at schemaDepth3",
+      "identifier": "field_auto_sum_number1_depth3",
+      "formulas": [
+        {
+          "_id": "F006",
+          "formula": "sumNumber1AtDepth3",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "number5",
+      "type": "number",
+      "title": "Count of 'Option 1 D2' in Depth2 multiSelect1",
+      "identifier": "field_auto_count_option1_d2",
+      "formulas": [
+        {
+          "_id": "F007",
+          "formula": "countOption1InDepth2MultiSelect1",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "number6",
+      "type": "number",
+      "title": "Count of date1 where day == 1",
+      "identifier": "field_auto_count_day1_in_date1",
+      "formulas": [
+        {
+          "_id": "F008",
+          "formula": "countDay1InDate1",
+          "key": "value"
+        }
+      ]
     }
   ],
-  "type": "template"
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "rootTotalRowCount",
+      "desc": "Count number of rows in collection1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "length(collection1)"
+    },
+    {
+      "_id": "rootFirstRowText1Value",
+      "desc": "Display text1 value from the first row in collection1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "collection1.0.text1"
+    },
+    {
+      "_id": "schemaDepth3FirstRowText1Value",
+      "desc": "Display text1 value from collection1 > schemaDepth2 > schemaDepth3",
+      "type": "calc",
+      "scope": "private",
+      "expression": "collection1.0.children.schemaDepth2.0.children.schemaDepth3.0.text1"
+    },
+    {
+      "_id": "schemaDepth3RowCount",
+      "desc": "Count number of rows in schemaDepth3 for first row of schemaDepth2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "length(collection1.0.children.schemaDepth2.0.children.schemaDepth3)"
+    },
+    {
+      "_id": "countDepth2WithNoD3Dropdown",
+      "desc": "Count Depth2 rows where any Depth3 child has dropdown1 == 'No D3'",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sum(\n  map(collection1, (rootRow) -> \n    count(\n      filter(rootRow.children.schemaDepth2, (schemaDepth2Row) -> \t\t\n        some(schemaDepth2Row.children.schemaDepth3, (schemaDepth3Row) -> \n          schemaDepth3Row.dropdown1 == \"No D3\"\n        )\n      )\n    )\n  )\n)"
+    },
+    {
+      "_id": "sumNumber1AtDepth3",
+      "desc": "Sum all number1 values in schemaDepth3 across all collection1 rows",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sum(\n  flatMap(collection1, (rootRow) -> \n    flatMap(rootRow.children.schemaDepth2, (depth2Row) -> \n      map(depth2Row.children.schemaDepth3, (depth3Row) -> \n        depth3Row.number1\n      )\n    )\n  )\n)"
+    },
+    {
+      "_id": "countOption1InDepth2MultiSelect1",
+      "desc": "Count how many times 'Option 1 D2' appears in multiSelect1 of schemaDepth2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "countIf(\n  flatMap(collection1, (rootRow) ->\n    flatMap(rootRow.children.schemaDepth2, (depth2Row) ->\n      depth2Row.multiSelect1\n    )\n  ),\n  \"Option 1 D2\"\n)"
+    },
+    {
+      "_id": "countDay1InDate1",
+      "desc": "Count how many rows in collection1 have a day(date1) value of 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "countIf(\n  map(collection1, (row) -> day(row.date1)),\n  1\n)"
+    }
+  ]
 }
+

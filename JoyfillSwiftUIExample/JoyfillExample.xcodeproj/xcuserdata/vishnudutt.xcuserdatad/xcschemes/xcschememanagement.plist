@@ -4,6 +4,16 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Formula Playground (Playground) 1.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
+		<key>Formula Playground (Playground).xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>7</integer>
+		</dict>
 		<key>JoyfillExample.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -12,60 +22,27 @@
 		<key>JoyfillTests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>1</integer>
 		</dict>
 		<key>JoyfillUIKit.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>2</integer>
 		</dict>
 		<key>JoyfillUITests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>3</integer>
 		</dict>
-	</dict>
-	<key>SuppressBuildableAutocreation</key>
-	<dict>
-		<key>134FC0762BDA82E9008B7030</key>
+		<key>Test Formulas (Playground) 1.xcscheme</key>
 		<dict>
-			<key>primary</key>
-			<true/>
+			<key>orderHint</key>
+			<integer>9</integer>
 		</dict>
-		<key>36BAA1D62C7DC98100E29987</key>
+		<key>Test Formulas (Playground).xcscheme</key>
 		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>36BAA1EB2C7DC98300E29987</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>36BAA1F52C7DC98300E29987</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>36E4EC322BDA349900F3A433</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>FA529C492BA1D251000200F5</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>FA529C5A2BA1D253000200F5</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>FA529C642BA1D253000200F5</key>
-		<dict>
-			<key>primary</key>
-			<true/>
+			<key>orderHint</key>
+			<integer>8</integer>
 		</dict>
 	</dict>
 </dict>

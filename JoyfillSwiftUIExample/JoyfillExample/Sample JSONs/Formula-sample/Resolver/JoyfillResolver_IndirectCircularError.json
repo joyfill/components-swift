@@ -1,0 +1,133 @@
+{
+  "_id": "d434f642fb784860acce1858",
+  "identifier": "doc_generated_cyclic",
+  "name": "Generated Cyclic Formula Resolver",
+  "formulas": [
+    {
+      "_id": "field1FormulaId",
+      "desc": "Field 1 = field2 + field3",
+      "type": "calc",
+      "scope": "private",
+      "expression": "field2 + field3"
+    },
+    {
+      "_id": "field2FormulaId",
+      "desc": "Field 2 = field3 + 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "field3 + 1"
+    },
+    {
+      "_id": "field3FormulaId",
+      "desc": "Field 3 = field2 + 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "field2 + 1"
+    }
+  ],
+  "fields": [
+    {
+      "_id": "field1",
+      "file": "8fe2ac335c74f1f35f10bd56",
+      "type": "number",
+      "title": "field1",
+      "identifier": "field_001",
+      "formulas": [
+        {
+          "_id": "F001",
+          "key": "value",
+          "formula": "field1FormulaId"
+        }
+      ]
+    },
+    {
+      "_id": "field2",
+      "file": "8fe2ac335c74f1f35f10bd56",
+      "type": "number",
+      "title": "field2",
+      "identifier": "field_002",
+      "formulas": [
+        {
+          "_id": "F002",
+          "key": "value",
+          "formula": "field2FormulaId"
+        }
+      ]
+    },
+    {
+      "_id": "field3",
+      "file": "8fe2ac335c74f1f35f10bd56",
+      "type": "number",
+      "title": "field3",
+      "identifier": "field_003",
+      "formulas": [
+        {
+          "_id": "F003",
+          "key": "value",
+          "formula": "field3FormulaId"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "_id": "8fe2ac335c74f1f35f10bd56",
+      "name": "New File",
+      "pageOrder": [
+        "e7ed6e33e90f20f6e4217fdc"
+      ],
+      "pages": [
+        {
+          "_id": "e7ed6e33e90f20f6e4217fdc",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "e78bd5fda855fc8e6001471e",
+              "type": "number",
+              "field": "field1",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "title": "field1"
+            },
+            {
+              "_id": "76d2729806578118e510e4bc",
+              "type": "number",
+              "field": "field2",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "title": "field2"
+            },
+            {
+              "_id": "3c38efd883682fdfeffe09c7",
+              "type": "number",
+              "field": "field3",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "title": "field3"
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "type": "document"
+}

@@ -447,7 +447,7 @@ final class JoyfillTests: XCTestCase {
         jsonDocument().assertNumberPosition()
     }
     
-    func testSetNumberPosition() {
+    func testsetNumberPositionInMobile() {
         document
             .setDocument()
             .setFile()
@@ -458,7 +458,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .assertNumberPosition()
     }
     
@@ -477,7 +477,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .setDatePosition()
             .assertDatePosition()
     }
@@ -497,7 +497,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .setDatePosition()
             .setTimePosition()
             .assertTimePosition()
@@ -518,7 +518,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .setDatePosition()
             .setTimePosition()
             .setDateTimePosition()
@@ -540,7 +540,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .setDatePosition()
             .setTimePosition()
             .setDateTimePosition()
@@ -563,7 +563,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .setDatePosition()
             .setTimePosition()
             .setDateTimePosition()
@@ -587,7 +587,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .setDatePosition()
             .setTimePosition()
             .setDateTimePosition()
@@ -636,7 +636,7 @@ final class JoyfillTests: XCTestCase {
             .setEmptySpacePosition()
             .setTextPosition()
             .setMultiLineTextPosition()
-            .setNumberPosition()
+            .setNumberPositionInMobile()
             .setDatePosition()
             .setTimePosition()
             .setDateTimePosition()

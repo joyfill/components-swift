@@ -49,15 +49,14 @@ struct JoyfillExampleApp: App {
                     .accessibilityIdentifier("resultfield")
                     .frame(height: 10)
             } else if useQuickTestMode {
-                // Quick test mode: directly open template list with default token
+//                 Quick test mode: directly open template list with default token
                 NavigationView {
                     UserAccessTokenTextFieldView(isAlreadyToken: true, enableChangelogs: false)
                 }
-                .navigationViewStyle(StackNavigationViewStyle())
             } else {
                 OptionSelectionView()
+                .navigationViewStyle(StackNavigationViewStyle())
             }
-//            ImageReplacementTest()
         }
     }
     

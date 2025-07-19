@@ -170,7 +170,9 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         // After selection, tapping outside should blur without error and keep the value
         let firstOption = app.buttons.matching(identifier: "MultiSelectionIdenitfier").element(boundBy: 0)
         firstOption.tap()
-        app.otherElements.firstMatch.tap() // blur
+        
+        let secOption = app.buttons.matching(identifier: "MultiSelectionIdenitfier").element(boundBy: 4)
+        secOption.tap()
         // onBlur payload should continue to include the selected value
         let result = onChangeResultValue()
         XCTAssertEqual(Set(result.multiSelector ?? []),
@@ -197,8 +199,8 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func testHideThirdMultiSelectUnderORConditions() throws {
-        let allButtons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
-        XCTAssertEqual(allButtons.count, 5)
+        let allButtons = getOptionsButtonsCount(identifier: "MultiSelectionIdenitfier")
+        XCTAssertEqual(allButtons, 5)
         let collectionViewsQuery = app.collectionViews;
         
         XCTAssertTrue(collectionViewsQuery.children(matching: .cell).element(boundBy: 2).children(matching: .other).element(boundBy: 1).children(matching: .other).element.exists)
@@ -235,7 +237,9 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         squareImage.tap()
         collectionViewsQuery.buttons.matching(identifier: "N/A").images["square"].tap()
         
-        let checkmarkSquareFillImage = collectionViewsQuery.images["checkmark.square.fill"]
-        sleep(1)
+        let payload = onChangeOptionalResult()?.dictionary
+        if let payload = payload {
+            XCTFail("Should not have payload")
+        }
     }
 }

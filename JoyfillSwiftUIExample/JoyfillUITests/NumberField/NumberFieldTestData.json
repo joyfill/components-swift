@@ -1,0 +1,232 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686bc007ff08c3beb2e93e99",
+      "type": "textarea",
+      "title": "This is multiline text box enter multiline text here for better testing.",
+      "identifier": "field_686bc00ed2ad0abf3233b7d2",
+      "value": "test",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": ">",
+            "value": 50
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": "!=",
+            "value": 55
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686dea82ad19e9a7a3f7c976",
+      "type": "number",
+      "title": "Number",
+      "identifier": "field_686dea98c790de3716db73d2",
+      "value": 10,
+      "required": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description",
+      "tipVisible": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68709074b5aa3a6a632ed9ba",
+      "type": "number",
+      "title": "Number 1",
+      "identifier": "field_6870907bd08c6acf05fe0d56",
+      "logic": {
+        "action": "hide",
+        "eval": "or",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": "=",
+            "value": 20
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": "!=",
+            "value": 10
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": ">",
+            "value": 50
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "687090929f07876f2c56205f",
+            "condition": "<",
+            "value": 70
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "687090929f07876f2c56205f",
+      "type": "number",
+      "title": "",
+      "identifier": "field_6870909ab127606317dc144d",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": "*="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "68709074b5aa3a6a632ed9ba",
+            "condition": "null="
+          },
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "66a14ced15a9dc96374e091e",
+            "field": "686dea82ad19e9a7a3f7c976",
+            "condition": ">",
+            "value": 80
+          }
+        ]
+      },
+      "tipVisible": false,
+      "tipTitle": "",
+      "tipDescription": ""
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "687099d3f39ab9a098d21e20",
+      "type": "number",
+      "title": "Readonly",
+      "identifier": "field_687099d6eedf5d0168d060cc",
+      "tipVisible": false,
+      "tipTitle": "",
+      "tipDescription": "",
+      "disabled": true,
+      "required": false,
+      "hidden": false
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686bc00e68daaaf240bf394c",
+              "type": "textarea",
+              "field": "686bc007ff08c3beb2e93e99",
+              "displayType": "original",
+              "x": 2,
+              "y": 9,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "686dea9891602bff8d529bc9",
+              "type": "number",
+              "field": "686dea82ad19e9a7a3f7c976",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 9
+            },
+            {
+              "_id": "6870907b77e9a36957500400",
+              "type": "number",
+              "field": "68709074b5aa3a6a632ed9ba",
+              "displayType": "original",
+              "x": 2,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870909a5ab287bde071220b",
+              "type": "number",
+              "field": "687090929f07876f2c56205f",
+              "displayType": "original",
+              "x": 2,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "687099d6143d9c8f2420769e",
+              "type": "number",
+              "field": "687099d3f39ab9a098d21e20",
+              "displayType": "original",
+              "x": 2,
+              "y": 48,
+              "width": 4,
+              "height": 8,
+              "titleDisplay": "inline",
+              "titleFontColor": "#d04141"
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}
