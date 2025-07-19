@@ -695,7 +695,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             XCTFail("Failed to find number text field after swiping")
             return
         }
-        
+        numberTextField.tap()
         numberTextField.clearText()
         numberTextField.typeText("12345")
         app.dismissKeyboardIfVisible()
@@ -842,7 +842,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             XCTFail("Failed to find number text field after swiping")
             return
         }
-        
+        numberTextField.tap()
         numberTextField.clearText()
         numberTextField.typeText("12345")
         firstImageButton.tap()

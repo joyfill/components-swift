@@ -47,6 +47,30 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         multiFieldColumnTitleButton.tap()
     }
     
+    func formattedAccessibilityLabel(for isoDate: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.locale = Locale(identifier: "en_US")
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let date = inputFormatter.date(from: isoDate) else {
+            XCTFail("Invalid date string: \(isoDate)")
+            return ""
+        }
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.locale = Locale(identifier: "en_US")
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad: with comma
+            outputFormatter.dateFormat = "EEEE, d MMMM"
+        } else {
+            // iPhone: no comma
+            outputFormatter.dateFormat = "EEEE d MMMM"
+        }
+        
+        return outputFormatter.string(from: date)
+    }
+    
 //    func swipeForMultiSelctionField() {
 //        let element = app.windows.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
 //        //element.swipeLeft()
@@ -109,7 +133,14 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
 
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US")
-        formatter.dateFormat = "EEEE d MMMM"
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad: with comma
+            formatter.dateFormat = "EEEE, d MMMM"
+        } else {
+            // iPhone: no comma
+            formatter.dateFormat = "EEEE d MMMM"
+        }
+        
         return formatter.string(from: randomDate)
     }
     
@@ -432,7 +463,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         }
         
        // Remember - ["Sunday 7 April"] - here set the date of current month
-        let specificDayButton = app.buttons["Sunday 7 April"] // The full label of the button
+        let dateLabel = formattedAccessibilityLabel(for: "2024-04-07")
+        let specificDayButton = app.buttons[dateLabel] // The full label of the button
         XCTAssertTrue(specificDayButton.exists, "The date 'Sunday 7 April' should be visible in the calendar.")
             specificDayButton.tap()
         XCUIApplication().buttons["PopoverDismissRegion"].tap()

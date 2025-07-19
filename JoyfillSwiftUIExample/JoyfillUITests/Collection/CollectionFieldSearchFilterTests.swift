@@ -55,30 +55,35 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
     }
     
+    /// Scrolls up through the scrollView loading new items by identifier, then scrolls back down.
+    /// Returns the total number of matching images found.
     func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
         let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
         let scrollView = app.scrollViews.firstMatch
 
         var previousCount = -1
         var currentCount = 0
-        var scrollAttempts = 0
+        var attempts = 0
 
-        while scrollAttempts < maxScrolls {
-            let matchingElements = app.images.matching(predicate)
-            currentCount = matchingElements.count
-
-            if currentCount == previousCount {
-                break // No new rows loaded
-            }
-
+        // Swipe up until no new images load or we hit maxScrolls
+        while attempts < maxScrolls {
+            scrollView.swipeUp()
+            sleep(1)  // allow content to settle
+            currentCount = app.images.matching(predicate).count
+            if currentCount == previousCount { break }
             previousCount = currentCount
+            attempts += 1
+        }
 
-            let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
-            let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
-            start.press(forDuration: 0.1, thenDragTo: end)
-
-            sleep(1) // Allow time to load more items
-            scrollAttempts += 1
+        // Reset counter and swipe back down until stable
+        attempts = 0
+        while attempts < maxScrolls {
+            scrollView.swipeDown()
+            sleep(1)
+            let newCount = app.images.matching(predicate).count
+            if newCount == previousCount { break }
+            previousCount = newCount
+            attempts += 1
         }
 
         return currentCount
@@ -88,7 +93,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let beginsWith = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
         return app.images.matching(beginsWith).count
     }
-        
+    
     func verifyFilteredResults(expectedRowCount: Int, description: String) {
         // Wait a moment for the filter to be applied
         sleep(1)
@@ -120,7 +125,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     func selectSchema(_ schemaName: String) {
         let schemaSelector = app.buttons.matching(identifier: "SelectSchemaTypeIDentifier")
         schemaSelector.element.tap()
-
+        
         let schemaOption = app.buttons[schemaName].firstMatch
         schemaOption.tap()
     }
@@ -140,7 +145,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
         columnOption.tap()
     }
-        
+    
     func enterTextFilter(_ text: String) {
         let searchField = app.textFields["TextFieldSearchBarIdentifier"]
         if searchField.exists {
@@ -238,14 +243,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         moreButton.tap()
     }
-        
+    
     func applyDropdownFilter(schema: String = "Root Table", column: String, option: String) {
         openFilterModal()
         
         // Select schema if provided
         selectSchema(schema)
         // Select column
-         selectColumn(column)
+        selectColumn(column)
         
         // Select dropdown option
         selectDropdownOption(option)
@@ -255,7 +260,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func applyMultiSelectFilter(schema: String = "Root Table", column: String, option: String) {
-         openFilterModal()
+        openFilterModal()
         
         selectSchema(schema)
         selectColumn(column)
@@ -267,12 +272,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     func getFieldPositionsCountFromLabel() -> Int? {
         let app = XCUIApplication()
         let resultLabel = app.staticTexts["resultfield"].label
-
+        
         guard let data = resultLabel.data(using: .utf8) else {
             XCTFail("Failed to convert label to data")
             return nil
         }
-
+        
         do {
             if let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
                 for obj in jsonArray {
@@ -287,7 +292,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         } catch {
             XCTFail("Failed to parse label JSON: \(error)")
         }
-
+        
         return nil
     }
     
@@ -297,14 +302,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func imageURLCount(for cellId: String) -> Int {
-         let result = onChangeResult().dictionary
-              let change = result["change"] as? [String: Any]
+        let result = onChangeResult().dictionary
+        let change = result["change"] as? [String: Any]
         let rowAny = change?["row"] as? Any
-              let row = rowAny as? [String: Any]
+        let row = rowAny as? [String: Any]
         let cellsAny = row?["cells"] as? Any
-              let cells = cellsAny as? [String: Any]
+        let cells = cellsAny as? [String: Any]
         let imageArray = cells?[cellId] as? [[String: Any]]
-
+        
         return imageArray?.count ?? 0
     }
     
@@ -321,10 +326,39 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         return imageArray.count
     }
-
+    
     func assertImageCountFromValueArray(for cellId: String, expectedCount: Int) {
         let actualCount = imageURLCountFromValueArray(for: cellId)
         XCTAssertEqual(actualCount, expectedCount, "Expected \(expectedCount) image(s) for \(cellId), but found \(actualCount)")
+    }
+    
+    
+    func selectAllParentRows() {
+        app.images.matching(identifier: "SelectParentAllRowSelectorButton")
+            .element.tap()
+    }
+    
+    func editRowsButton() -> XCUIElement {
+        return app.buttons["TableEditRowsIdentifier"]
+    }
+    
+    func selectNestedRow(number: Int) {
+        app.images.matching(identifier: "selectNestedRowItem\(number)")
+            .element.tap()
+    }
+    
+    func verifyOnChangePayload(withValue expectedValue: String) {
+        let payload = onChangeResult().dictionary
+        guard
+            let change = payload["change"] as? [String: Any],
+            let row = change["row"] as? [String: Any],
+            let cells = row["cells"] as? [String: Any],
+            let cellValue = cells.values.first as? String
+        else {
+            XCTFail("Invalid onChange payload structure")
+            return
+        }
+        XCTAssertEqual(cellValue, expectedValue, "onChange payload value should match")
     }
     
     func testopenCollection() {
@@ -393,7 +427,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         // Get initial row count
-         applyTextFilter(column: "Text D1", text: "AbC")
+        applyTextFilter(column: "Text D1", text: "AbC")
         
         let filteredCountAbC = getVisibleRowCount()
         XCTAssertTrue(filteredCountAbC == 1, "More specific filter should return fewer or equal results")
@@ -407,7 +441,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func testFilterResults_DropdownColumnVerification() {
         goToCollectionDetailField()
-                
+        
         // Test filtering by "Yes D1"
         applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
         
@@ -447,7 +481,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         selectColumn("Dropdown D1", selectorIndex: 1)
         selectDropdownOption("No D1")
         tapApplyButton()
-
+        
         let dropdownFilterCount = getVisibleRowCount()
         
         // All filter counts should be <= initial count
@@ -579,7 +613,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         // Test filtering across multiple schema levels
         let testSchemas = [
             ("Depth 2", "Text D2", "A", 5),        // From JSON: "A", "AbC", "ab", "a B c"
-            ("Depth 3", "Text D3", "A", 13),           // From JSON: "A", "AbC", "a B C"
+            ("Depth 3", "Text D3", "Abc", 6),           // From JSON: "A", "AbC", "a B C"
             ("Depth 4", "Text D4", "A", 0)            // From JSON: "A", "AbC", "ab", "a B c"
         ]
         
@@ -600,7 +634,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let nestedRowsCount = getVisibleNestexRowsCount()
         XCTAssertEqual(nestedRowsCount, 2, "Space filtering should work")
-
+        
     }
     
     func testNestedRowExpanding() {
@@ -612,7 +646,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let nestedRowsCount = getVisibleNestexRowsCount()
         XCTAssertEqual(nestedRowsCount, 6, "Space filtering should work")
-
+        
     }
     
     func tapSchemaAddRowButton(number: Int) {
@@ -659,7 +693,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let nestedRowsCount = getVisibleNestexRowsCount()
         XCTAssertEqual(parentRowsCount, 1 , "Parent row counting should return valid count")
         XCTAssertEqual(nestedRowsCount, 1 , "Nested row counting should return valid count")
-       
+        
     }
     
     func testNestedSchemaColumnDiscovery() {
@@ -712,7 +746,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let multiNestedFilterCount = getVisibleNestexRowsCount()
         XCTAssertEqual(multiNestedFilterCount, 9, "Multiple nested filters should work")
     }
-
+    
     
     func testTextColumnFilter_CaseInsensitive() {
         goToCollectionDetailField()
@@ -793,16 +827,16 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         if dropdownColumnOption.exists {
             dropdownColumnOption.tap()
             
-                         // Select "Yes D1" option from dropdown filter
-             let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
-             if dropdownFilterButton.exists {
-                 dropdownFilterButton.tap()
-                 
-                 let yesOption = app.buttons["Yes D1"].firstMatch
-                 if yesOption.exists {
-                     yesOption.tap()
-                 }
-             }
+            // Select "Yes D1" option from dropdown filter
+            let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
+            if dropdownFilterButton.exists {
+                dropdownFilterButton.tap()
+                
+                let yesOption = app.buttons["Yes D1"].firstMatch
+                if yesOption.exists {
+                    yesOption.tap()
+                }
+            }
             
             app.buttons["Apply"].tap()
             XCTAssertTrue(filterButton.exists, "Should return to collection view")
@@ -824,17 +858,17 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         if dropdownColumnOption.exists {
             dropdownColumnOption.tap()
             
-                         let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
-             if dropdownFilterButton.exists {
-                 dropdownFilterButton.tap()
-                 
-                 let noOption = app.buttons["No D1"].firstMatch
-                 if noOption.exists {
-                     noOption.tap()
-                 }
-                 
-                 
-             }
+            let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
+            if dropdownFilterButton.exists {
+                dropdownFilterButton.tap()
+                
+                let noOption = app.buttons["No D1"].firstMatch
+                if noOption.exists {
+                    noOption.tap()
+                }
+                
+                
+            }
             
             tapApplyButton()
             assert(oldCount > getVisibleRowCount())
@@ -860,16 +894,16 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         if multiSelectColumnOption.exists {
             multiSelectColumnOption.tap()
             
-                         // Select "Option 1 D1" from multiselect filter
-             let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
-             if multiSelectFilterButton.exists {
-                 multiSelectFilterButton.tap()
-                 
-                 let option1 = app.buttons["Option 1 D1"].firstMatch
-                 if option1.exists {
-                     option1.tap()
-                 }
-             }
+            // Select "Option 1 D1" from multiselect filter
+            let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
+            if multiSelectFilterButton.exists {
+                multiSelectFilterButton.tap()
+                
+                let option1 = app.buttons["Option 1 D1"].firstMatch
+                if option1.exists {
+                    option1.tap()
+                }
+            }
             app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
             tapApplyButton()
             assert(oldCount > getVisibleRowCount())
@@ -892,15 +926,15 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         if multiSelectColumnOption.exists {
             multiSelectColumnOption.tap()
             
-                         let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
-             if multiSelectFilterButton.exists {
-                 multiSelectFilterButton.tap()
-                 
-                 let option2 = app.buttons["Option 2 D1"].firstMatch
-                 if option2.exists {
-                     option2.tap()
-                 }
-             }
+            let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
+            if multiSelectFilterButton.exists {
+                multiSelectFilterButton.tap()
+                
+                let option2 = app.buttons["Option 2 D1"].firstMatch
+                if option2.exists {
+                    option2.tap()
+                }
+            }
             
             app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
             tapApplyButton()
@@ -1364,24 +1398,24 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     func testCollectionImageUpload() throws {
         app.swipeUp()
         goToCollectionDetailField(index: 1)
-
+        
         let uploadButton = app.staticTexts["Upload"]
         let imageButtonIdentifier = "TableImageIdentifier"
-
+        
         let imageButtons = app.buttons.matching(identifier: imageButtonIdentifier)
         XCTAssertEqual(imageButtons.count, 3, "Expected 3 image buttons")
-
+        
         // Multi Image Upload (Index 0)
         let multiImageButton = imageButtons.element(boundBy: 0)
         XCTAssertTrue(multiImageButton.exists, "Multi-image button does not exist")
         multiImageButton.tap()
-
+        
         XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
         uploadButton.tap()
         uploadButton.tap()
         
         assertImageCount(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
-
+        
         dismissSheet()
         app.swipeLeft()
         // Single Image Upload - Column 2 (Index 1)
@@ -1405,7 +1439,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         uploadButton.tap()
         assertImageCount(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
         dismissSheet()
- 
+        
         goBack()
         sleep(1)
         assertImageCountFromValueArray(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
@@ -1422,12 +1456,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         applyTextFilter(column: "Text D1", text: "BB")
         let filteredCountBB = getVisibleRowCount()
         XCTAssertEqual(filteredCountBB, 0, "Filter with 'BB' should return 0 rows")
-
+        
         // Step 2: Apply filter with "A"
         applyTextFilter(column: "Text D1", text: "A")
         let filteredCountA = getVisibleRowCount()
         XCTAssertEqual(filteredCountA, initialRowCount, "Filter with 'A' should return initial row count")
-
+        
         // Step 3: Clear filter
         openFilterModal()
         enterTextFilter("")
@@ -1440,12 +1474,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func testAddRowEnterTextAndFilter() {
         goToCollectionDetailField()
-
+        
         // Add new row
         let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
         XCTAssertTrue(addRowButton.exists, "Add row button should exist")
         addRowButton.tap()
-
+        
         // Enter "Testing Demo" in newly added row (last text field)
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         let newTextField = textFields.element(boundBy: textFields.count - 1)
@@ -1453,14 +1487,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         newTextField.tap()
         newTextField.clearText()
         newTextField.typeText("Testing Demo")
-
+        
         // Go back and return to detail view
         goBack()
         goToCollectionDetailField()
-
+        
         // Apply filter for "Testing Demo"
         applyTextFilter(column: "Text D1", text: "Testing Demo")
-
+        
         // Verify filtered count is 1
         let filteredCount = getVisibleRowCount()
         XCTAssertEqual(filteredCount, 1, "Filter should return 1 row for 'Testing Demo'")
@@ -1468,24 +1502,24 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func testAddRowAddSubRowsAndApplyAllFilters() {
         goToCollectionDetailField()
-
+        
         // Step 1: Add a new root row
         let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
         XCTAssertTrue(addRowButton.exists, "Add row button should exist")
         addRowButton.tap()
-
+        
         // Step 2: Expand the newly added row
         let newRowIndex = getVisibleRowCount() - 1
         let expandButton = app.images["CollectionExpandCollapseButton\(newRowIndex)"]
         XCTAssertTrue(expandButton.exists, "Expand button for new row should exist")
         expandButton.tap()
-
+        
         // Step 3: Add 2 sub rows under this row
         let nestedAddButton = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 0)
         XCTAssertTrue(nestedAddButton.exists, "Nested add row button should exist")
         nestedAddButton.tap()
         nestedAddButton.tap()
-
+        
         // Step 4: Open filter modal
         openFilterModal()
         if isAddMoreFilterButtonEnabled() {
@@ -1658,5 +1692,313 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
         tapApplyButton()
         closeFilterModal()
+    }
+    
+    func testConditionalLogicHideDepth4WithOrCondition() {
+        goToCollectionDetailField()
+        expandRow(number: 3)
+        selectNestedRow(number: 1)
+        
+        let imagesQuery = app.images
+        let element = imagesQuery.matching(identifier: "chevron.right.square").element(boundBy: 1)
+        element.tap()
+        element.tap()
+        
+        let element2 = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 2)
+        element2.tap()
+        element2.tap()
+        
+        let count = getVisibleNestexRowsCount()
+        XCTAssertEqual(count, 7)
+        
+        let textViewsQuery = app.textViews.matching(identifier: "a B c").element(boundBy: 0)
+        textViewsQuery.tap()
+        textViewsQuery.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        textViewsQuery.typeText("conditional")
+        sleep(1)
+        let countSecond = getVisibleNestexRowsCount()
+        XCTAssertEqual(countSecond, 5)
+        let textViewsQuery1 = app.textViews.matching(identifier: "conditional").element(boundBy: 0)
+        textViewsQuery1.tap()
+        textViewsQuery1.typeText("xyz")
+        app.swipeUp()
+        app.swipeDown()
+        let countFinal = getVisibleNestexRowsCount()
+        XCTAssertEqual(countFinal, 7)
+        app.swipeLeft()
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "TabelNumberFieldIdentifier", type: .textField, direction: "left", index: 5) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("1200")
+        
+        app.swipeRight()
+        app.swipeRight()
+        
+        let countFinal2 = getVisibleNestexRowsCount()
+        XCTAssertEqual(countFinal2, 5)
+    }
+    
+    func testConditionalLogicHideDepth2WithBulkEdit() throws {
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        
+        let countRootRows = getVisibleRowCount()
+        XCTAssertEqual(countRootRows, 4)
+        
+        let countNestedRows = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows, 3)
+        
+        selectAllParentRows()
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        sleep(1)
+        textField.tap()
+        textField.typeText("hide depth2")
+        app.dismissKeyboardIfVisible()
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+        
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            sleep(1)
+        }
+        
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        //XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("1200")
+        
+        // Image Field
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        dismissSheet()
+        
+        // Barcode Column
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        barcodeTextField.clearText()
+        barcodeTextField.typeText("567")
+        
+        app.dismissKeyboardIfVisible()
+        
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        expandRow(number: 1)
+        expandRow(number: 2)
+        expandRow(number: 3)
+        
+        let countRootRows2 = getVisibleRowCount()
+        XCTAssertEqual(countRootRows2, 4)
+        
+        let countNestedRows2 = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows2, 0)
+    }
+    
+    func testRequiredFieldAsteriskPresence() {
+        let requiredLabel = app.staticTexts["This is collection\nwith multiline header\ntest."]
+        XCTAssertTrue(requiredLabel.exists, "Required field label should display")
+        
+        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
+        
+        goToCollectionDetailField()
+        selectAllParentRows()
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        sleep(1)
+        textField.tap()
+        textField.typeText("hide depth2")
+        app.dismissKeyboardIfVisible()
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        expandRow(number: 1)
+        expandRow(number: 2)
+        expandRow(number: 3)
+        
+        goBack()
+        
+        XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
+    }
+    
+    func testNonRequiredFieldNoAsterisk() {
+        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 2)
+        XCTAssertFalse(asteriskIcon.exists, "Asterisk icon should not be visible for non required field")
+    }
+    
+    func testToolTip() throws {
+        let toolTipButton = app.buttons["ToolTipIdentifier"]
+        toolTipButton.tap()
+        sleep(1)
+        
+        let alert = app.alerts["ToolTip Title"]
+        XCTAssertTrue(alert.exists, "Alert should be visible")
+        
+        let alertTitle = alert.staticTexts["ToolTip Title"]
+        XCTAssertTrue(alertTitle.exists, "Alert title should be visible")
+        
+        let alertDescription = alert.staticTexts["ToolTip Description"]
+        XCTAssertTrue(alertDescription.exists, "Alert description should be visible")
+        
+        alert.buttons["Dismiss"].tap()
+    }
+    
+    func testFieldHeaderRendering() {
+        let titleWithMultiline = app.staticTexts["This is collection\nwith multiline header\ntest."]
+        XCTAssertTrue(titleWithMultiline.exists)
+        
+        let smallTitle = app.staticTexts["Table"]
+        XCTAssertTrue(smallTitle.exists)
+        
+        let collectionWithoutHeader = app.buttons.matching(identifier: "CollectionDetailViewIdentifier").element(boundBy: 1)
+        app.swipeUp()
+        XCTAssertTrue(collectionWithoutHeader.exists)
+    }
+    
+    func testInsertAllDataTypesInFirstView() throws {
+        goToCollectionDetailField()
+        
+        let textView = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(textView.exists)
+        
+        // Short text
+        textView.tap()
+        textView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        let shortText = "Short text"
+        textView.typeText(shortText)
+        verifyOnChangePayload(withValue: shortText)
+        
+        // Long text
+        textView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        let longText = String(repeating: "LongText ", count: 20)
+        textView.typeText(longText)
+        verifyOnChangePayload(withValue: longText)
+        
+        // Multiline text
+        textView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        let multiLine = "Line1\nLine2\nLine3"
+        textView.typeText(multiLine)
+        verifyOnChangePayload(withValue: multiLine)
+        
+        // HTML/Special characters
+        textView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        let htmlText = "<div>Test&nbsp;</div>"
+        textView.typeText(htmlText)
+        verifyOnChangePayload(withValue: htmlText)
+        
+        // Emojis/Unicode
+        textView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        let unicodeText = "Hindi: नमस्ते, Chinese: 你好, Arabic: مرحبا"
+        textView.typeText(unicodeText)
+        verifyOnChangePayload(withValue: unicodeText)
+    }
+    
+    
+    func testCopyPasteInSecondField() {
+        goToCollectionDetailField()
+        
+        let secondTextView = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(secondTextView.exists)
+        secondTextView.tap()
+        secondTextView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        secondTextView.typeText("CopyPasteTest")
+        secondTextView.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        app.menuItems["Copy"].tap()
+        secondTextView.clearText()
+        secondTextView.press(forDuration: 1.0)
+        app.menuItems["Paste"].tap()
+        XCTAssertEqual(secondTextView.value as? String, "CopyPasteTest")
+        verifyOnChangePayload(withValue: secondTextView.value as? String ?? "")
+    }
+    
+    func testFilterSearchFieldOnFocusAndOnBlur() {
+        goToCollectionDetailField()
+        openFilterModal()
+        selectSchema("Root Table")
+        
+        selectColumn("Text D1")
+        // onFocus
+        enterTextFilter("A")
+        XCTAssertTrue(app.keyboards.element.exists)
+        // onBlur
+        tapApplyButton()
+        closeFilterModal()
+        XCTAssertFalse(app.keyboards.element.exists)
+    }
+    
+    
+    func testCheckLabelName() throws {
+        goToCollectionDetailField()
+        let first = app.staticTexts["Text D1"]
+        XCTAssertTrue(first.exists, "Label should be visible")
+        
+        let second = app.staticTexts["Dropdown D1"] // MultiSelect  D1 , Image  D1 ,Number  D1 , Date  D1 , Label Column , Barcode  D1 , Signature  D1
+        XCTAssertTrue(second.exists, "Label should be visible")
+        
+        app.swipeLeft()
     }
 }

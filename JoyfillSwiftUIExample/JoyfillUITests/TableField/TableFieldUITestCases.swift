@@ -180,7 +180,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         
         let secondTable = app.staticTexts["Second Table"]
         XCTAssertTrue(secondTable.exists)
-        
+        app.swipeUp()
         XCTAssertTrue(app.buttons.matching(identifier: "TableDetailViewIdentifier").element(boundBy: 2).exists)
     }
     
