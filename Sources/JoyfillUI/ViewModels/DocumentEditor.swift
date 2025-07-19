@@ -56,8 +56,9 @@ public class DocumentEditor: ObservableObject {
     public var events: FormChangeEvent?
     
     private var validationHandler: ValidationHandler!
-    private var conditionalLogicHandler: ConditionalLogicHandler!
-    
+    var conditionalLogicHandler: ConditionalLogicHandler!
+    private var JoyfillDocContext: JoyfillDocContext!
+
     public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false) {
         // Perform schema validation first
         let schemaManager = JoyfillSchemaManager()
@@ -100,7 +101,7 @@ public class DocumentEditor: ObservableObject {
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
-
+        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
@@ -270,15 +271,6 @@ public class DocumentEditor: ObservableObject {
             return
         }
         updateValue(for: fieldID, value: valueUnion)
-    }
-    
-    public func updateValue(for fieldID: String, value: JoyfillModel.ValueUnion) {
-        guard var field = fieldMap[fieldID] else {
-            return
-        }
-        field.value = value
-        fieldMap[fieldID] = field
-        refreshField(fieldId: fieldID)
     }
     
     private func logChangeError(for change: Change) {
@@ -453,6 +445,9 @@ extension DocumentEditor {
             updatefield(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
+            if let identifier = field.id {
+                self.JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
+            }
         }
     }
     

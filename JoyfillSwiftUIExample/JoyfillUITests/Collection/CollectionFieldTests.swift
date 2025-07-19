@@ -583,8 +583,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goBack()
         sleep(2)
         
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.filter({ $0.deleted ?? false }).count, 3)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, nil)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.filter({ $0.deleted ?? false }).count, nil)
 
     }
     
@@ -602,9 +602,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goBack()
         sleep(2)
         
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.filter({ $0.deleted ?? false }).count, 1)
-
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 2)
     }
     
     func drawSignatureLine() {

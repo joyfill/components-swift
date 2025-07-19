@@ -7,7 +7,6 @@ struct NumberView: View {
     private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
     let eventHandler: FieldChangeEvents
-
     // Use local state for value tracking instead of frequent model updates
     @State private var displayText: String = ""
     @State private var lastModelValue: Double?
@@ -18,16 +17,16 @@ struct NumberView: View {
         self.eventHandler = eventHandler
         // Don't initialize state variables here - moved to onAppear
     }
-
+    
     private func formatNumber(_ number: Double?) -> String {
         guard let number = number else { return "" }
-
+        
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 10
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
-
+        
         return formatter.string(from: NSNumber(value: number)) ?? ""
     }
 
@@ -45,7 +44,6 @@ struct NumberView: View {
 
         return VStack(alignment: .leading) {
             FieldHeaderView(numberDataModel.fieldHeaderModel)
-
             // Use the custom binding for more controlled updates
             TextField("", text: textBinding)
                 .accessibilityIdentifier("Number")

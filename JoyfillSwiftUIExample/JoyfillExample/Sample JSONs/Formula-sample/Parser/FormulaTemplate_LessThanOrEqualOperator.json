@@ -1,0 +1,869 @@
+{
+  "_id": "less_than_equal_operator_doc",
+  "identifier": "doc_less_than_equal_operator_doc",
+  "name": "Less Than or Equal Operator",
+  "type": "document",
+  "files": [
+    {
+      "_id": "file1",
+      "name": "Main File",
+      "pageOrder": [
+        "page1"
+      ],
+      "pages": [
+        {
+          "_id": "page1",
+          "name": "Page 1",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "fieldPositions": [
+            {
+              "_id": "fp_text1",
+              "type": "text",
+              "field": "text1",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text2",
+              "type": "text",
+              "field": "text2",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text3",
+              "type": "text",
+              "field": "text3",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text4",
+              "type": "text",
+              "field": "text4",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text5",
+              "type": "text",
+              "field": "text5",
+              "displayType": "original",
+              "x": 0,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text6",
+              "type": "text",
+              "field": "text6",
+              "displayType": "original",
+              "x": 0,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text7",
+              "type": "text",
+              "field": "text7",
+              "displayType": "original",
+              "x": 0,
+              "y": 48,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text8",
+              "type": "text",
+              "field": "text8",
+              "displayType": "original",
+              "x": 0,
+              "y": 56,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text9",
+              "type": "text",
+              "field": "text9",
+              "displayType": "original",
+              "x": 0,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text10",
+              "type": "text",
+              "field": "text10",
+              "displayType": "original",
+              "x": 0,
+              "y": 72,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text11",
+              "type": "text",
+              "field": "text11",
+              "displayType": "original",
+              "x": 0,
+              "y": 80,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text12",
+              "type": "text",
+              "field": "text12",
+              "displayType": "original",
+              "x": 0,
+              "y": 88,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text13",
+              "type": "text",
+              "field": "text13",
+              "displayType": "original",
+              "x": 0,
+              "y": 96,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text14",
+              "type": "text",
+              "field": "text14",
+              "displayType": "original",
+              "x": 0,
+              "y": 104,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text15",
+              "type": "text",
+              "field": "text15",
+              "displayType": "original",
+              "x": 0,
+              "y": 112,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text16",
+              "type": "text",
+              "field": "text16",
+              "displayType": "original",
+              "x": 0,
+              "y": 120,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text17",
+              "type": "text",
+              "field": "text17",
+              "displayType": "original",
+              "x": 0,
+              "y": 128,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text18",
+              "type": "text",
+              "field": "text18",
+              "displayType": "original",
+              "x": 0,
+              "y": 136,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text19",
+              "type": "text",
+              "field": "text19",
+              "displayType": "original",
+              "x": 0,
+              "y": 144,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text20",
+              "type": "text",
+              "field": "text20",
+              "displayType": "original",
+              "x": 0,
+              "y": 152,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text21",
+              "type": "text",
+              "field": "text21",
+              "displayType": "original",
+              "x": 0,
+              "y": 160,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text22",
+              "type": "text",
+              "field": "text22",
+              "displayType": "original",
+              "x": 0,
+              "y": 168,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text23",
+              "type": "text",
+              "field": "text23",
+              "displayType": "original",
+              "x": 0,
+              "y": 176,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text24",
+              "type": "text",
+              "field": "text24",
+              "displayType": "original",
+              "x": 0,
+              "y": 184,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text25",
+              "type": "text",
+              "field": "text25",
+              "displayType": "original",
+              "x": 0,
+              "y": 192,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text26",
+              "type": "text",
+              "field": "text26",
+              "displayType": "original",
+              "x": 0,
+              "y": 200,
+              "width": 4,
+              "height": 8
+            }
+          ]
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "fields": [
+    {
+      "file": "file1",
+      "_id": "text1",
+      "type": "text",
+      "title": "1 <= 2 (Expect: Working)",
+      "identifier": "field_text1",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text1Formula",
+          "formula": "if1LessThanOrEqual2Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text2",
+      "type": "text",
+      "title": "1 <= 1 (Expect: Working)",
+      "identifier": "field_text2",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text2Formula",
+          "formula": "if1LessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text3",
+      "type": "text",
+      "title": "10 <= 5 (Expect: Working)",
+      "identifier": "field_text3",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text3Formula",
+          "formula": "if10LessThanOrEqual5Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text4",
+      "type": "text",
+      "title": "-1 <= 0 (Expect: Working)",
+      "identifier": "field_text4",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text4Formula",
+          "formula": "if1LessThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text5",
+      "type": "text",
+      "title": "-3 <= -1 (Expect: Working)",
+      "identifier": "field_text5",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text5Formula",
+          "formula": "if3LessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text6",
+      "type": "text",
+      "title": "-5 <= -10 (Expect: Working)",
+      "identifier": "field_text6",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text6Formula",
+          "formula": "if5LessThanOrEqual10Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text7",
+      "type": "text",
+      "title": "99 <= 99.1 (Expect: Working)",
+      "identifier": "field_text7",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text7Formula",
+          "formula": "if99LessThanOrEqual991Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text8",
+      "type": "text",
+      "title": "100 <= 99 (Expect: Working)",
+      "identifier": "field_text8",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text8Formula",
+          "formula": "if100LessThanOrEqual99Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text9",
+      "type": "text",
+      "title": "\"4\" <= 5 (Expect: Working)",
+      "identifier": "field_text9",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text9Formula",
+          "formula": "if4LessThanOrEqual5Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text10",
+      "type": "text",
+      "title": "\"9\" <= 10 (Expect: Working)",
+      "identifier": "field_text10",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text10Formula",
+          "formula": "if9LessThanOrEqual10Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text11",
+      "type": "text",
+      "title": "\"0\" <= 1 (Expect: Working)",
+      "identifier": "field_text11",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text11Formula",
+          "formula": "if0LessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text12",
+      "type": "text",
+      "title": "\"100\" <= 200 (Expect: Working)",
+      "identifier": "field_text12",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text12Formula",
+          "formula": "if100LessThanOrEqual200Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text13",
+      "type": "text",
+      "title": "\"5\" <= 5 (Expect: Working)",
+      "identifier": "field_text13",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text13Formula",
+          "formula": "if5LessThanOrEqual5Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text14",
+      "type": "text",
+      "title": "\"5\" <= \"1\" (Expect: Working)",
+      "identifier": "field_text14",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text14Formula",
+          "formula": "if5LessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text15",
+      "type": "text",
+      "title": "\"hello\" <= \"abc\" (Expect: Working)",
+      "identifier": "field_text15",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text15Formula",
+          "formula": "ifhelloLessThanOrEqualabcWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text16",
+      "type": "text",
+      "title": "true <= false (Expect: Working)",
+      "identifier": "field_text16",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text16Formula",
+          "formula": "iftrueLessThanOrEqualfalseWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text17",
+      "type": "text",
+      "title": "false <= true (Expect: Working)",
+      "identifier": "field_text17",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text17Formula",
+          "formula": "iffalseLessThanOrEqualtrueWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text18",
+      "type": "text",
+      "title": "true <= 1 (Expect: Working)",
+      "identifier": "field_text18",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text18Formula",
+          "formula": "iftrueLessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text19",
+      "type": "text",
+      "title": "null <= 0 (Expect: Working)",
+      "identifier": "field_text19",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text19Formula",
+          "formula": "ifnullLessThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text20",
+      "type": "text",
+      "title": "null <= null (Expect: Working)",
+      "identifier": "field_text20",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text20Formula",
+          "formula": "ifnullLessThanOrEqualnullWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text21",
+      "type": "text",
+      "title": "\"\" <= 0 (Expect: Working)",
+      "identifier": "field_text21",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text21Formula",
+          "formula": "ifLessThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text22",
+      "type": "text",
+      "title": "\"abc\" <= 0 (Expect: Working)",
+      "identifier": "field_text22",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text22Formula",
+          "formula": "ifabcLessThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text23",
+      "type": "text",
+      "title": "[] <= 1 (Expect: Working)",
+      "identifier": "field_text23",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text23Formula",
+          "formula": "ifLessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text24",
+      "type": "text",
+      "title": "[1] <= 0 (Expect: Working)",
+      "identifier": "field_text24",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text24Formula",
+          "formula": "if1LessThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text25",
+      "type": "text",
+      "title": "{} <= 1 (Expect: Working)",
+      "identifier": "field_text25",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text25Formula",
+          "formula": "ifLessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text26",
+      "type": "text",
+      "title": "{ a: 1 } <= 1 (Expect: Working)",
+      "identifier": "field_text26",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text26Formula",
+          "formula": "ifa1LessThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "formulas": [
+    {
+      "_id": "if1LessThanOrEqual2Working",
+      "desc": "Evaluate: 1 <= 2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(1 <= 2, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if1LessThanOrEqual1Working",
+      "desc": "Evaluate: 1 <= 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(1 <= 1, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if10LessThanOrEqual5Working",
+      "desc": "Evaluate: 10 <= 5",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(10 <= 5, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if1LessThanOrEqual0Working",
+      "desc": "Evaluate: -1 <= 0",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(-1 <= 0, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if3LessThanOrEqual1Working",
+      "desc": "Evaluate: -3 <= -1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(-3 <= -1, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if5LessThanOrEqual10Working",
+      "desc": "Evaluate: -5 <= -10",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(-5 <= -10, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if99LessThanOrEqual991Working",
+      "desc": "Evaluate: 99 <= 99.1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(99 <= 99.1, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if100LessThanOrEqual99Working",
+      "desc": "Evaluate: 100 <= 99",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(100 <= 99, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if4LessThanOrEqual5Working",
+      "desc": "Evaluate: \"4\" <= 5",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"4\" <= 5, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if9LessThanOrEqual10Working",
+      "desc": "Evaluate: \"9\" <= 10",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"9\" <= 10, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if0LessThanOrEqual1Working",
+      "desc": "Evaluate: \"0\" <= 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"0\" <= 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if100LessThanOrEqual200Working",
+      "desc": "Evaluate: \"100\" <= 200",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"100\" <= 200, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if5LessThanOrEqual5Working",
+      "desc": "Evaluate: \"5\" <= 5",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"5\" <= 5, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if5LessThanOrEqual1Working",
+      "desc": "Evaluate: \"5\" <= \"1\"",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"5\" <= \"1\", \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifhelloLessThanOrEqualabcWorking",
+      "desc": "Evaluate: \"hello\" <= \"abc\"",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"hello\" <= \"abc\", \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iftrueLessThanOrEqualfalseWorking",
+      "desc": "Evaluate: true <= false",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(true <= false, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iffalseLessThanOrEqualtrueWorking",
+      "desc": "Evaluate: false <= true",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(false <= true, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iftrueLessThanOrEqual1Working",
+      "desc": "Evaluate: true <= 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(true <= 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifnullLessThanOrEqual0Working",
+      "desc": "Evaluate: null <= 0",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null <= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifnullLessThanOrEqualnullWorking",
+      "desc": "Evaluate: null <= null",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null <= null, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifLessThanOrEqual0Working",
+      "desc": "Evaluate: \"\" <= 0",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"\" <= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifabcLessThanOrEqual0Working",
+      "desc": "Evaluate: \"abc\" <= 0",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"abc\" <= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifLessThanOrEqual1Working",
+      "desc": "Evaluate: [] <= 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if([] <= 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if1LessThanOrEqual0Working",
+      "desc": "Evaluate: [1] <= 0",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if([1] <= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifLessThanOrEqual1Working",
+      "desc": "Evaluate: {} <= 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if({} <= 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifa1LessThanOrEqual1Working",
+      "desc": "Evaluate: { a: 1 } <= 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if({ a: 1 } <= 1, \"Broken\", \"Working\")"
+    }
+  ]
+}

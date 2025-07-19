@@ -1,0 +1,311 @@
+{
+  "_id": "6850502a3339c0544b50778e",
+  "identifier": "doc_6850502a3339c0544b50778e",
+  "name": "New Doc",
+  "files": [
+    {
+      "_id": "6850502ad5b54e6d8570fbbf",
+      "name": "New File",
+      "pageOrder": [
+        "6850502aef6b6d67d4597e93"
+      ],
+      "pages": [
+        {
+          "_id": "6850502aef6b6d67d4597e93",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "685225e8e3dee8e62cb70433",
+              "type": "textarea",
+              "field": "textarea1",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 15
+            },
+            {
+              "_id": "fp_text1",
+              "type": "text",
+              "field": "text9",
+              "displayType": "original",
+              "x": 2,
+              "y": 16,
+              "width": 4,
+              "height": 2
+            },
+            {
+              "_id": "fp_textarea2",
+              "type": "textarea",
+              "field": "textarea2",
+              "displayType": "original",
+              "x": 2,
+              "y": 19,
+              "width": 4,
+              "height": 3
+            },
+            {
+              "_id": "fp_textarea3",
+              "type": "textarea",
+              "field": "textarea3",
+              "displayType": "original",
+              "x": 2,
+              "y": 23,
+              "width": 4,
+              "height": 3
+            },
+            {
+              "_id": "fp_textarea4",
+              "type": "textarea",
+              "field": "textarea4",
+              "displayType": "original",
+              "x": 2,
+              "y": 27,
+              "width": 4,
+              "height": 3
+            },
+            {
+              "_id": "fp_textarea5",
+              "type": "text",
+              "field": "textarea5",
+              "displayType": "original",
+              "x": 2,
+              "y": 31,
+              "width": 4,
+              "height": 2
+            },
+            {
+              "_id": "fp_textarea6",
+              "type": "text",
+              "field": "textarea6",
+              "displayType": "original",
+              "x": 2,
+              "y": 34,
+              "width": 4,
+              "height": 2
+            },
+            {
+              "_id": "fp_textarea7",
+              "type": "textarea",
+              "field": "textarea7",
+              "displayType": "original",
+              "x": 2,
+              "y": 37,
+              "width": 4,
+              "height": 3
+            },
+            {
+              "_id": "fp_text8",
+              "type": "text",
+              "field": "text8",
+              "displayType": "original",
+              "x": 2,
+              "y": 41,
+              "width": 4,
+              "height": 2
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "fields": [
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "textarea1",
+      "type": "textarea",
+      "title": "Multiline Text",
+      "identifier": "field_685225e8c41a5a27c0a7cafd",
+      "value": "Line 1\nLine 2\nLine 3"
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "text9",
+      "type": "text",
+      "title": "Check if textarea contains 'urgent'",
+      "identifier": "field_94c956a5a03f4575a66ea2b4",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea1",
+          "formula": "checkForUrgentText",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "textarea2",
+      "type": "textarea",
+      "title": "Uppercase all textarea content",
+      "identifier": "field_2ffd3d2ffd794f47add92e51",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea2",
+          "formula": "uppercaseAll",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "textarea3",
+      "type": "textarea",
+      "title": "Lowercase all textarea content",
+      "identifier": "field_b7e1820550504a09b55054b8",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea3",
+          "formula": "lowercaseAll",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "textarea4",
+      "type": "textarea",
+      "title": "Append a note to the end",
+      "identifier": "field_cc44681e405147b59286b7e9",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea4",
+          "formula": "appendNoteAtEnd",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "textarea5",
+      "type": "text",
+      "title": "Check if textarea is empty",
+      "identifier": "field_cbe29667e65a4973b0c31e20",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea5",
+          "formula": "checkForEmpty",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "textarea6",
+      "type": "text",
+      "title": "Status message if contains 'error'",
+      "identifier": "field_e53766b7bdca414dbb3395a0",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea6",
+          "formula": "checkForErrorText",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "textarea7",
+      "type": "textarea",
+      "title": "Prefix with 'User Notes:'",
+      "identifier": "field_8cee2eabdce04dc98d682641",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea7",
+          "formula": "prefixText",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "text8",
+      "type": "text",
+      "title": "Count characters in textarea",
+      "identifier": "field_cde318f3925a450ca92506bf",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "appliedtextarea8",
+          "formula": "countCharactersInText",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "checkForUrgentText",
+      "desc": "Check if textarea contains 'urgent'",
+      "type": "calc",
+      "scope": "private",
+      "expression": "contains(lower(textarea1), \"urgent\")"
+    },
+    {
+      "_id": "uppercaseAll",
+      "desc": "Uppercase all textarea content",
+      "type": "calc",
+      "scope": "private",
+      "expression": "upper(textarea1)"
+    },
+    {
+      "_id": "lowercaseAll",
+      "desc": "Lowercase all textarea content",
+      "type": "calc",
+      "scope": "private",
+      "expression": "lower(textarea1)"
+    },
+    {
+      "_id": "appendNoteAtEnd",
+      "desc": "Append a note to the end",
+      "type": "calc",
+      "scope": "private",
+      "expression": "concat(textarea1, \"\\n-- Reviewed by Admin --\")"
+    },
+    {
+      "_id": "checkForEmpty",
+      "desc": "Check if textarea is empty",
+      "type": "calc",
+      "scope": "private",
+      "expression": "empty(textarea1)"
+    },
+    {
+      "_id": "checkForErrorText",
+      "desc": "Status message if contains 'error'",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(contains(lower(textarea1), \"error\"), \"Error Detected\", \"All Clear\")"
+    },
+    {
+      "_id": "prefixText",
+      "desc": "Prefix with 'User Notes:'",
+      "type": "calc",
+      "scope": "private",
+      "expression": "concat(\"User Notes:\\n\", textarea1)"
+    },
+    {
+      "_id": "countCharactersInText",
+      "desc": "Count characters in textarea",
+      "type": "calc",
+      "scope": "private",
+      "expression": "length(textarea1)"
+    }
+  ]
+}

@@ -44,7 +44,7 @@ public final class JoyfillLogger {
 //        case .error:
 //            logger.error("\(logMessage)")
 //        }
-        
+        #if DEBUG
         print(logMessage) // Print to console in both debug and release builds
         if type == .error {
             #if DEBUG

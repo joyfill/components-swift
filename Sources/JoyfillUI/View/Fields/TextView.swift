@@ -24,7 +24,6 @@ struct TextView: View {
                 }
             }
         )
-
         return VStack(alignment: .leading) {
             FieldHeaderView(textDataModel.fieldHeaderModel)
             TextField("", text: textBinding)
@@ -85,5 +84,3 @@ struct TextView: View {
         eventHandler.onChange(event: fieldEvent)
     }
 }
-
-

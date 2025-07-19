@@ -9,7 +9,7 @@ import JoyfillModel
 import SwiftUI
 
 class Utility {
-    
+
     static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 00
     static let singleColumnWidth: CGFloat = 170
     

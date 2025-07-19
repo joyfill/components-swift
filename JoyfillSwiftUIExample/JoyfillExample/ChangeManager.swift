@@ -8,7 +8,7 @@ import JoyfillAPIService
 import Joyfill
 
 class ChangeManager: ObservableObject {
-    private let apiService: APIService
+    private let apiService: APIService?
     var showScan: (@escaping (ValueUnion) -> Void) -> Void
     private let showImagePicker:  (@escaping ([String]) -> Void) -> Void
     
@@ -16,7 +16,7 @@ class ChangeManager: ObservableObject {
     @Published var displayedChangelogs: [String] = []
     @Published var showChangelogView: Bool = false
 
-    init(apiService: APIService, showImagePicker:  @escaping(@escaping ([String]) -> Void) -> Void, showScan: @escaping (@escaping (ValueUnion) -> Void) -> Void) {
+    init(apiService: APIService? = nil, showImagePicker:  @escaping(@escaping ([String]) -> Void) -> Void, showScan: @escaping (@escaping (ValueUnion) -> Void) -> Void) {
         self.showImagePicker = showImagePicker
         self.showScan = showScan
         self.apiService = apiService
@@ -26,7 +26,7 @@ class ChangeManager: ObservableObject {
         guard let identifier = document.identifier else {
             return
         }
-        apiService.updateDocument(identifier: identifier, document: document) { result in
+        apiService?.updateDocument(identifier: identifier, document: document) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(_):
@@ -39,7 +39,7 @@ class ChangeManager: ObservableObject {
     }
 
     func updateDocument(identifier: String, changeLogs: [String: Any]) {
-        apiService.updateDocument(identifier: identifier, changeLogs: changeLogs) { result in
+        apiService?.updateDocument(identifier: identifier, changeLogs: changeLogs) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(_):

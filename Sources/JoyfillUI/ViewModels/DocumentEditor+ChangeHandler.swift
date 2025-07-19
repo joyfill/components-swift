@@ -880,7 +880,7 @@ extension DocumentEditor {
         if callOnChange {
             let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
             let cells = [
-                cellDataModel.id: newCell?.dictionary!
+                cellDataModel.id : newCell?.dictionary
             ]
             let row: [String : Any] = [
                 "_id" : rowId,
@@ -907,7 +907,7 @@ extension DocumentEditor {
             return
         }
         updateField(event: changeEvent, fieldIdentifier: fieldIdentifier)
-        handleFieldsOnChange(event: changeEvent, currentField: currentField)
+        handleFieldsOnChange(fieldIdentifier: changeEvent.fieldIdentifier, currentField: currentField)
     }
 
     /// Handles changes based on a `FieldChangeData` event.
@@ -928,7 +928,7 @@ extension DocumentEditor {
         updateField(event: event, fieldIdentifier: event.fieldIdentifier)
         if let field = field(fieldID: event.fieldIdentifier.fieldID) {
             currentField = field
-            handleFieldsOnChange(event: event, currentField: currentField)
+            handleFieldsOnChange(fieldIdentifier: event.fieldIdentifier, currentField: currentField)
         } else {
             Log("Could not find field with ID: \(event.fieldIdentifier.fieldID)", type: .error)
         }
@@ -1171,8 +1171,8 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
 
-    private func handleFieldsOnChange(event: FieldChangeData, currentField: JoyDocField) {
-        guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
+    func handleFieldsOnChange(fieldIdentifier: FieldIdentifier, currentField: JoyDocField) {
+        guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         var change = Change(v: 1,
                             sdk: "swift",
@@ -1181,7 +1181,7 @@ extension DocumentEditor {
                             identifier: context.documentIdentifier,
                             fileId: context.fileID,
                             pageId: context.pageID,
-                            fieldId: event.fieldIdentifier.fieldID,
+                            fieldId: fieldIdentifier.fieldID,
                             fieldIdentifier: context.fieldIdentifier,
                             fieldPositionId: context.fieldPositionID,
                             change: changes(fieldData: currentField),

@@ -27,7 +27,6 @@ struct MultiLineTextView: View {
                 }
             }
         )
-
         return VStack(alignment: .leading) {
             FieldHeaderView(multiLineDataModel.fieldHeaderModel)
             TextEditor(text: textBinding)

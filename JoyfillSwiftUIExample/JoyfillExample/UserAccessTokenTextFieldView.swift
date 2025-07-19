@@ -499,6 +499,10 @@ struct OptionSelectionView: View {
         case token
         case jsonToForm
         case testingChangelogs
+        case formBuilder
+        case imageReplacementTest
+        case liveViewTest
+        case allFormulaJSONs
         case schemaValidationExampleView
         case oChangeHandlerTest
         case manipulateDataOnChangeView
@@ -511,6 +515,14 @@ struct OptionSelectionView: View {
                 return "JSON to Form"
             case .testingChangelogs:
                 return "Testing Changelogs"
+            case .formBuilder:
+                return "Form Builder"
+            case .imageReplacementTest:
+                return "Image Replacement Test"
+            case .liveViewTest:
+                return "Formulas"
+            case .allFormulaJSONs:
+                return "All Formula JSONs"
             case .schemaValidationExampleView:
                 return "Schema Validation"
             case .manipulateDataOnChangeView:
@@ -528,6 +540,14 @@ struct OptionSelectionView: View {
                 return "Input JSON data to create forms directly"
             case .testingChangelogs:
                 return "Use both token and JSON with changelog testing"
+            case .formBuilder:
+                return "Build and design forms interactively"
+            case .imageReplacementTest:
+                return "Test image replacement functionality"
+            case .liveViewTest:
+                return "Test formula calculations and expressions"
+            case .allFormulaJSONs:
+                return "Test formula calculations and expressions"
             case .schemaValidationExampleView:
                 return "Test schema validation and error handling features"
             case .manipulateDataOnChangeView:
@@ -545,6 +565,14 @@ struct OptionSelectionView: View {
                 return "doc.text.fill"
             case .testingChangelogs:
                 return "testtube.2"
+            case .formBuilder:
+                return "hammer.fill"
+            case .imageReplacementTest:
+                return "photo.fill"
+            case .liveViewTest:
+                return "function"
+            case .allFormulaJSONs:
+                return "function"
             case .schemaValidationExampleView:
                 return "checkmark.seal.fill"
             case .manipulateDataOnChangeView:
@@ -562,6 +590,14 @@ struct OptionSelectionView: View {
                 return .green
             case .testingChangelogs:
                 return .orange
+            case .formBuilder:
+                return .cyan
+            case .imageReplacementTest:
+                return .purple
+            case .liveViewTest:
+                return .red
+            case .allFormulaJSONs:
+                return .yellow
             case .schemaValidationExampleView:
                 return .red
             case .manipulateDataOnChangeView:
@@ -606,7 +642,6 @@ struct OptionSelectionView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    
                     // Continue Button
                     NavigationLink(
                         destination: destinationView(),
@@ -654,27 +689,38 @@ struct OptionSelectionView: View {
             }
             .navigationBarHidden(true)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
+        .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
     }
     
     @ViewBuilder
     private func destinationView() -> some View {
         switch selectedOption {
         case .token:
-            ScrollView {
-                VStack {
-                    UserAccessTokenTextFieldView(isAlreadyToken: false, enableChangelogs: false)
+            AnyView(
+                ScrollView {
+                    VStack {
+                        UserAccessTokenTextFieldView(isAlreadyToken: false, enableChangelogs: false)
+                    }
                 }
-            }
-            .modifier(KeyboardDismissModifier())
+                .modifier(KeyboardDismissModifier())
+            )
         case .jsonToForm:
-            ScrollView {
-                VStack {
-                    UserJsonTextFieldView(enableChangelogs: false)
+            AnyView(
+                ScrollView {
+                    VStack {
+                        UserJsonTextFieldView(enableChangelogs: false)
+                    }
                 }
-            }
-            .modifier(KeyboardDismissModifier())
+                .modifier(KeyboardDismissModifier())
+            )
         case .testingChangelogs:
+            AnyView(TestingChangelogsView())
+        case .formBuilder:
+            AnyView(FormBuilderView())
+        case .imageReplacementTest:
+            AnyView(ImageReplacementTest())
+        case .liveViewTest:
+            AnyView(LiveViewTest())
             TestingChangelogsView()
         case .schemaValidationExampleView:
             SchemaValidationExampleView()
@@ -683,7 +729,9 @@ struct OptionSelectionView: View {
         case .oChangeHandlerTest:
             OnChangeHandlerTest()
         case .none:
-            EmptyView()
+            AnyView(EmptyView())
+        case .some(.allFormulaJSONs):
+            AllSampleJSONs()
         }
     }
 }
@@ -801,5 +849,4 @@ struct TestingChangelogsView: View {
         }
         .modifier(KeyboardDismissModifier())
     }
-}
-
+} 

@@ -2,6 +2,7 @@ import Foundation
 import JoyfillModel
 
 extension JoyDoc {
+
     func setDocument() -> JoyDoc {
         var document = self
         document.id = "6629fc6367b3a40644096182"
@@ -734,24 +735,6 @@ extension JoyDoc {
         field.description = ""
         field.value = .string("Valid")
         field.required = true
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "6629fab3c0ba3fb775b4a55c"
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
-    func setNumberField() -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "number"
-        field.id = "6629fb3df03de10b26270ab3"
-        field.identifier = "field_6629fb3fabb87e37c9578b8b"
-        field.title = "Number"
-        field.description = ""
-        field.value = .double(98789)
-        field.required = false
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false
@@ -1624,7 +1607,7 @@ extension JoyDoc {
         return document
     }
     
-    func setNumberPosition() -> JoyDoc {
+    func setNumberPositionInMobile() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb3df03de10b26270ab3"
         fieldPosition.displayType = "original"
@@ -1636,10 +1619,11 @@ extension JoyDoc {
         fieldPosition.type = .number
         var document = self
         document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
+
         return document
     }
-    
-    func setNumberPositionInMobile() -> JoyDoc {
+
+    func setNumberPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb3df03de10b26270ab3"
         fieldPosition.displayType = "original"
@@ -1653,7 +1637,7 @@ extension JoyDoc {
         document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
-    
+
     func setDatePosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb44c79bb16ce072d233"
@@ -2329,13 +2313,14 @@ extension JoyDoc {
         return updatedDocument
     }
     
-    func setNumberField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setNumberField(hidden: Bool = false, value: ValueUnion? = .double(98789)) -> JoyDoc {
         var field = JoyDocField()
         field.type = "number"
         field.id = "6629fb3df03de10b26270ab3"
         field.identifier = "field_6629fb3fabb87e37c9578b8b"
         field.title = "Number"
         field.description = ""
+        field.required = false
         field.value = value
         field.tipTitle = ""
         field.tipDescription = ""
