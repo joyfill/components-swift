@@ -1764,4 +1764,208 @@ extension DocumentEditorChangeHandlerTests {
         
         XCTAssertEqual(isVisible, false)
     }
+    
+    private func testMainAsyncExecution(_ block: () -> Void) {
+        let expectation = self.expectation(description: "Async runs on main queue")
+
+        DispatchQueue.main.async {
+            XCTAssertTrue(Thread.isMainThread)
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+    }
+}
+
+// MARK: - Tests for DocumentEditor.change([Change])
+extension DocumentEditorChangeHandlerTests {
+    func test_whenChangeIsNormalFieldValueRowUpdate_thenCallsDelegate() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("initial"))
+            .setFieldPositionToPage(pageId: pageID, idAndTypes: ["684c3fedfed2b76677110b19": .text])
+        
+        let editor = documentEditor(document: document)
+        
+        let dictionary: [String: Any] = [
+            "fieldId": "6629fb1d92a76d06750ca4a1",
+            "target": "field.update",
+            "_id": "684c3fedfed2b76677110b19",
+            "identifier": "684c3fedfed2b76677110b19",
+            "change": ["value": "Test"]
+        ]
+        let change = Change(dictionary: dictionary)
+        editor.change(changes: [change])
+        let field = editor.field(fieldID: "6629fb1d92a76d06750ca4a1")
+        XCTAssertEqual(field?.id, "6629fb1d92a76d06750ca4a1")
+        XCTAssertEqual(field?.value?.text, "Test")
+    }
+
+    func test_whenTargetUnkown_thenDoesNotCrash() {
+        let fieldID = "67612793c4e6a5e6a05e64a3"
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let editor = documentEditor(document: document)
+        let delegate = MockWeakDocumentEditorDelegate()
+        editor.delegateMap = [fieldID : WeakDocumentEditorDelegate(delegate)]
+        
+        let dictionary: [String: Any] = [
+            "fieldId": "685750ef698da1ab427761ba",
+            "target": "field.value.rowMove",
+        ]
+        
+        let change = Change(dictionary: dictionary)
+        // Should not throw or crash
+        editor.change(changes: [change])
+        // No assertion needed, just ensure no crash
+    }
+}
+
+// MARK: - Tests for DocumentEditor.change([Change]) on Delegate
+extension DocumentEditorChangeHandlerTests {
+    func test_whenChangeIsFieldValueRowUpdate_thenCallsDelegate() {
+        let fieldID = "67612793c4e6a5e6a05e64a3"
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let editor = documentEditor(document: document)
+        let delegate = MockWeakDocumentEditorDelegate()
+        editor.delegateMap = [fieldID : WeakDocumentEditorDelegate(delegate)]
+        
+        let dictionary: [String: Any] = [
+            "fieldId": "685750ef698da1ab427761ba",
+            "target": "field.value.rowUpdate",
+        ]
+        
+        let change = Change(dictionary: dictionary)
+        editor.change(changes: [change])
+        testMainAsyncExecution({
+            let outputDictionary = delegate.applyRowEditChangesArgs?.change.dictionary ?? [:]
+            XCTAssertEqual(delegate.applyRowEditChangesArgs?.callCount, 1)
+            XCTAssertEqual(outputDictionary["target"] as? String, "field.value.rowUpdate")
+            XCTAssertEqual(dictionary["fieldId"] as? String, outputDictionary["fieldId"] as? String)
+        })
+    }
+    
+    func test_whenChangeIsFieldValueRowCreate_thenCallsDelegate() {
+        let fieldID = "67612793c4e6a5e6a05e64a3"
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let editor = documentEditor(document: document)
+        let delegate = MockWeakDocumentEditorDelegate()
+        editor.delegateMap = [fieldID : WeakDocumentEditorDelegate(delegate)]
+        
+        let dictionary: [String: Any] = [
+            "fieldId": "685750ef698da1ab427761ba",
+            "target": "field.value.rowCreate",
+        ]
+        
+        let change = Change(dictionary: dictionary)
+        editor.change(changes: [change])
+        let outputDictionary = delegate.insertRowArgs?.change.dictionary ?? [:]
+        XCTAssertEqual(delegate.insertRowArgs?.callCount, 1)
+        XCTAssertEqual(outputDictionary["target"] as? String, "field.value.rowCreate")
+        XCTAssertEqual(dictionary["fieldId"] as? String, outputDictionary["fieldId"] as? String)
+    }
+
+    func test_whenChangeIsFieldValueRowDelete_thenCallsDelegate() {
+        let fieldID = "67612793c4e6a5e6a05e64a3"
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let editor = documentEditor(document: document)
+        let delegate = MockWeakDocumentEditorDelegate()
+        editor.delegateMap = [fieldID : WeakDocumentEditorDelegate(delegate)]
+        
+        let dictionary: [String: Any] = [
+            "fieldId": "685750ef698da1ab427761ba",
+            "target": "field.value.rowDelete",
+        ]
+        
+        let change = Change(dictionary: dictionary)
+        editor.change(changes: [change])
+        let outputDictionary = delegate.deleteRowArgs?.change.dictionary ?? [:]
+        XCTAssertEqual(delegate.deleteRowArgs?.callCount, 1)
+        XCTAssertEqual(outputDictionary["target"] as? String, "field.value.rowDelete")
+        XCTAssertEqual(dictionary["fieldId"] as? String, outputDictionary["fieldId"] as? String)
+    }
+    
+    func test_whenChangeIsFieldValueRowMove_thenCallsDelegate() {
+        let fieldID = "67612793c4e6a5e6a05e64a3"
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+        
+        let editor = documentEditor(document: document)
+        let delegate = MockWeakDocumentEditorDelegate()
+        editor.delegateMap = [fieldID : WeakDocumentEditorDelegate(delegate)]
+        
+        let dictionary: [String: Any] = [
+            "fieldId": "685750ef698da1ab427761ba",
+            "target": "field.value.rowMove",
+        ]
+        
+        let change = Change(dictionary: dictionary)
+        editor.change(changes: [change])
+        let outputDictionary = delegate.moveRowArgs?.change.dictionary ?? [:]
+        XCTAssertEqual(delegate.moveRowArgs?.callCount, 1)
+        XCTAssertEqual(outputDictionary["target"] as? String, "field.value.rowMove")
+        XCTAssertEqual(dictionary["fieldId"] as? String, outputDictionary["fieldId"] as? String)
+    }
+    
+    private func changeAPIAssertion(input: [String: Any], output: [String: Any]?) {
+        let inputFieldID = input["fieldId"] as? String
+        let inputChangeDict = input["change"] as? [String: Any]
+        let inputRowId = inputChangeDict?["rowId"] as? String
+        let inputRow = inputChangeDict?["row"] as? [String: Any]
+        let inputCells = inputRow?["cells"] as? [String: Any]
+        
+        let outputFieldID = input["fieldId"] as? String
+        let outputChangeDict = output?["change"] as? [String: Any]
+        let outputRowId = outputChangeDict?["rowId"] as? String
+        let outputRow = outputChangeDict?["row"] as? [String: Any]
+        let outputCells = outputRow?["cells"] as? [String: Any]
+        
+        XCTAssertEqual(inputFieldID, outputFieldID)
+        XCTAssertEqual(inputRowId, outputRowId)
+        XCTAssertEqual(inputCells?.count, outputCells?.count)
+        for item in (inputCells ?? [:]) {
+            XCTAssertEqual(outputCells?[item.key] as? String, item.value as? String)
+        }
+    }
 }

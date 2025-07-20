@@ -23,7 +23,7 @@ private enum ChangeTargetType: String {
 // Weak wrapper to hold multiple delegates without causing retain cycles
 public class WeakDocumentEditorDelegate {
     weak var value: DocumentEditorDelegate?
-    init(_ value: DocumentEditorDelegate) { self.value = value }
+    public init(_ value: DocumentEditorDelegate) { self.value = value }
 }
 
 public protocol DocumentEditorDelegate: AnyObject {
