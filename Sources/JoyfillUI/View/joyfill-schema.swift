@@ -94,7 +94,15 @@ public var joyfillSchema = """
               "$ref": "#/definitions/View"
             }
           }
-        }
+        },
+        "required": [
+          "_id",
+          "name",
+          "styles",
+          "pages",
+          "pageOrder",
+          "views"
+        ]
       },
       "CoreStyles": {
         "type": "object",
@@ -1078,7 +1086,15 @@ public var joyfillSchema = """
             "type": "boolean"
           },
           "value": {
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "const": ""
+              }
+            ]
           }
         },
         "required": [
@@ -1134,7 +1150,10 @@ public var joyfillSchema = """
             "type": "boolean"
           },
           "value": {
-            "type": "number"
+            "type": [
+              "number",
+              "null"
+            ]
           },
           "format": {
             "type": "string",
