@@ -1,0 +1,504 @@
+{
+  "_id": "686fcc012bc57a59b7246d4d",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_686fcc012bc57a59b7246d4d",
+  "name": "NO-1284 Blank template",
+  "createdOn": 1752157196321,
+  "files": [
+    {
+      "_id": "686fcc0108d51ab760970d0a",
+      "metadata": {},
+      "name": "NO-1284 Blank template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "686ffc142e8c7535078b87a9",
+              "type": "text",
+              "field": "686ffc12acdcca67e9c5f777",
+              "displayType": "original",
+              "x": 4,
+              "y": 54,
+              "width": 4,
+              "height": 8,
+              "titleFontColor": "#0700ff",
+              "titleFontStyle": "italic",
+              "titleTextDecoration": "underline",
+              "titleTextTransform": "uppercase",
+              "fontSize": 14,
+              "fontColor": "#3300ff",
+              "textDecoration": "underline",
+              "textTransform": "uppercase",
+              "textOverflow": "",
+              "backgroundColor": "#edff00",
+              "borderColor": "#f200c5",
+              "borderWidth": 2,
+              "borderRadius": 2,
+              "padding": 2,
+              "margin": 2
+            },
+            {
+              "_id": "686ffc1d810940197c138d0d",
+              "type": "text",
+              "field": "686ffc14a79eb72410bf99c3",
+              "displayType": "original",
+              "x": 4,
+              "y": 46,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ffc2097ecb23f59ccc05a",
+              "type": "textarea",
+              "field": "686ffc1d05f7cd71e449c07d",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "686ffc23892f31a01e6990e6",
+              "type": "textarea",
+              "field": "686ffc21f394f5fa0568e7d5",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "686ffc265dad5bd2998dcc84",
+              "type": "textarea",
+              "field": "686ffc250f287c4fa35fa2e6",
+              "displayType": "original",
+              "x": 0,
+              "y": 23,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "686ffc29248262c0296ac215",
+              "type": "textarea",
+              "field": "686ffc26488d56442fd6d95a",
+              "displayType": "original",
+              "x": 4,
+              "y": 23,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "686ffc2a86135782751ec6eb",
+              "type": "textarea",
+              "field": "686ffc29b8a2160b517a0132",
+              "displayType": "original",
+              "x": 0,
+              "y": 46,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "686fff58069e1796e4ac97f2",
+              "type": "text",
+              "field": "686fff566becba0c0d0e0cab",
+              "displayType": "original",
+              "x": 0,
+              "y": 69,
+              "width": 4,
+              "height": 8,
+              "titleTextAlign": "right",
+              "textAlign": "right"
+            },
+            {
+              "_id": "686fff59bc0a73dccc816f20",
+              "type": "text",
+              "field": "686fff586cf5387937b1afe7",
+              "displayType": "original",
+              "x": 4,
+              "y": 62,
+              "width": 4,
+              "height": 8,
+              "titleTextAlign": "center",
+              "textAlign": "center"
+            },
+            {
+              "_id": "686fff5b8fa47704e2acdfca",
+              "type": "text",
+              "field": "686fff59300de166eedb285a",
+              "displayType": "original",
+              "x": 4,
+              "y": 70,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870005ab2ff7a8218d79573",
+              "type": "text",
+              "field": "68700055f6a56ffbf4049c8d",
+              "displayType": "original",
+              "x": 0,
+              "y": 77,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "686fcc015718a8cc66ceb49d",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "686fcc015718a8cc66ceb49d"
+      ],
+      "views": [
+        {
+          "_id": "687000b9117d01273f14975f",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "686ffc2097ecb23f59ccc05a",
+                  "type": "textarea",
+                  "field": "686ffc1d05f7cd71e449c07d",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 180,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ffc23892f31a01e6990e6",
+                  "type": "textarea",
+                  "field": "686ffc21f394f5fa0568e7d5",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 180,
+                  "width": 1,
+                  "height": 180,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ffc265dad5bd2998dcc84",
+                  "type": "textarea",
+                  "field": "686ffc250f287c4fa35fa2e6",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 360,
+                  "width": 1,
+                  "height": 180,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ffc29248262c0296ac215",
+                  "type": "textarea",
+                  "field": "686ffc26488d56442fd6d95a",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 540,
+                  "width": 1,
+                  "height": 180,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ffc2a86135782751ec6eb",
+                  "type": "textarea",
+                  "field": "686ffc29b8a2160b517a0132",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 720,
+                  "width": 1,
+                  "height": 180,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ffc1d810940197c138d0d",
+                  "type": "text",
+                  "field": "686ffc14a79eb72410bf99c3",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 900,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ffc142e8c7535078b87a9",
+                  "type": "text",
+                  "field": "686ffc12acdcca67e9c5f777",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 964,
+                  "width": 1,
+                  "height": 64,
+                  "titleFontColor": "#0700ff",
+                  "titleFontStyle": "italic",
+                  "titleTextDecoration": "underline",
+                  "titleTextTransform": "uppercase",
+                  "fontSize": 14,
+                  "fontColor": "#3300ff",
+                  "textDecoration": "underline",
+                  "textTransform": "uppercase",
+                  "textOverflow": "",
+                  "backgroundColor": "#edff00",
+                  "borderColor": "#f200c5",
+                  "borderWidth": 2,
+                  "borderRadius": 2,
+                  "padding": 2,
+                  "margin": 2,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686fff59bc0a73dccc816f20",
+                  "type": "text",
+                  "field": "686fff586cf5387937b1afe7",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 1028,
+                  "width": 1,
+                  "height": 64,
+                  "titleTextAlign": "center",
+                  "textAlign": "center",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686fff58069e1796e4ac97f2",
+                  "type": "text",
+                  "field": "686fff566becba0c0d0e0cab",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 1092,
+                  "width": 1,
+                  "height": 64,
+                  "titleTextAlign": "right",
+                  "textAlign": "right",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686fff5b8fa47704e2acdfca",
+                  "type": "text",
+                  "field": "686fff59300de166eedb285a",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 1156,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870005ab2ff7a8218d79573",
+                  "type": "text",
+                  "field": "68700055f6a56ffbf4049c8d",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 1220,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                }
+              ],
+              "hidden": false,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "686fcc015718a8cc66ceb49d",
+              "metadata": {},
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "686fcc015718a8cc66ceb49d"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ffc12acdcca67e9c5f777",
+      "type": "text",
+      "title": "Text || Required || multi line text condition 1 is filled",
+      "identifier": "field_686ffc14381c0c335ccc9647",
+      "required": true,
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ffc1d05f7cd71e449c07d",
+            "condition": "*="
+          }
+        ]
+      },
+      "tipVisible": true,
+      "tipTitle": "Text tooltip Title ",
+      "tipDescription": "Text tooltip description"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ffc14a79eb72410bf99c3",
+      "type": "text",
+      "title": "Text Readonly",
+      "identifier": "field_686ffc1db1a2feda8d3b1dfa",
+      "disabled": true
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ffc1d05f7cd71e449c07d",
+      "type": "textarea",
+      "title": "Multiline Text Condition 1",
+      "identifier": "field_686ffc20ab78e80560ca9563",
+      "value": "This should be filled "
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ffc21f394f5fa0568e7d5",
+      "type": "textarea",
+      "title": "Multiline Text Condition 2",
+      "identifier": "field_686ffc230941f55370477128"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ffc250f287c4fa35fa2e6",
+      "type": "textarea",
+      "title": "Multiline Text Condition 3",
+      "identifier": "field_686ffc265a2ba37f7c8d73cb",
+      "value": "god"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ffc26488d56442fd6d95a",
+      "type": "textarea",
+      "title": "Multiline Text Condition 4",
+      "identifier": "field_686ffc2930dc96adc363d99f",
+      "value": "something other than thanos"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ffc29b8a2160b517a0132",
+      "type": "textarea",
+      "title": "Multiline Text Condition 5",
+      "identifier": "field_686ffc2a5369d3f1ba5f70d6",
+      "value": "thor"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686fff566becba0c0d0e0cab",
+      "type": "text",
+      "title": "Text || Multiline text 3",
+      "identifier": "field_686fff58559ef092bf04d60c",
+      "required": false,
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ffc250f287c4fa35fa2e6",
+            "condition": "=",
+            "value": "god"
+          }
+        ]
+      },
+      "value": "This field has right indentation bro"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686fff586cf5387937b1afe7",
+      "type": "text",
+      "title": "Text hidden || multi line condition 2  is empty || middle indentation",
+      "identifier": "field_686fff59fc01e95e0558b1fe",
+      "required": false,
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ffc21f394f5fa0568e7d5",
+            "condition": "null="
+          }
+        ]
+      },
+      "value": "Default value check "
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686fff59300de166eedb285a",
+      "type": "text",
+      "title": "Text hidden || multiline text 4 is not thanos",
+      "identifier": "field_686fff5b69de80ed44598f5c",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ffc26488d56442fd6d95a",
+            "condition": "!=",
+            "value": "thanos"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "68700055f6a56ffbf4049c8d",
+      "type": "text",
+      "title": "Text hidden textarea condition 5 contains thor",
+      "identifier": "field_6870005a17d8e29071fbb223",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ffc29b8a2160b517a0132",
+            "condition": "?=",
+            "value": "thor"
+          }
+        ]
+      }
+    }
+  ],
+  "deleted": false,
+  "categories": []
+}

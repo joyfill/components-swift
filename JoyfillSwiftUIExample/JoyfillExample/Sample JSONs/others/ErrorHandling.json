@@ -49,7 +49,8 @@
             ],
             "styles": {
                 "margin": 4
-            }
+            },
+            "views": []
         }
     ],
     "fields": [

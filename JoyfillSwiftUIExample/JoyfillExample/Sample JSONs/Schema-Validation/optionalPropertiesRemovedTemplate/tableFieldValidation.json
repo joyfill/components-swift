@@ -1,0 +1,986 @@
+{
+  "_id": "68779ec00f4a740e6db5f261",
+  "type": "template",
+  "name": "NO-1284 Optional Properties Removed Template",
+  "createdOn": 1752669902986,
+  "files": [
+      {
+          "_id": "68779ec0c656659458e50af5",
+          "name": "NO-1284 Optional Properties Removed Template",
+          "version": 1,
+          "styles": {
+              "margin": 4
+          },
+          "pages": [
+              {
+                  "name": "New Page",
+                  "fieldPositions": [
+                      {
+                          "_id": "6877d3d484b500fd4a5c22f7",
+                          "type": "text",
+                          "field": "6877d3cd6b4efa3213718674",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 0,
+                          "width": 4,
+                          "height": 8
+                      },
+                      {
+                          "_id": "6877d3d56610cf743d92d469",
+                          "type": "text",
+                          "field": "6877d3d476f67406d6f6c544",
+                          "displayType": "original",
+                          "x": 4,
+                          "y": 0,
+                          "width": 4,
+                          "height": 8
+                      },
+                      {
+                          "_id": "6877d3d768d4fe347907fdcb",
+                          "type": "text",
+                          "field": "6877d3d646718f6becc75cb0",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 8,
+                          "width": 4,
+                          "height": 8
+                      },
+                      {
+                          "_id": "6877d3d83dd1007b01648075",
+                          "type": "text",
+                          "field": "6877d3d77d3d39593eb5ef64",
+                          "displayType": "original",
+                          "x": 4,
+                          "y": 8,
+                          "width": 4,
+                          "height": 8
+                      },
+                      {
+                          "_id": "6877d3d9ae3cbb5da3c72d70",
+                          "type": "text",
+                          "field": "6877d3d8df9aeb108b70c1f5",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 16,
+                          "width": 4,
+                          "height": 8
+                      },
+                      {
+                          "_id": "6877d409266ab1bdf25568d9",
+                          "type": "table",
+                          "field": "6877d407ca6cebe5a7aecd4d",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 24,
+                          "width": 8,
+                          "height": 15
+                      },
+                      {
+                          "_id": "6877d40beb751f2a4fc342d6",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 54,
+                          "width": 8,
+                          "height": 29
+                       
+                      },
+                      {
+                          "_id": "6877d4cfeadae5c364072643",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 0,
+                          "y": 39,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4d2c4ee2c00a597175a",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 2,
+                          "y": 39,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4d4b3cb7ea9014ca87c",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 4,
+                          "y": 39,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4d6c9e665694519a7ed",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 6,
+                          "y": 39,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4d95dac5af7571aa6e6",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 0,
+                          "y": 44,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4da00bfba20cf0d2fc0",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 2,
+                          "y": 44,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4dfa286c2a3a5ae0e73",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 4,
+                          "y": 44,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4e045febc9524f6840c",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 6,
+                          "y": 44,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4e5cb28a50d9b494799",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 0,
+                          "y": 49,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4e9e6a5ea03e05b5943",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 2,
+                          "y": 49,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d4ed16a8f3dc320e0a67",
+                          "type": "table",
+                          "field": "6877d409dd42fc24076b6f90",
+                          "displayType": "text",
+                          "x": 4,
+                          "y": 49,
+                          "width": 2,
+                          "height": 5
+                      },
+                      {
+                          "_id": "6877d53596c63df6bb7599b0",
+                          "type": "table",
+                          "field": "6877d535ee3e9b320839970f",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 83,
+                          "width": 8,
+                          "height": 29,
+                          "tableColumns": {
+                              "6877d42d4d8bdb682a581bc1": {
+                              },
+                              "6877d43cc4d793d56fa83775": {
+                              },
+                              "6877d43df032f7f54ab1a2f6": {
+                              }
+                          }
+                      },
+                      {
+                          "_id": "6877d54783b4a22de5253e15",
+                          "type": "table",
+                          "field": "6877d5474e773002f986ae3e",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 112,
+                          "width": 8,
+                          "height": 29,
+                          "tableColumns": {
+                              "6877d42d4d8bdb682a581bc1": {
+                              },
+                              "6877d43cc4d793d56fa83775": {
+                              },
+                              "6877d43df032f7f54ab1a2f6": {
+                              },
+                              "6877d3afb4a5446d108f64bd": {
+                              },
+                              "6877d3af016745bb7e97652d": {
+                              },
+                              "6877d4299100769b315c40d4": {
+                              },
+                              "6877d42bc1e09a43430a2fb5": {
+                              },
+                              "6877d42ce299bfe7f4a89a98": {
+                              },
+                              "6877d42f4df3f003c034a762": {
+                              },
+                              "6877d431d7bb800953cfbea5": {
+                              },
+                              "6877d433344386bb84a76034": {
+                              }
+                          }
+                      },
+                      {
+                          "_id": "6877dcc8d8834ff7898230d2",
+                          "type": "table",
+                          "field": "6877dcc8c1b6eb7a8d447f0a",
+                          "displayType": "original",
+                          "x": 0,
+                          "y": 141,
+                          "width": 8,
+                          "height": 29,
+                          "tableColumns": {
+                              "6877d42d4d8bdb682a581bc1": {
+                              },
+                              "6877d43cc4d793d56fa83775": {
+                              },
+                              "6877d43df032f7f54ab1a2f6": {
+                              },
+                              "6877d3afb4a5446d108f64bd": {
+                              },
+                              "6877d3af016745bb7e97652d": {
+                              },
+                              "6877d4299100769b315c40d4": {
+                              },
+                              "6877d42bc1e09a43430a2fb5": {
+                              },
+                              "6877d42ce299bfe7f4a89a98": {
+                              },
+                              "6877d42f4df3f003c034a762": {
+                              },
+                              "6877d431d7bb800953cfbea5": {
+                              },
+                              "6877d433344386bb84a76034": {
+                              }
+                          }
+                      }
+                  ],
+                  "width": 816,
+                  "height": 1056,
+                  "cols": 8,
+                  "rowHeight": 8,
+                  "layout": "grid",
+                  "presentation": "normal",
+                  "_id": "68779ec0ef32e5de07b769f3"
+              }
+          ],
+          "pageOrder": [
+              "68779ec0ef32e5de07b769f3"
+          ],
+          "views": [
+              {
+                  "_id": "6877dcd5a4625a72d35612b7",
+                  "pages": [
+                      {
+                          "name": "New Page",
+                          "fieldPositions": [
+                              {
+                                  "_id": "6877d3d484b500fd4a5c22f7",
+                                  "type": "text",
+                                  "field": "6877d3cd6b4efa3213718674",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 0,
+                                  "width": 1,
+                                  "height": 64
+                              },
+                              {
+                                  "_id": "6877d3d56610cf743d92d469",
+                                  "type": "text",
+                                  "field": "6877d3d476f67406d6f6c544",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 64,
+                                  "width": 1,
+                                  "height": 64
+                              },
+                              {
+                                  "_id": "6877d3d768d4fe347907fdcb",
+                                  "type": "text",
+                                  "field": "6877d3d646718f6becc75cb0",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 128,
+                                  "width": 1,
+                                  "height": 64
+                              },
+                              {
+                                  "_id": "6877d3d83dd1007b01648075",
+                                  "type": "text",
+                                  "field": "6877d3d77d3d39593eb5ef64",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 192,
+                                  "width": 1,
+                                  "height": 64
+                              },
+                              {
+                                  "_id": "6877d3d9ae3cbb5da3c72d70",
+                                  "type": "text",
+                                  "field": "6877d3d8df9aeb108b70c1f5",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 256,
+                                  "width": 1,
+                                  "height": 64
+                              },
+                              {
+                                  "_id": "6877d409266ab1bdf25568d9",
+                                  "type": "table",
+                                  "field": "6877d407ca6cebe5a7aecd4d",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 320,
+                                  "width": 1,
+                                  "height": 116
+                              },
+                              {
+                                  "_id": "6877d4cfeadae5c364072643",
+                                  "type": "table",
+                                  "field": "6877d409dd42fc24076b6f90",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 436,
+                                  "width": 1,
+                                  "height": 116
+                                 
+                              },
+                              {
+                                  "_id": "6877d53596c63df6bb7599b0",
+                                  "type": "table",
+                                  "field": "6877d535ee3e9b320839970f",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 552,
+                                  "width": 1,
+                                  "height": 116
+                              },
+                              {
+                                  "_id": "6877d54783b4a22de5253e15",
+                                  "type": "table",
+                                  "field": "6877d5474e773002f986ae3e",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 668,
+                                  "width": 1,
+                                  "height": 116,
+                                  "tableColumns": {
+                                      "6877d42d4d8bdb682a581bc1": {
+                                      },
+                                      "6877d43cc4d793d56fa83775": {
+                                      },
+                                      "6877d43df032f7f54ab1a2f6": {
+                                      },
+                                      "6877d3afb4a5446d108f64bd": {
+                                      },
+                                      "6877d3af016745bb7e97652d": {
+                                      },
+                                      "6877d4299100769b315c40d4": {
+                                      },
+                                      "6877d42bc1e09a43430a2fb5": {
+                                      },
+                                      "6877d42ce299bfe7f4a89a98": {
+                                      },
+                                      "6877d42f4df3f003c034a762": {
+                                      },
+                                      "6877d431d7bb800953cfbea5": {
+                                      },
+                                      "6877d433344386bb84a76034": {
+                                      }
+                                  }
+                              },
+                              {
+                                  "_id": "6877dcc8d8834ff7898230d2",
+                                  "type": "table",
+                                  "field": "6877dcc8c1b6eb7a8d447f0a",
+                                  "displayType": "original",
+                                  "x": 0,
+                                  "y": 784,
+                                  "width": 1,
+                                  "height": 116,
+                                  "tableColumns": {
+                                      "6877d42d4d8bdb682a581bc1": {
+                                      },
+                                      "6877d43cc4d793d56fa83775": {
+                                      },
+                                      "6877d43df032f7f54ab1a2f6": {
+                                      },
+                                      "6877d3afb4a5446d108f64bd": {
+                                      },
+                                      "6877d3af016745bb7e97652d": {
+                                      },
+                                      "6877d4299100769b315c40d4": {
+                                      },
+                                      "6877d42bc1e09a43430a2fb5": {
+                                      },
+                                      "6877d42ce299bfe7f4a89a98": {
+                                      },
+                                      "6877d42f4df3f003c034a762": {
+                                      },
+                                      "6877d431d7bb800953cfbea5": {
+                                      },
+                                      "6877d433344386bb84a76034": {
+                                      }
+                                  }
+                              }
+                          ],
+                          "width": 816,
+                          "height": 1056,
+                          "cols": 1,
+                          "rowHeight": 1,
+                          "layout": "grid",
+                          "presentation": "normal",
+                          "_id": "68779ec0ef32e5de07b769f3",
+                          "fileName": "",
+                          "filePath": ""
+                      }
+                  ],
+                  "pageOrder": [
+                      "68779ec0ef32e5de07b769f3"
+                  ]
+              }
+          ]
+      }
+  ],
+  "fields": [
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d3cd6b4efa3213718674",
+          "type": "text"
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d3d476f67406d6f6c544",
+          "type": "text"
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d3d646718f6becc75cb0",
+          "type": "text"
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d3d77d3d39593eb5ef64",
+          "type": "text"
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d3d8df9aeb108b70c1f5",
+          "type": "text"
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d407ca6cebe5a7aecd4d",
+          "type": "table",
+          "tableColumns": [
+              {
+                  "_id": "6877d3afb4a5446d108f64bd",
+                  "type": "text"
+              },
+              {
+                  "_id": "6877d3af016745bb7e97652d",
+                  "type": "dropdown",
+                  "options": [
+                      {
+                          "_id": "6877d3af1874ee11d7aa7382",
+                          "value": "Yes"
+                          
+                      },
+                      {
+                          "_id": "6877d3afb8664318f1dbb53c",
+                          "value": "No"
+                         
+                      },
+                      {
+                          "_id": "6877d3afcca8dacc041f98ed",
+                          "value": "N/A"
+                      }
+                  ]
+              },
+              {
+                  "_id": "6877d3af0933a51a3d694025",
+                  "type": "text"
+              }
+          ],
+          "value": [
+              {
+                  "_id": "6877d3af0ecfa6831061cd8d",
+                  "deleted": false
+              },
+              {
+                  "_id": "6877d3af5a3797ab88408ee6",
+                  "deleted": false
+              },
+              {
+                  "_id": "6877d3af4bd9d3a4fded9567",
+                  "deleted": false
+              }
+          ],
+          "tableColumnOrder": [
+              "6877d3afb4a5446d108f64bd",
+              "6877d3af016745bb7e97652d",
+              "6877d3af0933a51a3d694025"
+          ],
+          "rowOrder": [
+              "6877d3af0ecfa6831061cd8d",
+              "6877d3af5a3797ab88408ee6",
+              "6877d3af4bd9d3a4fded9567"
+          ]
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d409dd42fc24076b6f90",
+          "type": "table",
+          "tableColumns": [
+              {
+                  "_id": "6877d3afb4a5446d108f64bd",
+                  "type": "text"
+              },
+              {
+                  "_id": "6877d3af016745bb7e97652d",
+                  "type": "dropdown",
+                  "options": [
+                      {
+                          "_id": "6877d3af1874ee11d7aa7382",
+                          "value": "Yes"
+                      },
+                      {
+                          "_id": "6877d3afb8664318f1dbb53c",
+                          "value": "No"
+                      },
+                      {
+                          "_id": "6877d3afcca8dacc041f98ed",
+                          "value": "N/A"
+                      }
+                  ]
+              },
+              {
+                  "_id": "6877d4299100769b315c40d4",
+                  "type": "image"
+              },
+              {
+                  "_id": "6877d42bc1e09a43430a2fb5",
+                  "type": "multiSelect"
+              },
+              {
+                  "_id": "6877d42ce299bfe7f4a89a98",
+                  "type": "number"
+              },
+              {
+                  "_id": "6877d42d4d8bdb682a581bc1",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d42f4df3f003c034a762",
+                  "type": "block"
+              },
+              {
+                  "_id": "6877d431d7bb800953cfbea5",
+                  "type": "barcode"
+              },
+              {
+                  "_id": "6877d433344386bb84a76034",
+                  "type": "signature"
+              },
+              {
+                  "_id": "6877d43cc4d793d56fa83775",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d43df032f7f54ab1a2f6",
+                  "type": "date"
+              }
+          ],
+          "value": [
+              {
+                  "_id": "6877d3af0ecfa6831061cd8d",
+                  "deleted": false,
+                  "cells": {}
+              },
+              {
+                  "_id": "6877d3af5a3797ab88408ee6",
+                  "deleted": false,
+                  "cells": {}
+              },
+              {
+                  "_id": "6877d3af4bd9d3a4fded9567",
+                  "deleted": false,
+                  "cells": {}
+              },
+              {
+                  "_id": "6877d492899ade4ed3e8c8e2",
+                  "deleted": false
+              }
+          ],
+          "tableColumnOrder": [
+              "6877d3afb4a5446d108f64bd",
+              "6877d3af016745bb7e97652d",
+              "6877d4299100769b315c40d4",
+              "6877d42bc1e09a43430a2fb5",
+              "6877d42ce299bfe7f4a89a98",
+              "6877d42d4d8bdb682a581bc1",
+              "6877d42f4df3f003c034a762",
+              "6877d431d7bb800953cfbea5",
+              "6877d433344386bb84a76034",
+              "6877d43cc4d793d56fa83775",
+              "6877d43df032f7f54ab1a2f6"
+          ],
+          "rowOrder": [
+              "6877d3af0ecfa6831061cd8d",
+              "6877d3af5a3797ab88408ee6",
+              "6877d3af4bd9d3a4fded9567",
+              "6877d492899ade4ed3e8c8e2"
+          ]
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d535ee3e9b320839970f",
+          "type": "table",
+          "title": "Table field with custom width",
+          "tableColumns": [
+              {
+                  "_id": "6877d3afb4a5446d108f64bd",
+                  "type": "text"
+              },
+              {
+                  "_id": "6877d3af016745bb7e97652d",
+                  "type": "dropdown",
+                  "options": [
+                      {
+                          "_id": "6877d3af1874ee11d7aa7382",
+                          "value": "Yes"
+                      },
+                      {
+                          "_id": "6877d3afb8664318f1dbb53c",
+                          "value": "No"
+                      },
+                      {
+                          "_id": "6877d3afcca8dacc041f98ed",
+                          "value": "N/A"
+                      }
+                  ]
+              },
+              {
+                  "_id": "6877d4299100769b315c40d4",
+                  "type": "image"
+              },
+              {
+                  "_id": "6877d42bc1e09a43430a2fb5",
+                  "type": "multiSelect"
+               
+              },
+              {
+                  "_id": "6877d42ce299bfe7f4a89a98",
+                  "type": "number"
+              },
+              {
+                  "_id": "6877d42d4d8bdb682a581bc1",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d42f4df3f003c034a762",
+                  "type": "block"
+              },
+              {
+                  "_id": "6877d431d7bb800953cfbea5",
+                  "type": "barcode"
+              },
+              {
+                  "_id": "6877d433344386bb84a76034",
+                  "type": "signature"
+              },
+              {
+                  "_id": "6877d43cc4d793d56fa83775",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d43df032f7f54ab1a2f6",
+                  "type": "date"
+              }
+          ],
+          "value": [
+              {
+                  "_id": "6877d3af0ecfa6831061cd8d",
+                  "deleted": false,
+                  "cells": {}
+              },
+              {
+                  "_id": "6877d3af5a3797ab88408ee6",
+                  "deleted": false,
+                  "cells": {}
+              },
+              {
+                  "_id": "6877d3af4bd9d3a4fded9567",
+                  "deleted": false,
+                  "cells": {}
+              },
+              {
+                  "_id": "6877d492899ade4ed3e8c8e2",
+                  "deleted": false,
+                  "cells": {
+                      "6877d3afb4a5446d108f64bd": "text field ",
+                      "6877d3af016745bb7e97652d": "6877d3af1874ee11d7aa7382",
+                      "6877d4299100769b315c40d4": "",
+                      "6877d42bc1e09a43430a2fb5": "",
+                      "6877d42ce299bfe7f4a89a98": "",
+                      "6877d42d4d8bdb682a581bc1": "",
+                      "6877d42f4df3f003c034a762": "",
+                      "6877d431d7bb800953cfbea5": "",
+                      "6877d433344386bb84a76034": "",
+                      "6877d43cc4d793d56fa83775": "",
+                      "6877d43df032f7f54ab1a2f6": ""
+                  }
+              }
+          ],
+          "identifier": "field_6877d40b52ac17d61ee0873b",
+          "tableColumnOrder": [
+              "6877d3afb4a5446d108f64bd",
+              "6877d4299100769b315c40d4",
+              "6877d3af016745bb7e97652d",
+              "6877d42bc1e09a43430a2fb5",
+              "6877d42ce299bfe7f4a89a98",
+              "6877d42d4d8bdb682a581bc1",
+              "6877d42f4df3f003c034a762",
+              "6877d431d7bb800953cfbea5",
+              "6877d433344386bb84a76034",
+              "6877d43cc4d793d56fa83775",
+              "6877d43df032f7f54ab1a2f6"
+          ],
+          "rowOrder": [
+              "6877d3af0ecfa6831061cd8d",
+              "6877d3af5a3797ab88408ee6",
+              "6877d3af4bd9d3a4fded9567",
+              "6877d492899ade4ed3e8c8e2"
+          ]
+         
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877d5474e773002f986ae3e",
+          "type": "table",
+          "tableColumns": [
+              {
+                  "_id": "6877d3afb4a5446d108f64bd",
+                  "type": "text"
+              },
+              {
+                  "_id": "6877d3af016745bb7e97652d",
+                  "type": "dropdown",
+                  "options": [
+                      {
+                          "_id": "6877d3af1874ee11d7aa7382",
+                          "value": "Yes"
+                      },
+                      {
+                          "_id": "6877d3afb8664318f1dbb53c",
+                          "value": "No"
+                      },
+                      {
+                          "_id": "6877d3afcca8dacc041f98ed",
+                          "value": "N/A"
+                      }
+                  ]
+              },
+              {
+                  "_id": "6877d4299100769b315c40d4",
+                  "type": "image"
+              },
+              {
+                  "_id": "6877d42bc1e09a43430a2fb5",
+                  "type": "multiSelect"
+              },
+              {
+                  "_id": "6877d42ce299bfe7f4a89a98",
+                  "type": "number"
+              },
+              {
+                  "_id": "6877d42d4d8bdb682a581bc1",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d42f4df3f003c034a762",
+                  "type": "block"
+              },
+              {
+                  "_id": "6877d431d7bb800953cfbea5",
+                  "type": "barcode"
+              },
+              {
+                  "_id": "6877d433344386bb84a76034",
+                  "type": "signature"
+              },
+              {
+                  "_id": "6877d43cc4d793d56fa83775",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d43df032f7f54ab1a2f6",
+                  "type": "date"
+              }
+          ],
+          "value": [
+              {
+                  "_id": "6877d3af0ecfa6831061cd8d"
+              },
+              {
+                  "_id": "6877d3af5a3797ab88408ee6"
+              },
+              {
+                  "_id": "6877d3af4bd9d3a4fded9567"
+              },
+              {
+                  "_id": "6877d492899ade4ed3e8c8e2"
+              }
+          ],
+          "tableColumnOrder": [
+              "6877d3afb4a5446d108f64bd",
+              "6877d3af016745bb7e97652d",
+              "6877d4299100769b315c40d4",
+              "6877d42bc1e09a43430a2fb5",
+              "6877d42ce299bfe7f4a89a98",
+              "6877d42d4d8bdb682a581bc1",
+              "6877d42f4df3f003c034a762",
+              "6877d431d7bb800953cfbea5",
+              "6877d433344386bb84a76034",
+              "6877d43cc4d793d56fa83775",
+              "6877d43df032f7f54ab1a2f6"
+          ],
+          "rowOrder": [
+              "6877d3af0ecfa6831061cd8d",
+              "6877d3af5a3797ab88408ee6",
+              "6877d3af4bd9d3a4fded9567",
+              "6877d492899ade4ed3e8c8e2"
+          ]
+         
+      },
+      {
+          "file": "68779ec0c656659458e50af5",
+          "_id": "6877dcc8c1b6eb7a8d447f0a",
+          "type": "table",
+          "tableColumns": [
+              {
+                  "_id": "6877d3afb4a5446d108f64bd",
+                  "type": "text"
+              },
+              {
+                  "_id": "6877d3af016745bb7e97652d",
+                  "type": "dropdown",
+                  "title": "Dropdown Column",
+                  "options": [
+                      {
+                          "_id": "6877d3af1874ee11d7aa7382",
+                          "value": "Yes"
+                      },
+                      {
+                          "_id": "6877d3afb8664318f1dbb53c",
+                          "value": "No"
+                      },
+                      {
+                          "_id": "6877d3afcca8dacc041f98ed",
+                          "value": "N/A"
+                      }
+                  ]
+              },
+              {
+                  "_id": "6877d4299100769b315c40d4",
+                  "type": "image"
+              },
+              {
+                  "_id": "6877d42bc1e09a43430a2fb5",
+                  "type": "multiSelect"
+              },
+              {
+                  "_id": "6877d42ce299bfe7f4a89a98",
+                  "type": "number"
+              },
+              {
+                  "_id": "6877d42d4d8bdb682a581bc1",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d42f4df3f003c034a762",
+                  "type": "block"
+              },
+              {
+                  "_id": "6877d431d7bb800953cfbea5",
+                  "type": "barcode"
+              },
+              {
+                  "_id": "6877d433344386bb84a76034",
+                  "type": "signature"
+              },
+              {
+                  "_id": "6877d43cc4d793d56fa83775",
+                  "type": "date"
+              },
+              {
+                  "_id": "6877d43df032f7f54ab1a2f6",
+                  "type": "date"
+              }
+          ],
+          "value": [
+              {
+                  "_id": "6877d3af0ecfa6831061cd8d"
+              },
+              {
+                  "_id": "6877d3af5a3797ab88408ee6"
+              },
+              {
+                  "_id": "6877d3af4bd9d3a4fded9567"
+              },
+              {
+                  "_id": "6877d492899ade4ed3e8c8e2"
+              }
+          ],
+          "tableColumnOrder": [
+              "6877d3afb4a5446d108f64bd",
+              "6877d3af016745bb7e97652d",
+              "6877d4299100769b315c40d4",
+              "6877d42bc1e09a43430a2fb5",
+              "6877d42ce299bfe7f4a89a98",
+              "6877d42d4d8bdb682a581bc1",
+              "6877d42f4df3f003c034a762",
+              "6877d431d7bb800953cfbea5",
+              "6877d433344386bb84a76034",
+              "6877d43cc4d793d56fa83775",
+              "6877d43df032f7f54ab1a2f6"
+          ],
+          "rowOrder": [
+              "6877d3af0ecfa6831061cd8d",
+              "6877d3af5a3797ab88408ee6",
+              "6877d3af4bd9d3a4fded9567",
+              "6877d492899ade4ed3e8c8e2"
+          ]
+     
+      }
+  ],
+  "deleted": false
+}

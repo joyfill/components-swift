@@ -175,6 +175,138 @@
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
 		E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54652DFADD72006E05E9 /* JoyfillModel */; };
 		E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */; };
+		E274CA432E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
+		E274CA442E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
+		E274CA452E2E7FB000B35C09 /* textField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA412E2E7FB000B35C09 /* textField.json */; };
+		E274CA462E2E7FB000B35C09 /* imageField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3B2E2E7FB000B35C09 /* imageField.json */; };
+		E274CA472E2E7FB000B35C09 /* blockField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA352E2E7FB000B35C09 /* blockField.json */; };
+		E274CA482E2E7FB000B35C09 /* tableField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA402E2E7FB000B35C09 /* tableField.json */; };
+		E274CA492E2E7FB000B35C09 /* dropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA392E2E7FB000B35C09 /* dropdownField.json */; };
+		E274CA4A2E2E7FB000B35C09 /* dateField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA382E2E7FB000B35C09 /* dateField.json */; };
+		E274CA4B2E2E7FB000B35C09 /* fileField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3A2E2E7FB000B35C09 /* fileField.json */; };
+		E274CA4C2E2E7FB000B35C09 /* signatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3F2E2E7FB000B35C09 /* signatureField.json */; };
+		E274CA4D2E2E7FB000B35C09 /* multilineTextField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */; };
+		E274CA4E2E2E7FB000B35C09 /* collectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA372E2E7FB000B35C09 /* collectionField.json */; };
+		E274CA4F2E2E7FB000B35C09 /* multiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */; };
+		E274CA502E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
+		E274CA512E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
+		E274CA522E2E7FB000B35C09 /* textField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA412E2E7FB000B35C09 /* textField.json */; };
+		E274CA532E2E7FB000B35C09 /* imageField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3B2E2E7FB000B35C09 /* imageField.json */; };
+		E274CA542E2E7FB000B35C09 /* blockField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA352E2E7FB000B35C09 /* blockField.json */; };
+		E274CA552E2E7FB000B35C09 /* tableField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA402E2E7FB000B35C09 /* tableField.json */; };
+		E274CA562E2E7FB000B35C09 /* dropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA392E2E7FB000B35C09 /* dropdownField.json */; };
+		E274CA572E2E7FB000B35C09 /* dateField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA382E2E7FB000B35C09 /* dateField.json */; };
+		E274CA582E2E7FB000B35C09 /* fileField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3A2E2E7FB000B35C09 /* fileField.json */; };
+		E274CA592E2E7FB000B35C09 /* signatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3F2E2E7FB000B35C09 /* signatureField.json */; };
+		E274CA5A2E2E7FB000B35C09 /* multilineTextField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */; };
+		E274CA5B2E2E7FB000B35C09 /* collectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA372E2E7FB000B35C09 /* collectionField.json */; };
+		E274CA5C2E2E7FB000B35C09 /* multiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */; };
+		E274CA5D2E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
+		E274CA5E2E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
+		E274CA5F2E2E7FB000B35C09 /* textField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA412E2E7FB000B35C09 /* textField.json */; };
+		E274CA602E2E7FB000B35C09 /* imageField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3B2E2E7FB000B35C09 /* imageField.json */; };
+		E274CA612E2E7FB000B35C09 /* blockField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA352E2E7FB000B35C09 /* blockField.json */; };
+		E274CA622E2E7FB000B35C09 /* tableField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA402E2E7FB000B35C09 /* tableField.json */; };
+		E274CA632E2E7FB000B35C09 /* dropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA392E2E7FB000B35C09 /* dropdownField.json */; };
+		E274CA642E2E7FB000B35C09 /* dateField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA382E2E7FB000B35C09 /* dateField.json */; };
+		E274CA652E2E7FB000B35C09 /* fileField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3A2E2E7FB000B35C09 /* fileField.json */; };
+		E274CA662E2E7FB000B35C09 /* signatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3F2E2E7FB000B35C09 /* signatureField.json */; };
+		E274CA672E2E7FB000B35C09 /* multilineTextField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */; };
+		E274CA682E2E7FB000B35C09 /* collectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA372E2E7FB000B35C09 /* collectionField.json */; };
+		E274CA692E2E7FB000B35C09 /* multiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */; };
+		E274CA6C2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */; };
+		E274CA6D2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */; };
+		E274CA6E2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */; };
+		E274CA712E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */; };
+		E274CA722E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */; };
+		E274CA732E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */; };
+		E274CA762E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */; };
+		E274CA772E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */; };
+		E274CA782E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */; };
+		E274CA7B2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */; };
+		E274CA7C2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */; };
+		E274CA7D2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */; };
+		E274CA802E2E7FF000B35C09 /* metadataTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */; };
+		E274CA812E2E7FF000B35C09 /* metadataTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */; };
+		E274CA822E2E7FF000B35C09 /* metadataTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */; };
+		E274CA852E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */; };
+		E274CA862E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */; };
+		E274CA872E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */; };
+		E274CB072E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */; };
+		E274CB082E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */; };
+		E274CB092E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */; };
+		E274CB0A2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF52E2E84F700B35C09 /* baseSignatureTemplateValidation.json */; };
+		E274CB0B2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */; };
+		E274CB0C2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFF2E2E84F700B35C09 /* inputGroupFieldValidation.json */; };
+		E274CB0D2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF02E2E84F700B35C09 /* baseImageTemplateValidation.json */; };
+		E274CB0E2E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEE2E2E84F700B35C09 /* baseCollectionTemplateValidation.json */; };
+		E274CB0F2E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF42E2E84F700B35C09 /* BaseNumberTemplateValidation.json */; };
+		E274CB102E2E84F700B35C09 /* dateFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFC2E2E84F700B35C09 /* dateFieldValidation.json */; };
+		E274CB112E2E84F700B35C09 /* chartFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF92E2E84F700B35C09 /* chartFieldValidation.json */; };
+		E274CB122E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAED2E2E84F700B35C09 /* baseChartTemplateValidation.json */; };
+		E274CB132E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB002E2E84F700B35C09 /* multilineTextFieldValidation.json */; };
+		E274CB142E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF62E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json */; };
+		E274CB152E2E84F700B35C09 /* numberFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB022E2E84F700B35C09 /* numberFieldValidation.json */; };
+		E274CB162E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF12E2E84F700B35C09 /* baseInputGroupTemplateValidation.json */; };
+		E274CB172E2E84F700B35C09 /* textFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB052E2E84F700B35C09 /* textFieldValidation.json */; };
+		E274CB182E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF82E2E84F700B35C09 /* baseTableTemplateValidation.json */; };
+		E274CB192E2E84F700B35C09 /* tableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB042E2E84F700B35C09 /* tableFieldValidation.json */; };
+		E274CB1A2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF32E2E84F700B35C09 /* baseMultiselectTemplateValidation.json */; };
+		E274CB1B2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF22E2E84F700B35C09 /* baseMultilineTemplateValidation.json */; };
+		E274CB1C2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB012E2E84F700B35C09 /* multiSelectFieldValidation.json */; };
+		E274CB1D2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */; };
+		E274CB1E2E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */; };
+		E274CB1F2E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */; };
+		E274CB202E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */; };
+		E274CB212E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */; };
+		E274CB222E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */; };
+		E274CB232E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF52E2E84F700B35C09 /* baseSignatureTemplateValidation.json */; };
+		E274CB242E2E84F700B35C09 /* signatureFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */; };
+		E274CB252E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFF2E2E84F700B35C09 /* inputGroupFieldValidation.json */; };
+		E274CB262E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF02E2E84F700B35C09 /* baseImageTemplateValidation.json */; };
+		E274CB272E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEE2E2E84F700B35C09 /* baseCollectionTemplateValidation.json */; };
+		E274CB282E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF42E2E84F700B35C09 /* BaseNumberTemplateValidation.json */; };
+		E274CB292E2E84F700B35C09 /* dateFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFC2E2E84F700B35C09 /* dateFieldValidation.json */; };
+		E274CB2A2E2E84F700B35C09 /* chartFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF92E2E84F700B35C09 /* chartFieldValidation.json */; };
+		E274CB2B2E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAED2E2E84F700B35C09 /* baseChartTemplateValidation.json */; };
+		E274CB2C2E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB002E2E84F700B35C09 /* multilineTextFieldValidation.json */; };
+		E274CB2D2E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF62E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json */; };
+		E274CB2E2E2E84F700B35C09 /* numberFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB022E2E84F700B35C09 /* numberFieldValidation.json */; };
+		E274CB2F2E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF12E2E84F700B35C09 /* baseInputGroupTemplateValidation.json */; };
+		E274CB302E2E84F700B35C09 /* textFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB052E2E84F700B35C09 /* textFieldValidation.json */; };
+		E274CB312E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF82E2E84F700B35C09 /* baseTableTemplateValidation.json */; };
+		E274CB322E2E84F700B35C09 /* tableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB042E2E84F700B35C09 /* tableFieldValidation.json */; };
+		E274CB332E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF32E2E84F700B35C09 /* baseMultiselectTemplateValidation.json */; };
+		E274CB342E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF22E2E84F700B35C09 /* baseMultilineTemplateValidation.json */; };
+		E274CB352E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB012E2E84F700B35C09 /* multiSelectFieldValidation.json */; };
+		E274CB362E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */; };
+		E274CB372E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */; };
+		E274CB382E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */; };
+		E274CB392E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */; };
+		E274CB3A2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */; };
+		E274CB3B2E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */; };
+		E274CB3C2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF52E2E84F700B35C09 /* baseSignatureTemplateValidation.json */; };
+		E274CB3D2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */; };
+		E274CB3E2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFF2E2E84F700B35C09 /* inputGroupFieldValidation.json */; };
+		E274CB3F2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF02E2E84F700B35C09 /* baseImageTemplateValidation.json */; };
+		E274CB402E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEE2E2E84F700B35C09 /* baseCollectionTemplateValidation.json */; };
+		E274CB412E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF42E2E84F700B35C09 /* BaseNumberTemplateValidation.json */; };
+		E274CB422E2E84F700B35C09 /* dateFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFC2E2E84F700B35C09 /* dateFieldValidation.json */; };
+		E274CB432E2E84F700B35C09 /* chartFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF92E2E84F700B35C09 /* chartFieldValidation.json */; };
+		E274CB442E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAED2E2E84F700B35C09 /* baseChartTemplateValidation.json */; };
+		E274CB452E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB002E2E84F700B35C09 /* multilineTextFieldValidation.json */; };
+		E274CB462E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF62E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json */; };
+		E274CB472E2E84F700B35C09 /* numberFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB022E2E84F700B35C09 /* numberFieldValidation.json */; };
+		E274CB482E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF12E2E84F700B35C09 /* baseInputGroupTemplateValidation.json */; };
+		E274CB492E2E84F700B35C09 /* textFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB052E2E84F700B35C09 /* textFieldValidation.json */; };
+		E274CB4A2E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF82E2E84F700B35C09 /* baseTableTemplateValidation.json */; };
+		E274CB4B2E2E84F700B35C09 /* tableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB042E2E84F700B35C09 /* tableFieldValidation.json */; };
+		E274CB4C2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF32E2E84F700B35C09 /* baseMultiselectTemplateValidation.json */; };
+		E274CB4D2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF22E2E84F700B35C09 /* baseMultilineTemplateValidation.json */; };
+		E274CB4E2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB012E2E84F700B35C09 /* multiSelectFieldValidation.json */; };
+		E274CB4F2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */; };
+		E274CB502E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */; };
+		E274CB512E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */; };
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E28D10812E2B776400E59B5F /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = E28D10802E2B776400E59B5F /* Joyfill */; };
@@ -362,6 +494,50 @@
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerUITests.swift; sourceTree = "<group>"; };
+		E274CA352E2E7FB000B35C09 /* blockField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = blockField.json; sourceTree = "<group>"; };
+		E274CA362E2E7FB000B35C09 /* chartField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chartField.json; sourceTree = "<group>"; };
+		E274CA372E2E7FB000B35C09 /* collectionField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = collectionField.json; sourceTree = "<group>"; };
+		E274CA382E2E7FB000B35C09 /* dateField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dateField.json; sourceTree = "<group>"; };
+		E274CA392E2E7FB000B35C09 /* dropdownField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dropdownField.json; sourceTree = "<group>"; };
+		E274CA3A2E2E7FB000B35C09 /* fileField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = fileField.json; sourceTree = "<group>"; };
+		E274CA3B2E2E7FB000B35C09 /* imageField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = imageField.json; sourceTree = "<group>"; };
+		E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = multilineTextField.json; sourceTree = "<group>"; };
+		E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = multiSelectField.json; sourceTree = "<group>"; };
+		E274CA3E2E2E7FB000B35C09 /* numberField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = numberField.json; sourceTree = "<group>"; };
+		E274CA3F2E2E7FB000B35C09 /* signatureField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = signatureField.json; sourceTree = "<group>"; };
+		E274CA402E2E7FB000B35C09 /* tableField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tableField.json; sourceTree = "<group>"; };
+		E274CA412E2E7FB000B35C09 /* textField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = textField.json; sourceTree = "<group>"; };
+		E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = conditionalLogicTemplate.json; sourceTree = "<group>"; };
+		E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = defaultEmptyTemplate.json; sourceTree = "<group>"; };
+		E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = fileSettingsTemplate.json; sourceTree = "<group>"; };
+		E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = greatWallOfQATemplate.json; sourceTree = "<group>"; };
+		E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = metadataTemplate.json; sourceTree = "<group>"; };
+		E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageSettingsTemplate.json; sourceTree = "<group>"; };
+		E274CAED2E2E84F700B35C09 /* baseChartTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseChartTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAEE2E2E84F700B35C09 /* baseCollectionTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseCollectionTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseDropdownTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF02E2E84F700B35C09 /* baseImageTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseImageTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF12E2E84F700B35C09 /* baseInputGroupTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseInputGroupTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF22E2E84F700B35C09 /* baseMultilineTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseMultilineTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF32E2E84F700B35C09 /* baseMultiselectTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseMultiselectTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF42E2E84F700B35C09 /* BaseNumberTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = BaseNumberTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF52E2E84F700B35C09 /* baseSignatureTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseSignatureTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF62E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseTableCollectionTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "baseTableTemplate 2Validation.json"; sourceTree = "<group>"; };
+		E274CAF82E2E84F700B35C09 /* baseTableTemplateValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = baseTableTemplateValidation.json; sourceTree = "<group>"; };
+		E274CAF92E2E84F700B35C09 /* chartFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chartFieldValidation.json; sourceTree = "<group>"; };
+		E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = collectionInputGroupFieldValidation.json; sourceTree = "<group>"; };
+		E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = collectionTableFieldValidation.json; sourceTree = "<group>"; };
+		E274CAFC2E2E84F700B35C09 /* dateFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dateFieldValidation.json; sourceTree = "<group>"; };
+		E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dropdownFieldValidation.json; sourceTree = "<group>"; };
+		E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = imageAndFileFieldValidation.json; sourceTree = "<group>"; };
+		E274CAFF2E2E84F700B35C09 /* inputGroupFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = inputGroupFieldValidation.json; sourceTree = "<group>"; };
+		E274CB002E2E84F700B35C09 /* multilineTextFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = multilineTextFieldValidation.json; sourceTree = "<group>"; };
+		E274CB012E2E84F700B35C09 /* multiSelectFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = multiSelectFieldValidation.json; sourceTree = "<group>"; };
+		E274CB022E2E84F700B35C09 /* numberFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = numberFieldValidation.json; sourceTree = "<group>"; };
+		E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = signatureFieldValidation.json; sourceTree = "<group>"; };
+		E274CB042E2E84F700B35C09 /* tableFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tableFieldValidation.json; sourceTree = "<group>"; };
+		E274CB052E2E84F700B35C09 /* textFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = textFieldValidation.json; sourceTree = "<group>"; };
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
 		E28D109C2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReservedWordMisuse_FormulaTemplate.json; sourceTree = "<group>"; };
@@ -615,6 +791,7 @@
 		369D451C2E0E51AC00677280 /* Sample JSONs */ = {
 			isa = PBXGroup;
 			children = (
+				E274CA342E2E7EDB00B35C09 /* Schema-Validation */,
 				36A5EF302E29725B0059C2A6 /* others */,
 				369D45182E0E51AC00677280 /* Formula-sample */,
 			);
@@ -643,6 +820,121 @@
 				E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */,
 			);
 			path = ChangeUITests;
+			sourceTree = "<group>";
+		};
+		E274CA342E2E7EDB00B35C09 /* Schema-Validation */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA422E2E7FB000B35C09 /* allFieldsDesktopAndMobileTemplates */,
+				E274CA6B2E2E7FCD00B35C09 /* conditionalLogicTemplate */,
+				E274CA702E2E7FD600B35C09 /* defaultEmptyTemplate */,
+				E274CA752E2E7FDE00B35C09 /* fileSettingsTemplate */,
+				E274CA7A2E2E7FE700B35C09 /* greatWallOfQATemplate */,
+				E274CA7F2E2E7FF000B35C09 /* metadataTemplate */,
+				E274CA842E2E7FFB00B35C09 /* pageSettingsTemplate */,
+				E274CB062E2E84F700B35C09 /* optionalPropertiesRemovedTemplate */,
+			);
+			path = "Schema-Validation";
+			sourceTree = "<group>";
+		};
+		E274CA422E2E7FB000B35C09 /* allFieldsDesktopAndMobileTemplates */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA352E2E7FB000B35C09 /* blockField.json */,
+				E274CA362E2E7FB000B35C09 /* chartField.json */,
+				E274CA372E2E7FB000B35C09 /* collectionField.json */,
+				E274CA382E2E7FB000B35C09 /* dateField.json */,
+				E274CA392E2E7FB000B35C09 /* dropdownField.json */,
+				E274CA3A2E2E7FB000B35C09 /* fileField.json */,
+				E274CA3B2E2E7FB000B35C09 /* imageField.json */,
+				E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */,
+				E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */,
+				E274CA3E2E2E7FB000B35C09 /* numberField.json */,
+				E274CA3F2E2E7FB000B35C09 /* signatureField.json */,
+				E274CA402E2E7FB000B35C09 /* tableField.json */,
+				E274CA412E2E7FB000B35C09 /* textField.json */,
+			);
+			path = allFieldsDesktopAndMobileTemplates;
+			sourceTree = "<group>";
+		};
+		E274CA6B2E2E7FCD00B35C09 /* conditionalLogicTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */,
+			);
+			path = conditionalLogicTemplate;
+			sourceTree = "<group>";
+		};
+		E274CA702E2E7FD600B35C09 /* defaultEmptyTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */,
+			);
+			path = defaultEmptyTemplate;
+			sourceTree = "<group>";
+		};
+		E274CA752E2E7FDE00B35C09 /* fileSettingsTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */,
+			);
+			path = fileSettingsTemplate;
+			sourceTree = "<group>";
+		};
+		E274CA7A2E2E7FE700B35C09 /* greatWallOfQATemplate */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */,
+			);
+			path = greatWallOfQATemplate;
+			sourceTree = "<group>";
+		};
+		E274CA7F2E2E7FF000B35C09 /* metadataTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */,
+			);
+			path = metadataTemplate;
+			sourceTree = "<group>";
+		};
+		E274CA842E2E7FFB00B35C09 /* pageSettingsTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */,
+			);
+			path = pageSettingsTemplate;
+			sourceTree = "<group>";
+		};
+		E274CB062E2E84F700B35C09 /* optionalPropertiesRemovedTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				E274CAED2E2E84F700B35C09 /* baseChartTemplateValidation.json */,
+				E274CAEE2E2E84F700B35C09 /* baseCollectionTemplateValidation.json */,
+				E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */,
+				E274CAF02E2E84F700B35C09 /* baseImageTemplateValidation.json */,
+				E274CAF12E2E84F700B35C09 /* baseInputGroupTemplateValidation.json */,
+				E274CAF22E2E84F700B35C09 /* baseMultilineTemplateValidation.json */,
+				E274CAF32E2E84F700B35C09 /* baseMultiselectTemplateValidation.json */,
+				E274CAF42E2E84F700B35C09 /* BaseNumberTemplateValidation.json */,
+				E274CAF52E2E84F700B35C09 /* baseSignatureTemplateValidation.json */,
+				E274CAF62E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json */,
+				E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */,
+				E274CAF82E2E84F700B35C09 /* baseTableTemplateValidation.json */,
+				E274CAF92E2E84F700B35C09 /* chartFieldValidation.json */,
+				E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */,
+				E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */,
+				E274CAFC2E2E84F700B35C09 /* dateFieldValidation.json */,
+				E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */,
+				E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */,
+				E274CAFF2E2E84F700B35C09 /* inputGroupFieldValidation.json */,
+				E274CB002E2E84F700B35C09 /* multilineTextFieldValidation.json */,
+				E274CB012E2E84F700B35C09 /* multiSelectFieldValidation.json */,
+				E274CB022E2E84F700B35C09 /* numberFieldValidation.json */,
+				E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */,
+				E274CB042E2E84F700B35C09 /* tableFieldValidation.json */,
+				E274CB052E2E84F700B35C09 /* textFieldValidation.json */,
+			);
+			path = optionalPropertiesRemovedTemplate;
 			sourceTree = "<group>";
 		};
 		E2F568662E2A4556005216A6 /* DateTimeField */ = {
@@ -1008,6 +1300,8 @@
 				3682A4C92E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */,
 				369D45672E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D45682E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
+				E274CA852E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
+				E274CA732E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
 				369D45692E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
 				E2F568772E2A4594005216A6 /* ImageFieldTestData.json in Resources */,
 				36A5EF312E29725B0059C2A6 /* TableNewColumns.json in Resources */,
@@ -1015,6 +1309,7 @@
 				36A5EF332E29725B0059C2A6 /* testrow.json in Resources */,
 				E2F5687E2E2A45A8005216A6 /* SignatureFieldTestData.json in Resources */,
 				36A5EF342E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
+				E274CA812E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
 				E28D10AD2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */,
 				E2F568A32E2A4724005216A6 /* TextFieldTestData.json in Resources */,
 				E2F568BA2E2A4792005216A6 /* NumberFieldTestData.json in Resources */,
@@ -1031,6 +1326,31 @@
 				E2F568692E2A4556005216A6 /* DateTimeFieldTestData.json in Resources */,
 				369D453E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
 				3682A4C12E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
+				E274CB072E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */,
+				E274CB082E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */,
+				E274CB092E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */,
+				E274CB0A2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */,
+				E274CB0B2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */,
+				E274CB0C2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */,
+				E274CB0D2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */,
+				E274CB0E2E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */,
+				E274CB0F2E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */,
+				E274CB102E2E84F700B35C09 /* dateFieldValidation.json in Resources */,
+				E274CB112E2E84F700B35C09 /* chartFieldValidation.json in Resources */,
+				E274CB122E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */,
+				E274CB132E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */,
+				E274CB142E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */,
+				E274CB152E2E84F700B35C09 /* numberFieldValidation.json in Resources */,
+				E274CB162E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */,
+				E274CB172E2E84F700B35C09 /* textFieldValidation.json in Resources */,
+				E274CB182E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */,
+				E274CB192E2E84F700B35C09 /* tableFieldValidation.json in Resources */,
+				E274CB1A2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */,
+				E274CB1B2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */,
+				E274CB1C2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */,
+				E274CB1D2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */,
+				E274CB1E2E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */,
+				E274CB1F2E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
 				36006C0D2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				E2F5689E2E2A461A005216A6 /* DropdownFieldTestData.json in Resources */,
 				369D45442E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
@@ -1046,9 +1366,25 @@
 				362746532E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
 				362746542E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
 				362746732E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */,
+				E274CA432E2E7FB000B35C09 /* chartField.json in Resources */,
+				E274CA442E2E7FB000B35C09 /* numberField.json in Resources */,
+				E274CA452E2E7FB000B35C09 /* textField.json in Resources */,
+				E274CA462E2E7FB000B35C09 /* imageField.json in Resources */,
+				E274CA472E2E7FB000B35C09 /* blockField.json in Resources */,
+				E274CA482E2E7FB000B35C09 /* tableField.json in Resources */,
+				E274CA492E2E7FB000B35C09 /* dropdownField.json in Resources */,
+				E274CA4A2E2E7FB000B35C09 /* dateField.json in Resources */,
+				E274CA4B2E2E7FB000B35C09 /* fileField.json in Resources */,
+				E274CA4C2E2E7FB000B35C09 /* signatureField.json in Resources */,
+				E274CA4D2E2E7FB000B35C09 /* multilineTextField.json in Resources */,
+				E274CA4E2E2E7FB000B35C09 /* collectionField.json in Resources */,
+				E274CA4F2E2E7FB000B35C09 /* multiSelectField.json in Resources */,
 				E28D10AB2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */,
 				E2F568A82E2A473D005216A6 /* DisplayTextFieldTestData.json in Resources */,
+				E274CA782E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */,
 				E28D10A72E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */,
+				E274CA6E2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */,
+				E274CA7C2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */,
 				E28D109D2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */,
 				E2F568B52E2A4786005216A6 /* MultiSelectFieldTestData.json in Resources */,
 				E2F568932E2A45F9005216A6 /* TableFieldTestData.json in Resources */,
@@ -1063,8 +1399,34 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E274CA7B2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */,
 				3682A4C82E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */,
 				E28D10AF2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */,
+				E274CB392E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */,
+				E274CB3A2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */,
+				E274CB3B2E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */,
+				E274CB3C2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */,
+				E274CB3D2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */,
+				E274CB3E2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */,
+				E274CB3F2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */,
+				E274CB402E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */,
+				E274CB412E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */,
+				E274CB422E2E84F700B35C09 /* dateFieldValidation.json in Resources */,
+				E274CB432E2E84F700B35C09 /* chartFieldValidation.json in Resources */,
+				E274CB442E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */,
+				E274CB452E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */,
+				E274CB462E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */,
+				E274CB472E2E84F700B35C09 /* numberFieldValidation.json in Resources */,
+				E274CB482E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */,
+				E274CB492E2E84F700B35C09 /* textFieldValidation.json in Resources */,
+				E274CB4A2E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */,
+				E274CB4B2E2E84F700B35C09 /* tableFieldValidation.json in Resources */,
+				E274CB4C2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */,
+				E274CB4D2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */,
+				E274CB4E2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */,
+				E274CB4F2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */,
+				E274CB502E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */,
+				E274CB512E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
 				369D456C2E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D456D2E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				369D456E2E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
@@ -1073,6 +1435,7 @@
 				36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */,
 				36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
 				36A5EF402E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				E274CA872E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
 				36A5EF412E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
 				36A5EF422E29725B0059C2A6 /* 3000-fields.json in Resources */,
 				36A5EF432E29725B0059C2A6 /* ErrorHandling.json in Resources */,
@@ -1084,6 +1447,7 @@
 				36006C0F2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D45342E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
 				369D45362E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
+				E274CA722E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
 				369D45372E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
 				E28D10A52E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */,
 				369D45382E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
@@ -1096,6 +1460,22 @@
 				3627464E2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
 				E28D109E2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */,
 				362746712E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */,
+				E274CA802E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
+				E274CA5D2E2E7FB000B35C09 /* chartField.json in Resources */,
+				E274CA762E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */,
+				E274CA5E2E2E7FB000B35C09 /* numberField.json in Resources */,
+				E274CA5F2E2E7FB000B35C09 /* textField.json in Resources */,
+				E274CA602E2E7FB000B35C09 /* imageField.json in Resources */,
+				E274CA612E2E7FB000B35C09 /* blockField.json in Resources */,
+				E274CA622E2E7FB000B35C09 /* tableField.json in Resources */,
+				E274CA632E2E7FB000B35C09 /* dropdownField.json in Resources */,
+				E274CA642E2E7FB000B35C09 /* dateField.json in Resources */,
+				E274CA652E2E7FB000B35C09 /* fileField.json in Resources */,
+				E274CA662E2E7FB000B35C09 /* signatureField.json in Resources */,
+				E274CA6C2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */,
+				E274CA672E2E7FB000B35C09 /* multilineTextField.json in Resources */,
+				E274CA682E2E7FB000B35C09 /* collectionField.json in Resources */,
+				E274CA692E2E7FB000B35C09 /* multiSelectField.json in Resources */,
 				E28D10AA2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */,
 				E28D10A12E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */,
 				362746722E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json in Resources */,
@@ -1111,10 +1491,12 @@
 			files = (
 				369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
 				362746572E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
+				E274CA772E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */,
 				E28D109F2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */,
 				E2F568CA2E2A4A9F005216A6 /* DropdownFieldTestData.json in Resources */,
 				362746582E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
 				3627466F2E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */,
+				E274CA712E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
 				362746702E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json in Resources */,
 				E2F568C52E2A4A85005216A6 /* TextFieldTestData.json in Resources */,
 				362746592E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
@@ -1126,12 +1508,27 @@
 				E28D10A62E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */,
 				369D45272E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
 				36A5EF452E29725B0059C2A6 /* TableNewColumns.json in Resources */,
+				E274CA6D2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */,
 				36A5EF462E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
 				E2F568C02E2A4A6B005216A6 /* NumberFieldTestData.json in Resources */,
 				36A5EF472E29725B0059C2A6 /* testrow.json in Resources */,
 				E2F568C92E2A4A99005216A6 /* ChartFieldTestData.json in Resources */,
 				36A5EF482E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
 				36A5EF4A2E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				E274CA502E2E7FB000B35C09 /* chartField.json in Resources */,
+				E274CA512E2E7FB000B35C09 /* numberField.json in Resources */,
+				E274CA522E2E7FB000B35C09 /* textField.json in Resources */,
+				E274CA532E2E7FB000B35C09 /* imageField.json in Resources */,
+				E274CA542E2E7FB000B35C09 /* blockField.json in Resources */,
+				E274CA552E2E7FB000B35C09 /* tableField.json in Resources */,
+				E274CA562E2E7FB000B35C09 /* dropdownField.json in Resources */,
+				E274CA572E2E7FB000B35C09 /* dateField.json in Resources */,
+				E274CA582E2E7FB000B35C09 /* fileField.json in Resources */,
+				E274CA592E2E7FB000B35C09 /* signatureField.json in Resources */,
+				E274CA7D2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */,
+				E274CA5A2E2E7FB000B35C09 /* multilineTextField.json in Resources */,
+				E274CA5B2E2E7FB000B35C09 /* collectionField.json in Resources */,
+				E274CA5C2E2E7FB000B35C09 /* multiSelectField.json in Resources */,
 				36A5EF4B2E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
 				36A5EF4C2E29725B0059C2A6 /* 3000-fields.json in Resources */,
 				E2F568C82E2A4A93005216A6 /* SignatureFieldTestData.json in Resources */,
@@ -1140,11 +1537,37 @@
 				36A5EF4E2E29725B0059C2A6 /* Joydocjson.json in Resources */,
 				369D45282E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
 				36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
+				E274CB202E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */,
+				E274CB212E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */,
+				E274CB222E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */,
+				E274CB232E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */,
+				E274CB242E2E84F700B35C09 /* signatureFieldValidation.json in Resources */,
+				E274CB252E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */,
+				E274CB262E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */,
+				E274CB272E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */,
+				E274CB282E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */,
+				E274CB292E2E84F700B35C09 /* dateFieldValidation.json in Resources */,
+				E274CB2A2E2E84F700B35C09 /* chartFieldValidation.json in Resources */,
+				E274CB2B2E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */,
+				E274CB2C2E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */,
+				E274CB2D2E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */,
+				E274CB2E2E2E84F700B35C09 /* numberFieldValidation.json in Resources */,
+				E274CB2F2E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */,
+				E274CB302E2E84F700B35C09 /* textFieldValidation.json in Resources */,
+				E274CB312E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */,
+				E274CB322E2E84F700B35C09 /* tableFieldValidation.json in Resources */,
+				E274CB332E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */,
+				E274CB342E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */,
+				E274CB352E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */,
+				E274CB362E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */,
+				E274CB372E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */,
+				E274CB382E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
 				369D45712E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D45722E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				E2F568C72E2A4A8F005216A6 /* ImageFieldTestData.json in Resources */,
 				369D45732E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
 				369D45742E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
+				E274CA862E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
 				369D45752E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
 				E28D10A22E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */,
 				E2F568C62E2A4A8A005216A6 /* DateTimeFieldTestData.json in Resources */,
@@ -1160,6 +1583,7 @@
 				E2F568C42E2A4A80005216A6 /* DisplayTextFieldTestData.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
+				E274CA822E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
 				E28D10A92E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1285,7 +1709,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -1307,7 +1731,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -1331,7 +1755,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -1354,7 +1778,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16;
 				MARKETING_VERSION = 1.0;
@@ -1502,7 +1926,7 @@
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
@@ -1543,7 +1967,7 @@
 				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
