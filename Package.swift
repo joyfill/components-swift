@@ -14,7 +14,7 @@ let package = Package(
             targets: ["Joyfill"]),
     ],
     dependencies: [
-        .package(path: "../Swift-Formulas"),
+        .package(url: "https://github.com/joyfill/Swift-Formulas.git", branch: "main"),
         .package(url: "https://github.com/joyfill/JoyfillModel", branch: "collection-development"),
         .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
     ],
