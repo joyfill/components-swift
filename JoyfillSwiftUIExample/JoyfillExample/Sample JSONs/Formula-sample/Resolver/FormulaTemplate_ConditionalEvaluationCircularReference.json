@@ -1,0 +1,381 @@
+{
+  "formulas": [
+    {
+      "_id": "formula_fieldA_1",
+      "desc": "fieldA = if(fieldB > 10, 1, 0)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(fieldB1 > 10, 1, 0)"
+    },
+    {
+      "_id": "formula_fieldB_1",
+      "desc": "fieldB = fieldA + 2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA1 + 2"
+    },
+    {
+      "_id": "formula_fieldA_2",
+      "desc": "fieldA = if(12 > 10, fieldB + 4, 0)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(12 > 10, fieldB2 + 4, 0)"
+    },
+    {
+      "_id": "formula_fieldB_2",
+      "desc": "fieldB = fieldA + 2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA2 + 2"
+    },
+    {
+      "_id": "formula_fieldA_3",
+      "desc": "fieldA = and(fieldB > 10, true)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "and(fieldB3 > 10, true)"
+    },
+    {
+      "_id": "formula_fieldB_3",
+      "desc": "fieldB = fieldA + 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA3 + 1"
+    },
+    {
+      "_id": "formula_fieldA_4",
+      "desc": "fieldA = or(false, fieldB > 5)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "or(false, fieldB4 > 5)"
+    },
+    {
+      "_id": "formula_fieldB_4",
+      "desc": "fieldB = fieldA + 1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA4 + 1"
+    },
+    {
+      "_id": "formula_good_1",
+      "desc": "Simple addition",
+      "type": "calc",
+      "scope": "private",
+      "expression": "5 + 3"
+    },
+    {
+      "_id": "formula_good_2",
+      "desc": "If statement with constants",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(10 > 5, 100, 200)"
+    },
+    {
+      "_id": "formula_good_3",
+      "desc": "Uppercase string",
+      "type": "calc",
+      "scope": "private",
+      "expression": "upper(\"joyfill\")"
+    }
+  ],
+  "fields": [
+    {
+      "_id": "fieldA1",
+      "type": "number",
+      "title": "Conditional Mutual A1",
+      "identifier": "fieldA1",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_1",
+          "formula": "formula_fieldA_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldB1",
+      "type": "number",
+      "title": "Conditional Mutual B1",
+      "identifier": "fieldB1",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_1",
+          "formula": "formula_fieldB_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldA2",
+      "type": "number",
+      "title": "Always True If A2",
+      "identifier": "fieldA2",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_2",
+          "formula": "formula_fieldA_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldB2",
+      "type": "number",
+      "title": "Depends on A2",
+      "identifier": "fieldB2",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_2",
+          "formula": "formula_fieldB_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldA3",
+      "type": "number",
+      "title": "AND Circular A3",
+      "identifier": "fieldA3",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_3",
+          "formula": "formula_fieldA_3",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldB3",
+      "type": "number",
+      "title": "AND Circular B3",
+      "identifier": "fieldB3",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_3",
+          "formula": "formula_fieldB_3",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldA4",
+      "type": "number",
+      "title": "OR Circular A4",
+      "identifier": "fieldA4",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_4",
+          "formula": "formula_fieldA_4",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldB4",
+      "type": "number",
+      "title": "OR Circular B4",
+      "identifier": "fieldB4",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_4",
+          "formula": "formula_fieldB_4",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldGood1",
+      "type": "number",
+      "title": "Good: 5 + 3",
+      "identifier": "fieldGood1",
+      "formulas": [
+        {
+          "_id": "AF_good_1",
+          "formula": "formula_good_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldGood2",
+      "type": "number",
+      "title": "Good: if(10 > 5)",
+      "identifier": "fieldGood2",
+      "formulas": [
+        {
+          "_id": "AF_good_2",
+          "formula": "formula_good_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldGood3",
+      "type": "text",
+      "title": "Good: upper",
+      "identifier": "fieldGood3",
+      "formulas": [
+        {
+          "_id": "AF_good_3",
+          "formula": "formula_good_3",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    }
+  ],
+  "files": [
+    {
+      "_id": "file1",
+      "name": "Mutual Circular If",
+      "pageOrder": [
+        "page1"
+      ],
+      "pages": [
+        {
+          "_id": "page1",
+          "name": "Error Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "padding": 24,
+          "layout": "grid",
+          "presentation": "normal",
+          "fieldPositions": [
+            {
+              "_id": "fp_fieldA1",
+              "field": "fieldA1",
+              "type": "number",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB1",
+              "field": "fieldB1",
+              "type": "number",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldA2",
+              "field": "fieldA2",
+              "type": "number",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB2",
+              "field": "fieldB2",
+              "type": "number",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldA3",
+              "field": "fieldA3",
+              "type": "number",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB3",
+              "field": "fieldB3",
+              "type": "number",
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldA4",
+              "field": "fieldA4",
+              "type": "number",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB4",
+              "field": "fieldB4",
+              "type": "number",
+              "x": 4,
+              "y": 24,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldGood1",
+              "field": "fieldGood1",
+              "type": "number",
+              "x": 0,
+              "y": 32,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldGood2",
+              "field": "fieldGood2",
+              "type": "number",
+              "x": 4,
+              "y": 32,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldGood3",
+              "field": "fieldGood3",
+              "type": "text",
+              "x": 0,
+              "y": 40,
+              "width": 8,
+              "height": 8,
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "type": "document",
+  "v": "1",
+  "createdOn": 31232313,
+  "deleted": false,
+  "_id": "685750eff3216b45ffe73c80",
+  "identifier": "doc_685750eff3216b45ffe73c80",
+  "name": "New Doc"
+}
