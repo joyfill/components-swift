@@ -1,0 +1,63 @@
+name: iOS Automation CI
+
+on:
+  push:
+    branches: [ "automation-ci" ]
+  pull_request:
+    branches: [ "automation-ci" ]
+
+jobs:
+  # 1️⃣ Build
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Build Project
+        run: |
+          xcodebuild clean build \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillExample \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5'
+
+  # 2️⃣ Unit tests (depends on build)
+  unit-tests:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Run Unit Tests
+        run: |
+          xcodebuild test \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillExample \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5' \
+            -testPlan JoyfillTests
+
+  # 3️⃣ UI tests (depends on build)
+  ui-tests:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Run UI Tests on iPhone 16 Pro
+        run: |
+          xcodebuild test \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillExample \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5' \
+            -testPlan JoyfillUITests
