@@ -174,6 +174,7 @@
 		E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
 		E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54652DFADD72006E05E9 /* JoyfillModel */; };
+		E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */; };
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E28D10812E2B776400E59B5F /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = E28D10802E2B776400E59B5F /* Joyfill */; };
@@ -360,6 +361,7 @@
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
+		E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerUITests.swift; sourceTree = "<group>"; };
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
 		E28D109C2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReservedWordMisuse_FormulaTemplate.json; sourceTree = "<group>"; };
@@ -492,6 +494,7 @@
 			isa = PBXGroup;
 			children = (
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
+				E274CA302E2E60A000B35C09 /* ChangeUITests */,
 				E2F568BD2E2A47A1005216A6 /* SingleChoiceField */,
 				E2F568B82E2A4792005216A6 /* NumberField */,
 				E2F568B32E2A4786005216A6 /* MultiSelect */,
@@ -632,6 +635,14 @@
 				36A5EF2F2E29725B0059C2A6 /* testrow.json */,
 			);
 			path = others;
+			sourceTree = "<group>";
+		};
+		E274CA302E2E60A000B35C09 /* ChangeUITests */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */,
+			);
+			path = ChangeUITests;
 			sourceTree = "<group>";
 		};
 		E2F568662E2A4556005216A6 /* DateTimeField */ = {
@@ -1175,6 +1186,7 @@
 				1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */,
 				E2F568832E2A45BC005216A6 /* ChartFieldTests.swift in Sources */,
 				E2F568902E2A45F9005216A6 /* TableFieldUITestCases.swift in Sources */,
+				E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */,
 				E2F568A22E2A4724005216A6 /* TextFieldUITestCases.swift in Sources */,
 				E2F568BE2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift in Sources */,
 				E2F568B92E2A4792005216A6 /* NumberFieldUITestCases.swift in Sources */,
