@@ -27,9 +27,6 @@
 		36006C092E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		36006C0A2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
-		36006C0D2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */; };
-		36006C0E2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */; };
-		36006C0F2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		360BC7F62C3E88E500735516 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F52C3E88E500735516 /* JoyfillAPIService */; };
 		360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F82C3E896D00735516 /* JoyfillModel */; };
 		361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361164D92DD70625003DEB4F /* WisdomTests.swift */; };
@@ -307,6 +304,9 @@
 		E274CB4F2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */; };
 		E274CB502E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */; };
 		E274CB512E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */; };
+		E274CB532E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */; };
+		E274CB542E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */; };
+		E274CB552E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */; };
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E28D10812E2B776400E59B5F /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = E28D10802E2B776400E59B5F /* Joyfill */; };
@@ -434,7 +434,6 @@
 		13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestFormContainerView.swift; sourceTree = "<group>"; };
 		36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ArithmeticTests.swift; sourceTree = "<group>"; };
 		36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_Arithmetic.json; sourceTree = "<group>"; };
-		36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_Arithmetic.json; sourceTree = "<group>"; };
 		3607877F2BE900C400D9A187 /* JoyfillUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillUITests.xctestplan; sourceTree = "<group>"; };
 		360787802BE911C400D9A187 /* JoyfillExample.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillExample.xctestplan; sourceTree = "<group>"; };
 		361164D92DD70625003DEB4F /* WisdomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WisdomTests.swift; sourceTree = "<group>"; };
@@ -538,6 +537,7 @@
 		E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = signatureFieldValidation.json; sourceTree = "<group>"; };
 		E274CB042E2E84F700B35C09 /* tableFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tableFieldValidation.json; sourceTree = "<group>"; };
 		E274CB052E2E84F700B35C09 /* textFieldValidation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = textFieldValidation.json; sourceTree = "<group>"; };
+		E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ConditionalLogic_FormulaTemplate.json; sourceTree = "<group>"; };
 		E27C87E22D394387008EA35C /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerViewController.swift; sourceTree = "<group>"; };
 		E28D109C2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReservedWordMisuse_FormulaTemplate.json; sourceTree = "<group>"; };
@@ -762,6 +762,7 @@
 		369D45172E0E51AC00677280 /* Resolver */ = {
 			isa = PBXGroup;
 			children = (
+				E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */,
 				369D45622E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json */,
 				369D45632E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json */,
 				E28D10A82E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json */,
@@ -772,7 +773,6 @@
 				E28D109C2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json */,
 				36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */,
 				E28D10A02E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json */,
-				36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */,
 				369D45662E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json */,
 			);
 			path = Resolver;
@@ -1312,6 +1312,7 @@
 				E274CA812E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
 				E28D10AD2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */,
 				E2F568A32E2A4724005216A6 /* TextFieldTestData.json in Resources */,
+				E274CB552E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
 				E2F568BA2E2A4792005216A6 /* NumberFieldTestData.json in Resources */,
 				36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */,
 				36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
@@ -1351,7 +1352,6 @@
 				E274CB1D2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */,
 				E274CB1E2E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */,
 				E274CB1F2E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
-				36006C0D2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				E2F5689E2E2A461A005216A6 /* DropdownFieldTestData.json in Resources */,
 				369D45442E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
 				369D45462E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
@@ -1441,10 +1441,10 @@
 				36A5EF432E29725B0059C2A6 /* ErrorHandling.json in Resources */,
 				36A5EF442E29725B0059C2A6 /* Joydocjson.json in Resources */,
 				369D456F2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
+				E274CB542E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
 				369D45702E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
 				369D452E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
 				3682A4C22E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
-				36006C0F2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D45342E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
 				369D45362E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
 				E274CA722E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
@@ -1489,6 +1489,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E274CB532E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
 				369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
 				362746572E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
 				E274CA772E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */,
@@ -1578,7 +1579,6 @@
 				369D452B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				E2F568C12E2A4A6F005216A6 /* SingleChoiceFieldTestData.json in Resources */,
 				E2F568C32E2A4A7A005216A6 /* MultilineTestData.json in Resources */,
-				36006C0E2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D452C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
 				E2F568C42E2A4A80005216A6 /* DisplayTextFieldTestData.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,

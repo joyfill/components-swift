@@ -17,6 +17,7 @@ struct AllSampleJSONs: View, FormChangeEvent {
     
     // All available JSON files from Formula-sample directory
     private let resolverFiles = [
+        "ConditionalLogic_FormulaTemplate",
         "JoyfillResolver_SimpleWorking",
         "JoyfillResolverTemplate_ComplexWorking",
         "JoyfillResolver_IndirectCircularError",
