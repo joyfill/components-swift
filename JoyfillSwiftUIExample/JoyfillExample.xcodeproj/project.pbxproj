@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -177,7 +177,6 @@
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E28D10812E2B776400E59B5F /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = E28D10802E2B776400E59B5F /* Joyfill */; };
-		E28D10832E2B776A00E59B5F /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = E28D10822E2B776A00E59B5F /* Joyfill */; };
 		E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */; };
 		E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */; };
 		E2A684372DCA40AF00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */; };
@@ -406,7 +405,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E28D10832E2B776A00E59B5F /* Joyfill in Frameworks */,
 				E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -830,7 +828,6 @@
 			name = JoyfillUITests;
 			packageProductDependencies = (
 				E26A54652DFADD72006E05E9 /* JoyfillModel */,
-				E28D10822E2B776A00E59B5F /* Joyfill */,
 			);
 			productName = JoyfillUITests;
 			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
@@ -948,9 +945,9 @@
 			);
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
-				E28D107F2E2B776400E59B5F /* XCLocalSwiftPackageReference "../../components-swift" */,
 				E28D10B72E2E54B000E59B5F /* XCRemoteSwiftPackageReference "JoyfillAPIService" */,
 				E274CA292E2E556300B35C09 /* XCRemoteSwiftPackageReference "JoyfillModel" */,
+				E274CA2E2E2E5C9000B35C09 /* XCRemoteSwiftPackageReference "components-swift" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -1561,19 +1558,20 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		E28D107F2E2B776400E59B5F /* XCLocalSwiftPackageReference "../../components-swift" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../components-swift";
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		E274CA292E2E556300B35C09 /* XCRemoteSwiftPackageReference "JoyfillModel" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/joyfill/JoyfillModel.git";
 			requirement = {
 				branch = "collection-development";
+				kind = branch;
+			};
+		};
+		E274CA2E2E2E5C9000B35C09 /* XCRemoteSwiftPackageReference "components-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joyfill/components-swift";
+			requirement = {
+				branch = "automation-ci";
 				kind = branch;
 			};
 		};
@@ -1708,11 +1706,6 @@
 		};
 		E28D10802E2B776400E59B5F /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Joyfill;
-		};
-		E28D10822E2B776A00E59B5F /* Joyfill */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E28D107F2E2B776400E59B5F /* XCLocalSwiftPackageReference "../../components-swift" */;
 			productName = Joyfill;
 		};
 		E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */ = {
