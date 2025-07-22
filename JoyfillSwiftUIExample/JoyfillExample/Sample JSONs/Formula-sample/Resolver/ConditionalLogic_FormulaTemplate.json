@@ -1,0 +1,326 @@
+{
+    "type": "document",
+    "type": "document",
+    "v": "1",
+    "createdOn": 31232313,
+    "deleted": false,
+    "_id": "685750eff3216b45ffe73c80",
+    "identifier": "doc_685750eff3216b45ffe73c80",
+    "name": "New Doc"
+    "files": [
+        {
+            "_id": "file1",
+            "name": "Generated Template File",
+            "pageOrder": [
+                "page1",
+                "687b199aec51e10434425933"
+            ],
+            "pages": [
+                {
+                    "_id": "page1",
+                    "name": "Generated Page",
+                    "width": 816,
+                    "height": 1056,
+                    "rowHeight": 8,
+                    "cols": 8,
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "padding": 24,
+                    "fieldPositions": [
+                        {
+                            "_id": "fp_text1",
+                            "type": "text",
+                            "field": "text1",
+                            "x": 0,
+                            "y": 0,
+                            "width": 4,
+                            "height": 8,
+                            "displayType": "original"
+                        },
+                        {
+                            "_id": "fp_number1",
+                            "type": "number",
+                            "field": "number1",
+                            "x": 0,
+                            "y": 8,
+                            "width": 4,
+                            "height": 8,
+                            "displayType": "original"
+                        },
+                        {
+                            "_id": "fp_number2",
+                            "type": "number",
+                            "field": "number2",
+                            "x": 0,
+                            "y": 16,
+                            "width": 4,
+                            "height": 8,
+                            "displayType": "original"
+                        },
+                        {
+                            "_id": "fp_number3",
+                            "type": "number",
+                            "field": "number3",
+                            "x": 4,
+                            "y": 0,
+                            "width": 4,
+                            "height": 8,
+                            "displayType": "original"
+                        },
+                        {
+                            "_id": "fp_number4",
+                            "type": "number",
+                            "field": "number4",
+                            "x": 4,
+                            "y": 8,
+                            "width": 4,
+                            "height": 8,
+                            "displayType": "original"
+                        },
+                        {
+                            "_id": "fp_text2",
+                            "type": "text",
+                            "field": "text2",
+                            "x": 4,
+                            "y": 16,
+                            "width": 4,
+                            "height": 8,
+                            "displayType": "original"
+                        },
+                        {
+                            "_id": "687b16634f7b261813edf887",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 24,
+                            "width": 4,
+                            "height": 8,
+                            "field": "text3"
+                        },
+                        {
+                            "_id": "text5",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 4,
+                            "y": 24,
+                            "width": 4,
+                            "height": 8,
+                            "field": "text4"
+                        },
+                        {
+                            "_id": "687b192daa329b3d380f9aff",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 32,
+                            "width": 4,
+                            "height": 8,
+                            "field": "text5"
+                        }
+                    ]
+                },
+                {
+                    "_id": "687b199aec51e10434425933",
+                    "name": "Conditional: Show when number4 is greater than 15",
+                    "width": 816,
+                    "height": 1056,
+                    "rowHeight": 8,
+                    "cols": 8,
+                    "fieldPositions": [
+                        {
+                            "_id": "687b19a10732a1005522b9ec",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 2,
+                            "y": 0,
+                            "width": 4,
+                            "height": 8,
+                            "field": "text6"
+                        }
+                    ],
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "padding": 24,
+                    "logic": {
+                        "action": "show",
+                        "eval": "and",
+                        "conditions": [
+                            {
+                                "file": "file1",
+                                "page": "page1",
+                                "field": "number4",
+                                "condition": ">",
+                                "value": 15
+                            }
+                        ]
+                    },
+                    "hidden": true
+                }
+            ],
+            "styles": {
+                "margin": 4
+            },
+            "views": []
+        }
+    ],
+    "fields": [
+        {
+            "_id": "text1",
+            "file": "file1",
+            "type": "text",
+            "title": "text1",
+            "value": "Populated"
+        },
+        {
+            "_id": "number1",
+            "file": "file1",
+            "type": "number",
+            "title": "number1",
+            "value": 10
+        },
+        {
+            "_id": "number2",
+            "file": "file1",
+            "type": "number",
+            "title": "number2",
+            "value": 5
+        },
+        {
+            "_id": "number3",
+            "file": "file1",
+            "type": "number",
+            "title": "number3: Expression is \"number1 + number2\"",
+            "value": 0,
+            "formulas": [
+                {
+                    "_id": "f_number3",
+                    "key": "value",
+                    "formula": "addNumber1And2"
+                }
+            ]
+        },
+        {
+            "_id": "number4",
+            "file": "file1",
+            "type": "number",
+            "title": "number4: Expression is \"number3 + 5\"",
+            "value": 0,
+            "formulas": [
+                {
+                    "_id": "f_number4",
+                    "key": "value",
+                    "formula": "addNumber3And5"
+                }
+            ]
+        },
+        {
+            "_id": "text2",
+            "file": "file1",
+            "type": "text",
+            "title": "text2: Expression is \"if(not(empty(text1)), 'Show Field', 'Hide Field')\"",
+            "value": "",
+            "formulas": [
+                {
+                    "_id": "f_text2",
+                    "key": "value",
+                    "formula": "checkIfText1NotEmpty"
+                }
+            ]
+        },
+        {
+            "file": "file1",
+            "_id": "text3",
+            "type": "text",
+            "title": "Conditional: Should be visible if text2 contains \"Show Field\"",
+            "identifier": "field_text3",
+            "hidden": true,
+            "logic": {
+                "action": "show",
+                "eval": "and",
+                "conditions": [
+                    {
+                        "file": "file1",
+                        "page": "page1",
+                        "field": "text2",
+                        "condition": "=",
+                        "value": "Show Field"
+                    }
+                ]
+            },
+            "value": "Should Be Visible #1"
+        },
+        {
+            "file": "file1",
+            "_id": "text4",
+            "type": "text",
+            "title": "Conditional: Should be visible if number3 is greater than 10.",
+            "identifier": "field_text3",
+            "hidden": true,
+            "logic": {
+                "action": "show",
+                "eval": "and",
+                "conditions": [
+                    {
+                        "file": "file1",
+                        "page": "page1",
+                        "field": "text2",
+                        "condition": "=",
+                        "value": "Show Field"
+                    }
+                ]
+            },
+            "value": "Should Be Visible #2"
+        },
+        {
+            "file": "file1",
+            "_id": "text5",
+            "type": "text",
+            "title": "Conditional: Should be hidden if number4 is greater than 15.",
+            "identifier": "field_text5",
+            "logic": {
+                "action": "hide",
+                "eval": "and",
+                "conditions": [
+                    {
+                        "file": "file1",
+                        "page": "page1",
+                        "field": "number4",
+                        "condition": ">",
+                        "value": 15
+                    }
+                ]
+            },
+            "value": "Should be hidden"
+        },
+        {
+            "file": "file1",
+            "_id": "text6",
+            "type": "text",
+            "title": "text6: Expression is \"number1 + number2\"",
+            "identifier": "field_text6"
+        }
+    ],
+    "formulas": [
+        {
+            "_id": "addNumber1And2",
+            "desc": "number3 = number1 + number2",
+            "type": "calc",
+            "scope": "private",
+            "expression": "number1 + number2"
+        },
+        {
+            "_id": "addNumber3And5",
+            "desc": "number4 = number3 + 5",
+            "type": "calc",
+            "scope": "private",
+            "expression": "number3 + 5"
+        },
+        {
+            "_id": "checkIfText1NotEmpty",
+            "desc": "text2 = if(not(empty(text1)), 'Show Field', 'Hide Field')",
+            "type": "calc",
+            "scope": "private",
+            "expression": "if(not(empty(text1)), 'Show Field', 'Hide Field')"
+        }
+    ]
+}
