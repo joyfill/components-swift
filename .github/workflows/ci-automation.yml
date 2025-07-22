@@ -54,10 +54,9 @@ jobs:
           cd JoyfillSwiftUIExample
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
-            -scheme JoyfillExample \
+            -scheme JoyfillTests \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
-            -testPlan JoyfillTests \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -87,10 +86,9 @@ jobs:
           cd JoyfillSwiftUIExample
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
-            -scheme JoyfillExample \
+            -scheme JoyfillUITests \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
-            -only-testing:JoyfillUITests \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
