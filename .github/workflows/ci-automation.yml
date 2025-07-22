@@ -32,7 +32,7 @@ jobs:
           | xcpretty --color --report html --output build-report.html
 
       - name: Upload Build Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-report
           path: JoyfillSwiftUIExample/build-report.html
@@ -64,7 +64,7 @@ jobs:
           | xcpretty --color --report html --output unit-test-report.html
 
       - name: Upload Unit Test Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
           path: JoyfillSwiftUIExample/unit-test-report.html
@@ -96,7 +96,7 @@ jobs:
           | xcpretty --color --report html --output ui-test-report.html
 
       - name: Upload UI Test Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ui-test-report
           path: JoyfillSwiftUIExample/ui-test-report.html
