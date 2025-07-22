@@ -11,11 +11,29 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
+      # 1. Checkout with token + full history
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: true
 
+      # 2. Make SwiftPM use the Actions token
+      - name: Authenticate GitHub for SwiftPM
+        run: |
+          git config --global url."https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      # 3. Optional debug: verify project location
+      - name: List project files
+        run: |
+          pwd
+          ls -R .
+
+      # 4. Select Xcode
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
 
+      # 5. Build
       - name: Build Project
         run: |
           cd JoyfillSwiftUIExample
@@ -25,12 +43,15 @@ jobs:
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5'
 
-  # 2️⃣ Unit tests (depends on build)
+  # 2️⃣ Unit tests (after build)
   unit-tests:
     needs: build
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
@@ -45,12 +66,15 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5' \
             -testPlan JoyfillTests
 
-  # 3️⃣ UI tests (depends on build)
+  # 3️⃣ UI tests (after build)
   ui-tests:
     needs: build
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
