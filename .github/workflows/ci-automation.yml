@@ -24,11 +24,10 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output build-report.html
 
@@ -56,11 +55,10 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillTests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output unit-test-report.html
 
@@ -78,7 +76,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app 
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Reset Simulator
+        run: |
+          xcrun simctl shutdown all
+          xcrun simctl erase all
 
       - name: Run UI Tests
         run: |
@@ -88,11 +91,10 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.5' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output ui-test-report.html
 
