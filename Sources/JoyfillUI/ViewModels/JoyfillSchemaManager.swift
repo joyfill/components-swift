@@ -11,7 +11,6 @@ import Foundation
 public class JoyfillSchemaManager {
     
     private let supportedMajorVersion = 1
-    private let sdkVersion = "1.0.0"
 
     public init() {}
 

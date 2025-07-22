@@ -1,0 +1,297 @@
+{
+  "_id": "68779ec00f4a740e6db5f261",
+  "type": "template",
+  "createdOn": 1752669902986,
+  "name": "NO-1284 Optional Properties Removed Template",
+  "files": [
+    {
+      "_id": "68779ec0c656659458e50af5",
+      "name": "NO-1284 Optional Properties Removed Template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "6877d3d484b500fd4a5c22f7",
+              "type": "text",
+              "field": "6877d3cd6b4efa3213718674",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d56610cf743d92d469",
+              "type": "text",
+              "field": "6877d3d476f67406d6f6c544",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d768d4fe347907fdcb",
+              "type": "text",
+              "field": "6877d3d646718f6becc75cb0",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d83dd1007b01648075",
+              "type": "text",
+              "field": "6877d3d77d3d39593eb5ef64",
+              "displayType": "original",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d9ae3cbb5da3c72d70",
+              "type": "text",
+              "field": "6877d3d8df9aeb108b70c1f5",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6878b3776f81fd0e08b24d33",
+              "type": "signature",
+              "field": "6878b374d8eab8d9e28ca3c7",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "6878b37893572a4e33aefd73",
+              "type": "signature",
+              "field": "6878b3772677d9fbc82e254b",
+              "displayType": "original",
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 23
+            }
+          ],
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "_id": "68779ec0ef32e5de07b769f3"
+        },
+        {
+          "_id": "6877e65f2dae346682842123",
+          "name": "PDF Page ",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 1,
+          "cols": 816,
+          "fieldPositions": [
+            {
+              "_id": "68789ddf0719af7dace2e929",
+              "type": "textarea",
+              "field": "68789dd6a18358ff40d8c9a1",
+              "displayType": "original",
+              "x": 38,
+              "y": 23,
+              "width": 456,
+              "height": 201
+            }
+          ],
+          "layout": "float",
+          "presentation": "transparent"
+        
+        }
+      ],
+      "pageOrder": [
+        "68779ec0ef32e5de07b769f3",
+        "6877e65f2dae346682842123"
+      ],
+      "views": [
+        {
+          "_id": "6878b3d2fa1f9181fbc18695",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "6877d3d484b500fd4a5c22f7",
+                  "type": "text",
+                  "field": "6877d3cd6b4efa3213718674",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64
+                
+                },
+                {
+                  "_id": "6877d3d56610cf743d92d469",
+                  "type": "text",
+                  "field": "6877d3d476f67406d6f6c544",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 64,
+                  "width": 1,
+                  "height": 64
+                
+                },
+                {
+                  "_id": "6877d3d768d4fe347907fdcb",
+                  "type": "text",
+                  "field": "6877d3d646718f6becc75cb0",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 128,
+                  "width": 1,
+                  "height": 64
+                
+                },
+                {
+                  "_id": "6877d3d83dd1007b01648075",
+                  "type": "text",
+                  "field": "6877d3d77d3d39593eb5ef64",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 192,
+                  "width": 1,
+                  "height": 64
+                
+                },
+                {
+                  "_id": "6877d3d9ae3cbb5da3c72d70",
+                  "type": "text",
+                  "field": "6877d3d8df9aeb108b70c1f5",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 256,
+                  "width": 1,
+                  "height": 64
+                
+                },
+                {
+                  "_id": "6878b37893572a4e33aefd73",
+                  "type": "signature",
+                  "field": "6878b3772677d9fbc82e254b",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 320,
+                  "width": 1,
+                  "height": 180
+                
+                },
+                {
+                  "_id": "6878b3776f81fd0e08b24d33",
+                  "type": "signature",
+                  "field": "6878b374d8eab8d9e28ca3c7",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 500,
+                  "width": 1,
+                  "height": 180
+                
+                }
+              ],
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "_id": "68779ec0ef32e5de07b769f3",
+              "fileName": "",
+              "filePath": ""
+            },
+            {
+              "_id": "6877e65f2dae346682842123",
+              "name": "PDF Page ",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "fieldPositions": [
+                {
+                  "_id": "68789ddf0719af7dace2e929",
+                  "type": "textarea",
+                  "field": "68789dd6a18358ff40d8c9a1",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 23,
+                  "width": 408,
+                  "height": 180
+                }
+              ],
+              "layout": "grid",
+              "presentation": "normal",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "68779ec0ef32e5de07b769f3",
+            "6877e65f2dae346682842123"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3cd6b4efa3213718674",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d476f67406d6f6c544",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d646718f6becc75cb0",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d77d3d39593eb5ef64",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d8df9aeb108b70c1f5",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "68789dd6a18358ff40d8c9a1",
+      "type": "textarea"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6878b374d8eab8d9e28ca3c7",
+      "type": "signature"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6878b3772677d9fbc82e254b",
+      "type": "signature"
+    }
+  ],
+  "deleted": false
+}

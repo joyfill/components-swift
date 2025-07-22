@@ -1,0 +1,545 @@
+{
+  "_id": "686fcc012bc57a59b7246d4d",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_686fcc012bc57a59b7246d4d",
+  "name": "NO-1284 Blank template",
+  "createdOn": 1752157196321,
+  "files": [
+    {
+      "_id": "686fcc0108d51ab760970d0a",
+      "metadata": {},
+      "name": "NO-1284 Blank template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "686fefec90c8dd44ed16aaff",
+              "type": "date",
+              "field": "686fefea430b84462a0b25be",
+              "displayType": "original",
+              "format": "MM/DD/YYYY",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "titleFontSize": 14,
+              "titleFontColor": "#340fff",
+              "titleTextAlign": "left",
+              "titleFontStyle": "italic",
+              "titleTextDecoration": "underline",
+              "titleTextTransform": "uppercase",
+              "fontSize": 14,
+              "fontColor": "#005bff",
+              "textDecoration": "underline",
+              "textTransform": "uppercase",
+              "fontWeight": "bold",
+              "fontStyle": "italic",
+              "backgroundColor": "#ffe500",
+              "borderColor": "#0735ff",
+              "borderRadius": 2,
+              "padding": 2,
+              "margin": 2
+            },
+            {
+              "_id": "686fefeebe6a48d5075897ad",
+              "type": "date",
+              "field": "686fefec72efa00483076467",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "titleFontStyle": "italic",
+              "titleTextDecoration": "underline",
+              "titleTextTransform": "uppercase",
+              "textAlign": "left",
+              "fontWeight": "bold",
+              "fontStyle": "italic",
+              "textDecoration": "underline",
+              "textTransform": "uppercase"
+            },
+            {
+              "_id": "686feff1ab56bd41c0face9e",
+              "type": "date",
+              "field": "686fefeed6bf669e5a92358e",
+              "displayType": "original",
+              "format": "hh:mma",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "titleTextAlign": "center",
+              "textAlign": "center",
+              "textOverflow": "ellipsis"
+            },
+            {
+              "_id": "686feff23623cf30b1423ff7",
+              "type": "date",
+              "field": "686feff105bc42f23b3571b9",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "titleTextAlign": "right",
+              "textAlign": "right",
+              "textOverflow": ""
+            },
+            {
+              "_id": "686feff4d32382a98d476f73",
+              "type": "text",
+              "field": "686feff20bcfa0d847c6c992",
+              "displayType": "original",
+              "x": 0,
+              "y": 26,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686feff5f8e7ae05aeb81575",
+              "type": "text",
+              "field": "686feff4c4d9d35575583f25",
+              "displayType": "original",
+              "x": 4,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff0c07d988192c9dcbe13",
+              "type": "text",
+              "field": "686ff0bdb2c90067f5722d5f",
+              "displayType": "original",
+              "x": 0,
+              "y": 34,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff0c16028f72f571b7bbb",
+              "type": "text",
+              "field": "686ff0c09f9b9be3c239afa4",
+              "displayType": "original",
+              "x": 4,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff0f92236559a694f0976",
+              "type": "text",
+              "field": "686ff0f65df9b41f6212f7e0",
+              "displayType": "original",
+              "x": 0,
+              "y": 42,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff15427a1606c996134db",
+              "type": "date",
+              "field": "686ff15018e4b2ca1b4702d8",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 10,
+              "textOverflow": ""
+            },
+            {
+              "_id": "686ff173f72b511860941b3a",
+              "type": "date",
+              "field": "686ff16ee85f17f4822da801",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "686fcc015718a8cc66ceb49d",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "686fcc015718a8cc66ceb49d"
+      ],
+      "views": [
+        {
+          "_id": "686ff42592bd7be8b19bfcdb",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "686fefec90c8dd44ed16aaff",
+                  "type": "date",
+                  "field": "686fefea430b84462a0b25be",
+                  "displayType": "original",
+                  "format": "MM/DD/YYYY",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64,
+                  "titleFontSize": 14,
+                  "titleFontColor": "#340fff",
+                  "titleTextAlign": "left",
+                  "titleFontStyle": "italic",
+                  "titleTextDecoration": "underline",
+                  "titleTextTransform": "uppercase",
+                  "fontSize": 14,
+                  "fontColor": "#005bff",
+                  "textDecoration": "underline",
+                  "textTransform": "uppercase",
+                  "fontWeight": "bold",
+                  "fontStyle": "italic",
+                  "backgroundColor": "#ffe500",
+                  "borderColor": "#0735ff",
+                  "borderRadius": 2,
+                  "padding": 2,
+                  "margin": 2,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686fefeebe6a48d5075897ad",
+                  "type": "date",
+                  "field": "686fefec72efa00483076467",
+                  "displayType": "original",
+                  "format": "MM/DD/YYYY hh:mma",
+                  "x": 0,
+                  "y": 64,
+                  "width": 1,
+                  "height": 64,
+                  "titleFontStyle": "italic",
+                  "titleTextDecoration": "underline",
+                  "titleTextTransform": "uppercase",
+                  "textAlign": "left",
+                  "fontWeight": "bold",
+                  "fontStyle": "italic",
+                  "textDecoration": "underline",
+                  "textTransform": "uppercase",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686feff1ab56bd41c0face9e",
+                  "type": "date",
+                  "field": "686fefeed6bf669e5a92358e",
+                  "displayType": "original",
+                  "format": "hh:mma",
+                  "x": 0,
+                  "y": 128,
+                  "width": 1,
+                  "height": 64,
+                  "titleTextAlign": "center",
+                  "textAlign": "center",
+                  "textOverflow": "ellipsis",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686feff23623cf30b1423ff7",
+                  "type": "date",
+                  "field": "686feff105bc42f23b3571b9",
+                  "displayType": "original",
+                  "format": "MM/DD/YYYY hh:mma",
+                  "x": 0,
+                  "y": 192,
+                  "width": 1,
+                  "height": 64,
+                  "titleTextAlign": "right",
+                  "textAlign": "right",
+                  "textOverflow": "",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff15427a1606c996134db",
+                  "type": "date",
+                  "field": "686ff15018e4b2ca1b4702d8",
+                  "displayType": "original",
+                  "format": "MM/DD/YYYY hh:mma",
+                  "x": 0,
+                  "y": 256,
+                  "width": 1,
+                  "height": 64,
+                  "textOverflow": "",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff173f72b511860941b3a",
+                  "type": "date",
+                  "field": "686ff16ee85f17f4822da801",
+                  "displayType": "original",
+                  "format": "MM/DD/YYYY hh:mma",
+                  "x": 0,
+                  "y": 320,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686feff5f8e7ae05aeb81575",
+                  "type": "text",
+                  "field": "686feff4c4d9d35575583f25",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 384,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686feff4d32382a98d476f73",
+                  "type": "text",
+                  "field": "686feff20bcfa0d847c6c992",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 448,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff0c16028f72f571b7bbb",
+                  "type": "text",
+                  "field": "686ff0c09f9b9be3c239afa4",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 512,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff0c07d988192c9dcbe13",
+                  "type": "text",
+                  "field": "686ff0bdb2c90067f5722d5f",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 576,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff0f92236559a694f0976",
+                  "type": "text",
+                  "field": "686ff0f65df9b41f6212f7e0",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 640,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                }
+              ],
+              "hidden": false,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "686fcc015718a8cc66ceb49d",
+              "metadata": {},
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "686fcc015718a8cc66ceb49d"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686fefea430b84462a0b25be",
+      "type": "date",
+      "title": "Date Field Readonly",
+      "identifier": "field_686fefeca2d7d8a3754012f3",
+      "disabled": true,
+      "tipVisible": true,
+      "tipTitle": "",
+      "tipDescription": ""
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686fefec72efa00483076467",
+      "type": "date",
+      "title": "Date Time  Required || Hidden Text condition 1 is thor",
+      "identifier": "field_686fefee9d797a6fe8f4054d",
+      "required": true,
+      "value": 847302900000,
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686feff20bcfa0d847c6c992",
+            "condition": "=",
+            "value": "Thor"
+          }
+        ]
+      },
+      "tipVisible": true,
+      "tipTitle": "Date field tooltip",
+      "tipDescription": "Date field tooltip description"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686fefeed6bf669e5a92358e",
+      "type": "date",
+      "title": "Time hidden || Text Condition 2 is filled || Middle indentation",
+      "identifier": "field_686feff130785308365938cb",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686feff4c4d9d35575583f25",
+            "condition": "*="
+          }
+        ]
+      },
+      "value": 1752170859045
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686feff105bc42f23b3571b9",
+      "type": "date",
+      "title": "Date Time || Text Condition 3 is empty || Right indentation",
+      "identifier": "field_686feff227cf907ed10ca5b4",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff0bdb2c90067f5722d5f",
+            "condition": "null="
+          }
+        ]
+      },
+      "value": 1751396820000
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686feff20bcfa0d847c6c992",
+      "type": "text",
+      "title": "Text Condition 1",
+      "identifier": "field_686feff4ad116d304ca3e041",
+      "value": "Thor"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686feff4c4d9d35575583f25",
+      "type": "text",
+      "title": "Text Condition2",
+      "identifier": "field_686feff5202c05f2de8fc2f9"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff0bdb2c90067f5722d5f",
+      "type": "text",
+      "title": "Text Condition3",
+      "identifier": "field_686ff0c0a47a09fd05aae958",
+      "value": "God"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff0c09f9b9be3c239afa4",
+      "type": "text",
+      "title": "Text Condition4",
+      "identifier": "field_686ff0c1320c87b4468fa0d1",
+      "value": "Someother value than Thanos"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff0f65df9b41f6212f7e0",
+      "type": "text",
+      "title": "Text  Condition 5",
+      "identifier": "field_686ff0f982bd9524af62f67e",
+      "value": "god got this"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff15018e4b2ca1b4702d8",
+      "type": "date",
+      "title": "Date Time hidden || Text condition 4 is not thanos",
+      "identifier": "field_686ff1547913cebc22c690ef",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff0c09f9b9be3c239afa4",
+            "condition": "!=",
+            "value": "Thanos"
+          }
+        ]
+      },
+      "value": 1751389680000
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff16ee85f17f4822da801",
+      "type": "date",
+      "title": "Date Time Hidden || Text condition 5 contains god ",
+      "identifier": "field_686ff1738b0b842f5447f003",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff0f65df9b41f6212f7e0",
+            "condition": "?=",
+            "value": "god"
+          }
+        ]
+      }
+    }
+  ],
+  "deleted": false,
+  "categories": []
+}

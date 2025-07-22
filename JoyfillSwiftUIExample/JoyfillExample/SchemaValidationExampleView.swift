@@ -13,6 +13,7 @@ struct SchemaValidationExampleView: View {
     @State private var jsonErrorMessage: String? = nil
     @State private var useCustomJSON: Bool = false
     @State private var showForm: Bool = false
+    @State private var selectedExample = "ErrorHandling"
     let changeManagerWraper = ChangeManagerWrapper()
 
     init() {
@@ -119,6 +120,66 @@ struct SchemaValidationExampleView: View {
                     .padding(.horizontal)
                 }
                 
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Select JSON Sample")
+                        .font(.headline)
+                        .padding(.horizontal)
+                    
+                    Picker("Select JSON File", selection: $selectedExample) {
+                        Section("All Fields Desktop And Mobile Templates") {
+                            ForEach(allFieldsDesktopAndMobileTemplates, id: \.self) { fileName in
+                                Text(fileName)
+                                    .tag(fileName)
+                            }
+                        }
+                        
+                        Section("Conditional Logic Templates") {
+                            ForEach(conditionalLogicTemplateFiles, id: \.self) { fileName in
+                                Text(fileName).tag(fileName)
+                            }
+                        }
+
+                        Section("Default Empty Templates") {
+                            ForEach(defaultEmptyTemplateFiles, id: \.self) { fileName in
+                                Text(fileName).tag(fileName)
+                            }
+                        }
+
+                        Section("File Settings Templates") {
+                            ForEach(fileSettingsTemplateFiles, id: \.self) { fileName in
+                                Text(fileName).tag(fileName)
+                            }
+                        }
+
+                        Section("Great Wall of QA Templates") {
+                            ForEach(greatWallOfQATemplateFiles, id: \.self) { fileName in
+                                Text(fileName).tag(fileName)
+                            }
+                        }
+
+                        Section("Metadata Templates") {
+                            ForEach(metadataTemplateFiles, id: \.self) { fileName in
+                                Text(fileName).tag(fileName)
+                            }
+                        }
+
+                        Section("Page Settings Templates") {
+                            ForEach(pageSettingsTemplateFiles, id: \.self) { fileName in
+                                Text(fileName).tag(fileName)
+                            }
+                        }
+                        
+                        Section("Optional Properties Removed Templates") {
+                            ForEach(optionalPropertiesRemovedTemplateFiles, id: \.self) { fileName in
+                                Text(fileName)
+                                    .tag(fileName)
+                            }
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .padding(.horizontal)
+                }
+                
                 // Action Buttons
                 HStack(spacing: 12) {
                     // Validate Schema Button
@@ -219,6 +280,79 @@ struct SchemaValidationExampleView: View {
         }
     }
     
+    private let allFieldsDesktopAndMobileTemplates = [
+        "ErrorHandling",
+        "blockField",
+        "chartField",
+        "collectionField",
+        "dateField",
+        "dropdownField",
+        "fileField",
+        "imageField",
+        "multilineTextField",
+        "multiSelectField",
+        "numberField",
+        "signatureField",
+        "tableField",
+        "textField"
+    ]
+    
+    private let conditionalLogicTemplateFiles = [
+        "conditionalLogicTemplate"
+    ]
+
+    private let defaultEmptyTemplateFiles = [
+        "defaultEmptyTemplate"
+    ]
+
+    private let fileSettingsTemplateFiles = [
+        "fileSettingsTemplate"
+    ]
+
+    private let greatWallOfQATemplateFiles = [
+        "greatWallOfQATemplate"
+    ]
+
+    private let metadataTemplateFiles = [
+        "metadataTemplate"
+    ]
+
+    private let pageSettingsTemplateFiles = [
+        "PageSettingsTemplate"
+    ]
+    
+    private let optionalPropertiesRemovedTemplateFiles = [
+        "baseChartTemplateValidation",
+        "baseCollectionTemplateValidation",
+        "baseDropdownTemplateValidation",
+        "baseImageTemplateValidation",
+        "baseInputGroupTemplateValidation",
+        "baseMultilineTemplateValidation",
+        "baseMultiselectTemplateValidation",
+        "BaseNumberTemplateValidation",
+        "baseSignatureTemplateValidation",
+        "baseTableCollectionTemplateValidation",
+        "baseTableTemplateValidation",
+        "baseTableTemplate 2Validation",
+        "chartFieldValidation",
+        "collectionInputGroupFieldValidation",
+        "collectionTableFieldValidation",
+        "dateFieldValidation",
+        "dropdownFieldValidation",
+        "imageAndFileFieldValidation",
+        "inputGroupFieldValidation",
+        "multilineTextFieldValidation",
+        "multiSelectFieldValidation",
+        "numberFieldValidation",
+        "signatureFieldValidation",
+        "tableFieldValidation",
+        "textFieldValidation"
+    ]
+    
+    private var allFiles: [String] {
+        allFieldsDesktopAndMobileTemplates + conditionalLogicTemplateFiles + defaultEmptyTemplateFiles + fileSettingsTemplateFiles + greatWallOfQATemplateFiles + metadataTemplateFiles + pageSettingsTemplateFiles + optionalPropertiesRemovedTemplateFiles
+    }
+    
     private func validateJSONSyntax() {
         guard !jsonString.isEmpty else {
             jsonErrorMessage = nil
@@ -263,7 +397,7 @@ struct SchemaValidationExampleView: View {
             }
             return JoyDoc(dictionary: jsonDict)
         } else {
-            return sampleJSONDocument(fileName: "ErrorHandling")
+            return sampleJSONDocument(fileName: selectedExample)
         }
     }
     
