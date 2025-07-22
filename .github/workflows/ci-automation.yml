@@ -28,9 +28,16 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output build-report.html
 
-  # 2️⃣ Unit tests
+      - name: Upload Build Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-report
+          path: JoyfillSwiftUIExample/build-report.html
+
+  # 2️⃣ Unit tests (after build)
   unit-tests:
     needs: build
     runs-on: macos-latest
@@ -53,9 +60,16 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output unit-test-report.html
 
-  # 3️⃣ UI tests
+      - name: Upload Unit Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-test-report
+          path: JoyfillSwiftUIExample/unit-test-report.html
+
+  # 3️⃣ UI tests (after build)
   ui-tests:
     needs: build
     runs-on: macos-latest
@@ -65,7 +79,7 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
 
-      - name: Run UI Tests on iPhone 16 Pro
+      - name: Run UI Tests
         run: |
           cd JoyfillSwiftUIExample
           xcodebuild test \
@@ -78,4 +92,11 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output ui-test-report.html
+
+      - name: Upload UI Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: ui-test-report
+          path: JoyfillSwiftUIExample/ui-test-report.html
