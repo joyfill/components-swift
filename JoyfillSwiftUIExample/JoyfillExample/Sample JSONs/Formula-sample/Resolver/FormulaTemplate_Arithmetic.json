@@ -2,6 +2,8 @@
   "_id": "6862c0a88790e36e807614b6",
   "identifier": "doc_6862c0a88790e36e807614b6",
   "name": "Arithmetic Operators",
+  "createdOn": 31232313,
+  "deleted": false,
   "files": [
     {
       "_id": "6862c0a8c6527ade308d20ed",
@@ -476,7 +478,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "fields": [
