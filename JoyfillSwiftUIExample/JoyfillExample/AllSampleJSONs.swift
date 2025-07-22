@@ -27,8 +27,7 @@ struct AllSampleJSONs: View, FormChangeEvent {
         "UndefinedValueReference_FormulaTemplate",
         "EncapsulatedCircularReference_FormulaTemplate",
         "ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate",
-        "FormulaTemplate_ConditionalEvaluationCircularReference",
-        "ConditionalLogic_FormulaTemplate"
+        "FormulaTemplate_ConditionalEvaluationCircularReference"
     ]
     
     private let fieldFiles = [
