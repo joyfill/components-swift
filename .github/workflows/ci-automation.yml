@@ -23,9 +23,14 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2'
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES
 
-  # 2️⃣ Unit tests (depends on build)
+  # 2️⃣ Unit tests
   unit-tests:
     needs: build
     runs-on: macos-latest
@@ -43,9 +48,14 @@ jobs:
             -scheme JoyfillExample \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
-            -testPlan JoyfillTests
+            -testPlan JoyfillTests \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES
 
-  # 3️⃣ UI tests (depends on build)
+  # 3️⃣ UI tests
   ui-tests:
     needs: build
     runs-on: macos-latest
@@ -63,4 +73,9 @@ jobs:
             -scheme JoyfillExample \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
-            -testPlan JoyfillUITests
+            -testPlan JoyfillUITests \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES
