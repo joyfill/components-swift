@@ -12,12 +12,12 @@
 		<key>Formula Playground (Playground).xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>7</integer>
+			<integer>5</integer>
 		</dict>
 		<key>JoyfillExample.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<key>JoyfillTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -32,7 +32,12 @@
 		<key>JoyfillUITests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>4</integer>
+		</dict>
+		<key>Spectre (Playground).xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>7</integer>
 		</dict>
 		<key>Test Formulas (Playground) 1.xcscheme</key>
 		<dict>
@@ -42,7 +47,7 @@
 		<key>Test Formulas (Playground).xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>8</integer>
+			<integer>6</integer>
 		</dict>
 	</dict>
 </dict>
