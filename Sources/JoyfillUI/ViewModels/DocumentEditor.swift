@@ -390,6 +390,18 @@ extension DocumentEditor {
             currentPage.id == currentPageID
         }
     }
+    
+    public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier {
+        let fileID = field(fieldID: fieldID)?.file
+
+        for page in pagesForCurrentView {
+            if let position = page.fieldPositions?.first(where: { $0.field == fieldID }) {
+                return FieldIdentifier(fieldID: fieldID, pageID: page.id, fileID: fileID)
+            }
+        }
+
+        return FieldIdentifier(fieldID: fieldID, fileID: fileID)
+    }
 }
 
 extension DocumentEditor {

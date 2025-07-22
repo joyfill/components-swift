@@ -43,7 +43,7 @@ extension DocumentEditor: JoyDocProvider {
         refreshDependent(for: fieldID)
         
         if shouldCallOnChange {
-            handleFieldsOnChange(fieldIdentifier: FieldIdentifier(fieldID: fieldID, pageID: "", fileID: document.files.first?.id), currentField: field)
+            handleFieldsOnChange(fieldIdentifier: getFieldIdentifier(for: fieldID), currentField: field)
         }
     }
 }
