@@ -203,7 +203,7 @@ public class DocumentEditor: ObservableObject {
             }
             elements[rowIndex] = updatedElement
             let value = ValueUnion.valueElementArray(elements)
-            updateValue(for: fieldID, value: value)
+            updateValue(for: fieldID, value: value, shouldCallOnChange: false)
         }
     }
     
@@ -258,9 +258,7 @@ public class DocumentEditor: ObservableObject {
     private func handleFieldUpdate(for change: Change) {
         //TODO: Remove fieldType != .collection if we are removing back button update json functionality
         guard let fieldID = change.fieldId,
-              let fieldType = fieldMap[fieldID]?.fieldType,
-              fieldType != .collection
-        else {
+              let fieldType = fieldMap[fieldID]?.fieldType else {
             logChangeError(for: change)
             return
         }
@@ -270,7 +268,7 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
-        updateValue(for: fieldID, value: valueUnion)
+        updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
     }
     
     private func logChangeError(for change: Change) {
