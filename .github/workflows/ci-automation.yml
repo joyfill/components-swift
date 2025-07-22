@@ -72,6 +72,7 @@ jobs:
   ui-tests:
     needs: build
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -102,7 +103,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            -timeout 300 \
           | xcpretty --color --report html --output ui-test-report.html
       - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
