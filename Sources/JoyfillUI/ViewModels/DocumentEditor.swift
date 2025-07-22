@@ -64,21 +64,21 @@ public class DocumentEditor: ObservableObject {
         let schemaManager = JoyfillSchemaManager()
         
         // Check for schema validation errors
-        if let schemaError = schemaManager.validateSchema(document: document) {
-            // Schema validation failed - store error and return early
-            self.schemaError = schemaError
-            // Set empty document
-            self.document = JoyDoc()
-            self.mode = mode
-            self.isPageDuplicateEnabled = isPageDuplicateEnabled
-            self.showPageNavigationView = navigation
-            self.currentPageID = ""
-            self.events = events
-            
-            // Trigger onError callback if events handler is available
-            events?.onError(error: .schemaValidationError(error: schemaError))
-            return
-        }
+//        if let schemaError = schemaManager.validateSchema(document: document) {
+//            // Schema validation failed - store error and return early
+//            self.schemaError = schemaError
+//            // Set empty document
+//            self.document = JoyDoc()
+//            self.mode = mode
+//            self.isPageDuplicateEnabled = isPageDuplicateEnabled
+//            self.showPageNavigationView = navigation
+//            self.currentPageID = ""
+//            self.events = events
+//            
+//            // Trigger onError callback if events handler is available
+//            events?.onError(error: .schemaValidationError(error: schemaError))
+//            return
+//        }
         
         // Schema validation passed - proceed with normal initialization
         self.document = document

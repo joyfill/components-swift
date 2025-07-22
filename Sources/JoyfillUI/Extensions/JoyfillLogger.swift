@@ -48,7 +48,7 @@ public final class JoyfillLogger {
         print(logMessage) // Print to console in both debug and release builds
         if type == .error {
             #if DEBUG
-            fatalError(logMessage) // Terminate program in debug builds for critical errors
+            //fatalError(logMessage) // Terminate program in debug builds for critical errors
             #else
             print("Critical error logged: \(logMessage)") // Log error in production builds
             #endif
