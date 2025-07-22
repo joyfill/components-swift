@@ -23,13 +23,13 @@ struct SignatureView: View {
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(signatureDataModel.fieldHeaderModel)
-            Color(UIColor.systemGray6)
-                .frame(height: 150)
-                .cornerRadius(10)
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(UIColor.systemGray6))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
+                .frame(height: 150)
                 .overlay(content: {
                     if let signatureImage = signatureImage {
                         Image(uiImage: signatureImage)
@@ -49,8 +49,8 @@ struct SignatureView: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(Color(UIColor.systemGray6))
-                .stroke(Color.allFieldBorderColor)
+                            .fill(Color(UIColor.systemGray6))
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
             })
             .accessibilityIdentifier("SignatureIdentifier")
@@ -168,15 +168,15 @@ struct CanvasSignatureView: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(Color(UIColor.systemGray6))
-                .stroke(Color.allFieldBorderColor)
+                            .fill(Color(UIColor.systemGray6))
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                     )
             } else {
                 if let signatureImage = signatureImage {
                     ZStack(alignment: .bottomTrailing) {
                         RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(Color(UIColor.systemGray6))
-                .stroke(Color.allFieldBorderColor)
+                            .fill(Color(UIColor.systemGray6))
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             .frame(height: 150)
                             .overlay {
                                 Image(uiImage: signatureImage)
@@ -196,8 +196,8 @@ struct CanvasSignatureView: View {
                             .frame(width: 80,height: 30)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .foregroundColor(Color(UIColor.systemGray6))
-                .stroke(Color.allFieldBorderColor)
+                                    .fill(Color(UIColor.systemGray6))
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                         })
                         .padding(.all, 10)
@@ -209,8 +209,8 @@ struct CanvasSignatureView: View {
                         .cornerRadius(10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .foregroundColor(Color(UIColor.systemGray6))
-                .stroke(Color.allFieldBorderColor)
+                                .fill(Color(UIColor.systemGray6))
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                 }
             }
@@ -227,8 +227,8 @@ struct CanvasSignatureView: View {
                             .cornerRadius(10)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .foregroundColor(Color(UIColor.systemGray6))
-                .stroke(Color.allFieldBorderColor)
+                                    .fill(Color(UIColor.systemGray6))
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             )
                     })
                     .accessibilityIdentifier("ClearSignatureIdentifier")
