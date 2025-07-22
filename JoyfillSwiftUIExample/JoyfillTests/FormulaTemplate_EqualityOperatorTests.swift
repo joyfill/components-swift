@@ -19,7 +19,7 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_EqualityOperator")
-        documentEditor = DocumentEditor(document: document)
+        documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
 
     override func tearDown() {

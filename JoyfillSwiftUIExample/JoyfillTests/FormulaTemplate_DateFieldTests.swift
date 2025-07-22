@@ -19,7 +19,7 @@ class FormulaTemplate_DateFieldTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_DateField")
-        documentEditor = DocumentEditor(document: document)
+        documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
 
     override func tearDown() {

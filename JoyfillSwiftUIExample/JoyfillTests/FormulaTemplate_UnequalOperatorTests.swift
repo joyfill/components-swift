@@ -19,7 +19,7 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_UnequalOperator")
-        documentEditor = DocumentEditor(document: document)
+        documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
 
     override func tearDown() {

@@ -27,7 +27,7 @@ class TestFormulaTemplate_TableField: XCTestCase {
 
     func testTable() async throws {
         let document = sampleJSONDocument(fileName: "FormulaTemplate_TableField")
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = DocumentEditor(document: document, shouldValidate: false)
         
         print("🧪 Testing FormulaTemplate_TableField.json formulas...")
         

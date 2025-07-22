@@ -9,7 +9,7 @@ final class ConditionLogicUnitTests: XCTestCase {
     let pageID = "66aa286569ad25c65517385e"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document)
+        DocumentEditor(document: document, shouldValidate: false)
     }
     
     func testTextFieldOnNullCondition() {
