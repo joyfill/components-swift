@@ -2,6 +2,8 @@
   "_id": "1b893d1e7f6d03b65652a156",
   "identifier": "doc_generated_straightforward",
   "name": "Generated Straightforward Resolver",
+  "createdOn": 31232313,
+  "deleted": false,
   "formulas": [
     {
       "_id": "field1FormulaId",
@@ -132,7 +134,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "type": "document"

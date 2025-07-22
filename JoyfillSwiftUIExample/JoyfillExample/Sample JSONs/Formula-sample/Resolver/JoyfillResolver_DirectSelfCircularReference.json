@@ -113,8 +113,11 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
-  "type": "document"
+  "type": "document",
+  "createdOn": 31232313,
+  "deleted": false
 }

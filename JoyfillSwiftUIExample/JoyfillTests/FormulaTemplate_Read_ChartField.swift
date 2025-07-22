@@ -19,7 +19,7 @@ class FormulaTemplate_Read_ChartFieldTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_Read_ChartField")
-        documentEditor = DocumentEditor(document: document)
+        documentEditor = DocumentEditor(document: document, shouldValidate: false)
     } 
 
     override func tearDown() {

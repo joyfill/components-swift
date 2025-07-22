@@ -2,6 +2,8 @@
   "_id": "685750eff3216b45ffe73c80",
   "identifier": "doc_685750eff3216b45ffe73c80",
   "name": "New Doc",
+  "createdOn": 31232313,
+  "deleted": false,
   "formulas": [
     {
       "_id": "displayCellValue",
@@ -123,7 +125,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "fields": [

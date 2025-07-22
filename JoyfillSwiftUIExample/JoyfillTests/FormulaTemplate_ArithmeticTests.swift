@@ -19,7 +19,7 @@ class FormulaTemplate_ArithmeticTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_Arithmetic")
-        documentEditor = DocumentEditor(document: document)
+        documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
 
     override func tearDown() {

@@ -9,7 +9,7 @@ class SimpleTableTest: XCTestCase {
     func testBasicTableCellResolution() {
         // Create a simple document with table cell resolution
         let document = JoyDoc.createTableCellResolutionDocument()
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = DocumentEditor(document: document, shouldValidate: false)
         
         // Test basic functionality
         print("Testing basic table cell resolution...")

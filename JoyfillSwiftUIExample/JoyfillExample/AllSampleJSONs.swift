@@ -61,7 +61,7 @@ struct AllSampleJSONs: View, FormChangeEvent {
     
     init() {
         let document = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
-        _documentEditor = State(initialValue: DocumentEditor(document: document, events: self))
+        _documentEditor = State(initialValue: DocumentEditor(document: document, events: self, shouldValidate: false))
     }
 
     var body: some View {
@@ -122,12 +122,12 @@ struct AllSampleJSONs: View, FormChangeEvent {
     private func loadDocument(fileName: String) {
         do {
             let document = sampleJSONDocument(fileName: fileName)
-            documentEditor = DocumentEditor(document: document, events: self)
+            documentEditor = DocumentEditor(document: document, events: self, shouldValidate: false)
         } catch {
             print("Error loading document: \(fileName) - \(error)")
             // Fallback to default if loading fails
             let document = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
-            documentEditor = DocumentEditor(document: document, events: self)
+            documentEditor = DocumentEditor(document: document, events: self, shouldValidate: false)
         }
     }
 
