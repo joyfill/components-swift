@@ -35,7 +35,7 @@ struct JoyfillExampleApp: App {
         
         // Get JSON file name from launch arguments for UI tests
         let jsonFileName = Self.getJSONFileNameFromLaunchArguments()
-        self.documentEditor = DocumentEditor(document: sampleJSONDocument(fileName: jsonFileName), events: eventHandler, isPageDuplicateEnabled: true)
+        self.documentEditor = DocumentEditor(document: sampleJSONDocument(fileName: jsonFileName), events: eventHandler, isPageDuplicateEnabled: true, shouldValidate: false)
     }
 
     var body: some Scene {
