@@ -129,7 +129,7 @@ struct BasicFormulaTest: View {
             .addTextField(identifier: "lessThanResult", formulaRef: "lessThan1", formulaKey: "value", label: "Less Than Test")
             .addTextField(identifier: "lessThanEqualResult", formulaRef: "lessThanEqual1", formulaKey: "value", label: "Less Than or Equal Test")
 
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
@@ -194,7 +194,7 @@ struct LogicalFormulaTest: View {
             .addCheckboxField(identifier: "checkedResult", formulaRef: "checkedValue", formulaKey: "value", label: "CHECKED Value")
             .addCheckboxField(identifier: "uncheckedResult", formulaRef: "uncheckedValue", formulaKey: "value", label: "UNCHECKED Value")
         
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
@@ -273,7 +273,7 @@ struct StringFormulaTest: View {
             .addTextField(identifier: "doubleQuotesResult", formulaRef: "doubleQuotes", formulaKey: "value", label: "Double Quotes")
             .addTextField(identifier: "mixedQuotesResult", formulaRef: "mixedQuotes", formulaKey: "value", label: "Mixed Quotes")
         
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
@@ -347,7 +347,7 @@ struct MathFormulaTest: View {
             .addNumberField(identifier: "negativeParensResult", formulaRef: "negativeParens", formulaKey: "value", label: "Negative with Parens")
             .addNumberField(identifier: "negativeMultiplyResult", formulaRef: "negativeMultiply", formulaKey: "value", label: "Negative via Multiply")
         
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
@@ -411,7 +411,7 @@ struct DateFormulaTest: View {
             .addTextField(identifier: "dateBeforeResult", formulaRef: "dateBefore", formulaKey: "value", label: "Date Before Test")
             .addTextField(identifier: "dateAfterResult", formulaRef: "dateAfter", formulaKey: "value", label: "Date After Test")
         
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
@@ -469,7 +469,7 @@ struct ArrayFormulaTest: View {
             .addCheckboxField(identifier: "everyResult", formulaRef: "every1", formulaKey: "value", label: "Every Result (all > 0)")
             .addCheckboxField(identifier: "someResult", formulaRef: "some1", formulaKey: "value", label: "Some Result (any > 3)")
         
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
@@ -528,7 +528,7 @@ struct ComplexFormulaTest: View {
             .addNumberField(identifier: "selfRefResult", formulaRef: "selfRef1", formulaKey: "value", label: "Self Reference Result")
             .addTextField(identifier: "mixedTypesResult", formulaRef: "mixedTypes1", formulaKey: "value", label: "Mixed Types Result")
             
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
@@ -568,7 +568,7 @@ struct ConversionFormulaTest: View {
             .addNumberField(identifier: "calcOnConvertedResult", formulaRef: "calcOnConverted", formulaKey: "value", label: "Calculation on Converted")
             .addTextField(identifier: "typeCheckResult", formulaRef: "typeCheck1", formulaKey: "value", label: "Type Check Result")
         
-        self.documentEditor = DocumentEditor(document: document)
+        self.documentEditor = DocumentEditor(document: document, shouldValidate: false)
     }
     
     var body: some View {
