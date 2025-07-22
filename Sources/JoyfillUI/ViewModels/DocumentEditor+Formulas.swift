@@ -29,7 +29,10 @@ extension DocumentEditor: JoyDocProvider {
     }
 
     func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
-        print("updateValue called >>>>>>>", value)
+        updateValue(for: identifier, value: value, shouldCallOnChange: true)
+    }
+    
+    func updateValue(for identifier: String, value: JoyfillModel.ValueUnion, shouldCallOnChange: Bool) {
         guard var field = allFields.first(where: { $0.id == identifier }) else {
             return
         }
@@ -38,7 +41,9 @@ extension DocumentEditor: JoyDocProvider {
         fieldMap[fieldID] = field
         refreshField(fieldId: fieldID)
         refreshDependent(for: fieldID)
-        // TODO: Neet to add pageid and cleanup here
-        handleFieldsOnChange(fieldIdentifier: FieldIdentifier(fieldID: field.id!, pageID: "", fileID: document.files.first?.id), currentField: field)
+        
+        if shouldCallOnChange {
+            handleFieldsOnChange(fieldIdentifier: getFieldIdentifier(for: fieldID), currentField: field)
+        }
     }
 }
