@@ -1320,7 +1320,7 @@ struct BuilderFormula: Identifiable {
 }
 
 // Extension to add UI properties to FieldTypes from JoyfillModel
-extension FieldTypes: @retroactive CaseIterable {
+extension FieldTypes: CaseIterable {
     public static var allCases: [FieldTypes] {
         return [.text, .textarea, .richText, .number, .date, .dropdown, .multiSelect, .signature, .image, .block, .chart, .table, .collection]
     }
@@ -2730,7 +2730,7 @@ extension ColumnTypes {
 }
 
 // Extension to add UI properties to ColumnTypes from JoyfillModel
-extension ColumnTypes: @retroactive CaseIterable {
+extension ColumnTypes: CaseIterable {
     public static var allCases: [ColumnTypes] {
         return [.text, .dropdown, .image, .block, .date, .number, .multiSelect, .progress, .barcode, .signature]
     }
