@@ -144,9 +144,6 @@ public class DocumentEditor: ObservableObject {
     }
     
     public func change(changes: [Change]) {
-        // TODO:
-        // 1. Update JSON
-        // 2. Update UI
         for change in changes {
             guard let targetValue = change.target,
                   let target = ChangeTargetType(rawValue: targetValue) else {
@@ -178,8 +175,7 @@ public class DocumentEditor: ObservableObject {
     
     private func handleFieldValueRowUpdate(for change: Change) {
         guard let fieldID = change.fieldId,
-              let field = fieldMap[fieldID]
-        else {
+              let field = fieldMap[fieldID] else {
             logChangeError(for: change)
             return
         }
@@ -190,20 +186,7 @@ public class DocumentEditor: ObservableObject {
             })
             
         default:
-            guard var elements = field.valueToValueElements else { return }
-            guard let rowID = change.change?["rowId"] as? String else { return }
-            guard let rowIndex = elements.firstIndex(where: { $0.id == rowID }) else { return }
-            guard let rowDict = change.change?["row"] as? [String: Any],
-                  let cellsDict = rowDict["cells"] as? [String: Any] else {
-                return
-            }
-            var updatedElement = elements[rowIndex]
-            for (key, value) in cellsDict {
-                updatedElement.cells?[key] = ValueUnion(value: value)
-            }
-            elements[rowIndex] = updatedElement
-            let value = ValueUnion.valueElementArray(elements)
-            updateValue(for: fieldID, value: value, shouldCallOnChange: false)
+            break
         }
     }
     
@@ -218,7 +201,6 @@ public class DocumentEditor: ObservableObject {
         case  .table, .collection:
             delegateMap[fieldID]?.value?.insertRow(for: change)
         default:
-            //TODO: Add impl
             break
         }
     }
@@ -234,15 +216,13 @@ public class DocumentEditor: ObservableObject {
         case .table, .collection:
             delegateMap[fieldID]?.value?.deleteRow(for: change)
         default:
-            //TODO: Add impl
             break
         }
     }
     
     private func handleFieldValueRowMove(for change: Change) {
         guard let fieldID = change.fieldId,
-              let field = fieldMap[fieldID]
-        else {
+              let field = fieldMap[fieldID] else {
             logChangeError(for: change)
             return
         }
@@ -250,21 +230,17 @@ public class DocumentEditor: ObservableObject {
         case .table, .collection:
             delegateMap[fieldID]?.value?.moveRow(for: change)
         default:
-            //TODO: Add impl
             break
         }
     }
     
     private func handleFieldUpdate(for change: Change) {
-        //TODO: Remove fieldType != .collection if we are removing back button update json functionality
-        guard let fieldID = change.fieldId,
-              let fieldType = fieldMap[fieldID]?.fieldType else {
+        guard let fieldID = change.fieldId else {
             logChangeError(for: change)
             return
         }
         guard let value = change.change?["value"] as? Any,
-              let valueUnion = ValueUnion(value: value)
-        else {
+              let valueUnion = ValueUnion(value: value) else {
             logChangeError(for: change)
             return
         }
