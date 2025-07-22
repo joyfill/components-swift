@@ -1,0 +1,164 @@
+{
+  "formulas": [
+    {
+      "_id": "formula_reserved_1",
+      "desc": "field1 = sum + 1 (sum is a reserved function)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sum + 1"
+    },
+    {
+      "_id": "formula_reserved_2",
+      "desc": "field2 = reduce + map + (10 * if) (all reserved)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "reduce + map + (10 * if)"
+    },
+    {
+      "_id": "formula_working_1",
+      "desc": "field3 = sum([1, 2, 3])",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sum([1, 2, 3])"
+    },
+    {
+      "_id": "formula_working_2",
+      "desc": "field4 = if(true, 100, 0)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(true, 100, 0)"
+    }
+  ],
+  "fields": [
+    {
+      "_id": "field1",
+      "type": "number",
+      "title": "Broken: sum + 1",
+      "identifier": "field1",
+      "formulas": [
+        {
+          "_id": "AF_reserved_1",
+          "formula": "formula_reserved_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "field2",
+      "type": "number",
+      "title": "Broken: reduce + map + (10 * if)",
+      "identifier": "field2",
+      "formulas": [
+        {
+          "_id": "AF_reserved_2",
+          "formula": "formula_reserved_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "field3",
+      "type": "number",
+      "title": "Working: sum([1, 2, 3])",
+      "identifier": "field3",
+      "formulas": [
+        {
+          "_id": "AF_working_1",
+          "formula": "formula_working_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "field4",
+      "type": "number",
+      "title": "Working: if(true, 100, 0)",
+      "identifier": "field4",
+      "formulas": [
+        {
+          "_id": "AF_working_2",
+          "formula": "formula_working_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    }
+  ],
+  "files": [
+    {
+      "_id": "file1",
+      "name": "Reserved Word Misuse File",
+      "pageOrder": [
+        "page1"
+      ],
+      "pages": [
+        {
+          "_id": "page1",
+          "name": "Reserved Word Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "padding": 24,
+          "layout": "grid",
+          "presentation": "normal",
+          "fieldPositions": [
+            {
+              "_id": "fp_field1",
+              "field": "field1",
+              "type": "number",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_field2",
+              "field": "field2",
+              "type": "number",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_field3",
+              "field": "field3",
+              "type": "number",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_field4",
+              "field": "field4",
+              "type": "number",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "type": "document",
+  "v": "1",
+  "createdOn": 31232313,
+  "deleted": false,
+  "_id": "685750eff3216b45ffe73c80",
+  "identifier": "doc_685750eff3216b45ffe73c80",
+  "name": "New Doc"
+}

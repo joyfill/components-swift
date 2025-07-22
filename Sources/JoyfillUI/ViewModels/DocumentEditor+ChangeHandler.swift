@@ -260,17 +260,10 @@ extension DocumentEditor {
             Log("Row index not found: \(rowID)", type: .error)
             return
         }
-        guard let newCell = getNewCellValue(for: cellDataModel) else {
-            Log("New cell not found: \(rowID)", type: .error)
-            return
-        }
-        guard let dictionary = newCell.dictionary else {
-            Log("dictionary not found from new cell: \(rowID)", type: .error)
-            return
-        }
+        let newCell = getNewCellValue(for: cellDataModel)
         
         let cells = [
-            cellDataModel.id: dictionary
+            cellDataModel.id: newCell?.dictionary
         ]
         let row: [String : Any] = [
             "_id" : rowID,

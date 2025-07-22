@@ -22,7 +22,12 @@ struct AllSampleJSONs: View, FormChangeEvent {
         "JoyfillResolver_IndirectCircularError",
         "JoyfillResolver_LongChainIndirectCircularDependency",
         "JoyfillResolver_DirectSelfCircularReference",
-        "FormulaTemplate_Arithmetic"
+        "FormulaTemplate_Arithmetic",
+        "ReservedWordMisuse_FormulaTemplate",
+        "UndefinedValueReference_FormulaTemplate",
+        "EncapsulatedCircularReference_FormulaTemplate",
+        "ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate",
+        "FormulaTemplate_ConditionalEvaluationCircularReference"
     ]
     
     private let fieldFiles = [
