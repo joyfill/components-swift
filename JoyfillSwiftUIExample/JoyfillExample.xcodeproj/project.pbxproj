@@ -26,7 +26,6 @@
 		36006C052E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */; };
 		36006C092E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		36006C0A2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
-		36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		36006C0D2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		36006C0E2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		36006C0F2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C0C2E1BF42900159BF0 /* FormulaTemplate_Arithmetic.json */; };
@@ -1161,7 +1160,6 @@
 				E2F568C22E2A4A75005216A6 /* MultiSelectFieldTestData.json in Resources */,
 				36A5EF4E2E29725B0059C2A6 /* Joydocjson.json in Resources */,
 				369D45282E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
-				36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
 				369D45712E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D45722E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				E2F568C72E2A4A8F005216A6 /* ImageFieldTestData.json in Resources */,
