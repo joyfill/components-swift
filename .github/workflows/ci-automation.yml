@@ -71,7 +71,7 @@ jobs:
   # 3️⃣ UI tests (after build)
   ui-tests:
     needs: build
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -84,10 +84,13 @@ jobs:
           xcrun simctl shutdown all
           xcrun simctl erase all
 
-      - name: Boot Simulator
+      - name: Boot & Wait
         run: |
-          xcrun simctl boot "iPhone 16 Pro"
-          sleep 10
+          UDID=$(xcrun simctl list devices | \
+            grep "iPhone 16 Pro (" | grep -v Shutdown | \
+            awk -F '[()]' '{print $2}')
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
 
       - name: Run UI Tests
         run: |
@@ -97,13 +100,14 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination "platform=iOS Simulator,UDID=$UDID" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output ui-test-report.html
+
       - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
         with:
