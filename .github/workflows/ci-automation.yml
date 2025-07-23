@@ -38,7 +38,7 @@ jobs:
           name: build-report
           path: JoyfillSwiftUIExample/build-report.html
 
-  # 2️⃣ UI tests (after build)
+  # 2️⃣ UI tests
   ui-tests:
     needs: build
     runs-on: macos-latest
@@ -48,6 +48,13 @@ jobs:
 
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Reset & Boot Simulator
+        run: |
+          xcrun simctl shutdown all
+          xcrun simctl erase all
+          xcrun simctl boot "iPhone 16 Pro"
+          xcrun simctl bootstatus "iPhone 16 Pro" -b
 
       - name: Run UI Tests
         run: |
