@@ -9,14 +9,39 @@ on:
       - automation-ci
 
 jobs:
-  ui-tests:
+  build:
+    name: Build
     runs-on: macos-14-arm64
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Shutdown & erase any running simulators
+      - name: Build app
+        run: |
+          set -o pipefail
+          cd JoyfillSwiftUIExample
+          xcodebuild \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillExample \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            build \
+          | xcpretty
+
+  ui-tests:
+    name: Boot Simulator & Run UI Tests
+    runs-on: macos-14-arm64
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shutdown & Erase Simulators
         run: |
           xcrun simctl shutdown all
           xcrun simctl erase all
@@ -27,7 +52,6 @@ jobs:
           echo "Booting simulator $UDID"
           xcrun simctl boot "$UDID"
           open -a Simulator
-          # wait until fully booted (timeout 120s)
           xcrun simctl bootstatus "$UDID" -b
 
       - name: Run UI Tests
