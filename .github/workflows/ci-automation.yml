@@ -57,10 +57,10 @@ jobs:
 
       - name: Boot Simulator
         run: |
-          UDID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
-          xcrun simctl boot "$UDID"
+          SIM_ID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
+          xcrun simctl boot "$SIM_ID"
           open -a Simulator
-          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl bootstatus "$SIM_ID" -b
 
       - name: Run UI Tests
         run: |
@@ -70,7 +70,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,UDID=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+            -destination "id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
