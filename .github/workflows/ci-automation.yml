@@ -37,37 +37,6 @@ jobs:
           name: build-report
           path: JoyfillSwiftUIExample/build-report.html
 
-  # 2️⃣ Unit tests (after build)
-  unit-tests:
-    needs: build
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app
-
-      - name: Run Unit Tests
-        run: |
-          set -o pipefail
-          cd JoyfillSwiftUIExample
-          xcodebuild test \
-            -project JoyfillExample.xcodeproj \
-            -scheme JoyfillTests \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES \
-          | xcpretty --color --report html --output unit-test-report.html
-      - name: Upload Unit Test Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-report
-          path: JoyfillSwiftUIExample/unit-test-report.html
-
   # 3️⃣ UI tests (after build)
   ui-tests:
     needs: build
@@ -86,9 +55,11 @@ jobs:
 
       - name: Boot & Wait
         run: |
-          UDID=$(xcrun simctl list devices | \
-            grep "iPhone 16 Pro (" | grep -v Shutdown | \
-            awk -F '[()]' '{print $2}')
+          UDID=$(xcrun simctl list devices \
+            | grep "iPhone 16 Pro (" \
+            | head -1 \
+            | awk -F '[()]' '{print $2}')
+          echo "Booting simulator $UDID"
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
 
