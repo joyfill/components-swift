@@ -74,17 +74,16 @@ jobs:
           set -o pipefail
           cd JoyfillSwiftUIExample
           xcodebuild test \
-            -project JoyfillExample.xcodeproj \
-            -scheme JoyfillUITests \
-            -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES \
-            -derivedDataPath ./DerivedData \
-            -resultBundlePath ./TestResults.xcresult \
+          -project JoyfillExample.xcodeproj \
+          -scheme JoyfillUITests \
+          -testPlan JoyfillUITests \
+          -sdk iphonesimulator \
+          -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          EXCLUDED_ARCHS=arm64 \
+          ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output ui-test-report.html
       
       - name: Upload UI Test Report
