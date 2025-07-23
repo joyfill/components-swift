@@ -466,17 +466,22 @@ class JoyfillDocContext: EvaluationContext {
         
         // If no further path components, return the entire collection
         if pathComponents.isEmpty {
-            // Convert to array of dictionaries
-            let result = valueElements.map { element -> FormulaValue in
-                // Convert each cell to a dictionary of FormulaValues
-                var dict: [String: FormulaValue] = [:]
-                if let cells = element.cells {
-                    for (key, value) in cells {
-                        dict[key] = convertValueUnionToFormulaValue(value)
-                    }
+            // Filter out deleted rows and convert to array of dictionaries
+            let result = valueElements
+                .filter { element in
+                    // Only include non-deleted rows (deleted == nil or deleted == false)
+                    return element.deleted != true
                 }
-                return .dictionary(dict)
-            }
+                .map { element -> FormulaValue in
+                    // Convert each cell to a dictionary of FormulaValues
+                    var dict: [String: FormulaValue] = [:]
+                    if let cells = element.cells {
+                        for (key, value) in cells {
+                            dict[key] = convertValueUnionToFormulaValue(value)
+                        }
+                    }
+                    return .dictionary(dict)
+                }
             return .success(.array(result))
         }
         
@@ -521,7 +526,14 @@ class JoyfillDocContext: EvaluationContext {
                     }
                     
                     guard let foundCellValue = cellValue else {
-                        return .failure(.invalidReference("Column '\(columnIdentifier)' not found in row at index \(index) of table '\(field.id ?? "unknown")'"))
+                        // Cell not found, return default value based on column type
+                        if let tableColumn = field.tableColumns?.first(where: { $0.id == columnIdentifier || $0.title.lowercased() == columnIdentifier.lowercased() }),
+                           let columnType = tableColumn.type {
+                            return .success(getDefaultFormulaValue(for: columnType))
+                        } else {
+                            // Column definition not found, return string default
+                            return .success(.string(""))
+                        }
                     }
                     
                     // If we have more path components (e.g., products.0.tags.0), handle nested access
@@ -535,7 +547,14 @@ class JoyfillDocContext: EvaluationContext {
                     }
                 }
                 
-                return .failure(.invalidReference("Column '\(columnIdentifier)' not found in row at index \(index) of table '\(field.id ?? "unknown")'"))
+                // Row doesn't have cells, return default value based on column type
+                if let tableColumn = field.tableColumns?.first(where: { $0.id == columnIdentifier || $0.title.lowercased() == columnIdentifier.lowercased() }),
+                   let columnType = tableColumn.type {
+                    return .success(getDefaultFormulaValue(for: columnType))
+                } else {
+                    // Column definition not found, return string default
+                    return .success(.string(""))
+                }
             }
         } 
         
@@ -556,20 +575,29 @@ class JoyfillDocContext: EvaluationContext {
         }
         
         guard let columnId = foundColumnId else {
-            return .failure(.invalidReference("Column '\(columnIdentifier)' not found in table '\(field.id ?? "unknown")'"))
+            // Column not found, return appropriate default value
+            // Since we don't know the column type, return empty string as a reasonable default
+            return .success(.string(""))
         }
 
         if pathComponents.count == 1 {
             // Get all values from this column: products.price
             var columnValues: [FormulaValue] = []
             
-            for element in valueElements {
+            // Filter out deleted rows before processing
+            for element in valueElements.filter({ $0.deleted != true }) {
                 if let cells = element.cells,
                    let cellValue = cells[columnId] {
                     columnValues.append(convertValueUnionToFormulaValue(cellValue))
                 } else {
-                    // If column doesn't exist in this row, use null
-                    columnValues.append(.null)
+                    // If column doesn't exist in this row, use default value based on column type
+                    if let tableColumn = field.tableColumns?.first(where: { $0.id == columnId }),
+                       let columnType = tableColumn.type {
+                        columnValues.append(getDefaultFormulaValue(for: columnType))
+                    } else {
+                        // Column definition not found, use string default
+                        columnValues.append(.string(""))
+                    }
                 }
             }
             
@@ -588,10 +616,15 @@ class JoyfillDocContext: EvaluationContext {
         
         // If no further path components, return the entire collection
         if pathComponents.isEmpty {
-            // Convert to array of dictionaries with children support
-            let result = valueElements.map { element -> FormulaValue in
-                return convertCollectionElementToFormulaValue(element, field: field)
-            }
+            // Filter out deleted rows and convert to array of dictionaries with children support
+            let result = valueElements
+                .filter { element in
+                    // Only include non-deleted rows (deleted == nil or deleted == false)
+                    return element.deleted != true
+                }
+                .map { element -> FormulaValue in
+                    return convertCollectionElementToFormulaValue(element, field: field)
+                }
             return .success(.array(result))
         }
         
@@ -619,9 +652,14 @@ class JoyfillDocContext: EvaluationContext {
                     
                     if pathComponents.count == 3 {
                         // Return all children for this schema: collection1.0.children.schemaDepth2
-                        let result = childElements.map { childElement -> FormulaValue in
-                            return convertCollectionElementToFormulaValue(childElement, field: field)
-                        }
+                        let result = childElements
+                            .filter { childElement in
+                                // Only include non-deleted rows (deleted == nil or deleted == false)
+                                return childElement.deleted != true
+                            }
+                            .map { childElement -> FormulaValue in
+                                return convertCollectionElementToFormulaValue(childElement, field: field)
+                            }
                         return .success(.array(result))
                     } else if pathComponents.count >= 4 {
                         // Further navigation into children: collection1.0.children.schemaDepth2.0.text1
@@ -648,9 +686,14 @@ class JoyfillDocContext: EvaluationContext {
                                     
                                     if remainingPath.count == 3 {
                                         // Return all nested children: collection1.0.children.schemaDepth2.0.children.schemaDepth3
-                                        let result = nestedChildElements.map { nestedChildElement -> FormulaValue in
-                                            return convertCollectionElementToFormulaValue(nestedChildElement, field: field)
-                                        }
+                                        let result = nestedChildElements
+                                            .filter { nestedChildElement in
+                                                // Only include non-deleted rows (deleted == nil or deleted == false)
+                                                return nestedChildElement.deleted != true
+                                            }
+                                            .map { nestedChildElement -> FormulaValue in
+                                                return convertCollectionElementToFormulaValue(nestedChildElement, field: field)
+                                            }
                                         return .success(.array(result))
                                     } else if remainingPath.count >= 4 {
                                         // Further navigation: collection1.0.children.schemaDepth2.0.children.schemaDepth3.0.text1
@@ -1787,6 +1830,31 @@ class JoyfillDocContext: EvaluationContext {
             return .null
         }
     }
+    
+    /// Returns the appropriate default FormulaValue for a given column type
+    /// - Parameter columnType: The column type to get default value for
+    /// - Returns: A FormulaValue representing the default value for that column type
+    private func getDefaultFormulaValue(for columnType: JoyfillModel.ColumnTypes) -> FormulaValue {
+        switch columnType {
+        case .text, .dropdown, .block:
+            return .string("")
+        case .number:
+            return .number(0)
+        case .multiSelect:
+            return .array([])
+        case .date:
+            return .null
+        case .image, .signature:
+            return .null
+        case .table:
+            return .array([])
+        case .progress, .barcode:
+            return .string("")
+        case .unknown:
+            return .null
+        }
+    }
+    
     /// Updates a field's value based on a formula evaluation result
     /// - Parameters:
     ///   - identifier: The field identifier
