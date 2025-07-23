@@ -596,194 +596,203 @@ class JoyfillDocContext: EvaluationContext {
     }
     
     private func resolveCollectionReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
-        return .failure(.invalidReference("Field '\(field.id ?? "unknown")' has no value"))
+        // Get the resolved value (already filtered for deleted rows and converted for collections)
+        guard let resolvedValueUnion = field.resolvedValue else {
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' has no value"))
+        }
+        
+        // Extract ValueElement array directly and convert each element properly with children support
+        guard let valueElementArray = resolvedValueUnion.valueElements else {
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid collection"))
+        }
+        
+        // Convert each ValueElement to FormulaValue with proper children handling
+        let valueElements = valueElementArray.map { element -> FormulaValue in
+            return convertCollectionElementToFormulaValue(element, field: field)
+        }
+        
+        // If no further path components, return the entire collection
+        if pathComponents.isEmpty {
+            // Data is already filtered and processed in resolvedValue
+            return .success(.array(valueElements))
+        }
+        
+        let nextComponent = pathComponents[0]
+        
+        // Check if it's a numeric index (e.g., collection1.0.text1 or collection1.0.children.schemaDepth2.0.text1)
+        if let index = Int(nextComponent), index >= 0, index < valueElements.count {
+            let element = valueElements[index]
+            
+            if pathComponents.count == 1 {
+                // Return the entire row as a dictionary: collection1.0
+                return .success(element)
+            } else if pathComponents.count >= 2 {
+                let secondComponent = pathComponents[1]
+                
+                // Check if we're accessing children: collection1.0.children.schemaDepth2
+                if secondComponent == "children" && pathComponents.count >= 3 {
+                    let schemaId = pathComponents[2]
+                    
+                    // Get the children for this schema from the FormulaValue dictionary structure
+                    guard case .dictionary(let elementDict) = element,
+                          let childrenValue = elementDict["children"],
+                          case .dictionary(let childrenDict) = childrenValue,
+                          let schemaArray = childrenDict[schemaId],
+                          case .array(let childElements) = schemaArray else {
+                        return .failure(.invalidReference("Schema '\(schemaId)' not found in children of row at index \(index) in collection '\(field.id ?? "unknown")'"))
+                    }
+                    
+                    if pathComponents.count == 3 {
+                        // Return all children for this schema: collection1.0.children.schemaDepth2
+                        // Children are already filtered and converted in resolvedValue
+                        return .success(.array(childElements))
+                    } else if pathComponents.count >= 4 {
+                        // Further navigation into children: collection1.0.children.schemaDepth2.0.text1
+                        let remainingPath = Array(pathComponents.dropFirst(3))
+                        
+                        // Check if next component is an index
+                        if let childIndex = Int(remainingPath[0]), childIndex >= 0, childIndex < childElements.count {
+                            let childElement = childElements[childIndex]
+                            
+                            if remainingPath.count == 1 {
+                                // Return the entire child row: collection1.0.children.schemaDepth2.0
+                                return .success(childElement)
+                            } else if remainingPath.count >= 2 {
+                                let childColumnId = remainingPath[1]
+                                
+                                // Check if we're accessing nested children again
+                                if childColumnId == "children" && remainingPath.count >= 3 {
+                                    let nestedSchemaId = remainingPath[2]
+                                    
+                                    // Access nested children from FormulaValue dictionary structure
+                                    guard case .dictionary(let childElementDict) = childElement,
+                                          let nestedChildrenValue = childElementDict["children"],
+                                          case .dictionary(let nestedChildrenDict) = nestedChildrenValue,
+                                          let nestedSchemaArray = nestedChildrenDict[nestedSchemaId],
+                                          case .array(let nestedChildElements) = nestedSchemaArray else {
+                                        return .failure(.invalidReference("Nested schema '\(nestedSchemaId)' not found in children of row at child index \(childIndex) in collection '\(field.id ?? "unknown")'"))
+                                    }
+                                    
+                                    if remainingPath.count == 3 {
+                                        // Return all nested children: collection1.0.children.schemaDepth2.0.children.schemaDepth3
+                                        // Children are already filtered and converted in resolvedValue
+                                        return .success(.array(nestedChildElements))
+                                    } else if remainingPath.count >= 4 {
+                                        // Further navigation: collection1.0.children.schemaDepth2.0.children.schemaDepth3.0.text1
+                                        let nestedRemainingPath = Array(remainingPath.dropFirst(3))
+                                        
+                                        if let nestedChildIndex = Int(nestedRemainingPath[0]), nestedChildIndex >= 0, nestedChildIndex < nestedChildElements.count {
+                                            let nestedChildElement = nestedChildElements[nestedChildIndex]
+                                            
+                                            if nestedRemainingPath.count == 1 {
+                                                // Return the entire nested child row
+                                                return .success(nestedChildElement)
+                                            } else if nestedRemainingPath.count == 2 {
+                                                let nestedColumnId = nestedRemainingPath[1]
+                                                
+                                                // Access cell value in nested child from FormulaValue dictionary
+                                                guard case .dictionary(let nestedChildDict) = nestedChildElement else {
+                                                    return .failure(.invalidReference("Nested child element is not a valid dictionary"))
+                                                }
+                                                
+                                                if let cellValue = nestedChildDict[nestedColumnId] {
+                                                    return .success(cellValue)
+                                                } else {
+                                                    return .failure(.invalidReference("Column '\(nestedColumnId)' not found in nested child row at index \(nestedChildIndex)"))
+                                                }
+                                            }
+                                        } else {
+                                            return .failure(.invalidReference("Invalid nested child index in path: \(remainingPath.joined(separator: "."))"))
+                                        }
+                                    }
+                                } else {
+                                    // Access cell value in child row: collection1.0.children.schemaDepth2.0.text1
+                                    guard case .dictionary(let childElementDict) = childElement else {
+                                        return .failure(.invalidReference("Child element is not a valid dictionary"))
+                                    }
+                                    
+                                    if let cellValue = childElementDict[childColumnId] {
+                                        return .success(cellValue)
+                                    } else {
+                                        return .failure(.invalidReference("Column '\(childColumnId)' not found in child row at index \(childIndex)"))
+                                    }
+                                }
+                            }
+                        } else {
+                            return .failure(.invalidReference("Invalid child index in path: \(remainingPath.joined(separator: "."))"))
+                        }
+                    }
+                } else {
+                    // Direct column access: collection1.0.text1
+                    guard case .dictionary(let elementDict) = element else {
+                        return .failure(.invalidReference("Element at index \(index) is not a valid dictionary"))
+                    }
+                    
+                    if let cellValue = elementDict[secondComponent] {
+                        return .success(cellValue)
+                    } else {
+                        return .failure(.invalidReference("Column '\(secondComponent)' not found in row at index \(index) of collection '\(field.id ?? "unknown")'"))
+                    }
+                }
+            }
+        } else {
+            // Check if it's a column name/ID (for all values in that column) - e.g., collection1.text1
+            let columnIdentifier = nextComponent
+            
+            // Find the column by ID or title in the root schema
+            var foundColumnId: String? = nil
+            
+            // Get the root schema columns
+            if let schema = field.schema {
+                for (_, schemaInfo) in schema {
+                    if schemaInfo.root == true {
+                        // Check direct column ID match
+                        if schemaInfo.tableColumns?.contains(where: { $0.id == columnIdentifier }) == true {
+                            foundColumnId = columnIdentifier
+                            break
+                        } else {
+                            // Try to find by column title
+                            foundColumnId = schemaInfo.tableColumns?.first(where: { column in
+                                column.title.lowercased() == columnIdentifier.lowercased()
+                            })?.id
+                            if foundColumnId != nil {
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            
+            guard let columnId = foundColumnId else {
+                return .failure(.invalidReference("Column '\(columnIdentifier)' not found in collection '\(field.id ?? "unknown")'"))
+            }
+
+            if pathComponents.count == 1 {
+                // Get all values from this column: collection1.text1
+                var columnValues: [FormulaValue] = []
+                
+                for element in valueElements {
+                    guard case .dictionary(let elementDict) = element else {
+                        // If element is not a dictionary, use null
+                        columnValues.append(.null)
+                        continue
+                    }
+                    
+                    if let cellValue = elementDict[columnId] {
+                        columnValues.append(cellValue)
+                    } else {
+                        // If column doesn't exist in this row, use null
+                        columnValues.append(.null)
+                    }
+                }
+                
+                return .success(.array(columnValues))
+            }
+        }
+        
+        // If we get here, it's an unsupported reference pattern
+        return .failure(.invalidReference("Unable to resolve collection reference path: \(pathComponents.joined(separator: ".")) in collection '\(field.id ?? "unknown")'"))
     }
-//
-//        // Get the resolved value (already filtered for deleted rows)
-//        guard let resolvedValueUnion = field.resolvedValue else {
-//            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' has no value"))
-//        }
-//        
-//        let resolvedValue = convertValueUnionToFormulaValue(resolvedValueUnion)
-//        guard case .array(let valueElements) = resolvedValue else {
-//            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid collection"))
-//        }
-//        
-//        // If no further path components, return the entire collection
-//        if pathComponents.isEmpty {
-//            // Data is already filtered and processed in resolvedValue
-//            return .success(.array(valueElements))
-//        }
-//        
-//        let nextComponent = pathComponents[0]
-//        
-//        // Check if it's a numeric index (e.g., collection1.0.text1 or collection1.0.children.schemaDepth2.0.text1)
-//        if let index = Int(nextComponent), index >= 0, index < valueElements.count {
-//            let element = valueElements[index]
-//            
-//            if pathComponents.count == 1 {
-//                // Return the entire row as a dictionary: collection1.0
-//                return .success(element)
-//            } else if pathComponents.count >= 2 {
-//                let secondComponent = pathComponents[1]
-//                
-//                // Check if we're accessing children: collection1.0.children.schemaDepth2
-//                if secondComponent == "children" && pathComponents.count >= 3 {
-//                    let schemaId = pathComponents[2]
-//                    
-//                    // Get the children for this schema
-//                    guard let children = element.childrens?[schemaId],
-//                          let childElements = children.valueToValueElements else {
-//                        return .failure(.invalidReference("Schema '\(schemaId)' not found in children of row at index \(index) in collection '\(field.id ?? "unknown")'"))
-//                    }
-//                    
-//                    if pathComponents.count == 3 {
-//                        // Return all children for this schema: collection1.0.children.schemaDepth2
-//                        let result = childElements
-//                            .filter { childElement in
-//                                // Only include non-deleted rows (deleted == nil or deleted == false)
-//                                return childElement.deleted != true
-//                            }
-//                            .map { childElement -> FormulaValue in
-//                                return convertCollectionElementToFormulaValue(childElement, field: field)
-//                            }
-//                        return .success(.array(result))
-//                    } else if pathComponents.count >= 4 {
-//                        // Further navigation into children: collection1.0.children.schemaDepth2.0.text1
-//                        let remainingPath = Array(pathComponents.dropFirst(3))
-//                        
-//                        // Check if next component is an index
-//                        if let childIndex = Int(remainingPath[0]), childIndex >= 0, childIndex < childElements.count {
-//                            let childElement = childElements[childIndex]
-//                            
-//                            if remainingPath.count == 1 {
-//                                // Return the entire child row: collection1.0.children.schemaDepth2.0
-//                                return .success(convertCollectionElementToFormulaValue(childElement, field: field))
-//                            } else if remainingPath.count >= 2 {
-//                                let childColumnId = remainingPath[1]
-//                                
-//                                // Check if we're accessing nested children again
-//                                if childColumnId == "children" && remainingPath.count >= 3 {
-//                                    let nestedSchemaId = remainingPath[2]
-//                                    
-//                                    guard let nestedChildren = childElement.childrens?[nestedSchemaId],
-//                                          let nestedChildElements = nestedChildren.valueToValueElements else {
-//                                        return .failure(.invalidReference("Nested schema '\(nestedSchemaId)' not found in children of row at child index \(childIndex) in collection '\(field.id ?? "unknown")'"))
-//                                    }
-//                                    
-//                                    if remainingPath.count == 3 {
-//                                        // Return all nested children: collection1.0.children.schemaDepth2.0.children.schemaDepth3
-//                                        let result = nestedChildElements
-//                                            .filter { nestedChildElement in
-//                                                // Only include non-deleted rows (deleted == nil or deleted == false)
-//                                                return nestedChildElement.deleted != true
-//                                            }
-//                                            .map { nestedChildElement -> FormulaValue in
-//                                                return convertCollectionElementToFormulaValue(nestedChildElement, field: field)
-//                                            }
-//                                        return .success(.array(result))
-//                                    } else if remainingPath.count >= 4 {
-//                                        // Further navigation: collection1.0.children.schemaDepth2.0.children.schemaDepth3.0.text1
-//                                        let nestedRemainingPath = Array(remainingPath.dropFirst(3))
-//                                        
-//                                        if let nestedChildIndex = Int(nestedRemainingPath[0]), nestedChildIndex >= 0, nestedChildIndex < nestedChildElements.count {
-//                                            let nestedChildElement = nestedChildElements[nestedChildIndex]
-//                                            
-//                                            if nestedRemainingPath.count == 1 {
-//                                                // Return the entire nested child row
-//                                                return .success(convertCollectionElementToFormulaValue(nestedChildElement, field: field))
-//                                            } else if nestedRemainingPath.count == 2 {
-//                                                let nestedColumnId = nestedRemainingPath[1]
-//                                                
-//                                                // Access cell value in nested child
-//                                                if let cells = nestedChildElement.cells,
-//                                                   let cellValue = cells[nestedColumnId] {
-//                                                    return .success(convertValueUnionToFormulaValue(cellValue))
-//                                                } else {
-//                                                    return .failure(.invalidReference("Column '\(nestedColumnId)' not found in nested child row at index \(nestedChildIndex)"))
-//                                                }
-//                                            }
-//                                        } else {
-//                                            return .failure(.invalidReference("Invalid nested child index in path: \(remainingPath.joined(separator: "."))"))
-//                                        }
-//                                    }
-//                                } else {
-//                                    // Access cell value in child row: collection1.0.children.schemaDepth2.0.text1
-//                                    if let cells = childElement.cells,
-//                                       let cellValue = cells[childColumnId] {
-//                                        return .success(convertValueUnionToFormulaValue(cellValue))
-//                                    } else {
-//                                        return .failure(.invalidReference("Column '\(childColumnId)' not found in child row at index \(childIndex)"))
-//                                    }
-//                                }
-//                            }
-//                        } else {
-//                            return .failure(.invalidReference("Invalid child index in path: \(remainingPath.joined(separator: "."))"))
-//                        }
-//                    }
-//                } else {
-//                    // Direct column access: collection1.0.text1
-//                    if let cells = element.cells,
-//                       let cellValue = cells[secondComponent] {
-//                        return .success(convertValueUnionToFormulaValue(cellValue))
-//                    } else {
-//                        return .failure(.invalidReference("Column '\(secondComponent)' not found in row at index \(index) of collection '\(field.id ?? "unknown")'"))
-//                    }
-//                }
-//            }
-//        } else {
-//            // Check if it's a column name/ID (for all values in that column) - e.g., collection1.text1
-//            let columnIdentifier = nextComponent
-//            
-//            // Find the column by ID or title in the root schema
-//            var foundColumnId: String? = nil
-//            
-//            // Get the root schema columns
-//            if let schema = field.schema {
-//                for (_, schemaInfo) in schema {
-//                    if schemaInfo.root == true {
-//                        // Check direct column ID match
-//                        if schemaInfo.tableColumns?.contains(where: { $0.id == columnIdentifier }) == true {
-//                            foundColumnId = columnIdentifier
-//                            break
-//                        } else {
-//                            // Try to find by column title
-//                            foundColumnId = schemaInfo.tableColumns?.first(where: { column in
-//                                column.title.lowercased() == columnIdentifier.lowercased()
-//                            })?.id
-//                            if foundColumnId != nil {
-//                                break
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            guard let columnId = foundColumnId else {
-//                return .failure(.invalidReference("Column '\(columnIdentifier)' not found in collection '\(field.id ?? "unknown")'"))
-//            }
-//
-//            if pathComponents.count == 1 {
-//                // Get all values from this column: collection1.text1
-//                var columnValues: [FormulaValue] = []
-//                
-//                for element in valueElements {
-//                    if let cells = element.cells,
-//                       let cellValue = cells[columnId] {
-//                        columnValues.append(convertValueUnionToFormulaValue(cellValue))
-//                    } else {
-//                        // If column doesn't exist in this row, use null
-//                        columnValues.append(.null)
-//                    }
-//                }
-//                
-//                return .success(.array(columnValues))
-//            }
-//        }
-//        
-//        // If we get here, it's an unsupported reference pattern
-//        return .failure(.invalidReference("Unable to resolve collection reference path: \(pathComponents.joined(separator: ".")) in collection '\(field.id ?? "unknown")'"))
-//    }
     
     /// Converts a collection element (row) to a FormulaValue dictionary, including children
     private func convertCollectionElementToFormulaValue(_ element: ValueElement, field: JoyDocField) -> FormulaValue {
