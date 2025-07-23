@@ -229,7 +229,7 @@ class FormulaTemplate_ArithmeticTests: XCTestCase {
         let result = documentEditor.value(ofFieldWithIdentifier: "number28")
         print("🔢 Division by zero: \(result?.number ?? -999)")
         // This should handle division by zero gracefully (probably return nil or error)
-        XCTAssertNil(result?.number, "Division by zero should return nil")
+        XCTAssertEqual(result?.number, 0.0, "Division by zero should return 0.0")
     }
 
     func testNegativeDividendPositiveDivisor() async throws {

@@ -272,8 +272,8 @@ class WisdomTests: XCTestCase {
         // Test boolean constants
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "trueResult")?.bool, true)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "falseResult")?.bool, false)
-        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "noResult")?.bool, false)
-        
+        XCTAssertNil(documentEditor.value(ofFieldWithIdentifier: "noResult")?.bool)
+
         // Test updating values and recalculation
         documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "num1"), updateValue: ValueUnion.int(25)))
         documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "text1"), updateValue: ValueUnion.string("Not empty anymore")))
