@@ -31,7 +31,6 @@ jobs:
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output build-report.html
-
       - name: Upload Build Report
         uses: actions/upload-artifact@v4
         with:
@@ -42,7 +41,7 @@ jobs:
   ui-tests:
     needs: build
     runs-on: macos-latest
-    # Using per‐SHA concurrency so canceled/old runs don’t block new ones:
+    # Using per‐SHA concurrency so canceled/old runs don't block new ones:
     concurrency:
       group: ui-tests-${{ github.ref }}-${{ github.sha }}
       cancel-in-progress: true
@@ -57,14 +56,15 @@ jobs:
         run: |
           xcrun simctl shutdown all
           xcrun simctl erase all
-
       - name: Boot Simulator
         run: |
           UDID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
-          xcrun simctl boot "$UDID"
+          xcrun simctl boot "$UDID" || true
           open -a Simulator
           xcrun simctl bootstatus "$UDID" -b
-
+      - name: Wait for Simulator
+        run: |
+          sleep 10
       - name: Run UI Tests
         run: |
           set -o pipefail
@@ -73,14 +73,13 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,UDID=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+            -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output ui-test-report.html
-
       - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
         with:
