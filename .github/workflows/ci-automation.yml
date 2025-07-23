@@ -110,7 +110,6 @@ jobs:
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
             -derivedDataPath ./DerivedData \
-            -parallelizeTargets NO \
             -jobs 1
       
       - name: Run Tests Only
@@ -131,7 +130,6 @@ jobs:
             ONLY_ACTIVE_ARCH=YES \
             -derivedDataPath ./DerivedData \
             -resultBundlePath ./TestResults.xcresult \
-            -parallelizeTargets NO \
             -jobs 1
       
       - name: Upload Test Results
