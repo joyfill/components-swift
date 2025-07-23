@@ -28,6 +28,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output build-report.html
 
@@ -37,11 +38,12 @@ jobs:
           name: build-report
           path: JoyfillSwiftUIExample/build-report.html
 
-  # 2️⃣ UI tests (after build)
+  # 2️⃣ UI tests
   ui-tests:
     needs: build
     runs-on: macos-latest
     timeout-minutes: 30
+
     steps:
       - uses: actions/checkout@v4
 
@@ -53,18 +55,14 @@ jobs:
           xcrun simctl shutdown all
           xcrun simctl erase all
 
-      - name: Boot Simulator & Start GUI
+      - name: Boot Simulator
         run: |
-          DEVICE="iPhone 16 Pro"
-          OS="18.2"
-          # boot device
-          xcrun simctl boot "$DEVICE" --os "$OS"
-          # launch the Simulator app so UI tests can attach
+          UDID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
+          xcrun simctl boot "$UDID"
           open -a Simulator
-          # wait until fully booted (increase timeout to 120s)
-          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl bootstatus "$UDID" -b
 
-      - name: Run UI Tests (raw logs)
+      - name: Run UI Tests
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
@@ -72,12 +70,13 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
-            -destination-timeout 120 \
+            -destination "platform=iOS Simulator,UDID=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=YES
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output ui-test-report.html
 
       - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
