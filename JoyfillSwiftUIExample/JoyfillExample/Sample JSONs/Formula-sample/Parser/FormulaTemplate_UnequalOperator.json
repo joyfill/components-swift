@@ -3,6 +3,8 @@
   "identifier": "doc_inequality_operator_doc",
   "name": "Inequality Operator",
   "type": "document",
+  "createdOn": 31232313,
+  "deleted": false,
   "files": [
     {
       "_id": "file1",
@@ -287,7 +289,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "fields": [

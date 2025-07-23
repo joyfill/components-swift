@@ -3,6 +3,8 @@
   "identifier": "doc_template_equal_if_doc",
   "name": "Equal Operator IF Test",
   "type": "document",
+  "createdOn": 31232313,
+  "deleted": false,
   "files": [
     {
       "_id": "687169836c95bd9206de9b04",
@@ -315,7 +317,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "fields": [

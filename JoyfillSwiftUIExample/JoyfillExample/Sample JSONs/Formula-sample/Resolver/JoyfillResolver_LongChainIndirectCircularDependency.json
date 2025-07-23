@@ -2,6 +2,8 @@
   "_id": "d71f8dca02b65d30bd0049fe",
   "identifier": "doc_generated_nested",
   "name": "Generated Nested Formula Resolver",
+  "createdOn": 31232313,
+  "deleted": false,
   "formulas": [
     {
       "_id": "field1FormulaId",
@@ -190,7 +192,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "type": "document"

@@ -1,0 +1,603 @@
+{
+  "_id": "686fcc012bc57a59b7246d4d",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {
+    "testBool": true,
+    "testText": "testing",
+    "testNumber": 100,
+    "testArr": [
+      "1",
+      "2",
+      "3"
+    ],
+    "testObj": {
+      "name": "test"
+    }
+  },
+  "identifier": "template_686fcc012bc57a59b7246d4d",
+  "name": "NO-1284 Blank template",
+  "createdOn": 1752157196321,
+  "files": [
+    {
+      "_id": "686fcc0108d51ab760970d0a",
+      "metadata": {
+        "testBool": true,
+        "testText": "testing",
+        "testNumber": 100,
+        "testArr": [
+          "1",
+          "2",
+          "3"
+        ],
+        "testObj": {
+          "name": "test"
+        }
+      },
+      "name": "NO-1284 Blank template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "68751c300a8561ffb8377d4b",
+              "type": "text",
+              "field": "68751c0c3131fe052b3d2936",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68751c333818fa5f44bf6811",
+              "type": "dropdown",
+              "field": "68751c3077ea16fc44870ad4",
+              "displayType": "original",
+              "targetValue": "68751bc00ed78fb4f837cd6b",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68751c35bfc8a18db19f8438",
+              "type": "multiSelect",
+              "field": "68751c34955b9c0375781817",
+              "displayType": "original",
+              "targetValue": "68751bc05e060b2a3e5d89e5",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 15
+            },
+            {
+              "_id": "68751c389795b0875fb1005b",
+              "type": "table",
+              "field": "68751c35517382607b8fb15a",
+              "displayType": "original",
+              "x": 0,
+              "y": 31,
+              "width": 8,
+              "height": 15
+            },
+            {
+              "_id": "68751c3b96a14784fd5c08d2",
+              "type": "collection",
+              "field": "68751c386b015503bb270a6f",
+              "displayType": "original",
+              "x": 0,
+              "y": 46,
+              "width": 8,
+              "height": 15
+            },
+            {
+              "_id": "68751c3f3108270912b84287",
+              "type": "table",
+              "field": "68751c35517382607b8fb15a",
+              "displayType": "text",
+              "x": 4,
+              "y": 0,
+              "width": 2,
+              "height": 5,
+              "column": "68751bc05d90e6051318779a",
+              "columnType": "dropdown",
+              "rowIndex": 0,
+              "targetValue": "68751bc06fd682949f5edb34",
+              "padding": 0
+            },
+            {
+              "_id": "68751c4429c20b5333943cd2",
+              "type": "dropdown",
+              "field": "68751c3077ea16fc44870ad4",
+              "displayType": "check",
+              "targetValue": "68751bc00ed78fb4f837cd6b",
+              "x": 4,
+              "y": 5,
+              "width": 3,
+              "height": 7
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "686fcc015718a8cc66ceb49d",
+          "metadata": {
+            "testBool": true,
+            "testText": "testing",
+            "testNumber": 100,
+            "testArr": [
+              "1",
+              "2",
+              "3"
+            ],
+            "testObj": {
+              "name": "test"
+            }
+          }
+        }
+      ],
+      "pageOrder": [
+        "686fcc015718a8cc66ceb49d"
+      ],
+      "views": [
+        {
+          "_id": "68751c5197c50e23a876cd23",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "68751c300a8561ffb8377d4b",
+                  "type": "text",
+                  "field": "68751c0c3131fe052b3d2936",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "68751c3f3108270912b84287",
+                  "type": "table",
+                  "field": "68751c35517382607b8fb15a",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 64,
+                  "width": 1,
+                  "height": 116,
+                  "column": "68751bc05d90e6051318779a",
+                  "columnType": "dropdown",
+                  "rowIndex": 0,
+                  "targetValue": "68751bc06fd682949f5edb34",
+                  "padding": 0,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "68751c4429c20b5333943cd2",
+                  "type": "dropdown",
+                  "field": "68751c3077ea16fc44870ad4",
+                  "displayType": "original",
+                  "targetValue": "68751bc00ed78fb4f837cd6b",
+                  "x": 0,
+                  "y": 180,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "68751c35bfc8a18db19f8438",
+                  "type": "multiSelect",
+                  "field": "68751c34955b9c0375781817",
+                  "displayType": "original",
+                  "targetValue": "68751bc05e060b2a3e5d89e5",
+                  "x": 0,
+                  "y": 244,
+                  "width": 1,
+                  "height": 120,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "68751c3b96a14784fd5c08d2",
+                  "type": "collection",
+                  "field": "68751c386b015503bb270a6f",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 364,
+                  "width": 1,
+                  "height": 116,
+                  "titleDisplay": "inline"
+                }
+              ],
+              "hidden": false,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "686fcc015718a8cc66ceb49d",
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": "",
+              "metadata": {
+                "testBool": true,
+                "testText": "testing",
+                "testNumber": 100,
+                "testArr": [
+                  "1",
+                  "2",
+                  "3"
+                ],
+                "testObj": {
+                  "name": "test"
+                }
+              }
+            }
+          ],
+          "pageOrder": [
+            "686fcc015718a8cc66ceb49d"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "68751c0c3131fe052b3d2936",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68751c301105b6c7a7e6e8a6",
+      "metadata": {
+        "testBool": true,
+        "testText": "testing",
+        "testNumber": 100,
+        "testArr": [
+          "1",
+          "2",
+          "3"
+        ],
+        "testObj": {
+          "name": "test"
+        }
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "68751c3077ea16fc44870ad4",
+      "type": "dropdown",
+      "title": "Dropdown",
+      "options": [
+        {
+          "_id": "68751bc00ed78fb4f837cd6b",
+          "value": "Yes",
+          "deleted": false,
+          "metadata": {
+            "testBool": true,
+            "testText": "testing",
+            "testNumber": 100,
+            "testArr": [
+              "1",
+              "2",
+              "3"
+            ],
+            "testObj": {
+              "name": "test"
+            }
+          }
+        },
+        {
+          "_id": "68751bc04bb9dafe020e53a6",
+          "value": "No",
+          "deleted": false,
+          "metadata": {
+            "testBool": true,
+            "testText": "testing",
+            "testNumber": 100,
+            "testArr": [
+              "1",
+              "2",
+              "3"
+            ],
+            "testObj": {
+              "name": "test"
+            }
+          }
+        },
+        {
+          "_id": "68751bc0d396a10b623931b1",
+          "value": "N/A",
+          "deleted": false,
+          "metadata": {
+            "testBool": true,
+            "testText": "testing",
+            "testNumber": 100,
+            "testArr": [
+              "1",
+              "2",
+              "3"
+            ],
+            "testObj": {
+              "name": "test"
+            }
+          }
+        }
+      ],
+      "identifier": "field_68751c335a138fec84ae6202",
+      "metadata": {
+        "testBool": true,
+        "testText": "testing",
+        "testNumber": 100,
+        "testArr": [
+          "1",
+          "2",
+          "3"
+        ],
+        "testObj": {
+          "name": "test"
+        }
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "68751c34955b9c0375781817",
+      "type": "multiSelect",
+      "title": "Multiple Choice",
+      "multi": true,
+      "options": [
+        {
+          "_id": "68751bc05e060b2a3e5d89e5",
+          "value": "Yes",
+          "deleted": false,
+          "metadata": {
+            "testBool": true,
+            "testText": "testing",
+            "testNumber": 100,
+            "testArr": [
+              "1",
+              "2",
+              "3"
+            ],
+            "testObj": {
+              "name": "test"
+            }
+          }
+        },
+        {
+          "_id": "68751bc027845f6a1c324679",
+          "value": "No",
+          "deleted": false,
+          "metadata": {
+            "testBool": true,
+            "testText": "testing",
+            "testNumber": 100,
+            "testArr": [
+              "1",
+              "2",
+              "3"
+            ],
+            "testObj": {
+              "name": "test"
+            }
+          }
+        },
+        {
+          "_id": "68751bc0901d2ea48a614a43",
+          "value": "N/A",
+          "deleted": false,
+          "metadata": {
+            "testBool": true,
+            "testText": "testing",
+            "testNumber": 100,
+            "testArr": [
+              "1",
+              "2",
+              "3"
+            ],
+            "testObj": {
+              "name": "test"
+            }
+          }
+        }
+      ],
+      "identifier": "field_68751c357711ee4aabd348b3",
+      "metadata": {
+        "testBool": true,
+        "testText": "testing",
+        "testNumber": 100,
+        "testArr": [
+          "1",
+          "2",
+          "3"
+        ],
+        "testObj": {
+          "name": "test"
+        }
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "68751c35517382607b8fb15a",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "68751bc0c38a9e51abefd84f",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "field_column_68751c3862af280748e5bf60"
+        },
+        {
+          "_id": "68751bc05d90e6051318779a",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "68751bc06fd682949f5edb34",
+              "value": "Yes",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "68751bc0401231a8fc9f2590",
+              "value": "No",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "68751bc03b919aa3a80e3726",
+              "value": "N/A",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            }
+          ],
+          "identifier": "field_column_68751c38588e5398904f435f"
+        },
+        {
+          "_id": "68751bc0db2acef4ff4e9272",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "field_column_68751c38b5af5ecd86757217"
+        }
+      ],
+      "value": [
+        {
+          "_id": "68751bc01020f76574ad2ae5",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "68751bc0dfa57f3b394f265e",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "68751bc0cf43e8632825215f",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_68751c38cbcf635c64122a86",
+      "tableColumnOrder": [
+        "68751bc0c38a9e51abefd84f",
+        "68751bc05d90e6051318779a",
+        "68751bc0db2acef4ff4e9272"
+      ],
+      "rowOrder": [
+        "68751bc01020f76574ad2ae5",
+        "68751bc0dfa57f3b394f265e",
+        "68751bc0cf43e8632825215f"
+      ],
+      "metadata": {
+        "testBool": true,
+        "testText": "testing",
+        "testNumber": 100,
+        "testArr": [
+          "1",
+          "2",
+          "3"
+        ],
+        "testObj": {
+          "name": "test"
+        }
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "68751c386b015503bb270a6f",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "68751c3c8a825192ee29e850",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "68751bc007d092c9f80d8668",
+              "type": "text",
+              "title": "Text"
+            },
+            {
+              "_id": "68751bc09ba4b30aff87b84b",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "68751bc05255946897996f47",
+                  "value": "High"
+                },
+                {
+                  "_id": "68751bc07f7e9b67dd40b67c",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "68751bc0bbd0d7750ca9a9da",
+                  "value": "Low"
+                }
+              ]
+            },
+            {
+              "_id": "68751bc05d0b72db2a669365",
+              "type": "image",
+              "title": "Image",
+              "width": 0
+            }
+          ]
+        }
+      },
+      "identifier": "field_68751c3bde69bce7a00516b0",
+      "metadata": {
+        "testBool": true,
+        "testText": "testing",
+        "testNumber": 100,
+        "testArr": [
+          "1",
+          "2",
+          "3"
+        ],
+        "testObj": {
+          "name": "test"
+        }
+      }
+    }
+  ],
+  "deleted": false,
+  "categories": []
+}

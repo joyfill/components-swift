@@ -21,10 +21,10 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
         var document = sampleJSONDocument(fileName: "FieldTemplate_TableCollection_Poplated")
         document.id = UUID().uuidString
         print("documentEditor1", document.id)
-        documentEditor = DocumentEditor(document: document, events: self)
+        documentEditor = DocumentEditor(document: document, events: self, shouldValidate: false)
         document.id = UUID().uuidString
         print("documentEditor2", document.id)
-        documentEditor2 = DocumentEditor(document: document, events: self)
+        documentEditor2 = DocumentEditor(document: document, events: self, shouldValidate: false)
     }
     
     var body: some View {

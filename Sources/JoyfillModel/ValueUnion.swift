@@ -148,10 +148,16 @@ public enum ValueUnion: Codable, Hashable, Equatable {
             return
         }
 
-        if let valueDictionary = value as? NSNull {
+        if value == nil || value is NSNull {
             self = .null
             return
         }
+        
+        guard let optionalValue = value as? Optional<Any>, let value = optionalValue else {
+            self = .null
+            return
+        }
+        
 #if DEBUG
         fatalError("ValueUnion init: unsupported type \(type(of: value))")
 #else

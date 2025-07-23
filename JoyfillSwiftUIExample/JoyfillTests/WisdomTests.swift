@@ -27,6 +27,10 @@ class WisdomTests: XCTestCase {
 
     // MARK: - Basic Math Operations Tests
     
+    func documentEditor(document: JoyDoc) -> DocumentEditor {
+        DocumentEditor(document: document, shouldValidate: false)
+    }
+    
     func testBasicMathOperations() {
         let document = JoyDoc
             .addDocument()
@@ -88,7 +92,7 @@ class WisdomTests: XCTestCase {
             .addNumberField(identifier: "ceilResult", formulaRef: "ceil1", formulaKey: "value", label: "Ceiling Result")
             .addNumberField(identifier: "floorResult", formulaRef: "floor1", formulaKey: "value", label: "Floor Result")
 
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test basic operators with initial values
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "addResult")?.number, 30)       // 10 + 20
@@ -233,7 +237,7 @@ class WisdomTests: XCTestCase {
             .addCheckboxField(identifier: "yesResult", formulaRef: "yesValue", formulaKey: "value", label: "Yes Constant")
             .addCheckboxField(identifier: "noResult", formulaRef: "noValue", formulaKey: "value", label: "No Constant")
             
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test if statements
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "if1Result")?.text, "Greater than 10") // 15 > 10
@@ -352,7 +356,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "emailValidationResult", formulaRef: "emailValidation", formulaKey: "value", label: "Email Validation")
             .addTextField(identifier: "nameFormatterResult", formulaRef: "nameFormatter", formulaKey: "value", label: "Name Formatter")
             
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test string reference
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "stringRefResult")?.text, "joyfill")
@@ -452,7 +456,7 @@ class WisdomTests: XCTestCase {
             .addNumberField(identifier: "function2Result", formulaRef: "function2", formulaKey: "value", label: "pow(2, 3) * 2")
             .addNumberField(identifier: "function3Result", formulaRef: "function3", formulaKey: "value", label: "round(3.5) + ceil(4.2)")
 
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
 
         // Test basic precedence cases
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence1Result")?.number, 11) // 3 + (4 * 2) = 3 + 8 = 11
@@ -551,7 +555,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "dateConditionalResult", formulaRef: "dateConditional", formulaKey: "value", value: "", label: "Date Conditional Test")
             .addTextField(identifier: "dateInStringResult", formulaRef: "dateInString", formulaKey: "value", value: "", label: "Date in String")
             
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Helper function to use UTC calendar for test verification
         func utcComponents(from timestamp: Double) -> DateComponents {
@@ -745,7 +749,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "complexArray1Result", formulaRef: "complexArray1", formulaKey: "value", label: "Complex Array 1")
             .addNumberField(identifier: "complexArray2Result", formulaRef: "complexArray2", formulaKey: "value", label: "Complex Array 2")
             
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test array length
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length1Result")?.number, 4) // ["apple", "banana", "orange", "grape"]
@@ -837,7 +841,7 @@ class WisdomTests: XCTestCase {
     func testTableCellResolution() {
         // Create comprehensive document with ALL column types from PDF specification
         let document = JoyDoc.cellResolution()
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // BASIC ACCESS TESTS (as per PDF specification)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicTextResult")?.text, "Laptop")
@@ -970,7 +974,7 @@ class WisdomTests: XCTestCase {
     func testComprehensiveTableCellResolution() {
         // Create a comprehensive document with ALL column types as specified in the PDF
         let document = JoyDoc.createComprehensiveTableCellResolutionDocument1()
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // BASIC ACCESS TESTS (as per specification)
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicTextResult")?.text, "Laptop")
@@ -1122,7 +1126,7 @@ class WisdomTests: XCTestCase {
             .addNumberField(identifier: "toNumberWithSpaceResult", formulaRef: "toNumberWithSpace", formulaKey: "value", label: "toNumber with spaces Result")
             .addNumberField(identifier: "toNumberCalculationResult", formulaRef: "toNumberCalculation", formulaKey: "value", label: "toNumber Calculation Result")
             
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test self/current references
         XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "selfRefResult")?.number, 50) // 25 * 2
@@ -1201,7 +1205,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "debugMultiSelectFullResult", formulaRef: "debugMultiSelectFull", label: "Debug MultiSelect Full")
             .addTextField(identifier: "debugImageFullResult", formulaRef: "debugImageFull", label: "Debug Image Full")
         
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         print("🔍 Debug test results:")
         print("MultiSelect Full: \(documentEditor.value(ofFieldWithIdentifier: "debugMultiSelectFullResult")?.text ?? "nil")")
@@ -1272,7 +1276,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "emptyTextareaCheckResult", formulaRef: "emptyTextareaCheck", formulaKey: "value", label: "Empty Textarea Check")
             .addTextField(identifier: "emptyTextareaLengthResult", formulaRef: "emptyTextareaLength", formulaKey: "value", label: "Empty Textarea Length")
 
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test all formula results
         print("\n🧪 Testing Textarea Field Resolution...")
@@ -1389,7 +1393,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "emptyTextCheckResult", formulaRef: "emptyTextCheck")
             .addTextField(identifier: "emptyTextLengthResult", formulaRef: "emptyTextLength")
         
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test all formula results
         print("\n🧪 Testing Text Field Resolution...")
@@ -1519,7 +1523,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "emptyDropdownDefaultResult", formulaRef: "emptyDropdownDefault")
             .addTextField(identifier: "complexLogicResult", formulaRef: "complexLogic")
         
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test all formula results
         print("\n🧪 Testing Dropdown Field Resolution...")
@@ -1671,7 +1675,7 @@ class WisdomTests: XCTestCase {
             .addTextField(identifier: "secondOptionResult", formulaRef: "secondOption")
             .addTextField(identifier: "allOptionsArrayResult", formulaRef: "allOptionsArray")
         
-        let documentEditor = DocumentEditor(document: document)
+        let documentEditor = documentEditor(document: document)
         
         // Test all formula results
         print("\n🧪 Testing MultiSelect Field Resolution...")

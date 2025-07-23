@@ -2,6 +2,8 @@
   "_id": "685750eff3216b45ffe73c80",
   "identifier": "doc_685750eff3216b45ffe73c80",
   "name": "New Doc",
+  "createdOn": 31232313,
+  "deleted": false,
   "files": [
     {
       "_id": "685750ef698da1ab427761ba",
@@ -116,7 +118,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "fields": [
@@ -993,6 +996,7 @@
     },
     {
       "_id": "number1",
+      "file": "685750ef698da1ab427761ba",
       "type": "number",
       "title": "Count of collection1 rows",
       "identifier": "field_auto_collection_row_count",
@@ -1006,6 +1010,7 @@
     },
     {
       "_id": "text1",
+      "file": "685750ef698da1ab427761ba",
       "type": "text",
       "title": "Root first row text1 value",
       "identifier": "field_auto_display_first_text1",
@@ -1019,6 +1024,7 @@
     },
     {
       "_id": "text2",
+      "file": "685750ef698da1ab427761ba",
       "type": "text",
       "title": "Schema depth 3 first row text1 value",
       "identifier": "field_auto_display_nested_text1",
@@ -1032,6 +1038,7 @@
     },
     {
       "_id": "number2",
+      "file": "685750ef698da1ab427761ba",
       "type": "number",
       "title": "Schema depth 3 row count",
       "identifier": "field_auto_display_schema_depth_3_row_count",
@@ -1045,6 +1052,7 @@
     },
     {
       "_id": "number3",
+      "file": "685750ef698da1ab427761ba",
       "type": "number",
       "title": "Count of Depth2 rows with any Depth3 dropdown == 'No D3'",
       "identifier": "field_auto_count_depth2_with_no_d3",
@@ -1058,6 +1066,7 @@
     },
     {
       "_id": "number4",
+      "file": "685750ef698da1ab427761ba",
       "type": "number",
       "title": "Sum of number1 at schemaDepth3",
       "identifier": "field_auto_sum_number1_depth3",
@@ -1071,6 +1080,7 @@
     },
     {
       "_id": "number5",
+      "file": "685750ef698da1ab427761ba",
       "type": "number",
       "title": "Count of 'Option 1 D2' in Depth2 multiSelect1",
       "identifier": "field_auto_count_option1_d2",
@@ -1084,6 +1094,7 @@
     },
     {
       "_id": "number6",
+      "file": "685750ef698da1ab427761ba",
       "type": "number",
       "title": "Count of date1 where day == 1",
       "identifier": "field_auto_count_day1_in_date1",

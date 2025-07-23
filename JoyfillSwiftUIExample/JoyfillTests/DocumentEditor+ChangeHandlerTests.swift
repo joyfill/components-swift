@@ -17,7 +17,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     let collectionFieldID = "67ddc52d35de157f6d7ebb63"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document)
+        DocumentEditor(document: document, shouldValidate: false)
     }
     // Delete Row tests
     func testDeleteRow() {
@@ -1632,7 +1632,7 @@ extension DocumentEditorChangeHandlerTests {
 
         guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
         let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
-        let editor = DocumentEditor(document: updatedDoc)
+        let editor = documentEditor(document: updatedDoc)
 
         guard let field = editor.field(fieldID: collectionFieldID),
               let valueElements = field.valueToValueElements,
@@ -1672,7 +1672,7 @@ extension DocumentEditorChangeHandlerTests {
 
         guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
         let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
-        let editor = DocumentEditor(document: updatedDoc)
+        let editor = documentEditor(document: updatedDoc)
 
         guard let field = editor.field(fieldID: collectionFieldID),
               let valueElements = field.valueToValueElements,
@@ -1711,7 +1711,7 @@ extension DocumentEditorChangeHandlerTests {
 
         guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
         let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
-        let editor = DocumentEditor(document: updatedDoc)
+        let editor = documentEditor(document: updatedDoc)
 
         guard let field = editor.field(fieldID: collectionFieldID),
               let valueElements = field.valueToValueElements,
@@ -1750,7 +1750,7 @@ extension DocumentEditorChangeHandlerTests {
 
         guard let logic = Logic(field: logicDict) else { XCTFail("Logic creation failed"); return }
         let updatedDoc = document.setConditionalLogicInCollectionField(schemaKey: "67ddc5c9910a394a1324bfbe", logic: logic)
-        let editor = DocumentEditor(document: updatedDoc)
+        let editor = documentEditor(document: updatedDoc)
 
         guard let field = editor.field(fieldID: collectionFieldID),
               let valueElements = field.valueToValueElements,

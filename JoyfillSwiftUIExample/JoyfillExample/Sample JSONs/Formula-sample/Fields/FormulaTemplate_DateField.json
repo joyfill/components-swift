@@ -2,6 +2,8 @@
   "_id": "685dac6615b46a02d3b46239",
   "identifier": "doc_685dac6615b46a02d3b46239",
   "name": "New Doc",
+  "createdOn": 31232313,
+  "deleted": false,
   "files": [
     {
       "_id": "685dac66e8a722aea5d16383",
@@ -120,7 +122,8 @@
       ],
       "styles": {
         "margin": 4
-      }
+      },
+      "views": []
     }
   ],
   "fields": [
