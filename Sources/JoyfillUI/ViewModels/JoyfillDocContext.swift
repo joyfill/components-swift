@@ -1295,6 +1295,15 @@ class JoyfillDocContext: EvaluationContext {
         }
     }
     
+    /// Checks if a specific field has a circular dependency
+    /// - Parameter fieldId: The field identifier to check
+    /// - Returns: True if the field has a circular dependency
+    private func hasCircularDependency(for fieldId: String) -> Bool {
+        var visited: Set<String> = []
+        var path: [String] = []
+        return hasCycle(fieldId, visited: &visited, path: &path)
+    }
+    
     /// Checks if a field has a circular dependency
     /// - Parameters:
     ///   - field: The field to check
@@ -1640,6 +1649,18 @@ class JoyfillDocContext: EvaluationContext {
         // Evaluate each field in dependency order
         for field in sortedFields {
             if let identifier = field.id, let formulaInfo = getFormulaForField(field) {
+                
+                // Check for circular dependency before evaluating
+                if hasCircularDependency(for: identifier) {
+                    print("🔧 Skipping evaluation for field \(identifier) due to circular dependency - using default value")
+                    
+                    // Get field to determine appropriate default value
+                    let defaultValue = getDefaultFormulaValue(for: field.fieldType)
+                    updateFieldWithFormulaResult(identifier: identifier, value: defaultValue, key: formulaInfo.key)
+                    formulaCache[identifier] = defaultValue
+                    continue
+                }
+                
                 print("🚀 Evaluating formula for field \(identifier): \(formulaInfo.formulaString)")
                 
                 // Evaluate the formula
@@ -1657,28 +1678,24 @@ class JoyfillDocContext: EvaluationContext {
                         // Update the field's value in the document
                         updateFieldWithFormulaResult(identifier: identifier, value: value, key: formulaInfo.key)
                     } else {
-                        print("Error evaluating formula for field \(identifier)")
+                        print("🔧 Formula evaluation failed for field \(identifier): \(result)")
 
                         // Get field to determine appropriate default value
-                        if let field = docProvider.field(fieldID: identifier) {
-                            let defaultValue = getDefaultFormulaValue(for: field.fieldType)
-                            updateFieldWithFormulaResult(identifier: identifier, value: defaultValue, key: formulaInfo.key)
-                            // Clear the cached value
-                            formulaCache[identifier] = defaultValue
-                        }
-                    }
-
-                case .failure(let error):
-                    print("Error evaluating formula for field \(identifier): \(error)")
-
-                    
-                    // Get field to determine appropriate default value
-                    if let field = docProvider.field(fieldID: identifier) {
                         let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                         updateFieldWithFormulaResult(identifier: identifier, value: defaultValue, key: formulaInfo.key)
                         // Clear the cached value
                         formulaCache[identifier] = defaultValue
                     }
+
+                case .failure(let error):
+                    print("🔧 Formula parsing failed for field \(identifier): \(error)")
+
+                    
+                    // Get field to determine appropriate default value
+                    let defaultValue = getDefaultFormulaValue(for: field.fieldType)
+                    updateFieldWithFormulaResult(identifier: identifier, value: defaultValue, key: formulaInfo.key)
+                    // Clear the cached value
+                    formulaCache[identifier] = defaultValue
                 }
             }
         }
