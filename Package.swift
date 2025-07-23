@@ -20,12 +20,6 @@ let package = Package(
             name: "JoyfillFormulas",
             targets: ["JoyfillFormulas"]),
         .library(
-            name: "Examples",
-            targets: ["Examples"]),
-        .executable(
-            name: "FormulaRunner",
-            targets: ["FormulaRunner"]),
-        .library(
             name: "JoyfillAPIService",
             targets: ["JoyfillAPIService"]),
     ],
@@ -42,16 +36,6 @@ let package = Package(
         .target(
             name: "JoyfillFormulas",
             dependencies: ["JoyfillModel"]
-        ),
-        // Examples target (depends on JoyfillModel and JoyfillFormulas)
-        .target(
-            name: "Examples",
-            dependencies: ["JoyfillModel", "JoyfillFormulas"]
-        ),
-        // FormulaRunner executable target (depends on JoyfillModel, JoyfillFormulas, and Examples)
-        .executableTarget(
-            name: "FormulaRunner",
-            dependencies: ["JoyfillModel", "JoyfillFormulas", "Examples"]
         ),
         // JoyfillAPIService target (depends on JoyfillModel)
         .target(
