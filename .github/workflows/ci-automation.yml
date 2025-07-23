@@ -28,7 +28,6 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output build-report.html
 
@@ -38,7 +37,7 @@ jobs:
           name: build-report
           path: JoyfillSwiftUIExample/build-report.html
 
-  # 2️⃣ UI tests
+  # 2️⃣ UI tests (after build)
   ui-tests:
     needs: build
     runs-on: macos-latest
@@ -49,14 +48,23 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
 
-      - name: Reset & Boot Simulator
+      - name: Reset Simulator
         run: |
           xcrun simctl shutdown all
           xcrun simctl erase all
-          xcrun simctl boot "iPhone 16 Pro"
-          xcrun simctl bootstatus "iPhone 16 Pro" -b
 
-      - name: Run UI Tests
+      - name: Boot Simulator & Start GUI
+        run: |
+          DEVICE="iPhone 16 Pro"
+          OS="18.2"
+          # boot device
+          xcrun simctl boot "$DEVICE" --os "$OS"
+          # launch the Simulator app so UI tests can attach
+          open -a Simulator
+          # wait until fully booted (increase timeout to 120s)
+          xcrun simctl bootstatus "$DEVICE" -b
+
+      - name: Run UI Tests (raw logs)
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
@@ -65,12 +73,11 @@ jobs:
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination-timeout 120 \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES \
-          | xcpretty --color --report html --output ui-test-report.html
+            ONLY_ACTIVE_ARCH=YES
 
       - name: Upload UI Test Report
         uses: actions/upload-artifact@v4
