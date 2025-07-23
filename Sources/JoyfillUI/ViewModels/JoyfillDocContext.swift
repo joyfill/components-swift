@@ -229,7 +229,8 @@ class JoyfillDocContext: EvaluationContext {
             return resolveChartReference(field, pathComponents: [])
         } else {
             // For other field types, return the stored value
-            return convertFieldValueToFormulaValue(field.resolvedValue)
+            let result = convertFieldValueToFormulaValue(field.resolvedValue)
+            return result
         }
     }
 
@@ -273,13 +274,15 @@ class JoyfillDocContext: EvaluationContext {
             // This could be a property access or array index reference
 
             // First, resolve the base field value
-            let baseValueResult = convertFieldValueToFormulaValue(field.resolvedValue)
-            guard case .success(let baseValue) = baseValueResult else {
-                return baseValueResult
+            let baseValueUnion = field.resolvedValue
+            let baseValue = convertFieldValueToFormulaValue(baseValueUnion)
+            
+            guard case .success(let formulaValue) = baseValue else {
+                return baseValue
             }
 
             // Process the remainder of the path
-            return resolvePathOnValue(baseValue, path: remainingPath)
+            return resolvePathOnValue(formulaValue, path: remainingPath)
         }
 
         // For single component without indexing, fallback to simple resolution
@@ -459,30 +462,20 @@ class JoyfillDocContext: EvaluationContext {
     }
     
     private func resolveTableReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
-        // Get the value elements array from the field
-        guard let valueElements = field.resolvedValue?.valueElements else {
+        // Get the resolved value (already filtered for deleted rows and with proper defaults)
+        guard let resolvedValueUnion = field.resolvedValue else {
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' has no value"))
+        }
+        
+        let resolvedValue = convertValueUnionToFormulaValue(resolvedValueUnion)
+        guard case .array(let valueElements) = resolvedValue else {
             return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid table"))
         }
         
         // If no further path components, return the entire collection
         if pathComponents.isEmpty {
-            // Filter out deleted rows and convert to array of dictionaries
-            let result = valueElements
-                .filter { element in
-                    // Only include non-deleted rows (deleted == nil or deleted == false)
-                    return element.deleted != true
-                }
-                .map { element -> FormulaValue in
-                    // Convert each cell to a dictionary of FormulaValues
-                    var dict: [String: FormulaValue] = [:]
-                    if let cells = element.cells {
-                        for (key, value) in cells {
-                            dict[key] = convertValueUnionToFormulaValue(value)
-                        }
-                    }
-                    return .dictionary(dict)
-                }
-            return .success(.array(result))
+            // Data is already filtered and processed in resolvedValue
+            return .success(.array(valueElements))
         }
         
         // The next component could be:
@@ -496,64 +489,48 @@ class JoyfillDocContext: EvaluationContext {
             // Handle {fieldName.index} or {fieldName.index.columnName}
             if pathComponents.count == 1 {
                 // Return the entire row as a dictionary: products.0
-                var dict: [String: FormulaValue] = [:]
-                if let cells = valueElements[index].cells {
-                    for (key, value) in cells {
-                        dict[key] = convertValueUnionToFormulaValue(value)
-                    }
-                }
-                return .success(.dictionary(dict))
+                return .success(valueElements[index])
             } else if pathComponents.count >= 2 {
                 // Handle: products.0.price or products.0.tags.0
                 let columnIdentifier = pathComponents[1]
                 
-                if let cells = valueElements[index].cells {
-                    var cellValue: ValueUnion? = nil
-                    
-                    // First try to find by exact column ID match
-                    if let foundValue = cells[columnIdentifier] {
-                        cellValue = foundValue
-                    } else {
-                        // If not found by ID, try to find by column title
-                        if let matchingColumn = field.tableColumns?.first(where: { column in
-                            column.title.lowercased() == columnIdentifier.lowercased() ||
-                            column.id?.lowercased() == columnIdentifier.lowercased()
-                        }),
-                        let columnId = matchingColumn.id,
-                        let foundValue = cells[columnId] {
-                            cellValue = foundValue
-                        }
-                    }
-                    
-                    guard let foundCellValue = cellValue else {
-                        // Cell not found, return default value based on column type
-                        if let tableColumn = field.tableColumns?.first(where: { $0.id == columnIdentifier || $0.title.lowercased() == columnIdentifier.lowercased() }),
-                           let columnType = tableColumn.type {
-                            return .success(getDefaultFormulaValue(for: columnType))
-                        } else {
-                            // Column definition not found, return string default
-                            return .success(.string(""))
-                        }
-                    }
-                    
+                guard case .dictionary(let rowDict) = valueElements[index] else {
+                    return .failure(.invalidReference("Row at index \(index) is not a valid dictionary"))
+                }
+                
+                // First try to find by exact column ID match
+                if let cellValue = rowDict[columnIdentifier] {
                     // If we have more path components (e.g., products.0.tags.0), handle nested access
                     if pathComponents.count > 2 {
                         let remainingPath = Array(pathComponents.dropFirst(2))
-                        let formulaValue = convertValueUnionToFormulaValue(foundCellValue)
-                        return resolvePathOnValue(formulaValue, path: remainingPath)
+                        return resolvePathOnValue(cellValue, path: remainingPath)
                     } else {
                         // Simple cell access: products.0.price
-                        return .success(convertValueUnionToFormulaValue(foundCellValue))
+                        return .success(cellValue)
                     }
-                }
-                
-                // Row doesn't have cells, return default value based on column type
-                if let tableColumn = field.tableColumns?.first(where: { $0.id == columnIdentifier || $0.title.lowercased() == columnIdentifier.lowercased() }),
-                   let columnType = tableColumn.type {
-                    return .success(getDefaultFormulaValue(for: columnType))
                 } else {
-                    // Column definition not found, return string default
-                    return .success(.string(""))
+                    // Try to find by column title
+                    if let matchingColumn = field.tableColumns?.first(where: { column in
+                        column.title.lowercased() == columnIdentifier.lowercased()
+                    }),
+                    let columnId = matchingColumn.id,
+                    let cellValue = rowDict[columnId] {
+                        if pathComponents.count > 2 {
+                            let remainingPath = Array(pathComponents.dropFirst(2))
+                            return resolvePathOnValue(cellValue, path: remainingPath)
+                        } else {
+                            return .success(cellValue)
+                        }
+                    }
+                    
+                    // Cell not found, return default value based on column type
+                    if let tableColumn = field.tableColumns?.first(where: { $0.id == columnIdentifier || $0.title.lowercased() == columnIdentifier.lowercased() }),
+                       let columnType = tableColumn.type {
+                        return .success(getDefaultFormulaValue(for: columnType))
+                    } else {
+                        // Column definition not found, return string default
+                        return .success(.string(""))
+                    }
                 }
             }
         } 
@@ -584,11 +561,21 @@ class JoyfillDocContext: EvaluationContext {
             // Get all values from this column: products.price
             var columnValues: [FormulaValue] = []
             
-            // Filter out deleted rows before processing
-            for element in valueElements.filter({ $0.deleted != true }) {
-                if let cells = element.cells,
-                   let cellValue = cells[columnId] {
-                    columnValues.append(convertValueUnionToFormulaValue(cellValue))
+            // Process all elements (deleted rows already filtered out in resolvedValue)
+            for element in valueElements {
+                guard case .dictionary(let rowDict) = element else {
+                    // If row is not a dictionary, use default value
+                    if let tableColumn = field.tableColumns?.first(where: { $0.id == columnId }),
+                       let columnType = tableColumn.type {
+                        columnValues.append(getDefaultFormulaValue(for: columnType))
+                    } else {
+                        columnValues.append(.string(""))
+                    }
+                    continue
+                }
+                
+                if let cellValue = rowDict[columnId] {
+                    columnValues.append(cellValue)
                 } else {
                     // If column doesn't exist in this row, use default value based on column type
                     if let tableColumn = field.tableColumns?.first(where: { $0.id == columnId }),
@@ -609,23 +596,25 @@ class JoyfillDocContext: EvaluationContext {
     }
     
     private func resolveCollectionReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
-        // Get the value elements array from the field
-        guard let valueElements = field.resolvedValue?.valueElements else {
+        // Get the resolved value (already filtered for deleted rows and converted for collections)
+        guard let resolvedValueUnion = field.resolvedValue else {
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' has no value"))
+        }
+        
+        // Extract ValueElement array directly and convert each element properly with children support
+        guard let valueElementArray = resolvedValueUnion.valueElements else {
             return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid collection"))
+        }
+        
+        // Convert each ValueElement to FormulaValue with proper children handling
+        let valueElements = valueElementArray.map { element -> FormulaValue in
+            return convertCollectionElementToFormulaValue(element, field: field)
         }
         
         // If no further path components, return the entire collection
         if pathComponents.isEmpty {
-            // Filter out deleted rows and convert to array of dictionaries with children support
-            let result = valueElements
-                .filter { element in
-                    // Only include non-deleted rows (deleted == nil or deleted == false)
-                    return element.deleted != true
-                }
-                .map { element -> FormulaValue in
-                    return convertCollectionElementToFormulaValue(element, field: field)
-                }
-            return .success(.array(result))
+            // Data is already filtered and processed in resolvedValue
+            return .success(.array(valueElements))
         }
         
         let nextComponent = pathComponents[0]
@@ -636,7 +625,7 @@ class JoyfillDocContext: EvaluationContext {
             
             if pathComponents.count == 1 {
                 // Return the entire row as a dictionary: collection1.0
-                return .success(convertCollectionElementToFormulaValue(element, field: field))
+                return .success(element)
             } else if pathComponents.count >= 2 {
                 let secondComponent = pathComponents[1]
                 
@@ -644,23 +633,19 @@ class JoyfillDocContext: EvaluationContext {
                 if secondComponent == "children" && pathComponents.count >= 3 {
                     let schemaId = pathComponents[2]
                     
-                    // Get the children for this schema
-                    guard let children = element.childrens?[schemaId],
-                          let childElements = children.valueToValueElements else {
+                    // Get the children for this schema from the FormulaValue dictionary structure
+                    guard case .dictionary(let elementDict) = element,
+                          let childrenValue = elementDict["children"],
+                          case .dictionary(let childrenDict) = childrenValue,
+                          let schemaArray = childrenDict[schemaId],
+                          case .array(let childElements) = schemaArray else {
                         return .failure(.invalidReference("Schema '\(schemaId)' not found in children of row at index \(index) in collection '\(field.id ?? "unknown")'"))
                     }
                     
                     if pathComponents.count == 3 {
                         // Return all children for this schema: collection1.0.children.schemaDepth2
-                        let result = childElements
-                            .filter { childElement in
-                                // Only include non-deleted rows (deleted == nil or deleted == false)
-                                return childElement.deleted != true
-                            }
-                            .map { childElement -> FormulaValue in
-                                return convertCollectionElementToFormulaValue(childElement, field: field)
-                            }
-                        return .success(.array(result))
+                        // Children are already filtered and converted in resolvedValue
+                        return .success(.array(childElements))
                     } else if pathComponents.count >= 4 {
                         // Further navigation into children: collection1.0.children.schemaDepth2.0.text1
                         let remainingPath = Array(pathComponents.dropFirst(3))
@@ -671,7 +656,7 @@ class JoyfillDocContext: EvaluationContext {
                             
                             if remainingPath.count == 1 {
                                 // Return the entire child row: collection1.0.children.schemaDepth2.0
-                                return .success(convertCollectionElementToFormulaValue(childElement, field: field))
+                                return .success(childElement)
                             } else if remainingPath.count >= 2 {
                                 let childColumnId = remainingPath[1]
                                 
@@ -679,22 +664,19 @@ class JoyfillDocContext: EvaluationContext {
                                 if childColumnId == "children" && remainingPath.count >= 3 {
                                     let nestedSchemaId = remainingPath[2]
                                     
-                                    guard let nestedChildren = childElement.childrens?[nestedSchemaId],
-                                          let nestedChildElements = nestedChildren.valueToValueElements else {
+                                    // Access nested children from FormulaValue dictionary structure
+                                    guard case .dictionary(let childElementDict) = childElement,
+                                          let nestedChildrenValue = childElementDict["children"],
+                                          case .dictionary(let nestedChildrenDict) = nestedChildrenValue,
+                                          let nestedSchemaArray = nestedChildrenDict[nestedSchemaId],
+                                          case .array(let nestedChildElements) = nestedSchemaArray else {
                                         return .failure(.invalidReference("Nested schema '\(nestedSchemaId)' not found in children of row at child index \(childIndex) in collection '\(field.id ?? "unknown")'"))
                                     }
                                     
                                     if remainingPath.count == 3 {
                                         // Return all nested children: collection1.0.children.schemaDepth2.0.children.schemaDepth3
-                                        let result = nestedChildElements
-                                            .filter { nestedChildElement in
-                                                // Only include non-deleted rows (deleted == nil or deleted == false)
-                                                return nestedChildElement.deleted != true
-                                            }
-                                            .map { nestedChildElement -> FormulaValue in
-                                                return convertCollectionElementToFormulaValue(nestedChildElement, field: field)
-                                            }
-                                        return .success(.array(result))
+                                        // Children are already filtered and converted in resolvedValue
+                                        return .success(.array(nestedChildElements))
                                     } else if remainingPath.count >= 4 {
                                         // Further navigation: collection1.0.children.schemaDepth2.0.children.schemaDepth3.0.text1
                                         let nestedRemainingPath = Array(remainingPath.dropFirst(3))
@@ -704,14 +686,17 @@ class JoyfillDocContext: EvaluationContext {
                                             
                                             if nestedRemainingPath.count == 1 {
                                                 // Return the entire nested child row
-                                                return .success(convertCollectionElementToFormulaValue(nestedChildElement, field: field))
+                                                return .success(nestedChildElement)
                                             } else if nestedRemainingPath.count == 2 {
                                                 let nestedColumnId = nestedRemainingPath[1]
                                                 
-                                                // Access cell value in nested child
-                                                if let cells = nestedChildElement.cells,
-                                                   let cellValue = cells[nestedColumnId] {
-                                                    return .success(convertValueUnionToFormulaValue(cellValue))
+                                                // Access cell value in nested child from FormulaValue dictionary
+                                                guard case .dictionary(let nestedChildDict) = nestedChildElement else {
+                                                    return .failure(.invalidReference("Nested child element is not a valid dictionary"))
+                                                }
+                                                
+                                                if let cellValue = nestedChildDict[nestedColumnId] {
+                                                    return .success(cellValue)
                                                 } else {
                                                     return .failure(.invalidReference("Column '\(nestedColumnId)' not found in nested child row at index \(nestedChildIndex)"))
                                                 }
@@ -722,9 +707,12 @@ class JoyfillDocContext: EvaluationContext {
                                     }
                                 } else {
                                     // Access cell value in child row: collection1.0.children.schemaDepth2.0.text1
-                                    if let cells = childElement.cells,
-                                       let cellValue = cells[childColumnId] {
-                                        return .success(convertValueUnionToFormulaValue(cellValue))
+                                    guard case .dictionary(let childElementDict) = childElement else {
+                                        return .failure(.invalidReference("Child element is not a valid dictionary"))
+                                    }
+                                    
+                                    if let cellValue = childElementDict[childColumnId] {
+                                        return .success(cellValue)
                                     } else {
                                         return .failure(.invalidReference("Column '\(childColumnId)' not found in child row at index \(childIndex)"))
                                     }
@@ -736,9 +724,12 @@ class JoyfillDocContext: EvaluationContext {
                     }
                 } else {
                     // Direct column access: collection1.0.text1
-                    if let cells = element.cells,
-                       let cellValue = cells[secondComponent] {
-                        return .success(convertValueUnionToFormulaValue(cellValue))
+                    guard case .dictionary(let elementDict) = element else {
+                        return .failure(.invalidReference("Element at index \(index) is not a valid dictionary"))
+                    }
+                    
+                    if let cellValue = elementDict[secondComponent] {
+                        return .success(cellValue)
                     } else {
                         return .failure(.invalidReference("Column '\(secondComponent)' not found in row at index \(index) of collection '\(field.id ?? "unknown")'"))
                     }
@@ -781,9 +772,14 @@ class JoyfillDocContext: EvaluationContext {
                 var columnValues: [FormulaValue] = []
                 
                 for element in valueElements {
-                    if let cells = element.cells,
-                       let cellValue = cells[columnId] {
-                        columnValues.append(convertValueUnionToFormulaValue(cellValue))
+                    guard case .dictionary(let elementDict) = element else {
+                        // If element is not a dictionary, use null
+                        columnValues.append(.null)
+                        continue
+                    }
+                    
+                    if let cellValue = elementDict[columnId] {
+                        columnValues.append(cellValue)
                     } else {
                         // If column doesn't exist in this row, use null
                         columnValues.append(.null)
@@ -842,15 +838,13 @@ class JoyfillDocContext: EvaluationContext {
     
     /// Resolves chart field references with support for line and point access
     private func resolveChartReference(_ field: JoyDocField, pathComponents: [String]) -> Result<FormulaValue, FormulaError> {
-        // Get the chart field value (array of lines)
-        guard let chartValue = field.resolvedValue else {
-            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' is not a valid chart"))
+        // Get the chart field value
+        guard let chartValueUnion = field.resolvedValue else {
+            return .failure(.invalidReference("Field '\(field.id ?? "unknown")' has no value"))
         }
         
-        // Convert chart field value to lines array
-        let chartArray = convertValueUnionToFormulaValue(chartValue)
-        
-        guard case .array(let lines) = chartArray else {
+        let chartValue = convertValueUnionToFormulaValue(chartValueUnion)
+        guard case .array(let lines) = chartValue else {
             return .failure(.invalidReference("Chart field '\(field.id ?? "unknown")' does not contain an array of lines"))
         }
         
@@ -1248,6 +1242,11 @@ class JoyfillDocContext: EvaluationContext {
             // Extract references from the object expression
             // Property names are strings, not references
             extractReferencesFromNode(objectNode, references: &references)
+        case .objectLiteral(let properties):
+            // Extract references from object literal property values
+            for (_, valueNode) in properties {
+                extractReferencesFromNode(valueNode, references: &references)
+            }
         @unknown default:
             // Handle any unknown cases gracefully to prevent crashes
             break
@@ -2460,54 +2459,86 @@ extension JoyDocField {
             let option = options?.first { $0.id == text }
             return .string(option?.value ?? "")
         case .table:
-            guard let columns = tableColumns?.filter ({ fieldTableColumn in
-                fieldTableColumn.type == .dropdown || fieldTableColumn.type == .multiSelect
-            }) else { return value }
-            guard !columns.isEmpty else { return value }
-            let needToResolveIDS = columns.map ({ $0.id ?? "no-id" })
-            let valueElements = value!.valueElements!.map { row in
-                var row = row
-                row.cells = row.cells.map { cell in
-                    var cell = cell
-                    for columnID in needToResolveIDS {
-                        if let column = columns.first(where: { $0.id == columnID }) {
+            // Get original value elements and filter deleted rows
+            guard let allValueElements = value?.valueElements else { return value }
+            
+            // Filter out deleted rows (requirement #2)
+            let nonDeletedElements = allValueElements.filter { $0.deleted != true }
+            
+            // Process table elements with proper default values and dropdown resolution
+            let processedElements = nonDeletedElements.map { element -> ValueElement in
+                var processedElement = element
+                
+                // Process each column and add default values for missing cells (requirement #3)
+                if let columns = tableColumns {
+                    var cells = element.cells ?? [:]
+                    
+                    for column in columns {
+                        guard let columnId = column.id else { continue }
+                        
+                        if cells[columnId] == nil {
+                            // Cell is missing/empty - provide default based on column type
                             switch column.type {
-                            case .dropdown:
-                                let rawValue = cell[columnID]?.text
-                                if let optionValue = column.options?.first(where: { $0.id == rawValue })?.value  {
-                                    cell[columnID] = .string(optionValue)
-                                }
+                            case .text, .dropdown, .block:
+                                cells[columnId] = .string("")
+                            case .number:
+                                cells[columnId] = .double(0)
                             case .multiSelect:
-                                let rawArray = cell[columnID]?.stringArray ?? []
-                                let resolvedOptions = rawArray.compactMap { rawId in
-                                    let resolved = column.options?.first(where: { $0.id == rawId })?.value
-                                    return resolved
-                                }
-                                cell[columnID] = .array(resolvedOptions)
+                                cells[columnId] = .array([])
+                            case .date, .signature, .image:
+                                cells[columnId] = .null
                             default:
-                                continue
+                                cells[columnId] = .string("")
+                            }
+                        } else {
+                            // Handle dropdown/multiselect option resolution
+                            if let cellValue = cells[columnId] {
+                                switch column.type {
+                                case .dropdown:
+                                    let rawValue = cellValue.text
+                                    if let optionValue = column.options?.first(where: { $0.id == rawValue })?.value {
+                                        cells[columnId] = .string(optionValue)
+                                    }
+                                case .multiSelect:
+                                    let rawArray = cellValue.stringArray ?? []
+                                    let resolvedOptions = rawArray.compactMap { rawId in
+                                        return column.options?.first(where: { $0.id == rawId })?.value
+                                    }
+                                    cells[columnId] = .array(resolvedOptions)
+                                default:
+                                    break
+                                }
                             }
                         }
                     }
-                    return cell
+                    
+                    processedElement.cells = cells
                 }
-                return row
+                
+                return processedElement
             }
-            let result = ValueUnion.valueElementArray(valueElements)
-            return result
+            
+            return .valueElementArray(processedElements)
+            
         case .collection:
             // Handle collection fields with dropdown/multiselect option resolution
-            guard let valueElements = value?.valueElements else { return value }
+            guard let allValueElements = value?.valueElements else { return value }
+            
+            // Filter out deleted rows
+            let nonDeletedElements = allValueElements.filter { $0.deleted != true }
             
             // Check if we have any schemas with dropdown/multiselect columns
-            guard let schemas = schema else { return value }
+            guard let schemas = schema else { 
+                return .valueElementArray(nonDeletedElements)
+            }
             
             // Process all value elements (rows) and their nested children
-            let resolvedValueElements = valueElements.map { element in
+            let resolvedValueElements = nonDeletedElements.map { element in
                 return resolveCollectionElementWithSchemas(element, schemas: schemas)
             }
             
-            return ValueUnion.valueElementArray(resolvedValueElements)
+            return .valueElementArray(resolvedValueElements)
+            
         default:
             return value
         }
