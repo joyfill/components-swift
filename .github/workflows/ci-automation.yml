@@ -1,55 +1,66 @@
-name: UI Tests
+name: iOS Automation CI
 
 on:
   push:
-    branches:
-      - automation-ci
+    branches: [ "automation-ci" ]
   pull_request:
-    branches:
-      - automation-ci
+    branches: [ "automation-ci" ]
 
 jobs:
+  # 1️⃣ Build
   build:
-    name: Build
-    runs-on: macos-14-arm64
-
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build app
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Build Project
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
-          xcodebuild \
+          xcodebuild clean build \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
             -sdk iphonesimulator \
-            -configuration Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            build \
-          | xcpretty
+          | xcpretty --color --report html --output build-report.html
 
+      - name: Upload Build Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: JoyfillSwiftUIExample/build-report.html
+
+  # 2️⃣ UI tests (after build)
   ui-tests:
-    name: Boot Simulator & Run UI Tests
-    runs-on: macos-14-arm64
     needs: build
-
+    runs-on: macos-latest
+    # Using per‐SHA concurrency so canceled/old runs don’t block new ones:
+    concurrency:
+      group: ui-tests-${{ github.ref }}-${{ github.sha }}
+      cancel-in-progress: true
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - name: Shutdown & Erase Simulators
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Reset Simulator
         run: |
           xcrun simctl shutdown all
           xcrun simctl erase all
 
-      - name: Boot specific simulator
+      - name: Boot Simulator
         run: |
           UDID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
-          echo "Booting simulator $UDID"
           xcrun simctl boot "$UDID"
           open -a Simulator
           xcrun simctl bootstatus "$UDID" -b
@@ -62,7 +73,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,OS=18.2,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB' \
+            -destination "platform=iOS Simulator,UDID=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -74,4 +85,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ui-test-report
-          path: JoyfillSwiftUIExample/ui-test-report.html 
+          path: JoyfillSwiftUIExample/ui-test-report.html
