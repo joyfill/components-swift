@@ -1,66 +1,34 @@
-name: iOS Automation CI
+name: UI Tests
 
 on:
   push:
-    branches: [ "automation-ci" ]
+    branches:
+      - automation-ci
   pull_request:
-    branches: [ "automation-ci" ]
+    branches:
+      - automation-ci
 
 jobs:
-  # 1️⃣ Build
-  build:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app
-
-      - name: Build Project
-        run: |
-          set -o pipefail
-          cd JoyfillSwiftUIExample
-          xcodebuild clean build \
-            -project JoyfillExample.xcodeproj \
-            -scheme JoyfillExample \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES \
-          | xcpretty --color --report html --output build-report.html
-
-      - name: Upload Build Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-report
-          path: JoyfillSwiftUIExample/build-report.html
-
-  # 2️⃣ UI tests
   ui-tests:
-    needs: build
-    runs-on: macos-latest
-    timeout-minutes: 30
+    runs-on: macos-14-arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app
-
-      - name: Reset Simulator
+      - name: Shutdown & erase any running simulators
         run: |
           xcrun simctl shutdown all
           xcrun simctl erase all
 
-      - name: Boot Simulator
+      - name: Boot specific simulator
         run: |
-          SIM_ID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
-          xcrun simctl boot "$SIM_ID"
+          UDID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
+          echo "Booting simulator $UDID"
+          xcrun simctl boot "$UDID"
           open -a Simulator
-          xcrun simctl bootstatus "$SIM_ID" -b
+          # wait until fully booted (timeout 120s)
+          xcrun simctl bootstatus "$UDID" -b
 
       - name: Run UI Tests
         run: |
@@ -70,7 +38,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination "id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+            -destination 'platform=iOS Simulator,OS=18.2,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
