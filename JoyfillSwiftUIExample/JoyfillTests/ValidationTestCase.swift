@@ -6,7 +6,7 @@ import Joyfill
 
 final class ValidationTestCase: XCTestCase {
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, shouldValidate: false)
+        DocumentEditor(document: document, validateSchema: false)
     }
     //
     // Test Case for check at same time web and mobile view fields

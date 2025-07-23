@@ -19,7 +19,7 @@ class FormulaTemplate_LessThanOperatorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_LessThanOperator")
-        documentEditor = DocumentEditor(document: document, shouldValidate: false)
+        documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 
     override func tearDown() {

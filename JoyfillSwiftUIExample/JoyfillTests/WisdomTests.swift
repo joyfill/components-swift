@@ -28,7 +28,7 @@ class WisdomTests: XCTestCase {
     // MARK: - Basic Math Operations Tests
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, shouldValidate: false)
+        DocumentEditor(document: document, validateSchema: false)
     }
     
     func testBasicMathOperations() {

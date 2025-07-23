@@ -59,12 +59,12 @@ public class DocumentEditor: ObservableObject {
     var conditionalLogicHandler: ConditionalLogicHandler!
     private var JoyfillDocContext: JoyfillDocContext!
 
-    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false, shouldValidate: Bool = true) {
+    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false, validateSchema: Bool = true) {
         // Perform schema validation first
         let schemaManager = JoyfillSchemaManager()
         
         // Check for schema validation errors
-        if let schemaError = schemaManager.validateSchema(document: document), shouldValidate {
+        if let schemaError = schemaManager.validateSchema(document: document), validateSchema {
             // Schema validation failed - store error and return early
             self.schemaError = schemaError
             // Set empty document
