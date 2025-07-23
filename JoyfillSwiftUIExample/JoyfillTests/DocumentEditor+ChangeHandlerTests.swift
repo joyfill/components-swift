@@ -17,7 +17,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     let collectionFieldID = "67ddc52d35de157f6d7ebb63"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, shouldValidate: false)
+        DocumentEditor(document: document, validateSchema: false)
     }
     // Delete Row tests
     func testDeleteRow() {
