@@ -31,6 +31,7 @@ jobs:
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output build-report.html
+
       - name: Upload Build Report
         uses: actions/upload-artifact@v4
         with:
@@ -40,7 +41,7 @@ jobs:
   # 3️⃣ UI tests (after build)
   ui-tests:
     needs: build
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -53,13 +54,10 @@ jobs:
           xcrun simctl shutdown all
           xcrun simctl erase all
 
-      - name: Boot & Wait
+      - name: Boot Simulator
         run: |
-          UDID=$(xcrun simctl list devices \
-            | grep "iPhone 16 Pro (" \
-            | head -1 \
-            | awk -F '[()]' '{print $2}')
-          echo "Booting simulator $UDID"
+          # Hard-coded UDID for iPhone 16 Pro
+          UDID=A3FAF670-1AA2-4C6C-B970-E6C53EEFA91E
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
 
@@ -71,7 +69,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,UDID=$UDID" \
+            -destination "platform=iOS Simulator,UDID=A3FAF670-1AA2-4C6C-B970-E6C53EEFA91E" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
