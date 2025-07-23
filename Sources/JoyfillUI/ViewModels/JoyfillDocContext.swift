@@ -1483,6 +1483,16 @@ class JoyfillDocContext: EvaluationContext {
                     
                 case .failure(let error):
                     print("Error evaluating formula for field \(fieldId): \(error)")
+                    
+                    // Clear the cached value
+                    formulaCache.removeValue(forKey: fieldId)
+                    
+                    // Get field to determine appropriate default value
+                    if let field = docProvider.field(fieldID: fieldId) {
+                        let defaultValue = getDefaultFormulaValue(for: field.fieldType)
+                        updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
+                        updatedCount += 1
+                    }
                 }
             }
         }
@@ -1537,6 +1547,16 @@ class JoyfillDocContext: EvaluationContext {
                     
                 case .failure(let error):
                     print("Error evaluating formula for field \(fieldId): \(error)")
+                    
+                    // Clear the cached value
+                    formulaCache.removeValue(forKey: fieldId)
+                    
+                    // Get field to determine appropriate default value
+                    if let field = docProvider.field(fieldID: fieldId) {
+                        let defaultValue = getDefaultFormulaValue(for: field.fieldType)
+                        updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
+                        updatedCount += 1
+                    }
                 }
             }
         }
@@ -1635,6 +1655,15 @@ class JoyfillDocContext: EvaluationContext {
                     
                 case .failure(let error):
                     print("Error evaluating formula for field \(identifier): \(error)")
+                    
+                    // Clear the cached value
+                    formulaCache.removeValue(forKey: identifier)
+                    
+                    // Get field to determine appropriate default value
+                    if let field = docProvider.field(fieldID: identifier) {
+                        let defaultValue = getDefaultFormulaValue(for: field.fieldType)
+                        updateFieldWithFormulaResult(identifier: identifier, value: defaultValue, key: formulaInfo.key)
+                    }
                 }
             }
         }
@@ -1702,6 +1731,30 @@ class JoyfillDocContext: EvaluationContext {
         return result
     }
     
+    
+    /// Returns the appropriate default FormulaValue for a given field type
+    /// - Parameter fieldType: The type of the field
+    /// - Returns: A FormulaValue representing the default value for that field type
+    private func getDefaultFormulaValue(for fieldType: JoyfillModel.FieldTypes) -> FormulaValue {
+        switch fieldType {
+        case .text, .textarea, .dropdown, .richText, .block:
+            return .string("")
+        case .number:
+            return .number(0)
+        case .multiSelect:
+            return .array([])
+        case .table, .collection, .chart:
+            return .array([])
+        case .date:
+            // For date fields, return null as empty date makes more sense than current date
+            return .null
+        case .signature, .image:
+            // For signature and image fields, null is appropriate as they cant have meaningful defaults
+            return .null
+        case .unknown:
+            return .null
+        }
+    }
     /// Updates a field's value based on a formula evaluation result
     /// - Parameters:
     ///   - identifier: The field identifier
