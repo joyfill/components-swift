@@ -208,8 +208,8 @@ class JoyfillDocContext: EvaluationContext {
             // Check for circular dependency
             if evaluationInProgress.contains(identifier) {
                 return .failure(.circularReference("Circular dependency detected for field '\(identifier)'"))
-        }
-        
+            }
+
             // Mark this field as currently being evaluated
             evaluationInProgress.insert(identifier)
             
@@ -219,17 +219,18 @@ class JoyfillDocContext: EvaluationContext {
             switch parseResult {
             case .success(let ast):
                 let result = evaluator.evaluate(node: ast, context: self)
-                
                 // Remove from in-progress set
                 evaluationInProgress.remove(identifier)
                 
                 // Cache the result if successful
                 if case .success(let value) = result {
                     formulaCache[identifier] = value
+                    return result
+                } else {
+                    let defaultValue = getDefaultFormulaValue(for: field.fieldType)
+                    formulaCache[identifier] = defaultValue
+                    return .success(defaultValue)
                 }
-
-                return result
-                
             case .failure(let error):
                 // Remove from in-progress set
                 evaluationInProgress.remove(identifier)
@@ -1482,13 +1483,14 @@ class JoyfillDocContext: EvaluationContext {
                     } else {
                         // Handle evaluation failure
                         print("🔧 Formula evaluation failed for field \(fieldId): \(result)")
-                        // Clear the cached value
-                        formulaCache.removeValue(forKey: fieldId)
+
                         
                         // Get field to determine appropriate default value
                         if let field = docProvider.field(fieldID: fieldId) {
                             let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                             updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
+                            // Clear the cached value
+                            formulaCache[fieldId] = defaultValue
                             updatedCount += 1
                         }
                     }
@@ -1496,13 +1498,12 @@ class JoyfillDocContext: EvaluationContext {
                 case .failure(let error):
                     print("Error evaluating formula for field \(fieldId): \(error)")
                     
-                    // Clear the cached value
-                    formulaCache.removeValue(forKey: fieldId)
-                    
                     // Get field to determine appropriate default value
                     if let field = docProvider.field(fieldID: fieldId) {
                         let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                         updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
+                        // Clear the cached value
+                        formulaCache[fieldId] = defaultValue
                         updatedCount += 1
                     }
                 }
@@ -1558,13 +1559,14 @@ class JoyfillDocContext: EvaluationContext {
                     } else {
                         // Handle evaluation failure
                         print("🔧 Formula evaluation failed for field \(fieldId): \(result)")
-                        // Clear the cached value
-                        formulaCache.removeValue(forKey: fieldId)
+
 
                         // Get field to determine appropriate default value
                         if let field = docProvider.field(fieldID: fieldId) {
                             let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                             updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
+                            // Clear the cached value
+                            formulaCache[fieldId] = defaultValue
                             updatedCount += 1
                         }
                     }
@@ -1572,13 +1574,12 @@ class JoyfillDocContext: EvaluationContext {
                 case .failure(let error):
                     print("Error evaluating formula for field \(fieldId): \(error)")
                     
-                    // Clear the cached value
-                    formulaCache.removeValue(forKey: fieldId)
-                    
                     // Get field to determine appropriate default value
                     if let field = docProvider.field(fieldID: fieldId) {
                         let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                         updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
+                        // Clear the cached value
+                        formulaCache[fieldId] = defaultValue
                         updatedCount += 1
                     }
                 }
@@ -1676,26 +1677,25 @@ class JoyfillDocContext: EvaluationContext {
                     } else {
                         print("Error evaluating formula for field \(identifier)")
 
-                        // Clear the cached value
-                        formulaCache.removeValue(forKey: identifier)
-
                         // Get field to determine appropriate default value
                         if let field = docProvider.field(fieldID: identifier) {
                             let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                             updateFieldWithFormulaResult(identifier: identifier, value: defaultValue, key: formulaInfo.key)
+                            // Clear the cached value
+                            formulaCache[identifier] = defaultValue
                         }
                     }
 
                 case .failure(let error):
                     print("Error evaluating formula for field \(identifier): \(error)")
-                    
-                    // Clear the cached value
-                    formulaCache.removeValue(forKey: identifier)
+
                     
                     // Get field to determine appropriate default value
                     if let field = docProvider.field(fieldID: identifier) {
                         let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                         updateFieldWithFormulaResult(identifier: identifier, value: defaultValue, key: formulaInfo.key)
+                        // Clear the cached value
+                        formulaCache[identifier] = defaultValue
                     }
                 }
             }
@@ -2385,7 +2385,9 @@ extension JoyDocField {
             let options = options?.filter { selectedOptions.contains($0.id!)}.map { $0.value! } ?? []
             return .array(options)
         case .text:
-            return value
+            return value ?? .string("")
+        case .number:
+            return value ?? .double(0)
         case .dropdown:
             let text = value?.text
             let option = options?.first { $0.id == text }
