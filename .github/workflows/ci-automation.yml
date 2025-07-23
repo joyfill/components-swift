@@ -30,7 +30,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-          | xcpretty --color --report html --output build-report.html
+            -derivedDataPath ./DerivedData
       - name: Upload Build Report
         uses: actions/upload-artifact@v4
         with:
@@ -45,12 +45,26 @@ jobs:
     concurrency:
       group: ui-tests-${{ github.ref }}-${{ github.sha }}
       cancel-in-progress: true
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Debug Environment
+        run: |
+          echo "=== System Info ==="
+          sw_vers
+          xcodebuild -version
+          echo "=== Available Simulators ==="
+          xcrun simctl list devices | grep "iPhone 16 Pro"
+          echo "=== Available Runtimes ==="
+          xcrun simctl list runtimes | grep "18"
+          echo "=== Memory Info ==="
+          vm_stat
+          echo "=== Disk Space ==="
+          df -h
 
       - name: Reset Simulator
         run: |
@@ -60,40 +74,74 @@ jobs:
       - name: Boot Simulator
         run: |
           UDID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
-          xcrun simctl boot "$UDID" || true
+          echo "Booting simulator $UDID..."
+          xcrun simctl boot "$UDID"
           open -a Simulator
+          echo "Waiting for simulator to boot..."
+          sleep 25
+          echo "Checking boot status..."
           xcrun simctl bootstatus "$UDID" -b
+          echo "Verifying simulator is ready..."
+          xcrun simctl list devices | grep "iPhone 16 Pro" | grep "Booted"
       
-      - name: Wait for Simulator
+      - name: Clean Duplicate Resources
         run: |
-          sleep 15
-          xcrun simctl list devices | grep "iPhone 16 Pro"
+          cd JoyfillSwiftUIExample
+          echo "Checking for duplicate JSON files..."
+          find . -name "*.json" -type f | sort | uniq -d || echo "No duplicates found"
       
-      - name: Run UI Tests
+      - name: Build for Testing
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
-          xcodebuild test \
-          -project JoyfillExample.xcodeproj \
-          -scheme JoyfillUITests \
-          -testPlan JoyfillUITests \
-          -sdk iphonesimulator \
-          -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          EXCLUDED_ARCHS=arm64 \
-          ONLY_ACTIVE_ARCH=YES \
-          | xcpretty --color --report html --output ui-test-report.html
+          
+          # Increase memory limits
+          ulimit -n 4096
+          
+          echo "Building for testing..."
+          xcodebuild build \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillUITests \
+            -sdk iphonesimulator \
+            -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            -derivedDataPath ./DerivedData \
+            -parallelizeTargets NO \
+            -jobs 1
       
-      - name: Upload UI Test Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-test-report
-          path: JoyfillSwiftUIExample/ui-test-report.html
+      - name: Run Tests Only
+        run: |
+          set -o pipefail
+          cd JoyfillSwiftUIExample
+          
+          echo "Starting UI tests..."
+          timeout 1200 xcodebuild test \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillUITests \
+            -sdk iphonesimulator \
+            -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            -derivedDataPath ./DerivedData \
+            -resultBundlePath ./TestResults.xcresult \
+            -parallelizeTargets NO \
+            -jobs 1
       
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: JoyfillSwiftUIExample/TestResults.xcresult
+      
+      - name: Upload UI Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-report
+          path: JoyfillSwiftUIExample/ui-test-report.html
