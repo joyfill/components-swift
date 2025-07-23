@@ -19,7 +19,7 @@ class JoyfillResolver_DirectSelfCircularReferenceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
-        documentEditor = DocumentEditor(document: document, shouldValidate: false)
+        documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 
     override func tearDown() {

@@ -120,6 +120,7 @@ struct SchemaValidationExampleView: View {
                     .padding(.horizontal)
                 }
                 
+                if !useCustomJSON {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Select JSON Sample")
                         .font(.headline)
@@ -178,6 +179,7 @@ struct SchemaValidationExampleView: View {
                     }
                     .pickerStyle(MenuPickerStyle())
                     .padding(.horizontal)
+                }
                 }
                 
                 // Action Buttons
