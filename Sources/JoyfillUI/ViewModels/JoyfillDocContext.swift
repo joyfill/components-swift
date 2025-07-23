@@ -2463,7 +2463,19 @@ extension JoyDocField {
             guard let allValueElements = value?.valueElements else { return value }
             
             // Filter out deleted rows (requirement #2)
-            let nonDeletedElements = allValueElements.filter { $0.deleted != true }
+            var nonDeletedElements = allValueElements.filter { $0.deleted != true }
+           
+            if let rowOrder = self.rowOrder {
+                nonDeletedElements.sort { (rowA, rowB) -> Bool in
+                    guard let idA = rowA.id,
+                          let idB = rowB.id,
+                          let indexA = rowOrder.firstIndex(of: idA),
+                          let indexB = rowOrder.firstIndex(of: idB) else {
+                        return false
+                    }
+                    return indexA < indexB
+                }
+            }
             
             // Process table elements with proper default values and dropdown resolution
             let processedElements = nonDeletedElements.map { element -> ValueElement in
