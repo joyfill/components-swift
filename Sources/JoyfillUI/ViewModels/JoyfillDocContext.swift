@@ -9,7 +9,6 @@ import JoyfillFormulas
     func formula(with id: String) -> Formula?
     func updateValue(for identifier: String, value: ValueUnion)
     func setFieldHidden(_ hidden: Bool, for identifier: String)
-    func currentFieldIdentifier() -> String?
 }
 
 /// Application-level implementation of EvaluationContext that resolves references against a JoyDoc
@@ -113,24 +112,7 @@ class JoyfillDocContext: EvaluationContext {
     public func getDependencies(for identifier: String) -> Set<String> {
         return dependencyGraph[identifier] ?? Set()
     }
-    
-    /// Resolves self-reference (current field value)
-    /// - Returns: Result containing the current field's value or an error
-    public func resolveSelfReference() -> Result<FormulaValue, FormulaError> {
-        // Get the current field identifier from the provider
-        guard let currentIdentifier = docProvider.currentFieldIdentifier() else {
-            return .failure(.invalidReference("Cannot resolve self reference: No current field context"))
-        }
-        
-        // Resolve the reference to the current field
-        guard let field = docProvider.field(fieldID: currentIdentifier) else {
-            return .failure(.invalidReference("Cannot resolve self reference: Current field not found"))
-        }
-        
-        // Convert the field value to a formula value
-        return convertFieldValueToFormulaValue(field.resolvedValue)
-    }
-    
+
     /// Creates a new context with added temporary variable
     /// - Parameters:
     ///   - name: Variable name
