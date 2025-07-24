@@ -383,7 +383,8 @@ struct FormDestinationView: View {
             mode: .fill,
             events: changeManager,
             pageID: "",
-            navigation: true
+            navigation: true,
+            validateSchema: false
         ))
     }
     

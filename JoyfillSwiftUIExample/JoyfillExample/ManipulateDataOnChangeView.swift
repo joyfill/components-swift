@@ -22,7 +22,7 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
         //
         let document = sampleJSONDocument(fileName: "hint_and_deficiency_demo")
 
-        manipulateDocumentEditor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, shouldValidate: false)
+        manipulateDocumentEditor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, validateSchema: false)
 
     }
     

@@ -18,7 +18,7 @@ struct ImageReplacementTest: View, FormChangeEvent {
     init() {
         let document = JoyDoc.addDocument()
             .addImageField(identifier: "image1")
-        documentEditor = DocumentEditor(document: document, events: self, shouldValidate: false)
+        documentEditor = DocumentEditor(document: document, events: self, validateSchema: false)
     }
     
     var body: some View {

@@ -49,16 +49,17 @@ public var joyfillSchema = """
         "items": {
           "type": "string"
         }
+      },
+      "formulas": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Formula"
+        }
       }
     },
     "required": [
-      "_id",
-      "type",
-      "name",
-      "createdOn",
       "files",
-      "fields",
-      "deleted"
+      "fields"
     ],
     "definitions": {
       "TemplateFile": {
@@ -100,8 +101,7 @@ public var joyfillSchema = """
           "name",
           "styles",
           "pages",
-          "pageOrder",
-          "views"
+          "pageOrder"
         ]
       },
       "CoreStyles": {
@@ -546,24 +546,7 @@ public var joyfillSchema = """
         ]
       },
       "FieldType": {
-        "type": "string",
-        "enum": [
-          "image",
-          "richText",
-          "file",
-          "text",
-          "textarea",
-          "number",
-          "dropdown",
-          "multiSelect",
-          "date",
-          "signature",
-          "table",
-          "chart",
-          "collection",
-          "block",
-          "rte"
-        ]
+        "type": "string"
       },
       "Logic": {
         "type": "object",
@@ -702,6 +685,9 @@ public var joyfillSchema = """
           },
           {
             "$ref": "#/definitions/CollectionField"
+          },
+          {
+            "$ref": "#/definitions/CustomField"
           }
         ]
       },
@@ -750,6 +736,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {
             "type": "array",
@@ -834,6 +843,29 @@ public var joyfillSchema = """
           "disabled": {
             "type": "boolean"
           },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
+          },
           "value": {
             "type": "array",
             "items": {
@@ -917,6 +949,29 @@ public var joyfillSchema = """
           "disabled": {
             "type": "boolean"
           },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
+          },
           "value": {
             "type": "string"
           }
@@ -972,6 +1027,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {
             "type": "string"
@@ -1029,6 +1107,29 @@ public var joyfillSchema = """
           "disabled": {
             "type": "boolean"
           },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
+          },
           "value": {
             "type": "string"
           }
@@ -1084,6 +1185,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {
             "anyOf": [
@@ -1148,6 +1272,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {
             "type": [
@@ -1216,6 +1363,29 @@ public var joyfillSchema = """
           "disabled": {
             "type": "boolean"
           },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
+          },
           "value": {
             "type": "string"
           }
@@ -1271,6 +1441,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {},
           "signer": {
@@ -1328,6 +1521,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {
             "type": "array",
@@ -1433,6 +1649,29 @@ public var joyfillSchema = """
           "disabled": {
             "type": "boolean"
           },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
+          },
           "options": {
             "type": "array",
             "items": {
@@ -1495,6 +1734,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {
             "type": "array",
@@ -1576,6 +1838,9 @@ public var joyfillSchema = """
           },
           {
             "$ref": "#/definitions/SignatureColumn"
+          },
+          {
+            "$ref": "#/definitions/CustomColumn"
           }
         ]
       },
@@ -1881,6 +2146,34 @@ public var joyfillSchema = """
           "type"
         ]
       },
+      "CustomColumn": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "deleted": {
+            "type": "boolean"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "value": {}
+        },
+        "required": [
+          "_id",
+          "type"
+        ]
+      },
       "ChartField": {
         "type": "object",
         "properties": {
@@ -1926,6 +2219,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "value": {
             "type": "array",
@@ -2058,6 +2374,29 @@ public var joyfillSchema = """
           },
           "disabled": {
             "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
           },
           "schema": {
             "$ref": "#/definitions/Schema"
@@ -2206,6 +2545,113 @@ public var joyfillSchema = """
         },
         "required": [
           "_id"
+        ]
+      },
+      "CustomField": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "_id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "tipTitle": {
+            "type": "string"
+          },
+          "tipDescription": {
+            "type": "string"
+          },
+          "tipVisible": {
+            "type": "boolean"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "file": {
+            "type": "string"
+          },
+          "logic": {
+            "$ref": "#/definitions/Logic"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "formulas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string",
+                  "const": "value"
+                },
+                "formula": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "_id",
+                "key",
+                "formula"
+              ]
+            }
+          }
+        },
+        "required": [
+          "_id",
+          "file",
+          "type"
+        ]
+      },
+      "Formula": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "desc": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "const": "calc"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "global",
+              "private"
+            ]
+          },
+          "expression": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "_id",
+          "desc",
+          "type",
+          "scope",
+          "expression"
         ]
       }
     },

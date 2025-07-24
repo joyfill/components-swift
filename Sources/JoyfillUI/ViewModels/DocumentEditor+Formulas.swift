@@ -7,10 +7,6 @@
 import JoyfillModel
 
 extension DocumentEditor: JoyDocProvider {
-    func currentFieldIdentifier() -> String? {
-        nil
-    }
-
     func formula(with id: String) -> JoyfillModel.Formula? {
         document.formulas.first { $0.id == id }
     }
