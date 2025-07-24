@@ -133,7 +133,7 @@ class TableViewModel: ObservableObject {
     
     func deleteSelectedRow(_ rows: [String]? = nil, shouldSendEvent: Bool = true) {
         let selectedRows: [String] =  rows ?? tableDataModel.selectedRows
-        tableDataModel.documentEditor?.deleteRows(
+        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.deleteRows(
             rowIDs: selectedRows,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent
@@ -148,9 +148,9 @@ class TableViewModel: ObservableObject {
     
     func duplicateRow() {
         guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let changes = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
-        
-        let sortedChanges = changes.sorted { $0.key < $1.key }
+        guard let result = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+        self.tableDataModel.valueToValueElements = result.1
+        let sortedChanges = result.0.sorted { $0.key < $1.key }
         sortedChanges.forEach { (index, value) in
             updateRow(valueElement: value, at: index)
         }
@@ -217,7 +217,7 @@ class TableViewModel: ObservableObject {
             Log("No selected row", type: .error)
             return
         }
-        tableDataModel.documentEditor?.moveRowUp(
+        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveRowUp(
             rowID: firstSelectedRowID,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent)
@@ -234,7 +234,7 @@ class TableViewModel: ObservableObject {
             Log("No selected row", type: .error)
             return
         }
-        tableDataModel.documentEditor?.moveRowDown(
+        tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveRowDown(
             rowID: firstSelectedRowID,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent)
@@ -290,6 +290,19 @@ class TableViewModel: ObservableObject {
         ) {
             tableDataModel.valueToValueElements = result.0
             updateRow(valueElement: result.1, at: tableDataModel.rowOrder.count)
+        } else {
+            Log("Row data is nil", type: .error)
+            return
+        }
+    }
+    
+    func addRowAtIndex(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true, index: Int) {
+        let id = rowID ?? generateObjectId()
+        let cellValues = cellValues ?? getCellValues()
+        
+        if let result = tableDataModel.documentEditor?.insertRow(at: index, id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, shouldSendEvent: shouldSendEvent) {
+            tableDataModel.valueToValueElements = result.0
+            updateRow(valueElement: result.1, at: index)
         } else {
             Log("Row data is nil", type: .error)
             return
@@ -399,7 +412,11 @@ extension TableViewModel: DocumentEditorDelegate {
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
         guard let newRowID = newRow.id else { return }
-        addRow(with: newRowID, and: newRow.cells, shouldSendEvent: false)
+        if let targetRowIndex = change.change?["targetRowIndex"] as? Int {
+            addRowAtIndex(with: newRowID, and: cellValues, shouldSendEvent: false,  index: targetRowIndex)
+        } else {
+            addRow(with: newRowID, and: newRow.cells, shouldSendEvent: false)
+        }
     }
 
     func deleteRow(for change: Change) {
@@ -419,9 +436,23 @@ extension TableViewModel: DocumentEditorDelegate {
         }
         
         guard var targetRowIndex = change.change?["targetRowIndex"] as? Int else { return }
-        guard var rowIndex = tableDataModel.valueToValueElements?.firstIndex(where: { element in
+        
+        var nonDeletedElements = tableDataModel.valueToValueElements?.filter { $0.deleted != true }
+        let rowOrder = tableDataModel.rowOrder
+        nonDeletedElements?.sort { (rowA, rowB) -> Bool in
+            guard let idA = rowA.id,
+                  let idB = rowB.id,
+                  let indexA = rowOrder.firstIndex(of: idA),
+                  let indexB = rowOrder.firstIndex(of: idB) else {
+                return false
+            }
+            return indexA < indexB
+        }
+        
+        guard var rowIndex = nonDeletedElements?.firstIndex(where: { element in
             element.id == rowID
         }) else { return }
+        
         if targetRowIndex > rowIndex {
             while targetRowIndex > rowIndex {
                 rowIndex += 1
