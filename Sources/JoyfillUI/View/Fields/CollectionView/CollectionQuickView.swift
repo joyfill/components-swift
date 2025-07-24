@@ -17,7 +17,6 @@ struct CollectionQuickView : View {
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
     @State private var refreshID = UUID()
-    @State private var isLoadingCollectionView = false
     
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
         self.viewModel = CollectionViewModel(tableDataModel: tableDataModel)
@@ -47,31 +46,21 @@ struct CollectionQuickView : View {
             )
             
             Button(action: {
-                isLoadingCollectionView = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    isLoadingCollectionView = false
-                    isTableModalViewPresented = true
-                    eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
-                }
+                isTableModalViewPresented = true
+                eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
-                    if isLoadingCollectionView {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                            .frame(height: 20)
-                    } else {
-                        Text("Collection View")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.blue)
-
-                        Image(systemName: "chevron.forward")
-                            .foregroundStyle(.blue)
-                            .font(.system(size: 8, weight: .heavy))
-                            .padding(.horizontal, 4)
-
-                        Text(viewModel.tableDataModel.collectionRowsCount)
-                            .font(.system(size: 16))
-                    }
+                    Text("Collection View")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.blue)
+                    
+                    Image(systemName: "chevron.forward")
+                        .foregroundStyle(.blue)
+                        .font(.system(size: 8, weight: .heavy))
+                        .padding(.horizontal, 4)
+                    
+                    Text(viewModel.tableDataModel.collectionRowsCount)
+                        .font(.system(size: 16))
                 }
                 .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
@@ -82,7 +71,6 @@ struct CollectionQuickView : View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
-            .disabled(isLoadingCollectionView)
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
