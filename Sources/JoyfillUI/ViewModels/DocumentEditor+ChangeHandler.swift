@@ -13,28 +13,28 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be deleted.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) {
-        guard !rowIDs.isEmpty else {
-            Log("No rows to delete", type: .warning)
-            return
-        }
+    public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var field = fieldMap[fieldId] else {
             Log("Field not found: \(fieldId)", type: .error)
-            return
-        }
-        guard var lastRowOrder = field.rowOrder else {
-            return
+            return []
         }
         guard var elements = field.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
-            return
+            return []
+        }
+        guard !rowIDs.isEmpty else {
+            Log("No rows to delete", type: .warning)
+            return elements
+        }
+        guard var lastRowOrder = field.rowOrder else {
+            return elements
         }
 
         for row in rowIDs {
             guard let index = elements.firstIndex(where: { $0.id == row }) else {
                 Log("Row not found: \(row)", type: .error)
-                return
+                return elements
             }
             var element = elements[index]
             element.setDeleted()
@@ -43,18 +43,19 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        guard shouldSendEvent else { return }
+        guard shouldSendEvent else { return  elements }
         onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
+        return elements
     }
     
     public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
-        guard !rowIDs.isEmpty else { return [] }
         let fieldId = fieldIdentifier.fieldID
         guard var field = fieldMap[fieldId] else {
             Log("Field not found: \(fieldId)", type: .error)
             return []
         }
         guard var elements = field.valueToValueElements else { return [] }
+        guard !rowIDs.isEmpty else { return elements }
         
         for row in rowIDs {
             if let index = elements.firstIndex(where: { $0.id == row }) {
@@ -96,15 +97,15 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> [Int: ValueElement] {
+    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
-            return [:]
+            return ([:], [])
         }
         var targetRows = [TargetRowModel]()
         guard var lastRowOrder = fieldMap[fieldId]?.rowOrder else {
-            return [:]
+            return ([:], [])
         }
         
         var changes = [Int: ValueElement]()
@@ -133,7 +134,7 @@ extension DocumentEditor {
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
-        return changes
+        return (changes, elements)
     }
     
     public func duplicateNestedRows(selectedRowIds: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
@@ -223,30 +224,31 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowID: The String identifier of the row to be moved up.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) {
+    public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
-            return
+            return []
         }
         guard var lastRowOrder = fieldMap[fieldId]?.rowOrder else {
-            return
+            return elements
         }
         guard let lastRowIndex = lastRowOrder.firstIndex(of: rowID) else {
             Log("Row index not found: \(rowID)", type: .error)
-            return
+            return elements
         }
 
         guard lastRowIndex != 0 else {
             Log("Row already at the top, cannot move up", type: .warning)
-            return
+            return elements
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex-1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        guard shouldSendEvent else { return }
+        guard shouldSendEvent else { return elements }
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        return elements
     }
     
     func rowUpdateEvent(
@@ -279,7 +281,7 @@ extension DocumentEditor {
         var targetRows: [TargetRowModel] = []
         
         if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
-            guard topIndex != 0 else { return [] }
+            guard topIndex != 0 else { return elements }
             elements.swapAt(topIndex, topIndex - 1)
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
             targetRows = [TargetRowModel(id: rowID, index: topIndex - 1)]
@@ -322,30 +324,31 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowID: The String identifier of the row to be moved down.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) {
+    public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
-            return
+            return []
         }
         guard var lastRowOrder = fieldMap[fieldId]?.rowOrder else {
-            return
+            return elements
         }
         guard let lastRowIndex = lastRowOrder.firstIndex(of: rowID) else {
             Log("Row index not found: \(rowID)", type: .error)
-            return
+            return elements
         }
 
         guard (lastRowOrder.count - 1) != lastRowIndex else {
             Log("Row already at the bottom, cannot move down", type: .warning)
-            return
+            return elements
         }
         lastRowOrder.swapAt(lastRowIndex, lastRowIndex+1)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        guard shouldSendEvent else { return }
+        guard shouldSendEvent else { return elements }
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        return elements
     }
     
     public func moveNestedRowDown(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
@@ -355,7 +358,7 @@ extension DocumentEditor {
         var targetRows: [TargetRowModel] = []
         
         if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
-            guard topIndex < elements.count - 1 else { return [] }
+            guard topIndex < elements.count - 1 else { return elements }
             elements.swapAt(topIndex, topIndex + 1)
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
             targetRows = [TargetRowModel(id: rowID, index: topIndex + 1)]
@@ -536,6 +539,53 @@ extension DocumentEditor {
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
         return (elements,newRow)
+    }
+    
+    /// Inserts a new row at a specified index in a table field.
+    public func insertRow(at index: Int,
+                          id: String,
+                          cellValues: [String: ValueUnion],
+                          fieldIdentifier: FieldIdentifier,
+                          shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement)? {
+        var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
+
+        guard index >= 0 && index <= elements.count else {
+            Log("Invalid index \(index) for inserting row", type: .error)
+            return nil
+        }
+        
+        // Build the new row
+        var newRow = ValueElement(id: id)
+        if newRow.cells == nil {
+            newRow.cells = [:]
+        }
+        for (key, value) in cellValues {
+            newRow.cells?[key] = value
+        }
+        
+        // Insert into the elements array
+        elements.insert(newRow, at: index)
+        
+        // Update rowOrder if it exists
+        if var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder {
+            if index >= rowOrder.count {
+                rowOrder.append(id)
+            } else {
+                rowOrder.insert(id, at: index)
+            }
+            fieldMap[fieldIdentifier.fieldID]?.rowOrder = rowOrder
+        }
+        
+        fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+        
+        // Fire change event if needed
+        guard shouldSendEvent else { return (elements, newRow) }
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
+                                          updateValue: ValueUnion.valueElementArray(elements))
+        addRowOnChange(event: changeEvent,
+                       targetRowIndexes: [TargetRowModel(id: id, index: index)])
+        
+        return (elements, newRow)
     }
     
     private func insertNestedRow(in elements: inout [ValueElement],
@@ -771,7 +821,7 @@ extension DocumentEditor {
         }
         
         guard let rowIndex = elements.firstIndex(where: { $0.id == rowId }) else {
-            return []
+            return elements
         }
         
         // Fire row update event
