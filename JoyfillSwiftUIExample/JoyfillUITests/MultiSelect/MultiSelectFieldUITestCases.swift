@@ -15,9 +15,12 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
     }
         
     func testMultiSelectField() throws {
-        
+        var selectionCount = 5;
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            selectionCount = 8;
+        }
         let optionCount = getOptionsButtonsCount(identifier: "MultiSelectionIdenitfier")
-        XCTAssertEqual(5, optionCount)
+        XCTAssertEqual(selectionCount, optionCount)
      
         // tap on first button with identifier MultiSelectionIdenitfier
         let firstOption = app.buttons.matching(identifier: "MultiSelectionIdenitfier").firstMatch
@@ -61,8 +64,12 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
     //ConditionalLogic tests
     
     func testConditonalLogicWithMultiSelect() throws {
+        var selectionCount = 5;
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            selectionCount = 8;
+        }
         let optionCount = getOptionsButtonsCount(identifier: "MultiSelectionIdenitfier")
-        XCTAssertEqual(5, optionCount)
+        XCTAssertEqual(selectionCount, optionCount)
         
         let label = "Hello"
         let buttons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
@@ -199,8 +206,12 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func testHideThirdMultiSelectUnderORConditions() throws {
+        var selectionCount = 5;
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            selectionCount = 8;
+        }
         let allButtons = getOptionsButtonsCount(identifier: "MultiSelectionIdenitfier")
-        XCTAssertEqual(allButtons, 5)
+        XCTAssertEqual(allButtons, selectionCount)
         let collectionViewsQuery = app.collectionViews;
         
         XCTAssertTrue(collectionViewsQuery.children(matching: .cell).element(boundBy: 2).children(matching: .other).element(boundBy: 1).children(matching: .other).element.exists)
@@ -230,16 +241,20 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
     func testReadonlyMultiselectNotChange() {
         app.swipeUp()
         
-        let collectionViewsQuery = app.collectionViews;
-        collectionViewsQuery.children(matching: .cell).element(boundBy: 2).children(matching: .other).element(boundBy: 1).children(matching: .other).element.swipeUp()
+        // find only the disabled multi‐select buttons
+        let disabledMultiSelect = app.buttons
+            .matching(identifier: "MultiSelectionIdenitfier")
+            .matching(NSPredicate(format: "isEnabled == NO"))
         
-        let squareImage = collectionViewsQuery.buttons.matching(identifier: "Yes").images["square"]
-        squareImage.tap()
-        collectionViewsQuery.buttons.matching(identifier: "N/A").images["square"].tap()
+        let disabledYes = disabledMultiSelect.matching(NSPredicate(format: "label == %@", "Yes")).firstMatch
+        XCTAssertTrue(disabledYes.exists)
+        disabledYes.tap()
+        
+        let disabledNA = disabledMultiSelect.matching(NSPredicate(format: "label == %@", "N/A")).firstMatch
+        XCTAssertTrue(disabledNA.exists)
+        disabledNA.tap()
         
         let payload = onChangeOptionalResult()?.dictionary
-        if let payload = payload {
-            XCTFail("Should not have payload")
-        }
+        XCTAssertNil(payload)
     }
 }

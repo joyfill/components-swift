@@ -126,7 +126,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToCollectionView(index: 1)
         
         let dateFields = app.images.matching(identifier: "CalendarImageIdentifier")
-        XCTAssertEqual(dateFields.count, 2, "Date fields should exist")
+        XCTAssertEqual(dateFields.count, 4, "Date fields should exist")
         
         let dateField1 = dateFields.element(boundBy: 0)
         let dateField2 = dateFields.element(boundBy: 1)

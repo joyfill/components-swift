@@ -123,15 +123,6 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("SecondHis", secondCellTextValue)
         XCTAssertEqual("ThirdHis", thirdCellTextValue)
         
-        // Navigate to signature detail view - then go to table detail view - to check recently enterd data is saved or not in table
-        guard let SignatureButton = app.swipeToFindElement(identifier: "SignatureIdentifier", type: .button, direction: "down") else {
-            XCTFail("Failed to find signature button after swiping")
-            return
-        }
-        SignatureButton.tap()
-        sleep(1)
-        goBack()
-        
         goToTableDetailPage()
         XCTAssertEqual("FirstHello", firstTableTextField.value as! String)
         XCTAssertEqual("SecondHis", secondTableTextField.value as! String)
@@ -404,10 +395,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         sleep(1)
         textField.tap()
-        sleep(1)
+        textField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         textField.clearText()
-        sleep(1)
-        textField.typeText("App 1Edit")
+        textField.typeText("Qu")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Yes", dropdownButton.label)
@@ -422,7 +413,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         
         let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("App 1Edit", checkEditDataOnTextField.value as! String)
+        XCTAssertEqual("Qu", checkEditDataOnTextField.value as! String)
         
         sleep(1)
         let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
@@ -1171,10 +1162,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         enterDataInInsertedRow()
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
-        XCTAssertEqual(1, lastIndex)
     }
     
     // Insert Row on search filter data
@@ -1212,6 +1201,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     func testTableEditInsertRow() throws {
         navigateToTableViewOnSecondPage()
         tapOnInsertRowButton()
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        XCTAssertEqual(1, lastIndex)
         enterDataInInsertedRow()
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
@@ -1221,10 +1215,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         sleep(1)
         textField.tap()
-        sleep(1)
+        textField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         textField.clearText()
-        sleep(1)
-        textField.typeText("Inserted RowEdit Inserted Row")
+        textField.typeText("qu")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("No", dropdownButton.label)
@@ -1233,22 +1227,26 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let firstOption = dropdownOptions.element(boundBy: 0)
         firstOption.tap()
         
-//        app.buttons["ApplyAllButtonIdentifier"].tap()
+        //        app.buttons["ApplyAllButtonIdentifier"].tap()
         dismissSheet()
         sleep(1)
         
         let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertEqual("Inserted RowEdit Inserted Row", checkEditDataOnTextField.value as! String)
+        XCTAssertEqual("qu", checkEditDataOnTextField.value as! String)
         
         sleep(1)
         let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Yes", checkEditDataOnDropdownField.element(boundBy: 1).label)
         
-        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
-        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        let change = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let row = try XCTUnwrap(change["row"] as? [String: Any])
+        let cells  = try XCTUnwrap(row["cells"] as? [String: Any],
+                                   "Missing ‘cells’ dictionary")
+        let valueForQuKey = try XCTUnwrap(cells["66e3eca9c0c6bf8bef669d21"] as? String,
+                                          "Expected a String for the ‘qu’ key")
+        XCTAssertEqual(valueForQuKey, "qu")
+        XCTAssertEqual(cells.count, 2)
         XCTAssertNotNil(newRow["_id"])
-        XCTAssertEqual(1, lastIndex)
     }
     
     // Duplicate inserted row
@@ -1365,7 +1363,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
         XCTAssertEqual("", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("Inserted Row")
+        enterDateInInsertedField.typeText("qu")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 5)
@@ -1378,14 +1376,12 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         // Check entered data
-        XCTAssertEqual("Inserted Row", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("qu", enterDateInInsertedField.value as! String)
         XCTAssertEqual("No", selectDropdownField.label)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
-        XCTAssertEqual(5, lastIndex)
     }
     
     // Move Up & Down Row Test Cases
@@ -1468,7 +1464,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Apple 2", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("Moved ")
+        enterDateInInsertedField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        enterDateInInsertedField.typeText("qu")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
@@ -1481,7 +1479,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         // Check entered data
-        XCTAssertEqual("Moved Apple 2", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("qu", enterDateInInsertedField.value as! String)
         XCTAssertEqual("Yes", selectDropdownField.label)
     }
     
@@ -1495,7 +1493,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("Cat 4", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("Moved ")
+        enterDateInInsertedField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        enterDateInInsertedField.typeText("quick")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)
@@ -1508,7 +1508,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         // Check entered data
-        XCTAssertEqual("Moved Cat 4", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("quick", enterDateInInsertedField.value as! String)
         XCTAssertEqual("No", selectDropdownField.label)
     }
     

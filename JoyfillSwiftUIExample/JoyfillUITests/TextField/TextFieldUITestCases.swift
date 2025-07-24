@@ -28,9 +28,11 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
         XCTAssertEqual("test", multiLineTextField.value as! String)
         multiLineTextField.tap()
-        multiLineTextField.typeText("Hello")
+        multiLineTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        multiLineTextField.typeText("quick")
         sleep(1)
-        XCTAssertEqual("Hellotest", onChangeResultValue().multilineText)
+        XCTAssertEqual("quick", onChangeResultValue().multilineText)
     }
     
     func testToolTip() throws {
@@ -130,6 +132,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
     func testTextFieldTypingAndPaste() {
         let textField = app.textFields.element(boundBy: 0)
         textField.tap()
+        textField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         textField.clearText()
         UIPasteboard.general.string = "Pasted Text"
         textField.press(forDuration: 1.0)
@@ -187,7 +191,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         multilineTextView.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         multilineTextView.typeText("not_show")
-        sleep(1)
+        sleep(2)
         XCTAssertFalse(displayText.exists)
         
         // 3. Second textbox should hide if:

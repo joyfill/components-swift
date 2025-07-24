@@ -18,6 +18,10 @@ class JoyfillUITestsBaseClass: XCTestCase {
         app.launchArguments.append("--json-file")
         app.launchArguments.append(getJSONFileNameForTest())
         
+        // Pass the current test name to the app
+        app.launchArguments.append("--test-name")
+        app.launchArguments.append(self.name)
+        
         app.launch()
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10), "App did not launch properly")
     }

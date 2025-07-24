@@ -360,14 +360,14 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         if let textField = app.swipeToFindElement(identifier: "TabelNumberFieldIdentifier", type: .textField, direction: "left") {
             textField.tap()
-            textField.typeText("1234567890123456")
+            textField.typeText("123456")
         }
         
         goBack()
         sleep(2)
         do {
             let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
-            XCTAssertEqual(1234567890123456, firstCellMultiSelectValue)
+            XCTAssertEqual(123456, firstCellMultiSelectValue)
         } catch {
             XCTFail("Failed to unwrap cell text values: \(error)")
         }
@@ -688,7 +688,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         barcodeTextField.tap()
         barcodeTextField.clearText()
-        barcodeTextField.typeText("Edit Barcode")
+        barcodeTextField.typeText("quick")
         
         // Number Field
         guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
@@ -742,7 +742,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Barcode Field
         let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7a813ea45f5b681dec1"]?.text)
-        XCTAssertEqual("Edit Barcode", firstCellBarcodeTextValue)
+        XCTAssertEqual("quick", firstCellBarcodeTextValue)
         
         // Signature Field
         XCTAssertNotNil(onChangeResultValue().valueElements?[0].cells?["6805b7ac1325377829f4d92e"]?.text)

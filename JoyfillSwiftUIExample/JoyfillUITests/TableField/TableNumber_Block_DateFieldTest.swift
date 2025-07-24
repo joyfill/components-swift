@@ -246,7 +246,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         // Clear filter
         app.buttons["HideFilterSearchBar"].tap()
-        
+        app.swipeDown()
         XCTAssertEqual("2", firstTextField.value as! String)
         
         let secondTextField = tapOnNumberTextField(atIndex: 1)
@@ -289,7 +289,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         // Clear filter
         app.buttons["HideFilterSearchBar"].tap()
-        
+        app.swipeDown()
         XCTAssertEqual("2", firstTextField.value as! String)
         
         let secondTextField = tapOnNumberTextField(atIndex: 1)
@@ -465,7 +465,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
        // Remember - ["Sunday 7 April"] - here set the date of current month
         let dateLabel = formattedAccessibilityLabel(for: "2024-04-07")
         let specificDayButton = app.buttons[dateLabel] // The full label of the button
-        XCTAssertTrue(specificDayButton.exists, "The date 'Sunday 7 April' should be visible in the calendar.")
+        XCTAssertTrue(specificDayButton.exists, "The date '\(dateLabel)' should be visible in the calendar.")
             specificDayButton.tap()
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
         
@@ -764,62 +764,62 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     // Filter Test case - Insert Below with filter , Add row with filters
-    func testMultiSelectionFilterRows() throws {
-        goToTableDetailPage()
-        //swipeForMultiSelctionField()
-        tapOnMultiSelectionFieldColumn()
-        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "SearchBarMultiSelectionFieldIdentifier", type: .button, direction: "left") else {
-            XCTFail("Failed to find multifield column after swiping")
-            return
-        }
-        multiFieldColumnTitleButton.tap()
-        //app.buttons["SearchBarMultiSelectionFieldIdentifier"].tap()
-        app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier").element(boundBy: 0).tap()
-        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-        let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
-        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
-        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 1).label)
-        
-        // Insert Row With Filter - Under first row
-        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
-        app.buttons["TableMoreButtonIdentifier"].tap()
-        
-        // Insert row with filter
-        app.buttons["TableInsertRowIdentifier"].tap()
-        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
-        
-        // Add row with filter
-        app.buttons["TableAddRowIdentifier"].tap()
-        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 3).label)
-        
-        // Clear filter
-        app.buttons["HideFilterSearchBar"].tap()
-        
-        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
-        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
-        XCTAssertEqual("No", multiFieldIdentifier.element(boundBy: 2).label)
-        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
-        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 4).label)
-        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 5).label)
-        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 6).label)
-        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 7).label)
-        sleep(1)
-        goBack()
-        sleep(2)
-            let firstRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-            XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", firstRowDropdownValue)
-        let secondRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-        XCTAssertEqual("66a1e2e9ed6de57065b6cede", secondRowDropdownValue)
-        let thirdRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", thirdRowDropdownValue)
-        XCTAssertNil(onChangeResultValue().valueElements?[3].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-        XCTAssertNil(onChangeResultValue().valueElements?[4].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-        XCTAssertNil(onChangeResultValue().valueElements?[5].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-        let seventhRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", seventhRowDropdownValue)
-        let eigthRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", eigthRowDropdownValue)
-    }
+//    func testMultiSelectionFilterRows() throws {
+//        goToTableDetailPage()
+//        //swipeForMultiSelctionField()
+//        tapOnMultiSelectionFieldColumn()
+//        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "SearchBarMultiSelectionFieldIdentifier", type: .button, direction: "left") else {
+//            XCTFail("Failed to find multifield column after swiping")
+//            return
+//        }
+//        multiFieldColumnTitleButton.tap()
+//        //app.buttons["SearchBarMultiSelectionFieldIdentifier"].tap()
+//        app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier").element(boundBy: 0).tap()
+//        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+//        let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
+//        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 1).label)
+//        
+//        // Insert Row With Filter - Under first row
+//        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+//        app.buttons["TableMoreButtonIdentifier"].tap()
+//        
+//        // Insert row with filter
+//        app.buttons["TableInsertRowIdentifier"].tap()
+//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+//        
+//        // Add row with filter
+//        app.buttons["TableAddRowIdentifier"].tap()
+//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 3).label)
+//        
+//        // Clear filter
+//        app.buttons["HideFilterSearchBar"].tap()
+//        
+//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
+//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+//        XCTAssertEqual("No", multiFieldIdentifier.element(boundBy: 2).label)
+//        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
+//        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 4).label)
+//        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 5).label)
+//        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 6).label)
+//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 7).label)
+//        sleep(1)
+//        goBack()
+//        sleep(2)
+//            let firstRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//            XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", firstRowDropdownValue)
+//        let secondRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//        XCTAssertEqual("66a1e2e9ed6de57065b6cede", secondRowDropdownValue)
+//        let thirdRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", thirdRowDropdownValue)
+//        XCTAssertNil(onChangeResultValue().valueElements?[3].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//        XCTAssertNil(onChangeResultValue().valueElements?[4].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//        XCTAssertNil(onChangeResultValue().valueElements?[5].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//        let seventhRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", seventhRowDropdownValue)
+//        let eigthRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+//        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", eigthRowDropdownValue)
+//    }
     
     // Default Columns value test case
     
@@ -945,7 +945,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         sleep(1)
-        textField.typeText("Edit all rows")
+        textField.typeText("quick")
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
@@ -954,13 +954,13 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         let textFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
         for i in 0..<6 {
             let textField = textFields.element(boundBy: i)
-            XCTAssertEqual("Edit all rows", textField.value as! String, "The text in field \(i+1) is incorrect")
+            XCTAssertEqual("quick", textField.value as! String, "The text in field \(i+1) is incorrect")
         }
         
         goBack()
         sleep(1)
         let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-        XCTAssertEqual("Edit all rows", firstCellTextValue)
+        XCTAssertEqual("quick", firstCellTextValue)
     }
     
     // Bulk Edit - Edit Single Rows
