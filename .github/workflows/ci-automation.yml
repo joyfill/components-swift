@@ -16,6 +16,9 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
 
+      - name: Clean Derived Data
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData
+
       - name: Build Project
         run: |
           set -o pipefail
@@ -24,7 +27,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination "platform=iOS Simulator,OS=latest" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -103,7 +106,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+            -destination "platform=iOS Simulator,OS=latest" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -122,7 +125,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,id=F5C7F34E-63E6-41BF-A81B-A17F2773A5CB" \
+            -destination "platform=iOS Simulator,OS=latest" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
