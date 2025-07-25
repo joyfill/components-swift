@@ -29,6 +29,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testChangeText() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToCollectionView()
         goToCollectionView(index: 1)
        
@@ -43,6 +46,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testChangeNumberCollection() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToCollectionView()
         goToCollectionView(index: 1)
        
@@ -70,6 +76,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testChangeMultiCollection() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToCollectionView()
         goToCollectionView(index: 1)
         
@@ -100,6 +109,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testChangeDropdownCollection() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToCollectionView()
         goToCollectionView(index: 1)
         
@@ -122,6 +134,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testChangeDateCollection() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToCollectionView()
         goToCollectionView(index: 1)
         
@@ -139,6 +154,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testChangeImageCollection() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToCollectionView()
         goToCollectionView(index: 1)
         

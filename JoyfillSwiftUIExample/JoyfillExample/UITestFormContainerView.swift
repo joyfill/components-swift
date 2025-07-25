@@ -94,10 +94,14 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         let arguments = CommandLine.arguments
         if let testNameIndex = arguments.firstIndex(of: "--test-name"),
            testNameIndex + 1 < arguments.count {
-            let testName = arguments[testNameIndex + 1]
+            let fullTestName = arguments[testNameIndex + 1]
             
-            // Only skip for these two specific test cases
-            return testName.contains("testUploadWithoutCallingHandler")
+            // Extract just the method name (after the last dot)
+            let testMethodName = fullTestName.components(separatedBy: ".").last ?? fullTestName
+            
+            // Only skip for these two specific test cases - check for exact method names
+            return testMethodName == "-[ImageFieldTests testUploadWithoutCallingHandler]" ||
+                   testMethodName == "-[ImageFieldTests testUploadWithoutCallingHandlerForMultiFalse]"
         }
         
         return false
