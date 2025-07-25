@@ -44,9 +44,11 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         maxYValuesTextField.clearText()
         maxYValuesTextField.typeText("10030")
         maxXValuesTextField.tap()
+        maxXValuesTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         maxXValuesTextField.clearText()
         maxXValuesTextField.typeText("10040")
-
+        sleep(1)
         goBack()
 
         XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)

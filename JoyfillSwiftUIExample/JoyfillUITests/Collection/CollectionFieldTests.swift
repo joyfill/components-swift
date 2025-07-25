@@ -144,17 +144,17 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("", firstNestedTextField.value as! String)
         firstNestedTextField.tap()
-        firstNestedTextField.typeText("Hello ji")
+        firstNestedTextField.typeText("one")
         
         let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("", secNestedTextField.value as! String)
         secNestedTextField.tap()
-        secNestedTextField.typeText("Namaste ji")
+        secNestedTextField.typeText("two")
         
         let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
         XCTAssertEqual("", thirdNestedTextField.value as! String)
         thirdNestedTextField.tap()
-        thirdNestedTextField.typeText("123456789")
+        thirdNestedTextField.typeText("123")
     }
     
     func openFilterModalForDismissKeyboard() {
@@ -276,14 +276,14 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("", firstTableTextField.value as! String)
         firstTableTextField.tap()
-        firstTableTextField.typeText("Hello ji")
+        firstTableTextField.typeText("one")
         goBack()
         sleep(2)
         goToCollectionDetailField()
         expandRow(number: 1)
         do {
             let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text)
-            XCTAssertEqual("Hello ji", firstCellTextValue)
+            XCTAssertEqual("one", firstCellTextValue)
         } catch {
             XCTFail("Failed to unwrap cell text values: \(error)")
         }
@@ -360,14 +360,14 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         if let textField = app.swipeToFindElement(identifier: "TabelNumberFieldIdentifier", type: .textField, direction: "left") {
             textField.tap()
-            textField.typeText("123456")
+            textField.typeText("123")
         }
         
         goBack()
         sleep(2)
         do {
             let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
-            XCTAssertEqual(123456, firstCellMultiSelectValue)
+            XCTAssertEqual(123, firstCellMultiSelectValue)
         } catch {
             XCTFail("Failed to unwrap cell text values: \(error)")
         }
@@ -536,9 +536,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         sleep(2)
         
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Namaste ji")
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "Hello ji")
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "123456789")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "two")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "one")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "123")
     }
     
     func testMoveDownOnNestedRow() {
@@ -564,9 +564,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         sleep(2)
         
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Hello ji")
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "123456789")
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "Namaste ji")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "one")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "123")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "two")
     }
     
     func testDeleteAllOnNestedRow() {
@@ -673,6 +673,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         firstImageButton.tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
         dismissSheet()
+        app.swipeUp()
         
         guard let dateField = app.swipeToFindElement(identifier: "EditRowsDateFieldIdentifier", type: .image) else {
             XCTFail("Failed to find date button after swiping")
@@ -1053,8 +1054,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         sleep(1)
         textField.tap()
-        sleep(1)
-        textField.typeText("Edit")
+        textField.clearText()
+        textField.typeText("quick")
         
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -1063,13 +1064,14 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         let firstOption = dropdownOptions.element(boundBy: 0)
         firstOption.tap()
-        
+        app.swipeUp()
         // Multiselection Field
         let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
 //        XCTAssertEqual("", multiSelectionButton.label)
         multiSelectionButton.tap()
         
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        sleep(1)
 //        XCTAssertGreaterThan(optionsButtons.count, 0)
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
@@ -1085,7 +1087,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         sleep(2)
         
         // Textfield
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Hello jiEdit")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "quick")
         
         // Dropdown Field
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")

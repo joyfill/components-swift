@@ -1495,7 +1495,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         enterDateInInsertedField.tap()
         enterDateInInsertedField.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
-        enterDateInInsertedField.typeText("quick")
+        enterDateInInsertedField.typeText("qu")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)
@@ -1508,7 +1508,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         // Check entered data
-        XCTAssertEqual("quick", enterDateInInsertedField.value as! String)
+        XCTAssertEqual("qu", enterDateInInsertedField.value as! String)
         XCTAssertEqual("No", selectDropdownField.label)
     }
     

@@ -232,12 +232,13 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let newCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: initialCount)
         XCTAssertTrue(newCell.waitForExistence(timeout: 5), "New row should appear at the end")
         newCell.tap()
-        newCell.typeText("New Data")
+        newCell.clearText()
+        newCell.typeText("quick")
         sleep(1)
         while !newCell.isHittable {
             app.swipeUp()
         }
-        XCTAssertEqual(newCell.value as? String, "New Data")
+        XCTAssertEqual(newCell.value as? String, "quick")
     }
     
     func testTableMoveUpRow() throws {

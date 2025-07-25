@@ -1486,14 +1486,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(newTextField.exists, "New text field should exist")
         newTextField.tap()
         newTextField.clearText()
-        newTextField.typeText("Testing Demo")
+        newTextField.typeText("quick")
         
         // Go back and return to detail view
         goBack()
         goToCollectionDetailField()
         
         // Apply filter for "Testing Demo"
-        applyTextFilter(column: "Text D1", text: "Testing Demo")
+        applyTextFilter(column: "Text D1", text: "quick")
         
         // Verify filtered count is 1
         let filteredCount = getVisibleRowCount()
@@ -1716,6 +1716,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         textViewsQuery.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         textViewsQuery.typeText("conditional")
+        app.swipeUp()
+        app.swipeDown()
         sleep(1)
         let countSecond = getVisibleNestexRowsCount()
         XCTAssertEqual(countSecond, 5)

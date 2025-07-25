@@ -62,7 +62,11 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             // iPad: with comma
-            outputFormatter.dateFormat = "EEEE, d MMMM"
+            if #available(iOS 19.0, *) {
+                   outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
         } else {
             // iPhone: no comma
             outputFormatter.dateFormat = "EEEE d MMMM"
@@ -135,7 +139,11 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         formatter.locale = Locale(identifier: "en_US")
         if UIDevice.current.userInterfaceIdiom == .pad {
             // iPad: with comma
-            formatter.dateFormat = "EEEE, d MMMM"
+            if #available(iOS 19.0, *) {
+                formatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                formatter.dateFormat = "EEEE d MMMM"
+            }
         } else {
             // iPhone: no comma
             formatter.dateFormat = "EEEE d MMMM"
