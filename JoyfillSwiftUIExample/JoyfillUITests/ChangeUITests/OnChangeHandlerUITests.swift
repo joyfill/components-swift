@@ -62,6 +62,175 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
     }
     
+    
+    func addThreeNestedRows(parentRowNumber: Int) {
+        expandRow(number: parentRowNumber)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("one")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("two")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123")
+    }
+    
+    func openFilterModalForDismissKeyboard() {
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        if !filterButton.exists {
+            XCTFail("Filter button should exist")
+        }
+        
+        filterButton.firstMatch.tap()
+        
+        // Verify filter modal opened
+        let filterModalExists = app.staticTexts["Filter"].exists
+        XCTAssertTrue(filterModalExists, "Filter modal should be open")
+        
+        dismissSheet()
+    }
+    
+    func openFilterModal() {
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        if !filterButton.exists {
+            XCTFail("Filter button should exist")
+        }
+        
+        filterButton.firstMatch.tap()
+        
+        // Verify filter modal opened
+        let filterModalExists = app.staticTexts["Filter"].exists
+        XCTAssertTrue(filterModalExists, "Filter modal should be open")
+    }
+    
+    func editSingleRowUpperButton() -> XCUIElement {
+        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"].firstMatch
+    }
+    
+    func editSingleRowLowerButton() -> XCUIElement {
+        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"].firstMatch
+    }
+    
+    func editInsertRowPlusButton() -> XCUIElement {
+        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"].firstMatch
+    }
+    
+    func deleteRowButton() -> XCUIElement {
+        return app.buttons["TableDeleteRowIdentifier"].firstMatch
+    }
+    
+    func selectNestedRow(number: Int) {
+        app.images.matching(identifier: "selectNestedRowItem\(number)")
+            .element.firstMatch.tap()
+    }
+    
+    func moveUpButton() -> XCUIElement {
+        return app.buttons["TableMoveUpRowIdentifier"]
+    }
+    
+    func moveDownButton() -> XCUIElement {
+        return app.buttons["TableMoveDownRowIdentifier"]
+    }
+    func inserRowBelowButton() -> XCUIElement {
+        return app.buttons["TableInsertRowIdentifier"]
+    }
+    
+    func selectRow(number: Int) {
+        //select the row with number as index
+        app.images.matching(identifier: "selectRowItem\(number)")
+            .element.firstMatch.tap()
+    }
+    
+    func testMoveUpState() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        selectRow(number: 1)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(moveUpButton().isEnabled, false)
+        XCTAssertEqual(moveDownButton().isEnabled, true)
+        moveDownButton().tap()
+        goBack()
+        selectRow(number: 1)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(moveUpButton().isEnabled, false)
+        XCTAssertEqual(moveDownButton().isEnabled, true)
+    }
+    
+    func testMoveDownState() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        selectRow(number: 4)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(moveUpButton().isEnabled, true)
+        XCTAssertEqual(moveDownButton().isEnabled, false)
+        moveUpButton().tap()
+        goBack()
+        selectRow(number: 4)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(moveUpButton().isEnabled, true)
+        XCTAssertEqual(moveDownButton().isEnabled, false)
+    }
+    
+    func testMoveUpAndMoveDownButtonAvailableOrNot() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        
+        selectRow(number: 1)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(moveUpButton().exists, true)
+        XCTAssertEqual(moveDownButton().exists, true)
+        XCTAssertEqual(inserRowBelowButton().exists, true)
+        moveDownButton().tap()
+        goBack()
+        selectRow(number: 1)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(moveUpButton().exists, true)
+        XCTAssertEqual(moveDownButton().exists, true)
+        XCTAssertEqual(inserRowBelowButton().exists, true)
+    }
+    
+    func testMoveUpAndMoveDownButtonAvailableOrNotOnMultipleRows() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        selectRow(number: 1)
+        selectRow(number: 2)
+        tapOnMoreButtonCollection()
+        
+        XCTAssertEqual(moveUpButton().exists, false)
+        XCTAssertEqual(moveDownButton().exists, false)
+        XCTAssertEqual(inserRowBelowButton().exists, false)
+        dismissSheet()
+        goBack()
+        selectRow(number: 1)
+        selectRow(number: 2)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(moveUpButton().exists, false)
+        XCTAssertEqual(moveDownButton().exists, false)
+        XCTAssertEqual(inserRowBelowButton().exists, false)
+    }
+    
     func testChangeText() {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
@@ -222,6 +391,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testBulkEditNestedRows() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToCollectionView()
         goToCollectionView(index: 1)
         
@@ -254,6 +426,281 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             let value = cell.value as? String
             XCTAssertEqual(value, "Edit", "Cell \(i) should have value “123.345”, but was \(value ?? "nil")")
         }
+    }
+    
+    
+    // Test disabled buttons on Row Form for nested rows
+    func testSelectOneNestedRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        addThreeNestedRows(parentRowNumber: 2)
+        // Make sure collection search filter is on
+        openFilterModalForDismissKeyboard()
+        sleep(1)
+        expandRow(number: 3)
+        
+        selectNestedRow(number: 2)
+        
+        tapOnMoreButtonCollection()
+        editRowsButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        //go to next row and test
+        editSingleRowLowerButton().tap()
+        editSingleRowLowerButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        
+        //tap inssert below and test
+        editInsertRowPlusButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        dismissSheet()
+        goBack()
+        expandRow(number: 2)
+        expandRow(number: 3)
+        
+        selectNestedRow(number: 2)
+        
+        tapOnMoreButtonCollection()
+        editRowsButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        //go to next row and test
+        editSingleRowLowerButton().tap()
+        editSingleRowLowerButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        
+        //tap inssert below and test
+        editInsertRowPlusButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+    }
+    
+    func selectSchema(_ schemaName: String) {
+        let schemaSelector = app.buttons.matching(identifier: "SelectSchemaTypeIDentifier")
+        schemaSelector.element.firstMatch.tap()
+        
+        let schemaOption = app.buttons[schemaName].firstMatch
+        schemaOption.tap()
+    }
+    
+    func selectColumn(_ columnName: String, selectorIndex: Int = 0) {
+        let selectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
+        let columnSelector = selectors.element(boundBy: selectorIndex)
+        XCTAssertTrue(
+            columnSelector.exists,
+            "Column selector at index \(selectorIndex) should exist"
+        )
+        columnSelector.tap()
+        
+        let columnOption = app.buttons[columnName].firstMatch
+        if !columnOption.exists {
+            XCTFail("Column option should exist")
+        }
+        columnOption.tap()
+    }
+    
+    func enterTextFilter(_ text: String) {
+        let searchField = app.textFields["TextFieldSearchBarIdentifier"]
+        if searchField.exists {
+            searchField.tap()
+            searchField.clearText()
+            searchField.typeText(text)
+        } else {
+            XCTFail("SearchField Should exist")
+        }
+        
+    }
+    
+    func selectDropdownOption(_ optionName: String) {
+        let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
+        if dropdownFilterButton.exists {
+            dropdownFilterButton.tap()
+            
+            let option = app.buttons[optionName].firstMatch
+            if option.exists {
+                option.tap()
+            }
+        } else {
+            XCTFail("Dropdown should exist")
+        }
+    }
+    
+    func selectMultiSelectOption(_ optionName: String) {
+        let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
+        if multiSelectFilterButton.exists {
+            multiSelectFilterButton.tap()
+            
+            let option = app.buttons[optionName].firstMatch
+            if option.exists {
+                option.tap()
+            }
+        } else {
+            XCTFail("MultiSlect filter should exist")
+        }
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+    }
+    
+    func tapApplyButton() {
+        let applyButton = app.buttons["Apply"]
+        if !applyButton.exists {
+            XCTFail("Apply button should exist")
+        }
+        
+        applyButton.tap()
+        
+    }
+    func closeFilterModal() {
+        dismissSheet()
+    }
+    
+    func applyTextFilter(schema: String = "Root Table", column: String, text: String) {
+        openFilterModalCollection()
+        
+        selectSchema(schema)
+        
+        selectColumn(column)
+        enterTextFilter(text)
+        tapApplyButton()
+        closeFilterModal()
+    }
+    
+    func getVisibleRowCount() -> Int {
+        // Count rows using multiple possible row identifiers
+        return rowCount(baseIdentifier: "selectRowItem")
+    }
+    
+    func getVisibleNestexRowsCount() -> Int {
+        return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
+    }
+    
+    /// Scrolls up through the scrollView loading new items by identifier, then scrolls back down.
+    /// Returns the total number of matching images found.
+    func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
+        let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
+        let scrollView = app.scrollViews.firstMatch
+
+        var previousCount = -1
+        var currentCount = 0
+        var attempts = 0
+
+        // Swipe up until no new images load or we hit maxScrolls
+        while attempts < maxScrolls {
+            scrollView.swipeUp()
+            sleep(1)  // allow content to settle
+            currentCount = app.images.matching(predicate).count
+            if currentCount == previousCount { break }
+            previousCount = currentCount
+            attempts += 1
+        }
+
+        // Reset counter and swipe back down until stable
+        attempts = 0
+        while attempts < maxScrolls {
+            scrollView.swipeDown()
+            sleep(1)
+            let newCount = app.images.matching(predicate).count
+            if newCount == previousCount { break }
+            previousCount = newCount
+            attempts += 1
+        }
+
+        return currentCount
+    }
+    
+    func rowCount(baseIdentifier: String) -> Int {
+        let beginsWith = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
+        return app.images.matching(beginsWith).count
+    }
+    
+    func openFilterModalCollection() {
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        if !filterButton.exists {
+            XCTFail("Filter button should exist")
+        }
+        
+        filterButton.firstMatch.tap()
+        
+        // Verify filter modal opened
+        let filterModalExists = app.staticTexts["Filter"].exists
+        XCTAssertTrue(filterModalExists, "Filter modal should be open")
+    }
+    
+    func testDeleteAllRowsApplyFiltersThenReAddAndFilterDepth2() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        
+        // Step 1: Delete all rows
+        app.images["SelectParentAllRowSelectorButton"].firstMatch.tap()
+        tapOnMoreButtonCollection()
+        app.buttons["TableDeleteRowIdentifier"].firstMatch.tap()
+        
+        // Step 2: Apply a filter after all rows are deleted
+        applyTextFilter(column: "Text D1", text: "Test")
+        let filteredCount = getVisibleRowCount()
+        XCTAssertEqual(filteredCount, 0, "Filtered count should be 0 after deleting all rows")
+        
+        // Clear existing filters before deleting
+        openFilterModalCollection()
+        enterTextFilter("")
+        tapApplyButton()
+        
+        // Step 3: Add 3 new root rows
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        addRowButton.tap()
+        addRowButton.tap()
+        addRowButton.tap()
+        
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("", firstNestedTextField.value as! String)
+        firstNestedTextField.tap()
+        firstNestedTextField.typeText("quick")
+        
+        let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy:2)
+        XCTAssertEqual("", secNestedTextField.value as! String)
+        secNestedTextField.tap()
+        secNestedTextField.typeText("Two")
+        
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123")
+        
+        goBack()
+        expandRow(number: 1)
+        // Step 7: Apply filter in Depth 2 for text "Hello"
+        applyTextFilter(schema: "Depth 2", column: "Text D2", text: "Two")
+        
+        // Step 8: Validate filtered results
+        let parentRowsCount = getVisibleRowCount()
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(parentRowsCount, 1, "Expected 1 parent row matching 'Hello'")
+        XCTAssertEqual(nestedRowsCount, 1, "Expected 1 nested row matching 'Hello'")
         
     }
     
@@ -424,6 +871,24 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         return outputFormatter.string(from: date)
     }
     
+    func testInsertBelowCollection() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        
+        selectRow(number: 1)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(inserRowBelowButton().exists, true)
+        inserRowBelowButton().tap()
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("qu")
+        goBack()
+        XCTAssertEqual(firstTableTextField.value as! String, "qu")
+    }
+    
     func testTableDetailView() {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
@@ -573,6 +1038,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testTableNumberTextField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -610,6 +1078,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
  
     // Test case for filter data
     func testSearchFilterForNumberTextField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         let firstTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
@@ -643,6 +1114,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
  
     // Insert row with filter text
     func testInsertRowWithFilterNumberTextField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         let firstTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
@@ -686,6 +1160,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Add Row with filter text
     func testAddRowWithFilterNumberField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -733,6 +1210,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Bulk Edit - Single row
     func testBulkEditNumberFieldSingleRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         let firstTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
@@ -758,6 +1238,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Bulk Edit - Edit all Rows
     func testBulkEditNumberFieldEditAllRows() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         let firstTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
@@ -794,6 +1277,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Sorting Test case
     func testSortingNumberField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         let firstTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
@@ -858,6 +1344,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Bulk single edit test case
     func testBulkEditDateFieldSingleRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -873,6 +1362,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
       
     // Change selected time
     func testChangeTimePicker() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         let headerTimeLabel = app.buttons.matching(identifier: "12:00 AM").element(boundBy: 0)
@@ -898,6 +1390,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
       
     // Change existing value
     func testChangeMultiSelectionOptionValue() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
                         
@@ -930,6 +1425,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Bulk Edit - Single Row edit
     func testMultiSelectionBulkEditOnSingleRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
                         
@@ -958,6 +1456,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Bulk Edit - All Row edit
     func testMultiSelectionBulkEditOnAllRows() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         tapOnMoreButton()
@@ -994,6 +1495,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     // Add row - Check defalut column value is set on added new row
     func testDefaultColumnValueOnAddRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         app.buttons["TableAddRowIdentifier"].firstMatch.tap()
@@ -1020,6 +1524,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Insert row - Check defalut column value is set on Inserted row
     func testInsertRowDefaultColumnValue() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
@@ -1048,6 +1555,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
      
     // Simple add data in field and tap on scan button
     func testBarcodeScanButtonValue() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1092,6 +1602,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Bulk Edit - Edit all Rows
     func testBulkEditBarcodeFieldEditAllRows() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1123,6 +1636,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Bulk Edit - Edit Single Rows
     func testBulkEditBarcodeFieldEditSingleRows() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1148,6 +1664,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testClearExistingSignature() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1164,6 +1683,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testSaveNewSignature() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1185,6 +1707,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testDeleteAllRowsAndCheckColumnClickability() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         tapOnMoreButton()
@@ -1203,6 +1728,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testTableDeleteMovedUpRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1233,6 +1761,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Delete Moved down row
     func testTableDeleteMovedDownRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1263,6 +1794,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     // Delete row then add row
     func testTableDeleteAddRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1294,6 +1828,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func testCheckMoveUpDownButtonDisable() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
         goToTableDetailPage()
         goToTableDetailPage()
         
@@ -1308,6 +1845,25 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
         let moveDownButton = app.buttons["TableMoveDownRowIdentifier"].firstMatch
         XCTAssertFalse(moveDownButton.isEnabled)
+    }
+    
+    func testInsertBelowTable() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToTableDetailPage()
+        goToTableDetailPage()
+        
+        let checkButtons = app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton")
+        checkButtons.element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
+        XCTAssertEqual(inserRowBelowButton().exists, true)
+        inserRowBelowButton().tap()
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("qu")
+        goBack()
+        XCTAssertEqual(firstTableTextField.value as! String, "qu")
     }
 }
 
