@@ -1,1 +1,1 @@
-let sdkVersion: String = "1.0.0"
+let sdkVersion: String = "beta-5"

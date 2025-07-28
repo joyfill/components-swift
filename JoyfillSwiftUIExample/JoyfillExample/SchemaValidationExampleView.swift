@@ -431,7 +431,7 @@ struct SchemaValidationExampleView: View {
 }
 
 fileprivate func formatValidationErrors(error: SchemaValidationError) -> String {
-    var details = "Schema Version: \(error.details.schemaVersion)\nSDK Version: \(error.details.sdkVersion)\n\n"
+    var details = "Schema Version: \(error.details.schemaVersion)\nSDK Version: \(error.details.sdkVersion)\n\n Message: \(error.message)\n\n"
     
     if let validationErrors = error.error {
         details += "Validation Errors (\(validationErrors.count)):\n"

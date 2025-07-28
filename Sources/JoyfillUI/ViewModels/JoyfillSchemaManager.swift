@@ -60,7 +60,7 @@ public class JoyfillSchemaManager {
                 code: "ERROR_SCHEMA_VERSION",
                 message: "Unsupported JoyDoc version detected. This SDK supports v\(supportedMajorVersion).x.x, but document version is v\(detectedVersion)", error: nil,
                 details: .init(
-                    schemaVersion: detectedVersion,
+                    schemaVersion: currentSchemaVersion(),
                     sdkVersion: sdkVersion
                 )
             )
@@ -126,5 +126,13 @@ public class JoyfillSchemaManager {
     
     private func getSchemaVersion(from schemaDict: [String: Any]) -> String {
         return schemaDict["$joyfillSchemaVersion"] as? String ?? "unknown"
+    }
+
+    private func currentSchemaVersion() -> String {
+        guard let data = getCurrentSchema().data(using: .utf8),
+              let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
+            return "unknown"
+        }
+        return getSchemaVersion(from: dict)
     }
 }
