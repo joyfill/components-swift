@@ -342,6 +342,7 @@
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
 		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
+		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
 		E2F568672E2A4556005216A6 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568652E2A4556005216A6 /* DateTimeFieldUITestCases.swift */; };
 		E2F568682E2A4556005216A6 /* DateTimeFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568642E2A4556005216A6 /* DateTimeFieldTests.swift */; };
 		E2F568692E2A4556005216A6 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568632E2A4556005216A6 /* DateTimeFieldTestData.json */; };
@@ -625,6 +626,7 @@
 			files = (
 				36143FF72E2F57DA006B9048 /* Joyfill in Frameworks */,
 				36143FF52E2F57D5006B9048 /* JoyfillModel in Frameworks */,
+				E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1206,6 +1208,7 @@
 			packageProductDependencies = (
 				36143FF42E2F57D5006B9048 /* JoyfillModel */,
 				36143FF62E2F57DA006B9048 /* Joyfill */,
+				E2CC9FEF2E377AA800797331 /* JSONSchema */,
 			);
 			productName = JoyfillTests;
 			productReference = 134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */;
@@ -2243,6 +2246,11 @@
 		E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillAPIService;
+		};
+		E2CC9FEF2E377AA800797331 /* JSONSchema */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36143FFA2E2F57F3006B9048 /* XCRemoteSwiftPackageReference "JSONSchema" */;
+			productName = JSONSchema;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;

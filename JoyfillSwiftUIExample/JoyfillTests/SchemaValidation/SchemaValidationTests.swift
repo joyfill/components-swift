@@ -25,9 +25,8 @@ final class SchemaValidationTests: XCTestCase {
             .setPageField()
                     
         let schemaManager = JoyfillSchemaManager()
-        if let error = schemaManager.validateSchema(document: document) {
-            XCTAssertEqual("ERROR_SCHEMA_VERSION", error.code)
-        }
+        let error = schemaManager.validateSchema(document: document)
+        XCTAssertEqual("ERROR_SCHEMA_VERSION", error?.code)
         //check sdkversion and schema version
     }
     
@@ -39,10 +38,9 @@ final class SchemaValidationTests: XCTestCase {
             .setPageField()
                     
         let schemaManager = JoyfillSchemaManager()
-        if let error = schemaManager.validateSchema(document: document) {
-            XCTAssertNotEqual("ERROR_SCHEMA_VERSION", error.code)
-            XCTAssertEqual("ERROR_SCHEMA_VALIDATION", error.code)
-        }
+        let error = schemaManager.validateSchema(document: document)
+        XCTAssertNotEqual("ERROR_SCHEMA_VERSION", error?.code)
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", error?.code)
     }
     
     func testVersionWithPoints() {
@@ -79,10 +77,43 @@ final class SchemaValidationTests: XCTestCase {
             .setPageField()
                     
         let schemaManager = JoyfillSchemaManager()
-        if let error = schemaManager.validateSchema(document: document) {
-            XCTAssertNotEqual("ERROR_SCHEMA_VERSION", error.code)
-            XCTAssertEqual("ERROR_SCHEMA_VALIDATION", error.code)
-        }
+        let error = schemaManager.validateSchema(document: document)
+        XCTAssertNotEqual("ERROR_SCHEMA_VERSION", error?.code)
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", error?.code)
+    }
+
+    func testValidateSchema_RequiredFieldsMissing_ReturnsError() {
+        let docMissingFields = JoyDoc(dictionary: [
+            "identifier": "doc-missing-fields",
+            "name": "Example"
+            // deliberately omitting: files / fields / stage
+        ])
+        
+        let schemaManager = JoyfillSchemaManager()
+        let error = schemaManager.validateSchema(document: docMissingFields)
+        
+        XCTAssertNotNil(error, "SchemaManager should report an error when required properties are missing")
+        XCTAssertEqual(error?.code, "ERROR_SCHEMA_VALIDATION")
+        
+        XCTAssertTrue(error?.error?.count ?? 0 > 0, "ValidationErrors array should contain at least one entry")
+        
+        XCTAssertEqual(error?.details.schemaVersion, "1.0.0")
+        XCTAssertEqual(error?.details.sdkVersion, "beta-5")
+    }
+    
+    func testValidateSchema_InvalidPropertyTypes_ReturnsError() {
+        let badTypeDoc = JoyDoc(dictionary: [
+            "identifier": 12345,
+            "name": ["not", "a", "string"],
+            "fields": "oops"
+        ])
+        
+        let schemaManager = JoyfillSchemaManager()
+        let error = schemaManager.validateSchema(document: badTypeDoc)
+        
+        XCTAssertNotNil(error, "Error expected when property types are incorrect")
+        XCTAssertEqual(error?.code, "ERROR_SCHEMA_VALIDATION")
+        XCTAssertTrue((error?.error?.count ?? 0) > 0)
     }
 }
 
