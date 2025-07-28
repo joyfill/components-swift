@@ -11,6 +11,10 @@ import JoyfillModel
 import Joyfill
 
 final class SchemaValidationTests: XCTestCase {
+    /// The schema version expected in `SchemaValidationError.details`.
+    private let expectedSchemaVersion = "1.0.0"
+    private let sdkVersion = "beta-5"
+    
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document)
     }
@@ -27,7 +31,8 @@ final class SchemaValidationTests: XCTestCase {
         let schemaManager = JoyfillSchemaManager()
         let error = schemaManager.validateSchema(document: document)
         XCTAssertEqual("ERROR_SCHEMA_VERSION", error?.code)
-        //check sdkversion and schema version
+        XCTAssertEqual(expectedSchemaVersion, error?.details.schemaVersion)
+        XCTAssertEqual(sdkVersion, error?.details.sdkVersion)
     }
     
     func testVersion() {
@@ -41,6 +46,7 @@ final class SchemaValidationTests: XCTestCase {
         let error = schemaManager.validateSchema(document: document)
         XCTAssertNotEqual("ERROR_SCHEMA_VERSION", error?.code)
         XCTAssertEqual("ERROR_SCHEMA_VALIDATION", error?.code)
+        XCTAssertEqual(expectedSchemaVersion, error?.details.schemaVersion)
     }
     
     func testVersionWithPoints() {
@@ -80,6 +86,22 @@ final class SchemaValidationTests: XCTestCase {
         let error = schemaManager.validateSchema(document: document)
         XCTAssertNotEqual("ERROR_SCHEMA_VERSION", error?.code)
         XCTAssertEqual("ERROR_SCHEMA_VALIDATION", error?.code)
+        XCTAssertEqual(expectedSchemaVersion, error?.details.schemaVersion)
+    }
+
+    func testVersionError_ReturnsCurrentSchemaVersion() {
+        let doc = JoyDoc(dictionary: [
+            "v": "2",
+            "identifier": "ver-doc",
+            "name": "Version Doc",
+            "fields": [],
+            "stage": "published"
+        ])
+        let manager = JoyfillSchemaManager()
+        let error = manager.validateSchema(document: doc)
+        
+        XCTAssertEqual(error?.code, "ERROR_SCHEMA_VERSION")
+        XCTAssertEqual(error?.details.schemaVersion, expectedSchemaVersion)
     }
 
     func testValidateSchema_RequiredFieldsMissing_ReturnsError() {
@@ -96,9 +118,8 @@ final class SchemaValidationTests: XCTestCase {
         XCTAssertEqual(error?.code, "ERROR_SCHEMA_VALIDATION")
         
         XCTAssertTrue(error?.error?.count ?? 0 > 0, "ValidationErrors array should contain at least one entry")
-        
-        XCTAssertEqual(error?.details.schemaVersion, "1.0.0")
-        XCTAssertEqual(error?.details.sdkVersion, "beta-5")
+        XCTAssertEqual(error?.details.schemaVersion, expectedSchemaVersion)
+        XCTAssertEqual(error?.details.sdkVersion, sdkVersion)
     }
     
     func testValidateSchema_InvalidPropertyTypes_ReturnsError() {
