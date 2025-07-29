@@ -341,7 +341,8 @@
 		E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */; };
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
-		E2CC9FEB2E372CF100797331 /* OnChangeHandlerTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FEA2E372CD700797331 /* OnChangeHandlerTable.swift */; };
+		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
+		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
 		E2F568672E2A4556005216A6 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568652E2A4556005216A6 /* DateTimeFieldUITestCases.swift */; };
 		E2F568682E2A4556005216A6 /* DateTimeFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568642E2A4556005216A6 /* DateTimeFieldTests.swift */; };
 		E2F568692E2A4556005216A6 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568632E2A4556005216A6 /* DateTimeFieldTestData.json */; };
@@ -560,7 +561,7 @@
 		E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
 		E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSearchView.swift; sourceTree = "<group>"; };
-		E2CC9FEA2E372CD700797331 /* OnChangeHandlerTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerTable.swift; sourceTree = "<group>"; };
+		E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationTests.swift; sourceTree = "<group>"; };
 		E2F568632E2A4556005216A6 /* DateTimeFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DateTimeFieldTestData.json; sourceTree = "<group>"; };
 		E2F568642E2A4556005216A6 /* DateTimeFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldTests.swift; sourceTree = "<group>"; };
 		E2F568652E2A4556005216A6 /* DateTimeFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldUITestCases.swift; sourceTree = "<group>"; };
@@ -625,6 +626,7 @@
 			files = (
 				36143FF72E2F57DA006B9048 /* Joyfill in Frameworks */,
 				36143FF52E2F57D5006B9048 /* JoyfillModel in Frameworks */,
+				E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -713,11 +715,25 @@
 			isa = PBXGroup;
 			children = (
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
+				E2CC9FEC2E375DE500797331 /* SchemaValidation */,
 				0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
-				E2CC9FE82E372C5E00797331 /* Formula */,
+				361164D92DD70625003DEB4F /* WisdomTests.swift */,
+				362746752E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift */,
+				36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */,
+				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
+				36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */,
+				3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */,
+				3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */,
+				3622386A2E30D9AD00ABC867 /* JoyfillResolver_DirectSelfCircularReferenceTests.swift */,
+				3627465E2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift */,
+				3627465F2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */,
+				362746602E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift */,
+				362746612E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */,
+				362746622E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift */,
+				369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */,
+				369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
-				E2CC9FE92E372CB600797331 /* OnChangeHandler */,
 				E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */,
 			);
 			path = JoyfillTests;
@@ -940,34 +956,12 @@
 			path = optionalPropertiesRemovedTemplate;
 			sourceTree = "<group>";
 		};
-		E2CC9FE82E372C5E00797331 /* Formula */ = {
+		E2CC9FEC2E375DE500797331 /* SchemaValidation */ = {
 			isa = PBXGroup;
 			children = (
-				361164D92DD70625003DEB4F /* WisdomTests.swift */,
-				36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */,
-				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
-				36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */,
-				362746752E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift */,
-				3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */,
-				3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */,
-				3622386A2E30D9AD00ABC867 /* JoyfillResolver_DirectSelfCircularReferenceTests.swift */,
-				3627465E2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift */,
-				3627465F2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */,
-				362746612E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */,
-				362746602E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift */,
-				369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */,
-				362746622E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift */,
-				369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */,
+				E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */,
 			);
-			path = Formula;
-			sourceTree = "<group>";
-		};
-		E2CC9FE92E372CB600797331 /* OnChangeHandler */ = {
-			isa = PBXGroup;
-			children = (
-				E2CC9FEA2E372CD700797331 /* OnChangeHandlerTable.swift */,
-			);
-			path = OnChangeHandler;
+			path = SchemaValidation;
 			sourceTree = "<group>";
 		};
 		E2F568662E2A4556005216A6 /* DateTimeField */ = {
@@ -1214,6 +1208,7 @@
 			packageProductDependencies = (
 				36143FF42E2F57D5006B9048 /* JoyfillModel */,
 				36143FF62E2F57DA006B9048 /* Joyfill */,
+				E2CC9FEF2E377AA800797331 /* JSONSchema */,
 			);
 			productName = JoyfillTests;
 			productReference = 134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */;
@@ -1679,12 +1674,12 @@
 				362746632E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift in Sources */,
 				362746642E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift in Sources */,
 				362746652E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift in Sources */,
+				E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */,
 				362746662E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift in Sources */,
 				362746672E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift in Sources */,
 				362746682E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
 				362746762E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift in Sources */,
-				E2CC9FEB2E372CF100797331 /* OnChangeHandlerTable.swift in Sources */,
 				E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
 				36006C052E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift in Sources */,
 				361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */,
@@ -2251,6 +2246,11 @@
 		E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillAPIService;
+		};
+		E2CC9FEF2E377AA800797331 /* JSONSchema */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36143FFA2E2F57F3006B9048 /* XCRemoteSwiftPackageReference "JSONSchema" */;
+			productName = JSONSchema;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;

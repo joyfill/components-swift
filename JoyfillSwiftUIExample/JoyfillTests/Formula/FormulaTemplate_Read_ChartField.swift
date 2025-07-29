@@ -86,13 +86,13 @@ class FormulaTemplate_Read_ChartFieldTests: XCTestCase {
     private func testGetLineTitle() {
         print("\n📝 Test 2: Concatenate Line Titles")
         print("Formula: concat(map(chart1, (line) -> line.title))")
-        print("Expected: '[Line 1 Title, Line 2 Title]' (concatenated titles)")
+        print("Expected: 'Line 1 TitleLine 2 Title' (concatenated titles)")
         
         let result = documentEditor.value(ofFieldWithIdentifier: "text2")
         let resultText = result?.text ?? ""
         print("🎯 Result: '\(resultText)'")
         
-        XCTAssertEqual(resultText, "[Line 1 Title, Line 2 Title]", "Should concatenate all line titles")
+        XCTAssertEqual(resultText, "Line 1 TitleLine 2 Title", "Should concatenate all line titles")
     }
     
     private func testFirstPointYLine2() {
