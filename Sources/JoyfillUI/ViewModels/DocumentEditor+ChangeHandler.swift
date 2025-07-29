@@ -536,7 +536,8 @@ extension DocumentEditor {
         guard shouldSendEvent else { return (elements,newRow) }
         
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
-        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
+        let index = elements.filter({ $0.deleted != true }).count - 1
+        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: index)])
         return (elements,newRow)
     }
     
