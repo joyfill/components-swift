@@ -66,7 +66,6 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         guard shouldSendEvent else { return elements }
-        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
         return elements
