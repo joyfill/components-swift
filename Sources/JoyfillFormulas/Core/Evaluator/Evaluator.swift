@@ -245,7 +245,13 @@ public class Evaluator {
             case (.undefined, .undefined): return .success(.boolean(true)) // undefined == undefined is true
             case (.null, .undefined): return .success(.boolean(false)) // null == undefined is false
             case (.undefined, .null): return .success(.boolean(false)) // undefined == null is false
-            default: return .success(.boolean(left == right)) // Use default equality for other types
+            // Same type comparisons
+            case (.string(let l), .string(let r)): return .success(.boolean(l == r))
+            case (.number(let l), .number(let r)): return .success(.boolean(l == r))
+            case (.boolean(let l), .boolean(let r)): return .success(.boolean(l == r))
+            case (.date(let l), .date(let r)): return .success(.boolean(l == r))
+            // Cross-type comparisons - different types are never equal
+            default: return .success(.boolean(false))
             }
         case "!=": 
             // != should be the logical negation of ==
@@ -256,7 +262,13 @@ public class Evaluator {
             case (.undefined, .undefined): return .success(.boolean(false)) // undefined == undefined is true, so undefined != undefined is false
             case (.null, .undefined): return .success(.boolean(true)) // null == undefined is false, so null != undefined is true
             case (.undefined, .null): return .success(.boolean(true)) // undefined == null is false, so undefined != null is true
-            default: return .success(.boolean(left != right)) // Use default inequality for other types
+            // Same type comparisons
+            case (.string(let l), .string(let r)): return .success(.boolean(l != r))
+            case (.number(let l), .number(let r)): return .success(.boolean(l != r))
+            case (.boolean(let l), .boolean(let r)): return .success(.boolean(l != r))
+            case (.date(let l), .date(let r)): return .success(.boolean(l != r))
+            // Cross-type comparisons - different types are always not equal
+            default: return .success(.boolean(true))
             }
 
         case ">":

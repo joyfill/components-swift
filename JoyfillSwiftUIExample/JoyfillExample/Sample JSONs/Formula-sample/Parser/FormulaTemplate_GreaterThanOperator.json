@@ -3,8 +3,6 @@
   "identifier": "doc_greater_than_operator_doc",
   "name": "Greater Than Operator",
   "type": "document",
-  "createdOn": 31232313,
-  "deleted": false,
   "files": [
     {
       "_id": "file1",
@@ -309,8 +307,7 @@
       ],
       "styles": {
         "margin": 4
-      },
-      "views": []
+      }
     }
   ],
   "fields": [
@@ -324,7 +321,7 @@
       "formulas": [
         {
           "_id": "text1Formula",
-          "formula": "if1GreaterThan1Working",
+          "formula": "ifPositive1GreaterThanPositive1Working",
           "key": "value"
         }
       ]
@@ -369,7 +366,7 @@
       "formulas": [
         {
           "_id": "text4Formula",
-          "formula": "if1GreaterThan1Working",
+          "formula": "ifPositive1GreaterThanNegative1Working",
           "key": "value"
         }
       ]
@@ -684,7 +681,7 @@
       "formulas": [
         {
           "_id": "text25Formula",
-          "formula": "ifGreaterThan1Working",
+          "formula": "ifArrayGreaterThan1Working",
           "key": "value"
         }
       ]
@@ -714,7 +711,7 @@
       "formulas": [
         {
           "_id": "text27Formula",
-          "formula": "ifGreaterThan1Working",
+          "formula": "ifObjectGreaterThan1Working",
           "key": "value"
         }
       ]
@@ -737,197 +734,197 @@
   ],
   "formulas": [
     {
-      "_id": "if1GreaterThan1Working",
-      "desc": "Evaluate: 1 > 1",
+      "_id": "ifPositive1GreaterThanPositive1Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(1 > 1, \"Broken\", \"Working\")"
     },
     {
       "_id": "if12GreaterThan10Working",
-      "desc": "Evaluate: 12 > 10",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(12 > 10, \"Working\", \"Broken\")"
     },
     {
       "_id": "if12GreaterThan1Working",
-      "desc": "Evaluate: 1.2 > 1",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(1.2 > 1, \"Working\", \"Broken\")"
     },
     {
-      "_id": "if1GreaterThan1Working",
-      "desc": "Evaluate: 1 > -1",
+      "_id": "ifPositive1GreaterThanNegative1Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(1 > -1, \"Working\", \"Broken\")"
     },
     {
       "_id": "if1GreaterThan2Working",
-      "desc": "Evaluate: -1 > -2",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(-1 > -2, \"Working\", \"Broken\")"
     },
     {
       "_id": "if3GreaterThan3Working",
-      "desc": "Evaluate: -3 > -3",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(-3 > -3, \"Broken\", \"Working\")"
     },
     {
       "_id": "if0GreaterThan1Working",
-      "desc": "Evaluate: 0 > -1",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(0 > -1, \"Working\", \"Broken\")"
     },
     {
       "_id": "if0GreaterThan0Working",
-      "desc": "Evaluate: 0 > 0",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(0 > 0, \"Broken\", \"Working\")"
     },
     {
       "_id": "if100GreaterThan99Working",
-      "desc": "Evaluate: 100 > 99",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(100 > 99, \"Working\", \"Broken\")"
     },
     {
       "_id": "if100GreaterThan101Working",
-      "desc": "Evaluate: -100 > -101",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(-100 > -101, \"Working\", \"Broken\")"
     },
     {
       "_id": "if10GreaterThan105Working",
-      "desc": "Evaluate: 10 > 10.5",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(10 > 10.5, \"Broken\", \"Working\")"
     },
     {
       "_id": "if1GreaterThan1Working",
-      "desc": "Evaluate: -1 > 1",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(-1 > 1, \"Broken\", \"Working\")"
     },
     {
       "_id": "if3GreaterThan2Working",
-      "desc": "Evaluate: 3 > 2",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(3 > 2, \"Working\", \"Broken\")"
     },
     {
       "_id": "if2GreaterThan3Working",
-      "desc": "Evaluate: 2 > 3",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(2 > 3, \"Broken\", \"Working\")"
     },
     {
       "_id": "if10GreaterThan5Working",
-      "desc": "Evaluate: \"10\" > 5",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"10\" > 5, \"Broken\", \"Working\")"
     },
     {
       "_id": "if5GreaterThan1Working",
-      "desc": "Evaluate: \"5\" > \"1\"",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"5\" > \"1\", \"Broken\", \"Working\")"
     },
     {
       "_id": "ifhelloGreaterThanabcWorking",
-      "desc": "Evaluate: \"hello\" > \"abc\"",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"hello\" > \"abc\", \"Broken\", \"Working\")"
     },
     {
       "_id": "iftrueGreaterThanfalseWorking",
-      "desc": "Evaluate: true > false",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(true > false, \"Broken\", \"Working\")"
     },
     {
       "_id": "iffalseGreaterThantrueWorking",
-      "desc": "Evaluate: false > true",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(false > true, \"Broken\", \"Working\")"
     },
     {
       "_id": "iftrueGreaterThan1Working",
-      "desc": "Evaluate: true > 1",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(true > 1, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifnullGreaterThan0Working",
-      "desc": "Evaluate: null > 0",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null > 0, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifnullGreaterThannullWorking",
-      "desc": "Evaluate: null > null",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null > null, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifGreaterThan0Working",
-      "desc": "Evaluate: \"\" > 0",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"\" > 0, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifabcGreaterThan0Working",
-      "desc": "Evaluate: \"abc\" > 0",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"abc\" > 0, \"Broken\", \"Working\")"
     },
     {
-      "_id": "ifGreaterThan1Working",
-      "desc": "Evaluate: [] > 1",
+      "_id": "ifArrayGreaterThan1Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([] > 1, \"Broken\", \"Working\")"
     },
     {
       "_id": "if1GreaterThan0Working",
-      "desc": "Evaluate: [1] > 0",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([1] > 0, \"Broken\", \"Working\")"
     },
     {
-      "_id": "ifGreaterThan1Working",
-      "desc": "Evaluate: {} > 1",
+      "_id": "ifObjectGreaterThan1Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({} > 1, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifa1GreaterThan1Working",
-      "desc": "Evaluate: { a: 1 } > 1",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({ a: 1 } > 1, \"Broken\", \"Working\")"
