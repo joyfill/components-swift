@@ -31,13 +31,13 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let identifier = "CollectionExpandCollapseButton\(number)"
         
         guard let expandButton = app.swipeToFindElement(identifier: identifier,
-                                                    type: .image,
-                                                    direction: "up",
-                                                    maxAttempts: 6) else {
+                                                        type: .image,
+                                                        direction: "up",
+                                                        maxAttempts: 6) else {
             XCTFail("Failed to find expand/collapse button with identifier: \(identifier)")
             return
         }
-
+        
         XCTAssertTrue(expandButton.isHittable, "Expand/collapse button is not hittable")
         expandButton.tap()
     }
@@ -149,6 +149,157 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         //select the row with number as index
         app.images.matching(identifier: "selectRowItem\(number)")
             .element.firstMatch.tap()
+    }
+    
+    
+    func selectSchema(_ schemaName: String) {
+        let schemaSelector = app.buttons.matching(identifier: "SelectSchemaTypeIDentifier")
+        schemaSelector.element.firstMatch.tap()
+        
+        let schemaOption = app.buttons[schemaName].firstMatch
+        schemaOption.tap()
+    }
+    
+    func selectColumn(_ columnName: String, selectorIndex: Int = 0) {
+        let selectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
+        let columnSelector = selectors.element(boundBy: selectorIndex)
+        XCTAssertTrue(
+            columnSelector.exists,
+            "Column selector at index \(selectorIndex) should exist"
+        )
+        columnSelector.tap()
+        
+        let columnOption = app.buttons[columnName].firstMatch
+        if !columnOption.exists {
+            XCTFail("Column option should exist")
+        }
+        columnOption.tap()
+    }
+    
+    func enterTextFilter(_ text: String) {
+        let searchField = app.textFields["TextFieldSearchBarIdentifier"]
+        if searchField.exists {
+            searchField.tap()
+            searchField.clearText()
+            searchField.typeText(text)
+        } else {
+            XCTFail("SearchField Should exist")
+        }
+        
+    }
+    
+    func selectDropdownOption(_ optionName: String) {
+        let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
+        if dropdownFilterButton.exists {
+            dropdownFilterButton.tap()
+            
+            let option = app.buttons[optionName].firstMatch
+            if option.exists {
+                option.tap()
+            }
+        } else {
+            XCTFail("Dropdown should exist")
+        }
+    }
+    
+    func selectMultiSelectOption(_ optionName: String) {
+        let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
+        if multiSelectFilterButton.exists {
+            multiSelectFilterButton.tap()
+            
+            let option = app.buttons[optionName].firstMatch
+            if option.exists {
+                option.tap()
+            }
+        } else {
+            XCTFail("MultiSlect filter should exist")
+        }
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+    }
+    
+    func tapApplyButton() {
+        let applyButton = app.buttons["Apply"]
+        if !applyButton.exists {
+            XCTFail("Apply button should exist")
+        }
+        
+        applyButton.tap()
+        
+    }
+    func closeFilterModal() {
+        dismissSheet()
+    }
+    
+    func applyTextFilter(schema: String = "Root Table", column: String, text: String) {
+        openFilterModalCollection()
+        
+        selectSchema(schema)
+        
+        selectColumn(column)
+        enterTextFilter(text)
+        tapApplyButton()
+        closeFilterModal()
+    }
+    
+    func getVisibleRowCount() -> Int {
+        // Count rows using multiple possible row identifiers
+        return rowCount(baseIdentifier: "selectRowItem")
+    }
+    
+    func getVisibleNestexRowsCount() -> Int {
+        return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
+    }
+    
+    /// Scrolls up through the scrollView loading new items by identifier, then scrolls back down.
+    /// Returns the total number of matching images found.
+    func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
+        let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
+        let scrollView = app.scrollViews.firstMatch
+        
+        var previousCount = -1
+        var currentCount = 0
+        var attempts = 0
+        
+        // Swipe up until no new images load or we hit maxScrolls
+        while attempts < maxScrolls {
+            scrollView.swipeUp()
+            sleep(1)  // allow content to settle
+            currentCount = app.images.matching(predicate).count
+            if currentCount == previousCount { break }
+            previousCount = currentCount
+            attempts += 1
+        }
+        
+        // Reset counter and swipe back down until stable
+        attempts = 0
+        while attempts < maxScrolls {
+            scrollView.swipeDown()
+            sleep(1)
+            let newCount = app.images.matching(predicate).count
+            if newCount == previousCount { break }
+            previousCount = newCount
+            attempts += 1
+        }
+        
+        return currentCount
+    }
+    
+    func rowCount(baseIdentifier: String) -> Int {
+        let beginsWith = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
+        return app.images.matching(beginsWith).count
+    }
+    
+    func openFilterModalCollection() {
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        if !filterButton.exists {
+            XCTFail("Filter button should exist")
+        }
+        
+        filterButton.firstMatch.tap()
+        
+        // Verify filter modal opened
+        let filterModalExists = app.staticTexts["Filter"].exists
+        XCTAssertTrue(filterModalExists, "Filter modal should be open")
     }
     
     func testMoveUpState() {
@@ -493,155 +644,6 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
     }
     
-    func selectSchema(_ schemaName: String) {
-        let schemaSelector = app.buttons.matching(identifier: "SelectSchemaTypeIDentifier")
-        schemaSelector.element.firstMatch.tap()
-        
-        let schemaOption = app.buttons[schemaName].firstMatch
-        schemaOption.tap()
-    }
-    
-    func selectColumn(_ columnName: String, selectorIndex: Int = 0) {
-        let selectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
-        let columnSelector = selectors.element(boundBy: selectorIndex)
-        XCTAssertTrue(
-            columnSelector.exists,
-            "Column selector at index \(selectorIndex) should exist"
-        )
-        columnSelector.tap()
-        
-        let columnOption = app.buttons[columnName].firstMatch
-        if !columnOption.exists {
-            XCTFail("Column option should exist")
-        }
-        columnOption.tap()
-    }
-    
-    func enterTextFilter(_ text: String) {
-        let searchField = app.textFields["TextFieldSearchBarIdentifier"]
-        if searchField.exists {
-            searchField.tap()
-            searchField.clearText()
-            searchField.typeText(text)
-        } else {
-            XCTFail("SearchField Should exist")
-        }
-        
-    }
-    
-    func selectDropdownOption(_ optionName: String) {
-        let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
-        if dropdownFilterButton.exists {
-            dropdownFilterButton.tap()
-            
-            let option = app.buttons[optionName].firstMatch
-            if option.exists {
-                option.tap()
-            }
-        } else {
-            XCTFail("Dropdown should exist")
-        }
-    }
-    
-    func selectMultiSelectOption(_ optionName: String) {
-        let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
-        if multiSelectFilterButton.exists {
-            multiSelectFilterButton.tap()
-            
-            let option = app.buttons[optionName].firstMatch
-            if option.exists {
-                option.tap()
-            }
-        } else {
-            XCTFail("MultiSlect filter should exist")
-        }
-        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-    }
-    
-    func tapApplyButton() {
-        let applyButton = app.buttons["Apply"]
-        if !applyButton.exists {
-            XCTFail("Apply button should exist")
-        }
-        
-        applyButton.tap()
-        
-    }
-    func closeFilterModal() {
-        dismissSheet()
-    }
-    
-    func applyTextFilter(schema: String = "Root Table", column: String, text: String) {
-        openFilterModalCollection()
-        
-        selectSchema(schema)
-        
-        selectColumn(column)
-        enterTextFilter(text)
-        tapApplyButton()
-        closeFilterModal()
-    }
-    
-    func getVisibleRowCount() -> Int {
-        // Count rows using multiple possible row identifiers
-        return rowCount(baseIdentifier: "selectRowItem")
-    }
-    
-    func getVisibleNestexRowsCount() -> Int {
-        return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
-    }
-    
-    /// Scrolls up through the scrollView loading new items by identifier, then scrolls back down.
-    /// Returns the total number of matching images found.
-    func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
-        let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
-        let scrollView = app.scrollViews.firstMatch
-
-        var previousCount = -1
-        var currentCount = 0
-        var attempts = 0
-
-        // Swipe up until no new images load or we hit maxScrolls
-        while attempts < maxScrolls {
-            scrollView.swipeUp()
-            sleep(1)  // allow content to settle
-            currentCount = app.images.matching(predicate).count
-            if currentCount == previousCount { break }
-            previousCount = currentCount
-            attempts += 1
-        }
-
-        // Reset counter and swipe back down until stable
-        attempts = 0
-        while attempts < maxScrolls {
-            scrollView.swipeDown()
-            sleep(1)
-            let newCount = app.images.matching(predicate).count
-            if newCount == previousCount { break }
-            previousCount = newCount
-            attempts += 1
-        }
-
-        return currentCount
-    }
-    
-    func rowCount(baseIdentifier: String) -> Int {
-        let beginsWith = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
-        return app.images.matching(beginsWith).count
-    }
-    
-    func openFilterModalCollection() {
-        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
-        if !filterButton.exists {
-            XCTFail("Filter button should exist")
-        }
-        
-        filterButton.firstMatch.tap()
-        
-        // Verify filter modal opened
-        let filterModalExists = app.staticTexts["Filter"].exists
-        XCTAssertTrue(filterModalExists, "Filter modal should be open")
-    }
     
     func testDeleteAllRowsApplyFiltersThenReAddAndFilterDepth2() {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -704,6 +706,38 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
     }
     
+    func testDeleteAndMoveRow() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView(index: 1)
+        selectRow(number: 3)
+        selectRow(number: 4)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(deleteRowButton().isEnabled, true)
+        deleteRowButton().tap()
+        selectRow(number: 2)
+        tapOnMoreButtonCollection()
+        moveUpButton().tap()
+        tapOnMoreButtonCollection()
+        moveDownButton().tap()
+        tapOnMoreButtonCollection()
+        inserRowBelowButton().tap()
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("hi")
+        sleep(2)
+        goBack()
+        selectRow(number: 3)
+        tapOnMoreButtonCollection()
+        moveUpButton().tap()
+        tapOnMoreButtonCollection()
+        moveUpButton().tap()
+        let CheckTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual(CheckTextField.value as! String, "hi")
+    }
+    
     /* Table on change handler test cases*/
     func goToTableDetailPage(index: Int = 0) {
         app.buttons.matching(identifier: "TableDetailViewIdentifier").element(boundBy: index).tap()
@@ -718,12 +752,12 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     func tapOnNumberTextField(atIndex index: Int) -> XCUIElement {
         // Try simplified method first (assumes iPad or iPhone with identifiers working)
         let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: index)
-
+        
         if numberField.exists && numberField.isHittable {
             numberField.tap()
             return numberField
         }
-
+        
         // If not hittable or missing, fall back to deep traversal (iPhone-specific layout)
         let deepNumberField = app.children(matching: .window).element(boundBy: 0)
             .children(matching: .other).element
@@ -740,7 +774,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             .children(matching: .other).element
             .children(matching: .textField).matching(identifier: "TabelNumberFieldIdentifier")
             .element(boundBy: index)
-
+        
         XCTAssertTrue(deepNumberField.waitForExistence(timeout: 5), "Number field at index \(index) not found (deep fallback)")
         deepNumberField.tap()
         return deepNumberField
@@ -794,7 +828,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     func checkMovedRowDataOfSecondRow() {
         let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Second", checkMovedRowTextField.value as! String)
-
+        
         let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("No D1", checkSearchDataOnDropdownField.element(boundBy: 0).label)
     }
@@ -803,7 +837,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     func checkMovedRowDataOfLastSecondRow() {
         let checkMovedRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("Text", checkMovedRowTextField.value as! String)
-
+        
         let checkSearchDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Yes D1", checkSearchDataOnDropdownField.element(boundBy: 4).label)
     }
@@ -820,12 +854,12 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let possibleDays = range.filter { excludingToday ? $0 != todayDay : true }
         
         guard let randomDay = possibleDays.randomElement() else { return nil }
-
+        
         var components = calendar.dateComponents([.year, .month], from: today)
         components.day = randomDay
         
         guard let randomDate = calendar.date(from: components) else { return nil }
-
+        
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US")
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -842,7 +876,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         return formatter.string(from: randomDate)
     }
-      
+    
     func formattedAccessibilityLabel(for isoDate: String) -> String {
         let inputFormatter = DateFormatter()
         inputFormatter.locale = Locale(identifier: "en_US")
@@ -859,7 +893,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         if UIDevice.current.userInterfaceIdiom == .pad {
             // iPad: with comma
             if #available(iOS 19.0, *) {
-                   outputFormatter.dateFormat = "EEEE, d MMMM"
+                outputFormatter.dateFormat = "EEEE, d MMMM"
             } else {
                 outputFormatter.dateFormat = "EEEE d MMMM"
             }
@@ -899,7 +933,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         firstTableTextField.tap()
         firstTableTextField.typeText("First")
-
+        
         let firstValueCount = app.textViews.countMatchingValue(firstTableTextField.value as? String ?? "")
         print("Number of textViews with value \"FirstA\": \(firstValueCount)")
         XCTAssertEqual(2, firstValueCount, "Expected exactly two textViews with value 'FirstA' (one in each form)")
@@ -912,14 +946,14 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage(index: 0)
-       
+        
         let firstTableTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("2", firstTableTextField.value as! String)
         firstTableTextField.tap()
         firstTableTextField.clearText()
         
         firstTableTextField.typeText("12345")
-
+        
         let firstValueCount = app.textFields.countMatchingValue(firstTableTextField.value as? String ?? "")
         print("Number of number fields with value \"12345\": \(firstValueCount)")
         XCTAssertEqual(2, firstValueCount, "Expected exactly two number fields with value '12345' (one in each form)")
@@ -938,9 +972,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         firstButton.tap()
         
         selectAllMultiSlectOptions()
-
+        
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-
+        
         goBack()
         
         let multiSelectionButton = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
@@ -1030,9 +1064,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         imageButton.tap()
         
         let allImages = app.images.matching(identifier: "DetailPageImageSelectionIdentifier")
-
+        
         let circleImages = allImages.matching(NSPredicate(format: "label == %@", "circle"))
-
+        
         let circleCount = circleImages.count
         XCTAssertEqual(circleCount, 1)
     }
@@ -1075,7 +1109,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let secondFirstTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("212", secondFirstTextField.value as! String)
     }
- 
+    
     // Test case for filter data
     func testSearchFilterForNumberTextField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -1111,7 +1145,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("200.22", thirdTextField.value as! String)
         XCTAssertEqual("2.111", fourthTextField.value as! String)
     }
- 
+    
     // Insert row with filter text
     func testInsertRowWithFilterNumberTextField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -1129,7 +1163,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         tapOnMoreButton()
         app.buttons["TableInsertRowIdentifier"].tap()
-         
+        
         XCTAssertEqual("22", filterDataTextField.value as! String)
         
         // Clear filter
@@ -1359,7 +1393,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         sleep(1)
         goBack()
     }
-      
+    
     // Change selected time
     func testChangeTimePicker() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -1387,7 +1421,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertTrue(checkSelectedTimeValue.exists)
         
     }
-      
+    
     // Change existing value
     func testChangeMultiSelectionOptionValue() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -1395,7 +1429,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
-                        
+        
         // Access identifier
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
@@ -1430,7 +1464,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
-                        
+        
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableEditRowsIdentifier"].tap()
@@ -1552,7 +1586,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("No", multiFieldIdentifier.element(boundBy: 1).label)
         XCTAssertEqual("Second row", barcodeFieldIdentifier.value as! String)
     }
-     
+    
     // Simple add data in field and tap on scan button
     func testBarcodeScanButtonValue() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -1864,6 +1898,43 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         firstTableTextField.typeText("qu")
         goBack()
         XCTAssertEqual(firstTableTextField.value as! String, "qu")
+    }
+    
+    func testDeleteAndMoveRowTable() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToTableDetailPage()
+        goToTableDetailPage()
+        let checkButtons = app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton")
+        checkButtons.element(boundBy: 2).tap()
+        checkButtons.element(boundBy: 3).tap()
+        checkButtons.element(boundBy: 4).tap()
+        checkButtons.element(boundBy: 5).tap()
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        let moveUpButton = app.buttons["TableMoveUpRowIdentifier"].firstMatch
+        let moveDownButton = app.buttons["TableMoveDownRowIdentifier"].firstMatch
+        moreButton.tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        checkButtons.element(boundBy: 1).tap()
+        moreButton.tap()
+        moveUpButton.tap()
+        checkButtons.element(boundBy: 0).tap()
+        moreButton.tap()
+        moveDownButton.tap()
+        checkButtons.element(boundBy: 1).tap()
+        moreButton.tap()
+        inserRowBelowButton().tap()
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("hello")
+        sleep(1)
+        goBack()
+        checkButtons.element(boundBy: 2).tap()
+        tapOnMoreButtonCollection()
+        moveUpButton.tap()
+        let CheckTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual(CheckTextField.value as! String, "hello")
     }
 }
 
