@@ -613,10 +613,11 @@ extension DocumentEditor {
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        let index = insertNestedRow(in: &nestedElements, targetParentId: targetParentId, nestedKey: nestedKey, newRow: newRow)
+                        if let index = insertNestedRow(in: &nestedElements, targetParentId: targetParentId, nestedKey: nestedKey, newRow: newRow) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
                             return index
+                        }
                     }
                 }
             }
