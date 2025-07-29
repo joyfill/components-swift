@@ -629,14 +629,14 @@ extension DocumentEditor {
             guard !elements.isEmpty else { continue }
             for i in 0..<elements.count {
                 if elements[i].id == targetParentId {
-                    return "\(i).\(parentKey)." + "0.\(nestedKey)"
+                    return "\(i).\(nestedKey)"
                 }
                 
                 if let children = elements[i].childrens {
                     for (key, child) in children {
                         if let nestedElements = child.valueToValueElements,
                            let subPath = computeParentPath(targetParentId: targetParentId, nestedKey: nestedKey, in: [key : nestedElements]) {
-                            return "\(i).\(parentKey)." + subPath
+                            return "\(i).\(nestedKey)." + subPath
                         }
                     }
                 }
