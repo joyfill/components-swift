@@ -2154,4 +2154,49 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let updatedValue = cells?["685753be581f231c08d8f11c"] as? String
         XCTAssertEqual(updatedValue, "A new value")
     }
+    
+    func testChangeLogsForEditupperRows() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 1)
+        expandNestedRow(number: 1)
+        //swipe up for iphone
+        app.swipeUp()
+        app.images["selectNestedRowItem3"].firstMatch.tap()
+        tapOnMoreButton()
+        moveUpButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        let fileID = onChangeResult().fileId
+        XCTAssertEqual("685750ef698da1ab427761ba", fileID)
+        
+        let pageID = onChangeResult().pageId
+        XCTAssertEqual("685750efeb612f4fac5819dd", pageID)
+        
+        let fieldId = onChangeResult().fieldId
+        XCTAssertEqual("6857510fbfed1553e168161b", fieldId)
+        
+        let docIdentifier = onChangeResult().identifier
+        XCTAssertEqual("doc_685750eff3216b45ffe73c80", docIdentifier)
+        
+        let fieldIdentifier = onChangeResult().fieldIdentifier
+        XCTAssertEqual("field_68575112847f32f878c77daf", fieldIdentifier)
+        
+        let change = onChangeResult().change
+        let rowID = change?["rowId"] as? String
+        XCTAssertEqual(rowID, "6859957846d24f95d8ee02b6")
+
+        let parentPath = change?["parentPath"] as? String
+        XCTAssertEqual("0.685753949107b403e2e4a949.0.685753be00360cf5d545a89e", parentPath)
+        
+        let schemaId = change?["schemaId"] as? String
+        XCTAssertEqual("685753be00360cf5d545a89e", schemaId)
+        
+        let targetRowIndex = change?["targetRowIndex"] as? Double
+        XCTAssertEqual(1, targetRowIndex)
+        
+    }
 }
+
