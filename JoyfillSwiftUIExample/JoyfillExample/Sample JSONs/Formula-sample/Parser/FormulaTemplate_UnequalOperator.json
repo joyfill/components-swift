@@ -3,8 +3,6 @@
   "identifier": "doc_inequality_operator_doc",
   "name": "Inequality Operator",
   "type": "document",
-  "createdOn": 31232313,
-  "deleted": false,
   "files": [
     {
       "_id": "file1",
@@ -289,8 +287,7 @@
       ],
       "styles": {
         "margin": 4
-      },
-      "views": []
+      }
     }
   ],
   "fields": [
@@ -349,7 +346,7 @@
       "formulas": [
         {
           "_id": "text4Formula",
-          "formula": "ifTESTNotEqualtestWorking",
+          "formula": "ifTESTUppercaseNotEqualtestWorking",
           "key": "value"
         }
       ]
@@ -439,7 +436,7 @@
       "formulas": [
         {
           "_id": "text10Formula",
-          "formula": "if1NotEqual1Working",
+          "formula": "if1StringNotEqual1Working",
           "key": "value"
         }
       ]
@@ -454,7 +451,7 @@
       "formulas": [
         {
           "_id": "text11Formula",
-          "formula": "iftrueNotEqualtrueWorking",
+          "formula": "iftruestringNotEqualtrueWorking",
           "key": "value"
         }
       ]
@@ -499,7 +496,7 @@
       "formulas": [
         {
           "_id": "text14Formula",
-          "formula": "ifNotEqualWorking",
+          "formula": "ifStringNotEqualWorking",
           "key": "value"
         }
       ]
@@ -604,7 +601,7 @@
       "formulas": [
         {
           "_id": "text21Formula",
-          "formula": "ifNotEqualWorking",
+          "formula": "ifArrayNotEqualWorking",
           "key": "value"
         }
       ]
@@ -634,7 +631,7 @@
       "formulas": [
         {
           "_id": "text23Formula",
-          "formula": "ifNotEqualWorking",
+          "formula": "ifObjectNotEqualWorking",
           "key": "value"
         }
       ]
@@ -664,7 +661,7 @@
       "formulas": [
         {
           "_id": "text25Formula",
-          "formula": "if1NotEqual1Working",
+          "formula": "if1ArrayNotEqual1ArrayWorking",
           "key": "value"
         }
       ]
@@ -688,182 +685,182 @@
   "formulas": [
     {
       "_id": "if1NotEqual1Working",
-      "desc": "Evaluate: 1 != 1",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(1 != 1, \"Broken\", \"Working\")"
     },
     {
       "_id": "if10NotEqual12Working",
-      "desc": "Evaluate: 10 != 12",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(10 != 12, \"Working\", \"Broken\")"
     },
     {
       "_id": "iftestNotEqualtestWorking",
-      "desc": "Evaluate: \"test\" != \"test\"",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"test\" != \"test\", \"Broken\", \"Working\")"
     },
     {
-      "_id": "ifTESTNotEqualtestWorking",
-      "desc": "Evaluate: \"TEST\" != \"test\"",
+      "_id": "ifTESTUppercaseNotEqualtestWorking",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"TEST\" != \"test\", \"Working\", \"Broken\")"
     },
     {
       "_id": "iftrueNotEqualtrueWorking",
-      "desc": "Evaluate: true != true",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(true != true, \"Broken\", \"Working\")"
     },
     {
       "_id": "iffalseNotEqualtrueWorking",
-      "desc": "Evaluate: false != true",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(false != true, \"Working\", \"Broken\")"
     },
     {
       "_id": "iffalseNotEqualfalseWorking",
-      "desc": "Evaluate: false != false",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(false != false, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifnullNotEqualnullWorking",
-      "desc": "Evaluate: null != null",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null != null, \"Broken\", \"Working\")"
     },
     {
       "_id": "iftoNumber1NotEqual1Working",
-      "desc": "Evaluate: toNumber(\"1\") != 1",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(toNumber(\"1\") != 1, \"Broken\", \"Working\")"
     },
     {
-      "_id": "if1NotEqual1Working",
-      "desc": "Evaluate: \"1\" != 1",
+      "_id": "if1StringNotEqual1Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"1\" != 1, \"Working\", \"Broken\")"
     },
     {
-      "_id": "iftrueNotEqualtrueWorking",
-      "desc": "Evaluate: \"true\" != true",
+      "_id": "iftrueStringNotEqualtrueWorking",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"true\" != true, \"Working\", \"Broken\")"
     },
     {
       "_id": "if0NotEqualfalseWorking",
-      "desc": "Evaluate: 0 != false",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(0 != false, \"Working\", \"Broken\")"
     },
     {
       "_id": "iffalseNotEqualWorking",
-      "desc": "Evaluate: false != \"\"",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(false != \"\", \"Working\", \"Broken\")"
     },
     {
-      "_id": "ifNotEqualWorking",
-      "desc": "Evaluate: \"\" != \"\"",
+      "_id": "ifStringNotEqualWorking",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"\" != \"\", \"Broken\", \"Working\")"
     },
     {
       "_id": "ifNotEqualfalseWorking",
-      "desc": "Evaluate: \"\" != false",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"\" != false, \"Working\", \"Broken\")"
     },
     {
       "_id": "ifNotEqualnullWorking",
-      "desc": "Evaluate: \"\" != null",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"\" != null, \"Working\", \"Broken\")"
     },
     {
       "_id": "iffalseNotEqualfalseWorking",
-      "desc": "Evaluate: \"false\" != false",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"false\" != false, \"Working\", \"Broken\")"
     },
     {
       "_id": "ifnullNotEqualWorking",
-      "desc": "Evaluate: null != \"\"",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null != \"\", \"Working\", \"Broken\")"
     },
     {
       "_id": "ifnullNotEqualfalseWorking",
-      "desc": "Evaluate: null != false",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null != false, \"Working\", \"Broken\")"
     },
     {
       "_id": "ifnullNotEqual0Working",
-      "desc": "Evaluate: null != 0",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null != 0, \"Working\", \"Broken\")"
     },
     {
-      "_id": "ifNotEqualWorking",
-      "desc": "Evaluate: [] != []",
+      "_id": "ifArrayNotEqualWorking",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([] != [], \"Working\", \"Broken\")"
     },
     {
       "_id": "ifhiNotEqualhiWorking",
-      "desc": "Evaluate: [\"hi\"] != [\"hi\"]",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([\"hi\"] != [\"hi\"], \"Working\", \"Broken\")"
     },
     {
-      "_id": "ifNotEqualWorking",
-      "desc": "Evaluate: {} != {}",
+      "_id": "ifObjectNotEqualWorking",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({} != {}, \"Working\", \"Broken\")"
     },
     {
       "_id": "ifnamejoyNotEqualnamejoyWorking",
-      "desc": "Evaluate: { name: 'joy' } != { name: 'joy' }",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({ name: 'joy' } != { name: 'joy' }, \"Working\", \"Broken\")"
     },
     {
-      "_id": "if1NotEqual1Working",
-      "desc": "Evaluate: [[1]] != [[1]]",
+      "_id": "if1ArrayNotEqual1ArrayWorking",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([[1]] != [[1]], \"Working\", \"Broken\")"
     },
     {
       "_id": "ifab1NotEqualab1Working",
-      "desc": "Evaluate: { a: { b: 1 } } != { a: { b: 1 } }",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({ a: { b: 1 } } != { a: { b: 1 } }, \"Working\", \"Broken\")"

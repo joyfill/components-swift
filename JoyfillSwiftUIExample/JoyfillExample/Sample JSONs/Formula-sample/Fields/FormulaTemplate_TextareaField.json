@@ -280,7 +280,7 @@
       "desc": "Append a note to the end",
       "type": "calc",
       "scope": "private",
-      "expression": "concat(textarea1, \"\\n-- Reviewed by Admin --\")"
+      "expression": "concat(textarea1, \"\n-- Reviewed by Admin --\")"
     },
     {
       "_id": "checkForEmpty",
@@ -301,7 +301,7 @@
       "desc": "Prefix with 'User Notes:'",
       "type": "calc",
       "scope": "private",
-      "expression": "concat(\"User Notes:\\n\", textarea1)"
+      "expression": "concat(\"User Notes:\n\", textarea1)"
     },
     {
       "_id": "countCharactersInText",
