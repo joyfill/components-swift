@@ -637,7 +637,7 @@ extension DocumentEditor {
                     for (key, child) in children {
                         if let nestedElements = child.valueToValueElements,
                            let subPath = computeParentPath(targetParentId: targetParentId, nestedKey: nestedKey, in: [key : nestedElements]) {
-                            return "\(i).\(nestedKey)." + subPath
+                            return "\(i).\(key)." + subPath
                         }
                     }
                 }
