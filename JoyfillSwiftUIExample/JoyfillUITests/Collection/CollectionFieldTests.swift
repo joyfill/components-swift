@@ -224,7 +224,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("6805b6443944fc0166ba80a0", firstCellDropdownValue)
     }
 
-    func testExpandFirstRow() {
+    func testExpandFirstRow() throws {
         //Expand the first row and add row and edit the text field
         goToCollectionDetailField()
         //expand both rows
@@ -236,18 +236,38 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapSchemaAddRowButton(number: 1)
         
         //Assert on added rows
-        
         let fieldTarget = onChangeResult().target
         XCTAssertEqual("field.value.rowCreate", fieldTarget)
-        do {
-            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
-            let newRow = try XCTUnwrap(value["row"] as? [String: Any])
-            XCTAssertNotNil(newRow["_id"])
-            XCTAssertEqual(1, lastIndex)
-        } catch {
-            XCTFail("Unexpected error: \(error).")
-        }
+        
+        let fileID = onChangeResult().fileId
+        XCTAssertEqual("6629fab3c0ba3fb775b4a55c", fileID)
+        
+        let pageID = onChangeResult().pageId
+        XCTAssertEqual("6629fab320fca7c8107a6cf6page16", pageID)
+        
+        let fieldId = onChangeResult().fieldId
+        XCTAssertEqual("6805b644b2f2c35e2def8740", fieldId)
+        
+        let docIdentifier = onChangeResult().identifier
+        XCTAssertEqual("doc_6629fc6367b3a40644096182", docIdentifier)
+        
+        let fieldIdentifier = onChangeResult().fieldIdentifier
+        XCTAssertEqual("field_6805b6924b94f31dc8889981", fieldIdentifier)
+        
+        let change = onChangeResult().change
+        let newRow = change?["row"] as? [String: Any]
+        XCTAssertNotNil(newRow?["_id"])
+        
+        let lastIndex = change?["targetRowIndex"] as? Double
+        XCTAssertEqual(0, lastIndex)
+        
+        let parentPath = change?["parentPath"] as? String
+        XCTAssertEqual("1.6805b7c24343d7bcba916934", parentPath)
+        
+        let schemaId = change?["schemaId"] as? String
+        XCTAssertEqual("6805b7c24343d7bcba916934", schemaId)
+
+        
     }
     
     func testExpandAndCloseRow() {
