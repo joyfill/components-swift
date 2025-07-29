@@ -4,16 +4,33 @@
       "id" : "5E9AB4EA-8673-47AF-8C56-1B7820F0B638",
       "name" : "Test Scheme Action",
       "options" : {
-
+        "targetForVariableExpansion" : {
+          "containerPath" : "container:JoyfillExample.xcodeproj",
+          "identifier" : "1307CF182BE36ECD00B19FBA",
+          "name" : "JoyfillUITests"
+        }
       }
     }
   ],
   "defaultOptions" : {
-
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:JoyfillExample.xcodeproj",
+          "identifier" : "1307CF182BE36ECD00B19FBA",
+          "name" : "JoyfillUITests"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:JoyfillExample.xcodeproj",
+      "identifier" : "1307CF182BE36ECD00B19FBA",
+      "name" : "JoyfillUITests"
+    }
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:JoyfillExample.xcodeproj",
         "identifier" : "1307CF182BE36ECD00B19FBA",

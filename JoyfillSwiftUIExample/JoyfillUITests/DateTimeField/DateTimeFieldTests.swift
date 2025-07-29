@@ -10,7 +10,7 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
 
     func testTimePicker() {
         app.swipeUp()
-        let datePicker = app.datePickers.element(boundBy: 1)
+        let datePicker = app.datePickers.element(boundBy: 0)
         datePicker.tap()
         XCTAssertTrue(datePicker.exists)
         XCTAssertEqual(datePicker.label, "")

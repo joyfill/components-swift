@@ -34,6 +34,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         triggerField.typeText("hide first")
         sleep(1)
+        app.swipeUp()
         app.swipeDown()
         // Explicitly check that only one text view remains (the trigger field)
         XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be hidden when condition is met.")
@@ -228,6 +229,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         field.typeText("CopyMe")
         field.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
+        sleep(2)
         app.menuItems["Copy"].tap()
         
         field2.tap()
@@ -361,8 +363,10 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         let multiLineTextField = app.textViews.element(boundBy: 1)
         XCTAssertEqual("A very long paragraph\nthat spans multiple\nlines and exceeds\nthe visible area.", multiLineTextField.value as! String)
         multiLineTextField.tap()
-        multiLineTextField.typeText("Hello")
+        multiLineTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        multiLineTextField.typeText("Hello sir")
         sleep(2)
-        XCTAssertEqual("HelloA very long paragraph\nthat spans multiple\nlines and exceeds\nthe visible area.", onChangeResultValue().multilineText)
+        XCTAssertEqual("Hello sir", onChangeResultValue().multilineText)
     }
 }

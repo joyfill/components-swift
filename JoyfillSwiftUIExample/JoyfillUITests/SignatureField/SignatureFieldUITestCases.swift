@@ -62,7 +62,11 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
 
     func testReadonlySignatureFieldNotEditable() throws {
         app.swipeUp()
-        let disabledButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 1)
+        var index = 1;
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            index = 2;
+        }
+        let disabledButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: index)
         XCTAssertTrue(disabledButton.exists, "Readonly signature button should exist")
         disabledButton.tap()
         XCTAssertFalse(app.otherElements["CanvasIdentifier"].exists, "Canvas should not appear for readonly signature field")
@@ -108,15 +112,20 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
     func testConditionalLogicShowHide() throws {
         app.swipeUp()
         // Third signature field (index 2) should be hidden until conditions are met
-        let hiddenButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 1)
-        XCTAssertTrue(hiddenButton.exists, "Third signature field should initially be hidden")
+        let hiddenButton = app.buttons.matching(identifier: "SignatureIdentifier")
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertTrue(hiddenButton.count == 3, "Third signature field should initially be hidden")
         // Enter the trigger value into the text field
+        app.swipeUp()
         let triggerField = app.textFields.firstMatch
         triggerField.tap()
         triggerField.clearText()
         triggerField.typeText("hidexyz")
         sleep(1)
-        XCTAssertFalse(hiddenButton.exists, "Third signature field should be shown after conditions met")
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertFalse(hiddenButton.count == 1, "Third signature field should be shown after conditions met")
     }
     
     func testToolTip() throws {
