@@ -1487,12 +1487,12 @@ class CollectionViewModel: ObservableObject {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
-                
+        let nestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
         let result = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                   rootSchemaKey: rootSchemaKey,
-                                                                  nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
+                                                                        nestedKey: nestedKey,
                                                                         parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "",
                                                                         callOnChange: callOnChange) ?? ([], nil)
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
