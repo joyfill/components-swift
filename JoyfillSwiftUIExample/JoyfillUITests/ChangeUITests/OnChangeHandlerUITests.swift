@@ -307,7 +307,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         selectRow(number: 1)
         tapOnMoreButtonCollection()
         XCTAssertEqual(moveUpButton().isEnabled, false)
@@ -325,7 +325,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         selectRow(number: 4)
         tapOnMoreButtonCollection()
         XCTAssertEqual(moveUpButton().isEnabled, true)
@@ -343,7 +343,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         selectRow(number: 1)
         tapOnMoreButtonCollection()
@@ -364,7 +364,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         selectRow(number: 1)
         selectRow(number: 2)
         tapOnMoreButtonCollection()
@@ -387,7 +387,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
        
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("A", firstTableTextField.value as! String)
@@ -404,7 +404,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
        
         let firstTableTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("12.2", firstTableTextField.value as! String)
@@ -434,7 +434,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         let multiSelectionButtons = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertGreaterThan(multiSelectionButtons.count, 0)
@@ -467,7 +467,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Yes D1", dropdownButtons.element(boundBy: 0).label)
@@ -492,7 +492,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         let dateFields = app.images.matching(identifier: "CalendarImageIdentifier")
         XCTAssertEqual(dateFields.count, 4, "Date fields should exist")
@@ -512,7 +512,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
         XCTAssertGreaterThan(imageButtons.count, 0, "Image buttons should exist")
@@ -546,7 +546,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         expandRow(number: 1)
         tapSchemaAddRowButton(number: 0)
@@ -586,7 +586,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         addThreeNestedRows(parentRowNumber: 2)
         // Make sure collection search filter is on
         openFilterModalForDismissKeyboard()
@@ -650,7 +650,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         // Step 1: Delete all rows
         app.images["SelectParentAllRowSelectorButton"].firstMatch.tap()
@@ -711,7 +711,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         selectRow(number: 3)
         selectRow(number: 4)
         tapOnMoreButtonCollection()
@@ -910,7 +910,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return
         }
         goToCollectionView()
-        goToCollectionView(index: 1)
+        goToCollectionView()
         
         selectRow(number: 1)
         tapOnMoreButtonCollection()
@@ -1580,10 +1580,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         sleep(1)
         goBack()
-        XCTAssertEqual("Second row", addedCellBlockValue.label)
-        XCTAssertEqual("22", addedCellNumberValue.value as! String)
-        XCTAssertEqual("No", multiFieldIdentifier.element(boundBy: 1).label)
-        XCTAssertEqual("Second row", barcodeFieldIdentifier.value as! String)
+        XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
+        XCTAssertEqual("12345", addedCellNumberValue.value as! String)
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+        XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
     }
     
     // Simple add data in field and tap on scan button
