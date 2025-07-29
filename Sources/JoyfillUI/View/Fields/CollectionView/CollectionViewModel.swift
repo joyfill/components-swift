@@ -1816,6 +1816,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
         var cellValues: [String: ValueUnion] = [:]
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
+        cellValues = newRow.cells ?? [:]
         guard let newRowID = newRow.id else { return }
         if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
             let parentPath = change.change?["parentPath"] as? String ?? ""
