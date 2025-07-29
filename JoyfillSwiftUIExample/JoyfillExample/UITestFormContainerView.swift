@@ -74,8 +74,37 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     func onUpload(event: UploadEvent) {
         didReceiveUploadEvent = true
         uploadCallback?(didReceiveUploadEvent, didReceiveChange)
-        //Comment this upload in some test cases
-        event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
+        
+        // Check if we should skip the upload handler for specific test cases
+        let shouldSkipUpload = shouldSkipUploadHandler()
+        
+        if !shouldSkipUpload {
+            //Comment this upload in some test cases
+            event.uploadHandler(["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLD0BhkQ2hSend6_ZEnom7MYp8q4DPBInwtA&s"])
+        }
+    }
+    
+    private func shouldSkipUploadHandler() -> Bool {
+        // Check for launch argument to skip upload
+        if CommandLine.arguments.contains("--skip-upload-handler") {
+            return true
+        }
+        
+        // Check for specific test case names (if available through launch arguments)
+        let arguments = CommandLine.arguments
+        if let testNameIndex = arguments.firstIndex(of: "--test-name"),
+           testNameIndex + 1 < arguments.count {
+            let fullTestName = arguments[testNameIndex + 1]
+            
+            // Extract just the method name (after the last dot)
+            let testMethodName = fullTestName.components(separatedBy: ".").last ?? fullTestName
+            
+            // Only skip for these two specific test cases - check for exact method names
+            return testMethodName == "-[ImageFieldTests testUploadWithoutCallingHandler]" ||
+                   testMethodName == "-[ImageFieldTests testUploadWithoutCallingHandlerForMultiFalse]"
+        }
+        
+        return false
     }
     
     func onCapture(event: CaptureEvent) {

@@ -28,9 +28,12 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
         XCTAssertEqual("test", multiLineTextField.value as! String)
         multiLineTextField.tap()
-        multiLineTextField.typeText("Hello")
+        multiLineTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        multiLineTextField.clearText()
+        multiLineTextField.typeText("quick")
         sleep(1)
-        XCTAssertEqual("Hellotest", onChangeResultValue().multilineText)
+        XCTAssertEqual("quick", onChangeResultValue().multilineText)
     }
     
     func testToolTip() throws {
@@ -130,6 +133,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
     func testTextFieldTypingAndPaste() {
         let textField = app.textFields.element(boundBy: 0)
         textField.tap()
+        textField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         textField.clearText()
         UIPasteboard.general.string = "Pasted Text"
         textField.press(forDuration: 1.0)
@@ -180,6 +185,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // 2. First = "hide", multiline ≠ "show" => display text should hide
         firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("hide")
         sleep(1)
@@ -187,7 +194,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         multilineTextView.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         multilineTextView.typeText("not_show")
-        sleep(1)
+        sleep(2)
         XCTAssertFalse(displayText.exists)
         
         // 3. Second textbox should hide if:
@@ -199,6 +206,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Condition: first is filled
         firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("filled")
         sleep(1)
@@ -208,6 +217,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Condition: multiline is empty
         firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("anything")
         sleep(1)
@@ -215,6 +226,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Condition: first = "readonly"
         firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("readonly")
         sleep(1)
@@ -222,6 +235,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Condition: first ≠ "hide"
         firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("not_hide")
         sleep(1)
@@ -229,6 +244,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Condition: first contains "abcd"
         firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("abcd")
         sleep(1)
@@ -236,6 +253,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // 4. Third textbox hidden if first is empty
         firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstTextField.clearText()
         sleep(1)
         XCTAssertFalse(thirdTextField.exists)

@@ -362,7 +362,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first > 50")
-
+        sleep(1)
         // Case 5: Third < 70 → second should hide
         secondField.tap()
         secondField.clearText()
@@ -374,12 +374,15 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when third < 70")
-
+        sleep(2)
         // Case 6: All invalidated → second should show
         secondField.tap()
         secondField.clearText()
+        secondField.tap()
         secondField.typeText("90")
         firstField.tap()
+        firstField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
         firstField.clearText()
         firstField.typeText("10")
         sleep(1)

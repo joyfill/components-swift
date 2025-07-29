@@ -242,7 +242,11 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         
         if UIDevice.current.userInterfaceIdiom == .pad {
             // iPad: with comma
-            outputFormatter.dateFormat = "EEEE, d MMMM"
+            if #available(iOS 19.0, *) {
+                   outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
         } else {
             // iPhone: no comma
             outputFormatter.dateFormat = "EEEE d MMMM"

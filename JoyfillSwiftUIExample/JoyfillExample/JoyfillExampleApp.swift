@@ -40,7 +40,10 @@ struct JoyfillExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if joyfillUITestsMode {
+            if joyfillUITestsMode && isRunOnChangeHandler() {
+                OnChangeHandlerTest()
+                    .navigationViewStyle(StackNavigationViewStyle())
+            } else if joyfillUITestsMode {
                 NavigationView {
                     UITestFormContainerView(documentEditor: documentEditor)
                 }
@@ -49,15 +52,31 @@ struct JoyfillExampleApp: App {
                     .accessibilityIdentifier("resultfield")
                     .frame(height: 10)
             } else if useQuickTestMode {
-//                 Quick test mode: directly open template list with default token
+                //Quick test mode: directly open template list with default token
                 NavigationView {
                     UserAccessTokenTextFieldView(isAlreadyToken: true, enableChangelogs: false)
                 }
             } else {
                 OptionSelectionView()
-                .navigationViewStyle(StackNavigationViewStyle())
+                    .navigationViewStyle(StackNavigationViewStyle())
             }
         }
+    }
+    
+    func isRunOnChangeHandler(_ testClass: String = "OnChangeHandlerUITests") -> Bool {
+        // 1. Must be iPad
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return false
+        }
+        // 2. Pull the full test name from CLI args
+        let args = CommandLine.arguments
+        guard let idx = args.firstIndex(of: "--test-name"),
+              idx + 1 < args.count else {
+            return false
+        }
+        let fullTestName = args[idx + 1]
+        // 3. Check if it contains our test class
+        return fullTestName.contains(testClass)
     }
     
     private static func getJSONFileNameFromLaunchArguments() -> String? {
