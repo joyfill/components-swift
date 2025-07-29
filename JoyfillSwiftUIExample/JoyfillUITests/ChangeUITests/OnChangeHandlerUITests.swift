@@ -1161,8 +1161,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let filterDataTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("22", filterDataTextField.value as! String)
         
-        tapOnMoreButton()
-        app.buttons["TableInsertRowIdentifier"].tap()
+        app.buttons["TableAddRowIdentifier"].firstMatch.tap()
         
         XCTAssertEqual("22", filterDataTextField.value as! String)
         
