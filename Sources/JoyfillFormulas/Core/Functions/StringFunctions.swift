@@ -27,8 +27,28 @@ public struct StringFunctions {
             }
         }
         
-        // If we have ONLY arrays (no strings/other types), concatenate them as arrays
+        // If we have ONLY arrays (no strings/other types), check if we should concatenate as strings
         if hasArrays && !hasNonArrays {
+            // Special case: if we have a single array of strings, concatenate them as strings
+            if evaluatedValues.count == 1, case .array(let array) = evaluatedValues[0] {
+                let allStrings = array.allSatisfy { 
+                    if case .string(_) = $0 { return true }
+                    return false
+                }
+                
+                if allStrings {
+                    // Concatenate array elements as strings without separator
+                    var resultString = ""
+                    for value in array {
+                        if case .string(let str) = value {
+                            resultString += str
+                        }
+                    }
+                    return .success(.string(resultString))
+                }
+            }
+            
+            // Default array concatenation behavior for other cases
             var resultArray: [FormulaValue] = []
             
             for value in evaluatedValues {
