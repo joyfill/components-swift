@@ -607,7 +607,7 @@ extension DocumentEditor {
                 nestedElements.append(newRow)
                 children[nestedKey]?.value = ValueUnion.valueElementArray(nestedElements)
                 elements[i].childrens = children
-                return i
+                return nestedElements.count - 1
             }
             // Otherwise, search recursively in this element’s children.
             if var children = elements[i].childrens {
