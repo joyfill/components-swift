@@ -279,24 +279,54 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         expandRow(number: 2)
     }
     
-    func testExpandAndAddRowAndEditFirstCellCloseAndCheckVAlue() {
+    func testExpandAndAddRowAndEditFirstCellCloseAndCheckVAlue() throws {
         goToCollectionDetailField()
         expandRow(number: 1)
         
         tapSchemaAddRowButton(number: 0)
-        do {
-            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let newRow = try XCTUnwrap(value["row"] as? [String: Any])
-            XCTAssertNotNil(newRow["_id"])
-        } catch {
-            XCTFail("Unexpected error: \(error).")
-        }
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        XCTAssertNotNil(newRow["_id"])
+        
         
         
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("", firstTableTextField.value as! String)
         firstTableTextField.tap()
         firstTableTextField.typeText("Hello ji")
+        //Test change-logs
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowUpdate", fieldTarget)
+        
+        let fileID = onChangeResult().fileId
+        XCTAssertEqual("6629fab3c0ba3fb775b4a55c", fileID)
+        
+        let pageID = onChangeResult().pageId
+        XCTAssertEqual("6629fab320fca7c8107a6cf6page16", pageID)
+        
+        let fieldId = onChangeResult().fieldId
+        XCTAssertEqual("6805b644b2f2c35e2def8740", fieldId)
+        
+        let docIdentifier = onChangeResult().identifier
+        XCTAssertEqual("doc_6629fc6367b3a40644096182", docIdentifier)
+        
+        let fieldIdentifier = onChangeResult().fieldIdentifier
+        XCTAssertEqual("field_6805b6924b94f31dc8889981", fieldIdentifier)
+        
+        let change = onChangeResult().change
+        let changlogRow = change?["row"] as? [String: Any]
+        XCTAssertEqual(newRow["_id"] as? String, changlogRow?["_id"] as? String)
+        
+        let newRowID = change?["rowId"] as? String
+        XCTAssertEqual(newRowID, newRow["_id"] as? String)
+        
+        let parentPath = change?["parentPath"] as? String
+        XCTAssertEqual("0.6805b7c24343d7bcba916934", parentPath)
+        
+        let schemaId = change?["schemaId"] as? String
+        XCTAssertEqual("6805b7c24343d7bcba916934", schemaId)
+
         goBack()
         sleep(2)
         goToCollectionDetailField()
