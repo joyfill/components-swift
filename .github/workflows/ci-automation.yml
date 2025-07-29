@@ -16,9 +16,6 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
 
-      - name: Clean Derived Data
-        run: rm -rf ~/Library/Developer/Xcode/DerivedData
-
       - name: Build Project
         run: |
           set -o pipefail
@@ -27,122 +24,46 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,OS=latest" \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            -derivedDataPath ./DerivedData
+          | xcpretty --color --report html --output build-report.html
       - name: Upload Build Report
         uses: actions/upload-artifact@v4
         with:
           name: build-report
           path: JoyfillSwiftUIExample/build-report.html
 
-  # 2️⃣ UI tests (after build)
-  ui-tests:
+  # 2️⃣ Unit tests (after build)
+  unit-tests:
     needs: build
     runs-on: macos-latest
-    # Using per‐SHA concurrency so canceled/old runs don't block new ones:
-    concurrency:
-      group: ui-tests-${{ github.ref }}-${{ github.sha }}
-      cancel-in-progress: true
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
       - name: Select Xcode
         run: sudo xcode-select -switch /Applications/Xcode.app
 
-      - name: Debug Environment
-        run: |
-          echo "=== System Info ==="
-          sw_vers
-          xcodebuild -version
-          echo "=== Available Simulators ==="
-          xcrun simctl list devices | grep "iPhone 16 Pro"
-          echo "=== Available Runtimes ==="
-          xcrun simctl list runtimes | grep "18"
-          echo "=== Memory Info ==="
-          vm_stat
-          echo "=== Disk Space ==="
-          df -h
-
-      - name: Reset Simulator
-        run: |
-          xcrun simctl shutdown all
-          xcrun simctl erase all
-      
-      - name: Boot Simulator
-        run: |
-          UDID="F5C7F34E-63E6-41BF-A81B-A17F2773A5CB"
-          echo "Booting simulator $UDID..."
-          xcrun simctl boot "$UDID"
-          open -a Simulator
-          echo "Waiting for simulator to boot..."
-          sleep 25
-          echo "Checking boot status..."
-          xcrun simctl bootstatus "$UDID" -b
-          echo "Verifying simulator is ready..."
-          xcrun simctl list devices | grep "iPhone 16 Pro" | grep "Booted"
-      
-      - name: Clean Duplicate Resources
-        run: |
-          cd JoyfillSwiftUIExample
-          echo "Checking for duplicate JSON files..."
-          find . -name "*.json" -type f | sort | uniq -d || echo "No duplicates found"
-      
-      - name: Build for Testing
+      - name: Run Unit Tests
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
-          
-          # Increase memory limits
-          ulimit -n 4096
-          
-          echo "Building for testing..."
-          xcodebuild build \
+          xcodebuild test \
             -project JoyfillExample.xcodeproj \
-            -scheme JoyfillUITests \
+            -scheme JoyfillTests \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,OS=latest" \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            -derivedDataPath ./DerivedData \
-            -jobs 1
-      
-      - name: Run Tests Only
-        run: |
-          set -o pipefail
-          cd JoyfillSwiftUIExample
-          
-          echo "Starting UI tests..."
-          timeout 1200 xcodebuild test \
-            -project JoyfillExample.xcodeproj \
-            -scheme JoyfillUITests \
-            -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,OS=latest" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES \
-            -derivedDataPath ./DerivedData \
-            -resultBundlePath ./TestResults.xcresult \
-            -jobs 1
-      
-      - name: Upload Test Results
+          | xcpretty --color --report html --output unit-test-report.html
+      - name: Upload Unit Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: JoyfillSwiftUIExample/TestResults.xcresult
-      
-      - name: Upload UI Test Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-test-report
-          path: JoyfillSwiftUIExample/ui-test-report.html
+          name: unit-test-report
+          path: JoyfillSwiftUIExample/unit-test-report.html
