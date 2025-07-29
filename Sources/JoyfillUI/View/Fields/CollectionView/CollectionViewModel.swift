@@ -1487,12 +1487,12 @@ class CollectionViewModel: ObservableObject {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
-                
+        let nestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
         let result = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                   rootSchemaKey: rootSchemaKey,
-                                                                  nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
+                                                                        nestedKey: nestedKey,
                                                                         parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "",
                                                                         callOnChange: callOnChange) ?? ([], nil)
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
@@ -1764,11 +1764,13 @@ extension CollectionViewModel: DocumentEditorDelegate {
     func decodeParentPath(parentPath: String) -> String? {
         let parts = parentPath.split(separator: ".").map(String.init)
         
-        guard let rootIndex = Int(parts.first ?? "") else {
+        guard parts.count >= 2, parts.count % 2 == 0 else {
             return nil
         }
         
-        let trimmed = Array(parts.dropFirst(2).dropLast(2))
+        guard let rootIndex = Int(parts[0]) else {
+            return nil
+        }
         
         guard let rootElements = tableDataModel.valueToValueElements,
               rootIndex >= 0, rootIndex < rootElements.count else {
@@ -1776,19 +1778,18 @@ extension CollectionViewModel: DocumentEditorDelegate {
         }
         
         var currentNode: ValueElement? = rootElements[rootIndex]
-        
-        for offset in stride(from: 0, to: trimmed.count, by: 2) {
-            guard let childIndex = Int(trimmed[offset]) else {
-                break
+
+        for i in stride(from: 1, to: parts.count - 2, by: 2) {
+            let schemaId = parts[i]
+            guard let childIndex = Int(parts[i + 1]),
+                  let childrenBranch = currentNode?.childrens?[schemaId],
+                  childIndex >= 0,
+                  let nextNode = childrenBranch.valueToValueElements?[childIndex] else {
+                return nil
             }
-            let schemaKey = trimmed[offset + 1]
-            guard let branch = currentNode?.childrens?[schemaKey],
-                  childIndex >= 0, childIndex < branch.valueToValueElements?.count ?? 0 else {
-                break
-            }
-            currentNode = branch.valueToValueElements?[childIndex]
+            currentNode = nextNode
         }
-        
+
         return currentNode?.id
     }
     
@@ -1815,6 +1816,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
         var cellValues: [String: ValueUnion] = [:]
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
+        cellValues = newRow.cells ?? [:]
         guard let newRowID = newRow.id else { return }
         if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
             let parentPath = change.change?["parentPath"] as? String ?? ""

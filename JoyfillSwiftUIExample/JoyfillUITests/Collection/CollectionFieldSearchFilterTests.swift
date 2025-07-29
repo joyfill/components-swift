@@ -661,6 +661,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         expandButton.tap()
     }
     
+    func expandNestedRow(number: Int) {
+        let expandButton = app.images["CollectionExpandCollapseNestedButton\(number)"]
+        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        expandButton.tap()
+    }
+    
     func addThreeNestedRows(parentRowNumber: Int) {
         expandRow(number: parentRowNumber)
         tapSchemaAddRowButton(number: 0)
@@ -2007,4 +2013,196 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         app.swipeLeft()
     }
+    
+    func moveUpButton() -> XCUIElement {
+        return app.buttons["TableMoveUpRowIdentifier"]
+    }
+    
+    func moveDownButton() -> XCUIElement {
+        return app.buttons["TableMoveDownRowIdentifier"]
+    }
+    func inserRowBelowButton() -> XCUIElement {
+        return app.buttons["TableInsertRowIdentifier"]
+    }
+    
+    //Test changelogs for collection depth 3
+    func testChangeLogsForDelete() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        //swipe up for iphone
+        app.swipeUp()
+        app.images["selectNestedRowItem3"].firstMatch.tap()
+        tapOnMoreButton()
+        app.buttons["TableDeleteRowIdentifier"].firstMatch.tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowDelete", fieldTarget)
+        
+        let fileID = onChangeResult().fileId
+        XCTAssertEqual("685750ef698da1ab427761ba", fileID)
+        
+        let pageID = onChangeResult().pageId
+        XCTAssertEqual("685750efeb612f4fac5819dd", pageID)
+        
+        let fieldId = onChangeResult().fieldId
+        XCTAssertEqual("6857510fbfed1553e168161b", fieldId)
+        
+        let docIdentifier = onChangeResult().identifier
+        XCTAssertEqual("doc_685750eff3216b45ffe73c80", docIdentifier)
+        
+        let fieldIdentifier = onChangeResult().fieldIdentifier
+        XCTAssertEqual("field_68575112847f32f878c77daf", fieldIdentifier)
+        
+        let change = onChangeResult().change
+        
+        let deletedRowId = change?["rowId"] as? String
+        XCTAssertEqual("68599790e8593d6d76c3a09f", deletedRowId)
+
+        let parentPath = change?["parentPath"] as? String
+        XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
+        
+        let schemaId = change?["schemaId"] as? String
+        XCTAssertEqual("685753be00360cf5d545a89e", schemaId)
+        
+    }
+    
+    func testChangeLogsForAddRow() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        //swipe up for iphone
+        app.swipeUp()
+        app.images["selectNestedRowItem3"].firstMatch.tap()
+        tapOnMoreButton()
+        inserRowBelowButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowCreate", fieldTarget)
+        
+        let fileID = onChangeResult().fileId
+        XCTAssertEqual("685750ef698da1ab427761ba", fileID)
+        
+        let pageID = onChangeResult().pageId
+        XCTAssertEqual("685750efeb612f4fac5819dd", pageID)
+        
+        let fieldId = onChangeResult().fieldId
+        XCTAssertEqual("6857510fbfed1553e168161b", fieldId)
+        
+        let docIdentifier = onChangeResult().identifier
+        XCTAssertEqual("doc_685750eff3216b45ffe73c80", docIdentifier)
+        
+        let fieldIdentifier = onChangeResult().fieldIdentifier
+        XCTAssertEqual("field_68575112847f32f878c77daf", fieldIdentifier)
+        
+        let change = onChangeResult().change
+        let newRowIndex = change?["targetRowIndex"] as? Double
+        XCTAssertEqual(newRowIndex, 3)
+
+        let parentPath = change?["parentPath"] as? String
+        XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
+        
+        let schemaId = change?["schemaId"] as? String
+        XCTAssertEqual("685753be00360cf5d545a89e", schemaId)
+        
+    }
+    
+    func testChangeLogsForEditRow() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        //swipe up for iphone
+        app.swipeUp()
+        app.images["selectNestedRowItem3"].firstMatch.tap()
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        sleep(1)
+        textField.tap()
+        textField.typeText(" new value")
+        app.dismissKeyboardIfVisible()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowUpdate", fieldTarget)
+        
+        let fileID = onChangeResult().fileId
+        XCTAssertEqual("685750ef698da1ab427761ba", fileID)
+        
+        let pageID = onChangeResult().pageId
+        XCTAssertEqual("685750efeb612f4fac5819dd", pageID)
+        
+        let fieldId = onChangeResult().fieldId
+        XCTAssertEqual("6857510fbfed1553e168161b", fieldId)
+        
+        let docIdentifier = onChangeResult().identifier
+        XCTAssertEqual("doc_685750eff3216b45ffe73c80", docIdentifier)
+        
+        let fieldIdentifier = onChangeResult().fieldIdentifier
+        XCTAssertEqual("field_68575112847f32f878c77daf", fieldIdentifier)
+        
+        let change = onChangeResult().change
+        let rowID = change?["rowId"] as? String
+        XCTAssertEqual(rowID, "68599790e8593d6d76c3a09f")
+
+        let parentPath = change?["parentPath"] as? String
+        XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
+        
+        let schemaId = change?["schemaId"] as? String
+        XCTAssertEqual("685753be00360cf5d545a89e", schemaId)
+        let row = change?["row"] as? [String: Any]
+        let cells = row?["cells"] as? [String: Any]
+        let updatedValue = cells?["685753be581f231c08d8f11c"] as? String
+        XCTAssertEqual(updatedValue, "A new value")
+    }
+    
+    func testChangeLogsForEditupperRows() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 1)
+        expandNestedRow(number: 1)
+        //swipe up for iphone
+        app.swipeUp()
+        app.images["selectNestedRowItem3"].firstMatch.tap()
+        tapOnMoreButton()
+        moveUpButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        let fileID = onChangeResult().fileId
+        XCTAssertEqual("685750ef698da1ab427761ba", fileID)
+        
+        let pageID = onChangeResult().pageId
+        XCTAssertEqual("685750efeb612f4fac5819dd", pageID)
+        
+        let fieldId = onChangeResult().fieldId
+        XCTAssertEqual("6857510fbfed1553e168161b", fieldId)
+        
+        let docIdentifier = onChangeResult().identifier
+        XCTAssertEqual("doc_685750eff3216b45ffe73c80", docIdentifier)
+        
+        let fieldIdentifier = onChangeResult().fieldIdentifier
+        XCTAssertEqual("field_68575112847f32f878c77daf", fieldIdentifier)
+        
+        let change = onChangeResult().change
+        let rowID = change?["rowId"] as? String
+        XCTAssertEqual(rowID, "6859957846d24f95d8ee02b6")
+
+        let parentPath = change?["parentPath"] as? String
+        XCTAssertEqual("0.685753949107b403e2e4a949.0.685753be00360cf5d545a89e", parentPath)
+        
+        let schemaId = change?["schemaId"] as? String
+        XCTAssertEqual("685753be00360cf5d545a89e", schemaId)
+        
+        let targetRowIndex = change?["targetRowIndex"] as? Double
+        XCTAssertEqual(1, targetRowIndex)
+        
+    }
 }
+

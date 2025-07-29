@@ -66,7 +66,6 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         guard shouldSendEvent else { return elements }
-        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
         return elements
@@ -537,7 +536,8 @@ extension DocumentEditor {
         guard shouldSendEvent else { return (elements,newRow) }
         
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
-        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)])
+        let index = elements.filter({ $0.deleted != true }).count - 1
+        addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: index)])
         return (elements,newRow)
     }
     
@@ -591,7 +591,7 @@ extension DocumentEditor {
     private func insertNestedRow(in elements: inout [ValueElement],
                                  targetParentId: String,
                                  nestedKey: String,
-                                 newRow: ValueElement) -> Bool {
+                                 newRow: ValueElement) -> Int? {
         for i in 0..<elements.count {
             // If this element is the target parent:
             if elements[i].id == targetParentId {
@@ -607,22 +607,22 @@ extension DocumentEditor {
                 nestedElements.append(newRow)
                 children[nestedKey]?.value = ValueUnion.valueElementArray(nestedElements)
                 elements[i].childrens = children
-                return true
+                return nestedElements.count - 1
             }
             // Otherwise, search recursively in this element’s children.
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if insertNestedRow(in: &nestedElements, targetParentId: targetParentId, nestedKey: nestedKey, newRow: newRow) {
+                        if let index = insertNestedRow(in: &nestedElements, targetParentId: targetParentId, nestedKey: nestedKey, newRow: newRow) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return true
+                            return index
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
     
     private func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
@@ -630,14 +630,14 @@ extension DocumentEditor {
             guard !elements.isEmpty else { continue }
             for i in 0..<elements.count {
                 if elements[i].id == targetParentId {
-                    return "\(i).\(parentKey)." + "0.\(nestedKey)"
+                    return "\(i).\(nestedKey)"
                 }
                 
                 if let children = elements[i].childrens {
                     for (key, child) in children {
                         if let nestedElements = child.valueToValueElements,
                            let subPath = computeParentPath(targetParentId: targetParentId, nestedKey: nestedKey, in: [key : nestedElements]) {
-                            return "\(i).\(parentKey)." + subPath
+                            return "\(i).\(key)." + subPath
                         }
                     }
                 }
@@ -673,17 +673,16 @@ extension DocumentEditor {
             }
         }
         newRow.childrens = childrens
+        var insertedIndex: Int?
         if let parentRowId = parentRowId, let nestedKey = schemaKey {
             // Attempt to insert recursively into the nested structure.
-            let inserted = insertNestedRow(in: &elements, targetParentId: parentRowId, nestedKey: nestedKey, newRow: newRow)
-            if !inserted {
-                // Parent row not found—handle the error as needed.
-                return nil
-            }
+            insertedIndex = insertNestedRow(in: &elements, targetParentId: parentRowId, nestedKey: nestedKey, newRow: newRow)
+            
             parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         } else {
             // Insert as a top-level row.
             elements.append(newRow)
+            insertedIndex = elements.count - 1
         }
         
         // Update the field's stored value.
@@ -694,7 +693,7 @@ extension DocumentEditor {
         // Fire off a change event.
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
         
-        addNestedRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: elements.count - 1)], valueElements: [newRow], parentPath: parentPath, schemaKey: schemaKey ?? "")
+        addNestedRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: insertedIndex ?? 0)], valueElements: [newRow], parentPath: parentPath, schemaKey: schemaKey ?? "")
         
         return (elements, newRow)
     }
