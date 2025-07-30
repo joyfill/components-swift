@@ -364,7 +364,7 @@ struct TableDataModel {
             case .dropdown:
                 match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
             case .number:
-                let columnNumberString = String(format: "%g", column.number ?? 0)
+                let columnNumberString = String(column.number ?? 0)
                 match = columnNumberString.hasPrefix(filter.filterText)
             case .multiSelect:
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
