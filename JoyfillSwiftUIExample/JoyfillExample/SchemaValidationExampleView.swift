@@ -197,13 +197,13 @@ struct SchemaValidationExampleView: View {
                         .frame(height: 44)
                         .frame(maxWidth: .infinity)
                         .background(
-                            (useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
+                            (useCustomJSON && ( jsonString.isEmpty || jsonErrorMessage != nil))
                             ? Color.gray.opacity(0.3)
                             : Color.blue
                         )
                         .cornerRadius(8)
                     }
-                    .disabled(useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
+                    .disabled(useCustomJSON && ( jsonString.isEmpty || jsonErrorMessage != nil))
                     
                     // Show Form Button
                     Button(action: {
@@ -218,13 +218,13 @@ struct SchemaValidationExampleView: View {
                         .frame(height: 44)
                         .frame(maxWidth: .infinity)
                         .background(
-                            (useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
+                            (useCustomJSON && ( jsonString.isEmpty || jsonErrorMessage != nil))
                             ? Color.gray.opacity(0.3)
                             : Color.green
                         )
                         .cornerRadius(8)
                     }
-                    .disabled(useCustomJSON && (jsonSchema.isEmpty || jsonString.isEmpty || jsonErrorMessage != nil))
+                    .disabled(useCustomJSON && ( jsonString.isEmpty || jsonErrorMessage != nil))
                 }
                 .padding(.horizontal)
                 
@@ -405,7 +405,11 @@ struct SchemaValidationExampleView: View {
     
     private func setCurrentJSONSchema() {
         if useCustomJSON {
-            setCustomSchema(jsonSchema)
+            if jsonSchema.isEmpty {
+                resetJoyfillSchemaToDefault()
+            } else {
+                setCustomSchema(jsonSchema)
+            }
         } else {
             resetJoyfillSchemaToDefault()
         }
