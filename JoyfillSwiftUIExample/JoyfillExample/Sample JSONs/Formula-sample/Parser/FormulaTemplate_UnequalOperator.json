@@ -451,7 +451,7 @@
       "formulas": [
         {
           "_id": "text11Formula",
-          "formula": "iftruestringNotEqualtrueWorking",
+          "formula": "ifTrueStringNotEqualtrueWorking",
           "key": "value"
         }
       ]
@@ -754,7 +754,7 @@
       "expression": "if(\"1\" != 1, \"Working\", \"Broken\")"
     },
     {
-      "_id": "iftrueStringNotEqualtrueWorking",
+      "_id": "ifTrueStringNotEqualtrueWorking",
       "desc": "",
       "type": "calc",
       "scope": "private",
