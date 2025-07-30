@@ -50,8 +50,16 @@ public class JoyfillSchemaManager {
         let detectedVersion = documentVersion ?? "1.0.0" // Undefined version = v1.x.x
         
         // Parse major version from version string
-        let majorVersion = extractMajorVersion(from: detectedVersion)
-        let supportedMajorVersion = extractMajorVersion(from: currentSchemaVersion())
+        guard let majorVersion = extractMajorVersion(from: detectedVersion), let supportedMajorVersion = extractMajorVersion(from: currentSchemaVersion())  else {
+            return SchemaValidationError(
+                code: "ERROR_SCHEMA_VERSION",
+                message: "Error detected with targeted schema version", error: nil,
+                details: .init(
+                    schemaVersion: currentSchemaVersion(),
+                    sdkVersion: sdkVersion
+                )
+            )
+        }
         
         // Check if major version is supported
         if majorVersion > supportedMajorVersion {
@@ -68,13 +76,13 @@ public class JoyfillSchemaManager {
         return nil
     }
     
-    private func extractMajorVersion(from versionString: String) -> Int {
+    private func extractMajorVersion(from versionString: String) -> Int? {
         // Handle version strings like "1.2.3" or "2.0.0"
         let components = versionString.components(separatedBy: ".")
         guard let firstComponent = components.first, 
               let majorVersion = Int(firstComponent) else {
             // If we can't parse, assume v1 for backward compatibility
-            return 1
+            return nil
         }
         return majorVersion
     }
@@ -89,7 +97,7 @@ public class JoyfillSchemaManager {
                 code: "ERROR_SCHEMA_VALIDATION",
                 message: "Unable to load embedded schema",
                 error: nil,
-                details: .init(schemaVersion: "embedded", sdkVersion: sdkVersion)
+                details: .init(schemaVersion: currentSchemaVersion(), sdkVersion: sdkVersion)
             )
         }
         
@@ -116,7 +124,7 @@ public class JoyfillSchemaManager {
                 message: "Error detected during schema validation: \(error.localizedDescription)",
                 error: nil,
                 details: .init(
-                    schemaVersion: "unknown",
+                    schemaVersion: currentSchemaVersion(),
                     sdkVersion: sdkVersion
                 )
             )
@@ -124,13 +132,13 @@ public class JoyfillSchemaManager {
     }
     
     private func getSchemaVersion(from schemaDict: [String: Any]) -> String {
-        return schemaDict["$joyfillSchemaVersion"] as? String ?? "unknown"
+        return schemaDict["$joyfillSchemaVersion"] as? String ?? "Null"
     }
 
     private func currentSchemaVersion() -> String {
         guard let data = getCurrentSchema().data(using: .utf8),
               let dict = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
-            return "unknown"
+            return "Null"
         }
         return getSchemaVersion(from: dict)
     }
