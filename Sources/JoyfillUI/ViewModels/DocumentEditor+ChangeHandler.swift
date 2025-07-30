@@ -625,6 +625,98 @@ extension DocumentEditor {
         return nil
     }
     
+    func insertRowWithFilterWithAnyIndex(id: String,
+                                                cellValues: [String: ValueUnion],
+                                                fieldIdentifier: FieldIdentifier,
+                                                parentRowId: String? = nil,
+                                                schemaKey: String? = nil,
+                                                childrenKeys: [String]? = nil,
+                                                rootSchemaKey: String,
+                                                index: Int?) -> (all: [ValueElement], inserted: ValueElement)? {
+        var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
+        var newRow = ValueElement(id: id)
+        if newRow.cells == nil {
+            newRow.cells = [:]
+        }
+        
+        for (key, value) in cellValues {
+            newRow.cells![key] = value
+        }
+        let children = getEmptyChildrenObject()
+        var childrens: [String: Children] = [:]
+        if let childrenKeys = childrenKeys, !childrenKeys.isEmpty {
+            for childrenSchemaKey in childrenKeys {
+                childrens[childrenSchemaKey] = children
+            }
+        }
+        newRow.childrens = childrens
+        if let parentRowId = parentRowId, let nestedKey = schemaKey {
+            // Attempt to insert recursively into the nested structure.
+            let inserted = insertNestedRowWithAnyIndex(in: &elements, targetParentId: parentRowId, nestedKey: nestedKey, newRow: newRow, index: index) ?? false
+            if inserted == false {
+                return nil
+            }
+        } else {
+            // Insert as a top-level row.
+            let safeIndex: Int
+            if let idx = index, idx >= 0 && idx <= elements.count {
+                safeIndex = idx
+            } else {
+                safeIndex = elements.count  // Append at the end
+            }
+            elements.insert(newRow, at: safeIndex)
+            
+        }
+        // Update the field's stored value.
+        fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+        
+        return (elements, newRow)
+    }
+    
+    private func insertNestedRowWithAnyIndex(in elements: inout [ValueElement],
+                                             targetParentId: String,
+                                             nestedKey: String,
+                                             newRow: ValueElement,
+                                             index: Int?) -> Bool? {
+        for i in 0..<elements.count {
+            // If this element is the target parent:
+            if elements[i].id == targetParentId {
+                var children = elements[i].childrens ?? [:]
+                if children.isEmpty {
+                    children = [nestedKey : getEmptyChildrenObject()]
+                }
+                
+                if children[nestedKey] == nil {
+                    children[nestedKey] = getEmptyChildrenObject()
+                }
+                var nestedElements = children[nestedKey]?.valueToValueElements ?? []
+                let safeIndex: Int
+                if let idx = index, idx >= 0 && idx <= nestedElements.count {
+                    safeIndex = idx
+                } else {
+                    safeIndex = nestedElements.count  // Append at the end
+                }
+                nestedElements.insert(newRow, at: safeIndex)
+                children[nestedKey]?.value = ValueUnion.valueElementArray(nestedElements)
+                elements[i].childrens = children
+                return true
+            }
+            // Otherwise, search recursively in this element’s children.
+            if var children = elements[i].childrens {
+                for key in children.keys {
+                    if var nestedElements = children[key]?.valueToValueElements {
+                        if let inserted = insertNestedRowWithAnyIndex(in: &nestedElements, targetParentId: targetParentId, nestedKey: nestedKey, newRow: newRow, index: index) {
+                            children[key]?.value = ValueUnion.valueElementArray(nestedElements)
+                            elements[i].childrens = children
+                            return inserted
+                        }
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
     private func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
         for (parentKey,elements) in child {
             guard !elements.isEmpty else { continue }
