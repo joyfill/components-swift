@@ -1422,28 +1422,39 @@ class CollectionViewModel: ObservableObject {
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
                 refreshCollectionSchema(rowID: parentRowID)
             } else {
+                let insertAtIndex = calculateIndexForInsertRow(index: index ?? (tableDataModel.valueToValueElements?.count ?? 0))
                 addNestedCellModel(rowID: newRowID,
-                                   index: calculateIndexForInsertRow(index: index ?? (tableDataModel.valueToValueElements?.count ?? 0)),
+                                   index: insertAtIndex,
                                    valueElement: valueElement,
                                    columns: tableDataModel.tableColumns,
                                    level: 0,
                                    childrens: getChildrensBy(rootSchemaKey),
                                    rowType: .row(index: rowIndex),
                                    schemaKey: rootSchemaKey)
+                reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[insertAtIndex])
             }
             sortRowsIfNeeded()
         }
     }
     
     func calculateIndexForInsertRow(index: Int) -> Int {
-        var currentIndex = index
+        var finalUIIndex = index
+        var rootRowsCount: Int = 0
         for i in tableDataModel.filteredcellModels.indices {
             let rowDataModel = tableDataModel.filteredcellModels[i]
             if rowDataModel.isExpanded {
-                currentIndex += tableDataModel.childrensForRows(i, rowDataModel, 0).count
+                finalUIIndex += tableDataModel.childrensForRows(i, rowDataModel, 0).count
+            }
+            
+            if rowDataModel.rowType.isRow {
+                rootRowsCount += 1
+            }
+            
+            if rootRowsCount == index {
+                break
             }
         }
-        return currentIndex
+        return finalUIIndex
     }
     
     func addNestedRow(schemaKey: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
