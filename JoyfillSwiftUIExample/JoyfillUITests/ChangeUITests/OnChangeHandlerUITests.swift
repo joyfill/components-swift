@@ -1614,9 +1614,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"TableScanButtonIdentifier").children(matching: .image).matching(identifier: "TableScanButtonIdentifier").element(boundBy: 4).tap()
         
         let sixthTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 5)
+        XCTAssertTrue(sixthTableTextField.waitForExistence(timeout: 5),
+                      "sixth field didn’t show up")
         sixthTableTextField.tap()
         sixthTableTextField.typeText("Sixth Row")
-        
+        sleep(1)
         goBack()
         sleep(2)
         let firstCellTextValue = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)

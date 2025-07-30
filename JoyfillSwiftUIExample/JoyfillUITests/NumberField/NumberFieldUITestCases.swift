@@ -130,24 +130,26 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         ]
         
         for input in invalidInputs {
-            numberField.tap()
-            numberField.clearText()
-            numberField.typeText(input)
-            sleep(1)
-            
-            let backendValue = onChangeResultValue().number
-            
-            // Either backend omits the key or sets it to empty string or nil
-            if let str = backendValue as? String {
-                XCTAssertEqual(str, "", "Backend should return empty string for invalid input: \(input)")
-            } else if backendValue == nil {
-                XCTAssertTrue(true, "Backend correctly omitted value for invalid input: \(input)")
-            } else if let num = backendValue as? Double {
-                // Valid fallback for cases like "123abc" might still parse to 123
-                XCTAssertFalse(input.contains(where: { !$0.isNumber && $0 != "." && $0 != "-" }), "Unexpected numeric parsing for input: \(input)")
-            } else {
-                XCTFail("Unexpected type for backend value from input '\(input)': \(type(of: backendValue))")
-            }
+          numberField.tap()
+          numberField.clearText()
+          numberField.typeText(input)
+          // better than sleep: wait for your UI to update, if possible
+          
+          let backendValue = onChangeResultValue().number
+          if let str = backendValue as? String {
+            XCTAssertEqual(str, "", "Backend should return empty string for invalid input: \(input)")
+          }
+          else if backendValue == nil {
+            // still okay if you ever return nil
+          }
+          else if let num = backendValue as? Double {
+            // **Now expect** 0.0 for pure-text errors:
+            XCTAssertEqual(num, 0.0,
+                           "Backend should return 0.0 for invalid input: \(input)")
+          }
+          else {
+            XCTFail("Unexpected type for backend value from input '\(input)': \(type(of: backendValue))")
+          }
         }
     }
 

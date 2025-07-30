@@ -93,16 +93,20 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let minXValuesTextField = app.textFields["MinX"]
         let maxYValuesTextField = app.textFields["MaxY"]
         let maxXValuesTextField = app.textFields["MaxX"]
-
+        
+        XCTAssertTrue(minYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         minYValuesTextField.tap()
         minYValuesTextField.clearText()
         minYValuesTextField.typeText("10")
+        XCTAssertTrue(minXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         minXValuesTextField.tap()
         minXValuesTextField.clearText()
         minXValuesTextField.typeText("20")
+        XCTAssertTrue(maxYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         maxYValuesTextField.tap()
         maxYValuesTextField.clearText()
         maxYValuesTextField.typeText("10030")
+        XCTAssertTrue(maxXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         maxXValuesTextField.tap()
         maxXValuesTextField.clearText()
         maxXValuesTextField.typeText("10040")

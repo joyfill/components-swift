@@ -89,7 +89,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     func tapOnNumberTextField(atIndex index: Int) -> XCUIElement {
         // Try simplified method first (assumes iPad or iPhone with identifiers working)
         let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: index)
-
+        XCTAssertTrue(numberField.waitForExistence(timeout: 5), "Number field at index \(index) not found (deep fallback)")
         if numberField.exists && numberField.isHittable {
             numberField.tap()
             return numberField
@@ -172,7 +172,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         let thirdTextField = tapOnNumberTextField(atIndex: 2)
         XCTAssertEqual("200", thirdTextField.value as! String)
         thirdTextField.tap()
-        thirdTextField.typeText(".001")
+        thirdTextField.clearText()
+        thirdTextField.typeText("200.001")
         
         let fourthTextField = tapOnNumberTextField(atIndex: 3)
         XCTAssertEqual("2.111", fourthTextField.value as! String)

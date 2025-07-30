@@ -216,8 +216,9 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let firstCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertTrue(firstCell.exists)
         firstCell.tap()
-        sleep(1)
-        XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on focus")
+        let keyboard = app.keyboards.element
+          XCTAssertTrue(keyboard.waitForExistence(timeout: 5),
+                        "Keyboard should appear on focus")
         app.otherElements.firstMatch.tap() // dismiss
         sleep(1)
         XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on blur")

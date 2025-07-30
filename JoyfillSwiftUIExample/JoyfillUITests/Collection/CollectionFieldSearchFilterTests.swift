@@ -666,6 +666,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapSchemaAddRowButton(number: 0)
         tapSchemaAddRowButton(number: 0)
         tapSchemaAddRowButton(number: 0)
+        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 6)
+        XCTAssertTrue(thirdNestedTextField.waitForExistence(timeout: 5),"Third nested text field didn’t show up")
+        XCTAssertEqual("", thirdNestedTextField.value as! String)
+        thirdNestedTextField.tap()
+        thirdNestedTextField.typeText("123456789")
         
         let firstNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("", firstNestedTextField.value as! String)
@@ -676,11 +681,6 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("", secNestedTextField.value as! String)
         secNestedTextField.tap()
         secNestedTextField.typeText("Namaste ji")
-        
-        let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 6)
-        XCTAssertEqual("", thirdNestedTextField.value as! String)
-        thirdNestedTextField.tap()
-        thirdNestedTextField.typeText("123456789")
     }
     
     
@@ -1966,13 +1966,17 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         goToCollectionDetailField()
         
         let secondTextView = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(secondTextView.waitForExistence(timeout: 5), "second text view didn't dispear")
         XCTAssertTrue(secondTextView.exists)
         secondTextView.tap()
         secondTextView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5), "‘Select All’ menu didn’t show up")
+        selectAll.tap()
         secondTextView.typeText("CopyPasteTest")
         secondTextView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5), "‘Select All’ menu didn’t show up")
+        selectAll.tap()
         app.menuItems["Copy"].tap()
         secondTextView.clearText()
         secondTextView.press(forDuration: 1.0)

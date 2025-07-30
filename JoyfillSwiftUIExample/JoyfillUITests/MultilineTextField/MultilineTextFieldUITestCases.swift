@@ -231,6 +231,9 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         sleep(2)
         app.menuItems["Copy"].tap()
+        let copyText = app.menuItems["Copy"]
+        XCTAssertTrue(copyText.waitForExistence(timeout: 5),"‘Copy’ menu didn’t show up")
+        copyText.tap()
         
         field2.tap()
         field2.clearText()
@@ -338,7 +341,9 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         // Reset and test: second contains "abcd"
         secondMultiline.tap()
         secondMultiline.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         secondMultiline.typeText("123 abcd 456")
         sleep(1)
         XCTAssertFalse(displayText.exists, "Display text should be hidden when second multiline contains 'abcd'.")
@@ -364,7 +369,9 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual("A very long paragraph\nthat spans multiple\nlines and exceeds\nthe visible area.", multiLineTextField.value as! String)
         multiLineTextField.tap()
         multiLineTextField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         multiLineTextField.typeText("Hello sir")
         sleep(2)
         XCTAssertEqual("Hello sir", onChangeResultValue().multilineText)

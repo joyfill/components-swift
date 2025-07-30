@@ -848,7 +848,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         numberTextField.typeText("12345")
         firstImageButton.tap()
         dismissSheet()
-         
+        app.swipeUp()
         guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
             XCTFail("Failed to find barcode text field after swiping")
             return

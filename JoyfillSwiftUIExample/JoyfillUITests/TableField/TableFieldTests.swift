@@ -315,9 +315,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].tap()
         
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        XCTAssertTrue(textField.waitForExistence(timeout: 5),
+                      "‘Select All’ menu didn’t show up")
         textField.tap()
-        sleep(1)
         textField.typeText("Edit")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -396,7 +396,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         textField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),
+                      "❌ ‘Select All’ menu didn’t show up")
+        selectAll.tap()
         textField.clearText()
         textField.typeText("Qu")
         
@@ -1136,12 +1139,16 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     // Enter data in inserd row - at first Index
     func enterDataInInsertedRow() {
         let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(enterDateInInsertedField.waitForExistence(timeout: 5),
+                        "Inserted text field never appeared")
         XCTAssertEqual("", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
         enterDateInInsertedField.typeText("Inserted Row")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        XCTAssertTrue(selectDropdownField.waitForExistence(timeout: 5),
+                        "Inserted text field never appeared")
         XCTAssertEqual("Select Option", selectDropdownField.label)
         selectDropdownField.tap()
         sleep(1)
@@ -1216,7 +1223,10 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         sleep(1)
         textField.tap()
         textField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),
+                      "❌ ‘Select All’ menu didn’t show up")
+        selectAll.tap()
         textField.clearText()
         textField.typeText("qu")
         
@@ -1494,7 +1504,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Cat 4", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
         enterDateInInsertedField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         enterDateInInsertedField.typeText("qu")
         
         // Select first option in dropdown field
@@ -1779,11 +1791,15 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         // check data in Duplicate field
         let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(checkEditDataOnTextField.waitForExistence(timeout: 5),
+                        "Inserted text field never appeared")
         XCTAssertEqual("Inserted Row", checkEditDataOnTextField.value as! String)
         
         sleep(1)
-        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 1).label)
+        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        XCTAssertTrue(checkEditDataOnDropdownField.waitForExistence(timeout: 5),
+                        "Dropdown field never appeared")
+        XCTAssertEqual("No", checkEditDataOnDropdownField.label)
     }
     
 //    func testTextFieldAddRowWithFilters() throws {

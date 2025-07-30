@@ -29,7 +29,9 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual("test", multiLineTextField.value as! String)
         multiLineTextField.tap()
         multiLineTextField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         multiLineTextField.clearText()
         multiLineTextField.typeText("quick")
         sleep(1)
@@ -103,7 +105,9 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         let multilineTextView = app.textViews.element(boundBy: 0)
         multilineTextView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         multilineTextView.typeText("hide")
         app.swipeDown()
         let readonlyField = app.textFields.element(boundBy: 1)
@@ -186,13 +190,16 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         // 2. First = "hide", multiline ≠ "show" => display text should hide
         firstTextField.tap()
         firstTextField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         firstTextField.clearText()
         firstTextField.typeText("hide")
         sleep(1)
         multilineTextView.tap()
         multilineTextView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         multilineTextView.typeText("not_show")
         sleep(2)
         XCTAssertFalse(displayText.exists)
