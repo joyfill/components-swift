@@ -10,8 +10,6 @@ import Foundation
 
 public class JoyfillSchemaManager {
     
-    private let supportedMajorVersion = 1
-
     public init() {}
 
     // MARK: - Public API
@@ -53,6 +51,7 @@ public class JoyfillSchemaManager {
         
         // Parse major version from version string
         let majorVersion = extractMajorVersion(from: detectedVersion)
+        let supportedMajorVersion = extractMajorVersion(from: currentSchemaVersion())
         
         // Check if major version is supported
         if majorVersion > supportedMajorVersion {
