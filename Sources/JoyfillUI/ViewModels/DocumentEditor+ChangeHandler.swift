@@ -625,7 +625,7 @@ extension DocumentEditor {
         return nil
     }
     
-    public func insertRowWithFilterWithAnyIndex(id: String,
+    func insertRowWithFilterWithAnyIndex(id: String,
                                                 cellValues: [String: ValueUnion],
                                                 fieldIdentifier: FieldIdentifier,
                                                 parentRowId: String? = nil,
@@ -634,7 +634,6 @@ extension DocumentEditor {
                                                 rootSchemaKey: String,
                                                 index: Int?) -> (all: [ValueElement], inserted: ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
-        var parentPath = ""
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
             newRow.cells = [:]
