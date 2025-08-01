@@ -26,6 +26,9 @@
       "containerPath" : "container:JoyfillExample.xcodeproj",
       "identifier" : "1307CF182BE36ECD00B19FBA",
       "name" : "JoyfillUITests"
+    },
+    "simulatorSettings" : {
+      "disableHardwareKeyboard" : true
     }
   },
   "testTargets" : [
