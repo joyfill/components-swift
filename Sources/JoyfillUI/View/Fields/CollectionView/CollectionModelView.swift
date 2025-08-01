@@ -449,6 +449,7 @@ struct CollectionRowsHeaderView: View {
                                     .onTapGesture {
                                         viewModel.expandTables(rowDataModel: rowModel, level: level)
                                     }
+                                    .accessibilityIdentifier("CollectionExpandCollapseNestedButton\(nestedIndex)")
                             } else {
                                 EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                             }

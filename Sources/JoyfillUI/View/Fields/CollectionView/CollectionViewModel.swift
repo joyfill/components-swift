@@ -1400,6 +1400,63 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    func addRowWithIndex(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true, index: Int?, nestedKey: String? = nil, parentRowID: String? = nil) {
+        let id = rowID ?? generateObjectId()
+        let cellValues = cellValues ?? getCellValues(columns: tableDataModel.tableColumns)
+        if let rowData = tableDataModel.documentEditor?.insertRowWithFilterWithAnyIndex(id: id,
+                                                                             cellValues: cellValues,
+                                                                             fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                             parentRowId: parentRowID,
+                                                                             schemaKey: nestedKey,
+                                                                             childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
+                                                                             rootSchemaKey: rootSchemaKey,
+                                                                             index: index) {
+            tableDataModel.valueToValueElements = rowData.all
+            buildRowToValueElementMap()
+            let valueElement = rowData.inserted
+            guard let newRowID = valueElement.id else {
+                Log("Could not find id for new row", type: .error)
+                return
+            }
+            let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
+            if let parentRowID = parentRowID, let nestedKey = nestedKey {
+                refreshCollectionSchema(rowID: parentRowID)
+            } else {
+                let insertAtIndex = calculateIndexForInsertRow(index: index ?? (tableDataModel.valueToValueElements?.count ?? 0))
+                addNestedCellModel(rowID: newRowID,
+                                   index: insertAtIndex,
+                                   valueElement: valueElement,
+                                   columns: tableDataModel.tableColumns,
+                                   level: 0,
+                                   childrens: getChildrensBy(rootSchemaKey),
+                                   rowType: .row(index: rowIndex),
+                                   schemaKey: rootSchemaKey)
+                reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[insertAtIndex])
+            }
+            sortRowsIfNeeded()
+        }
+    }
+    
+    func calculateIndexForInsertRow(index: Int) -> Int {
+        var finalUIIndex = index
+        var rootRowsCount: Int = 0
+        for i in tableDataModel.filteredcellModels.indices {
+            let rowDataModel = tableDataModel.filteredcellModels[i]
+            if rowDataModel.isExpanded {
+                finalUIIndex += tableDataModel.childrensForRows(i, rowDataModel, 0).count
+            }
+            
+            if rowDataModel.rowType.isRow {
+                rootRowsCount += 1
+            }
+            
+            if rootRowsCount == index {
+                break
+            }
+        }
+        return finalUIIndex
+    }
+    
     func addNestedRow(schemaKey: String, level: Int, startingIndex: Int, parentID: (columnID: String, rowID: String)) {
         let id = generateObjectId()
         let schemaTableColumns = tableDataModel.schema[schemaKey]?.tableColumns ?? []
@@ -1487,12 +1544,12 @@ class CollectionViewModel: ObservableObject {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
-                
+        let nestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
         let result = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                   rootSchemaKey: rootSchemaKey,
-                                                                  nestedKey: currentRowModel?.rowType.parentSchemaKey ?? "",
+                                                                        nestedKey: nestedKey,
                                                                         parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "",
                                                                         callOnChange: callOnChange) ?? ([], nil)
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
@@ -1764,11 +1821,13 @@ extension CollectionViewModel: DocumentEditorDelegate {
     func decodeParentPath(parentPath: String) -> String? {
         let parts = parentPath.split(separator: ".").map(String.init)
         
-        guard let rootIndex = Int(parts.first ?? "") else {
+        guard parts.count >= 2, parts.count % 2 == 0 else {
             return nil
         }
         
-        let trimmed = Array(parts.dropFirst(2).dropLast(2))
+        guard let rootIndex = Int(parts[0]) else {
+            return nil
+        }
         
         guard let rootElements = tableDataModel.valueToValueElements,
               rootIndex >= 0, rootIndex < rootElements.count else {
@@ -1776,53 +1835,36 @@ extension CollectionViewModel: DocumentEditorDelegate {
         }
         
         var currentNode: ValueElement? = rootElements[rootIndex]
-        
-        for offset in stride(from: 0, to: trimmed.count, by: 2) {
-            guard let childIndex = Int(trimmed[offset]) else {
-                break
+
+        for i in stride(from: 1, to: parts.count - 2, by: 2) {
+            let schemaId = parts[i]
+            guard let childIndex = Int(parts[i + 1]),
+                  let childrenBranch = currentNode?.childrens?[schemaId],
+                  childIndex >= 0,
+                  let nextNode = childrenBranch.valueToValueElements?[childIndex] else {
+                return nil
             }
-            let schemaKey = trimmed[offset + 1]
-            guard let branch = currentNode?.childrens?[schemaKey],
-                  childIndex >= 0, childIndex < branch.valueToValueElements?.count ?? 0 else {
-                break
-            }
-            currentNode = branch.valueToValueElements?[childIndex]
+            currentNode = nextNode
         }
-        
+
         return currentNode?.id
-    }
-    
-    fileprivate func addRowForNested(_ newRowID: String, _ cellValues: [String : ValueUnion], _ parentID: String?, _ schemaID: String) {
-        if let rowData = tableDataModel.documentEditor?.insertRowWithFilter(id: newRowID,
-                                                                            cellValues: cellValues,
-                                                                            fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                            parentRowId: parentID,
-                                                                            schemaKey: schemaID,
-                                                                            childrenKeys: tableDataModel.schema[schemaID]?.children,
-                                                                            rootSchemaKey: rootSchemaKey, shouldSendEvent: false) {
-            self.tableDataModel.valueToValueElements = rowData.all
-            buildRowToValueElementMap()
-            
-            if let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == parentID }) {
-                if rowDataModel.isExpanded {
-                    refreshCollectionSchema(rowID: parentID ?? "")
-                }
-            }
-        }
     }
     
     func insertRow(for change: Change) {
         var cellValues: [String: ValueUnion] = [:]
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
+        cellValues = newRow.cells ?? [:]
         guard let newRowID = newRow.id else { return }
         if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
             let parentPath = change.change?["parentPath"] as? String ?? ""
             let parentID = decodeParentPath(parentPath: parentPath)
             
-            addRowForNested(newRowID, cellValues, parentID, schemaID)
+            let targetRowIndex = change.change?["targetRowIndex"] as? Int
+            addRowWithIndex(with: newRowID, and: cellValues, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
-            addRow(with: newRowID, and: cellValues, shouldSendEvent: false)
+            let targetRowIndex = change.change?["targetRowIndex"] as? Int
+            addRowWithIndex(with: newRowID, and: cellValues, shouldSendEvent: false, index: targetRowIndex)
         }
     }
 

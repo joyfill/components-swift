@@ -466,6 +466,7 @@
 		364615A92E29692D00F237F6 /* ManipulateDataOnChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManipulateDataOnChangeView.swift; sourceTree = "<group>"; };
 		364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerTest.swift; sourceTree = "<group>"; };
 		364615AD2E29694800F237F6 /* SchemaValidationExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationExampleView.swift; sourceTree = "<group>"; };
+		364DD8A12E37D7540012FB93 /* JoyfillFormulas.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = JoyfillFormulas.xctestplan; path = ../Tests/JoyfillFormulasTests/JoyfillFormulas.xctestplan; sourceTree = "<group>"; };
 		3656F8982DF076DA001590B2 /* FormBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormBuilderView.swift; sourceTree = "<group>"; };
 		366190942BF23EAB006ED7CF /* JoyfillTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = JoyfillTests.xctestplan; sourceTree = "<group>"; };
 		3682A4BF2E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_Read_ChartField.json; sourceTree = "<group>"; };
@@ -1101,6 +1102,7 @@
 		FA529C412BA1D251000200F5 = {
 			isa = PBXGroup;
 			children = (
+				364DD8A12E37D7540012FB93 /* JoyfillFormulas.xctestplan */,
 				366190942BF23EAB006ED7CF /* JoyfillTests.xctestplan */,
 				360787802BE911C400D9A187 /* JoyfillExample.xctestplan */,
 				3607877F2BE900C400D9A187 /* JoyfillUITests.xctestplan */,

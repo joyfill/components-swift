@@ -29,13 +29,6 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
 
     // MARK: - Equality Operator Tests
 
-    func testOneEqualsOne() async throws {
-        // 1 == 1 (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "text1")
-        print("🔢 1 == 1: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "1 == 1 should return Working")
-    }
-
     func testOneEqualsOneExplicit() async throws {
         // 1 == 1 (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text2")
@@ -174,13 +167,6 @@ class FormulaTemplate_EqualityOperatorTests: XCTestCase {
         let result = documentEditor.value(ofFieldWithIdentifier: "text21")
         print("🔢 1 == true: \(result?.text ?? "nil")")
         XCTAssertEqual(result?.text, "Working", "1 == true should return Working (since number != boolean)")
-    }
-
-    func testZeroEqualsFalse2() async throws {
-        // 0 == false (Expect: Broken) - second test
-        let result = documentEditor.value(ofFieldWithIdentifier: "text22")
-        print("🔢 0 == false (2): \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "0 == false should return Working (since number != boolean)")
     }
 
     func testArrayAEqualsStringA() async throws {

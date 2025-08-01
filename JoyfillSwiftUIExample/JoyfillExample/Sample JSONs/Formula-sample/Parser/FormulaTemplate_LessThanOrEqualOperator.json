@@ -3,8 +3,6 @@
   "identifier": "doc_less_than_equal_operator_doc",
   "name": "Less Than or Equal Operator",
   "type": "document",
-  "createdOn": 31232313,
-  "deleted": false,
   "files": [
     {
       "_id": "file1",
@@ -289,8 +287,7 @@
       ],
       "styles": {
         "margin": 4
-      },
-      "views": []
+      }
     }
   ],
   "fields": [
@@ -649,7 +646,7 @@
       "formulas": [
         {
           "_id": "text24Formula",
-          "formula": "if1LessThanOrEqual0Working",
+          "formula": "ifArray1LessThanOrEqual0Working",
           "key": "value"
         }
       ]
@@ -664,7 +661,7 @@
       "formulas": [
         {
           "_id": "text25Formula",
-          "formula": "ifLessThanOrEqual1Working",
+          "formula": "ifObjectLessThanOrEqual1Working",
           "key": "value"
         }
       ]
@@ -848,14 +845,14 @@
       "expression": "if([] <= 1, \"Broken\", \"Working\")"
     },
     {
-      "_id": "if1LessThanOrEqual0Working",
+      "_id": "ifArray1LessThanOrEqual0Working",
       "desc": "Evaluate: [1] <= 0",
       "type": "calc",
       "scope": "private",
       "expression": "if([1] <= 0, \"Broken\", \"Working\")"
     },
     {
-      "_id": "ifLessThanOrEqual1Working",
+      "_id": "ifObjectLessThanOrEqual1Working",
       "desc": "Evaluate: {} <= 1",
       "type": "calc",
       "scope": "private",

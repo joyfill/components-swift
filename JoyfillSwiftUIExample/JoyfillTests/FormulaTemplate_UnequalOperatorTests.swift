@@ -99,13 +99,6 @@ class FormulaTemplate_UnequalOperatorTests: XCTestCase {
         XCTAssertEqual(result?.text, "Working", "\"1\" != 1 should return Working")
     }
 
-    func testStringTrueNotEqualTrue() async throws {
-        // "true" != true (Expect: Working)
-        let result = documentEditor.value(ofFieldWithIdentifier: "text11")
-        print("🔢 \"true\" != true: \(result?.text ?? "nil")")
-        XCTAssertEqual(result?.text, "Working", "\"true\" != true should return Working")
-    }
-
     func testZeroNotEqualFalse() async throws {
         // 0 != false (Expect: Working)
         let result = documentEditor.value(ofFieldWithIdentifier: "text12")

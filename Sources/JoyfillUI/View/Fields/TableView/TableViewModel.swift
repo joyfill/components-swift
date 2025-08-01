@@ -411,6 +411,7 @@ extension TableViewModel: DocumentEditorDelegate {
         var cellValues: [String: ValueUnion] = [:]
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
+        cellValues = newRow.cells ?? [:]
         guard let newRowID = newRow.id else { return }
         if let targetRowIndex = change.change?["targetRowIndex"] as? Int {
             addRowAtIndex(with: newRowID, and: cellValues, shouldSendEvent: false,  index: targetRowIndex)

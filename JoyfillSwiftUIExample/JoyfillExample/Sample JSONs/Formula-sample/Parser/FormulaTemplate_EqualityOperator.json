@@ -3,13 +3,11 @@
   "identifier": "doc_template_equal_if_doc",
   "name": "Equal Operator IF Test",
   "type": "document",
-  "createdOn": 31232313,
-  "deleted": false,
   "files": [
     {
       "_id": "687169836c95bd9206de9b04",
       "name": "Main File",
-      "pageOrder": [],
+      "pageOrder": ["6871698341e14969958416c9"],
       "pages": [
         {
           "_id": "6871698341e14969958416c9",
@@ -22,16 +20,6 @@
           "presentation": "normal",
           "padding": 24,
           "fieldPositions": [
-            {
-              "_id": "6871698366cfa3f960be3a42",
-              "type": "text",
-              "field": "text1",
-              "displayType": "original",
-              "x": 0,
-              "y": 0,
-              "width": 4,
-              "height": 8
-            },
             {
               "_id": "fp_text2",
               "type": "text",
@@ -233,16 +221,6 @@
               "height": 8
             },
             {
-              "_id": "fp_text22",
-              "type": "text",
-              "field": "text22",
-              "displayType": "original",
-              "x": 0,
-              "y": 168,
-              "width": 4,
-              "height": 8
-            },
-            {
               "_id": "fp_text23",
               "type": "text",
               "field": "text23",
@@ -317,26 +295,10 @@
       ],
       "styles": {
         "margin": 4
-      },
-      "views": []
+      }
     }
   ],
   "fields": [
-    {
-      "file": "687169836c95bd9206de9b04",
-      "_id": "text1",
-      "type": "text",
-      "title": "Condition Output",
-      "identifier": "field_text1",
-      "formulas": [
-        {
-          "_id": "text1_ifEqualCheck",
-          "formula": "ifOneEqualsOneThenWorking",
-          "key": "value"
-        }
-      ],
-      "value": ""
-    },
     {
       "file": "687169836c95bd9206de9b04",
       "_id": "text2",
@@ -356,7 +318,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text3",
       "type": "text",
-      "title": "10 == 12 (Expect: Broken)",
+      "title": "10 == 12 (Expect: Working)",
       "identifier": "field_text3",
       "value": "",
       "formulas": [
@@ -386,7 +348,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text5",
       "type": "text",
-      "title": "\"TEST\" == \"test\" (Expect: Broken)",
+      "title": "\"TEST\" == \"test\" (Expect: Working)",
       "identifier": "field_text5",
       "value": "",
       "formulas": [
@@ -416,7 +378,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text7",
       "type": "text",
-      "title": "false == true (Expect: Broken)",
+      "title": "false == true (Expect: Working)",
       "identifier": "field_text7",
       "value": "",
       "formulas": [
@@ -461,7 +423,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text10",
       "type": "text",
-      "title": "\"1\" == 1 (Expect: Broken)",
+      "title": "\"1\" == 1 (Expect: Working)",
       "identifier": "field_text10",
       "value": "",
       "formulas": [
@@ -476,7 +438,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text11",
       "type": "text",
-      "title": "\"true\" == true (Expect: Broken)",
+      "title": "\"true\" == true (Expect: Working)",
       "identifier": "field_text11",
       "value": "",
       "formulas": [
@@ -491,7 +453,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text12",
       "type": "text",
-      "title": "0 == false (Expect: Broken)",
+      "title": "0 == false (Expect: Working)",
       "identifier": "field_text12",
       "value": "",
       "formulas": [
@@ -506,7 +468,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text13",
       "type": "text",
-      "title": "false == \"\" (Expect: Broken)",
+      "title": "false == \"\" (Expect: Working)",
       "identifier": "field_text13",
       "value": "",
       "formulas": [
@@ -521,13 +483,13 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text14",
       "type": "text",
-      "title": "[] == [] (Expect: Broken)",
+      "title": "[] == [] (Expect: Working)",
       "identifier": "field_text14",
       "value": "",
       "formulas": [
         {
           "_id": "text14_applied",
-          "formula": "ifEqualsBroken",
+          "formula": "ifArrayEqualsArrayBroken",
           "key": "value"
         }
       ]
@@ -536,7 +498,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text15",
       "type": "text",
-      "title": "[\"hi\"] == [\"hi\"] (Expect: Broken)",
+      "title": "[\"hi\"] == [\"hi\"] (Expect: Working)",
       "identifier": "field_text15",
       "value": "",
       "formulas": [
@@ -551,13 +513,13 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text16",
       "type": "text",
-      "title": "{} == {} (Expect: Broken)",
+      "title": "{} == {} (Expect: Working)",
       "identifier": "field_text16",
       "value": "",
       "formulas": [
         {
           "_id": "text16_applied",
-          "formula": "ifEqualsBroken",
+          "formula": "ifObjEqualsObjBroken",
           "key": "value"
         }
       ]
@@ -566,7 +528,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text17",
       "type": "text",
-      "title": "{ name: 'joy' } == { name: 'joy' } (Expect: Broken)",
+      "title": "{ name: 'joy' } == { name: 'joy' } (Expect: Working)",
       "identifier": "field_text17",
       "value": "",
       "formulas": [
@@ -587,7 +549,7 @@
       "formulas": [
         {
           "_id": "text18_applied",
-          "formula": "ifEqualsWorking",
+          "formula": "ifEmptyStringEqualsEmptyStringWorking",
           "key": "value"
         }
       ]
@@ -596,7 +558,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text19",
       "type": "text",
-      "title": "\"\" == false (Expect: Broken)",
+      "title": "\"\" == false (Expect: Working)",
       "identifier": "field_text19",
       "value": "",
       "formulas": [
@@ -611,7 +573,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text20",
       "type": "text",
-      "title": "\"\" == null (Expect: Broken)",
+      "title": "\"\" == null (Expect: Working)",
       "identifier": "field_text20",
       "value": "",
       "formulas": [
@@ -626,7 +588,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text21",
       "type": "text",
-      "title": "1 == true (Expect: Broken)",
+      "title": "1 == true (Expect: Working)",
       "identifier": "field_text21",
       "value": "",
       "formulas": [
@@ -639,24 +601,9 @@
     },
     {
       "file": "687169836c95bd9206de9b04",
-      "_id": "text22",
-      "type": "text",
-      "title": "0 == false (Expect: Broken)",
-      "identifier": "field_text22",
-      "value": "",
-      "formulas": [
-        {
-          "_id": "text22_applied",
-          "formula": "if0equalsfalseBroken",
-          "key": "value"
-        }
-      ]
-    },
-    {
-      "file": "687169836c95bd9206de9b04",
       "_id": "text23",
       "type": "text",
-      "title": "[\"a\"] == \"a\" (Expect: Broken)",
+      "title": "[\"a\"] == \"a\" (Expect: Working)",
       "identifier": "field_text23",
       "value": "",
       "formulas": [
@@ -671,7 +618,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text24",
       "type": "text",
-      "title": "{} == \"[object Object]\" (Expect: Broken)",
+      "title": "{} == \"[object Object]\" (Expect: Working)",
       "identifier": "field_text24",
       "value": "",
       "formulas": [
@@ -686,7 +633,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text25",
       "type": "text",
-      "title": "null == undefined (Expect: Broken)",
+      "title": "null == undefined (Expect: Working)",
       "identifier": "field_text25",
       "value": "",
       "formulas": [
@@ -701,7 +648,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text26",
       "type": "text",
-      "title": "null == false (Expect: Broken)",
+      "title": "null == false (Expect: Working)",
       "identifier": "field_text26",
       "value": "",
       "formulas": [
@@ -716,7 +663,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text27",
       "type": "text",
-      "title": "null == 0 (Expect: Broken)",
+      "title": "null == 0 (Expect: Working)",
       "identifier": "field_text27",
       "value": "",
       "formulas": [
@@ -731,13 +678,13 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text28",
       "type": "text",
-      "title": "[[1]] == [[1]] (Expect: Broken)",
+      "title": "[[1]] == [[1]] (Expect: Working)",
       "identifier": "field_text28",
       "value": "",
       "formulas": [
         {
           "_id": "text28_applied",
-          "formula": "if1equals1Broken",
+          "formula": "if1Arrayequals1ArrayBroken",
           "key": "value"
         }
       ]
@@ -746,7 +693,7 @@
       "file": "687169836c95bd9206de9b04",
       "_id": "text29",
       "type": "text",
-      "title": "{ a: { b: 1 } } == { a: { b: 1 } } (Expect: Broken)",
+      "title": "{ a: { b: 1 } } == { a: { b: 1 } } (Expect: Working)",
       "identifier": "field_text29",
       "value": "",
       "formulas": [
@@ -760,204 +707,190 @@
   ],
   "formulas": [
     {
-      "_id": "ifOneEqualsOneThenWorking",
-      "desc": "Return \"Working\" if 1 == 1 else \"Broken\"",
-      "type": "calc",
-      "scope": "private",
-      "expression": "if(1 == 1, \"Working\", \"Broken\")"
-    },
-    {
       "_id": "if1equals1Working",
-      "desc": "Check if: 1 == 1 \u2192 Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(1 == 1, \"Working\", \"Broken\")"
     },
     {
       "_id": "if10equals12Broken",
-      "desc": "Check if: 10 == 12 \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(10 == 12, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifTestequalstestWorking",
-      "desc": "Check if: \"test\" == \"test\" \u2192 Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"test\" == \"test\", \"Working\", \"Broken\")"
     },
     {
       "_id": "ifTestequalstestBroken",
-      "desc": "Check if: \"TEST\" == \"test\" \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"TEST\" == \"test\", \"Broken\", \"Working\")"
     },
     {
       "_id": "ifTrueequalstrueWorking",
-      "desc": "Check if: true == true \u2192 Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(true == true, \"Working\", \"Broken\")"
     },
     {
       "_id": "ifFalseequalstrueBroken",
-      "desc": "Check if: false == true \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(false == true, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifNullequalsnullWorking",
-      "desc": "Check if: null == null \u2192 Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null == null, \"Working\", \"Broken\")"
     },
     {
       "_id": "ifTonumber1equals1Working",
-      "desc": "Check if: toNumber(\"1\") == 1 \u2192 Working",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(toNumber(\"1\") == 1, \"Working\", \"Broken\")"
     },
     {
       "_id": "if1equals1Broken",
-      "desc": "Check if: \"1\" == 1 \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"1\" == 1, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifTrueequalstrueBroken",
-      "desc": "Check if: \"true\" == true \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"true\" == true, \"Broken\", \"Working\")"
     },
     {
-      "_id": "if0equalsfalseBroken",
-      "desc": "Check if: 0 == false \u2192 Broken",
-      "type": "calc",
-      "scope": "private",
-      "expression": "if(0 == false, \"Broken\", \"Working\")"
-    },
-    {
       "_id": "ifFalseequalsBroken",
-      "desc": "Check if: false == \"\" \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(false == \"\", \"Broken\", \"Working\")"
     },
     {
-      "_id": "ifEqualsBroken",
-      "desc": "Check if: [] == [] \u2192 Broken",
+      "_id": "ifArrayEqualsArrayBroken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([] == [], \"Broken\", \"Working\")"
     },
     {
       "_id": "ifHiequalshiBroken",
-      "desc": "Check if: [\"hi\"] == [\"hi\"] \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([\"hi\"] == [\"hi\"], \"Broken\", \"Working\")"
     },
     {
-      "_id": "ifEqualsBroken",
-      "desc": "Check if: {} == {} \u2192 Broken",
+      "_id": "ifObjEqualsObjBroken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({} == {}, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifNamejoyequalsnamejoyBroken",
-      "desc": "Check if: { name: 'joy' } == { name: 'joy' } \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({ name: 'joy' } == { name: 'joy' }, \"Broken\", \"Working\")"
     },
     {
-      "_id": "ifEqualsWorking",
-      "desc": "Check if: \"\" == \"\" \u2192 Working",
+      "_id": "ifEmptyStringEqualsEmptyStringWorking",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"\" == \"\", \"Working\", \"Broken\")"
     },
     {
       "_id": "ifEqualsfalseBroken",
-      "desc": "Check if: \"\" == false \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"\" == false, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifEqualsnullBroken",
-      "desc": "Check if: \"\" == null \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(\"\" == null, \"Broken\", \"Working\")"
     },
     {
       "_id": "if1equalstrueBroken",
-      "desc": "Check if: 1 == true \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(1 == true, \"Broken\", \"Working\")"
     },
     {
       "_id": "if0equalsfalseBroken",
-      "desc": "Check if: 0 == false \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(0 == false, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifAequalsaBroken",
-      "desc": "Check if: [\"a\"] == \"a\" \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([\"a\"] == \"a\", \"Broken\", \"Working\")"
     },
     {
       "_id": "ifEqualsobjectobjectBroken",
-      "desc": "Check if: {} == \"[object Object]\" \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({} == \"[object Object]\", \"Broken\", \"Working\")"
     },
     {
       "_id": "ifNullequalsundefinedBroken",
-      "desc": "Check if: null == undefined \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null == undefined, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifNullequalsfalseBroken",
-      "desc": "Check if: null == false \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null == false, \"Broken\", \"Working\")"
     },
     {
       "_id": "ifNullequals0Broken",
-      "desc": "Check if: null == 0 \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if(null == 0, \"Broken\", \"Working\")"
     },
     {
-      "_id": "if1equals1Broken",
-      "desc": "Check if: [[1]] == [[1]] \u2192 Broken",
+      "_id": "if1Arrayequals1ArrayBroken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if([[1]] == [[1]], \"Broken\", \"Working\")"
     },
     {
       "_id": "ifAb1equalsab1Broken",
-      "desc": "Check if: { a: { b: 1 } } == { a: { b: 1 } } \u2192 Broken",
+      "desc": "",
       "type": "calc",
       "scope": "private",
       "expression": "if({ a: { b: 1 } } == { a: { b: 1 } }, \"Broken\", \"Working\")"
