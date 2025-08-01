@@ -7,7 +7,8 @@ struct SignatureView: View {
     @State private var savedLines: [Line] = []
     @State var signatureURL: String = ""
     @State private var showCanvasSignatureView: Bool = false
-
+    @State var isEditable: Bool = true
+    
     @State var hasAppeared: Bool = false
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
     @State var showError: Bool = false
@@ -199,6 +200,7 @@ struct CanvasSignatureView: View {
         VStack(alignment: .leading) {
             Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                 .fontWeight(.bold)
+                .padding(.top, 12)
             
             if isEditable {
                 CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
@@ -288,7 +290,6 @@ struct CanvasSignatureView: View {
                         }
                         savedLines = lines
                         presentationMode.wrappedValue.dismiss()
-                        return
                     }, label: {
                         Text("Save")
                             .frame(minWidth: 100, maxWidth: .infinity)
@@ -298,19 +299,14 @@ struct CanvasSignatureView: View {
                     Spacer()
                 }
                 .padding(.top, 10)
-                Spacer()
             }
+            Spacer()
         }
         .onAppear {
             signatureCanvasImage = signatureImage
             showCanvasError = showError
         }
         .padding(.horizontal, 16.0)
-        .onAppear {
-            if lines.isEmpty {
-                lines = savedLines
-            }
-        }
     }
 }
 extension View {
