@@ -182,7 +182,9 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func clickOnFirstImage() {
-        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1).tap()
+        var firstImage = app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1)
+        XCTAssertTrue(firstImage.waitForExistence(timeout: 5))
+        firstImage.tap()
     }
     
     func clickOnSecondImage() {

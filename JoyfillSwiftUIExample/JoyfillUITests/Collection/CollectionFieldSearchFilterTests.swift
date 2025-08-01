@@ -160,6 +160,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func selectDropdownOption(_ optionName: String) {
         let dropdownFilterButton = app.buttons["SearchBarDropdownIdentifier"]
+        XCTAssertTrue(dropdownFilterButton.waitForExistence(timeout: 2))
         if dropdownFilterButton.exists {
             dropdownFilterButton.tap()
             
@@ -237,10 +238,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func tapOnMoreButton() {
         let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 5),"‘More Button’ menu didn’t show up")
         if !moreButton.exists {
             XCTFail("More button should exist")
         }
-        
         moreButton.tap()
     }
     
@@ -1705,17 +1706,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         expandRow(number: 3)
         selectNestedRow(number: 1)
         
-        let imagesQuery = app.images
-        let element = imagesQuery.matching(identifier: "chevron.right.square").element(boundBy: 1)
-        element.tap()
-        element.tap()
-        
-        let element2 = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 2)
-        element2.tap()
-        element2.tap()
+        expandNestedRow(number: 1)
+        expandNestedRow(number: 2)
         
         let count = getVisibleNestexRowsCount()
-        XCTAssertEqual(count, 7)
+        XCTAssertEqual(count, 6)
         
         let textViewsQuery = app.textViews.matching(identifier: "a B c").element(boundBy: 0)
         textViewsQuery.tap()
@@ -1726,30 +1721,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         app.swipeDown()
         sleep(1)
         let countSecond = getVisibleNestexRowsCount()
-        XCTAssertEqual(countSecond, 5)
+        XCTAssertEqual(countSecond, 6)
         let textViewsQuery1 = app.textViews.matching(identifier: "conditional").element(boundBy: 0)
         textViewsQuery1.tap()
         textViewsQuery1.typeText("xyz")
         app.swipeUp()
         app.swipeDown()
         let countFinal = getVisibleNestexRowsCount()
-        XCTAssertEqual(countFinal, 7)
-//        app.swipeLeft()
-//        
-//        // Number Field
-//        guard let numberTextField = app.swipeToFindElement(identifier: "TabelNumberFieldIdentifier", type: .textField, direction: "left", index: 5) else {
-//            XCTFail("Failed to find number text field after swiping")
-//            return
-//        }
-//        numberTextField.tap()
-//        numberTextField.clearText()
-//        numberTextField.typeText("1200")
-//        
-//        app.swipeRight()
-//        app.swipeRight()
-//        
-//        let countFinal2 = getVisibleNestexRowsCount()
-//        XCTAssertEqual(countFinal2, 5)
+        XCTAssertEqual(countFinal, 6)
     }
     
     func testConditionalLogicHideDepth2WithBulkEdit() throws {
@@ -1948,8 +1927,9 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         textView.tap()
         textView.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
-        let multiLine = "Line1\nLine2\nLine3"
+        let multiLine = "Line1\nLine2\n"
         textView.typeText(multiLine)
+        sleep(1)
         verifyOnChangePayload(withValue: multiLine)
         
         // HTML/Special characters

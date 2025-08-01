@@ -152,6 +152,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         secNestedTextField.typeText("two")
         
         let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertTrue(thirdNestedTextField.waitForExistence(timeout: 5))
         XCTAssertEqual("", thirdNestedTextField.value as! String)
         thirdNestedTextField.tap()
         thirdNestedTextField.typeText("123")
@@ -379,6 +380,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             XCTFail("Failed to find  button after swiping")
             return
         }
+        XCTAssertTrue(firstButton.waitForExistence(timeout: 1) && firstButton.isHittable)
         firstButton.tap()
         
         app.buttons["ImageUploadImageIdentifier"].tap()
@@ -721,7 +723,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             return
         }
         firstImageButton.tap()
-        app.buttons["ImageUploadImageIdentifier"].tap()
+        let imageUploadButton = app.buttons["ImageUploadImageIdentifier"]
+        XCTAssertTrue(imageUploadButton.waitForExistence(timeout: 5))
+        imageUploadButton.tap()
         dismissSheet()
         app.swipeUp()
         
@@ -1001,7 +1005,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         multiSelectionButton.tap()
         
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        XCTAssertGreaterThan(optionsButtons.count, 0)
+        XCTAssertTrue(optionsButtons.element(boundBy: 0).waitForExistence(timeout: 5))
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
         let secOptionButton = optionsButtons.element(boundBy: 1)

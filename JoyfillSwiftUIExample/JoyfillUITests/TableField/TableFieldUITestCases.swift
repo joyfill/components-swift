@@ -214,6 +214,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         tapOnTextFieldColumn()
         let firstCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
         XCTAssertTrue(firstCell.exists)
         firstCell.tap()
         let keyboard = app.keyboards.element

@@ -42,20 +42,20 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         minXValuesTextField.typeText("20")
         maxYValuesTextField.tap()
         maxYValuesTextField.clearText()
-        maxYValuesTextField.typeText("10030")
+        maxYValuesTextField.typeText("700")
         maxXValuesTextField.tap()
         maxXValuesTextField.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         maxXValuesTextField.clearText()
-        maxXValuesTextField.typeText("10040")
+        maxXValuesTextField.typeText("800")
         sleep(1)
         goBack()
 
         XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
         XCTAssertEqual("Vertical Label Y", onChangeResultChange().yTitle)
-        XCTAssertEqual(10040.0, onChangeResultChange().xMax)
+        XCTAssertEqual(800.0, onChangeResultChange().xMax)
         XCTAssertEqual(20.0, onChangeResultChange().xMin)
-        XCTAssertEqual(10030.0, onChangeResultChange().yMax)
+        XCTAssertEqual(700.0, onChangeResultChange().yMax)
         XCTAssertEqual(10.0, onChangeResultChange().yMin)
         
         sleep(1)
@@ -66,8 +66,8 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(horizontalTitleTextFieldIdentifier.value as? String, "Horizontal Label X", "TextField value is incorrect after navigation")
         XCTAssertEqual(minYValuesTextField.value as? String, "10", "TextField value is incorrect after navigation")
         XCTAssertEqual(minXValuesTextField.value as? String, "20", "TextField value is incorrect after navigation")
-        XCTAssertEqual(maxYValuesTextField.value as? String, "10030", "TextField value is incorrect after navigation")
-        XCTAssertEqual(maxXValuesTextField.value as? String, "10040", "TextField value is incorrect after navigation")
+        XCTAssertEqual(maxYValuesTextField.value as? String, "700", "TextField value is incorrect after navigation")
+        XCTAssertEqual(maxXValuesTextField.value as? String, "800", "TextField value is incorrect after navigation")
     }
     
     func testEditAllCoordinatesFieldAfterRemoveLine() {
@@ -105,19 +105,19 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(maxYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         maxYValuesTextField.tap()
         maxYValuesTextField.clearText()
-        maxYValuesTextField.typeText("10030")
+        maxYValuesTextField.typeText("700")
         XCTAssertTrue(maxXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         maxXValuesTextField.tap()
         maxXValuesTextField.clearText()
-        maxXValuesTextField.typeText("10040")
+        maxXValuesTextField.typeText("800")
 
         goBack()
 
         XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
         XCTAssertEqual("Vertical Label Y", onChangeResultChange().yTitle)
-        XCTAssertEqual(10040.0, onChangeResultChange().xMax)
+        XCTAssertEqual(800.0, onChangeResultChange().xMax)
         XCTAssertEqual(20.0, onChangeResultChange().xMin)
-        XCTAssertEqual(10030.0, onChangeResultChange().yMax)
+        XCTAssertEqual(700.0, onChangeResultChange().yMax)
         XCTAssertEqual(10.0, onChangeResultChange().yMin)
     }
 

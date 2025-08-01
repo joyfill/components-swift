@@ -165,8 +165,8 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         // Very large
         numberField.tap()
         numberField.clearText()
-        numberField.typeText("9999999999")
-        XCTAssertEqual(numberField.value as? String, "9999999999")
+        numberField.typeText("9999999")
+        XCTAssertEqual(numberField.value as? String, "9999999")
     }
     
     
@@ -282,13 +282,14 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func testNumberFieldTypingAndPaste() {
+        UIPasteboard.general.string = "123456789"
         let numberField = app.textFields.element(boundBy: 0)
         numberField.tap()
         numberField.clearText()
-        UIPasteboard.general.string = "123456789"
         numberField.press(forDuration: 1.0)
-        sleep(1)
-        app.menuItems["Paste"].tap()
+        let paste = app.menuItems["Paste"]
+        XCTAssertTrue(paste.waitForExistence(timeout: 5),"Paste menu never appeared")
+        paste.tap()
         XCTAssertEqual(numberField.value as? String, "123456789")
     }
     

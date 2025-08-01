@@ -331,20 +331,21 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].tap()
         
         let textField = app.textFields["EditRowsNumberFieldIdentifier"]
-        sleep(1)
+        XCTAssertTrue(textField.waitForExistence(timeout: 5),"‘Text field’ menu didn’t show up")
         textField.tap()
-        sleep(1)
-        textField.typeText("1234.56")
-        
-//        app.buttons["ApplyAllButtonIdentifier"].tap()
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        textField.clearText()
+        textField.typeText("123.56")
         dismissSheet()
         sleep(1)
-        
-        XCTAssertEqual("21234.56", firstTextField.value as! String)
+        XCTAssertEqual("123.56", firstTextField.value as! String)
         goBack()
         sleep(1)
         let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["67691971e689df0b1208de63"]?.number)
-        XCTAssertEqual(21234.56, firstCellTextValue)
+        XCTAssertEqual(123.56, firstCellTextValue)
     }
     
     // Bulk Edit - Edit all Rows
@@ -357,9 +358,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].tap()
         
         let textField = app.textFields["EditRowsNumberFieldIdentifier"]
-        sleep(1)
+        XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
-        sleep(1)
         textField.typeText("123.345")
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
@@ -925,7 +925,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         let sixthTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 5)
         sixthTableTextField.tap()
-        sixthTableTextField.typeText("Sixth Row")
+        sixthTableTextField.typeText("Sixth")
         
         goBack()
         sleep(2)
@@ -940,7 +940,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual("3 Third row", thirdCellTextValue)
         XCTAssertEqual("Scan Button Clicked", fourthCellTextValue)
         XCTAssertEqual("Scan Button Clicked", fifthCellTextValue)
-        XCTAssertEqual("Sixth Row", sixthCellTextValue)
+        XCTAssertEqual("Sixth", sixthCellTextValue)
     }
     
     // Bulk Edit - Edit all Rows
@@ -993,11 +993,12 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         let editTextFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Edit Single rowsFirst row", editTextFieldData.value as! String)
-        
-        goBack()
         sleep(1)
-        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-        XCTAssertEqual("Edit Single rowsFirst row", firstCellTextValue)
+         
+        let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+        let newRow = try XCTUnwrap(value["row"] as? [String: Any])
+        let cells = try XCTUnwrap(newRow["cells"] as? [String: Any])
+        XCTAssertEqual("Edit Single rowsFirst row", cells["676137715cb7a772624dd5ab"] as! String)
     }
     
     // Add Row with filter text

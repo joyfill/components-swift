@@ -132,6 +132,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         multilineField.typeText("The quick brown fox jumps over the lazy dog")
         sleep(1)
+        app.otherElements.firstMatch.tap()
         XCTAssertFalse(displayText.exists, "Display text should be hidden after matching input.")
 
         // Step 2: Hide first multiline field
@@ -141,6 +142,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         triggerField.typeText("hide first")
         sleep(1)
+        app.otherElements.firstMatch.tap()
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(app.textViews.count, 2, "Multiline field should be hidden, only trigger should remain.")
@@ -151,13 +153,14 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         multilineField.typeText("reset")
         sleep(1)
-
+        app.otherElements.firstMatch.tap()
         // Step 4: Unhide display text
         multilineField.tap()
         multilineField.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         multilineField.typeText("Some other text")
         sleep(1)
+        app.otherElements.firstMatch.tap()
         app.swipeUp()
         app.swipeDown()
         // Step 5: Verify all visible again
@@ -230,7 +233,6 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         field.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         sleep(2)
-        app.menuItems["Copy"].tap()
         let copyText = app.menuItems["Copy"]
         XCTAssertTrue(copyText.waitForExistence(timeout: 5),"‘Copy’ menu didn’t show up")
         copyText.tap()
@@ -335,8 +337,8 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         firstMultiline.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         firstMultiline.typeText("hide")
-        sleep(2)
-        XCTAssertTrue(displayText.exists, "Display text should be hidden when first multiline is not 'hide'.")
+        XCTAssertTrue(displayText.waitForExistence(timeout: 5),"\(firstMultiline.value as! String)‘Display Text’ menu didn’t show up")
+        XCTAssertTrue(displayText.exists, "\(firstMultiline.value as! String) Display text should be hidden when first multiline is not 'hide'.")
 
         // Reset and test: second contains "abcd"
         secondMultiline.tap()

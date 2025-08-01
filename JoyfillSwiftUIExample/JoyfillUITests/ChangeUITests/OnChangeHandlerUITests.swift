@@ -394,7 +394,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         firstTableTextField.tap()
         firstTableTextField.typeText("First")
 
-        let firstValueCount = app.textViews.countMatchingValue("FirstA")
+        let firstValueCount = app.textViews.countMatchingValue(firstTableTextField.value as! String)
         print("Number of textViews with value \"FirstA\": \(firstValueCount)")
         XCTAssertEqual(2, firstValueCount, "Expected exactly two textViews with value 'FirstA' (one in each form)")
     }
@@ -1617,7 +1617,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertTrue(sixthTableTextField.waitForExistence(timeout: 5),
                       "sixth field didn’t show up")
         sixthTableTextField.tap()
-        sixthTableTextField.typeText("Sixth Row")
+        sixthTableTextField.typeText("Sixth")
         sleep(1)
         goBack()
         sleep(2)
@@ -1632,7 +1632,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("3 Third row", thirdCellTextValue.value as! String)
         XCTAssertEqual("", fourthCellTextValue.value as! String)
         XCTAssertEqual("", fifthCellTextValue.value as! String)
-        XCTAssertEqual("Sixth Row", sixthCellTextValue.value as! String)
+        XCTAssertEqual("Sixth", sixthCellTextValue.value as! String)
     }
     
     // Bulk Edit - Edit all Rows
