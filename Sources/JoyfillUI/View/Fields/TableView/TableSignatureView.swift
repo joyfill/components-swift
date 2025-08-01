@@ -9,6 +9,7 @@ struct TableSignatureView: View {
     @State private var signatureImage: UIImage?
     @State private var showCanvasSignatureView: Bool = false
     @State var title: String = ""
+    @State var showError: Bool = false
     
     init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
@@ -29,7 +30,7 @@ struct TableSignatureView: View {
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
             isEditable = false
         }) {
-            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, isEditable: $isEditable)
+            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $cellModel.data.title, showError: $showError, isEditable: $isEditable)
         }
         .onChange(of: signatureImage) { newImage in
             if let newImage = newImage, let data = newImage.pngData() {
@@ -40,15 +41,22 @@ struct TableSignatureView: View {
                 cellModel.data.title = ""
                 title = ""
             }
+        }
+        .onChange(of: cellModel.data.title) { _ in
+            title = cellModel.data.title
             cellModel.didChange?(cellModel.data)
         }
     }
     
     func loadImageFromURL() {
-        APIService.loadImage(from: title) { imageData in
-            if let imageData = imageData, let image = UIImage(data: imageData) {
-                DispatchQueue.main.async {
-                    self.signatureImage = image
+        if !title.isEmpty {
+            APIService.loadImage(from: title) { imageData in
+                if let imageData = imageData, let image = UIImage(data: imageData) {
+                    DispatchQueue.main.async {
+                        self.signatureImage = image
+                    }
+                } else {
+                    showError = true
                 }
             }
         }
