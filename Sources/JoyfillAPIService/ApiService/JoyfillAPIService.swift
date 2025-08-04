@@ -6,6 +6,7 @@
 //
 import Foundation
 import Combine
+import Joyfill
 import JoyfillModel
 
 enum JoyfillAPI {
@@ -119,7 +120,7 @@ public class APIService {
                     let documents = try JSONDecoder().decode(DocumentListResponse.self, from: data)
                     completion(.success(documents.data))
                 } catch {
-                    print(error)
+                    Log("Error decoding templates: \(error)", type: .warning)
                     completion(.failure(error))
                 }
             } else {
@@ -161,13 +162,13 @@ public class APIService {
                 let imageData = try Data(contentsOf: url)
                 completion(imageData)
             } catch {
-                print("Error loading image from file URL: \(error.localizedDescription)")
+                Log("Error loading image from file URL: \(error.localizedDescription)", type: .warning)
                 completion(nil)
             }
         } else {
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
                 guard let data = data, error == nil else {
-                    print("Error loading image from URL: \(error?.localizedDescription ?? "Unknown error")")
+                    Log("Error loading image from URL: \(error?.localizedDescription ?? "Unknown error")", type: .warning)
                     completion(nil)
                     return
                 }
@@ -186,7 +187,7 @@ public class APIService {
                     let documents = try JSONDecoder().decode(GroupResponse.self, from: data)
                     completion(.success(documents.data))
                 } catch {
-                    print(error)
+                    Log("Error decoding groups: \(error)", type: .warning)
                     completion(.failure(error))
                     
                 }
@@ -204,7 +205,7 @@ public class APIService {
                     let documents = try JSONDecoder().decode(RetrieveGroup.self, from: data)
                     completion(.success(documents))
                 } catch {
-                    print(error)
+                    Log("Error decoding group: \(error)", type: .warning)
                     completion(.failure(error))
                 }
             } else {
@@ -221,7 +222,7 @@ public class APIService {
                     let documents = try JSONDecoder().decode(ListAllUsersResponse.self, from: data)
                     completion(.success(documents.data))
                 } catch {
-                    print(error)
+                    Log("Error decoding user list: \(error)", type: .warning)
                     completion(.failure(error))
                 }
             } else {
@@ -238,7 +239,7 @@ public class APIService {
                     let documents = try JSONDecoder().decode(RetrieveUsers.self, from: data)
                     completion(.success(documents))
                 } catch {
-                    print(error)
+                    Log("Error decoding user: \(error)", type: .warning)
                     completion(.failure(error))
                 }
             } else {
