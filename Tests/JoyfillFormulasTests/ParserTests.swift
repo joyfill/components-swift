@@ -38,8 +38,7 @@ final class ParserTests: XCTestCase {
                 XCTFail("Expected FormulaError.syntaxError, got \(error)", file: file, line: line)
                 return
             }
-            print("Received expected syntax error: \(msg) for formula: \(formula)")
-            XCTAssert(true) 
+            XCTAssert(true)
         }
     }
 

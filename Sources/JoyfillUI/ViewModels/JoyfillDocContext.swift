@@ -533,7 +533,7 @@ class JoyfillDocContext: EvaluationContext {
                     }
                 }
             }
-        } 
+        }
         
         // Check if it's a column name/ID (for all values in that column) - e.g., products.price
         let columnIdentifier = nextComponent
@@ -1154,7 +1154,7 @@ class JoyfillDocContext: EvaluationContext {
         
         // For chart fields specifically, add known field dependencies manually
         if formula.contains("line1Label") || formula.contains("point1") || formula.contains("point2") {
-            let chartFields = ["line1Label", "line2Label", "point1Label", "point2Label", 
+            let chartFields = ["line1Label", "line2Label", "point1Label", "point2Label",
                              "point1X", "point1Y", "point2X", "point2Y", "line2"]
             for field in chartFields {
                 if formula.contains(field) && !references.contains(field) {
@@ -1332,7 +1332,7 @@ class JoyfillDocContext: EvaluationContext {
             var path: [String] = []
             
             if hasCycle(field, visited: &visited, path: &path) {
-                print("Warning: Circular dependency detected for field '\(field)': \(path)")
+                Log("Warning: Circular dependency detected for field '\(field)': \(path)", type: .warning)
             }
         }
     }
@@ -1515,7 +1515,7 @@ class JoyfillDocContext: EvaluationContext {
                         updatedCount += 1
                     } else {
                         // Handle evaluation failure
-                        print("🔧 Formula evaluation failed for field \(fieldId): \(result)")
+                        Log("🔧 Formula evaluation failed for field \(fieldId): \(result)", type: .warning)
 
                         
                         // Get field to determine appropriate default value
@@ -1529,7 +1529,7 @@ class JoyfillDocContext: EvaluationContext {
                     }
                     
                 case .failure(let error):
-                    print("Error evaluating formula for field \(fieldId): \(error)")
+                    Log("Error evaluating formula for field \(fieldId): \(error)", type: .warning)
                     
                     // Get field to determine appropriate default value
                     if let field = docProvider.field(fieldID: fieldId) {
@@ -1591,7 +1591,7 @@ class JoyfillDocContext: EvaluationContext {
                         updatedCount += 1
                     } else {
                         // Handle evaluation failure
-                        print("🔧 Formula evaluation failed for field \(fieldId): \(result)")
+                        Log("🔧 Formula evaluation failed for field \(fieldId): \(result)", type: .warning)
 
 
                         // Get field to determine appropriate default value
@@ -1605,7 +1605,7 @@ class JoyfillDocContext: EvaluationContext {
                     }
 
                 case .failure(let error):
-                    print("Error evaluating formula for field \(fieldId): \(error)")
+                    Log("Error evaluating formula for field \(fieldId): \(error)", type: .warning)
                     
                     // Get field to determine appropriate default value
                     if let field = docProvider.field(fieldID: fieldId) {
@@ -1640,7 +1640,7 @@ class JoyfillDocContext: EvaluationContext {
             // Check for circular dependency
             if temporaryMarks.contains(identifier) {
                 // Handle circular dependency by skipping
-                print("Warning: Circular dependency detected for field \(identifier)")
+                Log("Warning: Circular dependency detected for field \(identifier)", type: .warning)
                 return
             }
             
@@ -1674,15 +1674,15 @@ class JoyfillDocContext: EvaluationContext {
     
     /// Evaluates all formula fields and updates their values
     public func evaluateAllFormulas() {
-        print("🚀 evaluateAllFormulas started")
+        Log("🚀 evaluateAllFormulas started", type: .debug)
         
         // Get all formula fields
         let formulaFields = docProvider.allFormulsFields()
-        print("🚀 Found \(formulaFields.count) formula fields")
+        Log("🚀 Found \(formulaFields.count) formula fields", type: .debug)
         
         // Debug: List all formula fields
         for field in formulaFields {
-            print("🚀 Formula field found: \(field.id ?? "no identifier") with formulas: \(field.formulas?.count ?? 0)")
+            Log("🚀 Formula field found: \(field.id ?? "no identifier") with formulas: \(field.formulas?.count ?? 0)", type: .debug)
         }
         
         // Create a topologically sorted list of fields based on dependencies
@@ -1694,7 +1694,7 @@ class JoyfillDocContext: EvaluationContext {
                 
                 // Check for circular dependency before evaluating
                 if hasCircularDependency(for: identifier) {
-                    print("🔧 Skipping evaluation for field \(identifier) due to circular dependency - using default value")
+                    Log("🔧 Skipping evaluation for field \(identifier) due to circular dependency - using default value", type: .warning)
                     
                     // Get field to determine appropriate default value
                     let defaultValue = getDefaultFormulaValue(for: field.fieldType)
@@ -1703,7 +1703,7 @@ class JoyfillDocContext: EvaluationContext {
                     continue
                 }
                 
-                print("🚀 Evaluating formula for field \(identifier): \(formulaInfo.formulaString)")
+                Log("🚀 Evaluating formula for field \(identifier): \(formulaInfo.formulaString)", type: .debug)
                 
                 // Evaluate the formula
                 let parseResult = parser.parse(formula: formulaInfo.formulaString)
@@ -1713,14 +1713,14 @@ class JoyfillDocContext: EvaluationContext {
                     let result = evaluator.evaluate(node: ast, context: self)
                     
                     if case .success(let value) = result {
-                        print("🚀 Formula evaluation successful for \(identifier): \(value)")
+                        Log("🚀 Formula evaluation successful for \(identifier): \(value)", type: .debug)
                         // Cache the result
                         formulaCache[identifier] = value
                         
                         // Update the field's value in the document
                         updateFieldWithFormulaResult(identifier: identifier, value: value, key: formulaInfo.key)
                     } else {
-                        print("🔧 Formula evaluation failed for field \(identifier): \(result)")
+                        Log("🔧 Formula evaluation failed for field \(identifier): \(result)", type: .warning)
 
                         // Get field to determine appropriate default value
                         let defaultValue = getDefaultFormulaValue(for: field.fieldType)
@@ -1730,7 +1730,7 @@ class JoyfillDocContext: EvaluationContext {
                     }
 
                 case .failure(let error):
-                    print("🔧 Formula parsing failed for field \(identifier): \(error)")
+                    Log("🔧 Formula parsing failed for field \(identifier): \(error)", type: .warning)
 
                     
                     // Get field to determine appropriate default value
@@ -1742,7 +1742,7 @@ class JoyfillDocContext: EvaluationContext {
             }
         }
         
-        print("🚀 evaluateAllFormulas completed")
+        Log("🚀 evaluateAllFormulas completed", type: .debug)
     }
     
     /// Creates a topologically sorted list of formula fields based on their dependencies
@@ -1771,7 +1771,7 @@ class JoyfillDocContext: EvaluationContext {
             // Check for circular dependency
             if temporaryMarks.contains(identifier) {
                 // Handle circular dependency by skipping
-                print("Warning: Circular dependency detected for field \(identifier)")
+                Log("Warning: Circular dependency detected for field \(identifier)", type: .warning)
                 return
             }
             
@@ -1860,29 +1860,29 @@ class JoyfillDocContext: EvaluationContext {
     ///   - value: The formula result value
     ///   - key: The field property to update (e.g., "value", "hidden", etc.)
     private func updateFieldWithFormulaResult(identifier: String, value: FormulaValue, key: String = "value") {
-        print("🔧 updateFieldWithFormulaResult called for \(identifier) with value: \(value) and key: \(key)")
+        Log("🔧 updateFieldWithFormulaResult called for \(identifier) with value: \(value) and key: \(key)", type: .debug)
         
         // Get the field to determine its type for proper conversion
         guard let field = docProvider.field(fieldID: identifier) else {
-            print("⚠️ Field \(identifier) not found for formula result update")
+            Log("⚠️ Field \(identifier) not found for formula result update", type: .warning)
             return
         }
         
         // Convert FormulaValue to ValueUnion with field type context
         let valueUnion = convertFormulaValueToValueUnion(value, fieldType: field.fieldType)
-        print("🔧 Converted to ValueUnion: \(valueUnion)")
+        Log("🔧 Converted to ValueUnion: \(valueUnion)", type: .debug)
         
         // Update the field value in the document
         // Note: Currently this only handles the "value" property
         // In the future, this would need to be extended to handle other properties like "hidden", "valid", etc.
         if key == "value" {
-            print("🔧 Calling docProvider.updateValue for \(identifier)")
+            Log("🔧 Calling docProvider.updateValue for \(identifier)", type: .debug)
             docProvider.updateValue(for: identifier, value: valueUnion)
         } else if (key == "hidden") {
             docProvider.setFieldHidden(value.boolValue, for: identifier)
         } else {
             // TODO: Handle other field properties like hidden, valid, etc.
-            print("Warning: Updating field property '\(key)' not implemented yet")
+            Log("Warning: Updating field property '\(key)' not implemented yet", type: .warning)
         }
     }
     
@@ -1940,7 +1940,7 @@ class JoyfillDocContext: EvaluationContext {
     /// - Parameter array: Array of chart lines from formula result
     /// - Returns: ValueUnion valueElementArray representation for chart field
     private func convertChartArrayToValueUnion(_ array: [FormulaValue]) -> ValueUnion {
-        print("📊 Converting chart array with \(array.count) lines to ValueUnion")
+        Log("📊 Converting chart array with \(array.count) lines to ValueUnion", type: .debug)
         
         var chartLines: [ValueElement] = []
         
@@ -1995,18 +1995,18 @@ class JoyfillDocContext: EvaluationContext {
                             var mutablePointElement = pointElement
                             mutablePointElement.dictionary = pointElementDict
                             convertedPoints.append(mutablePointElement)
-                            print("📍 Converted point \(pointIndex): x=\(pointElementDict["x"] ?? .null), y=\(pointElementDict["y"] ?? .null)")
+                            Log("📍 Converted point \(pointIndex): x=\(pointElementDict["x"] ?? .null), y=\(pointElementDict["y"] ?? .null)", type: .debug)
                         } else {
-                            print("⚠️ Point \(pointIndex) in line \(lineIndex) is not a dictionary, skipping")
+                            Log("⚠️ Point \(pointIndex) in line \(lineIndex) is not a dictionary, skipping", type: .warning)
                         }
                     }
                     
                     elementDict["points"] = .valueElementArray(convertedPoints)
-                    print("📈 Converted line \(lineIndex) with \(convertedPoints.count) points")
+                    Log("📈 Converted line \(lineIndex) with \(convertedPoints.count) points", type: .debug)
                 } else {
                     // Default to empty points array if not provided or invalid
                     elementDict["points"] = .valueElementArray([])
-                    print("📈 Line \(lineIndex) has no valid points, defaulting to empty array")
+                    Log("📈 Line \(lineIndex) has no valid points, defaulting to empty array", type: .debug)
                 }
                 
                 let lineElement = ValueElement(dictionary: [:])
@@ -2014,11 +2014,11 @@ class JoyfillDocContext: EvaluationContext {
                 mutableLineElement.dictionary = elementDict
                 chartLines.append(mutableLineElement)
             } else {
-                print("⚠️ Line \(lineIndex) is not a dictionary, skipping")
+                Log("⚠️ Line \(lineIndex) is not a dictionary, skipping", type: .warning)
             }
         }
         
-        print("📊 Successfully converted chart with \(chartLines.count) lines")
+        Log("📊 Successfully converted chart with \(chartLines.count) lines", type: .debug)
         return .valueElementArray(chartLines)
     }
     
