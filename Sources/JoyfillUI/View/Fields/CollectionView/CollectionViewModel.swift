@@ -25,13 +25,23 @@ class CollectionViewModel: ObservableObject {
 
     @Published var uuid = UUID()
     
-    init(tableDataModel: TableDataModel) {
+    init(tableDataModel: TableDataModel, shouldInitializeAsync: Bool) {
         self.tableDataModel = tableDataModel
         self.tableDataModel.schema.forEach { key, value in
             if value.root == true {
                 self.rootSchemaKey = key
             }
         }
+        
+        if shouldInitializeAsync {
+            self.isLoading = true
+        } else {
+            // Synchronous initialization for existing functionality
+            initializeSync()
+        }
+    }
+    
+    private func initializeSync() {
         buildBlockLongestTextMap()
         buildRowToValueElementMap()
         self.showRowSelector = tableDataModel.mode == .fill
@@ -44,6 +54,50 @@ class CollectionViewModel: ObservableObject {
             .filter { $0.required == true }
             .compactMap { $0.id }
         tableDataModel.documentEditor?.registerDelegate(self, for: tableDataModel.fieldIdentifier.fieldID)
+    }
+    
+    func initializeAsync() {
+        guard isLoading else { return }
+        
+        Task { @MainActor in
+            // Perform initialization on main thread but yield control to prevent UI blocking
+            await Task.yield()
+            
+            // Build block longest text map
+            self.buildBlockLongestTextMap()
+            await Task.yield()
+            
+            // Build row to value element map  
+            self.buildRowToValueElementMap()
+            await Task.yield()
+            
+            // Update basic properties
+            self.showRowSelector = tableDataModel.mode == .fill
+            self.shouldShowAddRowButton = tableDataModel.mode == .fill
+            self.nestedTableCount = tableDataModel.childrens.count
+            await Task.yield()
+            
+            // Calculate cell widths
+            self.cellWidthMapping()
+            await Task.yield()
+            
+            // Setup cell models (most expensive operation)
+            self.setupCellModels()
+            await Task.yield()
+            
+            // Update collection width
+            self.updateCollectionWidth()
+            await Task.yield()
+            
+            // Final setup
+            self.requiredColumnIds = tableDataModel.tableColumns
+                .filter { $0.required == true }
+                .compactMap { $0.id }
+            tableDataModel.documentEditor?.registerDelegate(self, for: tableDataModel.fieldIdentifier.fieldID)
+            
+            // Hide loading state
+            self.isLoading = false
+        }
     }
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {

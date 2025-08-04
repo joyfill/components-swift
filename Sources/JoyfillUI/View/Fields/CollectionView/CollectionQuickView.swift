@@ -10,16 +10,17 @@ import JoyfillModel
 
 struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
-    @ObservedObject private var viewModel: CollectionViewModel
+    @StateObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
     @State private var refreshID = UUID()
+    @State private var isInitializing = true
     
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
-        self.viewModel = CollectionViewModel(tableDataModel: tableDataModel)
+        self._viewModel = StateObject(wrappedValue: CollectionViewModel(tableDataModel: tableDataModel, shouldInitializeAsync: true))
         self.tableDataModel = tableDataModel
         self.eventHandler = eventHandler
     }
@@ -27,6 +28,44 @@ struct CollectionQuickView : View {
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(tableDataModel.fieldHeaderModel)
+
+            if viewModel.isLoading {
+                loadingView
+            } else {
+                collectionContent
+            }
+        }
+        .onAppear {
+            if isInitializing {
+                viewModel.initializeAsync()
+                isInitializing = false
+            }
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack {
+            HStack {
+                Spacer()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .scaleEffect(1.2)
+                Text("Loading collection...")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+            .frame(height: 120)
+        }
+        .frame(maxWidth: .infinity)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+        )
+    }
+    
+    private var collectionContent: some View {
+        VStack(alignment: .leading) {
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     colsHeader
