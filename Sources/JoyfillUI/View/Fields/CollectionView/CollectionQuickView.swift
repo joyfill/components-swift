@@ -20,7 +20,7 @@ struct CollectionQuickView : View {
     @State private var isInitializing = true
     
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
-        self._viewModel = StateObject(wrappedValue: CollectionViewModel(tableDataModel: tableDataModel, shouldInitializeAsync: true))
+        self._viewModel = StateObject(wrappedValue: CollectionViewModel(tableDataModel: tableDataModel))
         self.tableDataModel = tableDataModel
         self.eventHandler = eventHandler
     }
