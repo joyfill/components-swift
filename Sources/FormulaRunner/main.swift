@@ -3,10 +3,6 @@ import JoyfillFormulas
 import JoyfillModel
 import Examples
 
-print("Joyfill Formula Runner")
-print("=====================")
-print(Examples.getDescription())
-print("\nSample Formula Examples:")
 
 // Create evaluator components
 let parser = Parser()
@@ -29,7 +25,6 @@ let context = SimpleContext()
 
 // Loop through and evaluate each sample formula
 for (name, formula) in Examples.sampleFormulas {
-    print("\n\(name): \"\(formula)\"")
     
     // Parse the formula
     let parseResult = parser.parse(formula: formula)
@@ -42,17 +37,17 @@ for (name, formula) in Examples.sampleFormulas {
         // Print the result
         switch result {
         case .success(let value):
-            print("  Result: \(value)")
+            Log("  Result: \(value)", type: .debug)
         case .failure(let error):
-            print("  Evaluation Error: \(error)")
+            Log("  Evaluation Error: \(error)", type: .warning)
         }
         
     case .failure(let error):
-        print("  Parse Error: \(error)")
+        Log("  Parse Error: \(error)", type: .warning)
     }
 }
 
-print("\nFormula evaluation complete!")
+Log("Formula evaluation complete!", type: .debug)
 
 // If you want to add command-line formula evaluation later, 
 // you can parse arguments here and use the Evaluator.
@@ -61,7 +56,7 @@ print("\nFormula evaluation complete!")
 //     let formula = CommandLine.arguments[1]
 //     // ... setup resolver, evaluator ...
 //     // let result = try evaluator.evaluate(formula)
-//     // print("Result: \(result)")
+//     // Log("Result: \(result)", type: .debug)
 // } else {
-//     print("Usage: FormulaRunner \"<formula_string>\"")
+//     Log("Usage: FormulaRunner \"<formula_string>\"", type: .debug)
 // } 

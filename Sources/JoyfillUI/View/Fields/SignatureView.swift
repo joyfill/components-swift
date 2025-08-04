@@ -95,7 +95,7 @@ struct SignatureView: View {
                     ignoreOnChangeOnDefaultImageLoad = true
                 }
             } else {
-                print("\(String(describing: signatureURL))")
+                Log("Invalid signature URL or failed to load image: \(String(describing: signatureURL))", type: .warning)
             }
         }
     }
