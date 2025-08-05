@@ -78,7 +78,6 @@ struct CollectionModalView : View {
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
-            clearFilter()
         })
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(
@@ -92,13 +91,6 @@ struct CollectionModalView : View {
                 })
             )
         }
-    }
-
-    func clearFilter() {
-        for i in 0..<viewModel.tableDataModel.filterModels.count {
-            viewModel.tableDataModel.filterModels[i].filterText = ""
-        }
-        viewModel.tableDataModel.emptySelection()
     }
 
     var scrollArea: some View {
