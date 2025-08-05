@@ -92,6 +92,7 @@ struct CollectionQuickView : View {
                         .padding(.horizontal, 4)
                     
                     Text(viewModel.tableDataModel.collectionRowsCount)
+                        .darkLightThemeColor()
                         .font(.system(size: 16))
                 }
                 .foregroundStyle(.black)
