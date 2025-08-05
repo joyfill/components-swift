@@ -11,7 +11,7 @@ import JoyfillModel
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
     private let screenWidth = UIScreen.main.bounds.width
-    @ObservedObject private var viewModel: TableViewModel
+    @StateObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
@@ -19,7 +19,7 @@ struct TableQuickView : View {
     let eventHandler: FieldChangeEvents
 
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
-        self.viewModel = TableViewModel(tableDataModel: tableDataModel)
+        self._viewModel = StateObject(wrappedValue: TableViewModel(tableDataModel: tableDataModel))
         self.tableDataModel = tableDataModel
         self.eventHandler = eventHandler
     }
