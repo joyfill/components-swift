@@ -501,7 +501,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         
         inserRowBelowButton().tap()
-        
+        selectRow(number: 1)
         goBack()
         sleep(2)
         
