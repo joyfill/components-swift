@@ -20,6 +20,7 @@ class CollectionViewModel: ObservableObject {
     @Published var rowToValueElementMap: [String: ValueElement] = [:]
     @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
     @Published var isLoading: Bool = false
+    @Published var isSearching: Bool = false
     private var requiredColumnIds: [String] = []
     var rootSchemaKey: String = ""
 

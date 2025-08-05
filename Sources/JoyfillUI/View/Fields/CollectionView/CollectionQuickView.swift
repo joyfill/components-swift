@@ -17,7 +17,6 @@ struct CollectionQuickView : View {
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
     @State private var refreshID = UUID()
-    @State private var isInitializing = true
     
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
         self._viewModel = StateObject(wrappedValue: CollectionViewModel(tableDataModel: tableDataModel))
@@ -33,12 +32,6 @@ struct CollectionQuickView : View {
                 loadingView
             } else {
                 collectionContent
-            }
-        }
-        .onAppear {
-            if isInitializing {
-                viewModel.initializeAsync()
-                isInitializing = false
             }
         }
     }
