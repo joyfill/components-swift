@@ -112,7 +112,9 @@ struct SignatureView: View {
                         ignoreOnChangeOnDefaultImageLoad = true
                     }
                 } else {
-                    showError = true
+                    DispatchQueue.main.async {
+                        self.showError = true
+                    }
                 }
             }
         }
