@@ -16,7 +16,6 @@ extension DocumentEditor: JoyDocProvider {
     }
 
     func setFieldHidden(_ hidden: Bool, for identifier: String) {
-        print("setFieldHidden >>>>>", hidden, identifier)
         guard var field = allFields.first(where: { $0.id == identifier }) else {
             return
         }

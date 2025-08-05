@@ -78,24 +78,7 @@ struct CollectionModalView : View {
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
-            clearFilter()
         })
-        .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
-//            viewModel.tableDataModel.filterRowsIfNeeded()
-//            sortRowsIfNeeded()
-        }
-        .onChange(of: viewModel.tableDataModel.filterModels ) { _ in
-//            viewModel.tableDataModel.filterRowsIfNeeded()
-//            sortRowsIfNeeded()
-//            viewModel.tableDataModel.emptySelection()
-        }
-        .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
-//            for model in viewModel.tableDataModel.filteredcellModels {
-//                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
-//                    viewModel.tableDataModel.cellModels[index] = model
-//                }
-//            }
-        }
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(
                 title: Text("Reset Selection"),
@@ -108,14 +91,6 @@ struct CollectionModalView : View {
                 })
             )
         }
-    }
-
-    func clearFilter() {
-        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
-        for i in 0..<viewModel.tableDataModel.filterModels.count {
-            viewModel.tableDataModel.filterModels[i].filterText = ""
-        }
-        viewModel.tableDataModel.emptySelection()
     }
 
     var scrollArea: some View {

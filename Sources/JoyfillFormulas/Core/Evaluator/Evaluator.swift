@@ -11,25 +11,21 @@ public class Evaluator {
 
     /// Evaluates the given AST node.
     public func evaluate(node: ASTNode, context: EvaluationContext) -> Result<FormulaValue, FormulaError> {
-        print("Evaluator.evaluate called with node: \(node)") // Debug print
 
         switch node {
         case .literal(let value):
             return .success(value)
 
         case .reference(let name):
-            print("Resolving reference: \(name)")
             return context.resolveReference(name)
 
         case .functionCall(let name, let arguments):
-            print("Executing function: \(name) with args: \(arguments)")
             guard let function = functionRegistry.lookup(name: name) else {
                 return .failure(.invalidReference("Function '\(name)' not found."))
             }
             return function(arguments, context, self)
 
         case .infixOperation(let op, let leftNode, let rightNode):
-            print("Performing infix operation: \(op) on \(leftNode) and \(rightNode)")
             let leftResult = evaluate(node: leftNode, context: context)
             guard case .success(let leftValue) = leftResult else { return leftResult }
 
@@ -39,7 +35,6 @@ public class Evaluator {
             return performInfixOperation(op, leftValue, rightValue)
 
         case .prefixOperation(let op, let operandNode):
-            print("Performing prefix operation: \(op) on \(operandNode)")
             let operandResult = evaluate(node: operandNode, context: context)
             guard case .success(let operandValue) = operandResult else {
                 return operandResult // Propagate error from operand evaluation
@@ -63,7 +58,6 @@ public class Evaluator {
             }
 
         case .arrayLiteral(let elementNodes):
-            print("Evaluating array literal with elements: \(elementNodes)")
             var evaluatedElements: [FormulaValue] = []
             evaluatedElements.reserveCapacity(elementNodes.count)
 
@@ -79,7 +73,6 @@ public class Evaluator {
             return .success(.array(evaluatedElements))
             
         case .objectLiteral(let keyValuePairs):
-            print("Evaluating object literal with \(keyValuePairs.count) key-value pairs")
             var evaluatedDict: [String: FormulaValue] = [:]
             evaluatedDict.reserveCapacity(keyValuePairs.count)
             
@@ -99,7 +92,6 @@ public class Evaluator {
             return .success(.lambda(parameters: parameters, body: body))
             
         case .arrayAccess(let arrayNode, let indexNode):
-            print("Evaluating array access")
             // Evaluate the array expression
             let arrayResult = evaluate(node: arrayNode, context: context)
             guard case .success(let arrayValue) = arrayResult else {

@@ -115,6 +115,7 @@ struct SignatureView: View {
                     DispatchQueue.main.async {
                         self.showError = true
                     }
+                    Log("Invalid signature URL or failed to load image: \(String(describing: signatureURL))", type: .warning)
                 }
             }
         }

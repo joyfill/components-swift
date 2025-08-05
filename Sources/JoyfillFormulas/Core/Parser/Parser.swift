@@ -234,7 +234,6 @@ public class Parser {
         case .success(let tokens):
             self.tokens = tokens
             self.currentIndex = 0
-            print("Tokens: \(tokens.map { $0.lexeme })") // Debug print
 
             // 2. Parse
             let parseResult = parseExpression() // Start parsing the main expression

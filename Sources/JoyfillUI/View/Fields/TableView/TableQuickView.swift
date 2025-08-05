@@ -60,6 +60,7 @@ struct TableQuickView : View {
                         .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
                     
                     Text(viewModel.tableDataModel.viewMoreText)
+                        .darkLightThemeColor()
                         .font(.system(size: 16))
                 }
                 .foregroundStyle(.black)
