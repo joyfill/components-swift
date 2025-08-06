@@ -24,6 +24,26 @@ extension DocumentEditor: JoyDocProvider {
     }
 
     func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
+        guard var field = allFields.first(where: { $0.id == identifier }) else {
+            return
+        }
+        var value = value
+        if field.fieldType == .dropdown {
+            if let optionID = field.options?.first(where: { $0.value == value.text })?.id {
+                value = .string(optionID)
+            }
+        }
+        if field.fieldType == .multiSelect {
+            if let multiselectValues = value.multiSelector {
+                var optionIDs: [String] = []
+                for value in multiselectValues {
+                    if let optionID = field.options?.first(where: { $0.value == value })?.id {
+                        optionIDs.append(optionID)
+                    }
+                }
+                value = .array(optionIDs)
+            }
+        }
         updateValue(for: identifier, value: value, shouldCallOnChange: true)
     }
     

@@ -60,14 +60,14 @@
       "desc": "",
       "type": "calc",
       "scope": "global",
-      "expression": "if(or(some(results95, (item) -> item == \"Pass\"), some(results145, (item) -> item == \"Pass\")), \"Pass\", \"Fail\")"
+      "expression": "if(or(contains(results95, \"Pass\"), contains(results145, \"Pass\")), \"Pass\", \"Fail\")"
     },
     {
       "_id": "result7(expect:true)_formula",
       "desc": "",
       "type": "calc",
       "scope": "global",
-      "expression": "if(and(some(Rated_Pressure_True, (item) -> item == \"True\"), some(GPM_True, (item) -> item == \"True\")), \"Pass\", \"Fail\")"
+      "expression": "if(and(contains(Rated_Pressure_True, \"True\"), contains(GPM_True, \"True\")), \"Pass\", \"Fail\")"
     },
     {
       "_id": "result8(expect:pass)_formula",
