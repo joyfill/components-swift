@@ -52,46 +52,13 @@ on:
 env:
   # Use pre-merge as default for all PR events
   PIPELINE_TYPE: ${{ github.event.inputs.pipeline_type || 'pre-merge' }}
-  
-  # Set job flags based on pipeline type
-  RUN_LINT: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_lint) ||
-    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
-    'true'
-  }}
-  
-  RUN_SYNTAX_CHECK: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_syntax_check) ||
-    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
-    'true'
-  }}
-  
-  RUN_BUILD: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build) ||
-    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
-    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
-    'false'
-  }}
-  
-  RUN_UNIT_TESTS: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests) ||
-    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
-    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
-    'false'
-  }}
-  
-  RUN_UI_TESTS: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests) ||
-    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
-    'false'
-  }}
 
 jobs:
   # 🔍 Job 1: SwiftLint (Code Quality)
   lint:
     name: "🔍 SwiftLint"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ env.RUN_LINT == 'true' }}
+    if: ${{ github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_lint == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4  # ✅ Latest is v4 (not v5)
@@ -134,7 +101,7 @@ jobs:
   syntax-check:
     name: "⚡ Syntax Check"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ env.RUN_SYNTAX_CHECK == 'true' }}
+    if: ${{ github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_syntax_check == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -170,7 +137,7 @@ jobs:
   build:
     name: "🏗️ Build"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ env.RUN_BUILD == 'true' }}
+    if: ${{ github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true') }}
     needs: [syntax-check]
     steps:
       - name: Checkout code
@@ -230,7 +197,7 @@ jobs:
   unit-tests:
     name: "🧪 Unit Tests"
     runs-on: macos-14
-    if: ${{ env.RUN_UNIT_TESTS == 'true' }}
+    if: ${{ github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true') }}
     needs: [build]
     steps:
       - name: Checkout code
@@ -292,7 +259,7 @@ jobs:
   ui-tests:
     name: "🖱️ UI Tests"
     runs-on: macos-14
-    if: ${{ env.RUN_UI_TESTS == 'true' }}
+    if: ${{ github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true') }}
     needs: [build]
     timeout-minutes: 30  # ← HERE IS THE 30-MINUTE TIMEOUT! 🎯
     steps:
