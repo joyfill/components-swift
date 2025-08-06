@@ -41,7 +41,9 @@ extension DocumentEditor: JoyDocProvider {
                         optionIDs.append(optionID)
                     }
                 }
-                value = .array(optionIDs)
+                if !optionIDs.isEmpty {
+                    value = .array(optionIDs)
+                }
             }
         }
         updateValue(for: identifier, value: value, shouldCallOnChange: true)
