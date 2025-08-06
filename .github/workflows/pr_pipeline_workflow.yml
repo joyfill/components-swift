@@ -228,17 +228,33 @@ jobs:
             exit 1
           fi
           
+          # Check for common problematic files/settings
+          echo "🔍 Checking project configuration..."
+          
+          # Check Info.plist
+          if [ -f "JoyfillExample/Info.plist" ]; then
+            echo "✅ Found Info.plist"
+          else
+            echo "⚠️ Info.plist not found in expected location"
+            find . -name "Info.plist" -type f | head -5
+          fi
+          
+          # Check for asset catalog issues
+          find . -name "*.xcassets" | while read assets; do
+            echo "📱 Found asset catalog: $assets"
+          done
+          
           # Check available schemes
           echo "Available schemes:"
           xcodebuild -list -project JoyfillExample.xcodeproj || echo "Could not list schemes"
           
           # Check available simulators
           echo "Available simulators:"
-          xcrun simctl list devices iPhone --json | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.name | contains("iPhone")) | "\(.name) (\(.udid))"' || xcrun simctl list devices | grep iPhone
+          xcrun simctl list devices iPhone --json | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.name | contains("iPhone")) | "\(.name) (\(.udid))"' 2>/dev/null || xcrun simctl list devices | grep iPhone | head -5
           
           echo "🏗️ Starting build..."
           
-          # Build with SPM support and more verbose output for debugging
+          # Build with SPM support and settings to avoid ValidateDevelopmentAssets issues
           xcodebuild clean build \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
@@ -250,8 +266,12 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE="" \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
+            VALIDATE_DEVELOPMENT_ASSETS=NO \
+            -allowProvisioningUpdates \
             -verbose \
           | tee build-output.log
           
@@ -259,8 +279,20 @@ jobs:
           BUILD_RESULT=${PIPESTATUS[0]}
           if [ $BUILD_RESULT -ne 0 ]; then
             echo "❌ Build failed with exit code: $BUILD_RESULT"
-            echo "Last 50 lines of build output:"
+            echo ""
+            echo "=== LAST 50 LINES OF BUILD OUTPUT ==="
             tail -50 build-output.log
+            echo ""
+            echo "=== SEARCHING FOR SPECIFIC ERRORS ==="
+            echo "Asset validation errors:"
+            grep -i "ValidateDevelopmentAssets\|asset\|Info.plist" build-output.log | tail -10 || echo "No asset-related errors found"
+            echo ""
+            echo "Code signing errors:"
+            grep -i "code sign\|provisioning\|certificate" build-output.log | tail -5 || echo "No code signing errors found"
+            echo ""
+            echo "Swift/compilation errors:"
+            grep -i "error:\|failed\|cannot find" build-output.log | tail -10 || echo "No compilation errors found"
+            echo ""
             exit $BUILD_RESULT
           fi
           
