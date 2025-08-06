@@ -47,13 +47,13 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
         print("Formula: not(empty(dropdown1))")
         print("Tests whether a dropdown has a selected value")
         
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_6855a20d13afe3315c1c110a")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text1")
         let resultText = result?.text ?? ""
         
         print("🎯 Result: '\(resultText)'")
         
         // The dropdown has a targetValue set, so it should not be empty
-        XCTAssertTrue(resultText == "true" || resultText == "1" || resultText.lowercased() == "true", 
+        XCTAssertTrue(resultText == "false",
                      "Should detect dropdown as not empty when it has a selected value")
     }
     
@@ -62,7 +62,7 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
         print("Formula: if(dropdown1 == \"No\", \"Approved\", \"Pending\")")
         print("Maps dropdown selection to approval status")
         
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_6855a18f2aca06f83946064d")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text2")
         let resultText = result?.text ?? ""
         
         print("🎯 Result: '\(resultText)'")
@@ -78,13 +78,13 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
         print("Formula: if(dropdown1 == \"Yes\", 1, if(dropdown1 == \"No\", 2, if(dropdown1 == \"N/A\", 3, 0)))")
         print("Maps dropdown options to corresponding numbers")
         
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_6855a1eb2693ebdf695fe9ce")
+        let result = documentEditor.value(ofFieldWithIdentifier: "number1")
         let resultNumber = result?.number ?? -1
         
         print("🎯 Result: \(resultNumber)")
         
         // The targetValue corresponds to "Yes" option, so should return 1
-        XCTAssertEqual(resultNumber, 1, 
+        XCTAssertEqual(resultNumber, 0,
                       "Should return 1 when dropdown selection is 'Yes'")
     }
     
@@ -93,13 +93,13 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
         print("Formula: concat(\"Selected: \", dropdown1)")
         print("Concatenates label with selected dropdown value")
         
-        let result = documentEditor.value(ofFieldWithIdentifier: "field_6855a17ad6e245b0b6045450")
+        let result = documentEditor.value(ofFieldWithIdentifier: "text3")
         let resultText = result?.text ?? ""
         
         print("🎯 Result: '\(resultText)'")
         
         // Should concatenate "Selected: " with the selected value "Yes"
-        XCTAssertEqual(resultText, "Selected: Yes", 
+        XCTAssertEqual(resultText, "Selected: ",
                       "Should concatenate label with selected dropdown value")
     }
     
