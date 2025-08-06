@@ -17,7 +17,7 @@ on:
         type: choice
         options:
         - 'quick-check'      # Fast: Lint + Syntax (30 seconds)
-        - 'pre-merge'        # Standard: + Build + Unit tests (3-5 min)  
+        - 'pre-merge'        # Standard: + Build + Unit tests (3-5 min)
         - 'full-validation'  # Complete: + UI tests (8-12 minutes)
         - 'custom'           # Choose individual options
       
@@ -54,36 +54,36 @@ env:
   PIPELINE_TYPE: ${{ github.event.inputs.pipeline_type || 'pre-merge' }}
   
   # Set job flags based on pipeline type
-  RUN_LINT: ${{ 
-    (env.PIPELINE_TYPE == 'custom' && github.event.inputs.run_lint) || 
-    (env.PIPELINE_TYPE != 'custom' && 'true') || 
-    'true' 
+  RUN_LINT: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_lint) ||
+    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
+    'true'
   }}
   
-  RUN_SYNTAX_CHECK: ${{ 
-    (env.PIPELINE_TYPE == 'custom' && github.event.inputs.run_syntax_check) || 
-    (env.PIPELINE_TYPE != 'custom' && 'true') || 
-    'true' 
+  RUN_SYNTAX_CHECK: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_syntax_check) ||
+    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
+    'true'
   }}
   
-  RUN_BUILD: ${{ 
-    (env.PIPELINE_TYPE == 'custom' && github.event.inputs.run_build) || 
-    (env.PIPELINE_TYPE == 'pre-merge' && 'true') ||
-    (env.PIPELINE_TYPE == 'full-validation' && 'true') || 
-    'false' 
+  RUN_BUILD: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build) ||
+    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
+    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
+    'false'
   }}
   
-  RUN_UNIT_TESTS: ${{ 
-    (env.PIPELINE_TYPE == 'custom' && github.event.inputs.run_unit_tests) || 
-    (env.PIPELINE_TYPE == 'pre-merge' && 'true') ||
-    (env.PIPELINE_TYPE == 'full-validation' && 'true') || 
-    'false' 
+  RUN_UNIT_TESTS: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests) ||
+    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
+    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
+    'false'
   }}
   
-  RUN_UI_TESTS: ${{ 
-    (env.PIPELINE_TYPE == 'custom' && github.event.inputs.run_ui_tests) || 
-    (env.PIPELINE_TYPE == 'full-validation' && 'true') || 
-    'false' 
+  RUN_UI_TESTS: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests) ||
+    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
+    'false'
   }}
 
 jobs:
