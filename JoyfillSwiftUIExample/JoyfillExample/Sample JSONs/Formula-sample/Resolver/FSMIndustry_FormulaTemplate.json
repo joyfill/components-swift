@@ -53,30 +53,21 @@
       "type": "calc",
       "scope": "global",
 
-      "expression": "if (\n\tTP1Row4Nozzle == \"0.0|Bypass Flow Meter\",\n\t\"0.0\",\n\tif (\n\t\tTP1Row4Nozzle == \"0.548|4 1/2 Hose Monster\",\n\t\t\"0.548\",\n\t\tif (\n\t\t\tTP1Row4Nozzle == \"0.7|HYDRANT BUTT - OUTLET SQUARE PROJECTING INTO BARREL\",\n\t\t\t\"0.7\",\n\t\t)\n\t)\n)"
+      "expression": "if (\n\tTP1Row4Nozzle == \"0.0|Bypass Flow Meter\",\n\t\"0.0\",\n\tif (\n\t\tTP1Row4Nozzle == \"0.548|4 1/2 Hose Monster\",\n\t\t\"0.548\",\n\t\tif (\n\t\t\tTP1Row4Nozzle == \"0.7|HYDRANT BUTT - OUTLET SQUARE PROJECTING INTO BARREL\",\n\t\t\t\"0.7\", \"No Match\"\n\t\t)\n\t)\n)"
     },
     {
       "_id": "result6_formula",
       "desc": "",
       "type": "calc",
       "scope": "global",
-
-      "expression": "if(or(results95 == \"Pass\", results145 == \"Pass\"), \"Pass\", \"Fail\")"
-    },
-    {
-      "_id": "result6_formula",
-      "desc": "",
-      "type": "calc",
-      "scope": "global",
-
-      "expression": "if(or(results95 == \"Pass\", results145 == \"Pass\"), \"Pass\", \"Fail\")"
+      "expression": "if(or(contains(results95, \"Pass\"), contains(results145, \"Pass\")), \"Pass\", \"Fail\")"
     },
     {
       "_id": "result7(expect:true)_formula",
       "desc": "",
       "type": "calc",
       "scope": "global",
-      "expression": "if(and(Rated_Pressure_True == \"True\", GPM_True == \"True\"), \"Pass\", \"Fail\")"
+      "expression": "if(and(contains(Rated_Pressure_True, \"True\"), contains(GPM_True, \"True\")), \"Pass\", \"Fail\")"
     },
     {
       "_id": "result8(expect:pass)_formula",
@@ -93,18 +84,11 @@
       "expression": "if(\n\tfield1 > 0, \n\tif(or(field2 > 95, field3 > 145),\"Fail\", \"Pass\"), \n\t\"\"\n)"
     },
     {
-      "_id": "result9_formula",
-      "desc": "",
-      "type": "calc",
-      "scope": "global",
-      "expression": "if(\n\tfield1 > 0, \n\tif(or(field2 > 95, field3 > 145),\"Fail\", \"Pass\"), \n\t\"\"\n)"
-    },
-    {
       "_id": "result10_formula",
       "desc": "",
       "type": "calc",
       "scope": "global",
-      "expression": "round((TP1MeasuredFlow / properties_gpm), 2) * 100"
+      "expression": "round((TP1MeasuredFlow / toNumber(properties_gpm)), 2) * 100"
     }
   ],
   "fields": [
@@ -591,7 +575,7 @@
           "key": "value"
         }
       ],
-      "value": "Fail"
+      "value": ""
     },
     {
       "file": "95d20c083a0e41b7aade6ca9",
@@ -686,7 +670,7 @@
           "key": "value"
         }
       ],
-      "value": "Pass"
+      "value": ""
     },
     {
       "file": "95d20c083a0e41b7aade6ca9",
@@ -1198,4 +1182,4 @@
     }
   ],
   "type": "template"
-}
+}s
