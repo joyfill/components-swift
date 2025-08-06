@@ -207,6 +207,56 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-xcode-
 
+      - name: Fix Missing Preview Content Directory
+        run: |
+          cd JoyfillSwiftUIExample
+          
+          echo "🔧 Fixing missing Preview Content directory..."
+          
+          # Create missing Preview Content directory and assets if they don't exist
+          if [ ! -d "JoyfillExample/Preview Content" ]; then
+            echo "📁 Creating missing Preview Content directory..."
+            mkdir -p "JoyfillExample/Preview Content"
+          fi
+          
+          # Create Preview Assets.xcassets if missing
+          if [ ! -d "JoyfillExample/Preview Content/Preview Assets.xcassets" ]; then
+            echo "📱 Creating missing Preview Assets.xcassets..."
+            mkdir -p "JoyfillExample/Preview Content/Preview Assets.xcassets"
+            
+            # Create minimal Contents.json for the asset catalog
+            cat > "JoyfillExample/Preview Content/Preview Assets.xcassets/Contents.json" << 'EOF'
+{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+EOF
+          fi
+          
+          # Check if AccentColor exists, if not create it
+          if [ ! -d "JoyfillExample/Assets.xcassets/AccentColor.colorset" ]; then
+            echo "🎨 Creating missing AccentColor..."
+            mkdir -p "JoyfillExample/Assets.xcassets/AccentColor.colorset"
+            
+            cat > "JoyfillExample/Assets.xcassets/AccentColor.colorset/Contents.json" << 'EOF'
+{
+  "colors" : [
+    {
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+EOF
+          fi
+          
+          echo "✅ Preview Content structure fixed"
+
       - name: Install xcpretty
         run: |
           if ! gem list xcpretty -i; then
@@ -254,7 +304,7 @@ jobs:
           
           echo "🏗️ Starting build..."
           
-          # Build with SPM support and settings to avoid ValidateDevelopmentAssets and Preview issues
+          # Build with SPM support and settings to avoid Preview and Asset issues
           xcodebuild clean build \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
@@ -270,12 +320,11 @@ jobs:
             PROVISIONING_PROFILE="" \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            VALIDATE_DEVELOPMENT_ASSETS=NO \
             ENABLE_PREVIEWS=NO \
             SWIFT_COMPILATION_MODE=wholemodule \
             DEBUG_INFORMATION_FORMAT=dwarf \
+            ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
             -allowProvisioningUpdates \
-            -verbose \
           | tee build-output.log
           
           # Check if build was successful
