@@ -162,11 +162,48 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
+            JoyfillSwiftUIExample/SourcePackages
+            JoyfillSwiftUIExample/.build
+          key: ${{ runner.os }}-${{ runner.arch }}-spm-${{ hashFiles('JoyfillSwiftUIExample/Package.resolved', 'JoyfillSwiftUIExample/**/Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-spm-
+
+      - name: Resolve Swift Package Dependencies
+        run: |
+          cd JoyfillSwiftUIExample
+          
+          echo "🔍 Checking for Swift Package dependencies..."
+          
+          # Check if Package.swift exists (SPM project)
+          if [ -f "Package.swift" ]; then
+            echo "📦 Found Package.swift - resolving SPM dependencies..."
+            swift package resolve
+          fi
+          
+          # Check if project uses SPM (look for Package.resolved or .swiftpm)
+          if [ -f "Package.resolved" ] || [ -d ".swiftpm" ] || [ -d "SourcePackages" ]; then
+            echo "📦 Found SPM integration - resolving Xcode project dependencies..."
+            
+            # Resolve SPM dependencies for Xcode project
+            xcodebuild -resolvePackageDependencies \
+              -project JoyfillExample.xcodeproj \
+              -scheme JoyfillExample
+          else
+            echo "ℹ️ No Swift Package Manager dependencies found"
+          fi
+          
+          echo "✅ Package resolution completed"
+
       - name: Cache Xcode derived data
         uses: actions/cache@v4  # Updated to v4
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode-${{ hashFiles('JoyfillSwiftUIExample/**/*.swift', 'JoyfillSwiftUIExample/**/*.m', 'JoyfillSwiftUIExample/**/*.h') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode-${{ hashFiles('JoyfillSwiftUIExample/**/*.swift', 'JoyfillSwiftUIExample/**/*.m', 'JoyfillSwiftUIExample/**/*.h', 'JoyfillSwiftUIExample/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-xcode-
 
@@ -201,7 +238,7 @@ jobs:
           
           echo "🏗️ Starting build..."
           
-          # Build with more verbose output for debugging
+          # Build with SPM support and more verbose output for debugging
           xcodebuild clean build \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
@@ -209,6 +246,7 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
             -configuration Debug \
             -derivedDataPath ./DerivedData \
+            -clonedSourcePackagesDirPath ./SourcePackages \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
