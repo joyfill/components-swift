@@ -254,7 +254,7 @@ jobs:
           
           echo "🏗️ Starting build..."
           
-          # Build with SPM support and settings to avoid ValidateDevelopmentAssets issues
+          # Build with SPM support and settings to avoid ValidateDevelopmentAssets and Preview issues
           xcodebuild clean build \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
@@ -271,6 +271,9 @@ jobs:
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
             VALIDATE_DEVELOPMENT_ASSETS=NO \
+            ENABLE_PREVIEWS=NO \
+            SWIFT_COMPILATION_MODE=wholemodule \
+            DEBUG_INFORMATION_FORMAT=dwarf \
             -allowProvisioningUpdates \
             -verbose \
           | tee build-output.log
