@@ -344,6 +344,7 @@
 		E2B8E3B92E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E2B8E3B82E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json */; };
 		E2B8E3BA2E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E2B8E3B82E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json */; };
 		E2B8E3BB2E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E2B8E3B82E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json */; };
+		E2B8E3C02E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3BD2E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift */; };
 		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
 		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
 		E2F568672E2A4556005216A6 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568652E2A4556005216A6 /* DateTimeFieldUITestCases.swift */; };
@@ -566,6 +567,7 @@
 		E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
 		E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSearchView.swift; sourceTree = "<group>"; };
 		E2B8E3B82E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FSMIndustry_FormulaTemplate.json; sourceTree = "<group>"; };
+		E2B8E3BD2E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_FSMIndustryTests.swift; sourceTree = "<group>"; };
 		E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationTests.swift; sourceTree = "<group>"; };
 		E2F568632E2A4556005216A6 /* DateTimeFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DateTimeFieldTestData.json; sourceTree = "<group>"; };
 		E2F568642E2A4556005216A6 /* DateTimeFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldTests.swift; sourceTree = "<group>"; };
@@ -953,6 +955,7 @@
 			children = (
 				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
 				36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */,
+				E2B8E3BD2E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift */,
 				36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */,
 				3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */,
 				3622386A2E30D9AD00ABC867 /* JoyfillResolver_DirectSelfCircularReferenceTests.swift */,
@@ -1683,6 +1686,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2B8E3C02E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift in Sources */,
 				3682A4C42E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift in Sources */,
 				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
 				E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */,
