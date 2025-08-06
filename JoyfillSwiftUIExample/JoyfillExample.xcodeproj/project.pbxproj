@@ -721,23 +721,9 @@
 			children = (
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
 				E2CC9FEC2E375DE500797331 /* SchemaValidation */,
+				E2B8E3BC2E4361DF00AC6018 /* Formula */,
 				0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
-				361164D92DD70625003DEB4F /* WisdomTests.swift */,
-				362746752E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift */,
-				36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */,
-				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
-				36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */,
-				3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */,
-				3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */,
-				3622386A2E30D9AD00ABC867 /* JoyfillResolver_DirectSelfCircularReferenceTests.swift */,
-				3627465E2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift */,
-				3627465F2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */,
-				362746602E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift */,
-				362746612E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */,
-				362746622E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift */,
-				369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */,
-				369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
 				E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */,
 			);
@@ -960,6 +946,28 @@
 				E274CB052E2E84F700B35C09 /* textFieldValidation.json */,
 			);
 			path = optionalPropertiesRemovedTemplate;
+			sourceTree = "<group>";
+		};
+		E2B8E3BC2E4361DF00AC6018 /* Formula */ = {
+			isa = PBXGroup;
+			children = (
+				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
+				36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */,
+				36006C042E1BE59D00159BF0 /* FormulaTemplate_ArithmeticTests.swift */,
+				3627465D2E24FE98005B0FA7 /* FormulaTemplate_EqualityOperatorTests.swift */,
+				3622386A2E30D9AD00ABC867 /* JoyfillResolver_DirectSelfCircularReferenceTests.swift */,
+				3627465E2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOperatorTests.swift */,
+				3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */,
+				362746622E24FE98005B0FA7 /* FormulaTemplate_UnequalOperatorTests.swift */,
+				362746602E24FE98005B0FA7 /* FormulaTemplate_LessThanOperatorTests.swift */,
+				369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */,
+				362746612E24FE98005B0FA7 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */,
+				3627465F2E24FE98005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */,
+				362746752E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift */,
+				361164D92DD70625003DEB4F /* WisdomTests.swift */,
+				369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */,
+			);
+			path = Formula;
 			sourceTree = "<group>";
 		};
 		E2CC9FEC2E375DE500797331 /* SchemaValidation */ = {
