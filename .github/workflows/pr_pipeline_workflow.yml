@@ -151,7 +151,7 @@ jobs:
   build:
     name: "🏗️ Build"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true') }}
+    if: ${{ github.event_name == 'pull_request' || github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true') }}
     needs: [syntax-check]
     steps:
       - name: Checkout code
@@ -211,7 +211,7 @@ jobs:
   unit-tests:
     name: "🧪 Unit Tests"
     runs-on: macos-14
-    if: ${{ github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true') }}
+    if: ${{ github.event_name == 'pull_request' || github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true') }}
     needs: [build]
     steps:
       - name: Checkout code
