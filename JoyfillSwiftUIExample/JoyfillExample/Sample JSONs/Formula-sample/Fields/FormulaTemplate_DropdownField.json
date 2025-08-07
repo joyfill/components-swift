@@ -395,7 +395,7 @@
             "desc": "Map dropdown1 to numeric",
             "type": "calc",
             "scope": "private",
-            "expression": "if(dropdown1 == \"Yes\", \"1\", if(dropdown1 == \"No\", \"2\", if(dropdown1 == \"N/A\", \"3\", \"0\")))"
+            "expression": "toNumber(if(dropdown1 == \"Yes\", \"1\", if(dropdown1 == \"No\", \"2\", if(dropdown1 == \"N/A\", \"3\", \"0\"))))"
         },
         {
             "_id": "dropdownNotEmpty",

@@ -82,12 +82,12 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
         print("Expected: 1 (dropdown1 has 'Yes' selected)")
         
         let result = documentEditor.value(ofFieldWithIdentifier: "number1")
-        let resultNumber = result?.text
-        
+        let resultNumber = result?.number
+
         print("🎯 Result: \(resultNumber)")
         
         // The dropdown has value "Yes" selected, so should return 1
-        XCTAssertEqual(resultNumber, "1",
+        XCTAssertEqual(resultNumber, 1,
                       "Should return 1 when dropdown selection is 'Yes'")
     }
     
