@@ -460,21 +460,21 @@
             "desc": "Label + joined selected values from multiSelect1",
             "type": "calc",
             "scope": "private",
-            "expression": "concat(\"Selected: \", reduce(multiSelect1, (acc, item) => if(empty(acc), item, concat(acc, \", \", item)), \"\"))"
+            "expression": "concat(\"Selected: \", reduce(multiSelect1, (acc, item) -> if(empty(acc), item, concat(acc, \", \", item)), \"\"))"
         },
         {
             "_id": "multiSelectToNumbers",
             "desc": "Map selected options in multiSelect1 to numeric values",
             "type": "calc",
             "scope": "private",
-            "expression": "sum(map(multiSelect1, (item) => if(item == \"Option 1\", 1, if(item == \"Option 2\", 2, if(item == \"Option 3\", 3, 0)))))"
+            "expression": "sum(map(multiSelect1, (item) -> if(item == \"Option 1\", 1, if(item == \"Option 2\", 2, if(item == \"Option 3\", 3, 0)))))"
         },
         {
             "_id": "multiSelectApprovedPending",
             "desc": "If Option 2 is selected → Approved, else Pending",
             "type": "calc",
             "scope": "private",
-            "expression": "if(some(multiSelect1, (item) => item == \"Option 2\"), \"Approved\", \"Pending\")"
+            "expression": "if(some(multiSelect1, (item) -> item == \"Option 2\"), \"Approved\", \"Pending\")"
         },
         {
             "_id": "multiselect2(expect:yesandnotobeselectedwhenmultiselect1hasanyoptionselected)_formula",
