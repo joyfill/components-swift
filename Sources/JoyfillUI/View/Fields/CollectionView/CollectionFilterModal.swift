@@ -41,7 +41,11 @@ struct CollectionFilterModal: View {
                             viewModel.tableDataModel.sortModel.order = order
                             
                             await MainActor.run {
-                                viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
+                                if viewModel.tableDataModel.filterModels.noFilterApplied && viewModel.tableDataModel.sortModel.order == .none {
+                                    viewModel.setupAllCellModels(targetSchema: viewModel.rootSchemaKey)
+                                } else {
+                                    viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
+                                }
                                 viewModel.sortRowsIfNeeded()
                                 viewModel.isSearching = false
                                 presentationMode.wrappedValue.dismiss()
