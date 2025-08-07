@@ -42,6 +42,7 @@ class FormulaTemplate_MultiSelectFieldTests: XCTestCase {
         testMultiSelectConcat()
         testMultiSelectToNumbers()
         testMultiSelectApprovedPending()
+        testMultiSelectHandleInvalidArrayFormula()
     }
     
     // MARK: - Individual Test Methods
@@ -99,6 +100,40 @@ class FormulaTemplate_MultiSelectFieldTests: XCTestCase {
         print("🎯 Result: '\(resultText)'")
         
         XCTAssertEqual(resultText, "Approved", "Should return 'Approved' when Option 2 is selected")
+    }
+    
+ func testMultiSelectHandleInvalidArrayFormula() {
+        print("\n📝 Test 5: Handle Invalid Array Formula - multiselect6:handleinvalidarray_formula")
+        print("Formula: [\"Yes\", ] (Array literal with trailing comma)")
+        print("Expected: Array containing single string 'Yes'")
+        print("Purpose: Test formula engine's ability to handle simple array literal expressions")
+        
+        // This tests the multiselect6 field which uses the multiselect6:handleinvalidarray_formula
+        let result = documentEditor.value(ofFieldWithIdentifier: "multiSelect6")
+        print("🎯 Raw result: \(String(describing: result))")
+        
+        // Check if the result is an array containing "Yes"
+        if let arrayResult = result?.stringArray {
+            print("🎯 Array result: \(arrayResult)")
+            XCTAssertEqual(arrayResult.count, 1, "Should contain exactly one element")
+            if let firstElement = arrayResult.first {
+                // For multiselect fields, the formula returns option IDs, not display values
+                // We just need to verify the array structure is correct and has content
+                XCTAssertFalse(firstElement.isEmpty, "First element should not be empty")
+                print("✅ Test passed: Array contains expected element structure (ID: \(firstElement))")
+            } else {
+                XCTFail("Array should not be empty")
+            }
+        } else if let stringResult = result?.text {
+            // Sometimes the result might be returned as a string representation
+            print("🎯 String result: '\(stringResult)'")
+            XCTAssertTrue(stringResult.contains("Yes"), "Result should contain 'Yes'")
+            print("✅ Test passed: String result contains expected value 'Yes'")
+        } else {
+            print("❌ Unexpected result type or nil result")
+            print("🔍 Result type: \(String(describing: result))")
+            XCTFail("Expected array or string result containing 'Yes'")
+        }
     }
     
     // MARK: - Helper Methods

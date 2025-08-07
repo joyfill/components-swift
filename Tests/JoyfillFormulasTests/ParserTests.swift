@@ -128,7 +128,14 @@ final class ParserTests: XCTestCase {
     }
 
     func testParser_ExtraCommaInArray() {
-        assertSyntaxError(" [1, 2, ] ")
+        // Trailing commas should now be allowed
+        let formula = "[1, 2, ]"
+        let result = parser.parse(formula: formula)
+        guard case .success(let ast) = result else { XCTFail("Parse failed: \(result)"); return }
+        XCTAssertEqual(ast, .arrayLiteral([
+            .literal(.number(1)),
+            .literal(.number(2))
+        ]))
     }
 
     func testParser_InvalidArgumentExpression() {
@@ -240,6 +247,17 @@ final class ParserTests: XCTestCase {
              .infixOperation(operator: "*", left: .literal(.number(1)), right: .literal(.number(2))),
              .reference("ref")
           ]))
+     }
+     
+     func testParser_ArrayLiteral_WithTrailingComma() {
+         // Test case for multiselect6:handleinvalidarray_formula
+         // Expression: ["Yes", ] - array literal with trailing comma should parse correctly
+         let formula = "[\"Yes\", ]"
+         let result = parser.parse(formula: formula)
+         guard case .success(let ast) = result else { XCTFail("Parse failed: \(result)"); return }
+         XCTAssertEqual(ast, .arrayLiteral([
+            .literal(.string("Yes"))
+         ]))
      }
      
      func testParser_HigherOrderFunction_Map() {
