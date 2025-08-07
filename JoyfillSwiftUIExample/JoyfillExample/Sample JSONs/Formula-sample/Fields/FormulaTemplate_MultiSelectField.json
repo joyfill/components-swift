@@ -1,204 +1,515 @@
 {
-  "_id": "6850502a3339c0544b50778e",
-  "identifier": "doc_6850502a3339c0544b50778e",
-  "name": "Multi Select Field Formula Template",
-  "createdOn": 31232313,
-  "deleted": false,
-  "files": [
-    {
-      "_id": "6850502ad5b54e6d8570fbbf",
-      "name": "New File",
-      "pageOrder": [
-        "6850502aef6b6d67d4597e93"
-      ],
-      "pages": [
+    "_id": "6850502a3339c0544b50778e",
+    "identifier": "doc_6850502a3339c0544b50778e",
+    "name": "Multi Select Field Formula Template",
+    "files": [
         {
-          "_id": "6850502aef6b6d67d4597e93",
-          "name": "New Page",
-          "width": 816,
-          "height": 1056,
-          "rowHeight": 8,
-          "cols": 8,
-          "fieldPositions": [
-            {
-              "_id": "685209fb4c33a728f921e80e",
-              "type": "multiSelect",
-              "field": "multiSelect1",
-              "displayType": "original",
-              "targetValue": "684c3fedd15ffca87e7cd3d6",
-              "x": 2,
-              "y": 0,
-              "width": 4,
-              "height": 15
-            },
-            {
-              "_id": "pos_text1",
-              "type": "text",
-              "field": "text1",
-              "displayType": "original",
-              "x": 0,
-              "y": 8,
-              "width": 8,
-              "height": 8
-            },
-            {
-              "_id": "pos_text2",
-              "type": "text",
-              "field": "text2",
-              "displayType": "original",
-              "x": 0,
-              "y": 16,
-              "width": 8,
-              "height": 8
-            },
-            {
-              "_id": "pos_number1",
-              "type": "text",
-              "field": "number1",
-              "displayType": "original",
-              "x": 0,
-              "y": 24,
-              "width": 8,
-              "height": 8
-            },
-            {
-              "_id": "pos_text3",
-              "type": "text",
-              "field": "text3",
-              "displayType": "original",
-              "x": 0,
-              "y": 32,
-              "width": 8,
-              "height": 8
+            "_id": "6850502ad5b54e6d8570fbbf",
+            "name": "New File",
+            "pageOrder": [
+                "6850502aef6b6d67d4597e93"
+            ],
+            "pages": [
+                {
+                    "_id": "6850502aef6b6d67d4597e93",
+                    "name": "New Page",
+                    "width": 816,
+                    "height": 1056,
+                    "rowHeight": 8,
+                    "cols": 8,
+                    "fieldPositions": [
+                        {
+                            "_id": "685209fb4c33a728f921e80e",
+                            "type": "multiSelect",
+                            "field": "multiSelect1",
+                            "displayType": "original",
+                            "targetValue": "684c3fedd15ffca87e7cd3d6",
+                            "x": 2,
+                            "y": 0,
+                            "width": 4,
+                            "height": 15
+                        },
+                        {
+                            "_id": "pos_text1",
+                            "type": "text",
+                            "field": "text1",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 21,
+                            "width": 8,
+                            "height": 8
+                        },
+                        {
+                            "_id": "pos_text2",
+                            "type": "text",
+                            "field": "text2",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 29,
+                            "width": 8,
+                            "height": 8
+                        },
+                        {
+                            "_id": "pos_number1",
+                            "type": "text",
+                            "field": "number1",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 37,
+                            "width": 8,
+                            "height": 8
+                        },
+                        {
+                            "_id": "pos_text3",
+                            "type": "text",
+                            "field": "text3",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 45,
+                            "width": 8,
+                            "height": 8
+                        },
+                        {
+                            "_id": "68938d07a83d4ec9ced65717",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 28,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 15,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block1",
+                            "textAlign": "center"
+                        },
+                        {
+                            "_id": "68938d1eaa2bdcb9c408c63f",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 28,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 53,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block2",
+                            "textAlign": "center"
+                        },
+                        {
+                            "_id": "68938d34a14743871e196db4",
+                            "type": "multiSelect",
+                            "displayType": "original",
+                            "targetValue": "68936547d9ff73c09e6b84dd",
+                            "x": 0,
+                            "y": 59,
+                            "width": 8,
+                            "height": 16,
+                            "field": "multiSelect2"
+                        },
+                        {
+                            "_id": "68938dae7c538ad600f31297",
+                            "type": "multiSelect",
+                            "displayType": "original",
+                            "targetValue": "68936547d9ff73c09e6b84dd",
+                            "x": 0,
+                            "y": 75,
+                            "width": 8,
+                            "height": 16,
+                            "field": "multiSelect3"
+                        },
+                        {
+                            "_id": "68938de4b01880243dbb70a8",
+                            "type": "multiSelect",
+                            "displayType": "original",
+                            "targetValue": "68936547d9ff73c09e6b84dd",
+                            "x": 0,
+                            "y": 91,
+                            "width": 8,
+                            "height": 15,
+                            "field": "multiSelect4"
+                        },
+                        {
+                            "_id": "68938f0b8efb1df9b821783d",
+                            "type": "multiSelect",
+                            "displayType": "original",
+                            "targetValue": "68936547d9ff73c09e6b84dd",
+                            "x": 0,
+                            "y": 106,
+                            "width": 8,
+                            "height": 16,
+                            "field": "multiSelect5"
+                        },
+                        {
+                            "_id": "68938f1ba32817aaa1192200",
+                            "type": "multiSelect",
+                            "displayType": "original",
+                            "targetValue": "68936547d9ff73c09e6b84dd",
+                            "x": 0,
+                            "y": 122,
+                            "width": 8,
+                            "height": 15,
+                            "field": "multiSelect6"
+                        }
+                    ],
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "padding": 24
+                }
+            ],
+            "styles": {
+                "margin": 4,
+                "titleTextAlign": "left"
             }
-          ],
-          "layout": "grid",
-          "presentation": "normal",
-          "padding": 24
         }
-      ],
-      "styles": {
-        "margin": 4
-      },
-      "views": []
-    }
-  ],
-  "fields": [
-    {
-      "file": "6850502ad5b54e6d8570fbbf",
-      "_id": "multiSelect1",
-      "type": "multiSelect",
-      "title": "Multiple Choice",
-      "multi": true,
-      "options": [
+    ],
+    "fields": [
         {
-          "_id": "684c3fedd15ffca87e7cd3d6",
-          "value": "Option 1",
-          "deleted": false
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "multiSelect1",
+            "type": "multiSelect",
+            "title": "multiSelect1",
+            "multi": true,
+            "options": [
+                {
+                    "_id": "684c3fedd15ffca87e7cd3d6",
+                    "value": "Option 1",
+                    "deleted": false
+                },
+                {
+                    "_id": "684c3fed4cb4f71457c74a94",
+                    "value": "Option 2",
+                    "deleted": false
+                },
+                {
+                    "_id": "684c3fed07eb12c9a731e05e",
+                    "value": "Option 3",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_685209fbb4e19cefdac8409b",
+            "value": [
+                "684c3fed4cb4f71457c74a94",
+                "684c3fedd15ffca87e7cd3d6"
+            ]
         },
         {
-          "_id": "684c3fed4cb4f71457c74a94",
-          "value": "Option 2",
-          "deleted": false
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "text1",
+            "type": "text",
+            "title": "Display 'true' if any value selected",
+            "identifier": "field_multi_001",
+            "formulas": [
+                {
+                    "_id": "F001",
+                    "key": "value",
+                    "formula": "multiSelectNotEmpty"
+                }
+            ],
+            "value": "true"
         },
         {
-          "_id": "684c3fed07eb12c9a731e05e",
-          "value": "Option 3",
-          "deleted": false
-        }
-      ],
-      "identifier": "field_685209fbb4e19cefdac8409b",
-      "value": [
-        "684c3fed4cb4f71457c74a94",
-        "684c3fedd15ffca87e7cd3d6"
-      ]
-    },
-    {
-      "file": "6850502ad5b54e6d8570fbbf",
-      "_id": "text1",
-      "type": "text",
-      "title": "Display 'true' if any value selected",
-      "identifier": "field_multi_001",
-      "formulas": [
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "text2",
+            "type": "text",
+            "title": "Concatenated selected options",
+            "identifier": "field_multi_002",
+            "formulas": [
+                {
+                    "_id": "F002",
+                    "key": "value",
+                    "formula": "multiSelectConcat"
+                }
+            ],
+            "value": "Selected: Option 2, Option 1"
+        },
         {
-          "_id": "F001",
-          "key": "value",
-          "formula": "multiSelectNotEmpty"
-        }
-      ]
-    },
-    {
-      "file": "6850502ad5b54e6d8570fbbf",
-      "_id": "text2",
-      "type": "text",
-      "title": "Concatenated selected options",
-      "identifier": "field_multi_002",
-      "formulas": [
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "number1",
+            "type": "text",
+            "title": "Selected option numbers",
+            "identifier": "field_multi_003",
+            "formulas": [
+                {
+                    "_id": "F003",
+                    "key": "value",
+                    "formula": "multiSelectToNumbers"
+                }
+            ],
+            "value": "3"
+        },
         {
-          "_id": "F002",
-          "key": "value",
-          "formula": "multiSelectConcat"
-        }
-      ]
-    },
-    {
-      "file": "6850502ad5b54e6d8570fbbf",
-      "_id": "number1",
-      "type": "text",
-      "title": "Selected option numbers",
-      "identifier": "field_multi_003",
-      "formulas": [
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "text3",
+            "type": "text",
+            "title": "Approved if Option 2 selected, else Pending",
+            "identifier": "field_multi_004",
+            "formulas": [
+                {
+                    "_id": "F004",
+                    "key": "value",
+                    "formula": "multiSelectApprovedPending"
+                }
+            ],
+            "value": "Approved"
+        },
         {
-          "_id": "F003",
-          "key": "value",
-          "formula": "multiSelectToNumbers"
-        }
-      ]
-    },
-    {
-      "file": "6850502ad5b54e6d8570fbbf",
-      "_id": "text3",
-      "type": "text",
-      "title": "Approved if Option 2 selected, else Pending",
-      "identifier": "field_multi_004",
-      "formulas": [
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "block1",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Read",
+            "identifier": "field_block1"
+        },
         {
-          "_id": "F004",
-          "key": "value",
-          "formula": "multiSelectApprovedPending"
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "block2",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Write",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "multiSelect2",
+            "type": "multiSelect",
+            "title": "multiSelect2 (Expect: Yes and No to be selected when multiSelect1 has any option selected)",
+            "multi": true,
+            "options": [
+                {
+                    "_id": "68936547d9ff73c09e6b84dd",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547efefb627d4b21f66",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547107c0cfad2b0e976",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_multiSelect2",
+            "formulas": [
+                {
+                    "_id": "68938eeb07e69ffcaa5e49e9",
+                    "formula": "multiselect2(expect:yesandnotobeselectedwhenmultiselect1hasanyoptionselected)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": [
+                "Yes",
+                "No"
+            ]
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "multiSelect3",
+            "type": "multiSelect",
+            "title": "multiSelect3 (Expect: no selections when multiSelect1 has any option selected)",
+            "multi": true,
+            "options": [
+                {
+                    "_id": "68936547d9ff73c09e6b84dd",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547efefb627d4b21f66",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547107c0cfad2b0e976",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_multiSelect2",
+            "value": [],
+            "formulas": [
+                {
+                    "_id": "68938eebd1bcdd59cd732a5b",
+                    "formula": "multiselect3(expect:noselectionswhenmultiselect1hasanyoptionselected)_formula",
+                    "key": "value"
+                }
+            ]
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "multiSelect4",
+            "type": "multiSelect",
+            "title": "multiSelect4 (Expect: should mirror multiSelect1 option selection)",
+            "multi": true,
+            "options": [
+                {
+                    "_id": "68936547d9ff73c09e6b84dd",
+                    "value": "Option 1",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547efefb627d4b21f66",
+                    "value": "Option 2",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547107c0cfad2b0e976",
+                    "value": "Option 3",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_multiSelect4",
+            "formulas": [
+                {
+                    "_id": "68938eeb7e8435db9bc97dc0",
+                    "formula": "multiselect4(expect:shouldmirrormultiselect1optionselection)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": [
+                "Option 2",
+                "Option 1"
+            ]
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "multiSelect5",
+            "type": "multiSelect",
+            "title": "multiSelect5 (Expect: \"Yes\", and ignore options that don't exist)",
+            "multi": true,
+            "options": [
+                {
+                    "_id": "68936547d9ff73c09e6b84dd",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547efefb627d4b21f66",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547107c0cfad2b0e976",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_multiSelect5",
+            "formulas": [
+                {
+                    "_id": "68938fa28468d250261b0c71",
+                    "formula": "multiselect5(expect:\"yes\",andignoreoptionsthatdon'texist)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": [
+                "Yes",
+                "Does Not Exist",
+                ""
+            ]
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "multiSelect6",
+            "type": "multiSelect",
+            "title": "multiSelect6 (Expect: \"Yes\")",
+            "multi": true,
+            "options": [
+                {
+                    "_id": "68936547d9ff73c09e6b84dd",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547efefb627d4b21f66",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "68936547107c0cfad2b0e976",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_multiSelect6",
+            "formulas": [
+                {
+                    "_id": "68938fa26aa029818b0aaf79",
+                    "formula": "multiselect6:handleinvalidarray_formula",
+                    "key": "value"
+                }
+            ],
+            "value": [
+                "Yes"
+            ]
         }
-      ]
-    }
-  ],
-  "type": "document",
-  "formulas": [
-    {
-      "_id": "multiSelectNotEmpty",
-      "desc": "Check if multiSelect1 has any value",
-      "type": "calc",
-      "scope": "private",
-      "expression": "not(empty(multiSelect1))"
-    },
-    {
-      "_id": "multiSelectConcat",
-      "desc": "Label + joined selected values from multiSelect1",
-      "type": "calc",
-      "scope": "private",
-      "expression": "concat(\"Selected: \", reduce(multiSelect1, (acc, item) -> if(empty(acc), item, concat(acc, \", \", item)), \"\"))"
-    },
-    {
-      "_id": "multiSelectToNumbers",
-      "desc": "Map selected options in multiSelect1 to numeric values",
-      "type": "calc",
-      "scope": "private",
-      "expression": "sum(map(multiSelect1, (item) -> if(item == \"Option 1\", 1, if(item == \"Option 2\", 2, if(item == \"Option 3\", 3, 0)))))"
-    },
-    {
-      "_id": "multiSelectApprovedPending",
-      "desc": "If Option 2 is selected \u2192 Approved, else Pending",
-      "type": "calc",
-      "scope": "private",
-      "expression": "if(some(multiSelect1, (item) -> item == \"Option 2\"), \"Approved\", \"Pending\")"
-    }
-  ]
+    ],
+    "type": "document",
+    "formulas": [
+        {
+            "_id": "multiSelectNotEmpty",
+            "desc": "Check if multiSelect1 has any value",
+            "type": "calc",
+            "scope": "private",
+            "expression": "not(empty(multiSelect1))"
+        },
+        {
+            "_id": "multiSelectConcat",
+            "desc": "Label + joined selected values from multiSelect1",
+            "type": "calc",
+            "scope": "private",
+            "expression": "concat(\"Selected: \", reduce(multiSelect1, (acc, item) => if(empty(acc), item, concat(acc, \", \", item)), \"\"))"
+        },
+        {
+            "_id": "multiSelectToNumbers",
+            "desc": "Map selected options in multiSelect1 to numeric values",
+            "type": "calc",
+            "scope": "private",
+            "expression": "sum(map(multiSelect1, (item) => if(item == \"Option 1\", 1, if(item == \"Option 2\", 2, if(item == \"Option 3\", 3, 0)))))"
+        },
+        {
+            "_id": "multiSelectApprovedPending",
+            "desc": "If Option 2 is selected → Approved, else Pending",
+            "type": "calc",
+            "scope": "private",
+            "expression": "if(some(multiSelect1, (item) => item == \"Option 2\"), \"Approved\", \"Pending\")"
+        },
+        {
+            "_id": "multiselect2(expect:yesandnotobeselectedwhenmultiselect1hasanyoptionselected)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(not(empty(multiSelect1)), [\"Yes\", \"No\"], [])"
+        },
+        {
+            "_id": "multiselect3(expect:noselectionswhenmultiselect1hasanyoptionselected)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(not(empty(multiSelect1)), [], [\"Yes\"])"
+        },
+        {
+            "_id": "multiselect4(expect:shouldmirrormultiselect1optionselection)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "multiSelect1"
+        },
+        {
+            "_id": "multiselect5(expect:\"yes\",andignoreoptionsthatdon'texist)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "[\"Yes\", \"Does Not Exist\", \"\"]"
+        },
+        {
+            "_id": "multiselect6:handleinvalidarray_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "[\"Yes\", ]"
+        }
+    ]
 }
