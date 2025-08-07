@@ -119,37 +119,30 @@ class FormulaTemplate_FSMIndustryTests: XCTestCase {
     // MARK: - Test Pass/Fail Logic
     private func testPassFailLogic() {
         print("\n✅ Test 6: Pass/Fail Logic")
-        print("Formula: if(or(results95 == \"Pass\", results145 == \"Pass\"), \"Pass\", \"Fail\")")
-        print("results95 = 'Pass', results145 = 'Pass'")
-        print("Expected: 'Pass' (but current shows 'Fail' - may be test data issue)")
+        print("Formula: if(or(some(results95, (item) -> item == \"Pass\"), some(results145, (item) -> item == \"Pass\")), \"Pass\", \"Fail\")")
+        print("results95 = ['Pass'], results145 = ['Pass']")
+        print("Expected: 'Pass' (multiselect arrays have Pass selected)")
         
         let result = documentEditor.value(ofFieldWithIdentifier: "result6")
         let resultText = result?.text ?? ""
         print("🎯 Result: '\(resultText)'")
         
-        // Note: The JSON shows this should be "Pass" but is currently "Fail"
-        // This might be a data inconsistency in the test file
-        XCTAssertEqual(resultText, "Fail", "Current result matches JSON, though logic suggests Pass")
+        XCTAssertEqual(resultText, "Pass", "Should return 'Pass' when both multiselect arrays contain 'Pass'")
     }
     
     // MARK: - Test Boolean AND Logic
     private func testBooleanAndLogic() {
         print("\n🔗 Test 7: Boolean AND Logic")
-        print("Formula: if(and(Rated_Pressure_True == \"True\", GPM_True == \"True\"), \"Pass\", \"Fail\")")
-        print("Both fields = 'True'")
-        print("Expected: 'Pass' (but current shows 'Fail')")
+        print("Formula: if(and(some(Rated_Pressure_True, (item) -> item == \"True\"), some(GPM_True, (item) -> item == \"True\")), \"Pass\", \"Fail\")")
+        print("Both multiselect fields contain 'True'")
+        print("Expected: 'Pass'")
         
         let result = documentEditor.value(ofFieldWithIdentifier: "result7")
         let resultText = result?.text ?? ""
         print("🎯 Result: '\(resultText)'")
-//            "Pass": "68897be7b20559d2a9707760"
-//        
-//            "Fail": "68897be7e963972f720c0f7b"
-//        
-//            "N/A": "68897be770e1233d4f626f5c"
-          
-        // Note: Both inputs are "True" but result is "Fail" - may be multiSelect value matching issue
-        XCTAssertEqual(resultText, "68897be7e963972f720c0f7b", "Current result matches JSON")
+        
+        // The JSON shows this should be "Pass" 
+        XCTAssertEqual(resultText, "68897be7b20559d2a9707760", "Should return 'Pass' when both multiselect arrays contain 'True'")
     }
     
     // MARK: - Test Percentage Range Check
