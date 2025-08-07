@@ -81,7 +81,7 @@ struct MultiSelectionView: View {
 
 struct MultiSelection: View {
     var option: String
-    @State var isSelected: Bool
+    var isSelected: Bool  // Removed @State to make it reactive to data changes
     @Binding var multiSelectedOptionArray: [String]
     var isAlreadyFocused: Bool
     var multiSelectionDataModel: MultiSelectionDataModel
@@ -90,7 +90,7 @@ struct MultiSelection: View {
 
     var body: some View {
         Button(action: {
-            isSelected.toggle()
+            // Don't toggle local state, just update the array
             if isAlreadyFocused == false {
                 eventHandler.onFocus(event: multiSelectionDataModel.fieldIdentifier)
             }
@@ -137,7 +137,8 @@ struct RadioView: View {
             }
         }, label: {
             HStack(alignment: .top) {
-                Image(systemName: singleSelectedOptionArray == [selectedItemId] ? "smallcircle.filled.circle.fill" : "circle")
+                // Check selection state from data model instead of state array
+                Image(systemName: multiSelectionDataModel.multiSelector?.contains(selectedItemId) == true ? "smallcircle.filled.circle.fill" : "circle")
                     .padding(.top, 4)
                 Text(option)
                     .darkLightThemeColor()

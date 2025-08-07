@@ -1908,11 +1908,17 @@ class JoyfillDocContext: EvaluationContext {
             // Special handling for chart fields
             if let fieldType = fieldType, fieldType == .chart {
                 return convertChartArrayToValueUnion(array)
-            } else {
-                // For other arrays, create a string representation
-                let stringRepresentation = arrayToString(array)
-                return .string(stringRepresentation)
             }
+            return .array(array.map { formulaValue in
+                switch formulaValue {
+                case .number(let number):
+                    return "\(number)"
+                case .string(let string):
+                    return "\(string)"
+                default:
+                    return "\(formulaValue)" // Convert other types to string
+                }
+            })
         case .dictionary(let dict):
             var result: [String: ValueUnion] = [:]
             for (key, value) in dict {

@@ -530,7 +530,11 @@ public class Parser {
                      return .failure(error)
                  }
                  if currentToken()?.type == .rightBracket { break }
-                 else if currentToken()?.type == .comma { advance() }
+                 else if currentToken()?.type == .comma { 
+                     advance() // Consume comma
+                     // Check for trailing comma (comma followed by ']')
+                     if currentToken()?.type == .rightBracket { break }
+                 }
                  else { return .failure(.syntaxError("Expected ',' or ']' in array literal, found \(currentToken()?.lexeme ?? "nil")")) }
             }
         }
