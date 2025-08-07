@@ -76,11 +76,12 @@ struct TableDateView: View {
                         .accessibilityIdentifier("CalendarImageIdentifier")
                         .frame(maxWidth: .infinity)
                         .padding(.all, 10)
-                        .onTapGesture {
-                            isDatePickerPresented = true
-                            selectedDate = Date()
-                        }
                 }
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isDatePickerPresented = true
+                selectedDate = Date()
             }
             .onChange(of: selectedDate) { newValue in
                 var cellDataModel = cellModel.data
