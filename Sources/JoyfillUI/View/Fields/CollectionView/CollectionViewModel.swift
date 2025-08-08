@@ -1682,7 +1682,6 @@ class CollectionViewModel: ObservableObject {
     }
     
     func sendEventsIfNeeded() {
-        uuid = UUID()
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
     }
     
