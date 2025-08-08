@@ -218,15 +218,6 @@ extension DocumentEditor {
     }   
 
     public func mapWebViewToMobileViewIfNeeded(fieldPositions: [FieldPosition], isMobileViewActive: Bool) -> [FieldPosition] {
-        guard isMobileViewActive else {
-            var resultFieldPositions = [FieldPosition]()
-            for fp in fieldPositions {
-                var modifiableFP = fp
-                modifiableFP.titleDisplay = "inline"
-                resultFieldPositions.append(modifiableFP)
-            }
-            return resultFieldPositions
-        }
         let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
             guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
                 return false
@@ -243,7 +234,11 @@ extension DocumentEditor {
         
         for fp in sortedFieldPositions {
             if let field = fp.field, uniqueFields.insert(field).inserted {
-                resultFieldPositions.append(fp)
+                var modifiableFP = fp
+                if !isMobileViewActive {
+                    modifiableFP.titleDisplay = "inline"
+                }
+                resultFieldPositions.append(modifiableFP)
             }
         }
         return resultFieldPositions
