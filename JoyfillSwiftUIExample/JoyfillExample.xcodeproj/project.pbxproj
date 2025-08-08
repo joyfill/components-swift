@@ -64,6 +64,9 @@
 		E2A683EB2DC8D59900385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683EA2DC8D59900385FE1 /* FormContainerTestView.swift */; };
 		E2B5F7592D75A3970057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7582D75A3970057FD85 /* TemplateSearchView.swift */; };
 		E2B5F75C2D75A4630057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75B2D75A4630057FD85 /* JoyfillAPIService */; };
+		E2C8BD1D2E460BEA00B93B9E /* MobileTitleDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8BD1C2E460BEA00B93B9E /* MobileTitleDisplayTests.swift */; };
+		E2C8BD1F2E460D0000B93B9E /* FieldTitleNotDisplayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD1E2E460D0000B93B9E /* FieldTitleNotDisplayed.json */; };
+		E2C8BD212E460D0700B93B9E /* AllFieldTitleDispalayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD202E460D0700B93B9E /* AllFieldTitleDispalayed.json */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
 		FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAED2BA4C1F300ABD018 /* Joyfill */; };
@@ -134,6 +137,9 @@
 		36A39FBC2DC5DC060059D04F /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		E2A683EA2DC8D59900385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2B5F7582D75A3970057FD85 /* TemplateSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateSearchView.swift; sourceTree = "<group>"; };
+		E2C8BD1C2E460BEA00B93B9E /* MobileTitleDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileTitleDisplayTests.swift; sourceTree = "<group>"; };
+		E2C8BD1E2E460D0000B93B9E /* FieldTitleNotDisplayed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTitleNotDisplayed.json; sourceTree = "<group>"; };
+		E2C8BD202E460D0700B93B9E /* AllFieldTitleDispalayed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = AllFieldTitleDispalayed.json; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
 		FA28C9682BB4356000A2D65C /* SaveButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonView.swift; sourceTree = "<group>"; };
 		FA28C96A2BB4359600A2D65C /* ChangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeManager.swift; sourceTree = "<group>"; };
@@ -230,6 +236,7 @@
 		134FC0782BDA82E9008B7030 /* JoyfillTests */ = {
 			isa = PBXGroup;
 			children = (
+				E2C8BD1C2E460BEA00B93B9E /* MobileTitleDisplayTests.swift */,
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
 				0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
@@ -287,6 +294,8 @@
 				13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */,
 				04FEBD8D2D5DD7D600163AC6 /* FirstPageHidden.json */,
 				1307CF0C2BDB7E0700B19FBA /* Joydocjson.json */,
+				E2C8BD202E460D0700B93B9E /* AllFieldTitleDispalayed.json */,
+				E2C8BD1E2E460D0000B93B9E /* FieldTitleNotDisplayed.json */,
 				FA529C512BA1D253000200F5 /* Assets.xcassets */,
 				FA529C532BA1D253000200F5 /* JoyfillExample.entitlements */,
 				FA529C542BA1D253000200F5 /* Preview Content */,
@@ -469,6 +478,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2C8BD1F2E460D0000B93B9E /* FieldTitleNotDisplayed.json in Resources */,
+				E2C8BD212E460D0700B93B9E /* AllFieldTitleDispalayed.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				04FEBD8F2D5DD7D600163AC6 /* FirstPageHidden.json in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
@@ -507,6 +518,7 @@
 			files = (
 				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
 				1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */,
+				E2C8BD1D2E460BEA00B93B9E /* MobileTitleDisplayTests.swift in Sources */,
 				0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */,
 				134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */,
 			);
