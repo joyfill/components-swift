@@ -1,0 +1,149 @@
+{
+  "_id": "6850502a3339c0544b50778e",
+  "identifier": "doc_6850502a3339c0544b50778e",
+  "name": "New Doc",
+  "createdOn": 31232313,
+  "deleted": false,
+  "files": [
+    {
+      "_id": "6850502ad5b54e6d8570fbbf",
+      "name": "New File",
+      "pageOrder": ["6850502aef6b6d67d4597e93"],
+      "pages": [
+        {
+          "_id": "6850502aef6b6d67d4597e93",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68521ca1f132c81ece48d3d1",
+              "type": "block",
+              "field": "block1",
+              "displayType": "original",
+              "x": 1,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text2",
+              "type": "text",
+              "field": "text2",
+              "displayType": "original",
+              "x": 1,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text3",
+              "type": "text",
+              "field": "text3",
+              "displayType": "original",
+              "x": 1,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text4",
+              "type": "text",
+              "field": "text4",
+              "displayType": "original",
+              "x": 1,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "block1",
+      "type": "block",
+      "title": "Block",
+      "identifier": "field_68521ca1ceefb7c6c622024b",
+      "value": "test for formulas"
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "text2",
+      "type": "text",
+      "title": "Copy of block1",
+      "identifier": "field_text2",
+      "formulas": [
+        {
+          "_id": "AF_text2",
+          "formula": "block1Reference",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "text3",
+      "type": "text",
+      "title": "Uppercased with prefix",
+      "identifier": "field_text3",
+      "formulas": [
+        {
+          "_id": "AF_text3",
+          "formula": "concatUpperCase",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "text4",
+      "type": "text",
+      "title": "Check if filled",
+      "identifier": "field_text4",
+      "formulas": [
+        {
+          "_id": "AF_text4",
+          "formula": "checkIfFilled",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "block1Reference",
+      "desc": "Echo block1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "block1"
+    },
+    {
+      "_id": "concatUpperCase",
+      "desc": "Uppercase + Prefix",
+      "type": "calc",
+      "scope": "private",
+      "expression": "concat(\"Current entry: \", upper(block1))"
+    },
+    {
+      "_id": "checkIfFilled",
+      "desc": "Check for match with lower",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(lower(block1) == \"test for formulas\", \"Filled\", \"Empty\")"
+    }
+  ]
+}

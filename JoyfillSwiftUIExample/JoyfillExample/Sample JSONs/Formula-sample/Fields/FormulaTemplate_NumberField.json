@@ -1,0 +1,368 @@
+{
+  "_id": "6850502a3339c0544b50778e",
+  "identifier": "doc_6850502a3339c0544b50778e",
+  "name": "New Doc",
+  "createdOn": 31232313,
+  "deleted": false,
+  "files": [
+    {
+      "_id": "6850502ad5b54e6d8570fbbf",
+      "name": "New File",
+      "pageOrder": [
+        "6850502aef6b6d67d4597e93"
+      ],
+      "pages": [
+        {
+          "_id": "6850502aef6b6d67d4597e93",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68521ca1f132c81ece48d3d1",
+              "type": "number",
+              "field": "number1",
+              "displayType": "original",
+              "x": 1,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number2",
+              "type": "number",
+              "field": "number2",
+              "displayType": "original",
+              "x": 1,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number3",
+              "type": "number",
+              "field": "number3",
+              "displayType": "original",
+              "x": 1,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number4",
+              "type": "number",
+              "field": "number4",
+              "displayType": "original",
+              "x": 1,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number5",
+              "type": "number",
+              "field": "number5",
+              "displayType": "original",
+              "x": 1,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number6",
+              "type": "number",
+              "field": "number6",
+              "displayType": "original",
+              "x": 1,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number7",
+              "type": "number",
+              "field": "number7",
+              "displayType": "original",
+              "x": 1,
+              "y": 48,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number8",
+              "type": "number",
+              "field": "number8",
+              "displayType": "original",
+              "x": 1,
+              "y": 56,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number9",
+              "type": "number",
+              "field": "number9",
+              "displayType": "original",
+              "x": 1,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number10",
+              "type": "number",
+              "field": "number10",
+              "displayType": "original",
+              "x": 1,
+              "y": 72,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number11",
+              "type": "number",
+              "field": "number11",
+              "displayType": "original",
+              "x": 1,
+              "y": 80,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number1",
+      "type": "number",
+      "title": "Number1",
+      "identifier": "field_68521ca1ceefb7c6c622024b",
+      "value": 10
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number2",
+      "type": "number",
+      "title": "Add 100 to number1",
+      "identifier": "field_number2",
+      "formulas": [
+        {
+          "_id": "AF_add100",
+          "formula": "add100",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number3",
+      "type": "number",
+      "title": "Multiply number1 by 2",
+      "identifier": "field_number3",
+      "formulas": [
+        {
+          "_id": "AF_doubleValue",
+          "formula": "doubleValue",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number4",
+      "type": "number",
+      "title": "Divide number1 by 3 and round to 2 decimal places",
+      "identifier": "field_number4",
+      "formulas": [
+        {
+          "_id": "AF_divideBy3Round2",
+          "formula": "divideBy3Round2",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number5",
+      "type": "number",
+      "title": "Square root of number1",
+      "identifier": "field_number5",
+      "formulas": [
+        {
+          "_id": "AF_sqrtValue",
+          "formula": "sqrtValue",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number6",
+      "type": "number",
+      "title": "Return 1 if number1 is greater than 50, else 0",
+      "identifier": "field_number6",
+      "formulas": [
+        {
+          "_id": "AF_greaterThan50Flag",
+          "formula": "greaterThan50Flag",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number7",
+      "type": "number",
+      "title": "Remainder of number1 divided by 7",
+      "identifier": "field_number7",
+      "formulas": [
+        {
+          "_id": "AF_mod7",
+          "formula": "mod7",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number8",
+      "type": "number",
+      "title": "Square of number1",
+      "identifier": "field_number8",
+      "formulas": [
+        {
+          "_id": "AF_squareValue",
+          "formula": "squareValue",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number9",
+      "type": "number",
+      "title": "Ceiling of number1 divided by 4",
+      "identifier": "field_number9",
+      "formulas": [
+        {
+          "_id": "AF_ceilDivBy4",
+          "formula": "ceilDivBy4",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number10",
+      "type": "number",
+      "title": "Floor of number1 divided by 4",
+      "identifier": "field_number10",
+      "formulas": [
+        {
+          "_id": "AF_floorDivBy4",
+          "formula": "floorDivBy4",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number11",
+      "type": "number",
+      "title": "Maximum of number1 and 25",
+      "identifier": "field_number11",
+      "formulas": [
+        {
+          "_id": "AF_maxWith25",
+          "formula": "maxWith25",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "add100",
+      "desc": "Add 100 to number1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 + 100"
+    },
+    {
+      "_id": "doubleValue",
+      "desc": "Multiply number1 by 2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 * 2"
+    },
+    {
+      "_id": "divideBy3Round2",
+      "desc": "Divide number1 by 3 and round to 2 decimal places",
+      "type": "calc",
+      "scope": "private",
+      "expression": "round(number1 / 3, 2)"
+    },
+    {
+      "_id": "sqrtValue",
+      "desc": "Square root of number1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sqrt(number1)"
+    },
+    {
+      "_id": "greaterThan50Flag",
+      "desc": "Return 1 if number1 is greater than 50, else 0",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(number1 > 50, 1, 0)"
+    },
+    {
+      "_id": "mod7",
+      "desc": "Remainder of number1 divided by 7",
+      "type": "calc",
+      "scope": "private",
+      "expression": "mod(number1, 7)"
+    },
+    {
+      "_id": "squareValue",
+      "desc": "Square of number1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "pow(number1, 2)"
+    },
+    {
+      "_id": "ceilDivBy4",
+      "desc": "Ceiling of number1 divided by 4",
+      "type": "calc",
+      "scope": "private",
+      "expression": "ceil(number1 / 4)"
+    },
+    {
+      "_id": "floorDivBy4",
+      "desc": "Floor of number1 divided by 4",
+      "type": "calc",
+      "scope": "private",
+      "expression": "floor(number1 / 4)"
+    },
+    {
+      "_id": "maxWith25",
+      "desc": "Maximum of number1 and 25",
+      "type": "calc",
+      "scope": "private",
+      "expression": "max([number1, 25])"
+    }
+  ]
+}

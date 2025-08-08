@@ -1,0 +1,1182 @@
+{
+    "_id": "1b893d1e7f6d03b65652a156",
+    "identifier": "doc_generated_straightforward",
+    "name": "Generated Straightforward Resolver",
+    "formulas": [
+        {
+            "_id": "field1FormulaId",
+            "desc": "Field 1 = field2 + field3",
+            "type": "calc",
+            "scope": "global",
+            "expression": "field2 + field3"
+        },
+        {
+            "_id": "field3FormulaId",
+            "desc": "Field 3 = field4 + 3",
+            "type": "calc",
+            "scope": "global",
+            "expression": "field4 + 3"
+        },
+        {
+            "_id": "result1_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "29.84 * toNumber(Coefficient) * pow(toNumber(NozzleSize), 2) * sqrt(toNumber(PitotPressure))"
+        },
+        {
+            "_id": "result2_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "count(\n\tfilter(table1, (row) -> \n\t\tor(row.question1 == \"Fail\", row.question2== \"Fail\")\n\t)\n)"
+        },
+        {
+            "_id": "result3(expect:red)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(identifierA != \"blue\", identifierB, \"\")"
+        },
+        {
+            "_id": "result4(expect:suction:100)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(not(empty(TP1Suction)), concat(\"Suction: \", TP1Suction), \"\")"
+        },
+        {
+            "_id": "result5(expect:0.548)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if (\n  TP1Row4Nozzle == \"0.0|Bypass Flow Meter\", \n  \"0.0\",\n  if (\n    TP1Row4Nozzle == \"0.548|4 1/2 Hose Monster\",\n    \"0.548\",\n    if (\n      TP1Row4Nozzle == \"0.7|HYDRANT BUTT - OUTLET SQUARE PROJECTING INTO BARREL\",\n      \"0.7\", \n      \"No Match\"\n    )\n  )\n)"
+        },
+        {
+            "_id": "result6_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(or(some(results95, (item) -> item == \"Pass\"), some(results145, (item) -> item == \"Pass\")), \"Pass\", \"Fail\")"
+        },
+        {
+            "_id": "result7(expect:true)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(and(some(Rated_Pressure_True, (item) -> item == \"True\"), some(GPM_True, (item) -> item == \"True\")), \"Pass\", \"Fail\")"
+        },
+        {
+            "_id": "result8(expect:pass)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(and(TP1Percentage >= 95, TP1Percentage < 145), \"Pass\", \"Fail\")"
+        },
+        {
+            "_id": "result9_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(\n\tfield1 > 0, \n\tif(or(field2 > 95, field3 > 145),\"Fail\", \"Pass\"), \n\t\"\"\n)"
+        },
+        {
+            "_id": "result10_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "round((TP1MeasuredFlow / toNumber(properties_gpm)), 2) * 100"
+        }
+    ],
+    "fields": [
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block1",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Fire Pump Requirements",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "text2984",
+            "type": "text",
+            "title": "29.84 (text2984)",
+            "identifier": "field_text1",
+            "value": "29.84"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "Coefficient",
+            "type": "number",
+            "title": "Coefficient",
+            "identifier": "field_number1",
+            "value": 10
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "NozzleSize",
+            "type": "number",
+            "title": "NozzleSize",
+            "identifier": "field_number2",
+            "value": 10
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "PitotPressure",
+            "type": "number",
+            "title": "PitotPressure",
+            "identifier": "field_number3",
+            "value": 10
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result1",
+            "type": "text",
+            "title": "result1 (Expect: 94362.36537942443)",
+            "identifier": "field_text2",
+            "formulas": [
+                {
+                    "_id": "6889866541876ca3419b984d",
+                    "formula": "result1_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "94362.36537942443"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block2",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 1",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block3",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "ST XLSX File Requirements",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block4",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 1",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "table1",
+            "type": "table",
+            "title": "table1",
+            "tableColumns": [
+                {
+                    "_id": "text1",
+                    "type": "text",
+                    "title": "Text Column",
+                    "width": 0,
+                    "deleted": false,
+                    "identifier": "table1_column_text1"
+                },
+                {
+                    "_id": "question1",
+                    "type": "dropdown",
+                    "title": "question1",
+                    "deleted": false,
+                    "width": 0,
+                    "options": [
+                        {
+                            "_id": "68897be78c1d03e76da46236",
+                            "value": "Pass",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "68897be770d4af10374ff8e4",
+                            "value": "Fail",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "68897be75bf9fa740d5c8c47",
+                            "value": "N/A",
+                            "deleted": false
+                        }
+                    ],
+                    "identifier": "table1_column_dropdown1"
+                },
+                {
+                    "_id": "question2",
+                    "type": "dropdown",
+                    "title": "question2",
+                    "deleted": false,
+                    "width": 0,
+                    "options": [
+                        {
+                            "_id": "68898cfebf1b2ae05a174a94",
+                            "value": "Pass",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "68898cfe9b710029c4dcd65a",
+                            "value": "Fail",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "68898cfeb1d6ae481f9856bc",
+                            "value": "N/A",
+                            "deleted": false
+                        }
+                    ],
+                    "identifier": "table1_column_dropdown2"
+                }
+            ],
+            "value": [
+                {
+                    "_id": "68897be7201f36842accf8a2",
+                    "deleted": false,
+                    "cells": {
+                        "question1": "68897be78c1d03e76da46236",
+                        "question2": "68898cfe9b710029c4dcd65a"
+                    }
+                },
+                {
+                    "_id": "68897be7cd30742451dc5438",
+                    "deleted": false,
+                    "cells": {
+                        "question1": "68897be770d4af10374ff8e4",
+                        "question2": "68898cfe9b710029c4dcd65a"
+                    }
+                },
+                {
+                    "_id": "68897be7842f29e29ba04677",
+                    "deleted": false,
+                    "cells": {
+                        "question1": "68897be78c1d03e76da46236",
+                        "question2": "68898cfebf1b2ae05a174a94"
+                    }
+                }
+            ],
+            "identifier": "field_table1",
+            "tableColumnOrder": [
+                "text1",
+                "question1",
+                "question2"
+            ],
+            "rowOrder": [
+                "68897be7201f36842accf8a2",
+                "68897be7cd30742451dc5438",
+                "68897be7842f29e29ba04677"
+            ]
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result2",
+            "type": "text",
+            "title": "result2 (Expect: 2)",
+            "identifier": "field_text3",
+            "formulas": [
+                {
+                    "_id": "68898e8d0c0e512019ef83da",
+                    "formula": "result2_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "2"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block5",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 7",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "identifierB",
+            "type": "text",
+            "title": "identifierB",
+            "identifier": "field_text4",
+            "value": "red"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "identifierA",
+            "type": "dropdown",
+            "title": "identifierA",
+            "options": [
+                {
+                    "_id": "68897be7b20559d2a9707760",
+                    "value": "blue",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be7e963972f720c0f7b",
+                    "value": "other",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be770e1233d4f626f5c",
+                    "value": "N/A",
+                    "deleted": true
+                }
+            ],
+            "identifier": "field_dropdown1",
+            "value": "68897be7e963972f720c0f7b"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result3",
+            "type": "text",
+            "title": "result3 (Expect: red)",
+            "identifier": "field_text5",
+            "formulas": [
+                {
+                    "_id": "688995cb21fb9fa86df7a93b",
+                    "formula": "result3(expect:red)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "red"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block6",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 8",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "TP1Suction",
+            "type": "text",
+            "title": "TP1Suction",
+            "identifier": "field_text6",
+            "value": "100"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result4",
+            "type": "text",
+            "title": "result4 (Expect: Suction: 100)",
+            "identifier": "field_text7",
+            "formulas": [
+                {
+                    "_id": "68899716fa7bf62971cbdb60",
+                    "formula": "result4(expect:suction:100)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "Suction: 100"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block7",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 15",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "TP1Row4Nozzle",
+            "type": "dropdown",
+            "title": "TP1Row4Nozzle",
+            "options": [
+                {
+                    "_id": "68897be7b20559d2a9707760",
+                    "value": "0.0|Bypass Flow Meter",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be7e963972f720c0f7b",
+                    "value": "0.548|4 1/2 Hose Monster",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be770e1233d4f626f5c",
+                    "value": "0.7|HYDRANT BUTT - OUTLET SQUARE PROJECTING INTO BARREL",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_dropdown2",
+            "value": "68897be7e963972f720c0f7b"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result5",
+            "type": "text",
+            "title": "result5 (Expect: 0.548)",
+            "identifier": "field_text8",
+            "formulas": [
+                {
+                    "_id": "688999455f7384ae789dee4b",
+                    "formula": "result5(expect:0.548)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "0.548"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block8",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 16",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "results95",
+            "type": "multiSelect",
+            "title": "results95",
+            "multi": false,
+            "options": [
+                {
+                    "_id": "68897be7c417bc1136c2f767",
+                    "value": "Pass",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be786d67f4bc2a0fbdf",
+                    "value": "Fail",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be76534e010193a1b6e",
+                    "value": "N/A",
+                    "deleted": true
+                }
+            ],
+            "identifier": "field_multiSelect1",
+            "value": [
+                "68897be7c417bc1136c2f767"
+            ]
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "results145",
+            "type": "multiSelect",
+            "title": "results145",
+            "multi": false,
+            "options": [
+                {
+                    "_id": "68897be7c417bc1136c2f767",
+                    "value": "Pass",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be786d67f4bc2a0fbdf",
+                    "value": "Fail",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be76534e010193a1b6e",
+                    "value": "N/A",
+                    "deleted": true
+                }
+            ],
+            "identifier": "field_multiSelect1",
+            "value": [
+                "68897be7c417bc1136c2f767"
+            ]
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result6",
+            "type": "text",
+            "title": "result6 (Expect: Pass)",
+            "identifier": "field_text9",
+            "value": "Pass",
+            "formulas": [
+                {
+                    "_id": "68899b680436af31255a3bbc",
+                    "formula": "result6_formula",
+                    "key": "value"
+                }
+            ]
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block9",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 17",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "Rated_Pressure_True",
+            "type": "multiSelect",
+            "title": "Rated_Pressure_True",
+            "options": [
+                {
+                    "_id": "68897be75a153421735acd2e",
+                    "value": "True",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_multiSelect3",
+            "value": [
+                "68897be75a153421735acd2e"
+            ]
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "GPM_True",
+            "type": "multiSelect",
+            "title": "GPM_True",
+            "options": [
+                {
+                    "_id": "68897be75a153421735acd2e",
+                    "value": "True",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_multiSelect3",
+            "value": [
+                "68897be75a153421735acd2e"
+            ]
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result7",
+            "type": "dropdown",
+            "title": "result7 (Expect: Pass)",
+            "options": [
+                {
+                    "_id": "68897be7b20559d2a9707760",
+                    "value": "Pass",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be7e963972f720c0f7b",
+                    "value": "Fail",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be770e1233d4f626f5c",
+                    "value": "N/A",
+                    "deleted": true
+                }
+            ],
+            "identifier": "field_dropdown3",
+            "formulas": [
+                {
+                    "_id": "6889a00203eacd5c85132d61",
+                    "formula": "result7(expect:true)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "Pass"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "TP1Percentage",
+            "type": "number",
+            "title": "TP1Percentage",
+            "identifier": "field_number4",
+            "value": 95
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block10",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 18",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result8",
+            "type": "text",
+            "title": "result8 (Expect: Pass)",
+            "identifier": "field_text10",
+            "formulas": [
+                {
+                    "_id": "6889a1b2f8b384562dc3f0cd",
+                    "formula": "result8(expect:pass)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "Pass"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block12",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 19",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "field1",
+            "type": "number",
+            "title": "field1",
+            "identifier": "field_number5",
+            "value": 1
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "field2",
+            "type": "number",
+            "title": "field2",
+            "identifier": "field_number6",
+            "value": 90
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "field3",
+            "type": "number",
+            "title": "field3",
+            "identifier": "field_number7",
+            "value": 140
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result9",
+            "type": "dropdown",
+            "title": "result9 (Expect: Pass)",
+            "options": [
+                {
+                    "_id": "68897be7b20559d2a9707760",
+                    "value": "Fail",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be7e963972f720c0f7b",
+                    "value": "Pass",
+                    "deleted": false
+                },
+                {
+                    "_id": "68897be770e1233d4f626f5c",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_dropdown5",
+            "formulas": [
+                {
+                    "_id": "6889a48920b7bec464c49e9c",
+                    "formula": "result9_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "Pass"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "block13",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Expression 22",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "TP1MeasuredFlow",
+            "type": "number",
+            "title": "TP1MeasuredFlow",
+            "identifier": "field_number8",
+            "value": 190
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "properties_gpm",
+            "type": "text",
+            "title": "properties_gpm",
+            "identifier": "field_text11",
+            "value": "200"
+        },
+        {
+            "file": "95d20c083a0e41b7aade6ca9",
+            "_id": "result10",
+            "type": "text",
+            "title": "result10 (Expect: 95)",
+            "identifier": "field_text12",
+            "formulas": [
+                {
+                    "_id": "688a207f4db557afc7460df7",
+                    "formula": "result10_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "95"
+        }
+    ],
+    "files": [
+        {
+            "_id": "95d20c083a0e41b7aade6ca9",
+            "name": "New File",
+            "pageOrder": [
+                "85acbc2f25f0f51ff78712e5"
+            ],
+            "pages": [
+                {
+                    "_id": "85acbc2f25f0f51ff78712e5",
+                    "name": "New Page",
+                    "width": 816,
+                    "height": 1056,
+                    "rowHeight": 8,
+                    "cols": 8,
+                    "fieldPositions": [
+                        {
+                            "_id": "688983ee91e364acfd77f287",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 28,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 0,
+                            "width": 8,
+                            "height": 7,
+                            "field": "block1"
+                        },
+                        {
+                            "_id": "688984258b615b0561960e70",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 13,
+                            "width": 2,
+                            "height": 8,
+                            "field": "text2984"
+                        },
+                        {
+                            "_id": "688984467756e725b8989cd0",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 2,
+                            "y": 13,
+                            "width": 2,
+                            "height": 8,
+                            "field": "Coefficient"
+                        },
+                        {
+                            "_id": "688984aaae0528d611d87e07",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 4,
+                            "y": 13,
+                            "width": 2,
+                            "height": 8,
+                            "field": "NozzleSize"
+                        },
+                        {
+                            "_id": "688984bc8d50c6af2505382c",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 6,
+                            "y": 13,
+                            "width": 2,
+                            "height": 8,
+                            "field": "PitotPressure"
+                        },
+                        {
+                            "_id": "6889861990bf25ed96a6ce34",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 21,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result1"
+                        },
+                        {
+                            "_id": "block3",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 7,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block2"
+                        },
+                        {
+                            "_id": "block4",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 28,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 29,
+                            "width": 8,
+                            "height": 7,
+                            "field": "block3"
+                        },
+                        {
+                            "_id": "block5",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 36,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block4"
+                        },
+                        {
+                            "_id": "68898cda2a875747e3b14dd8",
+                            "type": "table",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 42,
+                            "width": 8,
+                            "height": 15,
+                            "field": "table1"
+                        },
+                        {
+                            "_id": "68898d49c321e0b2a6b5fc3c",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 57,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result2"
+                        },
+                        {
+                            "_id": "block6",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 65,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block5"
+                        },
+                        {
+                            "_id": "6889950486a5551e3133fc2f",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 4,
+                            "y": 71,
+                            "width": 4,
+                            "height": 8,
+                            "field": "identifierB"
+                        },
+                        {
+                            "_id": "68899534e7b34fdc33375bf5",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "68897be7b20559d2a9707760",
+                            "x": 0,
+                            "y": 71,
+                            "width": 4,
+                            "height": 8,
+                            "field": "identifierA"
+                        },
+                        {
+                            "_id": "6889958f38c36acd3b2e40c6",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 79,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result3"
+                        },
+                        {
+                            "_id": "block7",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 87,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block6"
+                        },
+                        {
+                            "_id": "688996ae0f399c4269aaa53d",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 93,
+                            "width": 8,
+                            "height": 8,
+                            "field": "TP1Suction"
+                        },
+                        {
+                            "_id": "688996c4b12075664b727c3b",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 101,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result4"
+                        },
+                        {
+                            "_id": "block8",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 109,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block7"
+                        },
+                        {
+                            "_id": "6889989ca4794215ea3bd563",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "68897be7b20559d2a9707760",
+                            "x": 0,
+                            "y": 115,
+                            "width": 8,
+                            "height": 8,
+                            "field": "TP1Row4Nozzle"
+                        },
+                        {
+                            "_id": "688998b54fa22130bca8ec0f",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 123,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result5"
+                        },
+                        {
+                            "_id": "block9",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 131,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block8"
+                        },
+                        {
+                            "_id": "688999f16a8d276a4ce0bfa0",
+                            "type": "multiSelect",
+                            "displayType": "horizontal",
+                            "targetValue": "68897be7c417bc1136c2f767",
+                            "x": 0,
+                            "y": 137,
+                            "width": 4,
+                            "height": 7,
+                            "field": "results95"
+                        },
+                        {
+                            "_id": "multiSelect3",
+                            "type": "multiSelect",
+                            "displayType": "horizontal",
+                            "targetValue": "68897be7c417bc1136c2f767",
+                            "x": 4,
+                            "y": 137,
+                            "width": 4,
+                            "height": 7,
+                            "field": "results145"
+                        },
+                        {
+                            "_id": "68899a69c15113125ca62cab",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 144,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result6"
+                        },
+                        {
+                            "_id": "block10",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 152,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block9"
+                        },
+                        {
+                            "_id": "68899f304c88a754dc4d3f0f",
+                            "type": "multiSelect",
+                            "displayType": "original",
+                            "targetValue": "68897be75a153421735acd2e",
+                            "x": 0,
+                            "y": 158,
+                            "width": 2,
+                            "height": 9,
+                            "field": "Rated_Pressure_True"
+                        },
+                        {
+                            "_id": "multiSelect5",
+                            "type": "multiSelect",
+                            "displayType": "original",
+                            "targetValue": "68897be75a153421735acd2e",
+                            "x": 2,
+                            "y": 158,
+                            "width": 2,
+                            "height": 9,
+                            "field": "GPM_True"
+                        },
+                        {
+                            "_id": "68899f87d3c664c994781313",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "68897be7b20559d2a9707760",
+                            "x": 0,
+                            "y": 167,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result7"
+                        },
+                        {
+                            "_id": "6889a13560c182b89c9f0b82",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 181,
+                            "width": 8,
+                            "height": 8,
+                            "field": "TP1Percentage"
+                        },
+                        {
+                            "_id": "block11",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 175,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block10"
+                        },
+                        {
+                            "_id": "6889a166089af3b0df9d28cf",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 189,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result8"
+                        },
+                        {
+                            "_id": "block13",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 197,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block12"
+                        },
+                        {
+                            "_id": "6889a3f75bf0f188cd5972ef",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 203,
+                            "width": 2,
+                            "height": 8,
+                            "field": "field1"
+                        },
+                        {
+                            "_id": "6889a3ffc52dfcec65e636c0",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 2,
+                            "y": 203,
+                            "width": 2,
+                            "height": 8,
+                            "field": "field2"
+                        },
+                        {
+                            "_id": "6889a4040ba20b6dde6ed149",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 4,
+                            "y": 203,
+                            "width": 2,
+                            "height": 8,
+                            "field": "field3"
+                        },
+                        {
+                            "_id": "6889a446b03d0584e916fc9d",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "68897be7b20559d2a9707760",
+                            "x": 0,
+                            "y": 211,
+                            "width": 8,
+                            "height": 8,
+                            "field": "result9"
+                        },
+                        {
+                            "_id": "block14",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 20,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 219,
+                            "width": 8,
+                            "height": 6,
+                            "field": "block13"
+                        },
+                        {
+                            "_id": "688a1f98fafb161eb40d01ea",
+                            "type": "number",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 225,
+                            "width": 4,
+                            "height": 8,
+                            "field": "TP1MeasuredFlow"
+                        },
+                        {
+                            "_id": "688a1fa89aaeaaffe4b9f28a",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 4,
+                            "y": 225,
+                            "width": 4,
+                            "height": 8,
+                            "field": "properties_gpm"
+                        },
+                        {
+                            "_id": "688a1fcf7c4d6c9b7bfe946e",
+                            "type": "text",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 233,
+                            "width": 8,
+                            "height": 9,
+                            "field": "result10"
+                        }
+                    ],
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "padding": 24
+                }
+            ],
+            "styles": {
+                "margin": 4
+            }
+        }
+    ],
+    "type": "template"
+}

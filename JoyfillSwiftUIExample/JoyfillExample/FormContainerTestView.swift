@@ -28,15 +28,23 @@ struct FormContainerTestView: View {
 }
 
 class TestChangeManager: FormChangeEvent {
-    func onCapture(event: JoyfillModel.CaptureEvent) {
+    func onError(error: Joyfill.JoyfillError) {
+
+    }
+    
+    func onCapture(event: CaptureEvent) {
         print(">>>>>>>>onCapture")
     }
     
     var documentEditor: DocumentEditor?
     let imagePicker = ImagePicker()
 
-    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
-        print(">>>>>>>>onChange", changes.first!.fieldId)
+    func onChange(changes: [Change], document: JoyDoc) {
+        if let firstChange = changes.first {
+            print(">>>>>>>>onChange", firstChange.fieldId ?? "")
+        } else {
+            print(">>>>>>>>onChange: no changes")
+        }
     }
 
     func onFocus(event: FieldIdentifier) {

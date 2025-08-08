@@ -1,0 +1,423 @@
+{
+  "_id": "685750eff3216b45ffe73c80",
+  "identifier": "doc_685750eff3216b45ffe73c80",
+  "name": "New Doc",
+  "createdOn": 31232313,
+  "deleted": false,
+  "formulas": [
+    {
+      "_id": "displayCellValue",
+      "desc": "Display table1 row 1 text column cell value.",
+      "type": "calc",
+      "scope": "private",
+      "expression": "table1.0.text1"
+    },
+    {
+      "_id": "countEmptyDateRows",
+      "desc": "Count rows where date1 is empty",
+      "type": "calc",
+      "scope": "private",
+      "expression": "length(filter(table1, (row) -> if(empty(row.date1), true, false)))"
+    },
+    {
+      "_id": "multiCriteriaCount",
+      "desc": "Count rows where text1 contains 'b', multiSelect1 includes Option 1 D1 and Option 2 D1, and number1 is 200 or 22",
+      "type": "calc",
+      "scope": "private",
+      "expression": "length(\n  filter(table1, (row) -> \n    and(\n      if(contains(lower(row.text1), \"b\"), true, false),\n      and(\n        some(row.multiSelect1, (option) -> option == \"Option 1 D1\"),\n        some(row.multiSelect1, (option) -> option == \"Option 2 D1\")\n      ),\n      or(row.number1 == 200, row.number1 == 22)\n    )\n  )\n)"
+    },
+    {
+      "_id": "combineText1Values",
+      "desc": "Reduce all text1 column values into a single string",
+      "type": "calc",
+      "scope": "private",
+      "expression": "reduce(table1, (acc, row) -> concat(acc, row.text1), \"\")"
+    },
+    {
+      "_id": "countYesDropdown",
+      "desc": "Count number of rows where dropdown1 == 'Yes D1'",
+      "type": "calc",
+      "scope": "private",
+      "expression": "length(filter(table1, (row) -> row.dropdown1 == \"Yes D1\"))"
+    }
+  ],
+  "files": [
+    {
+      "_id": "685750ef698da1ab427761ba",
+      "name": "New File",
+      "pageOrder": [
+        "685750efeb612f4fac5819dd"
+      ],
+      "pages": [
+        {
+          "_id": "685750efeb612f4fac5819dd",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "table1",
+              "type": "table",
+              "field": "table1",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 44
+            },
+            {
+              "_id": "text1",
+              "type": "text",
+              "field": "text1",
+              "displayType": "original",
+              "x": 0,
+              "y": 44,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number1",
+              "type": "number",
+              "field": "number1",
+              "displayType": "original",
+              "x": 4,
+              "y": 44,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number2",
+              "type": "number",
+              "field": "number2",
+              "displayType": "original",
+              "x": 4,
+              "y": 54,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "text3",
+              "type": "text",
+              "field": "text3",
+              "displayType": "original",
+              "x": 4,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "number3",
+              "type": "number",
+              "field": "number3",
+              "displayType": "original",
+              "x": 4,
+              "y": 74,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "table1",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "text1",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "field_column_6857510f1b43ec08d37d3476"
+        },
+        {
+          "_id": "dropdown1",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "684c3fed91eca8d6b90e6893",
+              "value": "Yes D1",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "684c3fed30e4ee677ad0defe",
+              "value": "No D1",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "684c3fed8d7758091f4ccde2",
+              "value": "N/A",
+              "deleted": true,
+              "styles": {
+                "backgroundColor": null
+              }
+            }
+          ],
+          "identifier": "field_column_6857510ff9efe6d589b6bb66"
+        },
+        {
+          "_id": "multiSelect1",
+          "type": "multiSelect",
+          "title": "MultiSelect Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "685752c91cb4780a9fb7382a",
+              "value": "Option 1 D1",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            },
+            {
+              "_id": "685752c9df4d8863fda1d24d",
+              "value": "Option 2 D1",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            },
+            {
+              "_id": "685752c903c9a5c96e9a4549",
+              "value": "Option 3 D1",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            }
+          ]
+        },
+        {
+          "_id": "image1",
+          "type": "image",
+          "title": "Image Column",
+          "deleted": false
+        },
+        {
+          "_id": "number1",
+          "type": "number",
+          "title": "Number Column",
+          "deleted": false,
+          "width": 0
+        },
+        {
+          "_id": "date1",
+          "type": "date",
+          "title": "Date Column",
+          "deleted": false,
+          "width": 0
+        },
+        {
+          "_id": "block1",
+          "type": "block",
+          "title": "Block Column",
+          "width": 0,
+          "deleted": false
+        },
+        {
+          "_id": "barcode1",
+          "type": "barcode",
+          "title": "Barcode Column",
+          "width": 0,
+          "deleted": false
+        },
+        {
+          "_id": "signature1",
+          "type": "signature",
+          "title": "Signature Column",
+          "width": 0,
+          "deleted": false
+        }
+      ],
+      "value": [
+        {
+          "_id": "684c3fedfed2b76677110b19",
+          "deleted": false,
+          "cells": {
+            "text1": "A",
+            "dropdown1": "684c3fed91eca8d6b90e6893",
+            "multiSelect1": [
+              "685752c91cb4780a9fb7382a"
+            ],
+            "image1": [
+              {
+                "_id": "68575b6663714e23d85f4fca",
+                "url": "https://s3.amazonaws.com/docspace.production.documents/6702de67c6ba43a423ca035f/documents/template_680bc498b6890a1324423764/680fbf96e97c7b42ec58f988-1745862550459.jpg"
+              }
+            ],
+            "number1": 12.2,
+            "date1": 1748750400000,
+            "block1": "A",
+            "barcode1": "A"
+          }
+        },
+        {
+          "_id": "68575b4059f586b81549fc07",
+          "deleted": false,
+          "cells": {
+            "text1": "AbC",
+            "dropdown1": "684c3fed91eca8d6b90e6893",
+            "multiSelect1": [
+              "685752c9df4d8863fda1d24d"
+            ],
+            "image1": "",
+            "number1": 22,
+            "date1": 1748836800000,
+            "block1": "AbC",
+            "barcode1": "AbC",
+            "signature1": ""
+          }
+        },
+        {
+          "_id": "68575b41d49ad2d821193a3d",
+          "deleted": false,
+          "cells": {
+            "text1": "ab",
+            "dropdown1": "684c3fed91eca8d6b90e6893",
+            "multiSelect1": [
+              "685752c91cb4780a9fb7382a",
+              "685752c9df4d8863fda1d24d"
+            ],
+            "image1": "",
+            "number1": 200,
+            "date1": 1748923200000,
+            "block1": "ab",
+            "barcode1": "ab",
+            "signature1": "data:image/png;base64,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"
+          }
+        },
+        {
+          "_id": "68599845cb06457892ce27b4",
+          "deleted": false,
+          "cells": {
+            "text1": "a B c",
+            "dropdown1": "684c3fed30e4ee677ad0defe",
+            "multiSelect1": [
+              "685752c91cb4780a9fb7382a"
+            ],
+            "image1": "",
+            "number1": 22.2,
+            "date1": "",
+            "block1": "a B c",
+            "barcode1": "a B c",
+            "signature1": ""
+          }
+        }
+      ],
+      "identifier": "field_6857510f0b31d28d169b83d8",
+      "tableColumnOrder": [
+        "text1",
+        "dropdown1",
+        "multiSelect1",
+        "image1",
+        "number1",
+        "date1",
+        "block1",
+        "barcode1",
+        "signature1"
+      ],
+      "rowOrder": [
+        "684c3fedfed2b76677110b19",
+        "68575b4059f586b81549fc07",
+        "68575b41d49ad2d821193a3d",
+        "68599845cb06457892ce27b4"
+      ]
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "text1",
+      "type": "text",
+      "title": "Display row 1 text column cell value.",
+      "identifier": "field_6859ba985810f003af205a79",
+      "formulas": [
+        {
+          "_id": "F001",
+          "key": "value",
+          "formula": "displayCellValue"
+        }
+      ]
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "number1",
+      "type": "number",
+      "title": "Count rows where date1 is empty",
+      "identifier": "field_auto_generated_text2",
+      "formulas": [
+        {
+          "_id": "F002",
+          "key": "value",
+          "formula": "countEmptyDateRows"
+        }
+      ]
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "number2",
+      "type": "number",
+      "title": "Filtered multi-criteria count",
+      "identifier": "field_auto_generated_number2",
+      "formulas": [
+        {
+          "_id": "F003",
+          "key": "value",
+          "formula": "multiCriteriaCount"
+        }
+      ]
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "text3",
+      "type": "text",
+      "title": "Combined text1 values",
+      "identifier": "field_auto_generated_text3",
+      "formulas": [
+        {
+          "_id": "F004",
+          "key": "value",
+          "formula": "combineText1Values"
+        }
+      ]
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "number3",
+      "type": "number",
+      "title": "Count of dropdown1 == 'Yes D1'",
+      "identifier": "field_auto_generated_number3",
+      "formulas": [
+        {
+          "_id": "F005",
+          "key": "value",
+          "formula": "countYesDropdown"
+        }
+      ]
+    }
+  ],
+  "type": "document"
+}
+

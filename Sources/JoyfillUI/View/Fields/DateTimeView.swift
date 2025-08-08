@@ -4,6 +4,7 @@ import JoyfillModel
 struct DateTimeView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
+    @State private var lastModelValue: ValueUnion?
     private var dateTimeDataModel: DateTimeDataModel
     let eventHandler: FieldChangeEvents
 
@@ -12,7 +13,7 @@ struct DateTimeView: View {
         self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
             let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty) ?? ""
-                        if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
+            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }
@@ -57,6 +58,23 @@ struct DateTimeView: View {
             eventHandler.onChange(event: event)
             eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
         }
+        .onAppear {
+            lastModelValue = dateTimeDataModel.value
+        }
+        .onChange(of: dateTimeDataModel.value) { newValue in
+            if lastModelValue != newValue {
+                if let value = newValue {
+                    let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty) ?? ""
+                    if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
+                        selectedDate = date
+                        isDatePickerPresented = true
+                    }
+                } else {
+                    isDatePickerPresented = false
+                    selectedDate = Date()
+                }
+                lastModelValue = newValue
+            }
+        }
     }
 }
-

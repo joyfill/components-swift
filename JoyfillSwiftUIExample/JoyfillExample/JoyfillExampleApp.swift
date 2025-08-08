@@ -14,6 +14,10 @@ class AppState: ObservableObject {
     @Published var changeResult: String = ""
 }
 
+// MARK: - Quick Configuration
+// Change this to true for quick testing with default token, false for option selection screen
+let useQuickTestMode: Bool = false
+
 @main
 struct JoyfillExampleApp: App {
     @StateObject private var appState = AppState()
@@ -28,12 +32,18 @@ struct JoyfillExampleApp: App {
             }
         }
         _appState = StateObject(wrappedValue: appState)
-        self.documentEditor = DocumentEditor(document: sampleJSONDocument(), events: eventHandler)
+        
+        // Get JSON file name from launch arguments for UI tests
+        let jsonFileName = Self.getJSONFileNameFromLaunchArguments()
+        self.documentEditor = DocumentEditor(document: sampleJSONDocument(fileName: jsonFileName), events: eventHandler, isPageDuplicateEnabled: true, validateSchema: false)
     }
 
     var body: some Scene {
         WindowGroup {
-            if joyfillUITestsMode {
+            if joyfillUITestsMode && isRunOnChangeHandler() {
+                OnChangeHandlerTest()
+                    .navigationViewStyle(StackNavigationViewStyle())
+            } else if joyfillUITestsMode {
                 NavigationView {
                     UITestFormContainerView(documentEditor: documentEditor)
                 }
@@ -41,23 +51,42 @@ struct JoyfillExampleApp: App {
                 Text(appState.changeResult)
                     .accessibilityIdentifier("resultfield")
                     .frame(height: 10)
-            } else {
+            } else if useQuickTestMode {
+                //Quick test mode: directly open template list with default token
                 NavigationView {
-                    ScrollView {
-                        VStack {
-                            UserAccessTokenTextFieldView(isAlreadyToken: false)
-//                          UserAccessTokenTextFieldView(isAlreadyToken: true)
-                            UserJsonTextFieldView()
-                        }
-                    }
-                    .modifier(KeyboardDismissModifier())
+                    UserAccessTokenTextFieldView(isAlreadyToken: true, enableChangelogs: false)
                 }
-                .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
+            } else {
+                OptionSelectionView()
+                    .navigationViewStyle(StackNavigationViewStyle())
             }
-//            ImageReplacementTest()
         }
     }
     
+    func isRunOnChangeHandler(_ testClass: String = "OnChangeHandlerUITests") -> Bool {
+        // 1. Must be iPad
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return false
+        }
+        // 2. Pull the full test name from CLI args
+        let args = CommandLine.arguments
+        guard let idx = args.firstIndex(of: "--test-name"),
+              idx + 1 < args.count else {
+            return false
+        }
+        let fullTestName = args[idx + 1]
+        // 3. Check if it contains our test class
+        return fullTestName.contains(testClass)
+    }
+    
+    private static func getJSONFileNameFromLaunchArguments() -> String? {
+        let arguments = CommandLine.arguments
+        if let jsonFileIndex = arguments.firstIndex(of: "--json-file"),
+           jsonFileIndex + 1 < arguments.count {
+            return arguments[jsonFileIndex + 1]
+        }
+        return nil
+    }
 }
 
 struct KeyboardDismissModifier: ViewModifier {

@@ -1,0 +1,165 @@
+{
+  "formulas": [
+    {
+      "_id": "formula_undefined_1",
+      "desc": "field1 = ghostField + 1 (ghostField does not exist)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "ghostField + 1"
+    },
+    {
+      "_id": "formula_undefined_2",
+      "desc": "field2 = sum([undefined1, undefined2]) (both undefined)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sum([undefined1, undefined2])"
+    },
+    {
+      "_id": "formula_working_1",
+      "desc": "field4 = 10 + 5 (valid constant math)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "10 + 5"
+    },
+    {
+      "_id": "formula_working_2",
+      "desc": "field5 = upper(\"hello\")",
+      "type": "calc",
+      "scope": "private",
+      "expression": "upper(\"hello\")"
+    }
+  ],
+  "fields": [
+    {
+      "_id": "field1",
+      "type": "number",
+      "title": "Broken: ghostField + 1",
+      "identifier": "field1",
+      "formulas": [
+        {
+          "_id": "AF_undefined_1",
+          "formula": "formula_undefined_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "field2",
+      "type": "number",
+      "title": "Broken: sum(undefined1, undefined2)",
+      "identifier": "field2",
+      "formulas": [
+        {
+          "_id": "AF_undefined_2",
+          "formula": "formula_undefined_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "field4",
+      "type": "number",
+      "title": "Working: 10 + 5",
+      "identifier": "field4",
+      "formulas": [
+        {
+          "_id": "AF_working_1",
+          "formula": "formula_working_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "field5",
+      "type": "text",
+      "title": "Working: upper(\"hello\")",
+      "identifier": "field5",
+      "formulas": [
+        {
+          "_id": "AF_working_2",
+          "formula": "formula_working_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    }
+  ],
+  "files": [
+    {
+      "_id": "file1",
+      "name": "Undefined Reference File",
+      "pageOrder": [
+        "page1"
+      ],
+      "pages": [
+        {
+          "_id": "page1",
+          "name": "Undefined Reference Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "padding": 24,
+          "layout": "grid",
+          "presentation": "normal",
+          "fieldPositions": [
+            {
+              "_id": "fp_field1",
+              "field": "field1",
+              "type": "number",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_field2",
+              "field": "field2",
+              "type": "number",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_field4",
+              "field": "field4",
+              "type": "number",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_field5",
+              "field": "field5",
+              "type": "text",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "type": "document",
+  "v": "1",
+  "createdOn": 31232313,
+  "deleted": false,
+  "_id": "685750eff3216b45ffe73c80",
+  "identifier": "doc_685750eff3216b45ffe73c80",
+  "name": "New Doc"
+}

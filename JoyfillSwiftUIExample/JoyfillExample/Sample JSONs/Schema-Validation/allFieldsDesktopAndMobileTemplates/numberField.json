@@ -1,0 +1,529 @@
+{
+  "_id": "686fcc012bc57a59b7246d4d",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_686fcc012bc57a59b7246d4d",
+  "name": "NO-1284 Blank template",
+  "createdOn": 1752157196321,
+  "files": [
+    {
+      "_id": "686fcc0108d51ab760970d0a",
+      "metadata": {},
+      "name": "NO-1284 Blank template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "686ff5002b4fa9f27493fa70",
+              "type": "text",
+              "field": "686ff4fe0817dff76a5b5906",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff501abd2a88088321c39",
+              "type": "text",
+              "field": "686ff5007e7dab2a91cfdf81",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff5035dc4390526ff7496",
+              "type": "text",
+              "field": "686ff50108a5b604f578ebed",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff504af87a94a5c891c65",
+              "type": "text",
+              "field": "686ff50301b460681f373529",
+              "displayType": "original",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff505595944f2cd2d2ffc",
+              "type": "text",
+              "field": "686ff504d29619b506471061",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff50633b6c86fd7da1388",
+              "type": "number",
+              "field": "686ff5052131f920e5367e74",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8,
+              "titleFontSize": 14,
+              "titleFontColor": "#1808e6",
+              "titleFontStyle": "italic",
+              "titleTextDecoration": "underline",
+              "titleTextTransform": "uppercase",
+              "fontSize": 14,
+              "fontColor": "#1d00ff",
+              "fontWeight": "bold",
+              "fontStyle": "italic",
+              "textDecoration": "underline",
+              "textTransform": "uppercase",
+              "backgroundColor": "#c1ff00",
+              "borderColor": "#ff0fc8",
+              "borderRadius": 2,
+              "borderWidth": 2,
+              "padding": 2,
+              "margin": 2
+            },
+            {
+              "_id": "686ff5085dc031adc5949186",
+              "type": "number",
+              "field": "686ff506258b9254e228f8b7",
+              "displayType": "original",
+              "x": 0,
+              "y": 32,
+              "width": 1,
+              "height": 14,
+              "titleTextAlign": "right",
+              "textAlign": "right",
+              "textOverflow": "ellipsis"
+            },
+            {
+              "_id": "686ff509639c9da066349eeb",
+              "type": "number",
+              "field": "686ff508eda90f49cbf8b60e",
+              "displayType": "original",
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 8,
+              "titleFontSize": 14,
+              "titleFontColor": "#0004ff",
+              "titleFontWeight": "bold",
+              "titleFontStyle": "italic",
+              "titleTextDecoration": "underline",
+              "titleTextTransform": "uppercase",
+              "fontSize": 14,
+              "fontColor": "",
+              "backgroundColor": "",
+              "borderColor": ""
+            },
+            {
+              "_id": "686ff50a5b3da8086daa83d4",
+              "type": "number",
+              "field": "686ff50943c307edd2e8841d",
+              "displayType": "original",
+              "x": 4,
+              "y": 24,
+              "width": 4,
+              "height": 8,
+              "titleTextAlign": "center",
+              "textAlign": "center"
+            },
+            {
+              "_id": "686ff61590497cef053dd6c7",
+              "type": "number",
+              "field": "686ff60d63e2c95c30d5e873",
+              "displayType": "original",
+              "x": 4,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "686ff61610049a27ff5052ad",
+              "type": "number",
+              "field": "686ff6151f12e8f23a97b601",
+              "displayType": "original",
+              "x": 0,
+              "y": 46,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "686fcc015718a8cc66ceb49d",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "686fcc015718a8cc66ceb49d"
+      ],
+      "views": [
+        {
+          "_id": "686ff6e5ec66f9e9afe0e384",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "686ff5002b4fa9f27493fa70",
+                  "type": "text",
+                  "field": "686ff4fe0817dff76a5b5906",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff501abd2a88088321c39",
+                  "type": "text",
+                  "field": "686ff5007e7dab2a91cfdf81",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 64,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff5035dc4390526ff7496",
+                  "type": "text",
+                  "field": "686ff50108a5b604f578ebed",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 128,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff504af87a94a5c891c65",
+                  "type": "text",
+                  "field": "686ff50301b460681f373529",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 192,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff505595944f2cd2d2ffc",
+                  "type": "text",
+                  "field": "686ff504d29619b506471061",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 256,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff509639c9da066349eeb",
+                  "type": "number",
+                  "field": "686ff508eda90f49cbf8b60e",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 320,
+                  "width": 1,
+                  "height": 64,
+                  "titleFontSize": 14,
+                  "titleFontColor": "#0004ff",
+                  "titleFontWeight": "bold",
+                  "titleFontStyle": "italic",
+                  "titleTextDecoration": "underline",
+                  "titleTextTransform": "uppercase",
+                  "fontSize": 14,
+                  "fontColor": "",
+                  "backgroundColor": "",
+                  "borderColor": "",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff50633b6c86fd7da1388",
+                  "type": "number",
+                  "field": "686ff5052131f920e5367e74",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 384,
+                  "width": 1,
+                  "height": 64,
+                  "titleFontSize": 14,
+                  "titleFontColor": "#1808e6",
+                  "titleFontStyle": "italic",
+                  "titleTextDecoration": "underline",
+                  "titleTextTransform": "uppercase",
+                  "fontSize": 14,
+                  "fontColor": "#1d00ff",
+                  "fontWeight": "bold",
+                  "fontStyle": "italic",
+                  "textDecoration": "underline",
+                  "textTransform": "uppercase",
+                  "backgroundColor": "#c1ff00",
+                  "borderColor": "#ff0fc8",
+                  "borderRadius": 2,
+                  "borderWidth": 2,
+                  "padding": 2,
+                  "margin": 2,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff50a5b3da8086daa83d4",
+                  "type": "number",
+                  "field": "686ff50943c307edd2e8841d",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 448,
+                  "width": 1,
+                  "height": 64,
+                  "titleTextAlign": "center",
+                  "textAlign": "center",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff5085dc031adc5949186",
+                  "type": "number",
+                  "field": "686ff506258b9254e228f8b7",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 512,
+                  "width": 1,
+                  "height": 64,
+                  "titleTextAlign": "right",
+                  "textAlign": "right",
+                  "textOverflow": "ellipsis",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff61590497cef053dd6c7",
+                  "type": "number",
+                  "field": "686ff60d63e2c95c30d5e873",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 576,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "686ff61610049a27ff5052ad",
+                  "type": "number",
+                  "field": "686ff6151f12e8f23a97b601",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 640,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                }
+              ],
+              "hidden": false,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "686fcc015718a8cc66ceb49d",
+              "metadata": {},
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "686fcc015718a8cc66ceb49d"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff4fe0817dff76a5b5906",
+      "type": "text",
+      "title": "Text condition 1 ",
+      "identifier": "field_686ff500a2a045ed30bd5bf8",
+      "value": "Default value"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff5007e7dab2a91cfdf81",
+      "type": "text",
+      "title": "Text condition 2",
+      "identifier": "field_686ff5010923fd160b4a3566"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff50108a5b604f578ebed",
+      "type": "text",
+      "title": "Text condition 3",
+      "identifier": "field_686ff50392aa79929e017711",
+      "value": "God"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff50301b460681f373529",
+      "type": "text",
+      "title": "Text condition4",
+      "identifier": "field_686ff50483f9a22a3646bc8e",
+      "value": "Qwerty"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff504d29619b506471061",
+      "type": "text",
+      "title": "Text condition5",
+      "identifier": "field_686ff505e7e433e9d6372348",
+      "value": "iron man is the best"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff5052131f920e5367e74",
+      "type": "number",
+      "title": "Number Field required || Text condition 1 is required ",
+      "identifier": "field_686ff5063e0e8922c7d5ba2d",
+      "required": true,
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff4fe0817dff76a5b5906",
+            "condition": "*="
+          }
+        ]
+      },
+      "tipVisible": true,
+      "tipTitle": "Number field tooltip",
+      "tipDescription": "Number field description",
+      "value": 111
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff506258b9254e228f8b7",
+      "type": "number",
+      "title": "Number || Hidden - Text condition 3 is god || Right indentation & text overflow ellipsis",
+      "identifier": "field_686ff508475c9f461834971a",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff50108a5b604f578ebed",
+            "condition": "=",
+            "value": "God"
+          }
+        ]
+      },
+      "value": 123456789045
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff508eda90f49cbf8b60e",
+      "type": "number",
+      "title": "Number field Readonly",
+      "identifier": "field_686ff5090036f87f48f20f6a",
+      "disabled": true
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff50943c307edd2e8841d",
+      "type": "number",
+      "title": "Number || hidden - text condition 2 is empty ",
+      "identifier": "field_686ff50af27dd3745d21b64b",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff5007e7dab2a91cfdf81",
+            "condition": "null="
+          }
+        ]
+      },
+      "value": 222
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff60d63e2c95c30d5e873",
+      "type": "number",
+      "title": "Number || hidden - text condition 4 is not thanos",
+      "identifier": "field_686ff61572bb94d38cab25bb",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff50301b460681f373529",
+            "condition": "!=",
+            "value": "Thanos"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "686ff6151f12e8f23a97b601",
+      "type": "number",
+      "title": "Number || Hidden - Text condition 5 iron man is the best",
+      "identifier": "field_686ff61617650528a554bd66",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "686ff504d29619b506471061",
+            "condition": "?=",
+            "value": "iron man"
+          }
+        ]
+      }
+    }
+  ],
+  "deleted": false,
+  "categories": []
+}
