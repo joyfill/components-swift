@@ -94,6 +94,32 @@ extension XCUIApplication {
 // MARK: - New Helper Methods for Robust UI Testing
 
 extension XCUIElement {
+    /// Clears text from text fields and text views using backspace deletion
+    func clearText() {
+        guard let stringValue = self.value as? String else {
+            return
+        }
+        
+        let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: stringValue.count)
+        self.typeText(deleteString)
+    }
+    
+    /// Simple and reliable text clearing method
+    func clearTextReliably() {
+        self.tap()
+        
+        // Get current text and delete it character by character - most reliable method
+        while let stringValue = self.value as? String, !stringValue.isEmpty {
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: stringValue.count)
+            self.typeText(deleteString)
+            
+            // Break if no progress made to avoid infinite loop
+            if let newValue = self.value as? String, newValue == stringValue {
+                break
+            }
+        }
+    }
+    
     /// Waits for element to exist and be hittable, then taps it
     func waitAndTap(timeout: TimeInterval = 5, message: String? = nil) {
         let waitMessage = message ?? "Element '\(self.identifier)' did not appear in time"
@@ -116,5 +142,43 @@ extension XCUIElement {
     func waitForNavigation(timeout: TimeInterval = 5) {
         let navigationBar = XCUIApplication().navigationBars.firstMatch
         XCTAssertTrue(navigationBar.waitForExistence(timeout: timeout), "Navigation did not complete in time")
+    }
+    
+    /// Waits for field value to be empty after clearing
+    func waitForEmptyValue(timeout: TimeInterval = 3) -> Bool {
+        let predicate = NSPredicate(format: "value == '' || value == nil")
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
+        return result == .completed
+    }
+    
+    /// Waits for field value to change to a specific value
+    func waitForValue(_ expectedValue: String, timeout: TimeInterval = 3) -> Bool {
+        let predicate = NSPredicate(format: "value == %@", expectedValue)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
+        return result == .completed
+    }
+    
+    /// Waits for element to disappear
+    func waitForNonExistence(timeout: TimeInterval = 3) -> Bool {
+        let predicate = NSPredicate(format: "exists == false")
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
+        return result == .completed
+    }
+}
+
+extension XCUIApplication {
+    /// Waits for a specific number of text views to be present
+    func waitForTextViewCount(_ expectedCount: Int, timeout: TimeInterval = 5) -> Bool {
+        let startTime = Date()
+        while Date().timeIntervalSince(startTime) < timeout {
+            if self.textViews.count == expectedCount {
+                return true
+            }
+            Thread.sleep(forTimeInterval: 0.1)
+        }
+        return false
     }
 }

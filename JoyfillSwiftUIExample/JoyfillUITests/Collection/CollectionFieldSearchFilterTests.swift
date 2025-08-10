@@ -9,16 +9,6 @@ import Foundation
 import XCTest
 import JoyfillModel
 
-extension XCUIElement {
-    func clearText() {
-        guard let stringValue = self.value as? String else {
-            return
-        }
-        
-        let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: stringValue.count)
-        self.typeText(deleteString)
-    }
-}
 
 final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
