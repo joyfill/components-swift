@@ -5,6 +5,9 @@
 //
 
 import SwiftUI
+#if canImport(Charts)
+import Charts
+#endif
 import JoyfillModel
 
 struct ChartDetailView: View {
@@ -30,23 +33,25 @@ struct ChartDetailView: View {
     var body: some View {
         VStack {
             ScrollView {
-                
-//                MultiLineChart(chartData: chartData)
-//                //                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
-//                    .pointMarkers(chartData: chartData)
-//                //                        .xAxisGrid(chartData: data)
-//                //                        .yAxisGrid(chartData: data)
-//                    .xAxisLabels(chartData: chartData)
-//                    .yAxisLabels(chartData: chartData, specifier: "%.01f")
-//                    .floatingInfoBox(chartData: chartData)
-//                    .headerBox(chartData: chartData)
-//                    .legends(chartData: chartData, columns: [GridItem(.flexible()), GridItem(.flexible())])
-//                    .id(chartData.id)
-//                    .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
-//                    .padding(.horizontal)
+                // Primary visual chart
+#if canImport(Charts)
+                if #available(iOS 16.0, *) {
+                    DetailChart(chartDataModel: chartDataModel, valueElements: valueElements, chartCoordinatesData: chartCoordinatesData)
+                        .frame(height: 280)
+                        .padding(.horizontal)
+                } else {
+                    ChartUnavailablePlaceholder()
+                        .frame(height: 280)
+                        .padding(.horizontal)
+                }
+#else
+                ChartUnavailablePlaceholder()
+                    .frame(height: 280)
+                    .padding(.horizontal)
+#endif
                 
                 ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, chartDataModel: chartDataModel)
-                LinesView(valueElements: $valueElements, updateValueElements: updateValueElements)
+                LinesView(valueElements: $valueElements, updateValueElements: updateValueElements, xTitle: chartDataModel.xTitle, yTitle: chartDataModel.yTitle)
                     .disabled(chartDataModel.mode == .readonly)
             }
             .onChange(of: chartCoordinatesData, perform:  { newValue in
@@ -203,6 +208,8 @@ struct xAndYCordinate: View {
 struct LinesView: View {
     @Binding var valueElements: [ValueElement]
     var updateValueElements: ([ValueElement]) -> Void
+    var xTitle: String?
+    var yTitle: String?
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -246,7 +253,7 @@ struct LinesView: View {
                     })
                     .accessibilityIdentifier("RemoveLineIdentifier")
                 }
-                LineView(valueElement: valueElement, updateValueElement: updateValueElement)
+                LineView(valueElement: valueElement, updateValueElement: updateValueElement, xTitle: xTitle, yTitle: yTitle)
                     .padding([.leading,.trailing,.bottom], 10)
                 Divider()
             }
@@ -307,11 +314,13 @@ struct LinesView: View {
 struct LineView: View {
     let valueElement: ValueElement
     let updateValueElement: (ValueElement) -> Void
+    var xTitle: String?
+    var yTitle: String?
 
     var body: some View {
         VStack {
             titleAndDescription
-            PointsView(points: valueElement.points, lineId: valueElement.id ?? "", updatePoints: updatePoints)
+            PointsView(points: valueElement.points, lineId: valueElement.id ?? "", updatePoints: updatePoints, xTitle: xTitle, yTitle: yTitle)
         }
     }
 
@@ -373,6 +382,8 @@ struct PointsView: View {
     let points: [Point]?
     var lineId: String
     let updatePoints: ([Point]?) -> Void
+    var xTitle: String?
+    var yTitle: String?
 
     var body: some View {
         VStack(alignment: .leading){
@@ -389,7 +400,7 @@ struct PointsView: View {
             }
             
             ForEach(points ?? [], id: \.id) { point in
-                PointView(point: point, deletePointAction: deletePoint, lineId: lineId, updatePoint: updatePoint)
+                PointView(point: point, deletePointAction: deletePoint, lineId: lineId, updatePoint: updatePoint, xTitle: xTitle, yTitle: yTitle)
                     .padding(.bottom, 20)
             }
         }
@@ -425,6 +436,8 @@ struct PointView: View {
     var deletePointAction: (String, String) -> Void
     var lineId: String
     var updatePoint: (Point) -> Void
+    var xTitle: String?
+    var yTitle: String?
 
     var body: some View {
         HStack {
@@ -472,8 +485,8 @@ struct PointView: View {
                                setY(y: newY)
                            }
                        }
-                    xAndYAxisCoordinateView(xOrYValue: xBinding, placeHolder: "Horizontal value", identifier: "HorizontalPointsValue")
-                    xAndYAxisCoordinateView(xOrYValue: yBinding, placeHolder: "Vertical value", identifier: "VerticalPointsValue")
+                    xAndYAxisCoordinateView(xOrYValue: xBinding, placeHolder: xTitle?.isEmpty == false ? (xTitle ?? "") : "Horizontal", identifier: "HorizontalPointsValue")
+                    xAndYAxisCoordinateView(xOrYValue: yBinding, placeHolder: yTitle?.isEmpty == false ? (yTitle ?? "") : "Vertical", identifier: "VerticalPointsValue")
                 }
             }
             
@@ -505,6 +518,99 @@ struct PointView: View {
         var point = self.point
         point.x = CGFloat(number?.doubleValue ?? 0)
         updatePoint(point)
+    }
+}
+
+// MARK: - Chart components
+#if canImport(Charts)
+@available(iOS 16.0, *)
+private struct DetailChart: View {
+    let chartDataModel: ChartDataModel
+    let valueElements: [ValueElement]
+    let chartCoordinatesData: ChartAxisConfiguration
+
+    var body: some View {
+        Chart {
+            ForEach(Array(valueElements.enumerated()), id: \.element.id) { (index, valueElement) in
+                ForEach(sortedPoints(of: valueElement), id: \.id) { point in
+                    if let x = point.x, let y = point.y {
+                        LineMark(
+                            x: .value(chartDataModel.xTitle ?? "Horizontal", Double(x)),
+                            y: .value(chartDataModel.yTitle ?? "Vertical", Double(y))
+                        )
+                        .foregroundStyle(color(for: index))
+                        .interpolationMethod(.linear)
+                    }
+                }
+            }
+        }
+        .chartXAxisLabel(position: .bottom, alignment: .center) {
+            Text(chartDataModel.xTitle ?? "Horizontal")
+        }
+        .chartYAxisLabel(position: .leading, alignment: .center) {
+            Text(chartDataModel.yTitle ?? "Vertical")
+        }
+        .chartXScale(domain: xDomain)
+        .chartYScale(domain: yDomain)
+        .chartXAxis { axisMarks }
+        .chartYAxis { axisMarks }
+    }
+
+    private func sortedPoints(of element: ValueElement) -> [Point] {
+        let points = element.points ?? []
+        return points.sorted { (a, b) -> Bool in
+            (a.x ?? 0) < (b.x ?? 0)
+        }
+    }
+
+    private var xDomain: ClosedRange<Double> {
+        let xs = valueElements.flatMap { $0.points ?? [] }.compactMap { Double($0.x ?? 0) }
+        let xmin = xs.min() ?? 0
+        let xmax = xs.max() ?? max(1, xmin + 1)
+        let minValue = min(chartCoordinatesData.xMin ?? xmin, xmin)
+        let maxValue = max(chartCoordinatesData.xMax ?? xmax, xmax)
+        return minValue...maxValue
+    }
+
+    private var yDomain: ClosedRange<Double> {
+        let ys = valueElements.flatMap { $0.points ?? [] }.compactMap { Double($0.y ?? 0) }
+        let ymin = ys.min() ?? 0
+        let ymax = ys.max() ?? max(1, ymin + 1)
+        let minValue = min(chartCoordinatesData.yMin ?? ymin, ymin)
+        let maxValue = max(chartCoordinatesData.yMax ?? ymax, ymax)
+        return minValue...maxValue
+    }
+
+    @AxisContentBuilder
+    private var axisMarks: some AxisContent {
+        AxisMarks(position: .automatic) { _ in
+            AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            AxisTick()
+            AxisValueLabel()
+        }
+    }
+
+    private func color(for index: Int) -> Color {
+        let palette: [Color] = [
+            Color(red: 0.38, green: 0.76, blue: 0.91),
+            Color(red: 0.51, green: 0.42, blue: 0.80),
+            Color(red: 0.95, green: 0.77, blue: 0.06),
+            Color(red: 0.96, green: 0.58, blue: 0.53),
+            Color(red: 0.30, green: 0.69, blue: 0.31),
+        ]
+        return palette[index % palette.count]
+    }
+}
+#endif
+
+private struct ChartUnavailablePlaceholder: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+            Text("Chart preview requires iOS 16+")
+                .foregroundColor(.secondary)
+        }
     }
 }
 
