@@ -128,7 +128,7 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         triggerField.tap()
         triggerField.clearText()
         triggerField.typeText("hidexyz")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertFalse(hiddenButton.count == 1, "Third signature field should be shown after conditions met")
@@ -137,7 +137,7 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")

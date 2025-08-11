@@ -94,7 +94,7 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
         imageButton.tap()
         assertImageCount(expectedCount: 1)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
     }
@@ -123,7 +123,7 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")
@@ -149,11 +149,11 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Tap to focus (simulate focus)
         imageButton.tap()
-        sleep(1) // Allow any focus logic to process
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0)) // Allow any focus logic to process
 
         // Simulate blur by tapping outside (background)
         app.otherElements.firstMatch.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         // Fetch the payload and verify image field state was registered correctly
         let payload = onChangeResult().dictionary

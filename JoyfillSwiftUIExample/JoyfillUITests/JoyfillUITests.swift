@@ -22,7 +22,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         var scrollAttempts = 0
         while !dropdownButton.exists && scrollAttempts < 5 {
             app.swipeUp()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             scrollAttempts += 1
         }
         XCTAssertTrue(dropdownButton.waitForExistence(timeout: 5), "Dropdown button not found on iPad")
