@@ -71,6 +71,19 @@ struct TableDropDownOptionListView: View {
             }
             cellModel.data = cellDataModel
         }
+        // Keep local state in sync when model updates from outside
+        .onChange(of: cellModel.data.defaultDropdownSelectedId) { _ in
+            let newValue = cellModel.data.options?.first(where: { $0.id == cellModel.data.defaultDropdownSelectedId })?.value
+            if selectedDropdownValue != newValue {
+                selectedDropdownValue = newValue
+            }
+        }
+        .onAppear {
+            let newValue = cellModel.data.options?.first(where: { $0.id == cellModel.data.defaultDropdownSelectedId })?.value
+            if selectedDropdownValue != newValue {
+                selectedDropdownValue = newValue
+            }
+        }
     }
 }
 
