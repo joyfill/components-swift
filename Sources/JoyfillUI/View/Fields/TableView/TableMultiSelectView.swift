@@ -97,6 +97,15 @@ struct TableMultiSelectView: View {
         .onChange(of: showMoreImages) { _ in
             showMoreImages2 = true
         }
+        .onAppear {
+            guard !isUsedForBulkEdit else { return }
+            let values = cellModel.data.multiSelectValues ?? []
+            if cellModel.data.multi ?? true {
+                multiSelectedOptionArray = values
+            } else {
+                singleSelectedOptionArray = values
+            }
+        }
     }
 }
 
