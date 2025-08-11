@@ -182,9 +182,26 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func clickOnFirstImage() {
-        var firstImage = app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1)
-        XCTAssertTrue(firstImage.waitForExistence(timeout: 5))
-        firstImage.tap()
+        // Try the simplified approach first, then fall back to original complex hierarchy
+        let simpleFirstImage = app.images.matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1)
+        let complexFirstImage = app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1)
+        
+        var found = simpleFirstImage.waitForExistence(timeout: 3)
+        var imageToTap = simpleFirstImage
+        
+        if !found {
+            found = complexFirstImage.waitForExistence(timeout: 3)
+            imageToTap = complexFirstImage
+        }
+        
+        if !found {
+            app.swipeUp()
+            found = simpleFirstImage.waitForExistence(timeout: 2)
+            imageToTap = simpleFirstImage
+        }
+        
+        XCTAssertTrue(found, "First image with DetailPageImageSelectionIdentifier not found")
+        imageToTap.tap()
     }
     
     func clickOnSecondImage() {
