@@ -32,7 +32,7 @@ struct TableSignatureView: View {
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
             isEditable = false
         }) {
-            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $cellModel.data.title, showError: $showError, isEditable: $isEditable)
+            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $title, showError: $showError, isEditable: $isEditable)
         }
         .onChange(of: signatureImage) { newImage in
             if let newImage = newImage, let data = newImage.pngData() {
@@ -44,8 +44,8 @@ struct TableSignatureView: View {
                 title = ""
             }
         }
-        .onChange(of: cellModel.data.title) { _ in
-            title = cellModel.data.title
+        .onChange(of: title) { newValue in
+            cellModel.data.title = newValue
             cellModel.didChange?(cellModel.data)
         }
     }

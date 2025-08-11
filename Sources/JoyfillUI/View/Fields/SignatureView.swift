@@ -155,7 +155,7 @@ struct CanvasView: View {
                     .scaledToFit()
             }
             
-            if showCanvasError {
+            if showCanvasError, lines.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .resizable()
@@ -306,6 +306,7 @@ struct CanvasSignatureView: View {
                             signatureImage = CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
                                 .frame(width: screenWidth, height: 220)
                                 .snapshot()
+                            showError = false
                         }
                         savedLines = lines
                         presentationMode.wrappedValue.dismiss()
