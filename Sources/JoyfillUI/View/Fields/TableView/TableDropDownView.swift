@@ -64,7 +64,7 @@ struct TableDropDownOptionListView: View {
         .focused($isFocused) // Observe focus state
         .onChange(of: selectedDropdownValue) { value in
             var cellDataModel = cellModel.data
-            guard value == cellDataModel.selectedOptionText else { return }
+            guard value != lastSelectedValue else { return }
             cellDataModel.defaultDropdownSelectedId = cellDataModel.options?.filter { $0.value == value }.first?.id
             cellDataModel.selectedOptionText = value
             if (cellDataModel.defaultDropdownSelectedId != cellModel.data.defaultDropdownSelectedId) || isUsedForBulkEdit {
