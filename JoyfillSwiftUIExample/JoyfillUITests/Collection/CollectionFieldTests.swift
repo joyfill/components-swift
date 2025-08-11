@@ -1158,11 +1158,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         signatureButton.tap()
         drawSignatureLine()
         app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
-        sleep(1)
 
         // Move to next new row
         editInsertRowPlusButton().tap()
-        sleep(1)
         // Open signature for next row and verify it’s fresh (no Edit button)
         signatureButton.tap()
         let editSignatureButton = app.buttons["TableSignatureEditButton"].firstMatch
