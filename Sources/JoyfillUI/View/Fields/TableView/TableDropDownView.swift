@@ -72,6 +72,7 @@ struct TableDropDownOptionListView: View {
             cellModel.data = cellDataModel
         }
         .onAppear {
+            guard !isUsedForBulkEdit else { return }
             let newValue = cellModel.data.options?.first(where: { $0.id == cellModel.data.defaultDropdownSelectedId })?.value
             if selectedDropdownValue != newValue {
                 selectedDropdownValue = newValue
