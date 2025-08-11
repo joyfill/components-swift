@@ -331,6 +331,13 @@ struct PageDuplicateListView: View {
     @State var documentEditor: DocumentEditor
     @Binding var pageFieldModels: [String: PageModel]
 
+    private var pageIDs: [String] {
+        if !documentEditor.currentPageOrder.isEmpty {
+            return documentEditor.currentPageOrder
+        }
+        return Array(pageFieldModels.keys)
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -346,7 +353,7 @@ struct PageDuplicateListView: View {
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
             ScrollView {
-                ForEach(documentEditor.currentPageOrder ?? [], id: \.self) { pageID in
+                ForEach(pageIDs, id: \.self) { pageID in
                     if documentEditor.shouldShow(pageID: pageID) {
                         if let page = documentEditor.firstPageFor(currentPageID: pageID) {
                             VStack(alignment: .leading) {
