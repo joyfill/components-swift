@@ -22,7 +22,7 @@ struct DateTimeView: View {
     }
     
     var body: some View {
-        FieldHeaderView(dateTimeDataModel.fieldHeaderModel)
+        FieldHeaderView(dateTimeDataModel.fieldHeaderModel, isFilled: dateTimeDataModel.value?.number != nil)
         Group {
             if isDatePickerPresented {
                 HStack(spacing: 8) {
