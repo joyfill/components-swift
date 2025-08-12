@@ -1844,6 +1844,9 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         // Tap on Apply All Button
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
+        let countNestedRowsafterOpration = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRowsafterOpration, 0)
+        
         expandRow(number: 1)
         expandRow(number: 2)
         expandRow(number: 3)
@@ -1852,7 +1855,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(countRootRows2, 4)
         
         let countNestedRows2 = getVisibleNestexRowsCount()
-        XCTAssertEqual(countNestedRows2, 2)
+        XCTAssertEqual(countNestedRows2, 0)
     }
     
     func testRequiredFieldAsteriskPresence() {
