@@ -1627,12 +1627,29 @@ class CollectionViewModel: ObservableObject {
         
         var parentRowID = ""
         var nestedSchemaKey = ""
+        
+        if let firstSelectedRowID = tableDataModel.selectedRows.first {
+            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) ?? 0
+            let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+            
+            parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
+            nestedSchemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
+        }
+        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
+                                                                      selectedRows: tableDataModel.selectedRows,
+                                                                      fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                      parentRowId: parentRowID,
+                                                                      nestedKey: nestedSchemaKey,
+                                                                      rootSchemaKey: rootSchemaKey)
+        tableDataModel.valueToValueElements = result?.0
+        for (key, value) in result?.1 ?? [:] {
+            rowToValueElementMap[key] = value
+        }
+        
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             tableColumns.enumerated().forEach { colIndex, column in
                 let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
-                parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
-                nestedSchemaKey = rowDataModel.rowType.parentSchemaKey ?? ""
                 var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 
@@ -1666,18 +1683,7 @@ class CollectionViewModel: ObservableObject {
                 }
             }
         }
-        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
-                                                                      selectedRows: tableDataModel.selectedRows,
-                                                                      fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                      parentRowId: parentRowID,
-                                                                      nestedKey: nestedSchemaKey,
-                                                                      rootSchemaKey: rootSchemaKey)
-        tableDataModel.valueToValueElements = result?.0
-        for (key, value) in result?.1 ?? [:] {
-            rowToValueElementMap[key] = value
-        }
         
-//        tableDataModel.filterCollectionRowsIfNeeded()
         sortRowsIfNeeded()
     }
     
