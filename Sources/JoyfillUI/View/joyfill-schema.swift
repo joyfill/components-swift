@@ -8,11 +8,7 @@ public var joyfillSchema = """
         "type": "string"
       },
       "type": {
-        "type": "string",
-        "enum": [
-          "template",
-          "document"
-        ]
+        "type": "string"
       },
       "stage": {
         "type": "string"
@@ -32,8 +28,10 @@ public var joyfillSchema = """
       "files": {
         "type": "array",
         "items": {
-          "$ref": "#/definitions/TemplateFile"
-        }
+          "$ref": "#/definitions/File"
+        },
+        "minItems": 1,
+        "maxItems": 1
       },
       "fields": {
         "type": "array",
@@ -62,11 +60,12 @@ public var joyfillSchema = """
       "fields"
     ],
     "definitions": {
-      "TemplateFile": {
+      "File": {
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "metadata": {
             "type": "object"
@@ -94,12 +93,22 @@ public var joyfillSchema = """
             "items": {
               "$ref": "#/definitions/View"
             }
+          },
+          "header": {
+            "oneOf": [
+              { "$ref": "#/definitions/HeaderFooter" },
+              { "type": "null" }
+            ]
+          },
+          "footer": {
+            "oneOf": [
+              { "$ref": "#/definitions/HeaderFooter" },
+              { "type": "null" }
+            ]
           }
         },
         "required": [
           "_id",
-          "name",
-          "styles",
           "pages",
           "pageOrder"
         ]
@@ -114,78 +123,40 @@ public var joyfillSchema = """
             "type": "string"
           },
           "titleFontStyle": {
-            "type": "string",
-            "enum": [
-              "normal",
-              "italic"
-            ]
+            "type": "string"
           },
           "titleFontWeight": {
             "type": "string"
           },
           "titleTextAlign": {
-            "type": "string",
-            "enum": [
-              "left",
-              "center",
-              "right"
-            ]
+            "type": "string"
           },
           "titleTextTransform": {
-            "type": "string",
-            "enum": [
-              "none",
-              "uppercase"
-            ]
+            "type": "string"
           },
           "titleTextDecoration": {
-            "type": "string",
-            "enum": [
-              "none",
-              "underline"
-            ]
+            "type": "string"
           },
           "fontSize": {
             "type": "number"
           },
           "fontStyle": {
-            "type": "string",
-            "enum": [
-              "normal",
-              "italic"
-            ]
+            "type": "string"
           },
           "fontWeight": {
             "type": "string"
           },
           "textAlign": {
-            "type": "string",
-            "enum": [
-              "left",
-              "center",
-              "right"
-            ]
+            "type": "string"
           },
           "textTransform": {
-            "type": "string",
-            "enum": [
-              "none",
-              "uppercase"
-            ]
+            "type": "string"
           },
           "textDecoration": {
-            "type": "string",
-            "enum": [
-              "none",
-              "underline"
-            ]
+            "type": "string"
           },
           "textOverflow": {
-            "type": "string",
-            "enum": [
-              "",
-              "ellipsis"
-            ]
+            "type": "string"
           },
           "padding": {
             "type": "number"
@@ -211,7 +182,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "name": {
             "type": "string"
@@ -259,11 +231,7 @@ public var joyfillSchema = """
             "type": "string"
           },
           "backgroundSize": {
-            "type": "string",
-            "enum": [
-              "",
-              "100% 100%"
-            ]
+            "type": "string"
           },
           "logic": {
             "$ref": "#/definitions/Logic"
@@ -291,78 +259,40 @@ public var joyfillSchema = """
             "type": "string"
           },
           "titleFontStyle": {
-            "type": "string",
-            "enum": [
-              "normal",
-              "italic"
-            ]
+            "type": "string"
           },
           "titleFontWeight": {
             "type": "string"
           },
           "titleTextAlign": {
-            "type": "string",
-            "enum": [
-              "left",
-              "center",
-              "right"
-            ]
+            "type": "string"
           },
           "titleTextTransform": {
-            "type": "string",
-            "enum": [
-              "none",
-              "uppercase"
-            ]
+            "type": "string"
           },
           "titleTextDecoration": {
-            "type": "string",
-            "enum": [
-              "none",
-              "underline"
-            ]
+            "type": "string"
           },
           "fontSize": {
             "type": "number"
           },
           "fontStyle": {
-            "type": "string",
-            "enum": [
-              "normal",
-              "italic"
-            ]
+            "type": "string"
           },
           "fontWeight": {
             "type": "string"
           },
           "textAlign": {
-            "type": "string",
-            "enum": [
-              "left",
-              "center",
-              "right"
-            ]
+            "type": "string"
           },
           "textTransform": {
-            "type": "string",
-            "enum": [
-              "none",
-              "uppercase"
-            ]
+            "type": "string"
           },
           "textDecoration": {
-            "type": "string",
-            "enum": [
-              "none",
-              "underline"
-            ]
+            "type": "string"
           },
           "textOverflow": {
-            "type": "string",
-            "enum": [
-              "",
-              "ellipsis"
-            ]
+            "type": "string"
           },
           "padding": {
             "type": "number"
@@ -383,10 +313,12 @@ public var joyfillSchema = """
             "type": "string"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "field": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "displayType": {
             "$ref": "#/definitions/FieldPositionDisplayType"
@@ -467,36 +399,19 @@ public var joyfillSchema = """
             "type": "string"
           },
           "columnTitleFontStyle": {
-            "type": "string",
-            "enum": [
-              "normal",
-              "italic"
-            ]
+            "type": "string"
           },
           "columnTitleFontWeight": {
             "type": "string"
           },
           "columnTitleTextAlign": {
-            "type": "string",
-            "enum": [
-              "left",
-              "center",
-              "right"
-            ]
+            "type": "string"
           },
           "columnTitleTextTransform": {
-            "type": "string",
-            "enum": [
-              "none",
-              "uppercase"
-            ]
+            "type": "string"
           },
           "columnTitleTextDecoration": {
-            "type": "string",
-            "enum": [
-              "none",
-              "underline"
-            ]
+            "type": "string"
           },
           "columnTitleBackgroundColor": {
             "type": "string"
@@ -505,11 +420,7 @@ public var joyfillSchema = """
             "type": "number"
           },
           "titleDisplay": {
-            "type": "string",
-            "enum": [
-              "none",
-              "inline"
-            ]
+            "type": "string"
           },
           "rowIndex": {
             "type": "number"
@@ -533,17 +444,7 @@ public var joyfillSchema = """
         ]
       },
       "FieldPositionDisplayType": {
-        "type": "string",
-        "enum": [
-          "original",
-          "horizontal",
-          "text",
-          "circle",
-          "square",
-          "check",
-          "radio",
-          "inputGroup"
-        ]
+        "type": "string"
       },
       "FieldType": {
         "type": "string"
@@ -555,18 +456,10 @@ public var joyfillSchema = """
             "type": "string"
           },
           "action": {
-            "type": "string",
-            "enum": [
-              "show",
-              "hide"
-            ]
+            "type": "string"
           },
           "eval": {
-            "type": "string",
-            "enum": [
-              "and",
-              "or"
-            ]
+            "type": "string"
           },
           "conditions": {
             "type": "array",
@@ -597,16 +490,7 @@ public var joyfillSchema = """
             "type": "string"
           },
           "condition": {
-            "type": "string",
-            "enum": [
-              "*=",
-              "null=",
-              "=",
-              "!=",
-              "?=",
-              ">",
-              "<"
-            ]
+            "type": "string"
           },
           "value": {}
         },
@@ -640,6 +524,30 @@ public var joyfillSchema = """
         "required": [
           "pageOrder",
           "pages"
+        ]
+      },
+      "HeaderFooter": {
+        "type": "object",
+        "properties": {
+          "fieldPositions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/FieldPosition"
+            }
+          },
+          "height": { "type": "number" },
+          "cols": { "type": "number" },
+          "rowHeight": { "type": "number" },
+          "layout": { "type": "string" },
+          "presentation": { "type": ["string", "null"] },
+          "padding": { "type": ["number", "null"] }
+        },
+        "required": [
+          "fieldPositions",
+          "height",
+          "cols",
+          "rowHeight",
+          "layout"
         ]
       },
       "Field": {
@@ -699,7 +607,8 @@ public var joyfillSchema = """
             "const": "image"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -746,8 +655,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -795,7 +703,8 @@ public var joyfillSchema = """
         "required": [
           "_id",
           "url"
-        ]
+        ],
+        "additionalProperties": true
       },
       "FileField": {
         "type": "object",
@@ -805,7 +714,8 @@ public var joyfillSchema = """
             "const": "file"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -852,8 +762,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -911,7 +820,8 @@ public var joyfillSchema = """
             "const": "block"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -958,8 +868,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -990,7 +899,8 @@ public var joyfillSchema = """
             "const": "richText"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1037,8 +947,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1069,7 +978,8 @@ public var joyfillSchema = """
             "const": "text"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1116,8 +1026,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1148,7 +1057,8 @@ public var joyfillSchema = """
             "const": "number"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1195,8 +1105,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1235,7 +1144,8 @@ public var joyfillSchema = """
             "const": "date"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1282,8 +1192,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1297,18 +1206,21 @@ public var joyfillSchema = """
             }
           },
           "value": {
-            "type": [
-              "number",
-              "null"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "const": ""
+              }
             ]
           },
           "format": {
-            "type": "string",
-            "enum": [
-              "MM/DD/YYYY",
-              "MM/DD/YYYY hh:mma",
-              "hh:mma"
-            ]
+            "type": "string"
           }
         },
         "required": [
@@ -1325,7 +1237,8 @@ public var joyfillSchema = """
             "const": "textarea"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1372,8 +1285,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1404,7 +1316,8 @@ public var joyfillSchema = """
             "const": "signature"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1451,8 +1364,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1465,7 +1377,9 @@ public var joyfillSchema = """
               ]
             }
           },
-          "value": {},
+          "value": {
+            "type": "string"
+          },
           "signer": {
             "type": "string"
           }
@@ -1484,7 +1398,8 @@ public var joyfillSchema = """
             "const": "multiSelect"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1531,8 +1446,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1611,7 +1525,8 @@ public var joyfillSchema = """
             "const": "dropdown"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1658,8 +1573,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1697,7 +1611,8 @@ public var joyfillSchema = """
             "const": "table"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -1744,8 +1659,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -1797,7 +1711,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "deleted": {
             "type": "boolean"
@@ -1848,7 +1763,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -1879,7 +1795,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -1916,7 +1833,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -1956,7 +1874,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -1991,7 +1910,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -2022,7 +1942,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -2053,7 +1974,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -2084,7 +2006,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -2115,7 +2038,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -2150,10 +2074,24 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "not": {
+              "enum": [
+                "image",
+                "text",
+                "number",
+                "dropdown",
+                "multiSelect",
+                "date",
+                "signature",
+                "barcode",
+                "block"
+              ]
+            }
           },
           "title": {
             "type": "string"
@@ -2182,7 +2120,8 @@ public var joyfillSchema = """
             "const": "chart"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -2229,8 +2168,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -2284,7 +2222,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "deleted": {
             "type": "boolean"
@@ -2311,7 +2250,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "label": {
             "type": "string"
@@ -2337,7 +2277,8 @@ public var joyfillSchema = """
             "const": "collection"
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -2384,8 +2325,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -2461,18 +2401,10 @@ public var joyfillSchema = """
             "type": "string"
           },
           "action": {
-            "type": "string",
-            "enum": [
-              "show",
-              "hide"
-            ]
+            "type": "string"
           },
           "eval": {
-            "type": "string",
-            "enum": [
-              "and",
-              "or"
-            ]
+            "type": "string"
           },
           "conditions": {
             "type": "array",
@@ -2500,16 +2432,7 @@ public var joyfillSchema = """
             "type": "string"
           },
           "condition": {
-            "type": "string",
-            "enum": [
-              "*=",
-              "null=",
-              "=",
-              "!=",
-              "?=",
-              ">",
-              "<"
-            ]
+            "type": "string"
           },
           "value": {}
         },
@@ -2523,7 +2446,8 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "cells": {
             "type": "object"
@@ -2551,10 +2475,29 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "type": {
-            "type": "string"
+            "type": "string",
+            "not": {
+              "enum": [
+                "image",
+                "richText",
+                "file",
+                "text",
+                "textarea",
+                "number",
+                "dropdown",
+                "multiSelect",
+                "date",
+                "signature",
+                "table",
+                "chart",
+                "collection",
+                "block"
+              ]
+            }
           },
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "identifier": {
             "type": "string"
@@ -2601,8 +2544,7 @@ public var joyfillSchema = """
                   "type": "string"
                 },
                 "key": {
-                  "type": "string",
-                  "const": "value"
+                  "type": "string"
                 },
                 "formula": {
                   "type": "string"
@@ -2626,21 +2568,17 @@ public var joyfillSchema = """
         "type": "object",
         "properties": {
           "_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "desc": {
             "type": "string"
           },
           "type": {
-            "type": "string",
-            "const": "calc"
+            "type": "string"
           },
           "scope": {
-            "type": "string",
-            "enum": [
-              "global",
-              "private"
-            ]
+            "type": "string"
           },
           "expression": {
             "type": "string"
