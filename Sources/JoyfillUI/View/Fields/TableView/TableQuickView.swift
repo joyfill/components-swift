@@ -26,7 +26,7 @@ struct TableQuickView : View {
         
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(tableDataModel.fieldHeaderModel)
+            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     colsHeader

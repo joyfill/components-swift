@@ -23,10 +23,14 @@ struct SignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(signatureDataModel.fieldHeaderModel)
+            FieldHeaderView(signatureDataModel.fieldHeaderModel, isFilled: !signatureURL.isEmpty)
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(UIColor.systemGray5))
+                )
                 .overlay(content: {
                     if let signatureImage = signatureImage {
                         Image(uiImage: signatureImage)
@@ -97,7 +101,7 @@ struct SignatureView: View {
             }
         }
         .onChange(of: signatureURL) { newValue in
-            let newSignatureImageValue = ValueUnion.string(newValue ?? "")
+            let newSignatureImageValue = ValueUnion.string(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: signatureDataModel.fieldIdentifier, updateValue: newSignatureImageValue)
             eventHandler.onChange(event: fieldEvent)
         }
@@ -132,7 +136,7 @@ struct SignatureView: View {
 struct Line: Equatable {
     var points = [CGPoint]()
     var color: Color {
-        Color.primary
+        Color.black
     }
     var lineWidth: Double = 2.0
 }
@@ -151,7 +155,7 @@ struct CanvasView: View {
                     .scaledToFit()
             }
             
-            if showCanvasError {
+            if showCanvasError, lines.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .resizable()
@@ -209,6 +213,10 @@ struct CanvasSignatureView: View {
                 CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
                     .frame(height: 150)
                     .cornerRadius(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(UIColor.systemGray5))
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -219,6 +227,10 @@ struct CanvasSignatureView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             .frame(height: 150)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color(UIColor.systemGray5))
+                            )
                             .overlay {
                                 Image(uiImage: signatureImage)
                                     .resizable()
@@ -251,6 +263,10 @@ struct CanvasSignatureView: View {
                     CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
                         .frame(height: 150)
                         .cornerRadius(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(UIColor.systemGray5))
+                        )
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -290,6 +306,7 @@ struct CanvasSignatureView: View {
                             signatureImage = CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
                                 .frame(width: screenWidth, height: 220)
                                 .snapshot()
+                            showError = false
                         }
                         savedLines = lines
                         presentationMode.wrappedValue.dismiss()

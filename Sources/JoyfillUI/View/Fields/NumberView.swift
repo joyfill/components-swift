@@ -43,7 +43,7 @@ struct NumberView: View {
         )
 
         return VStack(alignment: .leading) {
-            FieldHeaderView(numberDataModel.fieldHeaderModel)
+            FieldHeaderView(numberDataModel.fieldHeaderModel, isFilled: !(displayText.isEmpty))
             // Use the custom binding for more controlled updates
             TextField("", text: textBinding)
                 .accessibilityIdentifier("Number")

@@ -18,7 +18,7 @@ struct DropdownView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(dropdownDataModel.fieldHeaderModel)
+            FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true))
             Button(action: {
                 isSheetPresented = true
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)

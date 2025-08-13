@@ -1324,14 +1324,11 @@ extension DocumentEditor {
     }
 
     private func changes(fieldData: JoyDocField) -> [String: Any] {
-        guard let value = fieldData.value else {
-            return [:]
-        }
         switch fieldData.type {
         case "chart":
             return chartChanges(fieldData: fieldData)
         default:
-            return ["value": value.dictionary]
+            return ["value": fieldData.value?.dictionary]
         }
     }
 
