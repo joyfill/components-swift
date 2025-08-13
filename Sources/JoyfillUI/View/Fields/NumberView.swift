@@ -95,7 +95,7 @@ struct NumberView: View {
         if !displayText.isEmpty, let doubleValue = Double(displayText) {
             newValue = ValueUnion.double(doubleValue)
         } else {
-            newValue = ValueUnion.double(0)
+            newValue = ValueUnion.null
         }
         let event = FieldChangeData(fieldIdentifier: numberDataModel.fieldIdentifier, updateValue: newValue)
         eventHandler.onChange(event: event)
