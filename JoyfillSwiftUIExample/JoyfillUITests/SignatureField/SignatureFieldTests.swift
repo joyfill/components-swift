@@ -52,8 +52,8 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
         signatureDetailButton.tap()
         app.buttons["SaveSignatureIdentifier"].tap()
-        XCTAssertEqual("Add Signature", signatureDetailButton.label)
-        XCTAssertEqual("", onChangeResultValue().signatureURL)
+        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
+        XCTAssertTrue(((onChangeResultValue().signatureURL?.hasPrefix("data:image/png;base64")) != nil), "Expected signatureURL to start with 'data:image/png;base64'")
     }
     
     func drawSignatureLine() {

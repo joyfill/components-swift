@@ -5,6 +5,7 @@ struct DateTimeView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
     @State private var lastModelValue: ValueUnion?
+    @State private var ignoreOnChangeOnModelUpdate = false
     private var dateTimeDataModel: DateTimeDataModel
     let eventHandler: FieldChangeEvents
 
@@ -21,18 +22,34 @@ struct DateTimeView: View {
     }
     
     var body: some View {
-        FieldHeaderView(dateTimeDataModel.fieldHeaderModel)
+        FieldHeaderView(dateTimeDataModel.fieldHeaderModel, isFilled: dateTimeDataModel.value?.number != nil)
         Group {
             if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: dateTimeDataModel.format ?? .empty))
-                    .accessibilityIdentifier("DateIdenitfier")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .labelsHidden()
-                    .padding(.all, 8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
+                HStack(spacing: 8) {
+                    DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: dateTimeDataModel.format ?? .empty))
+                        .accessibilityIdentifier("DateIdenitfier")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .labelsHidden()
+
+                    Button(action: {
+                        isDatePickerPresented = false
+                        let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: ValueUnion.null)
+                        eventHandler.onChange(event: event)
+                        eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
+                    }, label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .imageScale(.large)
+                            .foregroundStyle(.secondary)
+                    })
+                    .accessibilityIdentifier("DateClearIdentifier")
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear")
+                }
+                .padding(.all, 8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
             } else {
                 HStack {
                     Text("Select a Date -")
@@ -52,6 +69,10 @@ struct DateTimeView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
+            guard !ignoreOnChangeOnModelUpdate else {
+                ignoreOnChangeOnModelUpdate = false
+                return
+            }
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
             let newDateValue = ValueUnion.double(convertDateToInt)
             let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: newDateValue)
@@ -71,6 +92,7 @@ struct DateTimeView: View {
                     }
                 } else {
                     isDatePickerPresented = false
+                    ignoreOnChangeOnModelUpdate = true
                     selectedDate = Date()
                 }
                 lastModelValue = newValue

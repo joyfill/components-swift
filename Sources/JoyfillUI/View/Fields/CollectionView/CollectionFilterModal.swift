@@ -31,7 +31,7 @@ struct CollectionFilterModal: View {
                     
                     Button(action: {
                         Task {
-                            viewModel.isLoading = true
+                            viewModel.isSearching = true
                             // Give UI a chance to update
                             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
                             
@@ -41,15 +41,19 @@ struct CollectionFilterModal: View {
                             viewModel.tableDataModel.sortModel.order = order
                             
                             await MainActor.run {
-                                viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
+                                if viewModel.tableDataModel.filterModels.noFilterApplied && viewModel.tableDataModel.sortModel.order == .none {
+                                    viewModel.setupAllCellModels(targetSchema: viewModel.rootSchemaKey)
+                                } else {
+                                    viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
+                                }
                                 viewModel.sortRowsIfNeeded()
-                                viewModel.isLoading = false
+                                viewModel.isSearching = false
                                 presentationMode.wrappedValue.dismiss()
                             }
                         }
                     }, label: {
                         ZStack {
-                            if viewModel.isLoading {
+                            if viewModel.isSearching {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .gray))
                                     .frame(width: 88, height: 27)
@@ -65,7 +69,7 @@ struct CollectionFilterModal: View {
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                     })
-                    .disabled(viewModel.isLoading)
+                    .disabled(viewModel.isSearching)
                     
                     Button(action: {
                         presentationMode.wrappedValue.dismiss()

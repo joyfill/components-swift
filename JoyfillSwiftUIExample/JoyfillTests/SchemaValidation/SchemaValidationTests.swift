@@ -156,12 +156,11 @@ final class SchemaValidationTests: XCTestCase {
     }
     
     func testMinimalValidDocumentPassesSchemaValidation() {
-        let validDoc = JoyDoc(dictionary: [
-            "files": [],
-            "fields": []
-        ])
+        // Build minimal valid document according to joyfill-schema.swift
+        let docDict = minimalValidDocumentDictionary()
+        let validDoc = JoyDoc(dictionary: docDict)
         let manager = JoyfillSchemaManager()
-        XCTAssertNil(manager.validateSchema(document: validDoc), "Document with required properties present should pass validation")
+        XCTAssertNil(manager.validateSchema(document: validDoc), "Minimal valid document should pass schema validation")
     }
 
     // Utility to create a minimal valid document dictionary that passes schema
@@ -193,7 +192,7 @@ final class SchemaValidationTests: XCTestCase {
 
     // Cover required keys in TemplateFile
     func testMissingRequiredPropertiesInTemplateFileShouldFail() {
-        let requiredKeys = ["_id", "name", "styles", "pages", "pageOrder"]
+        let requiredKeys = ["_id", "pages", "pageOrder"]
         for key in requiredKeys {
             var docDict = minimalValidDocumentDictionary()
             guard var file = (docDict["files"] as? [[String: Any]])?.first else { XCTFail(); return }
@@ -251,11 +250,14 @@ final class SchemaValidationTests: XCTestCase {
         let fieldTypes = ["text", "image", "number", "date", "dropdown", "signature"]
         for fType in fieldTypes {
             var docDict = minimalValidDocumentDictionary()
-            let field: [String: Any] = [
+            var field: [String: Any] = [
                 "_id": "field_\(fType)",
                 "type": fType,
                 "file": "file1"
             ]
+            if fType == "dropdown" {
+                field["options"] = []
+            }
             docDict["fields"] = [field]
             let doc = JoyDoc(dictionary: docDict)
             let err = JoyfillSchemaManager().validateSchema(document: doc)

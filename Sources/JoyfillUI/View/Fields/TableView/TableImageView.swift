@@ -35,6 +35,8 @@ import JoyfillModel
                         .darkLightThemeColor()
                 }
                 .font(.system(size: 15))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .contentShape(Rectangle())
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .sheet(isPresented: $showMoreImages2) {
@@ -63,6 +65,8 @@ import JoyfillModel
                         .darkLightThemeColor()
                 }
                 .font(.system(size: 15))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .fullScreenCover(isPresented: $showMoreImages2) {

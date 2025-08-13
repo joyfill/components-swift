@@ -28,7 +28,7 @@ struct MultiLineTextView: View {
             }
         )
         return VStack(alignment: .leading) {
-            FieldHeaderView(multiLineDataModel.fieldHeaderModel)
+            FieldHeaderView(multiLineDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty)
             TextEditor(text: textBinding)
                 .accessibilityIdentifier("MultilineTextFieldIdentifier")
                 .disabled(multiLineDataModel.mode == .readonly)
