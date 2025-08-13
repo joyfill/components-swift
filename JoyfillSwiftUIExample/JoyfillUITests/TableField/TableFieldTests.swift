@@ -1727,12 +1727,13 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         // Enter data in Moved row
         let enterDataInField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(enterDataInField.waitForExistence(timeout: 5))
         enterDataInField.tap()
         enterDataInField.press(forDuration: 1.0)
         let selectAll = app.menuItems["Select All"]
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()
-        enterDataInField.typeText("Done")
+        enterDataInField.typeText("One")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
@@ -1744,7 +1745,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         // Check entered data
-        XCTAssertEqual("Done", enterDataInField.value as! String)
+        XCTAssertEqual("One", enterDataInField.value as! String)
         XCTAssertEqual("Yes", selectDropdownField.label)
     }
     

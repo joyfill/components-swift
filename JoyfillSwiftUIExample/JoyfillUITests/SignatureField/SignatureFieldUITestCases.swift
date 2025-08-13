@@ -70,7 +70,7 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         
         // TODO: Fix readonly signature field - canvas should NOT appear for readonly fields
         // Currently this is broken - readonly signature fields still open canvas when tapped
-        XCTAssertTrue(app.otherElements["CanvasIdentifier"].exists, "Canvas currently appears for readonly signature field (this is a bug that should be fixed)")
+        XCTAssertFalse(app.otherElements["CanvasIdentifier"].exists, "Canvas currently appears for readonly signature field (this is a bug that should be fixed)")
         
         // Clean up by dismissing the canvas
         if app.otherElements["CanvasIdentifier"].exists {

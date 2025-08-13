@@ -461,12 +461,14 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         }
         
         // Try to find and tap any date button - force tap first available one
-        let dateButton = app.buttons["Monday, 1 April"]
+        let dateLabel = formattedAccessibilityLabel(for: "2024-04-07")
+        let dateLabel2 = formattedAccessibilityLabel(for: "2024-04-08")
+        let dateButton = app.buttons[dateLabel]
         if dateButton.exists {
             dateButton.tap()
         } else {
             // Fallback to any date in April
-            app.buttons["Tuesday, 2 April"].tap()
+            app.buttons[dateLabel2].tap()
         }
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
         

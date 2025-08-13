@@ -167,6 +167,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
     
     func testTextFieldScrollRetainsValue() {
         let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
         textField.tap()
         textField.clearText()
         textField.typeText("scrollCheck")
@@ -214,7 +215,10 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         firstTextField.typeText("hide")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         multilineTextView.tap()
-        multilineTextView.typeText("\u{0001}") // Select all with keyboard shortcut
+        multilineTextView.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap() // Select all with keyboard shortcut
         multilineTextView.typeText("not_show")
         
         // Wait for display text to hide based on conditional logic

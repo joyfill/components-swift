@@ -648,7 +648,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func expandRow(number: Int) {
         let expandButton = app.images["CollectionExpandCollapseButton\(number)"]
-        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        XCTAssertTrue(expandButton.waitForExistence(timeout: 5), "Expand/collapse button should exist")
         expandButton.tap()
     }
     

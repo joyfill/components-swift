@@ -243,8 +243,12 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func selectAllParentRows() {
-        app.images.matching(identifier: "SelectParentAllRowSelectorButton")
-            .element.tap()
+        let button = app.images.matching(identifier: "SelectParentAllRowSelectorButton").element
+        if button.waitForExistence(timeout: 5) { // waits up to 5 seconds
+            button.tap()
+        } else {
+            XCTFail("Select all parent rows button not found")
+        }
     }
     
     func addThreeNestedRows(parentRowNumber: Int) {
