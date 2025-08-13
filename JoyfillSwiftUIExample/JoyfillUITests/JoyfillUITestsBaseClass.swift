@@ -2,20 +2,69 @@ import XCTest
 import Joyfill
 import JoyfillModel
 
+// MARK: - Suite-wide helpers (added)
+
+/// Non-blocking tiny pause that lets UIKit process events.
+@discardableResult
+func spinRunloop(_ seconds: TimeInterval) -> Bool {
+    RunLoop.current.run(until: Date(timeIntervalSinceNow: seconds))
+    return true
+}
+
+/// Wait for a condition using runloop polling (avoid sleep).
+@discardableResult
+func waitUntil(_ timeout: TimeInterval,
+               poll: TimeInterval = 0.05,
+               condition: @escaping () -> Bool) -> Bool {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+        if condition() { return true }
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: poll))
+    }
+    return false
+}
+
+/// Dismiss keyboards/sheets/alerts so next action isn’t blocked.
+func dismissTransientUIIfNeeded(app: XCUIApplication) {
+    // Keyboard
+    if app.keyboards.count > 0 {
+        if app.keyboards.buttons["Done"].exists { app.keyboards.buttons["Done"].tap() }
+        else if app.keys["return"].exists { app.keys["return"].tap() }
+        else { app.windows.firstMatch.tap() }
+        spinRunloop(0.2)
+    }
+
+    // Sheets / Popovers
+    if app.sheets.firstMatch.exists {
+        let sheet = app.sheets.firstMatch
+        if sheet.exists {
+            // Try swipe-down
+            sheet.swipeDown()
+            spinRunloop(0.2)
+        }
+    }
+
+    // Alerts
+    if app.alerts.firstMatch.exists {
+        app.alerts.buttons.firstMatch.tap()
+        spinRunloop(0.2)
+    }
+}
+
 /**
  * Base class for UI tests with automatic hardware keyboard disabling.
- * 
+ *
  * This class automatically disables the hardware keyboard during test execution
  * to ensure consistent UI test behavior. This is important for:
  * - Consistent keyboard behavior across different environments
  * - Reliable text input testing
  * - Avoiding conflicts between hardware and software keyboards
- * 
+ *
  * The hardware keyboard is automatically disabled for all tests via:
  * 1. Test plan configuration (simulatorSettings.disableHardwareKeyboard)
  * 2. Launch arguments (--disable-hardware-keyboard)
  * 3. Environment variables (SIMCTL_CHILD_DISABLE_HARDWARE_KEYBOARD)
- * 
+ *
  * No additional code is required in individual test methods.
  */
 class JoyfillUITestsBaseClass: XCTestCase {
@@ -61,16 +110,27 @@ class JoyfillUITestsBaseClass: XCTestCase {
         
         // Add fresh instance flag
         app.launchArguments.append("--fresh-instance")
-        
+
+        // Global alert/permission handler (added before launch so it's active immediately)
+        addUIInterruptionMonitor(withDescription: "System Alerts") { alert in
+            for btn in ["Allow", "OK", "Continue", "Don’t Allow", "Remind Me Later", "While Using the App"] {
+                if alert.buttons[btn].exists { alert.buttons[btn].tap(); return true }
+            }
+            return false
+        }
+
         do {
             app.launch()
             
             // Wait for app to be running and stable
             XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15), "App did not launch properly")
-            
+
+            app.activate() // ensure alerts/interruption monitor can trigger
+
             // Additional wait to ensure app is fully loaded
-            sleep(1)
-            
+            // REPLACED sleep(1) with a state-based wait for stability
+            XCTAssertTrue(waitForAppStability(timeout: 15), "App did not become stable")
+
             // Verify hardware keyboard is disabled
             verifyHardwareKeyboardDisabled()
             
@@ -102,18 +162,21 @@ class JoyfillUITestsBaseClass: XCTestCase {
             
             // Handle potential exit code -1 issues
             handleExitCodeIssue()
-            
+
+            // Dismiss any leftover UI that could affect the next test
+            dismissTransientUIIfNeeded(app: app)
+
             // Ensure app is properly terminated
             app.terminate()
-            
-            // Wait for proper cleanup
-            sleep(2)
-            
+
+            // REPLACED sleep(2) with state-based wait
+            _ = waitUntil(5) { self.app.state != .runningForeground }
+
             // Force cleanup any remaining processes
             let cleanupApp = XCUIApplication()
             if cleanupApp.state == .runningForeground {
                 cleanupApp.terminate()
-                sleep(1)
+                _ = waitUntil(3) { cleanupApp.state != .runningForeground }
             }
         }
         
@@ -199,7 +262,8 @@ class JoyfillUITestsBaseClass: XCTestCase {
             // Try to relaunch the app
             do {
                 app.terminate()
-                sleep(2)
+                // REPLACED sleep(2) with state wait
+                _ = waitUntil(5) { self.app.state != .runningForeground }
                 app.launch()
                 XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10), "App relaunch failed")
             } catch {
@@ -233,7 +297,8 @@ class JoyfillUITestsBaseClass: XCTestCase {
         if app != nil {
             print("🧹 Cleaning up existing app instance")
             app.terminate()
-            sleep(2) // Wait for proper termination
+            // REPLACED sleep(2) with state wait
+            _ = waitUntil(5) { self.app.state != .runningForeground }
             app = nil
         }
         
@@ -241,7 +306,8 @@ class JoyfillUITestsBaseClass: XCTestCase {
         let cleanupApp = XCUIApplication()
         if cleanupApp.state == .runningForeground {
             cleanupApp.terminate()
-            sleep(1)
+            // REPLACED sleep(1) with state wait
+            _ = waitUntil(3) { cleanupApp.state != .runningForeground }
         }
         
         // Clear any cached state
@@ -252,9 +318,9 @@ class JoyfillUITestsBaseClass: XCTestCase {
     
     /// Handle exit code -1 issues
     func handleExitCodeIssue() {
-        // Add a small delay to prevent rapid app launches
-        sleep(1)
-        
+        // REPLACED sleep(1) with tiny runloop yield
+        spinRunloop(0.2)
+
         // Check if app is responding
         if app.state != .runningForeground {
             print("⚠️  Detected potential exit code -1 issue")
@@ -262,9 +328,12 @@ class JoyfillUITestsBaseClass: XCTestCase {
             // Try to recover gracefully
             do {
                 app.terminate()
-                sleep(3) // Longer wait for cleanup
+                // REPLACED sleep(3) with state wait
+                _ = waitUntil(8) { self.app.state != .runningForeground }
                 app.launch()
                 XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20), "App recovery failed")
+                app.activate()
+                XCTAssertTrue(waitForAppStability(timeout: 10), "App not stable after recovery")
             } catch {
                 print("❌ Failed to recover from exit code -1: \(error)")
             }
@@ -273,66 +342,76 @@ class JoyfillUITestsBaseClass: XCTestCase {
     
     /// Check if app is in a stable state for testing
     func isAppStable() -> Bool {
-        return app.state == .runningForeground && 
-               app.windows.firstMatch.exists &&
-               !app.windows.firstMatch.isHittable == false
+        // FIX: original had `!app.windows.firstMatch.isHittable == false`
+        guard app.state == .runningForeground else { return false }
+        let win = app.windows.firstMatch
+        return win.exists && win.isHittable
     }
     
     /// Wait for app to be stable before proceeding
-    func waitForAppStability(timeout: TimeInterval = 10) -> Bool {
-        let startTime = Date()
-        
-        while Date().timeIntervalSince(startTime) < timeout {
+    func waitForAppStability(timeout: TimeInterval = 10,
+                             minStableDuration: TimeInterval = 0.5,
+                             poll: TimeInterval = 0.05) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        var stableSince: Date?
+
+        while Date() < deadline {
             if isAppStable() {
-                return true
+                if stableSince == nil { stableSince = Date() }
+                if let started = stableSince,
+                   Date().timeIntervalSince(started) >= minStableDuration {
+                    return true
+                }
+            } else {
+                stableSince = nil // reset if we dip out of stable
             }
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: poll))
         }
-        
+
         print("⚠️  App did not become stable within \(timeout) seconds")
         return false
     }
-    
+
     /// Verify that this test is running with a fresh app instance
     func verifyFreshAppInstance() {
         // Check if fresh instance flag is present
         let hasFreshFlag = ProcessInfo.processInfo.arguments.contains("--fresh-instance")
         let hasTestId = ProcessInfo.processInfo.arguments.contains("--test-id")
-        
+
         print("🔍 Fresh instance verification:")
         print("   - Fresh instance flag: \(hasFreshFlag)")
         print("   - Test ID present: \(hasTestId)")
         print("   - Test name: \(self.name)")
-        
+
         if !hasFreshFlag || !hasTestId {
             print("⚠️  Warning: App may not be running with fresh instance")
         } else {
             print("✅ Confirmed fresh app instance")
         }
     }
-    
+
     /// Reset app state to ensure clean test environment
     func resetAppState() {
         // Navigate back to root if possible
         if app.navigationBars.buttons.count > 0 {
             app.navigationBars.buttons.element(boundBy: 0).tap()
         }
-        
+
         // Clear any text fields
         let textFields = app.textFields
         for i in 0..<textFields.count {
             textFields.element(boundBy: i).clearText()
         }
-        
+
         // Clear any text views
         let textViews = app.textViews
         for i in 0..<textViews.count {
             textViews.element(boundBy: i).clearText()
         }
-        
+
         print("🔄 App state reset completed")
     }
-    
+
     /// Check if test is being skipped and log details
     func checkTestSkipped() {
         print("🔍 Test execution check:")
@@ -340,25 +419,24 @@ class JoyfillUITestsBaseClass: XCTestCase {
         print("   - App state: \(app.state.rawValue)")
         print("   - App exists: \(app.exists)")
         print("   - App is hittable: \(app.isHittable)")
-        
+
         if app.state != .runningForeground {
             print("⚠️  Test may be skipped due to app not running")
         } else {
             print("✅ Test is running normally")
         }
     }
-
 }
 
 extension JoyfillUITestsBaseClass {
     func onChangeResultValue() -> ValueUnion {
         let result = onChangeResult()
-        
+
         guard let change = result.change else {
             print("No change data in result")
             return ValueUnion(value: "")!
         }
-        
+
         guard let value = change["value"] else {
             print("No value in change data")
             return ValueUnion(value: "")!
@@ -368,26 +446,26 @@ extension JoyfillUITestsBaseClass {
             print("Failed to create ValueUnion from value")
             return ValueUnion(value: "")!
         }
-        
+
         return valueUnion
     }
 
     func onChangeResultChange() -> ValueUnion {
         let result = onChangeResult()
-        
+
         guard let change = result.change else {
             print("No change data in result")
             return ValueUnion(value: [:])!
         }
-        
+
         guard let valueUnion = ValueUnion(value: change) else {
             print("Failed to create ValueUnion from change")
             return ValueUnion(value: [:])!
         }
-        
+
         return valueUnion
     }
-    
+
     func onChangeResultChanges() -> [ValueUnion] {
         let results = onChangeOptionalResults().map { $0.change }
         return results.compactMap {
@@ -403,25 +481,25 @@ extension JoyfillUITestsBaseClass {
         }
         return result
     }
-    
+
     func onChangeOptionalResult() -> Change? {
         let resultField = app.staticTexts["resultfield"]
-        
+
         // Check if result field exists
         guard resultField.exists else {
             print("Result field not found")
             return nil
         }
-        
+
         let jsonString = resultField.label
         print("resultField.label: \(resultField.label)")
-        
+
         // Check if the JSON string is valid
         guard !jsonString.isEmpty && jsonString != "[]" else {
             print("Empty or invalid JSON string")
             return nil
         }
-        
+
         if let jsonData = jsonString.data(using: .utf8) {
             do {
                 if let dicts = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [[String: Any]],
@@ -439,25 +517,25 @@ extension JoyfillUITestsBaseClass {
         }
         return nil
     }
-    
+
     func onChangeOptionalResults() -> [Change] {
         let resultField = app.staticTexts["resultfield"]
-        
+
         // Check if result field exists
         guard resultField.exists else {
             print("Result field not found")
             return []
         }
-        
+
         let jsonString = resultField.label
         print("resultField.label: \(resultField.label)")
-        
+
         // Check if the JSON string is valid
         guard !jsonString.isEmpty && jsonString != "[]" else {
             print("Empty or invalid JSON string")
             return []
         }
-        
+
         if let jsonData = jsonString.data(using: .utf8) {
             do {
                 if let dicts = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [[String: Any]] {

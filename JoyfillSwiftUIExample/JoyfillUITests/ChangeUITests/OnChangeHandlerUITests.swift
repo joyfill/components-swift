@@ -917,6 +917,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(inserRowBelowButton().exists, true)
         inserRowBelowButton().tap()
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 5))
         firstTableTextField.tap()
         firstTableTextField.typeText("qu")
         goBack()

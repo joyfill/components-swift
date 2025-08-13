@@ -1,5 +1,12 @@
 import XCTest
 
+private extension XCUIElement {
+    var hasKeyboardFocus: Bool {
+        // Hittable + keyboard shown is a good proxy
+        return self.isHittable && XCUIApplication().keyboards.count > 0
+    }
+}
+
 extension XCUIApplication {
     func swipeToFindElement(identifier: String,
                             type: XCUIElement.ElementType,
@@ -167,6 +174,16 @@ extension XCUIElement {
         let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
         return result == .completed
     }
+    
+    func waitForKeyboard(timeout: TimeInterval = 5) -> Bool {
+        let app = XCUIApplication()
+        let end = Date().addingTimeInterval(timeout)
+        while Date() < end {
+            if app.keyboards.count > 0 { return true }
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
+        return false
+    }
 }
 
 extension XCUIApplication {
@@ -180,5 +197,70 @@ extension XCUIApplication {
             Thread.sleep(forTimeInterval: 0.1)
         }
         return false
+    }
+    
+    /// Robust "Select All" that works across iOS versions.
+    /// Shows the iOS edit menu WITHOUT pre‑selecting text (avoid doubleTap).
+    @discardableResult
+    func showEditMenu(on field: XCUIElement, app: XCUIApplication, timeout: TimeInterval = 5) -> Bool {
+        guard field.waitForExistence(timeout: timeout) else { return false }
+        if !field.isHittable { return false }
+        field.tap() // place caret (no selection)
+
+        // Long‑press to open the menu (doesn't auto‑select text)
+        field.press(forDuration: 0.5)
+
+        // Wait for either legacy (menuItems) or modern (buttons) edit menu to appear
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if app.menuItems.element(boundBy: 0).exists { return true }
+            if app.buttons["Cut"].exists || app.buttons["Paste"].exists || app.buttons["Select"].exists { return true }
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
+        return false
+    }
+
+    @discardableResult
+    func tapEditMenuItem(_ title: String, app: XCUIApplication, timeout: TimeInterval = 3) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if app.menuItems[title].exists { app.menuItems[title].tap(); return true }
+            if app.buttons[title].exists    { app.buttons[title].tap();    return true } // iOS 16+ menu
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+        }
+        return false
+    }
+
+    @discardableResult
+    func selectAllInTextField(in field: XCUIElement, app: XCUIApplication, timeout: TimeInterval = 5) -> Bool {
+        guard showEditMenu(on: field, app: app, timeout: timeout) else { return false }
+        return tapEditMenuItem("Select All", app: app, timeout: timeout)
+    }
+    
+    func enterTextReliably(_ text: String, into field: XCUIElement, timeout: TimeInterval = 5) {
+        XCTAssertTrue(field.waitForExistence(timeout: timeout), "Text field not found")
+        field.tap()
+        XCTAssertTrue(field.waitForKeyboard(), "Keyboard didn’t appear")
+        
+        // Type char-by-char with short yields so iOS can keep up
+        for ch in text {
+            field.typeText(String(ch))
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.02))
+        }
+        
+        // Commit autocorrect by adding a space and deleting it (prevents last-letter drop)
+        field.typeText(" ")
+        field.typeText(XCUIKeyboardKey.delete.rawValue)
+        
+        // Verify and top-up missing suffix if needed
+        let current = (field.value as? String) ?? ""
+        if !current.hasSuffix(text) {
+            // Type only the missing part
+            let prefixLen = current.commonPrefix(with: text).count
+            let missing = text.dropFirst(prefixLen)
+            if !missing.isEmpty {
+                field.typeText(String(missing))
+            }
+        }
     }
 }

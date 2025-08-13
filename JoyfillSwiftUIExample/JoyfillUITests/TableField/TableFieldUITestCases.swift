@@ -221,7 +221,8 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
           XCTAssertTrue(keyboard.waitForExistence(timeout: 5),
                         "Keyboard should appear on focus")
         app.otherElements.firstMatch.tap() // dismiss
-        sleep(1)
+        dismissSheet()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on blur")
     }
     

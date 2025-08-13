@@ -42,37 +42,88 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func getVisibleNestexRowsCount() -> Int {
-        return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem")
+        return rowCountWithScrollLoad(baseIdentifier: "selectNestedRowItem", app: app)
     }
     
     /// Scrolls up through the scrollView loading new items by identifier, then scrolls back down.
     /// Returns the total number of matching images found.
-    func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10) -> Int {
+    enum SwipeDir { case up, down }
+
+    func waitUntil(_ timeout: TimeInterval = 5, poll: TimeInterval = 0.05, _ condition: () -> Bool) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if condition() { return true }
+            RunLoop.current.run(until: Date().addingTimeInterval(poll)) // lets events process
+        }
+        return false
+    }
+
+    @discardableResult
+    func safeSwipe(_ dir: SwipeDir, app: XCUIApplication, retries: Int = 3) -> Bool {
+        var attempts = 0
+        while attempts <= retries {
+            // Re-resolve every time to avoid stale handles
+            let scrollView = app.scrollViews.firstMatch
+            guard scrollView.waitForExistence(timeout: 3) else { attempts += 1; continue }
+
+            // If not hittable yet, wait briefly for layout/animations to settle
+            _ = waitUntil(1.5) { scrollView.isHittable }
+
+            // Prefer coordinate drag to avoid "no longer valid" during interruptions
+            let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: dir == .up ? 0.85 : 0.15))
+            let end   = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: dir == .up ? 0.15 : 0.85))
+
+            do {
+                start.press(forDuration: 0.01, thenDragTo: end)
+                return true
+            } catch {
+                attempts += 1
+            }
+        }
+        return false
+    }
+
+    func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10, app: XCUIApplication) -> Int {
+        // Handle system alerts that might interrupt gestures
+        addUIInterruptionMonitor(withDescription: "System Alerts") { alert in
+            if alert.buttons["Allow"].exists { alert.buttons["Allow"].tap(); return true }
+            if alert.buttons["OK"].exists    { alert.buttons["OK"].tap();    return true }
+            return false
+        }
+        app.activate() // required for interruption monitor to trigger
+
         let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
-        let scrollView = app.scrollViews.firstMatch
+        let images = app.images.matching(predicate)
 
         var previousCount = -1
-        var currentCount = 0
+        var currentCount = images.count
         var attempts = 0
 
-        // Swipe up until no new images load or we hit maxScrolls
+        // Scroll up until counts stabilize or we hit maxScrolls
         while attempts < maxScrolls {
-            scrollView.swipeUp()
-            sleep(1)  // allow content to settle
-            currentCount = app.images.matching(predicate).count
-            if currentCount == previousCount { break }
+            let swiped = safeSwipe(.up, app: app)
+            // wait for count to settle without blocking the runloop
+            _ = waitUntil(2.0) {
+                let c = images.count
+                if c != currentCount { currentCount = c; return true }
+                return false
+            }
+            if !swiped || currentCount == previousCount { break }
             previousCount = currentCount
             attempts += 1
         }
 
-        // Reset counter and swipe back down until stable
+        // Reset and scroll back down until stable (optional but mirrors your logic)
         attempts = 0
         while attempts < maxScrolls {
-            scrollView.swipeDown()
-            sleep(1)
-            let newCount = app.images.matching(predicate).count
-            if newCount == previousCount { break }
-            previousCount = newCount
+            let last = currentCount
+            let swiped = safeSwipe(.down, app: app)
+            _ = waitUntil(2.0) {
+                let c = images.count
+                if c != currentCount { currentCount = c; return true }
+                return false
+            }
+            if !swiped || currentCount == last { break }
             attempts += 1
         }
 
@@ -1907,6 +1958,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         let shortText = "Short text"
         textView.typeText(shortText)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         verifyOnChangePayload(withValue: shortText)
         
         // Long text
@@ -1914,6 +1966,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         let longText = String(repeating: "LongText ", count: 5)
         textView.typeText(longText)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         verifyOnChangePayload(withValue: longText)
         
         // Multiline text
@@ -1923,7 +1976,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         let multiLine = "Line1\nLine2\n"
         textView.typeText(multiLine)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         verifyOnChangePayload(withValue: multiLine)
         
         // HTML/Special characters
@@ -1931,6 +1984,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         let htmlText = "<div>Test&nbsp;</div>"
         textView.typeText(htmlText)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         verifyOnChangePayload(withValue: htmlText)
         
         // Emojis/Unicode
@@ -1938,6 +1992,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         let unicodeText = "Hindi: नमस्ते, Chinese: 你好, Arabic: مرحبا"
         textView.typeText(unicodeText)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         verifyOnChangePayload(withValue: unicodeText)
     }
     

@@ -396,11 +396,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
-        textField.press(forDuration: 1.0)
-        let selectAll = app.menuItems["Select All"]
-        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
-        selectAll.tap()
         textField.clearText()
+        XCTAssertTrue(app.selectAllInTextField(in: textField, app: app, timeout: 5),"‘Select All’ menu didn’t show up")
         textField.typeText("Qu")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -475,6 +472,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         dropdownButton.tap()
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssert(firstOption.waitForExistence(timeout: 5))
         firstOption.tap()
     }
     
@@ -1157,8 +1155,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(enterDateInInsertedField.waitForExistence(timeout: 5),
                       "Inserted text field never appeared")
         XCTAssertEqual("", enterDateInInsertedField.value as! String)
-        enterDateInInsertedField.tap()
-        enterDateInInsertedField.typeText("quick")
+        app.enterTextReliably("quick", into: enterDateInInsertedField)
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
@@ -1237,13 +1234,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         // Enter data for edit the field
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
-        textField.press(forDuration: 1.0)
-        let selectAll = app.menuItems["Select All"]
-        XCTAssertTrue(selectAll.waitForExistence(timeout: 5), "‘Select All’ menu didn’t show up")
-        selectAll.tap()
-        textField.clearText()
+        XCTAssertTrue(app.selectAllInTextField(in: textField, app: app, timeout: 5), "‘Select All’ menu didn’t show up")
         textField.typeText("qu")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -1351,10 +1344,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(enterDateInInsertedField.waitForExistence(timeout: 5))
         XCTAssertEqual("quick", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
-        enterDateInInsertedField.press(forDuration: 1.0)
-        let selectAll = app.menuItems["Select All"]
-        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
-        selectAll.tap()
+        enterDateInInsertedField.clearText()
+        XCTAssertTrue(app.selectAllInTextField(in: enterDateInInsertedField, app: app, timeout: 5),"‘Select All’ menu didn’t show up")
         enterDateInInsertedField.typeText("Done")
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
@@ -1874,6 +1865,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
+        textField.clearText()
         textField.typeText("app")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
