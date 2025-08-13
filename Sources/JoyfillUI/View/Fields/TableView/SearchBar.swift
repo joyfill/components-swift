@@ -72,10 +72,8 @@ struct SearchBar: View {
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
                             .accessibilityIdentifier("SearchBarCodeFieldIdentifier")
                             .font(.system(size: 12))
-                            .foregroundColor(.black)
                             .padding(.vertical, 4)
                             .frame(height: 25)
-                            .background(.white)
                             .cornerRadius(6)
                             .padding(.leading, 8)
                     default:

@@ -11,6 +11,7 @@ struct SignatureView: View {
     
     @State var hasAppeared: Bool = false
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
+    @State var showError: Bool = false
 
     private var signatureDataModel: SignatureDataModel
     let eventHandler: FieldChangeEvents
@@ -22,15 +23,31 @@ struct SignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(signatureDataModel.fieldHeaderModel)
+            FieldHeaderView(signatureDataModel.fieldHeaderModel, isFilled: !signatureURL.isEmpty)
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(UIColor.systemGray5))
+                )
                 .overlay(content: {
                     if let signatureImage = signatureImage {
                         Image(uiImage: signatureImage)
                             .resizable()
                             .scaledToFit()
+                    }
+                    if showError {
+                        VStack(spacing: 12) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(.red)
+                            Text("Failed to load signature")
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray.opacity(0.8))
+                        }
                     }
                 })
             
@@ -38,7 +55,7 @@ struct SignatureView: View {
                 showCanvasSignatureView = true
                 eventHandler.onFocus(event: signatureDataModel.fieldIdentifier)
             }, label: {
-                Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
+                Text("\(!signatureURL.isEmpty ? "Edit Signature" : "Add Signature")")
                     .darkLightThemeColor()
                     .frame(maxWidth: .infinity)
                     .frame(height: 40)
@@ -51,7 +68,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, isEditable: $isEditable), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -78,24 +95,32 @@ struct SignatureView: View {
                     }
                     url = "data:image/png;base64,\(base64EncodedString)"
                 }
-                let newSignatureImageValue = ValueUnion.string(url ?? "")
                 DispatchQueue.main.async {
-                    let fieldEvent = FieldChangeData(fieldIdentifier: signatureDataModel.fieldIdentifier, updateValue: newSignatureImageValue)
-                    eventHandler.onChange(event: fieldEvent)
+                    signatureURL = url
                 }
             }
+        }
+        .onChange(of: signatureURL) { newValue in
+            let newSignatureImageValue = ValueUnion.string(newValue)
+            let fieldEvent = FieldChangeData(fieldIdentifier: signatureDataModel.fieldIdentifier, updateValue: newSignatureImageValue)
+            eventHandler.onChange(event: fieldEvent)
         }
     }
     
     func loadImageFromURL() {
-        APIService.loadImage(from: signatureURL ?? "") { imageData in
-            if let imageData = imageData, let image = UIImage(data: imageData) {
-                DispatchQueue.main.async {
-                    self.signatureImage = image
-                    ignoreOnChangeOnDefaultImageLoad = true
+        if !signatureURL.isEmpty {
+            APIService.loadImage(from: signatureURL) { imageData in
+                if let imageData = imageData, let image = UIImage(data: imageData) {
+                    DispatchQueue.main.async {
+                        self.signatureImage = image
+                        ignoreOnChangeOnDefaultImageLoad = true
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.showError = true
+                    }
+                    Log("Invalid signature URL or failed to load image: \(String(describing: signatureURL))", type: .warning)
                 }
-            } else {
-                print("\(String(describing: signatureURL))")
             }
         }
     }
@@ -111,7 +136,7 @@ struct SignatureView: View {
 struct Line: Equatable {
     var points = [CGPoint]()
     var color: Color {
-        Color.primary
+        Color.black
     }
     var lineWidth: Double = 2.0
 }
@@ -119,9 +144,30 @@ struct Line: Equatable {
 struct CanvasView: View {
     @State var currentLine = Line()
     @Binding var lines: [Line]
+    @Binding var signatureCanvasImage: UIImage?
+    @Binding var showCanvasError: Bool
     
     var body: some View {
         ZStack {
+            if let signatureImage = signatureCanvasImage, lines.isEmpty {
+                Image(uiImage: signatureImage)
+                    .resizable()
+                    .scaledToFit()
+            }
+            
+            if showCanvasError, lines.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                        .foregroundColor(.red)
+                    Text("Failed to load signature")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray.opacity(0.8))
+                }
+            }
+            
             Canvas{context ,size in
                 for line in lines {
                     var path = Path()
@@ -132,6 +178,8 @@ struct CanvasView: View {
             .accessibilityIdentifier("CanvasIdentifier")
             .gesture(DragGesture(minimumDistance: 0,coordinateSpace: .local)
                 .onChanged({value in
+                    self.signatureCanvasImage = nil
+                    self.showCanvasError = false
                     let newPoint = value.location
                     currentLine.points.append(newPoint)
                     self.lines.append(currentLine)
@@ -147,6 +195,10 @@ struct CanvasSignatureView: View {
     @Binding var lines: [Line]
     @Binding var savedLines: [Line]
     @Binding var signatureImage: UIImage?
+    @State var signatureCanvasImage: UIImage?
+    @State var showCanvasError: Bool = false
+    @Binding var signatureURL: String
+    @Binding var showError: Bool
     @Binding var isEditable: Bool
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
@@ -158,9 +210,13 @@ struct CanvasSignatureView: View {
                 .padding(.top, 12)
             
             if isEditable {
-                CanvasView(lines: $lines)
+                CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
                     .frame(height: 150)
                     .cornerRadius(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(UIColor.systemGray5))
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -171,6 +227,10 @@ struct CanvasSignatureView: View {
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                             .frame(height: 150)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color(UIColor.systemGray5))
+                            )
                             .overlay {
                                 Image(uiImage: signatureImage)
                                     .resizable()
@@ -195,10 +255,18 @@ struct CanvasSignatureView: View {
                         .padding(.all, 10)
                         .accessibilityIdentifier("TableSignatureEditButton")
                     }
+                    .onAppear {
+                        signatureCanvasImage = signatureImage
+                        showCanvasError = showError
+                    }
                 } else {
-                    CanvasView(lines: $lines)
+                    CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
                         .frame(height: 150)
                         .cornerRadius(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(UIColor.systemGray5))
+                        )
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -211,6 +279,8 @@ struct CanvasSignatureView: View {
                     Spacer()
                     Button(action: {
                         lines.removeAll()
+                        signatureCanvasImage = nil
+                        showCanvasError = false
                     }, label: {
                         Text("Clear")
                             .darkLightThemeColor()
@@ -224,15 +294,20 @@ struct CanvasSignatureView: View {
                     .accessibilityIdentifier("ClearSignatureIdentifier")
                     
                     Button(action: {
-                        guard !lines.isEmpty else {
+                        if lines.isEmpty && signatureCanvasImage == nil && showCanvasError == false {
                             savedLines = []
                             signatureImage = nil
+                            signatureURL = ""
+                            showError = false
                             presentationMode.wrappedValue.dismiss()
                             return
                         }
-                        signatureImage = CanvasView(lines: $lines)
-                            .frame(width: screenWidth, height: 220)
-                            .snapshot()
+                        if !showCanvasError {
+                            signatureImage = CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
+                                .frame(width: screenWidth, height: 220)
+                                .snapshot()
+                            showError = false
+                        }
                         savedLines = lines
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
@@ -246,6 +321,10 @@ struct CanvasSignatureView: View {
                 .padding(.top, 10)
             }
             Spacer()
+        }
+        .onAppear {
+            signatureCanvasImage = signatureImage
+            showCanvasError = showError
         }
         .padding(.horizontal, 16.0)
     }

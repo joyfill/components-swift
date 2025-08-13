@@ -234,7 +234,6 @@ public class Parser {
         case .success(let tokens):
             self.tokens = tokens
             self.currentIndex = 0
-            print("Tokens: \(tokens.map { $0.lexeme })") // Debug print
 
             // 2. Parse
             let parseResult = parseExpression() // Start parsing the main expression
@@ -531,7 +530,11 @@ public class Parser {
                      return .failure(error)
                  }
                  if currentToken()?.type == .rightBracket { break }
-                 else if currentToken()?.type == .comma { advance() }
+                 else if currentToken()?.type == .comma { 
+                     advance() // Consume comma
+                     // Check for trailing comma (comma followed by ']')
+                     if currentToken()?.type == .rightBracket { break }
+                 }
                  else { return .failure(.syntaxError("Expected ',' or ']' in array literal, found \(currentToken()?.lexeme ?? "nil")")) }
             }
         }

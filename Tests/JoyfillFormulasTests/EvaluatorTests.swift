@@ -296,6 +296,41 @@ final class EvaluatorTests: XCTestCase {
         assertEvalFails(node)
     }
     
+    func testEvaluate_ArrayLiteral_MultiSelectFormula() {
+        // Test case for multiselect6:handleinvalidarray_formula
+        // Expression: ["Yes", ] - array literal with trailing comma
+        // Expected: Array containing single string "Yes"
+        let node = ASTNode.arrayLiteral([
+            .literal(.string("Yes"))
+        ])
+        assertEval(node, equals: .array([.string("Yes")]))
+    }
+    
+    func testEvaluate_EndToEnd_MultiSelectFormulaWithParser() {
+        // Integration test: Parse and evaluate multiselect6:handleinvalidarray_formula
+        // Expression: ["Yes", ] - formula engine should handle trailing comma and return array value
+        let parser = Parser()
+        let formula = "[\"Yes\", ]"
+        
+        let parseResult = parser.parse(formula: formula)
+        guard case .success(let ast) = parseResult else {
+            XCTFail("Failed to parse formula: \(parseResult)")
+            return
+        }
+        
+        // Should parse as array literal
+        guard case .arrayLiteral(let elements) = ast else {
+            XCTFail("Expected arrayLiteral AST node, got: \(ast)")
+            return
+        }
+        
+        XCTAssertEqual(elements.count, 1, "Should have one element")
+        XCTAssertEqual(elements[0], .literal(.string("Yes")))
+        
+        // Evaluate the parsed AST
+        assertEval(ast, equals: .array([.string("Yes")]))
+    }
+    
     // MARK: - Comparison Operator Tests
     // ... tests for <, >=, <= ...
     

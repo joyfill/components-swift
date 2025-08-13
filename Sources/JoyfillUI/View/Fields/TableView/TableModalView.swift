@@ -178,7 +178,7 @@ struct TableModalView : View {
                 .frame(minHeight: 50)
                 .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight)
                 .border(Color.tableCellBorderColor)
-                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
                 
                 if #available(iOS 16, *) {
@@ -205,7 +205,7 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(Color.tableCellBorderColor)
+                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
@@ -213,7 +213,7 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(Color.tableCellBorderColor)
+                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
@@ -258,9 +258,7 @@ struct TableModalView : View {
                         Rectangle()
                             .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
                     )
-                    .background(
-                        colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
-                    )
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
                 .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0)
@@ -332,6 +330,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
@@ -358,6 +357,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)

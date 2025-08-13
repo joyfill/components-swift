@@ -10,7 +10,7 @@ import JoyfillModel
 
 struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
-    @ObservedObject private var viewModel: CollectionViewModel
+    @StateObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
@@ -19,14 +19,46 @@ struct CollectionQuickView : View {
     @State private var refreshID = UUID()
     
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
-        self.viewModel = CollectionViewModel(tableDataModel: tableDataModel)
+        self._viewModel = StateObject(wrappedValue: CollectionViewModel(tableDataModel: tableDataModel))
         self.tableDataModel = tableDataModel
         self.eventHandler = eventHandler
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(tableDataModel.fieldHeaderModel)
+            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
+
+            if viewModel.isLoading {
+                loadingView
+            } else {
+                collectionContent
+            }
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack {
+            HStack {
+                Spacer()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .scaleEffect(1.2)
+                Text("Loading collection...")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+            .frame(height: 120)
+        }
+        .frame(maxWidth: .infinity)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+        )
+    }
+    
+    private var collectionContent: some View {
+        VStack(alignment: .leading) {
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     colsHeader
@@ -60,6 +92,7 @@ struct CollectionQuickView : View {
                         .padding(.horizontal, 4)
                     
                     Text(viewModel.tableDataModel.collectionRowsCount)
+                        .darkLightThemeColor()
                         .font(.system(size: 16))
                 }
                 .foregroundStyle(.black)

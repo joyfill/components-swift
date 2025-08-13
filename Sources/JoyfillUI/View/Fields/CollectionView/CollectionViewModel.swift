@@ -20,6 +20,7 @@ class CollectionViewModel: ObservableObject {
     @Published var rowToValueElementMap: [String: ValueElement] = [:]
     @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
     @Published var isLoading: Bool = false
+    @Published var isSearching: Bool = false
     private var requiredColumnIds: [String] = []
     var rootSchemaKey: String = ""
 
@@ -32,18 +33,38 @@ class CollectionViewModel: ObservableObject {
                 self.rootSchemaKey = key
             }
         }
-        buildBlockLongestTextMap()
-        buildRowToValueElementMap()
-        self.showRowSelector = tableDataModel.mode == .fill
-        self.shouldShowAddRowButton = tableDataModel.mode == .fill
-        self.nestedTableCount = tableDataModel.childrens.count
-        cellWidthMapping()
-        setupCellModels()
-        updateCollectionWidth()
-        self.requiredColumnIds = tableDataModel.tableColumns
-            .filter { $0.required == true }
-            .compactMap { $0.id }
-        tableDataModel.documentEditor?.registerDelegate(self, for: tableDataModel.fieldIdentifier.fieldID)
+        self.isLoading = true
+        self.initializeAsync()
+    }
+    
+    func initializeAsync() {
+        DispatchQueue.global().async {
+            let blockLongestTextMap = self.buildBlockLongestTextMap()
+            let rowToValueElementMap = self.getBuildRowToValueElementMap()
+            let cellWidthMap = self.cellWidthMapping()
+            let cellModels = self.getCellModels()
+            let collectionWidth = self.getCollectionWidth()
+
+            DispatchQueue.main.async {
+                self.blockLongestTextMap = blockLongestTextMap
+                self.rowToValueElementMap = rowToValueElementMap
+                self.cellWidthMap = cellWidthMap
+                self.tableDataModel.filteredcellModels = cellModels
+                self.collectionWidth = collectionWidth
+                
+                
+                self.showRowSelector = self.tableDataModel.mode == .fill
+                self.shouldShowAddRowButton = self.tableDataModel.mode == .fill
+                self.nestedTableCount = self.tableDataModel.childrens.count
+                
+                self.requiredColumnIds = self.tableDataModel.tableColumns
+                    .filter { $0.required == true }
+                    .compactMap { $0.id }
+                self.tableDataModel.documentEditor?.registerDelegate(self, for: self.tableDataModel.fieldIdentifier.fieldID)
+                
+                self.isLoading = false
+            }
+        }
     }
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
@@ -72,7 +93,8 @@ class CollectionViewModel: ObservableObject {
         return longestText
     }
     
-    func buildBlockLongestTextMap() {
+    func buildBlockLongestTextMap() -> [String: String] {
+        var blockLongestTextMap: [String: String] = [:]
         for (key, schema) in tableDataModel.schema {
             let tableColumns = tableDataModel.filterTableColumns(key: key)
             
@@ -90,13 +112,14 @@ class CollectionViewModel: ObservableObject {
                 }
             }
         }
+        return blockLongestTextMap
     }
     
     func getOrderedSchemaKeys() -> [String] {
         return tableDataModel.schemaChainMap[rootSchemaKey] ?? []
     }
     
-    func cellWidthMapping() {
+    func cellWidthMapping() -> [String: CGFloat] {
         var widthMap = [String: CGFloat]()
         
         for (key, schema) in tableDataModel.schema {
@@ -105,9 +128,10 @@ class CollectionViewModel: ObservableObject {
             for column in tableColumns {
                 guard let colID = column.id else { continue }
                 let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: blockLongestTextMap[colID] ?? "")
-                cellWidthMap[colID] = width
+                widthMap[colID] = width
             }
         }
+        return widthMap
     }
     
     func updateCellWidthMap(tableColumns: [FieldTableColumn], columnID: String) {
@@ -332,20 +356,26 @@ class CollectionViewModel: ObservableObject {
     
     func buildRowToValueElementMap() {
         rowToValueElementMap.removeAll()
+        rowToValueElementMap = getBuildRowToValueElementMap()
+    }
+    
+    func getBuildRowToValueElementMap() -> [String: ValueElement] {
+        var rowToValueElementMap: [String: ValueElement] = [:]
         let valueElements = tableDataModel.valueToValueElements ?? []
         for element in valueElements {
-            populateRowMap(from: element)
+            populateRowMap(from: element, rowToValueElementMap: &rowToValueElementMap)
         }
+        return rowToValueElementMap
     }
 
-    private func populateRowMap(from element: ValueElement) {
+    private func populateRowMap(from element: ValueElement, rowToValueElementMap: inout [String: ValueElement]) {
         if let id = element.id {
             rowToValueElementMap[id] = element
         }
         if let childrens = element.childrens {
             for childGroup in childrens.values {
                 for child in childGroup.valueToValueElements ?? [] {
-                    populateRowMap(from: child)
+                    populateRowMap(from: child, rowToValueElementMap: &rowToValueElementMap)
                 }
             }
         }
@@ -408,10 +438,14 @@ class CollectionViewModel: ObservableObject {
         return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, text: longestBlockText) + Utility.getTotalTableScrollWidth(level: level)
     }
     
-    func updateCollectionWidth() {
-        collectionWidth = tableDataModel.filteredcellModels
+    func getCollectionWidth() -> CGFloat {
+        return tableDataModel.filteredcellModels
             .map { $0.rowWidth }
             .max() ?? 0
+    }
+    
+    func updateCollectionWidth() {
+        collectionWidth = getCollectionWidth()
     }
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, childrens: [String : Children] = [:], rowType: RowType, schemaKey: String) {
@@ -482,6 +516,10 @@ class CollectionViewModel: ObservableObject {
     }
     
     func setupCellModels() {
+        tableDataModel.filteredcellModels = getCellModels()
+    }
+    
+    func getCellModels() -> [RowDataModel] {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
         let rowToChildrenMap = setupRowsChildrens()
@@ -514,8 +552,7 @@ class CollectionViewModel: ObservableObject {
             }
             cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count + 1), childrens: childrens, rowWidth: rowWidth(tableDataModel.tableColumns, 0)))
         }
-        tableDataModel.filteredcellModels = cellModels
-//        tableDataModel.filteredcellModels = cellModels
+        return cellModels
     }
     
     func setupAllCellModels(targetSchema: String) {
@@ -1590,12 +1627,29 @@ class CollectionViewModel: ObservableObject {
         
         var parentRowID = ""
         var nestedSchemaKey = ""
+        
+        if let firstSelectedRowID = tableDataModel.selectedRows.first {
+            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) ?? 0
+            let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+            
+            parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
+            nestedSchemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
+        }
+        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
+                                                                      selectedRows: tableDataModel.selectedRows,
+                                                                      fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                      parentRowId: parentRowID,
+                                                                      nestedKey: nestedSchemaKey,
+                                                                      rootSchemaKey: rootSchemaKey)
+        tableDataModel.valueToValueElements = result?.0
+        for (key, value) in result?.1 ?? [:] {
+            rowToValueElementMap[key] = value
+        }
+        
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             tableColumns.enumerated().forEach { colIndex, column in
                 let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
-                parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
-                nestedSchemaKey = rowDataModel.rowType.parentSchemaKey ?? ""
                 var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 
@@ -1629,18 +1683,7 @@ class CollectionViewModel: ObservableObject {
                 }
             }
         }
-        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
-                                                                      selectedRows: tableDataModel.selectedRows,
-                                                                      fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                      parentRowId: parentRowID,
-                                                                      nestedKey: nestedSchemaKey,
-                                                                      rootSchemaKey: rootSchemaKey)
-        tableDataModel.valueToValueElements = result?.0
-        for (key, value) in result?.1 ?? [:] {
-            rowToValueElementMap[key] = value
-        }
         
-//        tableDataModel.filterCollectionRowsIfNeeded()
         sortRowsIfNeeded()
     }
     
