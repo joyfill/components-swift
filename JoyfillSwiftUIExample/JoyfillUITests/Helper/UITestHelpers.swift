@@ -13,89 +13,168 @@ extension XCUIApplication {
                             direction: String = "up",
                             index: Int = 0,
                             maxAttempts: Int = 6) -> XCUIElement? {
-        
+
         let scrollView = self.scrollViews.firstMatch
         guard scrollView.exists else {
             XCTFail("ScrollView not found for swipe action")
             return nil
         }
 
+        // --- helpers ---
+        @inline(__always) func yield(_ s: TimeInterval = 0.05) {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: s))
+        }
+
+        /// Return a normalized Y (0...1) inside `scrollView` that sits a bit ABOVE the keyboard edge.
+        /// If no keyboard or cannot compute, returns a conservative safe value.
+        func safeStartDYAboveKeyboard(extraMarginPts: CGFloat = 20) -> CGFloat {
+            let win = self.windows.firstMatch
+            let svf = scrollView.frame
+            guard win.exists, !svf.isEmpty else { return 0.70 } // default near top 30%
+
+            // If keyboard is visible and overlaps the scrollView, compute the visible height
+            if self.keyboards.firstMatch.exists {
+                let kbf = self.keyboards.firstMatch.frame
+                if !kbf.isEmpty, kbf.intersects(svf) {
+                    let kbTop = kbf.minY - extraMarginPts                 // a bit above the keyboard
+                    let visible = max(0, kbTop - svf.minY)
+                    // Convert to normalized dy within the scrollView’s bounds
+                    let dy = visible / svf.height
+                    // keep within [0.55, 0.90] so we’re comfortably away from bottom overlays
+                    return CGFloat(max(0.55, min(0.90, dy)))
+                }
+            }
+            // No keyboard => still avoid bottom 30%
+            return 0.70
+        }
+
+        func isVisible(_ e: XCUIElement) -> Bool {
+            guard e.exists else { return false }
+            return e.frame.intersects(scrollView.frame)
+        }
+        // --- /helpers ---
+
         var attempts = 0
         var elementQuery = self.descendants(matching: type).matching(identifier: identifier)
         var targetElement = elementQuery.element(boundBy: index)
 
         while attempts < maxAttempts {
-            if targetElement.exists && targetElement.isHittable {
-                return targetElement
-            }
+            if isVisible(targetElement) { return targetElement }
 
-            // Scroll
+            // compute a lane that starts a little ABOVE the keyboard every time
+            let startDY = safeStartDYAboveKeyboard(extraMarginPts: 24)   // tweak margin if needed
+            let endDYUp   = max(0.12, startDY - 0.50) // go up ~50% of sv height
+            let endDYDown = min(0.90, startDY + 0.50) // go down ~50%
+
             switch direction.lowercased() {
             case "up":
-                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-                let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
-                start.press(forDuration: 0.3, thenDragTo: end)
+                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: startDY))
+                let end   = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: endDYUp))
+                start.press(forDuration: 0.02, thenDragTo: end)
+
             case "down":
-                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
-                let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.9))
-                start.press(forDuration: 0.3, thenDragTo: end)
+                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: max(0.20, endDYUp)))
+                let end   = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: endDYDown))
+                start.press(forDuration: 0.02, thenDragTo: end)
+
             case "left":
-                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
-                let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5))
-                start.press(forDuration: 0.3, thenDragTo: end)
+                // horizontal: pick a Y that’s also above keyboard
+                let dy = startDY
+                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: dy))
+                let end   = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: dy))
+                start.press(forDuration: 0.02, thenDragTo: end)
+
             case "right":
-                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5))
-                let end = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
-                start.press(forDuration: 0.3, thenDragTo: end)
+                let dy = startDY
+                let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: dy))
+                let end   = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: dy))
+                start.press(forDuration: 0.02, thenDragTo: end)
+
             default:
                 XCTFail("Invalid swipe direction: \(direction)")
                 return nil
             }
 
-            // Replace sleep with proper wait
-            let waitResult = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true"), object: targetElement)], timeout: 1.0)
-            if waitResult == .completed {
-                break
-            }
-            
+            yield(0.15)
+
+            // re-resolve fresh each loop
             elementQuery = self.descendants(matching: type).matching(identifier: identifier)
-            targetElement = elementQuery.element(boundBy: 0)
+            targetElement = elementQuery.element(boundBy: index)
             attempts += 1
         }
 
-        return targetElement.exists && targetElement.isHittable ? targetElement : nil
+        return isVisible(targetElement) ? targetElement : nil
     }
     
     /// Dismisses the keyboard if it is visible and removes focus from the active element.
-        func dismissKeyboardIfVisible() {
-            let keyboard = self.keyboards.element
-            if keyboard.exists {
-                // 1. Try tapping the return key (for alphabetic keyboards)
-                let returnButton = keyboard.buttons["Return"]
-                if returnButton.exists && returnButton.isHittable {
-                    returnButton.tap()
-                    return
-                }
+    func dismissKeyboardIfVisible(timeout: TimeInterval = 2.0) {
+        guard self.keyboards.element.exists else { return }
 
-                // 2. Try tapping "Done" key (common on numeric pads)
-                let doneButton = keyboard.buttons["Done"]
-                if doneButton.exists && doneButton.isHittable {
-                    doneButton.tap()
-                    return
-                }
+        func yield(_ s: TimeInterval = 0.05) {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: s))
+        }
 
-                // 3. Try tapping outside keyboard area (fallback)
-                let coordinate = self.windows.element(boundBy: 0).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.01))
-                coordinate.tap()
+        // Try a bunch of common keys/buttons that dismiss keyboards
+        let kb = self.keyboards.element
+
+        // 1) Toolbar "Done" above the keyboard (common on text views / number pads)
+        if self.toolbars.buttons["Done"].exists && self.toolbars.buttons["Done"].isHittable {
+            self.toolbars.buttons["Done"].tap()
+        } else if kb.buttons["Done"].exists && kb.buttons["Done"].isHittable {
+            kb.buttons["Done"].tap()
+        }
+        yield(0.15)
+        if !kb.exists { return }
+
+        // 2) "Hide keyboard" button (iPad / some layouts)
+        for label in ["Hide keyboard", "Dismiss", "Minimize Keyboard"] {
+            if kb.buttons[label].exists && kb.buttons[label].isHittable {
+                kb.buttons[label].tap()
+                yield(0.15)
+                if !self.keyboards.element.exists { return }
             }
         }
-    
-    func tapOutsideToDismissKeyboard() {
-            // Slightly different approach if above fails
-            let safeArea = windows.element(boundBy: 0)
-            let dismissTap = safeArea.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.01))
-            dismissTap.tap()
+
+        // 3) Return/Go/Search/Send/Next variants (text view return won’t dismiss, but some UIs remap it)
+//        let returnCandidates = ["Return", "Go", "Search", "Send", "Next", "Continue"]
+//        for title in returnCandidates {
+//            if kb.buttons[title].exists && kb.buttons[title].isHittable {
+//                kb.buttons[title].tap()
+//                yield(0.15)
+//                if !self.keyboards.element.exists { return }
+//            }
+//            if kb.keys[title].exists && kb.keys[title].isHittable {
+//                kb.keys[title].tap()
+//                yield(0.15)
+//                if !self.keyboards.element.exists { return }
+//            }
+//        }
+
+        // 4) Tap outside in a safe zone well above the keyboard (center-top 10%)
+        let win = self.windows.firstMatch
+        if win.exists {
+            let safeTop = win.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.10))
+            safeTop.tap()
+            yield(0.15)
+            if !self.keyboards.element.exists { return }
         }
+
+        // 5) As a last resort, perform a left-edge swipe (often pops and resigns first responder)
+        if win.exists {
+            let start = win.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5))
+            let end   = win.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5))
+            start.press(forDuration: 0.02, thenDragTo: end)
+            yield(0.15)
+            if !self.keyboards.element.exists { return }
+        }
+
+        // 6) Final wait loop (don’t proceed until gone or we time out)
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if !self.keyboards.element.exists { break }
+            yield(0.05)
+        }
+    }
 }
 
 // MARK: - New Helper Methods for Robust UI Testing
@@ -199,6 +278,19 @@ extension XCUIApplication {
         return false
     }
     
+    private func runloopYield(_ seconds: TimeInterval = 0.05) {
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: seconds))
+    }
+
+    private func waitForKeyboard(_ timeout: TimeInterval = 3) {
+        let app = XCUIApplication()
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if app.keyboards.count > 0 { return }
+            runloopYield(0.05)
+        }
+    }
+    
     /// Robust "Select All" that works across iOS versions.
     /// Shows the iOS edit menu WITHOUT pre‑selecting text (avoid doubleTap).
     @discardableResult
@@ -233,6 +325,29 @@ extension XCUIApplication {
 
     @discardableResult
     func selectAllInTextField(in field: XCUIElement, app: XCUIApplication, timeout: TimeInterval = 5) -> Bool {
+        // 0) If empty, nothing to select—avoid long‑press/menu entirely
+        if let current = field.value as? String, current.isEmpty {
+            // ensure focus so next typeText goes to the right place
+            _ = field.waitForExistence(timeout: timeout)
+            if field.isHittable { field.tap() }
+            waitForKeyboard(2)
+            return true
+        }
+
+        // 1) Make sure we’re focused with keyboard up
+        guard field.waitForExistence(timeout: timeout) else { return false }
+        if field.isHittable { field.tap() }
+        waitForKeyboard(2)
+
+        // 2) Fast path: try Command‑A (works on both UITextField & UITextView)
+        field.typeText(XCUIKeyboardKey.command.rawValue + "a")
+        runloopYield(0.1)
+
+        // If the platform shows a modern/legacy edit menu, we can still tap "Select All"
+        if app.menuItems["Select All"].exists { app.menuItems["Select All"].tap(); return true }
+        if app.buttons["Select All"].exists   { app.buttons["Select All"].tap();   return true }
+
+        // 3) Fallback: use your long‑press menu path
         guard showEditMenu(on: field, app: app, timeout: timeout) else { return false }
         return tapEditMenuItem("Select All", app: app, timeout: timeout)
     }

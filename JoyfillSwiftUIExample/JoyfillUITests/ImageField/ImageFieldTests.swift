@@ -89,6 +89,7 @@ final class ImageFieldTests: JoyfillUITestsBaseClass {
 extension ImageFieldTests {
     private func goToImageDetailPage() {
         app.buttons["ImageMoreIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let imageSelection = app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0)
         XCTAssertTrue(imageSelection.waitForExistence(timeout: 3))
         imageSelection.tap()

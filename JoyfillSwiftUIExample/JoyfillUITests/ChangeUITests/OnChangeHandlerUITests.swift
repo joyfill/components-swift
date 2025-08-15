@@ -27,7 +27,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func expandRow(number: Int) {
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let identifier = "CollectionExpandCollapseButton\(number)"
         
         guard let expandButton = app.swipeToFindElement(identifier: identifier,
@@ -391,8 +391,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
        
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("A", firstTableTextField.value as! String)
+        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 3))
         firstTableTextField.tap()
-        firstTableTextField.typeText("First")
+        firstTableTextField.typeText("one")
 
         let firstValueCount = app.textViews.countMatchingValue(firstTableTextField.value as! String)
         print("Number of textViews with value \"FirstA\": \(firstValueCount)")
@@ -420,6 +421,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     fileprivate func selectAllMultiSlectOptions() {
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(optionsButtons.element.waitForExistence(timeout: 5))
         XCTAssertGreaterThan(optionsButtons.count, 0)
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
@@ -590,7 +592,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         addThreeNestedRows(parentRowNumber: 2)
         // Make sure collection search filter is on
         openFilterModalForDismissKeyboard()
-        sleep(1)
+        app.dismissKeyboardIfVisible()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         expandRow(number: 3)
         
         selectNestedRow(number: 2)
@@ -1618,7 +1621,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertTrue(sixthTableTextField.waitForExistence(timeout: 5),
                       "sixth field didn’t show up")
         sixthTableTextField.tap()
-        sixthTableTextField.typeText("Sixth")
+        sixthTableTextField.typeText("Six")
         sleep(1)
         goBack()
         sleep(2)
@@ -1633,7 +1636,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("3 Third row", thirdCellTextValue.value as! String)
         XCTAssertEqual("", fourthCellTextValue.value as! String)
         XCTAssertEqual("", fifthCellTextValue.value as! String)
-        XCTAssertEqual("Sixth", sixthCellTextValue.value as! String)
+        XCTAssertEqual("Six", sixthCellTextValue.value as! String)
     }
     
     // Bulk Edit - Edit all Rows

@@ -195,7 +195,9 @@ class JoyfillUITestsBaseClass: XCTestCase {
     }
     
     func goBack() {
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let backButton = app.navigationBars.buttons.element(boundBy: 0)
+        XCTAssertTrue(backButton.waitForExistence(timeout: 5))
+        backButton.tap()
     }
     
     func swipeSheetDown() {

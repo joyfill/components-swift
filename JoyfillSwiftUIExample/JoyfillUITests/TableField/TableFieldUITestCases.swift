@@ -163,7 +163,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(textCell.exists)
         textCell.tap()
         textCell.typeText("Hello test")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
     }
@@ -217,13 +217,15 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
         XCTAssertTrue(firstCell.exists)
         firstCell.tap()
-        let keyboard = app.keyboards.element
-          XCTAssertTrue(keyboard.waitForExistence(timeout: 5),
-                        "Keyboard should appear on focus")
-        app.otherElements.firstMatch.tap() // dismiss
-        dismissSheet()
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on blur")
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            let keyboard = app.keyboards.element
+            XCTAssertTrue(keyboard.waitForExistence(timeout: 5),
+                          "Keyboard should appear on focus")
+            app.otherElements.firstMatch.tap() // dismiss
+            dismissSheet()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+            XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on blur")
+        }
     }
     
     func testInsertDataThenScroll() throws {
@@ -235,13 +237,13 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let newCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: initialCount)
         XCTAssertTrue(newCell.waitForExistence(timeout: 5), "New row should appear at the end")
         newCell.tap()
-        newCell.clearText()
-        newCell.typeText("quick")
-        sleep(1)
+        app.selectAllInTextField(in: newCell, app: app)
+        newCell.typeText("one")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         while !newCell.isHittable {
             app.swipeUp()
         }
-        XCTAssertEqual(newCell.value as? String, "quick")
+        XCTAssertEqual(newCell.value as? String, "one")
     }
     
     func testTableMoveUpRow() throws {

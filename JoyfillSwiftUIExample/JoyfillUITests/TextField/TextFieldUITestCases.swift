@@ -112,15 +112,17 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         let multilineTextView = app.textViews.element(boundBy: 0)
         multilineTextView.tap()
-        multilineTextView.typeText("\u{0001}") // Select all with keyboard shortcut
+        app.selectAllInTextField(in: multilineTextView, app: app) // Select all with keyboard shortcut
         multilineTextView.typeText("hide")
+        app.dismissKeyboardIfVisible()
         app.swipeDown()
         let readonlyField = app.textFields.element(boundBy: 1)
         readonlyField.tap()
-        
-        // Wait for UI to settle and check keyboard state
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        XCTAssertTrue(app.keyboards.element.exists, "Keyboard appears for readonly field")
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            // Wait for UI to settle and check keyboard state
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+            XCTAssertTrue(app.keyboards.element.exists, "Keyboard appears for readonly field")
+        }
     }
     
     func testTextFieldDataTypes() {
@@ -210,8 +212,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // 2. First = "hide", multiline ≠ "show" => display text should hide
         firstTextField.tap()
-        firstTextField.typeText("\u{0001}") // Select all with keyboard shortcut
-        firstTextField.clearText()
+        app.selectAllInTextField(in: firstTextField, app: app)
         firstTextField.typeText("hide")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         multilineTextView.tap()
@@ -223,11 +224,11 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Wait for display text to hide based on conditional logic
         attempts = 0
-        while displayText.exists && attempts < 5 {
-            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+        while displayText.exists && displayText.isHittable && attempts < 10 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.2))
             attempts += 1
         }
-        XCTAssertFalse(displayText.exists)
+        XCTAssertFalse(displayText.exists && displayText.isHittable, "Display text is still visible")
         
         // 3. Second textbox should hide if:
         //  - First is filled

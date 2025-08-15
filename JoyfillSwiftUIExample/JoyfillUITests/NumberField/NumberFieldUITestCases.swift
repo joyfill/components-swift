@@ -164,7 +164,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
 
         // Very large
         numberField.tap()
-        numberField.clearText()
+        app.selectAllInTextField(in: numberField, app: app)
         numberField.typeText("9999999")
         XCTAssertEqual(numberField.value as? String, "9999999")
     }

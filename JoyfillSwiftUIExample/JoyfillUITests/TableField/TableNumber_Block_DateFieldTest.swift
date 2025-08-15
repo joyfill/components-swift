@@ -1213,8 +1213,10 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         tapOnSignatureButton.tap()
         
         drawSignatureLine()
-        app.buttons["SaveSignatureIdentifier"].tap()
-        Thread.sleep(forTimeInterval: 0.5)
+        let saveButton = app.buttons["SaveSignatureIdentifier"].firstMatch
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        saveButton.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         tapOnSignatureButton.tap()
         
         app.buttons["TableSignatureEditButton"].tap()
