@@ -838,39 +838,61 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: rows)
     }
     
-    public func bulkEditForNested(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier, parentRowId: String,nestedKey: String, rootSchemaKey: String ) -> ([ValueElement], [String : ValueElement]) {
-        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            return ([],[:])
+    public func bulkEditForNested(changes: [String: ValueUnion],
+                                  selectedRows: [String],
+                                  fieldIdentifier: FieldIdentifier,
+                                  parentRowId: String,
+                                  nestedKey: String,
+                                  rootSchemaKey: String ) async -> ([ValueElement], [String : ValueElement]) {
+        return await withCheckedContinuation { continuation in
+            backgroundQueue.async {
+                guard var elements = self.field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+                    continuation.resume(returning: ([], [:]))
+                    return
+                }
+                
+                var updatedElements: [String : ValueElement] = [:]
+                var rows: [[String : Any]] = []
+                var changesToSend: [String: Any] = [:]
+                
+                for change in changes {
+                    changesToSend[change.key] = change.value.dictionary
+                }
+                
+                for rowId in selectedRows {
+                    let row: [String : Any] = [
+                        "_id" : rowId,
+                        "cells" : changesToSend
+                    ]
+                    rows.append(row)
+                    updatedElements[rowId] = self.updateCells(for: rowId, with: changes, in: &elements)
+                }
+                
+                self.fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+                
+                let fieldID = fieldIdentifier.fieldID
+                let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
+                                                  updateValue: self.fieldMap[fieldID]?.value)
+                
+                guard let currentField = self.fieldMap[fieldID] else {
+                    Log("Failed to find field \(fieldID)", type: .error)
+                    continuation.resume(returning: ([], [:]))
+                    return
+                }
+                
+                let parentPath = self.computeParentPath(targetParentId: parentRowId,
+                                                        nestedKey: nestedKey,
+                                                        in: [rootSchemaKey : elements]) ?? ""
+                
+                self.handleRowCellOnChange(event: changeEvent,
+                                           currentField: currentField,
+                                           rows: rows,
+                                           parentPath: parentPath,
+                                           schemaId: nestedKey)
+                let result = (elements, updatedElements)
+                continuation.resume(returning: result)
+            }
         }
-        var updatedElements: [String : ValueElement] = [:]
-        var rows: [[String : Any]] = []
-        var changesToSend: [String: Any] = [:]
-        
-        for change in changes {
-            changesToSend[change.key] = change.value.dictionary
-        }
-        
-        for rowId in selectedRows {
-            let row: [String : Any] = [
-                "_id" : rowId,
-                "cells" : changesToSend
-            ]
-            rows.append(row)
-            updatedElements[rowId] = updateCells(for: rowId, with: changes, in: &elements)
-        }
-        
-        fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
-        
-        let fieldID = fieldIdentifier.fieldID
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldID]?.value)
-
-        guard let currentField = fieldMap[fieldID] else {
-            Log("Failed to find field \(fieldID)", type: .error)
-            return ([], [:])
-        }
-        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        handleRowCellOnChange(event: changeEvent, currentField: currentField, rows: rows, parentPath: parentPath, schemaId: nestedKey)
-        return (elements, updatedElements)
     }
 
     private func updateCells(for rowId: String, with changes: [String: ValueUnion], in elements: inout [ValueElement]) -> ValueElement? {

@@ -54,6 +54,7 @@ public class DocumentEditor: ObservableObject {
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
     public var events: FormChangeEvent?
+    let backgroundQueue = DispatchQueue(label: "documentEditor.background", qos: .userInitiated)
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
@@ -405,12 +406,12 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateSchemaVisibilityOnCellChange(collectionFieldID: String, columnID: String, rowID: String) {
-        conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID)
+    func updateSchemaVisibilityOnCellChange(collectionFieldID: String, columnID: String, rowID: String, valueElement: ValueElement?) {
+        conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID, valueElement: valueElement)
     }
     
-    func updateSchemaVisibilityOnNewRow(collectionFieldID: String, rowID: String) {
-        conditionalLogicHandler.updateShowCollectionSchemaMap(collectionFieldID: collectionFieldID, rowID: rowID)
+    func updateSchemaVisibilityOnNewRow(collectionFieldID: String, rowID: String, valueElement: ValueElement?) {
+        conditionalLogicHandler.updateShowCollectionSchemaMap(collectionFieldID: collectionFieldID, rowID: rowID, valueElement: valueElement)
     }
     
     func shouldRefreshSchema(for collectionFieldID: String, columnID: String) -> Bool {
@@ -435,22 +436,6 @@ extension DocumentEditor {
                 self.JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
             }
         }
-    }
-    
-    func getValueElementByRowID(_ rowID: String, from valueElements: [ValueElement]) -> ValueElement? {
-        //Target valueElement which used by condtional logic
-        for element in valueElements {
-            if element.id == rowID {
-                return element
-            } else if let childrens = element.childrens {
-                for children in childrens.values {
-                    if let found = getValueElementByRowID(rowID, from: children.valueToValueElements ?? []) {
-                        return found
-                    }
-                }
-            }
-        }
-        return nil
     }
     
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {

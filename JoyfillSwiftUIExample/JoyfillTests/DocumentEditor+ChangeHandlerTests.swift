@@ -1158,7 +1158,7 @@ extension DocumentEditorChangeHandlerTests {
         }
     }
     
-    func testBulkEditNestedCollection() {
+    func testBulkEditNestedCollection() async {
         let collectionFieldID = "67ddc52d35de157f6d7ebb63"
         let parentRowId = "67ddc537b7c2fce05d0c8615"
         let nestedKey = "67ddc5c9910a394a1324bfbe"
@@ -1185,7 +1185,7 @@ extension DocumentEditorChangeHandlerTests {
         // Bulk edit: update a specific cell for all nested rows.
         let changes: [String: ValueUnion] = ["67ddc5adbb96a9b9f9ff1480": .string("Updated Nested")]
         let nestedRowIds = initialNestedRows.map { $0.id! }
-        _ = documentEditor.bulkEditForNested(changes: changes,
+        _ = await documentEditor.bulkEditForNested(changes: changes,
                                              selectedRows: nestedRowIds,
                                              fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
                                              parentRowId: "",
