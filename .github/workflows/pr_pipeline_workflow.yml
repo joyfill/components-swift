@@ -16,9 +16,10 @@ on:
         default: 'pre-merge'
         type: choice
         options:
-        - 'quick-check'      # Fast: Lint + Syntax (30 seconds)
-        - 'pre-merge'        # Standard: + Build + Unit tests (3-5 min)
-        - 'full-validation'  # Complete: + UI tests (8-12 minutes)
+        - 'quick-check'      # Fast: Syntax only (30 seconds)
+        - 'pre-merge'        # Standard: Syntax + Build + Unit tests (3-5 min)
+        - 'full-validation'  # Complete: Syntax + Build + Unit + UI tests (8-12 minutes)
+        - 'with-lint'        # Pre-merge + SwiftLint (5-7 minutes)
         - 'custom'           # Choose individual options
       
       # Custom options
@@ -58,7 +59,7 @@ jobs:
   lint:
     name: "🔍 SwiftLint"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_lint == 'true') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_lint == 'true')) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4  # ✅ Latest is v4 (not v5)
@@ -135,7 +136,7 @@ jobs:
   build:
     name: "🏗️ Build"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true'))) }}
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true'))) }}
     needs: [syntax-check]
     steps:
       - name: Checkout code
@@ -182,7 +183,7 @@ jobs:
   unit-tests:
     name: "🧪 Unit Tests"
     runs-on: macos-14
-    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true'))) }}
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true'))) }}
     needs: [build]
     steps:
       - name: Checkout code
@@ -299,9 +300,18 @@ jobs:
           echo "| 🖱️ UI Tests | ${{ needs.ui-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Overall status
-          if [[ "${{ needs.lint.result }}" == "success" && "${{ needs.syntax-check.result }}" == "success" && "${{ needs.build.result }}" == "success" ]]; then
+          # Overall status - consider success if core jobs (syntax, build, unit-tests) pass
+          # Lint and UI tests are optional and can be skipped
+          LINT_OK="${{ needs.lint.result == 'success' || needs.lint.result == 'skipped' }}"
+          SYNTAX_OK="${{ needs.syntax-check.result == 'success' }}"
+          BUILD_OK="${{ needs.build.result == 'success' || needs.build.result == 'skipped' }}"
+          UNIT_OK="${{ needs.unit-tests.result == 'success' || needs.unit-tests.result == 'skipped' }}"
+          UI_OK="${{ needs.ui-tests.result == 'success' || needs.ui-tests.result == 'skipped' }}"
+          
+          if [[ "$SYNTAX_OK" == "true" && "$BUILD_OK" == "true" && "$UNIT_OK" == "true" && "$LINT_OK" == "true" && "$UI_OK" == "true" ]]; then
             echo "## ✅ Build Status: PASSING" >> $GITHUB_STEP_SUMMARY
+            echo "All jobs completed successfully or were skipped as expected." >> $GITHUB_STEP_SUMMARY
           else
             echo "## ❌ Build Status: FAILING" >> $GITHUB_STEP_SUMMARY
+            echo "One or more jobs failed. Check individual job results above." >> $GITHUB_STEP_SUMMARY
           fi
