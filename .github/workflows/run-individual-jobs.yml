@@ -1,0 +1,362 @@
+name: 🎯 Run Individual Jobs
+
+# This workflow allows you to run specific jobs individually
+# Perfect for running skipped jobs from the main pipeline
+on:
+  workflow_dispatch:
+    inputs:
+      job_type:
+        description: 'Select Job to Run'
+        required: true
+        type: choice
+        options:
+        - 'swiftlint-only'      # Run only SwiftLint
+        - 'ui-tests-only'       # Run only UI Tests
+        - 'build-and-unit'      # Build + Unit Tests only
+        - 'full-test-suite'     # Everything except lint
+        - 'lint-and-syntax'     # SwiftLint + Syntax check
+        - 'custom-selection'    # Manual selection below
+      
+      # Individual job toggles for custom selection
+      run_swiftlint:
+        description: '🔍 Run SwiftLint'
+        required: false
+        default: false
+        type: boolean
+      
+      run_syntax:
+        description: '⚡ Run Syntax Check'
+        required: false
+        default: false
+        type: boolean
+        
+      run_build:
+        description: '🏗️ Run Build'
+        required: false
+        default: false
+        type: boolean
+        
+      run_unit_tests:
+        description: '🧪 Run Unit Tests'
+        required: false
+        default: false
+        type: boolean
+        
+      run_ui_tests:
+        description: '🖱️ Run UI Tests'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  # 🔍 SwiftLint Job
+  swiftlint:
+    name: "🔍 SwiftLint"
+    runs-on: macos-14
+    if: ${{ 
+      github.event.inputs.job_type == 'swiftlint-only' || 
+      github.event.inputs.job_type == 'full-test-suite' ||
+      github.event.inputs.job_type == 'lint-and-syntax' ||
+      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_swiftlint == 'true')
+    }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Cache SwiftLint
+        uses: actions/cache@v4
+        with:
+          path: /opt/homebrew/bin/swiftlint
+          key: ${{ runner.os }}-swiftlint-${{ runner.arch }}
+          restore-keys: |
+            ${{ runner.os }}-swiftlint-
+
+      - name: Run SwiftLint
+        run: |
+          cd JoyfillSwiftUIExample
+          
+          # Install SwiftLint if not cached
+          if ! which swiftlint >/dev/null; then
+            echo "Installing SwiftLint..."
+            brew install swiftlint
+          fi
+          
+          # Run SwiftLint with proper error handling
+          echo "Running SwiftLint..."
+          swiftlint lint --reporter github-actions-logging --strict || LINT_EXIT_CODE=$?
+          swiftlint lint --reporter html > swiftlint-report.html
+          
+          # Exit with proper code
+          exit ${LINT_EXIT_CODE:-0}
+
+      - name: Upload SwiftLint Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swiftlint-report-individual-${{ github.run_number }}
+          path: JoyfillSwiftUIExample/swiftlint-report.html
+          retention-days: 30
+
+  # ⚡ Syntax Check Job
+  syntax-check:
+    name: "⚡ Syntax Check"
+    runs-on: macos-14
+    if: ${{ 
+      github.event.inputs.job_type == 'lint-and-syntax' ||
+      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_syntax == 'true')
+    }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Swift Syntax Validation
+        run: |
+          cd JoyfillSwiftUIExample
+          echo "🔍 Validating Swift syntax..."
+          
+          # More robust syntax check with better error reporting
+          SYNTAX_ERRORS=0
+          while IFS= read -r -d '' file; do
+            echo "Checking: $file"
+            if ! xcrun swift -frontend -parse "$file" -sdk $(xcrun --show-sdk-path --sdk iphonesimulator) 2>/dev/null; then
+              echo "❌ Syntax error in: $file"
+              ((SYNTAX_ERRORS++))
+            fi
+          done < <(find . -name "*.swift" -not -path "./Pods/*" -not -path "./build/*" -not -path "./DerivedData/*" -print0)
+          
+          if [ $SYNTAX_ERRORS -gt 0 ]; then
+            echo "❌ Found $SYNTAX_ERRORS files with syntax errors"
+            exit 1
+          else
+            echo "✅ All Swift files have valid syntax!"
+          fi
+
+  # 🏗️ Build Job
+  build:
+    name: "🏗️ Build"
+    runs-on: macos-14
+    if: ${{ 
+      github.event.inputs.job_type == 'build-and-unit' ||
+      github.event.inputs.job_type == 'full-test-suite' ||
+      github.event.inputs.job_type == 'ui-tests-only' ||
+      (github.event.inputs.job_type == 'custom-selection' && (github.event.inputs.run_build == 'true' || github.event.inputs.run_unit_tests == 'true' || github.event.inputs.run_ui_tests == 'true'))
+    }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Install xcpretty
+        run: |
+          if ! gem list xcpretty -i; then
+            gem install xcpretty
+          fi
+
+      - name: Build for Simulator
+        run: |
+          set -o pipefail
+          cd JoyfillSwiftUIExample
+          
+          xcodebuild clean build \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillExample \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output build-report.html
+          
+          echo "✅ Build completed successfully!"
+
+      - name: Upload Build Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-report-individual-${{ github.run_number }}
+          path: JoyfillSwiftUIExample/build-report.html
+          retention-days: 30
+
+  # 🧪 Unit Tests Job
+  unit-tests:
+    name: "🧪 Unit Tests"
+    runs-on: macos-14
+    if: ${{ 
+      github.event.inputs.job_type == 'build-and-unit' ||
+      github.event.inputs.job_type == 'full-test-suite' ||
+      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_unit_tests == 'true')
+    }}
+    needs: [build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Install xcpretty
+        run: |
+          if ! gem list xcpretty -i; then
+            gem install xcpretty
+          fi
+
+      - name: Run Unit Tests
+        run: |
+          set -o pipefail
+          cd JoyfillSwiftUIExample
+          xcodebuild test \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillTests \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output unit-test-report.html
+
+      - name: Upload Unit Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results-individual-${{ github.run_number }}
+          path: JoyfillSwiftUIExample/unit-test-report.html
+          retention-days: 30
+
+  # 🖱️ UI Tests Job
+  ui-tests:
+    name: "🖱️ UI Tests"
+    runs-on: macos-14
+    if: ${{ 
+      github.event.inputs.job_type == 'ui-tests-only' ||
+      github.event.inputs.job_type == 'full-test-suite' ||
+      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_ui_tests == 'true')
+    }}
+    needs: [build]
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Install xcpretty
+        run: |
+          if ! gem list xcpretty -i; then
+            gem install xcpretty
+          fi
+
+      - name: Boot iOS Simulator
+        run: |
+          # Start iOS Simulator
+          xcrun simctl boot "iPhone 16 Pro" || true
+          sleep 10
+          # Verify simulator is running
+          xcrun simctl list devices | grep "iPhone 16 Pro"
+
+      - name: Run UI Tests
+        run: |
+          set -o pipefail
+          cd JoyfillSwiftUIExample
+          xcodebuild test \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillUITests \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output ui-test-report.html
+
+      - name: Upload UI Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-test-results-individual-${{ github.run_number }}
+          path: JoyfillSwiftUIExample/ui-test-report.html
+          retention-days: 30
+
+      - name: Upload UI Test Screenshots (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-screenshots-individual-${{ github.run_number }}
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/Attachments/
+            JoyfillSwiftUIExample/Screenshots/
+
+  # 📊 Results Summary
+  results-summary:
+    name: "📊 Individual Jobs Results"
+    runs-on: macos-14
+    needs: [swiftlint, syntax-check, build, unit-tests, ui-tests]
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "# 🎯 Individual Jobs Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Selected Job Type:** \`${{ github.event.inputs.job_type }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status | Notes |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Show only jobs that were supposed to run
+          if [[ "${{ needs.swiftlint.result }}" != "" ]]; then
+            echo "| 🔍 SwiftLint | ${{ needs.swiftlint.result }} | Code quality check |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.syntax-check.result }}" != "" ]]; then
+            echo "| ⚡ Syntax Check | ${{ needs.syntax-check.result }} | Swift syntax validation |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.build.result }}" != "" ]]; then
+            echo "| 🏗️ Build | ${{ needs.build.result }} | Simulator build |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.unit-tests.result }}" != "" ]]; then
+            echo "| 🧪 Unit Tests | ${{ needs.unit-tests.result }} | Automated unit tests |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.ui-tests.result }}" != "" ]]; then
+            echo "| 🖱️ UI Tests | ${{ needs.ui-tests.result }} | UI automation tests |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Calculate overall status for jobs that ran
+          ALL_SUCCESSFUL=true
+          
+          if [[ "${{ needs.swiftlint.result }}" == "failure" ]] || 
+             [[ "${{ needs.syntax-check.result }}" == "failure" ]] || 
+             [[ "${{ needs.build.result }}" == "failure" ]] || 
+             [[ "${{ needs.unit-tests.result }}" == "failure" ]] || 
+             [[ "${{ needs.ui-tests.result }}" == "failure" ]]; then
+            ALL_SUCCESSFUL=false
+          fi
+          
+          if [[ "$ALL_SUCCESSFUL" == "true" ]]; then
+            echo "## ✅ Individual Jobs Status: PASSING" >> $GITHUB_STEP_SUMMARY
+            echo "All selected jobs completed successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Individual Jobs Status: FAILING" >> $GITHUB_STEP_SUMMARY
+            echo "One or more selected jobs failed. Check individual job results above." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Tip:** Use this workflow to run specific jobs that were skipped in the main pipeline!" >> $GITHUB_STEP_SUMMARY

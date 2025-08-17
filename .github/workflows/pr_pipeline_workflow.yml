@@ -315,3 +315,27 @@ jobs:
             echo "## ❌ Build Status: FAILING" >> $GITHUB_STEP_SUMMARY
             echo "One or more jobs failed. Check individual job results above." >> $GITHUB_STEP_SUMMARY
           fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Need to Run Skipped Jobs?" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "If any jobs were skipped and you want to run them individually:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to **Actions** tab" >> $GITHUB_STEP_SUMMARY
+          echo "2. Select **🎯 Run Individual Jobs** workflow" >> $GITHUB_STEP_SUMMARY
+          echo "3. Click **Run workflow** and choose:" >> $GITHUB_STEP_SUMMARY
+          echo "   - \`swiftlint-only\` - Run only SwiftLint" >> $GITHUB_STEP_SUMMARY
+          echo "   - \`ui-tests-only\` - Run only UI Tests" >> $GITHUB_STEP_SUMMARY
+          echo "   - \`custom-selection\` - Pick individual jobs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Quick Links for Skipped Jobs:**" >> $GITHUB_STEP_SUMMARY
+          
+          # Show specific suggestions based on what was skipped
+          if [[ "${{ needs.lint.result }}" == "skipped" ]]; then
+            echo "- **SwiftLint was skipped** → Use \`swiftlint-only\` option" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.ui-tests.result }}" == "skipped" ]]; then
+            echo "- **UI Tests were skipped** → Use \`ui-tests-only\` option" >> $GITHUB_STEP_SUMMARY
+          fi
