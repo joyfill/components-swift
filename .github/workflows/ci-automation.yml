@@ -67,3 +67,52 @@ jobs:
         with:
           name: unit-test-report
           path: JoyfillSwiftUIExample/unit-test-report.html
+
+  # 3️⃣ UI tests (after unit tests)
+  ui-tests:
+    needs: unit-tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
+
+      - name: Boot iOS Simulator
+        run: |
+          # Start iOS Simulator
+          xcrun simctl boot "iPhone 16 Pro" || true
+          sleep 10
+          # Verify simulator is running
+          xcrun simctl list devices | grep "iPhone 16 Pro"
+
+      - name: Run UI Tests
+        run: |
+          set -o pipefail
+          cd JoyfillSwiftUIExample
+          xcodebuild test \
+            -project JoyfillExample.xcodeproj \
+            -scheme JoyfillUITests \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            EXCLUDED_ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+          | xcpretty --color --report html --output ui-test-report.html
+
+      - name: Upload UI Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-report
+          path: JoyfillSwiftUIExample/ui-test-report.html
+
+      - name: Upload UI Test Screenshots (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-screenshots
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/Attachments/
+            JoyfillSwiftUIExample/Screenshots/
