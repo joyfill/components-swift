@@ -270,6 +270,10 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
+            SWIFT_COMPILATION_MODE=wholemodule \
+            DEBUG_INFORMATION_FORMAT=dwarf \
+            ENABLE_TESTABILITY=YES \
+            -parallel-testing-enabled NO \
           | xcpretty --color --report html --output ui-test-report.html
 
       - name: Upload UI Test Results
