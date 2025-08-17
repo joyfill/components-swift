@@ -50,48 +50,15 @@ on:
 
 # Default pipeline level for PR triggers
 env:
-  # Use pre-merge as default for all PR events
+  # Use pre-merge as default for all PR events  
   PIPELINE_TYPE: ${{ github.event.inputs.pipeline_type || 'pre-merge' }}
-  
-  # Set job flags based on pipeline type
-  RUN_LINT: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_lint) ||
-    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
-    'true'
-  }}
-  
-  RUN_SYNTAX_CHECK: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_syntax_check) ||
-    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
-    'true'
-  }}
-  
-  RUN_BUILD: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build) ||
-    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
-    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
-    'false'
-  }}
-  
-  RUN_UNIT_TESTS: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests) ||
-    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
-    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
-    'false'
-  }}
-  
-  RUN_UI_TESTS: ${{
-    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests) ||
-    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
-    'false'
-  }}
 
 jobs:
   # 🔍 Job 1: SwiftLint (Code Quality)
   lint:
     name: "🔍 SwiftLint"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ env.RUN_LINT == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_lint == 'true') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4  # ✅ Latest is v4 (not v5)
@@ -134,15 +101,13 @@ jobs:
   syntax-check:
     name: "⚡ Syntax Check"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ env.RUN_SYNTAX_CHECK == 'true' }}
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_syntax_check == 'true')) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 'latest-stable'  # Always use latest stable
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app  # Always use latest stable
 
       - name: Swift Syntax Validation
         run: |
@@ -170,24 +135,15 @@ jobs:
   build:
     name: "🏗️ Build"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ env.RUN_BUILD == 'true' }}
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true'))) }}
     needs: [syntax-check]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 'latest-stable'
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
 
-      - name: Cache Xcode derived data
-        uses: actions/cache@v4  # Updated to v4
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode-${{ hashFiles('JoyfillSwiftUIExample/**/*.swift', 'JoyfillSwiftUIExample/**/*.m', 'JoyfillSwiftUIExample/**/*.h') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-xcode-
 
       - name: Install xcpretty
         run: |
@@ -200,20 +156,16 @@ jobs:
           set -o pipefail
           cd JoyfillSwiftUIExample
           
-          # Clean build with better error handling
           xcodebuild clean build \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
-            -configuration Debug \
-            -derivedDataPath ./DerivedData \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            -quiet \
           | xcpretty --color --report html --output build-report.html
           
           echo "✅ Build completed successfully!"
@@ -230,24 +182,15 @@ jobs:
   unit-tests:
     name: "🧪 Unit Tests"
     runs-on: macos-14
-    if: ${{ env.RUN_UNIT_TESTS == 'true' }}
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true'))) }}
     needs: [build]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 'latest-stable'
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
 
-      - name: Cache Xcode derived data
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode-${{ hashFiles('JoyfillSwiftUIExample/**/*.swift') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-xcode-
 
       - name: Install xcpretty
         run: |
@@ -259,24 +202,17 @@ jobs:
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
-          
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillTests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
-            -configuration Debug \
-            -derivedDataPath ./DerivedData \
-            -enableCodeCoverage YES \
-            -resultBundlePath ./TestResults.xcresult \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output unit-test-report.html
-          
-          echo "✅ Unit tests completed!"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -292,25 +228,16 @@ jobs:
   ui-tests:
     name: "🖱️ UI Tests"
     runs-on: macos-14
-    if: ${{ env.RUN_UI_TESTS == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true')) }}
     needs: [build]
     timeout-minutes: 30  # ← HERE IS THE 30-MINUTE TIMEOUT! 🎯
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 'latest-stable'
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app
 
-      - name: Cache Xcode derived data
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode-${{ hashFiles('JoyfillSwiftUIExample/**/*.swift') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-xcode-
 
       - name: Install xcpretty
         run: |
@@ -318,31 +245,29 @@ jobs:
             gem install xcpretty
           fi
 
+      - name: Boot iOS Simulator
+        run: |
+          # Start iOS Simulator
+          xcrun simctl boot "iPhone 16 Pro" || true
+          sleep 10
+          # Verify simulator is running
+          xcrun simctl list devices | grep "iPhone 16 Pro"
+
       - name: Run UI Tests
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
-          
-          # Boot simulator first
-          xcrun simctl boot "iPhone 16 Pro" || true
-          xcrun simctl list devices
-          
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
-            -configuration Debug \
-            -derivedDataPath ./DerivedData \
-            -resultBundlePath ./UITestResults.xcresult \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output ui-test-report.html
-          
-          echo "✅ UI tests completed!"
 
       - name: Upload UI Test Results
         uses: actions/upload-artifact@v4
