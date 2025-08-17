@@ -184,7 +184,6 @@ jobs:
     name: "🧪 Unit Tests"
     runs-on: macos-14
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true'))) }}
-    continue-on-error: true
     timeout-minutes: 30
     needs: [build]
     steps:
@@ -233,7 +232,7 @@ jobs:
     runs-on: macos-14
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true'))) }}
     continue-on-error: true
-    timeout-minutes: 60
+    timeout-minutes: 120
     needs: [build]
     steps:
       - name: Checkout code
@@ -303,36 +302,40 @@ jobs:
           echo "| 🖱️ UI Tests | ${{ needs.ui-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Overall status - consider success if core jobs (syntax, build) pass
-          # Unit tests and UI tests can fail but still allow merging (continue-on-error: true)
+          # Overall status - consider success if core jobs (syntax, build, unit tests) pass
+          # UI tests can fail but still allow merging (continue-on-error: true)
           # Lint is optional and can be skipped
           LINT_OK="${{ needs.lint.result == 'success' || needs.lint.result == 'skipped' }}"
           SYNTAX_OK="${{ needs.syntax-check.result == 'success' }}"
           BUILD_OK="${{ needs.build.result == 'success' || needs.build.result == 'skipped' }}"
+          UNIT_OK="${{ needs.unit-tests.result == 'success' }}"
           
-          # Test results for display (can be failure but still OK for merging)
-          UNIT_STATUS="${{ needs.unit-tests.result }}"
+          # UI test result for display (can be failure but still OK for merging)
           UI_STATUS="${{ needs.ui-tests.result }}"
           
-          if [[ "$SYNTAX_OK" == "true" && "$BUILD_OK" == "true" && "$LINT_OK" == "true" ]]; then
+          if [[ "$SYNTAX_OK" == "true" && "$BUILD_OK" == "true" && "$UNIT_OK" == "true" && "$LINT_OK" == "true" ]]; then
             echo "## ✅ Build Status: PASSING" >> $GITHUB_STEP_SUMMARY
-            echo "✅ **Core jobs passed** - Ready to merge!" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All required jobs passed** - Ready to merge!" >> $GITHUB_STEP_SUMMARY
             
-            # Show test status
-            if [[ "$UNIT_STATUS" == "failure" || "$UI_STATUS" == "failure" ]]; then
+            # Show UI test status if it failed
+            if [[ "$UI_STATUS" == "failure" ]]; then
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "**Test Results (non-blocking):**" >> $GITHUB_STEP_SUMMARY
-              if [[ "$UNIT_STATUS" == "failure" ]]; then
-                echo "⚠️ Unit tests failed but merging is still allowed" >> $GITHUB_STEP_SUMMARY
-              fi
-              if [[ "$UI_STATUS" == "failure" ]]; then
-                echo "⚠️ UI tests failed but merging is still allowed" >> $GITHUB_STEP_SUMMARY
-              fi
+              echo "**UI Test Results (non-blocking):**" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ UI tests failed but merging is still allowed" >> $GITHUB_STEP_SUMMARY
             else
               echo "All jobs completed successfully!" >> $GITHUB_STEP_SUMMARY
             fi
           else
             echo "## ❌ Build Status: FAILING" >> $GITHUB_STEP_SUMMARY
-            echo "Core jobs (syntax check, build) failed. Fix these before merging." >> $GITHUB_STEP_SUMMARY
+            echo "Required jobs failed. Fix these before merging:" >> $GITHUB_STEP_SUMMARY
+            if [[ "$SYNTAX_OK" != "true" ]]; then
+              echo "❌ Syntax check failed" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [[ "$BUILD_OK" != "true" ]]; then
+              echo "❌ Build failed" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [[ "$UNIT_OK" != "true" ]]; then
+              echo "❌ Unit tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
           
