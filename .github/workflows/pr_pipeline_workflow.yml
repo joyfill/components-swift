@@ -52,70 +52,89 @@ on:
 env:
   # Use pre-merge as default for all PR events
   PIPELINE_TYPE: ${{ github.event.inputs.pipeline_type || 'pre-merge' }}
+  
+  # Set job flags based on pipeline type
+  RUN_LINT: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_lint) ||
+    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
+    'true'
+  }}
+  
+  RUN_SYNTAX_CHECK: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_syntax_check) ||
+    (github.event.inputs.pipeline_type != 'custom' && 'true') ||
+    'true'
+  }}
+  
+  RUN_BUILD: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build) ||
+    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
+    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
+    'false'
+  }}
+  
+  RUN_UNIT_TESTS: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests) ||
+    (github.event.inputs.pipeline_type == 'pre-merge' && 'true') ||
+    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
+    'false'
+  }}
+  
+  RUN_UI_TESTS: ${{
+    (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests) ||
+    (github.event.inputs.pipeline_type == 'full-validation' && 'true') ||
+    'false'
+  }}
 
 jobs:
-  # 🔍 Job 1: SwiftLint (Code Quality) - DISABLED FOR NOW
-  # lint:
-  #   name: "🔍 SwiftLint"
-  #   runs-on: macos-14  # Latest macOS runner
-  #   if: ${{ github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_lint == 'true' }}
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4  # ✅ Latest is v4 (not v5)
-  #
-  #     - name: Cache SwiftLint
-  #       uses: actions/cache@v4  # ✅ Latest is v4 (not v5)
-  #       with:
-  #         path: /opt/homebrew/bin/swiftlint
-  #         key: ${{ runner.os }}-swiftlint-${{ runner.arch }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-swiftlint-
-  #
-  #     - name: Run SwiftLint
-  #       run: |
-  #         cd JoyfillSwiftUIExample
-  #
-  #         # Install SwiftLint if not cached
-  #         if ! which swiftlint >/dev/null; then
-  #           echo "Installing SwiftLint..."
-  #           brew install swiftlint
-  #         fi
-  #
-  #         # Run SwiftLint but don't fail the job on warnings/errors
-  #         echo "Running SwiftLint..."
-  #         set +e  # Don't exit on error
-  #         swiftlint lint --reporter github-actions-logging
-  #         LINT_EXIT_CODE=$?
-  #         swiftlint lint --reporter html > swiftlint-report.html
-  #         set -e  # Re-enable exit on error
-  #
-  #         # Report results but don't fail
-  #         if [ $LINT_EXIT_CODE -eq 0 ]; then
-  #           echo "✅ SwiftLint: No issues found!"
-  #         elif [ $LINT_EXIT_CODE -eq 2 ]; then
-  #           echo "⚠️ SwiftLint: Found warnings/errors (see report)"
-  #           echo "::warning::SwiftLint found code quality issues. Check the uploaded report for details."
-  #         else
-  #           echo "❌ SwiftLint: Unexpected error (exit code: $LINT_EXIT_CODE)"
-  #         fi
-  #
-  #         # Always exit successfully so other jobs continue
-  #         exit 0
-  #
-  #     - name: Upload SwiftLint Report
-  #       uses: actions/upload-artifact@v4  # Updated to v4
-  #       if: always()
-  #       with:
-  #         name: swiftlint-report
-  #         path: JoyfillSwiftUIExample/swiftlint-report.html
-  #         retention-days: 30  # Auto-cleanup after 30 days
+  # 🔍 Job 1: SwiftLint (Code Quality)
+  lint:
+    name: "🔍 SwiftLint"
+    runs-on: macos-14  # Latest macOS runner
+    if: ${{ env.RUN_LINT == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # ✅ Latest is v4 (not v5)
 
-  # ⚡ Job 1: Swift Syntax Check (Super Fast) - Now Job #1
+      - name: Cache SwiftLint
+        uses: actions/cache@v4  # ✅ Latest is v4 (not v5)
+        with:
+          path: /opt/homebrew/bin/swiftlint
+          key: ${{ runner.os }}-swiftlint-${{ runner.arch }}
+          restore-keys: |
+            ${{ runner.os }}-swiftlint-
+
+      - name: Run SwiftLint
+        run: |
+          cd JoyfillSwiftUIExample
+          
+          # Install SwiftLint if not cached
+          if ! which swiftlint >/dev/null; then
+            echo "Installing SwiftLint..."
+            brew install swiftlint
+          fi
+          
+          # Run SwiftLint with proper error handling
+          echo "Running SwiftLint..."
+          swiftlint lint --reporter github-actions-logging --strict || LINT_EXIT_CODE=$?
+          swiftlint lint --reporter html > swiftlint-report.html
+          
+          # Exit with proper code
+          exit ${LINT_EXIT_CODE:-0}
+
+      - name: Upload SwiftLint Report
+        uses: actions/upload-artifact@v4  # Updated to v4
+        if: always()
+        with:
+          name: swiftlint-report
+          path: JoyfillSwiftUIExample/swiftlint-report.html
+          retention-days: 30  # Auto-cleanup after 30 days
+
+  # ⚡ Job 2: Swift Syntax Check (Super Fast)
   syntax-check:
     name: "⚡ Syntax Check"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_syntax_check == 'true' }}
-    # Remove dependency on lint job so it runs independently
+    if: ${{ env.RUN_SYNTAX_CHECK == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -147,11 +166,11 @@ jobs:
             echo "✅ All Swift files have valid syntax!"
           fi
 
-  # 🏗️ Job 2: Full Build - Now Job #2
+  # 🏗️ Job 3: Full Build
   build:
     name: "🏗️ Build"
     runs-on: macos-14  # Latest macOS runner
-    if: ${{ github.event_name == 'pull_request' || github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true') }}
+    if: ${{ env.RUN_BUILD == 'true' }}
     needs: [syntax-check]
     steps:
       - name: Checkout code
@@ -162,100 +181,13 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
-      - name: Cache Swift Package Manager
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
-            JoyfillSwiftUIExample/SourcePackages
-            JoyfillSwiftUIExample/.build
-          key: ${{ runner.os }}-${{ runner.arch }}-spm-${{ hashFiles('JoyfillSwiftUIExample/Package.resolved', 'JoyfillSwiftUIExample/**/Package.swift') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-spm-
-
-      - name: Resolve Swift Package Dependencies
-        run: |
-          cd JoyfillSwiftUIExample
-          
-          echo "🔍 Checking for Swift Package dependencies..."
-          
-          # Check if Package.swift exists (SPM project)
-          if [ -f "Package.swift" ]; then
-            echo "📦 Found Package.swift - resolving SPM dependencies..."
-            swift package resolve
-          fi
-          
-          # Check if project uses SPM (look for Package.resolved or .swiftpm)
-          if [ -f "Package.resolved" ] || [ -d ".swiftpm" ] || [ -d "SourcePackages" ]; then
-            echo "📦 Found SPM integration - resolving Xcode project dependencies..."
-            
-            # Resolve SPM dependencies for Xcode project
-            xcodebuild -resolvePackageDependencies \
-              -project JoyfillExample.xcodeproj \
-              -scheme JoyfillExample
-          else
-            echo "ℹ️ No Swift Package Manager dependencies found"
-          fi
-          
-          echo "✅ Package resolution completed"
-
       - name: Cache Xcode derived data
         uses: actions/cache@v4  # Updated to v4
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode-${{ hashFiles('JoyfillSwiftUIExample/**/*.swift', 'JoyfillSwiftUIExample/**/*.m', 'JoyfillSwiftUIExample/**/*.h', 'JoyfillSwiftUIExample/Package.resolved') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode-${{ hashFiles('JoyfillSwiftUIExample/**/*.swift', 'JoyfillSwiftUIExample/**/*.m', 'JoyfillSwiftUIExample/**/*.h') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-xcode-
-
-      - name: Fix Missing Preview Content Directory
-        run: |
-          cd JoyfillSwiftUIExample
-          
-          echo "🔧 Fixing missing Preview Content directory..."
-          
-          # Create missing Preview Content directory and assets if they don't exist
-          if [ ! -d "JoyfillExample/Preview Content" ]; then
-            echo "📁 Creating missing Preview Content directory..."
-            mkdir -p "JoyfillExample/Preview Content"
-          fi
-          
-          # Create Preview Assets.xcassets if missing
-          if [ ! -d "JoyfillExample/Preview Content/Preview Assets.xcassets" ]; then
-            echo "📱 Creating missing Preview Assets.xcassets..."
-            mkdir -p "JoyfillExample/Preview Content/Preview Assets.xcassets"
-            
-            # Create minimal Contents.json for the asset catalog
-            cat > "JoyfillExample/Preview Content/Preview Assets.xcassets/Contents.json" << 'EOF'
-{
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
-  }
-}
-EOF
-          fi
-          
-          # Check if AccentColor exists, if not create it
-          if [ ! -d "JoyfillExample/Assets.xcassets/AccentColor.colorset" ]; then
-            echo "🎨 Creating missing AccentColor..."
-            mkdir -p "JoyfillExample/Assets.xcassets/AccentColor.colorset"
-            
-            cat > "JoyfillExample/Assets.xcassets/AccentColor.colorset/Contents.json" << 'EOF'
-{
-  "colors" : [
-    {
-      "idiom" : "universal"
-    }
-  ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
-  }
-}
-EOF
-          fi
-          
-          echo "✅ Preview Content structure fixed"
 
       - name: Install xcpretty
         run: |
@@ -268,43 +200,7 @@ EOF
           set -o pipefail
           cd JoyfillSwiftUIExample
           
-          echo "🔍 Checking Xcode and project setup..."
-          
-          # Check if project file exists
-          if [ ! -f "JoyfillExample.xcodeproj/project.pbxproj" ]; then
-            echo "❌ Project file not found: JoyfillExample.xcodeproj"
-            echo "Available files:"
-            ls -la
-            exit 1
-          fi
-          
-          # Check for common problematic files/settings
-          echo "🔍 Checking project configuration..."
-          
-          # Check Info.plist
-          if [ -f "JoyfillExample/Info.plist" ]; then
-            echo "✅ Found Info.plist"
-          else
-            echo "⚠️ Info.plist not found in expected location"
-            find . -name "Info.plist" -type f | head -5
-          fi
-          
-          # Check for asset catalog issues
-          find . -name "*.xcassets" | while read assets; do
-            echo "📱 Found asset catalog: $assets"
-          done
-          
-          # Check available schemes
-          echo "Available schemes:"
-          xcodebuild -list -project JoyfillExample.xcodeproj || echo "Could not list schemes"
-          
-          # Check available simulators
-          echo "Available simulators:"
-          xcrun simctl list devices iPhone --json | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.name | contains("iPhone")) | "\(.name) (\(.udid))"' 2>/dev/null || xcrun simctl list devices | grep iPhone | head -5
-          
-          echo "🏗️ Starting build..."
-          
-          # Build with SPM support and settings to avoid Preview and Asset issues
+          # Clean build with better error handling
           xcodebuild clean build \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
@@ -312,51 +208,15 @@ EOF
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
             -configuration Debug \
             -derivedDataPath ./DerivedData \
-            -clonedSourcePackagesDirPath ./SourcePackages \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            DEVELOPMENT_TEAM="" \
-            PROVISIONING_PROFILE="" \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            ENABLE_PREVIEWS=NO \
-            SWIFT_COMPILATION_MODE=wholemodule \
-            DEBUG_INFORMATION_FORMAT=dwarf \
-            ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
-            -allowProvisioningUpdates \
-          | tee build-output.log
-          
-          # Check if build was successful
-          BUILD_RESULT=${PIPESTATUS[0]}
-          if [ $BUILD_RESULT -ne 0 ]; then
-            echo "❌ Build failed with exit code: $BUILD_RESULT"
-            echo ""
-            echo "=== LAST 50 LINES OF BUILD OUTPUT ==="
-            tail -50 build-output.log
-            echo ""
-            echo "=== SEARCHING FOR SPECIFIC ERRORS ==="
-            echo "Asset validation errors:"
-            grep -i "ValidateDevelopmentAssets\|asset\|Info.plist" build-output.log | tail -10 || echo "No asset-related errors found"
-            echo ""
-            echo "Code signing errors:"
-            grep -i "code sign\|provisioning\|certificate" build-output.log | tail -5 || echo "No code signing errors found"
-            echo ""
-            echo "Swift/compilation errors:"
-            grep -i "error:\|failed\|cannot find" build-output.log | tail -10 || echo "No compilation errors found"
-            echo ""
-            exit $BUILD_RESULT
-          fi
+            -quiet \
+          | xcpretty --color --report html --output build-report.html
           
           echo "✅ Build completed successfully!"
-
-      - name: Upload Build Output Log
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: build-output-log-${{ github.run_number }}
-          path: JoyfillSwiftUIExample/build-output.log
-          retention-days: 7
 
       - name: Upload Build Report
         uses: actions/upload-artifact@v4
@@ -366,11 +226,11 @@ EOF
           path: JoyfillSwiftUIExample/build-report.html
           retention-days: 30
 
-  # 🧪 Job 3: Unit Tests - Now Job #3
+  # 🧪 Job 4: Unit Tests
   unit-tests:
     name: "🧪 Unit Tests"
     runs-on: macos-14
-    if: ${{ github.event_name == 'pull_request' || github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true') }}
+    if: ${{ env.RUN_UNIT_TESTS == 'true' }}
     needs: [build]
     steps:
       - name: Checkout code
@@ -428,11 +288,11 @@ EOF
             JoyfillSwiftUIExample/TestResults.xcresult
           retention-days: 30
 
-  # 🖱️ Job 4: UI Tests - Now Job #4
+  # 🖱️ Job 5: UI Tests
   ui-tests:
     name: "🖱️ UI Tests"
     runs-on: macos-14
-    if: ${{ github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true') }}
+    if: ${{ env.RUN_UI_TESTS == 'true' }}
     needs: [build]
     timeout-minutes: 30  # ← HERE IS THE 30-MINUTE TIMEOUT! 🎯
     steps:
@@ -494,11 +354,11 @@ EOF
             JoyfillSwiftUIExample/UITestResults.xcresult
           retention-days: 30
 
-  # 📊 Job 5: Results Summary - Now Job #5
+  # 📊 Job 6: Results Summary
   results-summary:
     name: "📊 Results Summary"
     runs-on: macos-14
-    needs: [syntax-check, build, unit-tests, ui-tests]
+    needs: [lint, syntax-check, build, unit-tests, ui-tests]
     if: always()
     steps:
       - name: Generate Summary
@@ -507,6 +367,7 @@ EOF
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 SwiftLint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ⚡ Syntax Check | ${{ needs.syntax-check.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🏗️ Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 🧪 Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
@@ -514,7 +375,7 @@ EOF
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Overall status
-          if [[ "${{ needs.syntax-check.result }}" == "success" && "${{ needs.build.result }}" == "success" ]]; then
+          if [[ "${{ needs.lint.result }}" == "success" && "${{ needs.syntax-check.result }}" == "success" && "${{ needs.build.result }}" == "success" ]]; then
             echo "## ✅ Build Status: PASSING" >> $GITHUB_STEP_SUMMARY
           else
             echo "## ❌ Build Status: FAILING" >> $GITHUB_STEP_SUMMARY
