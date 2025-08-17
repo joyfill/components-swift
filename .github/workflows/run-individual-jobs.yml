@@ -53,12 +53,7 @@ jobs:
   swiftlint:
     name: "🔍 SwiftLint"
     runs-on: macos-14
-    if: ${{ 
-      github.event.inputs.job_type == 'swiftlint-only' || 
-      github.event.inputs.job_type == 'full-test-suite' ||
-      github.event.inputs.job_type == 'lint-and-syntax' ||
-      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_swiftlint == 'true')
-    }}
+    if: ${{ github.event.inputs.job_type == 'swiftlint-only' || github.event.inputs.job_type == 'full-test-suite' || github.event.inputs.job_type == 'lint-and-syntax' || (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_swiftlint == 'true') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -104,10 +99,7 @@ jobs:
   syntax-check:
     name: "⚡ Syntax Check"
     runs-on: macos-14
-    if: ${{ 
-      github.event.inputs.job_type == 'lint-and-syntax' ||
-      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_syntax == 'true')
-    }}
+    if: ${{ github.event.inputs.job_type == 'lint-and-syntax' || (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_syntax == 'true') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -141,12 +133,7 @@ jobs:
   build:
     name: "🏗️ Build"
     runs-on: macos-14
-    if: ${{ 
-      github.event.inputs.job_type == 'build-and-unit' ||
-      github.event.inputs.job_type == 'full-test-suite' ||
-      github.event.inputs.job_type == 'ui-tests-only' ||
-      (github.event.inputs.job_type == 'custom-selection' && (github.event.inputs.run_build == 'true' || github.event.inputs.run_unit_tests == 'true' || github.event.inputs.run_ui_tests == 'true'))
-    }}
+    if: ${{ github.event.inputs.job_type == 'build-and-unit' || github.event.inputs.job_type == 'full-test-suite' || github.event.inputs.job_type == 'ui-tests-only' || (github.event.inputs.job_type == 'custom-selection' && (github.event.inputs.run_build == 'true' || github.event.inputs.run_unit_tests == 'true' || github.event.inputs.run_ui_tests == 'true')) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -191,11 +178,7 @@ jobs:
   unit-tests:
     name: "🧪 Unit Tests"
     runs-on: macos-14
-    if: ${{ 
-      github.event.inputs.job_type == 'build-and-unit' ||
-      github.event.inputs.job_type == 'full-test-suite' ||
-      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_unit_tests == 'true')
-    }}
+    if: ${{ github.event.inputs.job_type == 'build-and-unit' || github.event.inputs.job_type == 'full-test-suite' || (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_unit_tests == 'true') }}
     needs: [build]
     steps:
       - name: Checkout code
@@ -238,11 +221,7 @@ jobs:
   ui-tests:
     name: "🖱️ UI Tests"
     runs-on: macos-14
-    if: ${{ 
-      github.event.inputs.job_type == 'ui-tests-only' ||
-      github.event.inputs.job_type == 'full-test-suite' ||
-      (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_ui_tests == 'true')
-    }}
+    if: ${{ github.event.inputs.job_type == 'ui-tests-only' || github.event.inputs.job_type == 'full-test-suite' || (github.event.inputs.job_type == 'custom-selection' && github.event.inputs.run_ui_tests == 'true') }}
     needs: [build]
     timeout-minutes: 30
     steps:
