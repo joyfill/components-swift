@@ -250,22 +250,43 @@ jobs:
 
       - name: Boot Multiple iPad Simulators
         run: |
-          # Create and boot multiple iPad M4 simulators for parallel testing
-          echo "Creating and booting iPad M4 13-inch simulators for parallel testing..."
+          # Check available runtimes and device types first
+          echo "Checking available iOS runtimes:"
+          xcrun simctl list runtimes | grep iOS
           
-          # Create 5 iPad M4 13-inch simulators if they don't exist
-          xcrun simctl create "iPad-M4-Test-1" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
-          xcrun simctl create "iPad-M4-Test-2" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
-          xcrun simctl create "iPad-M4-Test-3" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
-          xcrun simctl create "iPad-M4-Test-4" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
-          xcrun simctl create "iPad-M4-Test-5" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
+          echo "Checking available iPad device types:"
+          xcrun simctl list devicetypes | grep -i ipad
+          
+          # Create and boot multiple iPad simulators for parallel testing
+          echo "Creating and booting iPad simulators for parallel testing..."
+          
+          # Use the correct iOS runtime (usually latest available)
+          IOS_RUNTIME=$(xcrun simctl list runtimes | grep "iOS" | tail -1 | sed 's/.* iOS \([0-9]*\.[0-9]*\).*/\1/')
+          echo "Using iOS runtime: $IOS_RUNTIME"
+          
+          # Use iPad Air or iPad Pro (whichever is available)
+          IPAD_TYPE="iPad Air (5th generation)"
+          if xcrun simctl list devicetypes | grep -q "iPad Pro (12.9-inch) (6th generation)"; then
+            IPAD_TYPE="iPad Pro (12.9-inch) (6th generation)"
+          elif xcrun simctl list devicetypes | grep -q "iPad Pro (11-inch) (4th generation)"; then
+            IPAD_TYPE="iPad Pro (11-inch) (4th generation)"
+          fi
+          
+          echo "Using iPad type: $IPAD_TYPE"
+          
+          # Create 5 iPad simulators if they don't exist
+          xcrun simctl create "iPad-Test-1" "$IPAD_TYPE" "iOS $IOS_RUNTIME" || true
+          xcrun simctl create "iPad-Test-2" "$IPAD_TYPE" "iOS $IOS_RUNTIME" || true
+          xcrun simctl create "iPad-Test-3" "$IPAD_TYPE" "iOS $IOS_RUNTIME" || true
+          xcrun simctl create "iPad-Test-4" "$IPAD_TYPE" "iOS $IOS_RUNTIME" || true
+          xcrun simctl create "iPad-Test-5" "$IPAD_TYPE" "iOS $IOS_RUNTIME" || true
           
           # Boot all iPad simulators in parallel
-          xcrun simctl boot "iPad-M4-Test-1" || true &
-          xcrun simctl boot "iPad-M4-Test-2" || true &
-          xcrun simctl boot "iPad-M4-Test-3" || true &
-          xcrun simctl boot "iPad-M4-Test-4" || true &
-          xcrun simctl boot "iPad-M4-Test-5" || true &
+          xcrun simctl boot "iPad-Test-1" || true &
+          xcrun simctl boot "iPad-Test-2" || true &
+          xcrun simctl boot "iPad-Test-3" || true &
+          xcrun simctl boot "iPad-Test-4" || true &
+          xcrun simctl boot "iPad-Test-5" || true &
           
           # Wait for all simulators to boot
           wait
@@ -273,25 +294,26 @@ jobs:
           
           # Verify simulators are running
           echo "Available iPad simulators:"
-          xcrun simctl list devices | grep "iPad-M4-Test"
+          xcrun simctl list devices | grep "iPad-Test"
 
       - name: Run UI Tests (Parallel iPad Execution)
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
           
-          # Run UI tests in parallel across 5 iPad M4 simulators
-          echo "Running UI tests in parallel across 5 iPad M4 13-inch simulators..."
+          # Get the iOS runtime version dynamically
+          IOS_RUNTIME=$(xcrun simctl list runtimes | grep "iOS" | tail -1 | sed 's/.* iOS \([0-9]*\.[0-9]*\).*/\1/')
+          echo "Running UI tests in parallel across 5 iPad simulators with iOS $IOS_RUNTIME..."
           
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPad-M4-Test-1,OS=18.2' \
-            -destination 'platform=iOS Simulator,name=iPad-M4-Test-2,OS=18.2' \
-            -destination 'platform=iOS Simulator,name=iPad-M4-Test-3,OS=18.2' \
-            -destination 'platform=iOS Simulator,name=iPad-M4-Test-4,OS=18.2' \
-            -destination 'platform=iOS Simulator,name=iPad-M4-Test-5,OS=18.2' \
+            -destination "platform=iOS Simulator,name=iPad-Test-1,OS=$IOS_RUNTIME" \
+            -destination "platform=iOS Simulator,name=iPad-Test-2,OS=$IOS_RUNTIME" \
+            -destination "platform=iOS Simulator,name=iPad-Test-3,OS=$IOS_RUNTIME" \
+            -destination "platform=iOS Simulator,name=iPad-Test-4,OS=$IOS_RUNTIME" \
+            -destination "platform=iOS Simulator,name=iPad-Test-5,OS=$IOS_RUNTIME" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
