@@ -1643,8 +1643,8 @@ class CollectionViewModel: ObservableObject {
 
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
-                let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
                 var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 
@@ -1669,14 +1669,15 @@ class CollectionViewModel: ObservableObject {
                 default:
                     break
                 }
-                
-                tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
-                
+                rowDataModel.cells[colIndex].data = cellDataModel
+                rowDataModel.cells[colIndex].id = UUID()
+                                
                 tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
                 if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: rowId)
                 }
             }
+            tableDataModel.filteredcellModels[rowIndex] = rowDataModel
         }
         isBulkLoading = false
         sortRowsIfNeeded()
