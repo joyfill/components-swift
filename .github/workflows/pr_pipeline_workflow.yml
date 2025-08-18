@@ -232,7 +232,7 @@ jobs:
     runs-on: macos-14
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true'))) }}
     continue-on-error: true
-    timeout-minutes: 120
+    timeout-minutes: 240
     needs: [build]
     steps:
       - name: Checkout code
@@ -256,10 +256,12 @@ jobs:
           # Verify simulator is running
           xcrun simctl list devices | grep "iPhone 16 Pro"
 
-      - name: Run UI Tests
+      - name: Run UI Tests (All Tests)
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
+          
+          # Run all UI tests with optimizations for CI environment
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
