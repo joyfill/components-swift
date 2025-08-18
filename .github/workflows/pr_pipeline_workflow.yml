@@ -248,25 +248,50 @@ jobs:
             gem install xcpretty
           fi
 
-      - name: Boot iOS Simulator
+      - name: Boot Multiple iPad Simulators
         run: |
-          # Start iOS Simulator
-          xcrun simctl boot "iPhone 16 Pro" || true
-          sleep 10
-          # Verify simulator is running
-          xcrun simctl list devices | grep "iPhone 16 Pro"
+          # Create and boot multiple iPad M4 simulators for parallel testing
+          echo "Creating and booting iPad M4 13-inch simulators for parallel testing..."
+          
+          # Create 5 iPad M4 13-inch simulators if they don't exist
+          xcrun simctl create "iPad-M4-Test-1" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
+          xcrun simctl create "iPad-M4-Test-2" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
+          xcrun simctl create "iPad-M4-Test-3" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
+          xcrun simctl create "iPad-M4-Test-4" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
+          xcrun simctl create "iPad-M4-Test-5" "iPad Pro 13-inch (M4)" "iOS 18.2" || true
+          
+          # Boot all iPad simulators in parallel
+          xcrun simctl boot "iPad-M4-Test-1" || true &
+          xcrun simctl boot "iPad-M4-Test-2" || true &
+          xcrun simctl boot "iPad-M4-Test-3" || true &
+          xcrun simctl boot "iPad-M4-Test-4" || true &
+          xcrun simctl boot "iPad-M4-Test-5" || true &
+          
+          # Wait for all simulators to boot
+          wait
+          sleep 20
+          
+          # Verify simulators are running
+          echo "Available iPad simulators:"
+          xcrun simctl list devices | grep "iPad-M4-Test"
 
-      - name: Run UI Tests (All Tests)
+      - name: Run UI Tests (Parallel iPad Execution)
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
           
-          # Run all UI tests with optimizations for CI environment
+          # Run UI tests in parallel across 5 iPad M4 simulators
+          echo "Running UI tests in parallel across 5 iPad M4 13-inch simulators..."
+          
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPad-M4-Test-1,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPad-M4-Test-2,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPad-M4-Test-3,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPad-M4-Test-4,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPad-M4-Test-5,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -275,7 +300,8 @@ jobs:
             SWIFT_COMPILATION_MODE=wholemodule \
             DEBUG_INFORMATION_FORMAT=dwarf \
             ENABLE_TESTABILITY=YES \
-            -parallel-testing-enabled NO \
+            -parallel-testing-enabled YES \
+            -maximum-parallel-testing-workers 5 \
           | xcpretty --color --report html --output ui-test-report.html
 
       - name: Upload UI Test Results
