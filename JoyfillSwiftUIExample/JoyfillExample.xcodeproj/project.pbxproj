@@ -74,7 +74,7 @@
 		364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EC2C510BEC00BA870F /* JoyfillAPIService */; };
 		364300F02C510C4200BA870F /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EF2C510C4200BA870F /* JoyfillModel */; };
 		364615AB2E29692D00F237F6 /* OnChangeHandlerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */; };
-		364615AC2E29692D00F237F6 /* ManipulateDataOnChangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364615A92E29692D00F237F6 /* ManipulateDataOnChangeView.swift */; };
+		364615AC2E29692D00F237F6 /* DeficiencyTableDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364615A92E29692D00F237F6 /* DeficiencyTableDemoView.swift */; };
 		364615AE2E29694800F237F6 /* SchemaValidationExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364615AD2E29694800F237F6 /* SchemaValidationExampleView.swift */; };
 		3656F8992DF076DA001590B2 /* FormBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3656F8982DF076DA001590B2 /* FormBuilderView.swift */; };
 		3661908A2BF239BD006ED7CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 366190892BF239BD006ED7CF /* JoyfillModel */; };
@@ -480,7 +480,7 @@
 		3627466E2E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_SignatureField.json; sourceTree = "<group>"; };
 		362746752E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_DateFieldTests.swift; sourceTree = "<group>"; };
 		362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsBaseClass.swift; sourceTree = "<group>"; };
-		364615A92E29692D00F237F6 /* ManipulateDataOnChangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManipulateDataOnChangeView.swift; sourceTree = "<group>"; };
+		364615A92E29692D00F237F6 /* DeficiencyTableDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeficiencyTableDemoView.swift; sourceTree = "<group>"; };
 		364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerTest.swift; sourceTree = "<group>"; };
 		364615AD2E29694800F237F6 /* SchemaValidationExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationExampleView.swift; sourceTree = "<group>"; };
 		364DD8A12E37D7540012FB93 /* JoyfillFormulas.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = JoyfillFormulas.xctestplan; path = ../Tests/JoyfillFormulasTests/JoyfillFormulas.xctestplan; sourceTree = "<group>"; };
@@ -1225,7 +1225,7 @@
 				E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */,
 				E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */,
 				E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */,
-				364615A92E29692D00F237F6 /* ManipulateDataOnChangeView.swift */,
+				364615A92E29692D00F237F6 /* DeficiencyTableDemoView.swift */,
 				364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */,
 				369D45032E0E4C2600677280 /* AllSampleJSONs.swift */,
 				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
@@ -1816,7 +1816,7 @@
 				36CE14692DB7F90B00799B25 /* JoyDoc+helper.swift in Sources */,
 				13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */,
 				364615AB2E29692D00F237F6 /* OnChangeHandlerTest.swift in Sources */,
-				364615AC2E29692D00F237F6 /* ManipulateDataOnChangeView.swift in Sources */,
+				364615AC2E29692D00F237F6 /* DeficiencyTableDemoView.swift in Sources */,
 				E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */,
 				E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */,
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,

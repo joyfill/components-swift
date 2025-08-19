@@ -527,7 +527,7 @@ struct OptionSelectionView: View {
             case .schemaValidationExampleView:
                 return "Schema Validation"
             case .manipulateDataOnChangeView:
-                return "Data Manipulation"
+                return "Deficiency Table Demo"
             case .oChangeHandlerTest:
                 return "Change Handler Test"
             }
@@ -726,7 +726,7 @@ struct OptionSelectionView: View {
         case .schemaValidationExampleView:
             SchemaValidationExampleView()
         case .manipulateDataOnChangeView:
-            ManipulateDataOnChangeView()
+            DeficiencyTableDemoView()
         case .oChangeHandlerTest:
             OnChangeHandlerTest()
         case .none:

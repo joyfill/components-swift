@@ -1,5 +1,5 @@
 //
-//  ManipulateDataOnChangeView.swift
+//  DeficiencyTableDemoView.swift
 //  JoyfillExample
 //
 //  Created by Vivek on 11/07/25.
@@ -10,39 +10,42 @@ import JoyfillModel
 import Joyfill
 import SwiftUI
 
-var manipulateDocumentEditor: DocumentEditor!
+var deficiencyDemoDocumentEditor: DocumentEditor!
 
-struct ManipulateDataOnChangeView: View, FormChangeEvent {
-    func onError(error: Joyfill.JoyfillError) {
-
-    }
-    
+struct DeficiencyTableDemoView: View, FormChangeEvent {
     let imagePicker = ImagePicker()
+    
     init() {
-        //
         let document = sampleJSONDocument(fileName: "hint_and_deficiency_demo")
-
-        manipulateDocumentEditor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, validateSchema: false)
-
+        deficiencyDemoDocumentEditor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, validateSchema: false)
     }
     
     var body: some View {
-        HStack {
-            NavigationView {
-                Form(documentEditor: manipulateDocumentEditor)
-                    .tint(.red)
-            }
+        NavigationView {
+            Form(documentEditor: deficiencyDemoDocumentEditor)
+                .tint(.red)
         }
     }
-
+}
+extension DeficiencyTableDemoView {
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         print("onChange documentID:", document.id)
-        let extraChanges = appendHintChanges(changes: changes, document: document)
-        manipulateDocumentEditor.change(changes: extraChanges)
+        let updatedChanges = deficiencyDemoDocumentEditor.getHintChanges(changes: changes)
+        deficiencyDemoDocumentEditor.change(changes: updatedChanges)
     }
+    
+    func onFocus(event: FieldIdentifier) { }
+    func onBlur(event: FieldIdentifier) { }
+    func onCapture(event: CaptureEvent) { }
+    func onUpload(event: UploadEvent) { }
+    func onError(error: Joyfill.JoyfillError) { }
+}
 
-    func appendHintChanges(changes: [Change], document: JoyfillModel.JoyDoc) -> [Change] {
-        var additionalChanges: [Change] = []
+extension DocumentEditor {
+    // MARK: - Helper Methods
+
+    func getHintChanges(changes: [Change]) -> [Change] {
+        var updatedChanges: [Change] = []
 
         let sourceTableFieldID = "67fa8e2a64d97bb156b088db"
         let hintLookupTableFieldID = "67fa934a0d0062e14617252f"
@@ -51,15 +54,15 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
         let functionalHintColumn = "67fa9277716cd4bd455398b9"
 
         for change in changes {
-            guard let rowUpdate = extractRowUpdateInfo(from: change, sourceFieldID: sourceTableFieldID) else {
+            guard let rowChanges = rowChanges(from: change, sourceFieldID: sourceTableFieldID) else {
                 continue
             }
             
-            guard let selectedDeviceType = rowUpdate.updatedCells[deviceTypeColumn] as? String else {
+            guard let selectedDeviceType = rowChanges.cellChanges[deviceTypeColumn] as? String else {
                 continue
             }
             
-            guard let hintLookupTable = manipulateDocumentEditor.field(fieldID: hintLookupTableFieldID),
+            guard let hintLookupTable = deficiencyDemoDocumentEditor.field(fieldID: hintLookupTableFieldID),
                   let lookupRows = hintLookupTable.valueToValueElements else {
                 continue
             }
@@ -72,45 +75,40 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
                 continue
             }
 
-            let cellsToUpdate = buildUpdatedCells(
+            let updatedCells = buildUpdatedCells(
                 from: matchingHintRow,
                 columns: [visualHintColumn, functionalHintColumn, deviceTypeColumn]
             )
             
-            guard !cellsToUpdate.isEmpty else { continue }
+            guard !updatedCells.isEmpty else { continue }
 
-            let hintUpdateChange = createRowUpdateChange(
+            let updatedRowChange = createRowUpdateChange(
                 from: change,
                 document: document,
-                rowID: rowUpdate.rowID,
-                updatedCells: cellsToUpdate
+                rowID: rowChanges.rowID,
+                updatedCells: updatedCells
             )
 
-            additionalChanges.append(hintUpdateChange)
+            updatedChanges.append(updatedRowChange)
         }
 
-        return additionalChanges
+        return updatedChanges
     }
     
-    // MARK: - Helper Methods
-    
-    private func extractRowUpdateInfo(from change: Change, sourceFieldID: String) -> (rowID: String, updatedCells: [String: Any])? {
+    private func rowChanges(from change: Change, sourceFieldID: String) -> (rowID: String, cellChanges: [String: Any])? {
         guard change.target == "field.value.rowUpdate",
               change.fieldId == sourceFieldID,
               let rowID = change.change?["rowId"] as? String,
               let rowData = change.change?["row"] as? [String: Any],
-              let updatedCells = rowData["cells"] as? [String: Any] else {
+              let cellChanges = rowData["cells"] as? [String: Any] else {
             return nil
         }
         
-        return (rowID: rowID, updatedCells: updatedCells)
+        return (rowID: rowID, cellChanges: cellChanges)
     }
     
     private func findMatchingHintRow(
-        in lookupRows: [ValueElement],
-        deviceTypeColumn: String,
-        selectedDeviceType: String
-    ) -> ValueElement? {
+        in lookupRows: [ValueElement], deviceTypeColumn: String, selectedDeviceType: String) -> ValueElement? {
         return lookupRows.first { row in
             row.cells?[deviceTypeColumn]?.text == selectedDeviceType
         }
@@ -156,12 +154,5 @@ struct ManipulateDataOnChangeView: View, FormChangeEvent {
             change: payload,
             createdOn: Date().timeIntervalSince1970
         )
-    }
-
-    func onFocus(event: FieldIdentifier) { }
-    func onBlur(event: FieldIdentifier) { }
-    func onCapture(event: CaptureEvent) { }
-    func onUpload(event: UploadEvent) {
-        event.uploadHandler(["https://app.joyfill.io/static/img/joyfill_logo_w.png"])
     }
 }
