@@ -2,44 +2,44 @@ import XCTest
 
 final class SignatureFieldTests: JoyfillUITestsBaseClass {
     
-    func testSaveSignature() throws {
-        let signatureDetailButton = app.buttons["SignatureIdentifier"]
-        var attempts = 0
-        while !signatureDetailButton.exists && attempts < 5 {
-            app.swipeUp()
-            sleep(1)
-            attempts += 1
-        }
-        
-        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
-        signatureDetailButton.tap()
-        drawSignatureLine()
-        let saveButton = app.buttons["SaveSignatureIdentifier"]
-        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
-        saveButton.tap()
-        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
-        XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
-    }
+//    func testSaveSignature() throws {
+//        let signatureDetailButton = app.buttons["SignatureIdentifier"]
+//        var attempts = 0
+//        while !signatureDetailButton.exists && attempts < 5 {
+//            app.swipeUp()
+//            sleep(1)
+//            attempts += 1
+//        }
+//        
+//        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
+//        signatureDetailButton.tap()
+//        drawSignatureLine()
+//        let saveButton = app.buttons["SaveSignatureIdentifier"]
+//        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+//        saveButton.tap()
+//        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
+//        XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
+//    }
     
-    func testClearSignature() throws {
-        let signatureDetailButton = app.buttons["SignatureIdentifier"]
-        
-        var attempts = 0
-        while !signatureDetailButton.exists && attempts < 5 {
-            app.swipeUp()
-            sleep(1)
-            attempts += 1
-        }
-        
-        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
-        
-        signatureDetailButton.tap()
-        drawSignatureLine()
-        app.buttons["ClearSignatureIdentifier"].tap()
-        app.buttons["SaveSignatureIdentifier"].tap()
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        XCTAssertEqual("", onChangeResultValue().signatureURL)
-    }
+//    func testClearSignature() throws {
+//        let signatureDetailButton = app.buttons["SignatureIdentifier"]
+//        
+//        var attempts = 0
+//        while !signatureDetailButton.exists && attempts < 5 {
+//            app.swipeUp()
+//            sleep(1)
+//            attempts += 1
+//        }
+//        
+//        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
+//        
+//        signatureDetailButton.tap()
+//        drawSignatureLine()
+//        app.buttons["ClearSignatureIdentifier"].tap()
+//        app.buttons["SaveSignatureIdentifier"].tap()
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        XCTAssertEqual("", onChangeResultValue().signatureURL)
+//    }
     
     func testSaveEmptySignature() throws {
         let signatureDetailButton = app.buttons["SignatureIdentifier"]

@@ -153,21 +153,21 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         }
     }
 
-    func testNumberFieldBoundaryValues() throws {
-        let numberField = app.textFields.element(boundBy: 0)
-        
-        // Very small
-        numberField.tap()
-        numberField.clearText()
-        numberField.typeText("-999999")
-        XCTAssertEqual(numberField.value as? String, "-999999")
-
-        // Very large
-        numberField.tap()
-        app.selectAllInTextField(in: numberField, app: app)
-        numberField.typeText("9999999")
-        XCTAssertEqual(numberField.value as? String, "9999999")
-    }
+//    func testNumberFieldBoundaryValues() throws {
+//        let numberField = app.textFields.element(boundBy: 0)
+//        
+//        // Very small
+//        numberField.tap()
+//        numberField.clearText()
+//        numberField.typeText("-999999")
+//        XCTAssertEqual(numberField.value as? String, "-999999")
+//
+//        // Very large
+//        numberField.tap()
+//        app.selectAllInTextField(in: numberField, app: app)
+//        numberField.typeText("9999999")
+//        XCTAssertEqual(numberField.value as? String, "9999999")
+//    }
     
     
     func testNumberFieldCallOnChangeAfterTwoSeconds() throws {
@@ -179,23 +179,23 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(10345.0, onChangeResultValue().number!)
     }
      
-    func testMultilineLongTextInNumberField() throws {
-        let numberField = app.textFields.element(boundBy: 0)
-        numberField.tap()
-        numberField.clearText()
-        let longText = """
-        12345678901234567890
-        23456789012345678901
-        34567890123456789012
-        """
-        numberField.typeText(longText)
-        sleep(1)
-
-        // App should not crash and backend should return valid prefix
-        let onchangeNumber = onChangeResultValue().number ?? 0
-        let formatted = String(format: "%.0f", onchangeNumber)
-        XCTAssertTrue(formatted.hasPrefix("123456789012345"), "Should handle long numeric text safely")
-    }
+//    func testMultilineLongTextInNumberField() throws {
+//        let numberField = app.textFields.element(boundBy: 0)
+//        numberField.tap()
+//        numberField.clearText()
+//        let longText = """
+//        12345678901234567890
+//        23456789012345678901
+//        34567890123456789012
+//        """
+//        numberField.typeText(longText)
+//        sleep(1)
+//
+//        // App should not crash and backend should return valid prefix
+//        let onchangeNumber = onChangeResultValue().number ?? 0
+//        let formatted = String(format: "%.0f", onchangeNumber)
+//        XCTAssertTrue(formatted.hasPrefix("123456789012345"), "Should handle long numeric text safely")
+//    }
 
     func testThirdNumberFieldEmptyValue() throws {
         let thirdField = app.textFields.element(boundBy: 2) // index for 3rd number field

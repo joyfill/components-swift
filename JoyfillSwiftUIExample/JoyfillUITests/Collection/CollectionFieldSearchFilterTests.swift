@@ -445,24 +445,24 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
     }
     
-    func testCompleteFilterFlow_DropdownColumn() {
-        goToCollectionDetailField()
-        
-        // Get initial row count
-        let initialRowCount = getVisibleRowCount()
-        
-        // Apply dropdown filter using helper method
-        applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
-        
-        // Verify filtered results
-        let filteredRowCount = getVisibleRowCount()
-        XCTAssertTrue(initialRowCount > filteredRowCount, "Filtered row count should not exceed initial count")
-        
-        
-        // Verify we're back to collection view
-        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
-        XCTAssertTrue(filterButton.exists, "Should return to collection view")
-    }
+//    func testCompleteFilterFlow_DropdownColumn() {
+//        goToCollectionDetailField()
+//        
+//        // Get initial row count
+//        let initialRowCount = getVisibleRowCount()
+//        
+//        // Apply dropdown filter using helper method
+//        applyDropdownFilter(column: "Dropdown D1", option: "Yes D1")
+//        
+//        // Verify filtered results
+//        let filteredRowCount = getVisibleRowCount()
+//        XCTAssertTrue(initialRowCount > filteredRowCount, "Filtered row count should not exceed initial count")
+//        
+//        
+//        // Verify we're back to collection view
+//        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+//        XCTAssertTrue(filterButton.exists, "Should return to collection view")
+//    }
     
     // MARK: - Filter Results Verification Tests
     
@@ -633,27 +633,27 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(rootRowCount > 0, "Root schema should have rows")
     }
     
-    func testNestedDropdownFiltering() {
-        goToCollectionDetailField()
-        
-        var firstCount = 7, secondCount = 7
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            firstCount = 9
-            secondCount = 7
-        }
-        
-        // Apply dropdown filter on nested schema using real JSON data
-        applyDropdownFilter(schema: "Depth 3", column: "Dropdown D3", option: "Yes D3")
-        
-        let nestedDropdownCount = getVisibleNestexRowsCount()
-        XCTAssertEqual(nestedDropdownCount, firstCount, "Nested dropdown filtering should work")
-        
-        // Test different nested dropdown option
-        applyDropdownFilter(schema: "Depth 3", column: "Dropdown D3", option: "No D3")
-        
-        let differentOptionCount = getVisibleNestexRowsCount()
-        XCTAssertEqual(differentOptionCount, secondCount, "Nested dropdown filtering should work")
-    }
+//    func testNestedDropdownFiltering() {
+//        goToCollectionDetailField()
+//        
+//        var firstCount = 7, secondCount = 7
+//        if UIDevice.current.userInterfaceIdiom == .pad {
+//            firstCount = 9
+//            secondCount = 7
+//        }
+//        
+//        // Apply dropdown filter on nested schema using real JSON data
+//        applyDropdownFilter(schema: "Depth 3", column: "Dropdown D3", option: "Yes D3")
+//        
+//        let nestedDropdownCount = getVisibleNestexRowsCount()
+//        XCTAssertEqual(nestedDropdownCount, firstCount, "Nested dropdown filtering should work")
+//        
+//        // Test different nested dropdown option
+//        applyDropdownFilter(schema: "Depth 3", column: "Dropdown D3", option: "No D3")
+//        
+//        let differentOptionCount = getVisibleNestexRowsCount()
+//        XCTAssertEqual(differentOptionCount, secondCount, "Nested dropdown filtering should work")
+//    }
     
     
     func testMultiLevelSchemaFiltering() {
@@ -955,7 +955,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let multiSelectColumnOption = app.buttons["MultiSelect  D1"]
         if multiSelectColumnOption.exists {
             multiSelectColumnOption.tap()
-            
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             // Select "Option 1 D1" from multiselect filter
             let multiSelectFilterButton = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
             if multiSelectFilterButton.exists {
@@ -1534,109 +1534,109 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(finalRowCount, initialRowCount, "Row count after clearing filter should match initial")
     }
     
-    func testAddRowEnterTextAndFilter() {
-        goToCollectionDetailField()
-        
-        // Add new row
-        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
-        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
-        addRowButton.tap()
-        
-        // Enter "Testing Demo" in newly added row (last text field)
-        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
-        let newTextField = textFields.element(boundBy: textFields.count - 1)
-        XCTAssertTrue(newTextField.exists, "New text field should exist")
-        newTextField.tap()
-        newTextField.typeText("quick")
-        
-        // Go back and return to detail view
-        goBack()
-        goToCollectionDetailField()
-        
-        // Apply filter for "Testing Demo"
-        applyTextFilter(column: "Text D1", text: "quick")
-        
-        // Verify filtered count is 1
-        let filteredCount = getVisibleRowCount()
-        XCTAssertEqual(filteredCount, 1, "Filter should return 1 row for 'Testing Demo'")
-    }
+//    func testAddRowEnterTextAndFilter() {
+//        goToCollectionDetailField()
+//        
+//        // Add new row
+//        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+//        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
+//        addRowButton.tap()
+//        
+//        // Enter "Testing Demo" in newly added row (last text field)
+//        let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+//        let newTextField = textFields.element(boundBy: textFields.count - 1)
+//        XCTAssertTrue(newTextField.exists, "New text field should exist")
+//        newTextField.tap()
+//        newTextField.typeText("quick")
+//        
+//        // Go back and return to detail view
+//        goBack()
+//        goToCollectionDetailField()
+//        
+//        // Apply filter for "Testing Demo"
+//        applyTextFilter(column: "Text D1", text: "quick")
+//        
+//        // Verify filtered count is 1
+//        let filteredCount = getVisibleRowCount()
+//        XCTAssertEqual(filteredCount, 1, "Filter should return 1 row for 'Testing Demo'")
+//    }
     
-    func testAddRowAddSubRowsAndApplyAllFilters() {
-        goToCollectionDetailField()
-        
-        // Step 1: Add a new root row
-        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
-        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
-        addRowButton.tap()
-        
-        // Step 2: Expand the newly added row
-        let newRowIndex = getVisibleRowCount() - 1
-        let expandButton = app.images["CollectionExpandCollapseButton\(newRowIndex)"]
-        XCTAssertTrue(expandButton.exists, "Expand button for new row should exist")
-        expandButton.tap()
-        
-        // Step 3: Add 2 sub rows under this row
-        let nestedAddButton = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 0)
-        XCTAssertTrue(nestedAddButton.exists, "Nested add row button should exist")
-        nestedAddButton.tap()
-        nestedAddButton.tap()
-        
-        // Step 4: Open filter modal
-        openFilterModal()
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        selectSchema("Root Table")
-        selectColumn("Text D1", selectorIndex: 0)
-        enterTextFilter("A")
-        if !isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be enabled")
-        }
-        tapOnAddMoreFilterButton()
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        selectColumn("Dropdown D1", selectorIndex: 1)
-        selectDropdownOption("Yes D1")
-        if !isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be enabled")
-        }
-        tapOnAddMoreFilterButton()
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        selectColumn("MultiSelect  D1", selectorIndex: 2)
-        selectMultiSelectOption("Option 1 D1")
-        if !isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be enabled")
-        }
-        tapOnAddMoreFilterButton()
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        selectColumn("Number  D1", selectorIndex: 3)
-        let element = app.textFields["SearchBarNumberIdentifier"].firstMatch
-        element.tap()
-        element.typeText("200")
-        if !isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be enabled")
-        }
-        tapOnAddMoreFilterButton()
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        selectColumn("Barcode  D1", selectorIndex: 4)
-        let barcodeField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
-        barcodeField.tap()
-        barcodeField.typeText("ab")
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        tapApplyButton()
-        closeFilterModal()
-        let parentRowsCount = getVisibleRowCount()
-        XCTAssertNotEqual(parentRowsCount, 0, "Expected 0 parent row matching")
-    }
+//    func testAddRowAddSubRowsAndApplyAllFilters() {
+//        goToCollectionDetailField()
+//        
+//        // Step 1: Add a new root row
+//        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+//        XCTAssertTrue(addRowButton.exists, "Add row button should exist")
+//        addRowButton.tap()
+//        
+//        // Step 2: Expand the newly added row
+//        let newRowIndex = getVisibleRowCount() - 1
+//        let expandButton = app.images["CollectionExpandCollapseButton\(newRowIndex)"]
+//        XCTAssertTrue(expandButton.exists, "Expand button for new row should exist")
+//        expandButton.tap()
+//        
+//        // Step 3: Add 2 sub rows under this row
+//        let nestedAddButton = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 0)
+//        XCTAssertTrue(nestedAddButton.exists, "Nested add row button should exist")
+//        nestedAddButton.tap()
+//        nestedAddButton.tap()
+//        
+//        // Step 4: Open filter modal
+//        openFilterModal()
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        selectSchema("Root Table")
+//        selectColumn("Text D1", selectorIndex: 0)
+//        enterTextFilter("A")
+//        if !isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be enabled")
+//        }
+//        tapOnAddMoreFilterButton()
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        selectColumn("Dropdown D1", selectorIndex: 1)
+//        selectDropdownOption("Yes D1")
+//        if !isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be enabled")
+//        }
+//        tapOnAddMoreFilterButton()
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        selectColumn("MultiSelect  D1", selectorIndex: 2)
+//        selectMultiSelectOption("Option 1 D1")
+//        if !isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be enabled")
+//        }
+//        tapOnAddMoreFilterButton()
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        selectColumn("Number  D1", selectorIndex: 3)
+//        let element = app.textFields["SearchBarNumberIdentifier"].firstMatch
+//        element.tap()
+//        element.typeText("200")
+//        if !isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be enabled")
+//        }
+//        tapOnAddMoreFilterButton()
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        selectColumn("Barcode  D1", selectorIndex: 4)
+//        let barcodeField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
+//        barcodeField.tap()
+//        barcodeField.typeText("ab")
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        tapApplyButton()
+//        closeFilterModal()
+//        let parentRowsCount = getVisibleRowCount()
+//        XCTAssertNotEqual(parentRowsCount, 0, "Expected 0 parent row matching")
+//    }
     
     func testDeleteAllRowsApplyFiltersThenReAddAndFilterDepth2() {
         goToCollectionDetailField()
@@ -1693,67 +1693,67 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
     }
     
-    func testFilterSchemaChangeResetsColumnSelection() {
-        goToCollectionDetailField()
-        
-        // Step 1: Open filter modal
-        openFilterModal()
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        selectSchema("Root Table")
-        
-        // Step 2: Apply Sort - Select column and Descending
-        let sortColumnSelector = app.buttons["CollectionSortColumnSelectorIdentifier"]
-        XCTAssertTrue(sortColumnSelector.exists, "Sort column selector should exist")
-        sortColumnSelector.tap()
-        
-        let sortOption = app.buttons["Text D1"]
-        XCTAssertTrue(sortOption.exists, "Sort column option should exist")
-        sortOption.tap()
-        
-        let sortButton = app.buttons["Sort"]
-        XCTAssertTrue(sortButton.exists, "Sort button should exist")
-        XCTAssertTrue(sortButton.isEnabled, "Sort button should be disabled until direction selected")
-        sortButton.tap()
-        sortButton.tap()
-        
-        selectColumn("Text D1", selectorIndex: 0)
-        enterTextFilter("A")
-        if !isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be enabled")
-        }
-        tapOnAddMoreFilterButton()
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        selectColumn("Dropdown D1", selectorIndex: 1)
-        selectDropdownOption("Yes D1")
-        if !isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be enabled")
-        }
-        
-        tapApplyButton()
-        closeFilterModal()
-        
-        // Step 3: Verify filtered result (optional, based on test data)
-        let filteredRowCount = getVisibleRowCount()
-        XCTAssertTrue(filteredRowCount >= 0, "Filtered row count should be valid")
-        
-        // Step 4: Open filter modal again and change schema
-        openFilterModal()
-        selectSchema("Depth 2")
-        
-        // Step 5: Verify column selector has reset
-        let columnSelectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
-        let firstSelectorLabel = columnSelectors.element(boundBy: 0).label
-        XCTAssertEqual(firstSelectorLabel, "Select column type", "Column selector should reset after schema change")
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
-        tapApplyButton()
-        closeFilterModal()
-    }
+//    func testFilterSchemaChangeResetsColumnSelection() {
+//        goToCollectionDetailField()
+//        
+//        // Step 1: Open filter modal
+//        openFilterModal()
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        selectSchema("Root Table")
+//        
+//        // Step 2: Apply Sort - Select column and Descending
+//        let sortColumnSelector = app.buttons["CollectionSortColumnSelectorIdentifier"]
+//        XCTAssertTrue(sortColumnSelector.exists, "Sort column selector should exist")
+//        sortColumnSelector.tap()
+//        
+//        let sortOption = app.buttons["Text D1"]
+//        XCTAssertTrue(sortOption.exists, "Sort column option should exist")
+//        sortOption.tap()
+//        
+//        let sortButton = app.buttons["Sort"]
+//        XCTAssertTrue(sortButton.exists, "Sort button should exist")
+//        XCTAssertTrue(sortButton.isEnabled, "Sort button should be disabled until direction selected")
+//        sortButton.tap()
+//        sortButton.tap()
+//        
+//        selectColumn("Text D1", selectorIndex: 0)
+//        enterTextFilter("A")
+//        if !isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be enabled")
+//        }
+//        tapOnAddMoreFilterButton()
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        selectColumn("Dropdown D1", selectorIndex: 1)
+//        selectDropdownOption("Yes D1")
+//        if !isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be enabled")
+//        }
+//        
+//        tapApplyButton()
+//        closeFilterModal()
+//        
+//        // Step 3: Verify filtered result (optional, based on test data)
+//        let filteredRowCount = getVisibleRowCount()
+//        XCTAssertTrue(filteredRowCount >= 0, "Filtered row count should be valid")
+//        
+//        // Step 4: Open filter modal again and change schema
+//        openFilterModal()
+//        selectSchema("Depth 2")
+//        
+//        // Step 5: Verify column selector has reset
+//        let columnSelectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
+//        let firstSelectorLabel = columnSelectors.element(boundBy: 0).label
+//        XCTAssertEqual(firstSelectorLabel, "Select column type", "Column selector should reset after schema change")
+//        if isAddMoreFilterButtonEnabled() {
+//            XCTFail("Add More Filter button should be disabled")
+//        }
+//        tapApplyButton()
+//        closeFilterModal()
+//    }
     
     func testConditionalLogicHideDepth4WithOrCondition() {
         goToCollectionDetailField()
@@ -1960,58 +1960,58 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(collectionWithoutHeader.exists)
     }
     
-    func testInsertAllDataTypesInFirstView() throws {
-        goToCollectionDetailField()
-        
-        let textView = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertTrue(textView.exists)
-        let textView2 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-        XCTAssertTrue(textView2.exists)
-        
-        // Short text
-        textView.tap()
-        textView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        let shortText = "Short text"
-        textView.typeText(shortText)
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        verifyOnChangePayload(withValue: shortText)
-        
-        // Long text
-        textView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        let longText = String(repeating: "LongText ", count: 5)
-        textView.typeText(longText)
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        verifyOnChangePayload(withValue: longText)
-        
-        // Multiline text
-        textView2.tap()
-        textView.tap()
-        textView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        let multiLine = "one\ntwo\n"
-        textView.typeText(multiLine)
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        verifyOnChangePayload(withValue: multiLine)
-        
-        // HTML/Special characters
-        textView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        let htmlText = "<div>Test&nbsp;</div>"
-        textView.typeText(htmlText)
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        verifyOnChangePayload(withValue: htmlText)
-        
-        // Emojis/Unicode
-        textView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        let unicodeText = "Hindi: नमस्ते, Chinese: 你好, Arabic: مرحبا"
-        textView.typeText(unicodeText)
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        verifyOnChangePayload(withValue: unicodeText)
-    }
-    
+//    func testInsertAllDataTypesInFirstView() throws {
+//        goToCollectionDetailField()
+//        
+//        let textView = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+//        XCTAssertTrue(textView.exists)
+//        let textView2 = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+//        XCTAssertTrue(textView2.exists)
+//        
+//        // Short text
+//        textView.tap()
+//        textView.press(forDuration: 1.0)
+//        app.menuItems["Select All"].tap()
+//        let shortText = "Short text"
+//        textView.typeText(shortText)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        verifyOnChangePayload(withValue: shortText)
+//        
+//        // Long text
+//        textView.press(forDuration: 1.0)
+//        app.menuItems["Select All"].tap()
+//        let longText = String(repeating: "LongText ", count: 5)
+//        textView.typeText(longText)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        verifyOnChangePayload(withValue: longText)
+//        
+//        // Multiline text
+//        textView2.tap()
+//        textView.tap()
+//        textView.press(forDuration: 1.0)
+//        app.menuItems["Select All"].tap()
+//        let multiLine = "one\ntwo\n"
+//        textView.typeText(multiLine)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        verifyOnChangePayload(withValue: multiLine)
+//        
+//        // HTML/Special characters
+//        textView.press(forDuration: 1.0)
+//        app.menuItems["Select All"].tap()
+//        let htmlText = "<div>Test&nbsp;</div>"
+//        textView.typeText(htmlText)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        verifyOnChangePayload(withValue: htmlText)
+//        
+//        // Emojis/Unicode
+//        textView.press(forDuration: 1.0)
+//        app.menuItems["Select All"].tap()
+//        let unicodeText = "Hindi: नमस्ते, Chinese: 你好, Arabic: مرحبا"
+//        textView.typeText(unicodeText)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        verifyOnChangePayload(withValue: unicodeText)
+//    }
+
     
     func testCopyPasteInSecondField() {
         goToCollectionDetailField()

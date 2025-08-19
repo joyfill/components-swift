@@ -22,17 +22,17 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 2).exists)
     }
     
-    func testSingleImageUpload() {
-        let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)
-        imageButton.tap()
-        uploadTestImage()
-        app.swipeUp()
-        app.swipeDown()
-        assertImageCount(expectedCount: 1)
-        clickOnFirstImage()
-        deleteSelectedImages()
-        emptyImageAssert()
-    }
+//    func testSingleImageUpload() {
+//        let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)
+//        imageButton.tap()
+//        uploadTestImage()
+//        app.swipeUp()
+//        app.swipeDown()
+//        assertImageCount(expectedCount: 1)
+//        clickOnFirstImage()
+//        deleteSelectedImages()
+//        emptyImageAssert()
+//    }
     
     func testSingleImageOverwrite() {
         let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)

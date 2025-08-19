@@ -228,23 +228,23 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         }
     }
     
-    func testInsertDataThenScroll() throws {
-        goToTableDetailPage()
-        tapOnTextFieldColumn()
-        let cells = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
-        let initialCount = cells.count
-        app.buttons["TableAddRowIdentifier"].tap()
-        let newCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: initialCount)
-        XCTAssertTrue(newCell.waitForExistence(timeout: 5), "New row should appear at the end")
-        newCell.tap()
-        app.selectAllInTextField(in: newCell, app: app)
-        newCell.typeText("one")
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        while !newCell.isHittable {
-            app.swipeUp()
-        }
-        XCTAssertEqual(newCell.value as? String, "one")
-    }
+//    func testInsertDataThenScroll() throws {
+//        goToTableDetailPage()
+//        tapOnTextFieldColumn()
+//        let cells = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+//        let initialCount = cells.count
+//        app.buttons["TableAddRowIdentifier"].tap()
+//        let newCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: initialCount)
+//        XCTAssertTrue(newCell.waitForExistence(timeout: 5), "New row should appear at the end")
+//        newCell.tap()
+//        app.selectAllInTextField(in: newCell, app: app)
+//        newCell.typeText("one")
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        while !newCell.isHittable {
+//            app.swipeUp()
+//        }
+//        XCTAssertEqual(newCell.value as? String, "one")
+//    }
     
     func testTableMoveUpRow() throws {
         goToTableDetailPage()

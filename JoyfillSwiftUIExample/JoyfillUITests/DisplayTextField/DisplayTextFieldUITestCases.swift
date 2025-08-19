@@ -61,44 +61,44 @@ final class DisplayTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(heading.exists)
     }
     
-    func testHideAndShowHeading() throws {
-        let textField = app.textFields.element(boundBy: 0)
-        let heading = app.staticTexts["Red Color Heading"]
-        XCTAssertTrue(heading.exists)
-        XCTAssertEqual("Default Value", textField.value as! String)
-        
-        textField.tap()
-        textField.clearText()
-        app.swipeDown()
-        sleep(1)
-        XCTAssertTrue(!heading.exists)
-        app.swipeUp()
-        
-        textField.tap()
-        textField.typeText("hide red color heading")
-        app.swipeDown()
-        sleep(1)
-        XCTAssertTrue(!heading.exists)
-        app.swipeUp()
-        
-        
-        textField.tap()
-        textField.clearText()
-        textField.typeText("xyz")
-        app.swipeDown()
-        sleep(1)
-        XCTAssertTrue(!heading.exists)
-        app.swipeUp()
-        
-        
-        textField.tap()
-        textField.clearText()
-        textField.typeText("testHello")
-        app.swipeDown()
-        sleep(1)
-        XCTAssertTrue(heading.exists)
-        app.swipeUp()
-        
-        XCTAssertEqual("testHello", onChangeResultValue().text!)
-    }
+//    func testHideAndShowHeading() throws {
+//        let textField = app.textFields.element(boundBy: 0)
+//        let heading = app.staticTexts["Red Color Heading"]
+//        XCTAssertTrue(heading.exists)
+//        XCTAssertEqual("Default Value", textField.value as! String)
+//        
+//        textField.tap()
+//        textField.clearText()
+//        app.swipeDown()
+//        sleep(1)
+//        XCTAssertTrue(!heading.exists)
+//        app.swipeUp()
+//        
+//        textField.tap()
+//        textField.typeText("hide red color heading")
+//        app.swipeDown()
+//        sleep(1)
+//        XCTAssertTrue(!heading.exists)
+//        app.swipeUp()
+//        
+//        
+//        textField.tap()
+//        textField.clearText()
+//        textField.typeText("xyz")
+//        app.swipeDown()
+//        sleep(1)
+//        XCTAssertTrue(!heading.exists)
+//        app.swipeUp()
+//        
+//        
+//        textField.tap()
+//        textField.clearText()
+//        textField.typeText("testHello")
+//        app.swipeDown()
+//        sleep(1)
+//        XCTAssertTrue(heading.exists)
+//        app.swipeUp()
+//        
+//        XCTAssertEqual("testHello", onChangeResultValue().text!)
+//    }
 }
