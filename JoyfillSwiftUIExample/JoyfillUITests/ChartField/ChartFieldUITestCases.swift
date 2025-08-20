@@ -20,7 +20,7 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         var attempts = 0
         while !chartViewButton.exists && attempts < 5 {
             app.swipeUp()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             attempts += 1
         }
         
@@ -136,7 +136,7 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")

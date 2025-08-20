@@ -24,7 +24,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         let numberField = app.textFields.element(boundBy: 0)
         numberField.tap()
         numberField.clearText()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(numberField.value as? String, "")
     }
     
@@ -49,7 +49,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.clearText()
         numberField.typeText("51")
 
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(multilineField.exists)
         
         
@@ -58,7 +58,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.clearText()
         numberField.typeText("55")
 
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertTrue(multilineField.exists)
     }
     
@@ -73,14 +73,14 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.clearText()
         numberField.typeText("55") // Should not hide because value == 55
 
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertTrue(multilineField.exists)
 
         numberField.tap()
         numberField.clearText()
         numberField.typeText("60") // Should hide
 
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(multilineField.exists)
     }
       
@@ -91,7 +91,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.typeText("-42")
 
         // Assuming logic doesn't hide multiline for negative
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertTrue(app.textViews["MultilineTextFieldIdentifier"].exists)
         XCTAssertEqual(numberField.value as? String, "-42")
     }
@@ -103,7 +103,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.typeText("123.45")
 
         // Assuming decimal should be accepted, otherwise update assertion
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(numberField.value as? String, "123.45")
     }
 
@@ -189,7 +189,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
 //        34567890123456789012
 //        """
 //        numberField.typeText(longText)
-//        sleep(1)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 //
 //        // App should not crash and backend should return valid prefix
 //        let onchangeNumber = onChangeResultValue().number ?? 0
@@ -207,7 +207,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")
@@ -225,11 +225,11 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         let readonlyField = app.textFields.element(boundBy: 3)
         XCTAssertTrue(readonlyField.exists)
         readonlyField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         XCTAssertEqual(app.keyboards.count, 0, "Keyboard should not appear for readonly field")
         let initialValue = readonlyField.value as? String
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
          
         // Optionally, you can also check that the field's value remains unchanged
         let finalValue = readonlyField.value as? String
@@ -241,7 +241,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.tap()
         numberField.clearText()
         numberField.typeText("1234")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         let payload = onChangeResult().dictionary
         XCTAssertEqual(payload["fieldId"] as? String, "686dea82ad19e9a7a3f7c976")
@@ -296,7 +296,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
     func testNumberFieldOnChangePayloadAndFocusBlur() {
         let numberField = app.textFields.element(boundBy: 0)
         numberField.tap()
-        sleep(1) // simulate focus delay
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0)) // simulate focus delay
         numberField.typeText("12345")
         sleep(2) // simulate delay before blur
         app.otherElements.firstMatch.tap() // dismiss keyboard
@@ -315,7 +315,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.tap()
         numberField.clearText()
         numberField.typeText("12345")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
     }
@@ -334,7 +334,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         // Case 1: First is empty → second should hide
         firstField.tap()
         firstField.clearText()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first is empty")
@@ -343,7 +343,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.tap()
         firstField.clearText()
         firstField.typeText("20")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first = 20")
@@ -352,7 +352,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.tap()
         firstField.clearText()
         firstField.typeText("30")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first ≠ 10")
@@ -361,11 +361,11 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.tap()
         firstField.clearText()
         firstField.typeText("51")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first > 50")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         // Case 5: Third < 70 → second should hide
         secondField.tap()
         secondField.clearText()
@@ -373,7 +373,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.tap()
         firstField.clearText()
         firstField.typeText("10") // Reset to ensure other conditions don't match
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when third < 70")
@@ -388,7 +388,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         firstField.clearText()
         firstField.typeText("10")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 4, "Second field should show when all conditions are false")
@@ -408,18 +408,18 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.clearText()
         firstField.typeText("81")
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(allFields.count, 2, "Third field should hide when first > 80 and second is empty")
 
         // Case 2: Make second field non-empty → third should show
         firstField.tap()
         firstField.clearText()
         firstField.typeText("10")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         secondField.tap()
         secondField.clearText()
         secondField.typeText("5")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 4, "Third field should show when second is filled")
@@ -428,7 +428,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.tap()
         firstField.clearText()
         firstField.typeText("60")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Third field should stay visible when first ≤ 80")

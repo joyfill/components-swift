@@ -9,7 +9,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         var attempts = 0
         while !chartViewButton.exists && attempts < 5 {
             app.swipeUp()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             attempts += 1
         }
         
@@ -48,7 +48,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         maxXValuesTextField.clearText()
         maxXValuesTextField.typeText("800")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
 
         XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
@@ -58,7 +58,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(700.0, onChangeResultChange().yMax)
         XCTAssertEqual(10.0, onChangeResultChange().yMin)
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goToChartDetailField()
         app.buttons["ShowHideButtonIdentifier"].tap()
 
@@ -167,7 +167,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Line Title", onChangeResultValue().valueElements?[0].title)
         XCTAssertEqual("Line Description", onChangeResultValue().valueElements?[0].description)
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goToChartDetailField()
 
         XCTAssertEqual(titleTextFieldIdentifier.value as? String, "Line Title", "TextField value is incorrect after navigation")
@@ -200,7 +200,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 //        XCTAssertEqual("PointLabel2", onChangeResultValue().valueElements?[0].points?[1].label)
 //        XCTAssertEqual("PointLabel3", onChangeResultValue().valueElements?[0].points?[2].label)
 //        
-//        sleep(1)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 //        goToChartDetailField()
 //        
 //        for i in 0..<textFields.count {
@@ -256,7 +256,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(50, onChangeResultValue().valueElements?[0].points?[2].x)
         XCTAssertEqual(60, onChangeResultValue().valueElements?[0].points?[2].y)
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goToChartDetailField()
 
         XCTAssertEqual(horizontalPointsValue.value as? String, "10", "TextField value is incorrect after navigation")

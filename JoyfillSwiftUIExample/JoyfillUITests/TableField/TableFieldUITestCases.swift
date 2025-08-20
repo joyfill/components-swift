@@ -70,9 +70,9 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].tap()
         
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.typeText("Edit")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -84,7 +84,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         for i in 0..<5 {
@@ -136,7 +136,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")
@@ -206,7 +206,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         secondCell.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         app.menuItems["Paste"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(secondCell.value as? String, firstCell.value as? String)
     }
     

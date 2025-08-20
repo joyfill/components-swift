@@ -76,7 +76,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         dropdownField.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "N/A")).tap()
         let multilineField = app.textViews["MultilineTextFieldIdentifier"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(multilineField.exists, "Multiline field should be hidden when dropdown is set to 'N/A'")
     }
     
@@ -85,7 +85,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         dropdownField.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "Yes")).tap()
         let multilineField = app.textViews["MultilineTextFieldIdentifier"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertTrue(multilineField.exists, "Multiline field should be visible when dropdown is not 'N/A'")
     }
     
@@ -103,7 +103,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         dropdownField.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "Yes")).tap()
         dropdownField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "Yes")).tap()
         if let selectedId = extractChangeValueAsString() {
             XCTAssertEqual(selectedId, "", "Backend should reflect cleared value")
@@ -148,7 +148,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")
@@ -174,7 +174,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         dropdownField.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "No")).tap()
         XCTAssertEqual(dropdownField.label, "No", "Dropdown should retain selected value after screen navigation")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
     }
@@ -203,7 +203,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(readonlyDropdown.exists, "Readonly dropdown should exist on screen")
         
         readonlyDropdown.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         // Check that dropdown options are not visible
         let option = app.buttons.matching(identifier: "DropdownoptionIdentifier").element(boundBy: 0)
@@ -218,7 +218,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         let dropdownField = app.buttons.matching(identifier: "Dropdown").element(boundBy: 0)
         dropdownField.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "Yes")).tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         guard let payload = onChangeOptionalResult()?.dictionary else {
             XCTFail("onChange payload missing")
@@ -241,7 +241,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
 
         // Tap to trigger focus
         dropdownField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         // Check that dropdown is focused (options are shown)
         let option = app.buttons.matching(identifier: "DropdownoptionIdentifier").element(boundBy: 0)
@@ -249,7 +249,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
 
         // Tap outside to blur (simulate blur)
         swipeSheetDown()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         // Verify dropdown options are no longer visible (onBlur)
         XCTAssertFalse(option.exists, "Dropdown options should be hidden after blur (onBlur)")
@@ -264,13 +264,13 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         // Case 1: Dropdown 1 = N/A (686de9ba91350da2a4d4d614)
         dropdown1.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "N/A")).tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(multilineField.exists, "Multiline should be hidden when dropdown1 = N/A")
 
         // Reset to visible state
         dropdown1.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "Yes")).tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertTrue(multilineField.exists, "Multiline should be visible when dropdown1 = Yes")
 
         // Case 2: Dropdown 2 is null (simulate by deselecting or clearing dropdown2 if UI allows it)
@@ -279,7 +279,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         // Case 3: Dropdown 3 = "No" (686de9ba71b3be77e6c1d2c7)
         dropdown2.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "No")).tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(multilineField.exists, "Multiline should be hidden when dropdown3 = No")
 
         // Case 4: Dropdown 3 = null (simulate if applicable)
@@ -291,7 +291,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
 
         dropdown3.tap()
         app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "two")).tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         XCTAssertFalse(readonlyDropdown.exists, "Readonly dropdown should be hidden when Multiline = 'test' and Dropdown 3 = two")
     }

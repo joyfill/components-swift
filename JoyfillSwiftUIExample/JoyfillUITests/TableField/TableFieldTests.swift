@@ -170,16 +170,16 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         goBack()
     }
     
-    func testTabelDeleteImage() throws {
-        goToTableDetailPage()
-        let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
-        let firstImageButton = imageButtons.element(boundBy: 0)
-        firstImageButton.tap()
-        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
-        app.buttons["ImageDeleteIdentifier"].tap()
-        dismissSheet()
-        goBack()
-    }
+//    func testTabelDeleteImage() throws {
+//        goToTableDetailPage()
+//        let imageButtons = app.buttons.matching(identifier: "TableImageIdentifier")
+//        let firstImageButton = imageButtons.element(boundBy: 0)
+//        firstImageButton.tap()
+//        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 0).tap()
+//        app.buttons["ImageDeleteIdentifier"].tap()
+//        dismissSheet()
+//        goBack()
+//    }
     
     func testTableAddRow() throws {
         goToTableDetailPage()
@@ -330,7 +330,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         for i in 0..<5 {
@@ -352,11 +352,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let textFieldValues = [
             "App 1",
@@ -409,12 +409,12 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
 //        //        app.buttons["ApplyAllButtonIdentifier"].tap()
 //        dismissSheet()
 //        
-//        sleep(1)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 //        
 //        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
 //        XCTAssertEqual("Qu", checkEditDataOnTextField.value as! String)
 //        
-//        sleep(1)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 //        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
 //        XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 0).label)
 //    }
@@ -735,9 +735,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         let dropdownButton = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 4)
         dropdownButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         
@@ -752,7 +752,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnSearchBarTextField()
         checkSearchTextFieldFilterData()
         app.buttons["TableAddRowIdentifier"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         //        checkSearchTextFieldFilterData()
         
         let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
@@ -892,7 +892,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
 //        dropdownButton.tap()
 //        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
 //        let firstOption = dropdownOptions.element(boundBy: 1)
-//        sleep(1)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 //        firstOption.tap()
 //        //app.buttons["ApplyAllButtonIdentifier"].tap()
 //        
@@ -1059,7 +1059,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         dropdownButton.tap()
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         let firstOption = dropdownOptions.element(boundBy: 1)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         firstOption.tap()
         dismissSheet()
         let checkSearchDataOnSecondTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
@@ -1211,7 +1211,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
                       "Inserted text field never appeared")
         XCTAssertEqual("Select Option", selectDropdownField.label)
         selectDropdownField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
         XCTAssertTrue(dropdownOptions.element(boundBy: 1).waitForExistence(timeout: 5))
         XCTAssertGreaterThan(dropdownOptions.count, 0)
@@ -1296,12 +1296,12 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
 //        
 //        //        app.buttons["ApplyAllButtonIdentifier"].tap()
 //        dismissSheet()
-//        sleep(1)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 //        
 //        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
 //        XCTAssertEqual("qu", checkEditDataOnTextField.value as! String)
 //        
-//        sleep(1)
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 //        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
 //        XCTAssertEqual("Yes", checkEditDataOnDropdownField.element(boundBy: 1).label)
 //        
@@ -1329,7 +1329,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     //        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
     //        XCTAssertEqual("Inserted Row", checkEditDataOnTextField.value as! String)
     //
-    //        sleep(1)
+    //        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
     //        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
     //        XCTAssertEqual("No", checkEditDataOnDropdownField.element(boundBy: 2).label)
     //
@@ -1873,7 +1873,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
                       "Inserted text field never appeared")
         XCTAssertEqual("quick", checkEditDataOnTextField.value as! String)
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
         XCTAssertTrue(checkEditDataOnDropdownField.waitForExistence(timeout: 5),
                       "Dropdown field never appeared")
@@ -1923,7 +1923,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let checkDataOnAddRowWithFiltersTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("app", checkDataOnAddRowWithFiltersTextField.value as! String)

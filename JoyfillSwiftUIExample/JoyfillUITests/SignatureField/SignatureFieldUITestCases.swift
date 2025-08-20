@@ -111,7 +111,10 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
         signatureButton.tap()
         drawSignatureLine()
-        app.buttons["SaveSignatureIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let signButton = app.buttons["SaveSignatureIdentifier"]
+        XCTAssertTrue(signButton.waitForExistence(timeout: 5))
+        signButton.tap()
         XCTAssertTrue(asteriskIcon.exists, "Asterisk should remain after saving signature")
     }
 

@@ -47,7 +47,7 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         var attempts = 0
         while !signatureDetailButton.exists && attempts < 5 {
             app.swipeUp()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             attempts += 1
         }
         

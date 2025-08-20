@@ -263,7 +263,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         // Swipe up until no new images load or we hit maxScrolls
         while attempts < maxScrolls {
             scrollView.swipeUp()
-            sleep(1)  // allow content to settle
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))  // allow content to settle
             currentCount = app.images.matching(predicate).count
             if currentCount == previousCount { break }
             previousCount = currentCount
@@ -274,7 +274,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         attempts = 0
         while attempts < maxScrolls {
             scrollView.swipeDown()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             let newCount = app.images.matching(predicate).count
             if newCount == previousCount { break }
             previousCount = newCount
@@ -561,9 +561,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.typeText("Edit")
           
         // Tap on Apply All Button
@@ -571,7 +571,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         goBack()
         expandRow(number: 1)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let firstCellTextValue = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         for i in 2..<7 {
             let cell = firstCellTextValue.element(boundBy: i)
@@ -730,7 +730,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         firstTableTextField.tap()
         firstTableTextField.typeText("hi")
-        sleep(2)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         selectRow(number: 3)
         tapOnMoreButtonCollection()
@@ -1260,12 +1260,12 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].tap()
         
         let textField = app.textFields["EditRowsNumberFieldIdentifier"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.typeText("1234.56")
         dismissSheet()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         XCTAssertEqual("21234.56", firstTextField.value as! String)
         goBack()
@@ -1287,14 +1287,14 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
         
         let textField = app.textFields["EditRowsNumberFieldIdentifier"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.typeText("123.345")
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         for i in 0..<6 {
             let textField = tapOnNumberTextField(atIndex: i)
@@ -1302,7 +1302,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         
         goBack()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let firstCellTextValue = app.textFields.matching(identifier: "TabelNumberFieldIdentifier")
         for i in 0..<6 {
             let cell = firstCellTextValue.element(boundBy: i)
@@ -1370,7 +1370,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("32", sixthTextField.value as! String)
         
         goBack()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         // Check edited cell value - change on sorting time
         let thirdCellTextValue = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 2)
@@ -1390,10 +1390,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableEditRowsIdentifier"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.scrollViews.otherElements.images["EditRowsDateFieldIdentifier"].tap()
         dismissSheet()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
     }
     
@@ -1417,9 +1417,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         periodPicker.adjust(toPickerWheelValue: "PM")
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let checkSelectedTimeValue = app.buttons.matching(identifier: "1:02 PM").element(boundBy: 0)
         XCTAssertTrue(checkSelectedTimeValue.exists)
         
@@ -1471,7 +1471,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 3).tap()
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableEditRowsIdentifier"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.buttons["EditRowsMultiSelecionFieldIdentifier"].tap()
         
         let multiValueOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
@@ -1500,7 +1500,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.buttons["EditRowsMultiSelecionFieldIdentifier"].tap()
         
         let multiValueOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
@@ -1551,7 +1551,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let barcodeFieldIdentifier = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 6)
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         XCTAssertEqual("12345", addedCellNumberValue.value as! String)
@@ -1582,7 +1582,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let barcodeFieldIdentifier = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         XCTAssertEqual("12345", addedCellNumberValue.value as! String)
@@ -1622,7 +1622,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
                       "sixth field didn’t show up")
         sixthTableTextField.tap()
         sixthTableTextField.typeText("Six")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         sleep(2)
         let firstCellTextValue = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
@@ -1651,14 +1651,14 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
         
         let textField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.typeText("quick")
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let textFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
         for i in 0..<6 {
@@ -1686,14 +1686,14 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
         
         let textField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.clearText()
         textField.typeText("Edit Single rows")
         
         dismissSheet()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let editTextFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("Edit Single rowsFirst row", editTextFieldData.value as! String)
@@ -1717,7 +1717,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         drawSignatureLine()
         app.buttons["ClearSignatureIdentifier"].firstMatch.tap()
         app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
     }
     
@@ -1734,14 +1734,14 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         drawSignatureLine()
         app.buttons["SaveSignatureIdentifier"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         tapOnSignatureButton.tap()
         
         app.buttons["TableSignatureEditButton"].tap()
         drawSignatureLine()
         app.buttons["SaveSignatureIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
     }
     
@@ -1933,7 +1933,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         firstTableTextField.tap()
         firstTableTextField.typeText("hello")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         checkButtons.element(boundBy: 2).tap()
         tapOnMoreButtonCollection()

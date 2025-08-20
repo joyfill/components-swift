@@ -73,7 +73,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(multiLineTextFieldBeforeLogic.exists)
         
         textField.tap()
-        textField.clearText()
+        app.selectAllInTextField(in: textField, app: app)
         textField.typeText("hello")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual("hello", onChangeResultValue().text)
