@@ -70,56 +70,56 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(maxXValuesTextField.value as? String, "800", "TextField value is incorrect after navigation")
     }
     
-//    func testEditAllCoordinatesFieldAfterRemoveLine() {
-//        goToChartDetailField()
-//        
-//        let removeLineButtonIdentifier = app.buttons.matching(identifier: "RemoveLineIdentifier")
-//        let removeLineButton = removeLineButtonIdentifier.element(boundBy: 0)
-//        removeLineButton.tap()
-//        
-//        goBack()
-//        goToChartDetailField()
-//
-//        app.buttons["ShowHideButtonIdentifier"].tap()
-//        let verticalTitleTextFieldIdentifier = app.textFields["VerticalTextFieldIdentifier"]
-//        let horizontalTitleTextFieldIdentifier = app.textFields["HorizontalTextFieldIdentifier"]
-//
-//        verticalTitleTextFieldIdentifier.tap()
-//        verticalTitleTextFieldIdentifier.typeText(" Label Y")
-//        horizontalTitleTextFieldIdentifier.tap()
-//        horizontalTitleTextFieldIdentifier.typeText(" Label X")
-//
-//        let minYValuesTextField = app.textFields["MinY"]
-//        let minXValuesTextField = app.textFields["MinX"]
-//        let maxYValuesTextField = app.textFields["MaxY"]
-//        let maxXValuesTextField = app.textFields["MaxX"]
-//        
-//        XCTAssertTrue(minYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
-//        minYValuesTextField.tap()
-//        minYValuesTextField.clearText()
-//        minYValuesTextField.typeText("10")
-//        XCTAssertTrue(minXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
-//        minXValuesTextField.tap()
-//        minXValuesTextField.clearText()
-//        minXValuesTextField.typeText("20")
-//        XCTAssertTrue(maxYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
-//        maxYValuesTextField.tap()
-//        maxYValuesTextField.clearText()
-//        maxYValuesTextField.typeText("700")
-//        XCTAssertTrue(maxXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
-//        maxXValuesTextField.tap()
-//        maxXValuesTextField.clearText()
-//        maxXValuesTextField.typeText("800")
-//
-//        goBack()
-//
-//        XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
-//        XCTAssertEqual("Vertical Label Y", onChangeResultChange().yTitle)
-//        XCTAssertEqual(800.0, onChangeResultChange().xMax)
-//        XCTAssertEqual(20.0, onChangeResultChange().xMin)
-//        XCTAssertEqual(700.0, onChangeResultChange().yMax)
-//        XCTAssertEqual(10.0, onChangeResultChange().yMin)
-//    }
+    func testEditAllCoordinatesFieldAfterRemoveLine() {
+        goToChartDetailField()
+        
+        let removeLineButtonIdentifier = app.buttons.matching(identifier: "RemoveLineIdentifier")
+        let removeLineButton = removeLineButtonIdentifier.element(boundBy: 0)
+        removeLineButton.tap()
+        
+        goBack()
+        goToChartDetailField()
+
+        app.buttons["ShowHideButtonIdentifier"].tap()
+        let verticalTitleTextFieldIdentifier = app.textFields["VerticalTextFieldIdentifier"]
+        let horizontalTitleTextFieldIdentifier = app.textFields["HorizontalTextFieldIdentifier"]
+
+        verticalTitleTextFieldIdentifier.tap()
+        verticalTitleTextFieldIdentifier.typeText(" Label Y")
+        horizontalTitleTextFieldIdentifier.tap()
+        horizontalTitleTextFieldIdentifier.typeText(" Label X")
+
+        let minYValuesTextField = app.textFields["MinY"]
+        let minXValuesTextField = app.textFields["MinX"]
+        let maxYValuesTextField = app.textFields["MaxY"]
+        let maxXValuesTextField = app.textFields["MaxX"]
+        
+        XCTAssertTrue(minYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
+        minYValuesTextField.tap()
+        minYValuesTextField.clearText()
+        minYValuesTextField.typeText("10")
+        XCTAssertTrue(minXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
+        minXValuesTextField.tap()
+        minXValuesTextField.clearText()
+        minXValuesTextField.typeText("20")
+        XCTAssertTrue(maxYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
+        maxYValuesTextField.tap()
+        maxYValuesTextField.clearText()
+        maxYValuesTextField.typeText("700")
+        XCTAssertTrue(maxXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
+        maxXValuesTextField.tap()
+        maxXValuesTextField.clearText()
+        maxXValuesTextField.typeText("800")
+
+        goBack()
+
+        XCTAssertEqual("Horizontal Label X", onChangeResultChange().xTitle)
+        XCTAssertEqual("Vertical Label Y", onChangeResultChange().yTitle)
+        XCTAssertEqual(800.0, onChangeResultChange().xMax)
+        XCTAssertEqual(20.0, onChangeResultChange().xMin)
+        XCTAssertEqual(700.0, onChangeResultChange().yMax)
+        XCTAssertEqual(10.0, onChangeResultChange().yMin)
+    }
 
     func testChartLineButton() throws {
         goToChartDetailField()
@@ -175,39 +175,41 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 
     }
 
-//    func testChartPointsLabel() throws {
-//        goToChartDetailField()
-//        let textFields = app.textFields.matching(identifier: "PointLabelTextFieldIdentifier")
-//        let texts = ["PointLabel1", "PointLabel2", "PointLabel3"]
-//
-//        for i in 0..<textFields.count {
-//            let textField = textFields.element(boundBy: i)
-//            guard textField.exists else {
-//                XCTFail("Text field \(i) does not exist.")
-//                return
-//            }
-//            textField.tap()
-//            if i < texts.count {
-//                textField.typeText("\(texts[i])")
-//            } else {
-//                XCTFail("No text provided for text field \(i).")
-//            }
-//        }
-//
-//        goBack()
-//
-//        XCTAssertEqual("PointLabel1", onChangeResultValue().valueElements?[0].points?[0].label)
-//        XCTAssertEqual("PointLabel2", onChangeResultValue().valueElements?[0].points?[1].label)
-//        XCTAssertEqual("PointLabel3", onChangeResultValue().valueElements?[0].points?[2].label)
-//        
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        goToChartDetailField()
-//        
-//        for i in 0..<textFields.count {
-//            let textField = textFields.element(boundBy: i)
-//            XCTAssertEqual(textField.value as? String, texts[i], "Text field \(i) value does not match expected value after navigation.")
-//        }
-//    }
+    func testChartPointsLabel() throws {
+        goToChartDetailField()
+        let textFields = app.textFields.matching(identifier: "PointLabelTextFieldIdentifier")
+        let texts = ["PointLabel1", "PointLabel2", "PointLabel3"]
+
+        for i in 0..<textFields.count {
+            let textField = textFields.element(boundBy: i)
+            guard textField.exists else {
+                XCTFail("Text field \(i) does not exist.")
+                return
+            }
+            textField.tap()
+            if i < texts.count {
+                textField.typeText("\(texts[i])")
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+                app.dismissKeyboardIfVisible()
+            } else {
+                XCTFail("No text provided for text field \(i).")
+            }
+        }
+
+        goBack()
+
+        XCTAssertEqual("PointLabel1", onChangeResultValue().valueElements?[0].points?[0].label)
+        XCTAssertEqual("PointLabel2", onChangeResultValue().valueElements?[0].points?[1].label)
+        XCTAssertEqual("PointLabel3", onChangeResultValue().valueElements?[0].points?[2].label)
+        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        goToChartDetailField()
+        
+        for i in 0..<textFields.count {
+            let textField = textFields.element(boundBy: i)
+            XCTAssertEqual(textField.value as? String, texts[i], "Text field \(i) value does not match expected value after navigation.")
+        }
+    }
 
     func testChartPointsValue() throws {
         goToChartDetailField()

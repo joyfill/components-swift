@@ -113,10 +113,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(triggerField.exists, "Trigger field should exist")
         
         triggerField.tap()
-        triggerField.press(forDuration: 1.0)
-        let selectAll = app.menuItems["Select All"]
-        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
-        selectAll.tap()
+        app.selectAllInTextField(in: triggerField, app: app)
         triggerField.typeText("hide first")
         
         Thread.sleep(forTimeInterval: 2.0) // Longer wait for conditional logic
@@ -131,9 +128,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(resetTriggerField.exists, "Reset trigger field should exist")
         
         resetTriggerField.tap()
-        resetTriggerField.press(forDuration: 1.0)
-        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
-        selectAll.tap()
+        app.selectAllInTextField(in: resetTriggerField, app: app)
         resetTriggerField.typeText("reset")
         
         Thread.sleep(forTimeInterval: 2.0) // Longer wait for conditional logic

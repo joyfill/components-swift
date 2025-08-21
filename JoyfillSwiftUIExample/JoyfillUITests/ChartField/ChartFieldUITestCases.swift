@@ -85,22 +85,27 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         // Attempt to tap edit controls
     }
 
-//    func testChartFieldScrollRetention() {
-//        // Change first chart titles and bounds
-//        goToChartDetailField(index: 0)
-//        app.buttons["ShowHideButtonIdentifier"].tap()
-//        let verticalTF = app.textFields["VerticalTextFieldIdentifier"]
-//        let horizontalTF = app.textFields["HorizontalTextFieldIdentifier"]
-//        verticalTF.tap(); verticalTF.typeText(" UpdatedY")
-//        horizontalTF.tap(); horizontalTF.typeText(" UpdatedX")
-//        // Navigate away
-//        goBack()
-//        // Return and verify changes persist
-//        goToChartDetailField(index: 0)
-//        app.buttons["ShowHideButtonIdentifier"].tap()
-//        XCTAssertEqual(verticalTF.value as? String, "Vertical UpdatedY")
-//        XCTAssertEqual(horizontalTF.value as? String, "Horizontal UpdatedX")
-//    }
+    func testChartFieldScrollRetention() {
+        // Change first chart titles and bounds
+        goToChartDetailField(index: 0)
+        app.buttons["ShowHideButtonIdentifier"].tap()
+        let verticalTF = app.textFields["VerticalTextFieldIdentifier"]
+        let horizontalTF = app.textFields["HorizontalTextFieldIdentifier"]
+        verticalTF.tap()
+        app.selectAllInTextField(in: verticalTF, app: app)
+        verticalTF.typeText("one")
+        horizontalTF.tap()
+        app.selectAllInTextField(in: horizontalTF, app: app)
+        horizontalTF.typeText("two")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        // Navigate away
+        goBack()
+        // Return and verify changes persist
+        goToChartDetailField(index: 0)
+        app.buttons["ShowHideButtonIdentifier"].tap()
+        XCTAssertEqual(verticalTF.value as? String, "one")
+        XCTAssertEqual(horizontalTF.value as? String, "two")
+    }
 
     func testChartFieldOnFocusAndOnBlur() {
         goToChartDetailField(index: 0)

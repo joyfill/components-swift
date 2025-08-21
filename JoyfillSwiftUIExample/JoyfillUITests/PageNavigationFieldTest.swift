@@ -80,48 +80,48 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("", origSecondTextFieldAfter.value as! String, "Original page second field should remain unchanged.")
     }
     
-//    func testDuplicatedPageConditionalLogic() {
-//        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
-//        pageSelectionButton.tap()
-//        
-//        let pageDuplicateButton = app.buttons.matching(identifier: "PageDuplicateIdentifier")
-//        let duplicatePageButton = pageDuplicateButton.element(boundBy: 1)
-//        duplicatePageButton.tap()
-//        
-//        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-//        let originalPageButton = pageSheetSelectionButton.element(boundBy: 2)
-//        originalPageButton.tap()
-//        
-//        let originalTextFields = app.textFields.allElementsBoundByIndex
-//       
-//        let hideFieldOnConditionTrueTextField = originalTextFields[1]
-//        XCTAssertTrue(hideFieldOnConditionTrueTextField.exists, "The hideFieldOnConditionTrue text field does not exist.")
-//        hideFieldOnConditionTrueTextField.tap()
-//        hideFieldOnConditionTrueTextField.typeText("Field is Hide when condition true\n")
-//        XCTAssertEqual("Field is Hide when condition true", onChangeResultValue().text!)
-//        
-//        let hideFieldTitle = "Field Hide When Condition True"
-//        let hideFieldLabel = app.staticTexts[hideFieldTitle]
-//        XCTAssertTrue(hideFieldLabel.exists, "The title label does not exist or does not have the correct title.")
-//        
-//        let applyIsEqualConditionTextField = originalTextFields[2]
-//        XCTAssertTrue(applyIsEqualConditionTextField.exists, "The applyIsEqualCondition text field does not exist.")
-//        applyIsEqualConditionTextField.tap()
-//        applyIsEqualConditionTextField.typeText("Hello\n")
-//        XCTAssertEqual("Hello", onChangeResultValue().text!)
-//        
-//        let applyConditionTextFieldTitle = "Always Show Field - Page Logic - Hide when condition is true"
-//        let applyConditionTextFieldLabel = app.staticTexts[applyConditionTextFieldTitle]
-//        XCTAssertTrue(applyConditionTextFieldLabel.exists, "The title label does not exist or does not have the correct title.")
-//        
-//        let showFieldOnConditionTrueTextField = originalTextFields[1]
-//        XCTAssertTrue(showFieldOnConditionTrueTextField.exists, "The hideFieldOnConditionTrue text field does not exist.")
-//        showFieldOnConditionTrueTextField.tap()
-//        showFieldOnConditionTrueTextField.typeText("Field is show when condition true\n")
-//        XCTAssertEqual("Field is show when condition true", onChangeResultValue().text!)
-//        
-//        let showFieldTitle = "Field Show When Condition True"
-//        let showFieldLabel = app.staticTexts[showFieldTitle]
-//        XCTAssertTrue(showFieldLabel.exists, "The title label does not exist or does not have the correct title.")
-//    }
+    func testDuplicatedPageConditionalLogic() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageDuplicateButton = app.buttons.matching(identifier: "PageDuplicateIdentifier")
+        let duplicatePageButton = pageDuplicateButton.element(boundBy: 1)
+        duplicatePageButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 2)
+        originalPageButton.tap()
+        
+        let originalTextFields = app.textFields.allElementsBoundByIndex
+       
+        let hideFieldOnConditionTrueTextField = originalTextFields[1]
+        XCTAssertTrue(hideFieldOnConditionTrueTextField.exists, "The hideFieldOnConditionTrue text field does not exist.")
+        hideFieldOnConditionTrueTextField.tap()
+        hideFieldOnConditionTrueTextField.typeText("Field is Hide when condition true\n")
+        XCTAssertEqual("Field is Hide when condition true", onChangeResultValue().text!)
+        
+        let hideFieldTitle = "Field Hide When Condition True"
+        let hideFieldLabel = app.staticTexts[hideFieldTitle]
+        XCTAssertTrue(hideFieldLabel.exists, "The title label does not exist or does not have the correct title.")
+        
+        let applyIsEqualConditionTextField = originalTextFields[2]
+        XCTAssertTrue(applyIsEqualConditionTextField.exists, "The applyIsEqualCondition text field does not exist.")
+        applyIsEqualConditionTextField.tap()
+        applyIsEqualConditionTextField.typeText("Hello\n")
+        XCTAssertEqual("Hello", onChangeResultValue().text!)
+        
+        let applyConditionTextFieldTitle = "Always Show Field - Page Logic - Hide when condition is true"
+        let applyConditionTextFieldLabel = app.staticTexts[applyConditionTextFieldTitle]
+        XCTAssertTrue(applyConditionTextFieldLabel.exists, "The title label does not exist or does not have the correct title.")
+        
+        let showFieldOnConditionTrueTextField = originalTextFields[1]
+        XCTAssertTrue(showFieldOnConditionTrueTextField.exists, "The hideFieldOnConditionTrue text field does not exist.")
+        showFieldOnConditionTrueTextField.tap()
+        showFieldOnConditionTrueTextField.typeText("Field is show when condition true\n")
+        XCTAssertEqual("Field is show when condition true", onChangeResultValue().text!)
+        
+        let showFieldTitle = "Field Show When Condition True"
+        let showFieldLabel = app.staticTexts[showFieldTitle]
+        XCTAssertTrue(showFieldLabel.exists, "The title label does not exist or does not have the correct title.")
+    }
 }

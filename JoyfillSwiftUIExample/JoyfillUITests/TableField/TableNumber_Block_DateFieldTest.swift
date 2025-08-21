@@ -341,7 +341,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsNumberFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
-        textField.typeText("123.345")
+        textField.typeText("12.3")
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
@@ -349,13 +349,13 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         for i in 0..<6 {
             let textField = tapOnNumberTextField(atIndex: i)
-            XCTAssertEqual("123.345", textField.value as! String, "The text in field \(i+1) is incorrect")
+            XCTAssertEqual("12.3", textField.value as! String, "The text in field \(i+1) is incorrect")
         }
         
         goBack()
         Thread.sleep(forTimeInterval: 0.5)
         let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["67691971e689df0b1208de63"]?.number)
-        XCTAssertEqual(123.345, firstCellTextValue)
+        XCTAssertEqual(12.3, firstCellTextValue)
     }
     
     // Sorting Test case
@@ -561,31 +561,31 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     //TODO: Time only field test case - Change format in TableNewColumn json file - "hh:mma" to run time only test case
     
     // Change selected time
-//    func testChangeTimePicker() throws {
-//        goToTableDetailPage()
-////        let firstDatePicker = app.datePickers.element(boundBy: 1)
-////        firstDatePicker.tap()
-//        let headerTimeLabel = app.buttons["12:00 AM"]
-//        XCTAssertTrue(headerTimeLabel.exists, "Expected to see the time header before switching to wheels")
-//        headerTimeLabel.tap()
-//        
-//        let hourPicker = app.pickerWheels.element(boundBy: 0)
-//        let minutePicker = app.pickerWheels.element(boundBy: 1)
-//        let periodPicker = app.pickerWheels.element(boundBy: 2)
-//        
-//        hourPicker.adjust(toPickerWheelValue: "1")
-//        minutePicker.adjust(toPickerWheelValue: "02")
-//        periodPicker.adjust(toPickerWheelValue: "PM")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCUIApplication().buttons["PopoverDismissRegion"].tap()
-//        
-//        Thread.sleep(forTimeInterval: 0.5)
-//        goBack()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        let checkSelectedTimeValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
-//        XCTAssertEqual(1712302320000.0, checkSelectedTimeValue)
-//        
-//    }
+    func testChangeTimePicker() throws {
+        goToTableDetailPage()
+//        let firstDatePicker = app.datePickers.element(boundBy: 1)
+//        firstDatePicker.tap()
+        let headerTimeLabel = app.buttons["12:00 AM"]
+        XCTAssertTrue(headerTimeLabel.exists, "Expected to see the time header before switching to wheels")
+        headerTimeLabel.tap()
+        
+        let hourPicker = app.pickerWheels.element(boundBy: 0)
+        let minutePicker = app.pickerWheels.element(boundBy: 1)
+        let periodPicker = app.pickerWheels.element(boundBy: 2)
+        
+        hourPicker.adjust(toPickerWheelValue: "1")
+        minutePicker.adjust(toPickerWheelValue: "02")
+        periodPicker.adjust(toPickerWheelValue: "PM")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        
+        Thread.sleep(forTimeInterval: 0.5)
+        goBack()
+        Thread.sleep(forTimeInterval: 0.5)
+        let checkSelectedTimeValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
+        XCTAssertEqual(1712302320000.0, checkSelectedTimeValue)
+        
+    }
     
     // Set nil to existing time & change another time
     func testSetNilToExitingTime() throws {
@@ -902,47 +902,47 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Table Barcode Column test case
     
     // Simple add data in field and tap on scan button
-//    func testBarcodeScanButtonValue() throws {
-//        goToTableDetailPage()
-//        
-//        let firstTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("First row", firstTableTextField.value as! String)
-//        firstTableTextField.tap()
-//        firstTableTextField.typeText("1 ")
-//        
-//        let secondTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
-//        XCTAssertEqual("Second row", secondTableTextField.value as! String)
-//        secondTableTextField.tap()
-//        secondTableTextField.typeText("2 ")
-//        
-//        let thirdTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
-//        XCTAssertEqual("Third row", thirdTableTextField.value as! String)
-//        thirdTableTextField.tap()
-//        thirdTableTextField.typeText("3 ")
-//        
-//        app.scrollViews.otherElements.containing(.image, identifier:"TableScanButtonIdentifier").children(matching: .image).matching(identifier: "TableScanButtonIdentifier").element(boundBy: 3).tap()
-//        
-//        app.scrollViews.otherElements.containing(.image, identifier:"TableScanButtonIdentifier").children(matching: .image).matching(identifier: "TableScanButtonIdentifier").element(boundBy: 4).tap()
-//        
-//        let sixthTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 5)
-//        sixthTableTextField.tap()
-//        sixthTableTextField.typeText("Sixth")
-//        
-//        goBack()
-//        Thread.sleep(forTimeInterval: 1.0)
-//        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let fourthCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[3].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let fifthCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[4].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let sixthCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[5].cells?["676137715cb7a772624dd5ab"]?.text)
-//        XCTAssertEqual("1 First row", firstCellTextValue)
-//        XCTAssertEqual("2 Second row", secondCellTextValue)
-//        XCTAssertEqual("3 Third row", thirdCellTextValue)
-//        XCTAssertEqual("Scan Button Clicked", fourthCellTextValue)
-//        XCTAssertEqual("Scan Button Clicked", fifthCellTextValue)
-//        XCTAssertEqual("Sixth", sixthCellTextValue)
-//    }
+    func testBarcodeScanButtonValue() throws {
+        goToTableDetailPage()
+        
+        let firstTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("First row", firstTableTextField.value as! String)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("1 ")
+        
+        let secondTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Second row", secondTableTextField.value as! String)
+        secondTableTextField.tap()
+        secondTableTextField.typeText("2 ")
+        
+        let thirdTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("Third row", thirdTableTextField.value as! String)
+        thirdTableTextField.tap()
+        thirdTableTextField.typeText("3 ")
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"TableScanButtonIdentifier").children(matching: .image).matching(identifier: "TableScanButtonIdentifier").element(boundBy: 3).tap()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"TableScanButtonIdentifier").children(matching: .image).matching(identifier: "TableScanButtonIdentifier").element(boundBy: 4).tap()
+        
+        let sixthTableTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 5)
+        sixthTableTextField.tap()
+        sixthTableTextField.typeText("Sixth")
+        
+        goBack()
+        Thread.sleep(forTimeInterval: 1.0)
+        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
+        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
+        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
+        let fourthCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[3].cells?["676137715cb7a772624dd5ab"]?.text)
+        let fifthCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[4].cells?["676137715cb7a772624dd5ab"]?.text)
+        let sixthCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[5].cells?["676137715cb7a772624dd5ab"]?.text)
+        XCTAssertEqual("1 First row", firstCellTextValue)
+        XCTAssertEqual("2 Second row", secondCellTextValue)
+        XCTAssertEqual("3 Third row", thirdCellTextValue)
+        XCTAssertEqual("Scan Button Clicked", fourthCellTextValue)
+        XCTAssertEqual("Scan Button Clicked", fifthCellTextValue)
+        XCTAssertEqual("Sixth", sixthCellTextValue)
+    }
     
     // Bulk Edit - Edit all Rows
     func testBulkEditBarcodeFieldEditAllRows() throws {
@@ -1188,48 +1188,48 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         element.swipeLeft()
     }
     
-//    func testClearExistingSignature() throws {
-//        goToTableDetailPage()
-//        //swipeLeftForSignatureColumn()
-//        
-//        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
-//        let firstSignatureButton = signatureButtons.element(boundBy: 0)
-//        firstSignatureButton.tap()
-//        
-//        app.buttons["TableSignatureEditButton"].tap()
-//        drawSignatureLine()
-//        app.buttons["ClearSignatureIdentifier"].tap()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        goBack()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        XCTAssertEqual("", onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f040"]?.text)
-//    }
+    func testClearExistingSignature() throws {
+        goToTableDetailPage()
+        //swipeLeftForSignatureColumn()
+        
+        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        let firstSignatureButton = signatureButtons.element(boundBy: 0)
+        firstSignatureButton.tap()
+        
+        app.buttons["TableSignatureEditButton"].tap()
+        drawSignatureLine()
+        app.buttons["ClearSignatureIdentifier"].tap()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        Thread.sleep(forTimeInterval: 0.5)
+        goBack()
+        Thread.sleep(forTimeInterval: 0.5)
+        XCTAssertEqual("", onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f040"]?.text)
+    }
     
-//    func testSaveNewSignature() throws {
-//        goToTableDetailPage()
-//        //swipeLeftForSignatureColumn()
-//        
-//        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
-//        let tapOnSignatureButton = signatureButtons.element(boundBy: 1)
-//        tapOnSignatureButton.tap()
-//        
-//        drawSignatureLine()
-//        let saveButton = app.buttons["SaveSignatureIdentifier"].firstMatch
-//        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
-//        saveButton.tap()
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        tapOnSignatureButton.tap()
-//        
-//        app.buttons["TableSignatureEditButton"].tap()
-//        drawSignatureLine()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        
-//        Thread.sleep(forTimeInterval: 0.5)
-//        goBack()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        XCTAssertNotNil(onChangeResultValue().valueElements?[1].cells?["676919715e36fed325f2f040"]?.text)
-//    }
+    func testSaveNewSignature() throws {
+        goToTableDetailPage()
+        //swipeLeftForSignatureColumn()
+        
+        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        let tapOnSignatureButton = signatureButtons.element(boundBy: 1)
+        tapOnSignatureButton.tap()
+        
+        drawSignatureLine()
+        let saveButton = app.buttons["SaveSignatureIdentifier"].firstMatch
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        saveButton.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        tapOnSignatureButton.tap()
+        
+        app.buttons["TableSignatureEditButton"].tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        Thread.sleep(forTimeInterval: 0.5)
+        goBack()
+        Thread.sleep(forTimeInterval: 0.5)
+        XCTAssertNotNil(onChangeResultValue().valueElements?[1].cells?["676919715e36fed325f2f040"]?.text)
+    }
     
     func drawSignatureLine() {
         let canvas = app.otherElements["CanvasIdentifier"]

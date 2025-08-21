@@ -93,16 +93,16 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual("testHello", onChangeResultValue().text!)
     }
     
-//    func testConditionalLogicForMultilineAndDisplayText() {
-//        let textField = app.textFields.element(boundBy: 0)
-//        textField.tap()
-//        textField.clearText()
-//        textField.typeText("hide")
-//        let multiline = app.textViews["MultilineTextFieldIdentifier"]
-//        let displayText = app.staticTexts["Display text will be hidden when text is 'hide' and multiline should not 'show'"]
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertFalse(displayText.exists)
-//    }
+    func testConditionalLogicForMultilineAndDisplayText() {
+        let textField = app.textFields.element(boundBy: 0)
+        textField.tap()
+        textField.clearText()
+        textField.typeText("hide")
+        let multiline = app.textViews["MultilineTextFieldIdentifier"]
+        let displayText = app.staticTexts["Display text will be hidden when text is 'hide' and multiline should not 'show'"]
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertFalse(displayText.exists)
+    }
     
     func testReadonlyTextFieldDoesNotTriggerKeyboard() {
         let textField = app.textFields.element(boundBy: 0)
@@ -125,24 +125,24 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         }
     }
     
-//    func testTextFieldDataTypes() {
-//        let textField = app.textFields.element(boundBy: 0)
-//        textField.tap()
-//        textField.clearText()
-//        textField.typeText("12345")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertEqual(onChangeResultValue().text!, "12345")
-//        
-//        textField.clearText()
-//        textField.typeText("[1,2,3]")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertEqual(onChangeResultValue().text!, "[1,2,3]")
-//        
-//        textField.clearText()
-//        textField.typeText("{\"key\":\"value\"}")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertEqual(onChangeResultValue().text!, "{\"key\":\"value\"}")
-//    }
+    func testTextFieldDataTypes() {
+        let textField = app.textFields.element(boundBy: 0)
+        textField.tap()
+        textField.clearText()
+        textField.typeText("12345")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertEqual(onChangeResultValue().text!, "12345")
+        
+        textField.clearText()
+        textField.typeText("[1,2,3]")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertEqual(onChangeResultValue().text!, "[1,2,3]")
+        
+        textField.clearText()
+        textField.typeText("{\"key\":\"value\"}")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertEqual(onChangeResultValue().text!, "{\"key\":\"value\"}")
+    }
     
     func testTextFieldTypingAndPaste() {
         let textField = app.textFields.element(boundBy: 0)
@@ -167,153 +167,153 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(onChangeResultValue().text!, "testtrigger")
     }
     
-//    func testTextFieldScrollRetainsValue() {
-//        let textField = app.textFields.element(boundBy: 0)
-//        XCTAssert(textField.waitForExistence(timeout: 5))
-//        textField.tap()
-//        textField.clearText()
-//        textField.typeText("scrollCheck")
-//        app.swipeUp()
-//        app.swipeDown()
-//        XCTAssertEqual(textField.value as? String, "scrollCheck")
-//    }
+    func testTextFieldScrollRetainsValue() {
+        let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.clearText()
+        textField.typeText("scrollCheck")
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertEqual(textField.value as? String, "scrollCheck")
+    }
     
-//    func testConditionalLogicChainedHidingAndUnhiding() {
-//        let firstTextField = app.textFields.element(boundBy: 0)
-//        let secondTextField = app.textFields.element(boundBy: 1)
-//        let thirdTextField = app.textFields.element(boundBy: 2)
-//        let multilineTextView = app.textViews.element(boundBy: 0)
-//        let displayText = app.staticTexts["Display text will be hidden when text is 'hide' and multiline should not 'show'"]
-//        
-//        // 1. First textbox = "HELLO" => multiline should hide
-//        firstTextField.tap()
-//        firstTextField.clearText()
-//        firstTextField.typeText("HELLO")
-//        
-//        // Wait for conditional logic to process and multiline to hide
-//        var attempts = 0
-//        while multilineTextView.exists && attempts < 5 {
-//            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
-//            attempts += 1
-//        }
-//        XCTAssertFalse(multilineTextView.exists)
-//        
-//        // Reset to visible state
-//        firstTextField.tap()
-//        firstTextField.clearText()
-//        firstTextField.typeText("anything")
-//        
-//        // Wait for multiline to become visible again
-//        attempts = 0
-//        while !multilineTextView.exists && attempts < 5 {
-//            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
-//            attempts += 1
-//        }
-//        
-//        // 2. First = "hide", multiline ≠ "show" => display text should hide
-//        firstTextField.tap()
-//        app.selectAllInTextField(in: firstTextField, app: app)
-//        firstTextField.typeText("hide")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        multilineTextView.tap()
-//        multilineTextView.press(forDuration: 1.0)
-//        let selectAll = app.menuItems["Select All"]
-//        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
-//        selectAll.tap() // Select all with keyboard shortcut
-//        multilineTextView.typeText("not_show")
-//        
-//        // Wait for display text to hide based on conditional logic
-//        attempts = 0
-//        while displayText.exists && displayText.isHittable && attempts < 10 {
-//            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.2))
-//            attempts += 1
-//        }
-//        XCTAssertFalse(displayText.exists && displayText.isHittable, "Display text is still visible")
-//        
-//        // 3. Second textbox should hide if:
-//        //  - First is filled
-//        //  - OR multiline is empty
-//        //  - OR First = "readonly"
-//        //  - OR First ≠ "hide"
-//        //  - OR First contains "abcd"
-//        
-//        // Condition: first is filled
-//        firstTextField.tap()
-//        firstTextField.press(forDuration: 1.0)
-//        app.menuItems["Select All"].tap()
-//        firstTextField.clearText()
-//        firstTextField.typeText("filled")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        app.swipeUp()
-//        app.swipeDown()
-//        
-//        // Wait for third text field to hide based on conditional logic
-//        attempts = 0
-//        while thirdTextField.exists && attempts < 5 {
-//            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
-//            attempts += 1
-//        }
-//        XCTAssertFalse(thirdTextField.exists)
-//        
-//        // Condition: multiline is empty
-//        firstTextField.tap()
-//        firstTextField.press(forDuration: 1.0)
-//        app.menuItems["Select All"].tap()
-//        firstTextField.clearText()
-//        firstTextField.typeText("anything")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertFalse(thirdTextField.exists)
-//        
-//        // Condition: first = "readonly"
-//        firstTextField.tap()
-//        firstTextField.press(forDuration: 1.0)
-//        app.menuItems["Select All"].tap()
-//        firstTextField.clearText()
-//        firstTextField.typeText("readonly")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertFalse(thirdTextField.exists)
-//        
-//        // Condition: first ≠ "hide"
-//        firstTextField.tap()
-//        firstTextField.press(forDuration: 1.0)
-//        app.menuItems["Select All"].tap()
-//        firstTextField.clearText()
-//        firstTextField.typeText("not_hide")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertFalse(thirdTextField.exists)
-//        
-//        // Condition: first contains "abcd"
-//        firstTextField.tap()
-//        firstTextField.press(forDuration: 1.0)
-//        app.menuItems["Select All"].tap()
-//        firstTextField.clearText()
-//        firstTextField.typeText("abcd")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertFalse(thirdTextField.exists)
-//        
-//        // 4. Third textbox hidden if first is empty
-//        firstTextField.tap()
-//        firstTextField.press(forDuration: 1.0)
-//        app.menuItems["Select All"].tap()
-//        firstTextField.clearText()
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        XCTAssertFalse(thirdTextField.exists)
-//        
-//        // Restore to unhide all
-//        firstTextField.tap()
-//        firstTextField.typeText("visible")
-//        multilineTextView.tap()
-//        multilineTextView.typeText("\u{0001}") // Use keyboard shortcut for TextView
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        multilineTextView.typeText("show")
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        firstTextField.tap()
-//        app.swipeUp()
-//        app.swipeDown()
-//        XCTAssertTrue(displayText.exists)
-//        XCTAssertTrue(firstTextField.exists)
-//        XCTAssertTrue(secondTextField.exists)
-//    }
+    func testConditionalLogicChainedHidingAndUnhiding() {
+        let firstTextField = app.textFields.element(boundBy: 0)
+        let secondTextField = app.textFields.element(boundBy: 1)
+        let thirdTextField = app.textFields.element(boundBy: 2)
+        let multilineTextView = app.textViews.element(boundBy: 0)
+        let displayText = app.staticTexts["Display text will be hidden when text is 'hide' and multiline should not 'show'"]
+        
+        // 1. First textbox = "HELLO" => multiline should hide
+        firstTextField.tap()
+        firstTextField.clearText()
+        firstTextField.typeText("HELLO")
+        
+        // Wait for conditional logic to process and multiline to hide
+        var attempts = 0
+        while multilineTextView.exists && attempts < 5 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            attempts += 1
+        }
+        XCTAssertFalse(multilineTextView.exists)
+        
+        // Reset to visible state
+        firstTextField.tap()
+        firstTextField.clearText()
+        firstTextField.typeText("anything")
+        
+        // Wait for multiline to become visible again
+        attempts = 0
+        while !multilineTextView.exists && attempts < 5 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            attempts += 1
+        }
+        
+        // 2. First = "hide", multiline ≠ "show" => display text should hide
+        firstTextField.tap()
+        app.selectAllInTextField(in: firstTextField, app: app)
+        firstTextField.typeText("hide")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        multilineTextView.tap()
+        multilineTextView.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap() // Select all with keyboard shortcut
+        multilineTextView.typeText("not_show")
+        
+        // Wait for display text to hide based on conditional logic
+        attempts = 0
+        while displayText.exists && displayText.isHittable && attempts < 10 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.2))
+            attempts += 1
+        }
+        XCTAssertFalse(displayText.exists && displayText.isHittable, "Display text is still visible")
+        
+        // 3. Second textbox should hide if:
+        //  - First is filled
+        //  - OR multiline is empty
+        //  - OR First = "readonly"
+        //  - OR First ≠ "hide"
+        //  - OR First contains "abcd"
+        
+        // Condition: first is filled
+        firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        firstTextField.clearText()
+        firstTextField.typeText("filled")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.swipeUp()
+        app.swipeDown()
+        
+        // Wait for third text field to hide based on conditional logic
+        attempts = 0
+        while thirdTextField.exists && attempts < 5 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            attempts += 1
+        }
+        XCTAssertFalse(thirdTextField.exists)
+        
+        // Condition: multiline is empty
+        firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        firstTextField.clearText()
+        firstTextField.typeText("anything")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertFalse(thirdTextField.exists)
+        
+        // Condition: first = "readonly"
+        firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        firstTextField.clearText()
+        firstTextField.typeText("readonly")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertFalse(thirdTextField.exists)
+        
+        // Condition: first ≠ "hide"
+        firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        firstTextField.clearText()
+        firstTextField.typeText("not_hide")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertFalse(thirdTextField.exists)
+        
+        // Condition: first contains "abcd"
+        firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        firstTextField.clearText()
+        firstTextField.typeText("abcd")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertFalse(thirdTextField.exists)
+        
+        // 4. Third textbox hidden if first is empty
+        firstTextField.tap()
+        firstTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        firstTextField.clearText()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertFalse(thirdTextField.exists)
+        
+        // Restore to unhide all
+        firstTextField.tap()
+        firstTextField.typeText("visible")
+        multilineTextView.tap()
+        multilineTextView.typeText("\u{0001}") // Use keyboard shortcut for TextView
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        multilineTextView.typeText("show")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        firstTextField.tap()
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertTrue(displayText.exists)
+        XCTAssertTrue(firstTextField.exists)
+        XCTAssertTrue(secondTextField.exists)
+    }
       
     func testMultilineInputInSingleLineTextBox() {
         let textField = app.textFields.element(boundBy: 0)

@@ -325,22 +325,22 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("SecondHis", secondTableTextField.value as! String)
     }
     
-//    func testTableDropdownOption() throws {
-//        goToCollectionDetailField()
-//        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
-//        XCTAssertEqual("High", dropdownButtons.element(boundBy: 0).label)
-//        XCTAssertEqual("Medium", dropdownButtons.element(boundBy: 1).label)
-//        let firstdropdownButton = dropdownButtons.element(boundBy: 0)
-//        firstdropdownButton.tap()
-//        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-//        XCTAssertGreaterThan(dropdownOptions.count, 0)
-//        let firstOption = dropdownOptions.element(boundBy: 1)
-//        firstOption.tap()
-//        goBack()
-//        waitForAppToSettle()
-//        let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
-//        XCTAssertEqual("6805b6443944fc0166ba80a0", firstCellDropdownValue)
-//    }
+    func testTableDropdownOption() throws {
+        goToCollectionDetailField()
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("High", dropdownButtons.element(boundBy: 0).label)
+        XCTAssertEqual("Medium", dropdownButtons.element(boundBy: 1).label)
+        let firstdropdownButton = dropdownButtons.element(boundBy: 0)
+        firstdropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+        goBack()
+        waitForAppToSettle()
+        let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
+        XCTAssertEqual("6805b6443944fc0166ba80a0", firstCellDropdownValue)
+    }
 
     func testExpandFirstRow() throws {
         //Expand the first row and add row and edit the text field
@@ -485,36 +485,36 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
     }
     
-//    func testCollectionFieldImage() {
-//        goToCollectionDetailField()
-//        
-//        let app = XCUIApplication()
-//        //let element4 = app.windows.children(matching: .other).element
-//        //        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
-//        //        element.swipeLeft()
-//        
-//        guard let firstButton = app.swipeToFindElement(identifier: "TableImageIdentifier", type: .button, direction: "left") else {
-//            XCTFail("Failed to find  button after swiping")
-//            return
-//        }
-//        XCTAssertTrue(firstButton.waitForExistence(timeout: 1) && firstButton.isHittable)
-//        firstButton.tap()
-//        
-//        app.buttons["ImageUploadImageIdentifier"].tap()
-//        app.buttons["ImageUploadImageIdentifier"].tap()
-//        app.buttons["ImageUploadImageIdentifier"].tap()
-//        
-//        //        element.swipeDown()
-//        dismissSheet()
-//        goBack()
-//        waitForAppToSettle()
-//        do {
-//            let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
-//            XCTAssertEqual(3, firstCellMultiSelectValue.count)
-//        } catch {
-//            XCTFail("Failed to unwrap cell text values: \(error)")
-//        }
-//    }
+    func testCollectionFieldImage() {
+        goToCollectionDetailField()
+        
+        let app = XCUIApplication()
+        //let element4 = app.windows.children(matching: .other).element
+        //        let element = element4.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 1).children(matching: .other).element.children(matching: .other).element
+        //        element.swipeLeft()
+        
+        guard let firstButton = app.swipeToFindElement(identifier: "TableImageIdentifier", type: .button, direction: "left") else {
+            XCTFail("Failed to find  button after swiping")
+            return
+        }
+        XCTAssertTrue(firstButton.waitForExistence(timeout: 1) && firstButton.isHittable)
+        firstButton.tap()
+        
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        
+        //        element.swipeDown()
+        dismissSheet()
+        goBack()
+        waitForAppToSettle()
+        do {
+            let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
+            XCTAssertEqual(3, firstCellMultiSelectValue.count)
+        } catch {
+            XCTFail("Failed to unwrap cell text values: \(error)")
+        }
+    }
     
     func testCollectionFieldNumber() {
         goToCollectionDetailField()
@@ -661,84 +661,84 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
     }
     
-//    func testMoveDownRow() {
-//        goToCollectionDetailField()
-//        selectRow(number: 1)
-//        tapOnMoreButton()
-//        moveDownButton().tap()
-//        
-//        let fieldTarget = onChangeResult().target
-//        XCTAssertEqual("field.value.rowMove", fieldTarget)
-//        
-//        do {
-//            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-//            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
-//            XCTAssertEqual(1, rowIndex)
-//        } catch {
-//            XCTFail("Unexpected error: \(error).")
-//        }
-//        
-//        goBack()
-//        waitForAppToSettle()
-//        XCTAssertEqual(onChangeResultValue().valueElements?.count , 2)
-//        XCTAssertEqual(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text, "Hello")
-//    }
+    func testMoveDownRow() {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        tapOnMoreButton()
+        moveDownButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            XCTAssertEqual(1, rowIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        goBack()
+        waitForAppToSettle()
+        XCTAssertEqual(onChangeResultValue().valueElements?.count , 2)
+        XCTAssertEqual(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text, "Hello")
+    }
        
-//    func testMoveUpOnNestedRow() {
-//        addThreeNestedRows(parentRowNumber: 1)
-//        
-//        selectNestedRow(number: 2)
-//        tapOnMoreButton()
-//        
-//        moveUpButton().tap()
-//        
-//        let fieldTarget = onChangeResult().target
-//        XCTAssertEqual("field.value.rowMove", fieldTarget)
-//        
-//        do {
-//            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-//            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
-//            XCTAssertEqual(0, rowIndex)
-//        } catch {
-//            XCTFail("Unexpected error: \(error).")
-//        }
-//        
-//        goBack()
-//        waitForAppToSettle()
-//        
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "two")
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "one")
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "123")
-//    }
+    func testMoveUpOnNestedRow() {
+        addThreeNestedRows(parentRowNumber: 1)
+        
+        selectNestedRow(number: 2)
+        tapOnMoreButton()
+        
+        moveUpButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            XCTAssertEqual(0, rowIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        goBack()
+        waitForAppToSettle()
+        
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "two")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "one")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "123")
+    }
     
-//    func testMoveDownOnNestedRow() {
-//        addThreeNestedRows(parentRowNumber: 1)
-//        
-//        selectNestedRow(number: 2)
-//        tapOnMoreButton()
-//        
-//        moveDownButton().tap()
-//        
-//        let fieldTarget = onChangeResult().target
-//        XCTAssertEqual("field.value.rowMove", fieldTarget)
-//        
-//        do {
-//            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-//            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
-//            XCTAssertEqual(2, rowIndex)
-//        } catch {
-//            XCTFail("Unexpected error: \(error).")
-//        }
-//        
-//        goBack()
-//        waitForAppToSettle()
-//        
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "one")
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "123")
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "two")
-//    }
+    func testMoveDownOnNestedRow() {
+        addThreeNestedRows(parentRowNumber: 1)
+        
+        selectNestedRow(number: 2)
+        tapOnMoreButton()
+        
+        moveDownButton().tap()
+        
+        let fieldTarget = onChangeResult().target
+        XCTAssertEqual("field.value.rowMove", fieldTarget)
+        
+        do {
+            let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
+            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            XCTAssertEqual(2, rowIndex)
+        } catch {
+            XCTFail("Unexpected error: \(error).")
+        }
+        
+        goBack()
+        waitForAppToSettle()
+        
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "one")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[1].cells?["6805b7c2dae7987557c0b602"]?.text , "123")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[2].cells?["6805b7c2dae7987557c0b602"]?.text , "two")
+    }
     
     func testDeleteAllOnNestedRow() {
         addThreeNestedRows(parentRowNumber: 1)
@@ -785,387 +785,387 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     // Edit All Parent Rows
-//    func testEditBulkRow() throws {
-//        guard UIDevice.current.userInterfaceIdiom != .pad else {
-//            return
-//        }
-//        
-//        goToCollectionDetailField()
-//        selectAllParentRows()
-//        
-//        tapOnMoreButton()
-//        editRowsButton().tap()
-//        
-//        
-//        // Textfield
-//        let textField = app.textFields["EditRowsTextFieldIdentifier"]
-//        waitForAppToSettle()
-//        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit text field did not appear")
-//        textField.tap()
-//        textField.typeText("Edit")
-//        app.dismissKeyboardIfVisible()
-//        waitForAppToSettle()
-//        
-//        // Dropdown Field
-//        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-//        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
-//        dropdownButton.tap()
-//
-//        // Wait for options to appear
-//        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-//
-//        let timeout = 5.0
-//        let start = Date()
-//        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
-//            waitForAppToSettle()
-//        }
-//
-//        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
-//        let firstOption = dropdownOptions.element(boundBy: 0)
-//        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
-//        firstOption.tap()
-//        
-//        // Multiselection Field
-//        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
-//        //XCTAssertEqual("", multiSelectionButton.label)
-//        multiSelectionButton.tap()
-//        
-//        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        //XCTAssertGreaterThan(optionsButtons.count, 0)
-//        let firstOptionButton = optionsButtons.element(boundBy: 0)
-//        firstOptionButton.tap()
-//        let secOptionButton = optionsButtons.element(boundBy: 1)
-//        secOptionButton.tap()
-//        let thirdOptionButton = optionsButtons.element(boundBy: 2)
-//        thirdOptionButton.tap()
-//        
-//        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-//        
-//        
-//        // Image Field
-//        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
-//            XCTFail("Failed to find image button after swiping")
-//            return
-//        }
-//        firstImageButton.tap()
-//        let imageUploadButton = app.buttons["ImageUploadImageIdentifier"]
-//        XCTAssertTrue(imageUploadButton.waitForExistence(timeout: 5))
-//        imageUploadButton.tap()
-//        dismissSheet()
-//        app.swipeUp()
-//        
-//        guard let dateField = app.swipeToFindElement(identifier: "EditRowsDateFieldIdentifier", type: .image) else {
-//            XCTFail("Failed to find date button after swiping")
-//            return
-//        }
-//        dateField.tap()
-//        
-//        
-//        // Barcode Column
-//        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
-//            XCTFail("Failed to find barcode field after swiping")
-//            return
-//        }
-//        barcodeTextField.tap()
-//        barcodeTextField.clearText()
-//        barcodeTextField.typeText("quick")
-//        app.dismissKeyboardIfVisible()
-//        if UIDevice.current.userInterfaceIdiom != .pad {
-//            dismissSheet()
-//        }
-//        // Number Field
-//        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
-//            XCTFail("Failed to find number text field after swiping")
-//            return
-//        }
-//        numberTextField.tap()
-//        numberTextField.clearText()
-//        numberTextField.typeText("12345")
-//        app.dismissKeyboardIfVisible()
-//        if UIDevice.current.userInterfaceIdiom != .pad {
-//            dismissSheet()
-//        }
-//        // Signature Column
-//        let signatureButtons = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier")
-//        let firstSignatureButton = signatureButtons.element(boundBy: 0)
-//        firstSignatureButton.tap()
-//        
-//        drawSignatureLine()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        
-//        // Tap on Apply All Button
-//        app.buttons["ApplyAllButtonIdentifier"].tap()
-//        
-//        goBack()
-//        waitForAppToSettle()
-//        
-//        // Textfield
-//        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
-//        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
-//        XCTAssertEqual("Edit", firstCellTextValue)
-//        XCTAssertEqual("Edit", secondCellTextValue)
-//        
-//        // Dropdown Field
-//        let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
-//        XCTAssertEqual("6805b644125b5d4c3832603b", firstCellDropdownValue)
-//        
-//        // Multiselect Column
-//        let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
-//        XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue)
-//        
-//        // Image Field
-//        let firstCellImageValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
-//        XCTAssertEqual(1, firstCellImageValue.count)
-//        
-//        // Number Field
-//        let firstCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
-//        XCTAssertEqual(12345, firstCellNumberValue)
-//        
-//        // Date Column
-//        let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b77fc568df7b031590dc"]?.number)
-//        XCTAssertNotNil(firstCellDateValue)
-//        
-//        // Barcode Field
-//        let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7a813ea45f5b681dec1"]?.text)
-//        XCTAssertEqual("quick", firstCellBarcodeTextValue)
-//        
-//        // Signature Field
-//        XCTAssertNotNil(onChangeResultValue().valueElements?[0].cells?["6805b7ac1325377829f4d92e"]?.text)
-//        
-//    }
+    func testEditBulkRow() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        
+        goToCollectionDetailField()
+        selectAllParentRows()
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        waitForAppToSettle()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit text field did not appear")
+        textField.tap()
+        textField.typeText("Edit")
+        app.dismissKeyboardIfVisible()
+        waitForAppToSettle()
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            waitForAppToSettle()
+        }
+
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        //XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        
+        
+        // Image Field
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        let imageUploadButton = app.buttons["ImageUploadImageIdentifier"]
+        XCTAssertTrue(imageUploadButton.waitForExistence(timeout: 5))
+        imageUploadButton.tap()
+        dismissSheet()
+        app.swipeUp()
+        
+        guard let dateField = app.swipeToFindElement(identifier: "EditRowsDateFieldIdentifier", type: .image) else {
+            XCTFail("Failed to find date button after swiping")
+            return
+        }
+        dateField.tap()
+        
+        
+        // Barcode Column
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        barcodeTextField.clearText()
+        barcodeTextField.typeText("quick")
+        app.dismissKeyboardIfVisible()
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            dismissSheet()
+        }
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("12345")
+        app.dismissKeyboardIfVisible()
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            dismissSheet()
+        }
+        // Signature Column
+        let signatureButtons = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier")
+        let firstSignatureButton = signatureButtons.element(boundBy: 0)
+        firstSignatureButton.tap()
+        
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        goBack()
+        waitForAppToSettle()
+        
+        // Textfield
+        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
+        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
+        XCTAssertEqual("Edit", firstCellTextValue)
+        XCTAssertEqual("Edit", secondCellTextValue)
+        
+        // Dropdown Field
+        let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
+        XCTAssertEqual("6805b644125b5d4c3832603b", firstCellDropdownValue)
+        
+        // Multiselect Column
+        let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
+        XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue)
+        
+        // Image Field
+        let firstCellImageValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
+        XCTAssertEqual(1, firstCellImageValue.count)
+        
+        // Number Field
+        let firstCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
+        XCTAssertEqual(12345, firstCellNumberValue)
+        
+        // Date Column
+        let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b77fc568df7b031590dc"]?.number)
+        XCTAssertNotNil(firstCellDateValue)
+        
+        // Barcode Field
+        let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7a813ea45f5b681dec1"]?.text)
+        XCTAssertEqual("quick", firstCellBarcodeTextValue)
+        
+        // Signature Field
+        XCTAssertNotNil(onChangeResultValue().valueElements?[0].cells?["6805b7ac1325377829f4d92e"]?.text)
+        
+    }
     
     // Edit Single Parent Row
-//    func testEditSingleRow() throws {
-//        guard UIDevice.current.userInterfaceIdiom != .pad else {
-//            return
-//        }
-//        
-//        goToCollectionDetailField()
-//        //select 1st row
-//        selectRow(number: 1)
-//        
-//        tapOnMoreButton()
-//        editRowsButton().tap()
-//        sleep(2)
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
-//        
-//        let firstRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("Hello", firstRowTextField.value as! String)
-//        
-//        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
-//        XCTAssertEqual("High", dropdownButtons.element(boundBy: 0).label)
-//        
-//        editSingleRowLowerButton().tap()
-//        sleep(2)
-//        let secondRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-//        XCTAssertEqual("His", secondRowTextField.value as! String)
-//        XCTAssertEqual("Medium", dropdownButtons.element(boundBy: 1).label)
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
-//        
-//        editInsertRowPlusButton().tap()
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
-//        
-//        // Textfield
-//        let textField = app.textFields["EditRowsTextFieldIdentifier"]
-//        textField.tap()
-//        textField.typeText("Edit")
-//        app.dismissKeyboardIfVisible()
-//        
-//        // Dropdown Field
-//        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-//        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
-//        dropdownButton.tap()
-//
-//        // Wait for options to appear
-//        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-//
-//        let timeout = 5.0
-//        let start = Date()
-//        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
-//            waitForAppToSettle()
-//        }
-//
-//        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
-//        let firstOption = dropdownOptions.element(boundBy: 0)
-//        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
-//        firstOption.tap()
-//        
-//        // Multiselection Field
-//        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
-//        //XCTAssertEqual("", multiSelectionButton.label)
-//        multiSelectionButton.tap()
-//        
-//        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        XCTAssertTrue(optionsButtons.element.waitForExistence(timeout: 5))
-//        //XCTAssertGreaterThan(optionsButtons.count, 0)
-//        let firstOptionButton = optionsButtons.element(boundBy: 0)
-//        firstOptionButton.tap()
-//        let secOptionButton = optionsButtons.element(boundBy: 1)
-//        secOptionButton.tap()
-//        let thirdOptionButton = optionsButtons.element(boundBy: 2)
-//        thirdOptionButton.tap()
-//        
-//        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-//        app.dismissKeyboardIfVisible()
-//        // Image Field
-//        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
-//            XCTFail("Failed to find image button after swiping")
-//            return
-//        }
-//        firstImageButton.tap()
-//        app.buttons["ImageUploadImageIdentifier"].tap()
-//        dismissSheet()
-//        
-//        guard let dateField = app.swipeToFindElement(identifier: "EditRowsDateFieldIdentifier", type: .image) else {
-//            XCTFail("Failed to find date button after swiping")
-//            return
-//        }
-//        dateField.tap()
-//        
-//        // Number Field
-//        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
-//            XCTFail("Failed to find number text field after swiping")
-//            return
-//        }
-//        numberTextField.tap()
-//        numberTextField.clearText()
-//        numberTextField.typeText("12345")
-//        firstImageButton.tap()
-//        dismissSheet()
-//        app.swipeUp()
-//        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
-//            XCTFail("Failed to find barcode text field after swiping")
-//            return
-//        }
-//        barcodeTextField.tap()
-//        //waitForAppToSettle()
-//
-//        // Double tap if needed to ensure keyboard opens
-//        if !app.keyboards.element.exists {
-//            barcodeTextField.tap()
-//            waitForAppToSettle()
-//        }
-//
-//        // Assert keyboard presence
-//        //XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
-//
-//        // Clear and type
-//        if let textValue = barcodeTextField.value as? String {
-//            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: textValue.count + 5)
-//            barcodeTextField.typeText(deleteString)
-//        }
-//        barcodeTextField.typeText("Edit Barcode")
-//        
-//        // Signature Column
-//        let signatureButtons = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier")
-//        let firstSignatureButton = signatureButtons.element(boundBy: 0)
-//        firstSignatureButton.tap()
-//        
-//        drawSignatureLine()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        
-//        dismissSheet()
-//        dismissSheet()
-//        
-//        goBack()
-//        waitForAppToSettle()
-//        // Textfield
-//        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
-//        XCTAssertEqual("Edit", thirdCellTextValue)
-//        
-//        // Dropdown Field
-//        let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b6442f2e0c095a07aebb"]?.text)
-//        XCTAssertEqual("6805b644125b5d4c3832603b", firstCellDropdownValue)
-//        
-//        // Multiselect Column
-//        let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
-//        XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue)
-//        
-//        // Image Field
-//        let firstCellImageValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
-//        XCTAssertEqual(1, firstCellImageValue.count)
-//        
-//        // Number Field
-//        let firstCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
-//        XCTAssertEqual(12345, firstCellNumberValue)
-//        
-//        // Date Column
-//        let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b77fc568df7b031590dc"]?.number)
-//        XCTAssertNotNil(firstCellDateValue)
-//        
-//        // Barcode Field
-//        let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b7a813ea45f5b681dec1"]?.text)
-//        XCTAssertEqual("Edit Barcode", firstCellBarcodeTextValue)
-//        
-//        // Signature Field
-//        XCTAssertNotNil(onChangeResultValue().valueElements?[2].cells?["6805b7ac1325377829f4d92e"]?.text)
-//    }
+    func testEditSingleRow() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        
+        goToCollectionDetailField()
+        //select 1st row
+        selectRow(number: 1)
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        sleep(2)
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        
+        let firstRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Hello", firstRowTextField.value as! String)
+        
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("High", dropdownButtons.element(boundBy: 0).label)
+        
+        editSingleRowLowerButton().tap()
+        sleep(2)
+        let secondRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("His", secondRowTextField.value as! String)
+        XCTAssertEqual("Medium", dropdownButtons.element(boundBy: 1).label)
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        
+        editInsertRowPlusButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        textField.tap()
+        textField.typeText("Edit")
+        app.dismissKeyboardIfVisible()
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            waitForAppToSettle()
+        }
+
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(optionsButtons.element.waitForExistence(timeout: 5))
+        //XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        app.dismissKeyboardIfVisible()
+        // Image Field
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        dismissSheet()
+        
+        guard let dateField = app.swipeToFindElement(identifier: "EditRowsDateFieldIdentifier", type: .image) else {
+            XCTFail("Failed to find date button after swiping")
+            return
+        }
+        dateField.tap()
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("12345")
+        firstImageButton.tap()
+        dismissSheet()
+        app.swipeUp()
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode text field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        //waitForAppToSettle()
+
+        // Double tap if needed to ensure keyboard opens
+        if !app.keyboards.element.exists {
+            barcodeTextField.tap()
+            waitForAppToSettle()
+        }
+
+        // Assert keyboard presence
+        //XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
+
+        // Clear and type
+        if let textValue = barcodeTextField.value as? String {
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: textValue.count + 5)
+            barcodeTextField.typeText(deleteString)
+        }
+        barcodeTextField.typeText("Edit Barcode")
+        
+        // Signature Column
+        let signatureButtons = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier")
+        let firstSignatureButton = signatureButtons.element(boundBy: 0)
+        firstSignatureButton.tap()
+        
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        dismissSheet()
+        dismissSheet()
+        
+        goBack()
+        waitForAppToSettle()
+        // Textfield
+        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
+        XCTAssertEqual("Edit", thirdCellTextValue)
+        
+        // Dropdown Field
+        let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b6442f2e0c095a07aebb"]?.text)
+        XCTAssertEqual("6805b644125b5d4c3832603b", firstCellDropdownValue)
+        
+        // Multiselect Column
+        let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
+        XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue)
+        
+        // Image Field
+        let firstCellImageValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
+        XCTAssertEqual(1, firstCellImageValue.count)
+        
+        // Number Field
+        let firstCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
+        XCTAssertEqual(12345, firstCellNumberValue)
+        
+        // Date Column
+        let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b77fc568df7b031590dc"]?.number)
+        XCTAssertNotNil(firstCellDateValue)
+        
+        // Barcode Field
+        let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b7a813ea45f5b681dec1"]?.text)
+        XCTAssertEqual("Edit Barcode", firstCellBarcodeTextValue)
+        
+        // Signature Field
+        XCTAssertNotNil(onChangeResultValue().valueElements?[2].cells?["6805b7ac1325377829f4d92e"]?.text)
+    }
     
     // Edit all Nested rows
-//    func testBulkEditNestedRows() throws {
-//        goToCollectionDetailField()
-//        
-//        expandRow(number: 1)
-//        tapSchemaAddRowButton(number: 0)
-//        tapSchemaAddRowButton(number: 0)
-//        tapSchemaAddRowButton(number: 0)
-//        
-//        selectAllNestedRows()
-//        tapOnMoreButton()
-//        editRowsButton().tap()
-//        
-//        // Textfield
-//        let textField = app.textFields["EditRowsTextFieldIdentifier"]
-//        waitForAppToSettle()
-//        textField.tap()
-//        waitForAppToSettle()
-//        textField.typeText("Edit")
-//        
-//        // Dropdown Field
-//        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-//        XCTAssertEqual("Select Option", dropdownButton.label)
-//        dropdownButton.tap()
-//        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-//        let firstOption = dropdownOptions.element(boundBy: 0)
-//        firstOption.tap()
-//        
-//        // Multiselection Field
-//        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
-////        XCTAssertEqual("", multiSelectionButton.label)
-//        multiSelectionButton.tap()
-//        
-//        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        XCTAssertTrue(optionsButtons.element(boundBy: 0).waitForExistence(timeout: 5))
-//        let firstOptionButton = optionsButtons.element(boundBy: 0)
-//        firstOptionButton.tap()
-//        let secOptionButton = optionsButtons.element(boundBy: 1)
-//        secOptionButton.tap()
-//        let thirdOptionButton = optionsButtons.element(boundBy: 2)
-//        thirdOptionButton.tap()
-//        
-//        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-//        
-//        // Tap on Apply All Button
-//        app.buttons["ApplyAllButtonIdentifier"].tap()
-//        
-//        goBack()
-//        waitForAppToSettle()
-//        
-//        // Textfield
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Edit")
-//        
-//        // Dropdown Field
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")
-//        
-//        // Multiselect Column
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
-//    }
+    func testBulkEditNestedRows() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        selectAllNestedRows()
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        waitForAppToSettle()
+        textField.tap()
+        waitForAppToSettle()
+        textField.typeText("Edit")
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+//        XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(optionsButtons.element(boundBy: 0).waitForExistence(timeout: 5))
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        goBack()
+        waitForAppToSettle()
+        
+        // Textfield
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Edit")
+        
+        // Dropdown Field
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")
+        
+        // Multiselect Column
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
+    }
     
     // Test disabled buttons on row form of top level rows
     func testSelectOneTopLevelRow() throws {
@@ -1229,89 +1229,89 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     // Edit Single Nested Row
-//    func testEditSingleNestedRow() throws {
-//        addThreeNestedRows(parentRowNumber: 1)
-//        // Make sure collection search filter is on
-//        openFilterModalForDismissKeyboard()
-//        expandRow(number: 2)
-//        
-//        selectNestedRow(number: 1)
-//        
-//        tapOnMoreButton()
-//        editRowsButton().tap()
-//        
-//        // Textfield
-//        let textField = app.textFields["EditRowsTextFieldIdentifier"]
-//        waitForAppToSettle()
-//        textField.tap()
-//        textField.clearText()
-//        textField.typeText("quick")
-//        
-//        // Dropdown Field
-//        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-//        XCTAssertEqual("Select Option", dropdownButton.label)
-//        dropdownButton.tap()
-//        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-//        let firstOption = dropdownOptions.element(boundBy: 0)
-//        firstOption.tap()
-//        app.swipeUp()
-//        // Multiselection Field
-//        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
-////        XCTAssertEqual("", multiSelectionButton.label)
-//        multiSelectionButton.tap()
-//        
-//        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        waitForAppToSettle()
-////        XCTAssertGreaterThan(optionsButtons.count, 0)
-//        let firstOptionButton = optionsButtons.element(boundBy: 0)
-//        firstOptionButton.tap()
-//        let secOptionButton = optionsButtons.element(boundBy: 1)
-//        secOptionButton.tap()
-//        let thirdOptionButton = optionsButtons.element(boundBy: 2)
-//        thirdOptionButton.tap()
-//        
-//        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-//        tapOnCrossButton()
-//        
-//        goBack()
-//        waitForAppToSettle()
-//        
-//        // Textfield
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "quick")
-//        
-//        // Dropdown Field
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")
-//        
-//        // Multiselect Column
-//        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
-//    }
+    func testEditSingleNestedRow() throws {
+        addThreeNestedRows(parentRowNumber: 1)
+        // Make sure collection search filter is on
+        openFilterModalForDismissKeyboard()
+        expandRow(number: 2)
+        
+        selectNestedRow(number: 1)
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        waitForAppToSettle()
+        textField.tap()
+        textField.clearText()
+        textField.typeText("quick")
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        app.swipeUp()
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+//        XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        waitForAppToSettle()
+//        XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        tapOnCrossButton()
+        
+        goBack()
+        waitForAppToSettle()
+        
+        // Textfield
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "quick")
+        
+        // Dropdown Field
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")
+        
+        // Multiselect Column
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7d26f17f6a05edeee14"]?.stringArray , ["6805b7d247dcd4e634ccf0a5", "6805b7d244d0a2e6bbb039fb", "6805b7d2b87da9ba35bd466a"])
+    }
     
-//    func testTableEditRowFormSwitchRowsAndCheckData() throws {
-//        goToCollectionDetailField()
-//        selectRow(number: 1)
-//        tapOnMoreButton()
-//        editRowsButton().tap()
-//
-//        // Add signature in current row
-//        app.swipeUp()
-//        let signatureButton = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier").firstMatch
-//        signatureButton.tap()
-//        drawSignatureLine()
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        let saveButton = app.buttons["SaveSignatureIdentifier"].firstMatch
-//        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
-//        saveButton.tap()
-//
-//        // Move to next new row
-//        let insertbBtton = editInsertRowPlusButton()
-//        XCTAssertTrue(insertbBtton.waitForExistence(timeout: 5))
-//        insertbBtton.tap()
-//        // Open signature for next row and verify it’s fresh (no Edit button)
-//        signatureButton.tap()
-//        let editSignatureButton = app.buttons["TableSignatureEditButton"].firstMatch
-//        XCTAssertFalse(editSignatureButton.exists, "Edit button should not exist for a fresh row signature (no carry-over)")
-//        app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
-//    }
+    func testTableEditRowFormSwitchRowsAndCheckData() throws {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        tapOnMoreButton()
+        editRowsButton().tap()
+
+        // Add signature in current row
+        app.swipeUp()
+        let signatureButton = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier").firstMatch
+        signatureButton.tap()
+        drawSignatureLine()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let saveButton = app.buttons["SaveSignatureIdentifier"].firstMatch
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        saveButton.tap()
+
+        // Move to next new row
+        let insertbBtton = editInsertRowPlusButton()
+        XCTAssertTrue(insertbBtton.waitForExistence(timeout: 5))
+        insertbBtton.tap()
+        // Open signature for next row and verify it’s fresh (no Edit button)
+        signatureButton.tap()
+        let editSignatureButton = app.buttons["TableSignatureEditButton"].firstMatch
+        XCTAssertFalse(editSignatureButton.exists, "Edit button should not exist for a fresh row signature (no carry-over)")
+        app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
+    }
     
 }
 

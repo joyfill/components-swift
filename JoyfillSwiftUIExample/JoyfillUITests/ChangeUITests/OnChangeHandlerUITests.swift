@@ -382,23 +382,23 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(inserRowBelowButton().exists, false)
     }
     
-//    func testChangeText() {
-//        guard UIDevice.current.userInterfaceIdiom == .pad else {
-//            return
-//        }
-//        goToCollectionView()
-//        goToCollectionView()
-//       
-//        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("A", firstTableTextField.value as! String)
-//        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 3))
-//        firstTableTextField.tap()
-//        firstTableTextField.typeText("one")
-//
-//        let firstValueCount = app.textViews.countMatchingValue(firstTableTextField.value as! String)
-//        print("Number of textViews with value \"FirstA\": \(firstValueCount)")
-//        XCTAssertEqual(2, firstValueCount, "Expected exactly two textViews with value 'FirstA' (one in each form)")
-//    }
+    func testChangeText() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView()
+       
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("A", firstTableTextField.value as! String)
+        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 3))
+        firstTableTextField.tap()
+        firstTableTextField.typeText("one")
+
+        let firstValueCount = app.textViews.countMatchingValue(firstTableTextField.value as! String)
+        print("Number of textViews with value \"FirstA\": \(firstValueCount)")
+        XCTAssertEqual(2, firstValueCount, "Expected exactly two textViews with value 'FirstA' (one in each form)")
+    }
     
     func testChangeNumberCollection() {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -583,69 +583,69 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     
     // Test disabled buttons on Row Form for nested rows
-//    func testSelectOneNestedRow() throws {
-//        guard UIDevice.current.userInterfaceIdiom == .pad else {
-//            return
-//        }
-//        goToCollectionView()
-//        goToCollectionView()
-//        addThreeNestedRows(parentRowNumber: 2)
-//        // Make sure collection search filter is on
-//        openFilterModalForDismissKeyboard()
-//        app.dismissKeyboardIfVisible()
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        expandRow(number: 3)
-//        
-//        selectNestedRow(number: 2)
-//        
-//        tapOnMoreButtonCollection()
-//        editRowsButton().tap()
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
-//        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
-//        //go to next row and test
-//        editSingleRowLowerButton().tap()
-//        editSingleRowLowerButton().tap()
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
-//        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
-//        
-//        //tap inssert below and test
-//        editInsertRowPlusButton().tap()
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
-//        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
-//        dismissSheet()
-//        goBack()
-//        expandRow(number: 2)
-//        expandRow(number: 3)
-//        
-//        selectNestedRow(number: 2)
-//        
-//        tapOnMoreButtonCollection()
-//        editRowsButton().tap()
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
-//        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
-//        //go to next row and test
-//        editSingleRowLowerButton().tap()
-//        editSingleRowLowerButton().tap()
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
-//        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
-//        
-//        //tap inssert below and test
-//        editInsertRowPlusButton().tap()
-//        
-//        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
-//        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
-//        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
-//    }
+    func testSelectOneNestedRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView()
+        addThreeNestedRows(parentRowNumber: 2)
+        // Make sure collection search filter is on
+        openFilterModalForDismissKeyboard()
+        app.dismissKeyboardIfVisible()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        expandRow(number: 3)
+        
+        selectNestedRow(number: 2)
+        
+        tapOnMoreButtonCollection()
+        editRowsButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        //go to next row and test
+        editSingleRowLowerButton().tap()
+        editSingleRowLowerButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        
+        //tap inssert below and test
+        editInsertRowPlusButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        dismissSheet()
+        goBack()
+        expandRow(number: 2)
+        expandRow(number: 3)
+        
+        selectNestedRow(number: 2)
+        
+        tapOnMoreButtonCollection()
+        editRowsButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        //go to next row and test
+        editSingleRowLowerButton().tap()
+        editSingleRowLowerButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+        
+        //tap inssert below and test
+        editInsertRowPlusButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
+        XCTAssertEqual(editInsertRowPlusButton().isEnabled, true)
+    }
     
     
     func testDeleteAllRowsApplyFiltersThenReAddAndFilterDepth2() {
@@ -908,24 +908,24 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         return outputFormatter.string(from: date)
     }
     
-//    func testInsertBelowCollection() {
-//        guard UIDevice.current.userInterfaceIdiom == .pad else {
-//            return
-//        }
-//        goToCollectionView()
-//        goToCollectionView()
-//        
-//        selectRow(number: 1)
-//        tapOnMoreButtonCollection()
-//        XCTAssertEqual(inserRowBelowButton().exists, true)
-//        inserRowBelowButton().tap()
-//        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
-//        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 5))
-//        firstTableTextField.tap()
-//        firstTableTextField.typeText("qu")
-//        goBack()
-//        XCTAssertEqual(firstTableTextField.value as! String, "qu")
-//    }
+    func testInsertBelowCollection() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        goToCollectionView()
+        
+        selectRow(number: 1)
+        tapOnMoreButtonCollection()
+        XCTAssertEqual(inserRowBelowButton().exists, true)
+        inserRowBelowButton().tap()
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 5))
+        firstTableTextField.tap()
+        firstTableTextField.typeText("qu")
+        goBack()
+        XCTAssertEqual(firstTableTextField.value as! String, "qu")
+    }
     
     func testTableDetailView() {
         guard UIDevice.current.userInterfaceIdiom == .pad else {

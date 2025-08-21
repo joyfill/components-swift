@@ -22,30 +22,30 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
     }
     
-//    func testSaveSignature() throws {
-//        let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
-//        
-//        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
-//        signatureDetailButton.tap()
-//        drawSignatureLine()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        app.swipeUp()
-//        app.swipeDown()
-//        
-//        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
-//        XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
-//    }
+    func testSaveSignature() throws {
+        let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
+        
+        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
+        signatureDetailButton.tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        app.swipeUp()
+        app.swipeDown()
+        
+        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
+        XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
+    }
     
-//    func testClearSignature() throws {
-//        let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
-//        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
-//        
-//        signatureDetailButton.tap()
-//        drawSignatureLine()
-//        app.buttons["ClearSignatureIdentifier"].tap()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        XCTAssertEqual("Add Signature", signatureDetailButton.label)
-//    }
+    func testClearSignature() throws {
+        let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
+        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
+        
+        signatureDetailButton.tap()
+        drawSignatureLine()
+        app.buttons["ClearSignatureIdentifier"].tap()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        XCTAssertEqual("Add Signature", signatureDetailButton.label)
+    }
 
     func testFieldHeaderRendering() throws {
         
@@ -78,17 +78,17 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         }
     }
 
-//    func testOnChangePayloadDetails() throws {
-//        let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
-//        signatureButton.tap()
-//        drawSignatureLine()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        let payload = onChangeResult().dictionary
-//        XCTAssertEqual(payload["fieldId"] as? String, "68722bf19c672bea4f559b57")
-//        XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
-//        XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_68722bf903d0b4dec6baeb1a")
-//        XCTAssertEqual(payload["fieldPositionId"] as? String, "68722bf9f8f55c7e44903770")
-//    }
+    func testOnChangePayloadDetails() throws {
+        let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
+        signatureButton.tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        let payload = onChangeResult().dictionary
+        XCTAssertEqual(payload["fieldId"] as? String, "68722bf19c672bea4f559b57")
+        XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
+        XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_68722bf903d0b4dec6baeb1a")
+        XCTAssertEqual(payload["fieldPositionId"] as? String, "68722bf9f8f55c7e44903770")
+    }
 
     func testSignatureFieldOnFocusAndOnBlur() throws {
         let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
@@ -154,23 +154,23 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         alert.buttons["Dismiss"].tap()
     }
     
-//    func testDefaultSignatureFilled() throws {
-//        let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
-//        
-//        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
-//        signatureDetailButton.tap()
-//        drawSignatureLine()
-//        app.buttons["SaveSignatureIdentifier"].tap()
-//        app.swipeUp()
-//        app.swipeDown()
-//        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
-//        XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
-//        // 4. Check that it starts/ends with the right bits of your known-default PNG
-//        let expectedPrefix = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABmgAAAG4CAYAAABB4Gh5"
-//        let expectedSuffix = "AElFTkSuQmCC"
-//        XCTAssertTrue(((onChangeResultValue().signatureURL?.hasPrefix(expectedPrefix)) != nil),
-//                      "Signature data should start with expected prefix")
-//        XCTAssertTrue(((onChangeResultValue().signatureURL?.hasSuffix(expectedSuffix)) != nil),
-//                      "Signature data should end with expected suffix")
-//    }
+    func testDefaultSignatureFilled() throws {
+        let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
+        
+        XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
+        signatureDetailButton.tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        app.swipeUp()
+        app.swipeDown()
+        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
+        XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
+        // 4. Check that it starts/ends with the right bits of your known-default PNG
+        let expectedPrefix = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABmgAAAG4CAYAAABB4Gh5"
+        let expectedSuffix = "AElFTkSuQmCC"
+        XCTAssertTrue(((onChangeResultValue().signatureURL?.hasPrefix(expectedPrefix)) != nil),
+                      "Signature data should start with expected prefix")
+        XCTAssertTrue(((onChangeResultValue().signatureURL?.hasSuffix(expectedSuffix)) != nil),
+                      "Signature data should end with expected suffix")
+    }
 }
