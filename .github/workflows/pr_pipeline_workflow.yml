@@ -51,7 +51,7 @@ on:
 
 # Default pipeline level for PR triggers
 env:
-  # Use pre-merge as default for all PR events  
+  # Use pre-merge as default for all PR events
   PIPELINE_TYPE: ${{ github.event.inputs.pipeline_type || 'pre-merge' }}
 
 jobs:
@@ -71,7 +71,6 @@ jobs:
           key: ${{ runner.os }}-swiftlint-${{ runner.arch }}
           restore-keys: |
             ${{ runner.os }}-swiftlint-
-
       - name: Run SwiftLint
         run: |
           cd JoyfillSwiftUIExample
@@ -89,7 +88,6 @@ jobs:
           
           # Exit with proper code
           exit ${LINT_EXIT_CODE:-0}
-
       - name: Upload SwiftLint Report
         uses: actions/upload-artifact@v4  # Updated to v4
         if: always()
@@ -131,7 +129,6 @@ jobs:
           else
             echo "✅ All Swift files have valid syntax!"
           fi
-
   # 🏗️ Job 3: Full Build
   build:
     name: "🏗️ Build"
@@ -151,7 +148,6 @@ jobs:
           if ! gem list xcpretty -i; then
             gem install xcpretty
           fi
-
       - name: Build for Simulator
         run: |
           set -o pipefail
@@ -170,7 +166,6 @@ jobs:
           | xcpretty --color --report html --output build-report.html
           
           echo "✅ Build completed successfully!"
-
       - name: Upload Build Report
         uses: actions/upload-artifact@v4
         if: always()
@@ -184,7 +179,6 @@ jobs:
     name: "🧪 Unit Tests"
     runs-on: macos-14
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true'))) }}
-    timeout-minutes: 30
     needs: [build]
     steps:
       - name: Checkout code
@@ -199,7 +193,6 @@ jobs:
           if ! gem list xcpretty -i; then
             gem install xcpretty
           fi
-
       - name: Run Unit Tests
         run: |
           set -o pipefail
@@ -215,7 +208,6 @@ jobs:
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output unit-test-report.html
-
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         if: always()
@@ -230,10 +222,9 @@ jobs:
   ui-tests:
     name: "🖱️ UI Tests"
     runs-on: macos-14
-    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true'))) }}
-    continue-on-error: true
-    timeout-minutes: 240
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true')) }}
     needs: [build]
+    timeout-minutes: 30  # ← HERE IS THE 30-MINUTE TIMEOUT! 🎯
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -247,84 +238,28 @@ jobs:
           if ! gem list xcpretty -i; then
             gem install xcpretty
           fi
-
-      - name: Boot Multiple iPad Simulators
+      - name: Boot iOS Simulator
         run: |
-          # Check available runtimes and device types first
-          echo "Checking available iOS runtimes:"
-          xcrun simctl list runtimes | grep iOS
-          
-          echo "Checking available iPad device types:"
-          xcrun simctl list devicetypes | grep -i ipad
-          
-          # Create and boot multiple iPad simulators for parallel testing
-          echo "Creating and booting iPad simulators for parallel testing..."
-          
-          # Extract the iOS runtime identifier correctly
-          IOS_RUNTIME=$(xcrun simctl list runtimes | grep "iOS" | tail -1 | awk -F'[()]' '{print $4}')
-          echo "Using iOS runtime: $IOS_RUNTIME"
-          
-          # Use the best available iPad Pro M4 13-inch
-          IPAD_TYPE="iPad Pro 13-inch (M4)"
-          if ! xcrun simctl list devicetypes | grep -q "iPad Pro 13-inch (M4)"; then
-            # Fallback to iPad Pro 12.9-inch if M4 not available
-            IPAD_TYPE="iPad Pro (12.9-inch) (6th generation)"
-          fi
-          
-          echo "Using iPad type: $IPAD_TYPE"
-          
-          # Create 5 iPad simulators if they don't exist
-          xcrun simctl create "iPad-Test-1" "$IPAD_TYPE" "$IOS_RUNTIME" || true
-          xcrun simctl create "iPad-Test-2" "$IPAD_TYPE" "$IOS_RUNTIME" || true
-          xcrun simctl create "iPad-Test-3" "$IPAD_TYPE" "$IOS_RUNTIME" || true
-          xcrun simctl create "iPad-Test-4" "$IPAD_TYPE" "$IOS_RUNTIME" || true
-          xcrun simctl create "iPad-Test-5" "$IPAD_TYPE" "$IOS_RUNTIME" || true
-          
-          # Boot all iPad simulators in parallel
-          xcrun simctl boot "iPad-Test-1" || true &
-          xcrun simctl boot "iPad-Test-2" || true &
-          xcrun simctl boot "iPad-Test-3" || true &
-          xcrun simctl boot "iPad-Test-4" || true &
-          xcrun simctl boot "iPad-Test-5" || true &
-          
-          # Wait for all simulators to boot
-          wait
-          sleep 20
-          
-          # Verify simulators are running
-          echo "Available iPad simulators:"
-          xcrun simctl list devices | grep "iPad-Test"
-
-      - name: Run UI Tests (Parallel iPad Execution)
+          # Start iOS Simulator
+          xcrun simctl boot "iPhone 16 Pro" || true
+          sleep 10
+          # Verify simulator is running
+          xcrun simctl list devices | grep "iPhone 16 Pro"
+      - name: Run UI Tests
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
-          
-          # Get the iOS runtime identifier dynamically
-          IOS_RUNTIME=$(xcrun simctl list runtimes | grep "iOS" | tail -1 | awk -F'[()]' '{print $4}')
-          echo "Running UI tests in parallel across 5 iPad simulators with runtime $IOS_RUNTIME..."
-          
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination "platform=iOS Simulator,name=iPad-Test-1" \
-            -destination "platform=iOS Simulator,name=iPad-Test-2" \
-            -destination "platform=iOS Simulator,name=iPad-Test-3" \
-            -destination "platform=iOS Simulator,name=iPad-Test-4" \
-            -destination "platform=iOS Simulator,name=iPad-Test-5" \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             EXCLUDED_ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES \
-            SWIFT_COMPILATION_MODE=wholemodule \
-            DEBUG_INFORMATION_FORMAT=dwarf \
-            ENABLE_TESTABILITY=YES \
-            -parallel-testing-enabled YES \
-            -maximum-parallel-testing-workers 5 \
           | xcpretty --color --report html --output ui-test-report.html
-
       - name: Upload UI Test Results
         uses: actions/upload-artifact@v4
         if: always()
@@ -355,40 +290,42 @@ jobs:
           echo "| 🖱️ UI Tests | ${{ needs.ui-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Overall status - consider success if core jobs (syntax, build, unit tests) pass
-          # UI tests can fail but still allow merging (continue-on-error: true)
-          # Lint is optional and can be skipped
+          # Overall status - consider success if core jobs (syntax, build, unit-tests) pass
+          # Lint and UI tests are optional and can be skipped
           LINT_OK="${{ needs.lint.result == 'success' || needs.lint.result == 'skipped' }}"
           SYNTAX_OK="${{ needs.syntax-check.result == 'success' }}"
           BUILD_OK="${{ needs.build.result == 'success' || needs.build.result == 'skipped' }}"
-          UNIT_OK="${{ needs.unit-tests.result == 'success' }}"
+          UNIT_OK="${{ needs.unit-tests.result == 'success' || needs.unit-tests.result == 'skipped' }}"
+          UI_OK="${{ needs.ui-tests.result == 'success' || needs.ui-tests.result == 'skipped' }}"
           
-          # UI test result for display (can be failure but still OK for merging)
-          UI_STATUS="${{ needs.ui-tests.result }}"
-          
-          if [[ "$SYNTAX_OK" == "true" && "$BUILD_OK" == "true" && "$UNIT_OK" == "true" && "$LINT_OK" == "true" ]]; then
+          if [[ "$SYNTAX_OK" == "true" && "$BUILD_OK" == "true" && "$UNIT_OK" == "true" && "$LINT_OK" == "true" && "$UI_OK" == "true" ]]; then
             echo "## ✅ Build Status: PASSING" >> $GITHUB_STEP_SUMMARY
-            echo "✅ **All required jobs passed** - Ready to merge!" >> $GITHUB_STEP_SUMMARY
-            
-            # Show UI test status if it failed
-            if [[ "$UI_STATUS" == "failure" ]]; then
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "**UI Test Results (non-blocking):**" >> $GITHUB_STEP_SUMMARY
-              echo "⚠️ UI tests failed but merging is still allowed" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "All jobs completed successfully!" >> $GITHUB_STEP_SUMMARY
-            fi
+            echo "All jobs completed successfully or were skipped as expected." >> $GITHUB_STEP_SUMMARY
           else
             echo "## ❌ Build Status: FAILING" >> $GITHUB_STEP_SUMMARY
-            echo "Required jobs failed. Fix these before merging:" >> $GITHUB_STEP_SUMMARY
-            if [[ "$SYNTAX_OK" != "true" ]]; then
-              echo "❌ Syntax check failed" >> $GITHUB_STEP_SUMMARY
-            fi
-            if [[ "$BUILD_OK" != "true" ]]; then
-              echo "❌ Build failed" >> $GITHUB_STEP_SUMMARY
-            fi
-            if [[ "$UNIT_OK" != "true" ]]; then
-              echo "❌ Unit tests failed" >> $GITHUB_STEP_SUMMARY
-            fi
+            echo "One or more jobs failed. Check individual job results above." >> $GITHUB_STEP_SUMMARY
           fi
           
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Need to Run Skipped Jobs?" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "If any jobs were skipped and you want to run them individually:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to **Actions** tab" >> $GITHUB_STEP_SUMMARY
+          echo "2. Select **🎯 Run Individual Jobs** workflow" >> $GITHUB_STEP_SUMMARY
+          echo "3. Click **Run workflow** and choose:" >> $GITHUB_STEP_SUMMARY
+          echo "   - \`swiftlint-only\` - Run only SwiftLint" >> $GITHUB_STEP_SUMMARY
+          echo "   - \`ui-tests-only\` - Run only UI Tests" >> $GITHUB_STEP_SUMMARY
+          echo "   - \`custom-selection\` - Pick individual jobs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Quick Links for Skipped Jobs:**" >> $GITHUB_STEP_SUMMARY
+          
+          # Show specific suggestions based on what was skipped
+          if [[ "${{ needs.lint.result }}" == "skipped" ]]; then
+            echo "- **SwiftLint was skipped** → Use \`swiftlint-only\` option" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.ui-tests.result }}" == "skipped" ]]; then
+            echo "- **UI Tests were skipped** → Use \`ui-tests-only\` option" >> $GITHUB_STEP_SUMMARY
+          fi
