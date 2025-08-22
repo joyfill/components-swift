@@ -30,14 +30,14 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let identifier = "CollectionExpandCollapseButton\(number)"
         
-        guard let expandButton = app.swipeToFindElement(identifier: identifier,
-                                                        type: .image,
-                                                        direction: "up",
-                                                        maxAttempts: 6) else {
-            XCTFail("Failed to find expand/collapse button with identifier: \(identifier)")
-            return
-        }
-        
+//        guard let expandButton = app.swipeToFindElement(identifier: identifier,
+//                                                        type: .image,
+//                                                        direction: "up",
+//                                                        maxAttempts: 6) else {
+//            XCTFail("Failed to find expand/collapse button with identifier: \(identifier)")
+//            return
+//        }
+        let expandButton = app.images[identifier].firstMatch
         XCTAssertTrue(expandButton.isHittable, "Expand/collapse button is not hittable")
         expandButton.tap()
     }

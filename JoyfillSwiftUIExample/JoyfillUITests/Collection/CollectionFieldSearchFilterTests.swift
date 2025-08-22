@@ -1788,115 +1788,115 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(countFinal, 6, "Final row count should remain stable")
     }
     
-//    func testConditionalLogicHideDepth2WithBulkEdit() throws {
-//        guard UIDevice.current.userInterfaceIdiom != .pad else {
-//            return
-//        }
-//        
-//        goToCollectionDetailField()
-//        expandRow(number: 1)
-//        
-//        let countRootRows = getVisibleRowCount()
-//        XCTAssertEqual(countRootRows, 4)
-//        
-//        let countNestedRows = getVisibleNestexRowsCount()
-//        XCTAssertEqual(countNestedRows, 3)
-//        
-//        selectAllParentRows()
-//        
-//        tapOnMoreButton()
-//        editRowsButton().tap()
-//        
-//        
-//        // Textfield
-//        let textField = app.textFields["EditRowsTextFieldIdentifier"]
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        textField.tap()
-//        textField.typeText("hide depth2")
-//        app.dismissKeyboardIfVisible()
-//        
-//        // Dropdown Field
-//        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
-//        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
-//        dropdownButton.tap()
-//        
-//        // Wait for options to appear
-//        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
-//        
-//        let timeout = 5.0
-//        let start = Date()
-//        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
-//            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        }
-//        
-//        XCTAssertTrue(dropdownOptions.element.waitForExistence(timeout: 5))
-//        let firstOption = dropdownOptions.element(boundBy: 1)
-//        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
-//        firstOption.tap()
-//        
-//        // Multiselection Field
-//        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
-//        //XCTAssertEqual("", multiSelectionButton.label)
-//        multiSelectionButton.tap()
-//        
-//        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        //XCTAssertGreaterThan(optionsButtons.count, 0)
-//        let firstOptionButton = optionsButtons.element(boundBy: 0)
-//        firstOptionButton.tap()
-//        let secOptionButton = optionsButtons.element(boundBy: 1)
-//        secOptionButton.tap()
-//        let thirdOptionButton = optionsButtons.element(boundBy: 2)
-//        thirdOptionButton.tap()
-//        
-//        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-//        
-//        
-//        // Number Field
-//        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
-//            XCTFail("Failed to find number text field after swiping")
-//            return
-//        }
-//        numberTextField.tap()
-//        numberTextField.clearText()
-//        numberTextField.typeText("1200")
-//        
-//        // Image Field
-//        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
-//            XCTFail("Failed to find image button after swiping")
-//            return
-//        }
-//        firstImageButton.tap()
-//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        app.buttons["ImageUploadImageIdentifier"].tap()
-//        dismissSheet()
-//        
-//        // Barcode Column
-//        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
-//            XCTFail("Failed to find barcode field after swiping")
-//            return
-//        }
-//        barcodeTextField.tap()
-//        barcodeTextField.clearText()
-//        barcodeTextField.typeText("567")
-//        
-//        
-//        
-//        // Tap on Apply All Button
-//        app.buttons["ApplyAllButtonIdentifier"].tap()
-//        
-//        let countNestedRowsafterOpration = getVisibleNestexRowsCount()
-//        XCTAssertEqual(countNestedRowsafterOpration, 0)
-//        
-//        expandRow(number: 1)
-//        expandRow(number: 2)
-//        expandRow(number: 3)
-//        
-//        let countRootRows2 = getVisibleRowCount()
-//        XCTAssertEqual(countRootRows2, 4)
-//        
-//        let countNestedRows2 = getVisibleNestexRowsCount()
-//        XCTAssertEqual(countNestedRows2, 0)
-//    }
+    func testConditionalLogicHideDepth2WithBulkEdit() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        
+        let countRootRows = getVisibleRowCount()
+        XCTAssertEqual(countRootRows, 4)
+        
+        let countNestedRows = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows, 3)
+        
+        selectAllParentRows()
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        textField.tap()
+        textField.typeText("hide depth2")
+        app.dismissKeyboardIfVisible()
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+        
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
+        
+        XCTAssertTrue(dropdownOptions.element.waitForExistence(timeout: 5))
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        //XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("1200")
+        
+        // Image Field
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        dismissSheet()
+        
+        // Barcode Column
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        barcodeTextField.clearText()
+        barcodeTextField.typeText("567")
+        
+        
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        let countNestedRowsafterOpration = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRowsafterOpration, 0)
+        
+        expandRow(number: 1)
+        expandRow(number: 2)
+        expandRow(number: 3)
+        
+        let countRootRows2 = getVisibleRowCount()
+        XCTAssertEqual(countRootRows2, 4)
+        
+        let countNestedRows2 = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows2, 0)
+    }
     
     func testRequiredFieldAsteriskPresence() {
         let requiredLabel = app.staticTexts["This is collection\nwith multiline header\ntest."]

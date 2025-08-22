@@ -267,7 +267,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("", secNestedTextField.value as! String)
         secNestedTextField.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         secNestedTextField.typeText("two")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
         XCTAssertTrue(thirdNestedTextField.waitForExistence(timeout: 5))
