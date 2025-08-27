@@ -166,6 +166,8 @@
 		36CE14692DB7F90B00799B25 /* JoyDoc+helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */; };
 		36CFA0532CE2068300B7DE34 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA0522CE2068300B7DE34 /* JoyfillModel */; };
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
+		4D7BDD9D2E5ED9B7009ED389 /* TableViewModelDocumentEditorDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BDD9C2E5ED9B7009ED389 /* TableViewModelDocumentEditorDelegateTests.swift */; };
+		4D7BDD9E2E5ED9B7009ED389 /* CollectionViewModelDocumentEditorDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BDD9B2E5ED9B7009ED389 /* CollectionViewModelDocumentEditorDelegateTests.swift */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
@@ -518,6 +520,8 @@
 		36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_TableField.swift; sourceTree = "<group>"; };
 		36CE14662DB6680000799B25 /* LiveViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveViewTest.swift; sourceTree = "<group>"; };
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
+		4D7BDD9B2E5ED9B7009ED389 /* CollectionViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
+		4D7BDD9C2E5ED9B7009ED389 /* TableViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerUITests.swift; sourceTree = "<group>"; };
@@ -759,6 +763,8 @@
 		134FC0782BDA82E9008B7030 /* JoyfillTests */ = {
 			isa = PBXGroup;
 			children = (
+				4D7BDD9B2E5ED9B7009ED389 /* CollectionViewModelDocumentEditorDelegateTests.swift */,
+				4D7BDD9C2E5ED9B7009ED389 /* TableViewModelDocumentEditorDelegateTests.swift */,
 				E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */,
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
 				E2CC9FEC2E375DE500797331 /* SchemaValidation */,
@@ -1772,6 +1778,8 @@
 				E2B8E3D42E43753300AC6018 /* FormulaTemplate_ConditionalEvaluationCircularReferenceTests.swift in Sources */,
 				E2B8E3EB2E43804900AC6018 /* FormulaTemplate_SignatureFieldTests.swift in Sources */,
 				E2B8E3D52E43753300AC6018 /* FormulaTemplate_ArithmeticTests.swift in Sources */,
+				4D7BDD9D2E5ED9B7009ED389 /* TableViewModelDocumentEditorDelegateTests.swift in Sources */,
+				4D7BDD9E2E5ED9B7009ED389 /* CollectionViewModelDocumentEditorDelegateTests.swift in Sources */,
 				E2B8E3D62E43753300AC6018 /* EncapsulatedCircularReference_FormulaTemplateTests.swift in Sources */,
 				E2B8E3D72E43753300AC6018 /* JoyfillResolver_LongChainIndirectCircularDependencyTests.swift in Sources */,
 				E2B8E3D82E43753300AC6018 /* JoyfillResolver_IndirectCircularErrorTests.swift in Sources */,
