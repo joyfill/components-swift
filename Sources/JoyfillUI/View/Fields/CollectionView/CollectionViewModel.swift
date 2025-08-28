@@ -40,8 +40,8 @@ class CollectionViewModel: ObservableObject {
     
     func initializeAsync() {
         DispatchQueue.global().async {
-            let blockLongestTextMap = self.buildBlockLongestTextMap()
             let rowToValueElementMap = self.getBuildRowToValueElementMap()
+            let blockLongestTextMap = self.buildBlockLongestTextMap()
             let cellWidthMap = self.cellWidthMapping()
             let cellModels = self.getCellModels()
             let collectionWidth = self.getCollectionWidth()
@@ -70,23 +70,11 @@ class CollectionViewModel: ObservableObject {
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
         var longestText = ""
-        
-        for valueElement in valueElements {
+        for valueElement in rowToValueElementMap.values {
             if let cell = valueElement.cells?.first(where: { $0.key == columnID })?.value,
                let text = cell.text {
                 if text.count > longestText.count {
                     longestText = text
-                }
-            }
-            
-            if let childrenDict = valueElement.childrens {
-                for (_, child) in childrenDict {
-                    if let nestedValueElements = child.valueToValueElements {
-                        let nestedLongest = getLongestBlockTextRecursive(columnID: columnID, valueElements: nestedValueElements)
-                        if nestedLongest.count > longestText.count {
-                            longestText = nestedLongest
-                        }
-                    }
                 }
             }
         }
