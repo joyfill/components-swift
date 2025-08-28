@@ -45,8 +45,8 @@ public final class JoyfillLogger {
 //            logger.error("\(logMessage)")
 //        }
         #if DEBUG
-        print(logMessage) // Print to console in both debug and release builds
         if type == .error {
+            print(logMessage)
             #if DEBUG
             if NSClassFromString("XCTest") == nil {
                 fatalError(logMessage) // Only crash if not running tests
