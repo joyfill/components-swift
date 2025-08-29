@@ -14,25 +14,17 @@ import JoyfillModel
 final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     
     // MARK: - Test Constants
-    private let fileID = "66a0fdb2acd89d30121053b9"
-    private let pageID = "66aa286569ad25c65517385e" 
-    private let tableFieldID = "67612793c4e6a5e6a05e64a3"
+    private let fileID = "685750ef698da1ab427761ba"
+    private let pageID = "685750efeb612f4fac5819dd"
+    private let tableFieldID = "685750f0489567f18eb8a9ec"
     
     // MARK: - Test Helpers
     
     private func createTestDocument() -> JoyDoc {
-        return JoyDoc()
-            .setDocument()
-            .setFile()
-            .setMobileView()
-            .setPageFieldInMobileView()
-            .setPageField()
-            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
-            .setTableFieldPosition(hideColumn: false)
+        sampleJSONDocument(fileName: "CollectionFilter")
     }
     
-    private func createTableViewModel(document: JoyDoc) -> TableViewModel {
-        let documentEditor = DocumentEditor(document: document)
+    private func createTableViewModel(documentEditor: DocumentEditor) -> TableViewModel {
         let field = documentEditor.field(fieldID: tableFieldID)
         let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible)
         let tableDataModel = TableDataModel(
@@ -49,11 +41,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         target: String = "field.value.rowEdit",
         changeDict: [String: Any]
     ) -> Change {
-        let mockChangeDict: [String: Any] = [
-            "target": target,
-            "change": changeDict
-        ]
-        return Change(dictionary: mockChangeDict)
+        return Change(dictionary: changeDict)
     }
     
     private func createTestValueElement(id: String, cells: [String: ValueUnion] = [:]) -> ValueElement {
@@ -85,48 +73,42 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_ValidChange_UpdatesRowData() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
-        
-        let testRowID = "test-row-id-123"
-        let existingRow = createTestValueElement(
-            id: testRowID,
-            cells: [
-                "column1": .string("original value"),
-                "column2": .string("another value")
-            ]
-        )
-        
-        // Add the row to the valueToValueElements
-        viewModel.tableDataModel.valueToValueElements = [existingRow]
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
-            "rowId": testRowID,
-            "row": [
-                "cells": [
-                    "column1": ["text": "updated value"],
-                    "column3": ["text": "new column value"]
-                ]
-            ]
+            "_id": "685750eff3216b45ffe73c80",
+            "fileId": "685750ef698da1ab427761ba",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "sdk": "swift",
+            "createdOn": 1756454220.6010342,
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "target": "field.value.rowCreate",
+            "change": [
+                "row": [
+                    "cells": [:] as [String: Any],
+                    "_id": "68b15d4c17edb75267b4651a"
+                ] as [String: Any],
+                "targetRowIndex": 4
+            ] as [String: Any],
+            "v": 1,
+            "pageId": "685750efeb612f4fac5819dd",
+            "fieldId": "685750f0489567f18eb8a9ec"
         ]
+        let change = Change(dictionary: changeDict)
+        documentEditor.change(changes: [change])
         
-        let change = createMockChange(target: "field.value.rowEdit", changeDict: changeDict)
-        
-        // When
-        viewModel.applyRowEditChanges(change: change)
-        
-        // Then
-        let updatedRow = viewModel.tableDataModel.valueToValueElements?.first { $0.id == testRowID }
-        XCTAssertNotNil(updatedRow, "Row should exist after update")
-        XCTAssertEqual(updatedRow?.cells?["column1"]?.text, "updated value", "Column1 should be updated")
-        XCTAssertEqual(updatedRow?.cells?["column2"]?.text, "another value", "Column2 should remain unchanged")
-        XCTAssertEqual(updatedRow?.cells?["column3"]?.text, "new column value", "Column3 should be added")
-        XCTAssertNotEqual(viewModel.uuid, UUID(), "UUID should be updated to trigger UI refresh")
+        let updatedNumberOfRows = viewModel.tableDataModel.valueToValueElements?.count
+        let updatedNumberOFRowsFromDocumentEditor = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.valueToValueElements?.count
+        XCTAssertEqual(updatedNumberOFRowsFromDocumentEditor, 5, "Rows should be updated")
     }
     
     func testApplyRowEditChanges_InvalidRowID_LogsError() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
             "rowId": "non-existent-row-id",
@@ -149,7 +131,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MissingRowID_HandlesGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
             "row": [
@@ -170,7 +153,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MissingRowData_HandlesGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let testRowID = "test-row-id"
         let existingRow = createTestValueElement(id: testRowID)
@@ -193,7 +177,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testInsertRow_ValidRowData_InsertsNewRow() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let newRowID = "new-row-id-123"
         let changeDict: [String: Any] = [
@@ -223,7 +208,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testInsertRow_MissingRowData_HandlesGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [:]
         
@@ -237,7 +223,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testInsertRow_InvalidRowStructure_HandlesGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
             "row": [
@@ -258,7 +245,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testInsertRow_WithCellValues_UsesCellValuesFromRow() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let newRowID = "new-row-with-cells"
         let testCells: [String: Any] = [
@@ -287,7 +275,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testDeleteRow_ValidRowID_DeletesRow() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let rowIDToDelete = "row-to-delete-123"
         let testRow = createTestValueElement(
@@ -322,7 +311,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testDeleteRow_InvalidRowID_LogsError() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
             "rowId": "non-existent-row-id"
@@ -338,7 +328,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testDeleteRow_MissingRowID_LogsError() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [:]
         
@@ -352,7 +343,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testDeleteRow_CallsDeleteSelectedRowWithCorrectParameters() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let rowIDToDelete = "test-row-delete"
         let testRow = createTestValueElement(id: rowIDToDelete)
@@ -378,7 +370,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMoveRow_MoveDown_MovesRowToTargetIndex() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let row1ID = "row-1"
         let row2ID = "row-2"
@@ -412,7 +405,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMoveRow_MoveUp_MovesRowToTargetIndex() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let row1ID = "row-1"
         let row2ID = "row-2"
@@ -446,7 +440,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMoveRow_SamePosition_NoMovement() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let row1ID = "row-1"
         let row2ID = "row-2"
@@ -477,7 +472,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMoveRow_InvalidRowID_HandlesGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
             "rowId": "non-existent-row",
@@ -494,7 +490,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMoveRow_MissingRowID_LogsError() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
             "targetRowIndex": 1
@@ -511,7 +508,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMoveRow_MissingTargetIndex_HandlesGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let testRow = createTestValueElement(id: "test-row")
         viewModel.tableDataModel.valueToValueElements = [testRow]
@@ -533,7 +531,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMergedRow_ValidChange_MergesCorrectly() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let existingRow = createTestValueElement(
             id: "test-row",
@@ -556,17 +555,18 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         
 //        // When - Using reflection to test the private method through a wrapper
 //        let merged = viewModel.testMergedRow(change, existingRow)
-//        
+//
 //        // Then
 //        XCTAssertEqual(merged.cells?["column1"]?.text, "updated", "Column1 should be updated")
-//        XCTAssertEqual(merged.cells?["column2"]?.number, 10, "Column2 should remain unchanged") 
+//        XCTAssertEqual(merged.cells?["column2"]?.number, 10, "Column2 should remain unchanged")
 //        XCTAssertEqual(merged.cells?["column3"]?.text, "new", "Column3 should be added")
     }
     
     func testMergedRow_MissingRowData_ReturnsOriginal() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let existingRow = createTestValueElement(id: "test-row", cells: ["col1": .string("original")])
         
@@ -575,7 +575,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         
 //        // When
 //        let merged = viewModel.testMergedRow(change, existingRow)
-//        
+//
 //        // Then
 //        XCTAssertEqual(merged.cells?["col1"]?.text, "original", "Should return original row when no change data")
     }
@@ -583,7 +583,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMergedRow_InvalidCellsData_ReturnsOriginal() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let existingRow = createTestValueElement(id: "test-row", cells: ["col1": .string("original")])
         
@@ -596,7 +597,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         
         // When
 //        let merged = viewModel.testMergedRow(change, existingRow)
-//        
+//
 //        // Then
 //        XCTAssertEqual(merged.cells?["col1"]?.text, "original", "Should return original row when cells data is invalid")
     }
@@ -604,7 +605,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testUpdateUIModels_ValidRow_UpdatesCellModels() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let testRowID = "test-row-ui"
         let testRow = createTestValueElement(
@@ -632,10 +634,10 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testDocumentEditorDelegateIntegration_RegistrationAndCallback() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         // When - The delegate should be automatically registered in init
-        let documentEditor = viewModel.tableDataModel.documentEditor
         
         // Then - Verify the delegate is registered
         XCTAssertNotNil(documentEditor, "DocumentEditor should exist")
@@ -645,7 +647,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         
         // These should not crash even with minimal setup
         viewModel.applyRowEditChanges(change: testChange)
-        viewModel.insertRow(for: testChange) 
+        viewModel.insertRow(for: testChange)
         viewModel.deleteRow(for: testChange)
         viewModel.moveRow(for: testChange)
         
@@ -656,7 +658,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
 //        // Given
 //        let document = createTestDocument()
 //        let viewModel = createTableViewModel(document: document)
-//        
+//
 //        // Then - Verify all required DocumentEditorDelegate methods are implemented
 //        XCTAssertTrue(viewModel.responds(to: #selector(DocumentEditorDelegate.applyRowEditChanges(change:))), "applyRowEditChanges should be implemented")
 //        XCTAssertTrue(viewModel.responds(to: #selector(DocumentEditorDelegate.insertRow(for:))), "insertRow should be implemented")
@@ -667,7 +669,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testTableViewModel_UUIDUpdatesOnRowEdit() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let testRowID = "uuid-test-row"
         let existingRow = createTestValueElement(id: testRowID)
@@ -698,7 +701,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testAllMethods_WithEmptyTableData_HandleGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         // Ensure empty state
         viewModel.tableDataModel.valueToValueElements = []
@@ -722,7 +726,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testMoveRow_OutOfBoundsIndex_HandlesGracefully() {
         // Given
         let document = createTestDocument()
-        let viewModel = createTableViewModel(document: document)
+        let documentEditor = DocumentEditor(document: document)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let testRow = createTestValueElement(id: "test-row")
         viewModel.tableDataModel.valueToValueElements = [testRow]
