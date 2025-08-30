@@ -19,6 +19,7 @@ class CollectionViewModel: ObservableObject {
     @Published var blockLongestTextMap: [String: String] = [:]
     @Published var rowToValueElementMap: [String: ValueElement] = [:]
     @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
+    @Published var columnsMap: [String: FieldTableColumn] = [:]
     @Published var isLoading: Bool = false
     @Published var isBulkLoading: Bool = false
     @Published var isSearching: Bool = false
@@ -40,6 +41,7 @@ class CollectionViewModel: ObservableObject {
     
     func initializeAsync() {
         DispatchQueue.global().async {
+            let columnsMap = self.getTableColumns()
             let rowToValueElementMap = self.getBuildRowToValueElementMap()
             let blockLongestTextMap = self.buildBlockLongestTextMap()
             let cellWidthMap = self.cellWidthMapping()
@@ -47,6 +49,7 @@ class CollectionViewModel: ObservableObject {
             let collectionWidth = self.getCollectionWidth()
 
             DispatchQueue.main.async {
+                self.columnsMap = columnsMap
                 self.blockLongestTextMap = blockLongestTextMap
                 self.rowToValueElementMap = rowToValueElementMap
                 self.cellWidthMap = cellWidthMap
@@ -66,6 +69,19 @@ class CollectionViewModel: ObservableObject {
                 self.isLoading = false
             }
         }
+    }
+    
+    func getTableColumns() -> [String : FieldTableColumn] {
+        var map: [String: FieldTableColumn] = [:]
+        for (key, _) in tableDataModel.schema {
+            let tableColumns = tableDataModel.filterTableColumns(key: key)
+            for column in tableColumns {
+                if let id = column.id, map[id] == nil {
+                    map[id] = column
+                }
+            }
+        }
+        return map
     }
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {

@@ -16,30 +16,24 @@ struct CollectionRowView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            let columns = viewModel.tableDataModel.schema[rowDataModel.rowType.isRow ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey]?.tableColumns ?? []
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                let column = columns.first(where: { $0.id == cellModel.data.id })
+                let column = viewModel.columnsMap[cellModel.data.id]
+                let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                    .frame(
-                        minWidth: viewModel.cellWidthMap[cellModel.data.id],
-                        maxWidth: viewModel.cellWidthMap[cellModel.data.id],
-                        minHeight: 50,
-                        maxHeight: .infinity
-                    )
+                    .frame(width: viewModel.cellWidthMap[cellModel.data.id], height: 60)
                     .overlay(
-                        ZStack {
-                            // Outer border
-                            RoundedRectangle(cornerRadius: 0)
-                                .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
-
-                            if let required = column?.required, required, !cellModel.data.isCellFilled {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .inset(by: 2)
-                                    .stroke(colorScheme == .dark ? Color.pink : Color.red, lineWidth: colorScheme == .dark ? 1 : 0.5)
-                            }
-                        }
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
                     )
+                    .overlay {
+                        if showRequired {
+                            RoundedRectangle(cornerRadius: 8)
+                                .inset(by: 2)
+                                .stroke(colorScheme == .dark ? Color.pink : Color.red,
+                                        lineWidth: colorScheme == .dark ? 1 : 0.5)
+                        }
+                    }
             }
         }
     }
@@ -364,6 +358,7 @@ struct CollectionColumnHeaderView: View {
                 .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .frame(width: viewModel.collectionWidth, alignment: .leading)
         .padding(.vertical, 1)
     }
 }
