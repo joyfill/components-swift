@@ -9,7 +9,7 @@ import JoyfillModel
 
 struct TableDateView: View {
     @State private var isDatePickerPresented = false
-    @State private var selectedDate: Date? = nil
+    @State private var selectedDate: Date = Date()
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
         
@@ -53,7 +53,7 @@ struct TableDateView: View {
                     HStack {
                         Spacer()
                         
-                        DatePicker("", selection: dateBinding, displayedComponents: Utility.getDateType(format: $cellModel.wrappedValue.data.format ?? .empty))
+                        DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: $cellModel.wrappedValue.data.format ?? .empty))
                             .accessibilityIdentifier("TableDateIdentifier")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .labelsHidden()
@@ -63,7 +63,6 @@ struct TableDateView: View {
                         
                         Button {
                             isDatePickerPresented = false
-                            selectedDate = nil
                         } label: {
                             Image(systemName: "xmark.circle")
                         }
@@ -85,7 +84,7 @@ struct TableDateView: View {
             }
             .onChange(of: selectedDate) { newValue in
                 var cellDataModel = cellModel.data
-                cellDataModel.date = newValue.map { dateToTimestampMilliseconds(date: $0) }
+                cellDataModel.date = dateToTimestampMilliseconds(date: newValue)
                 cellModel.didChange?(cellDataModel)
                 cellModel.data = cellDataModel
             }
