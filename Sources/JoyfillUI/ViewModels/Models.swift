@@ -393,11 +393,17 @@ struct TableDataModel {
             let optionsLocal = fieldTableColumn.options?.map { option in
                 OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
             }
+            let optionsMap: [String: OptionLocal] = fieldTableColumn.options?.reduce(into: [String: OptionLocal]()) { dict, option in
+                if let id = option.id {
+                    dict[id] = OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+                }
+            } ?? [:]
             
             let fieldTableColumnLocal = CellDataModel(
                 id: columnId,
                 defaultDropdownSelectedId: fieldTableColumn.defaultDropdownSelectedId,
                 options: optionsLocal,
+                optionsMap: optionsMap,
                 valueElements: fieldTableColumn.images ?? [],
                 type: fieldTableColumn.type,
                 title: fieldTableColumn.title,
@@ -433,10 +439,16 @@ struct TableDataModel {
 //            if columnData.type == .date {
 //                dateFormat = getDateFormatFromFieldPosition(key: schemaKey, columnID: columnData.id ?? "") ?? .empty
 //            }
+            let optionsMap: [String: OptionLocal] = columnData.options?.reduce(into: [String: OptionLocal]()) { dict, option in
+                if let id = option.id {
+                    dict[id] = OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+                }
+            } ?? [:]
             let selectedOptionText = optionsLocal?.filter{ $0.id == defaultDropdownSelectedId }.first?.value ?? ""
             let columnDataLocal = CellDataModel(id: columnID,
                                                 defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
                                                 options: optionsLocal,
+                                                optionsMap: optionsMap,
                                                 valueElements: columnData.images ?? [],
                                                 type: columnData.type,
                                                 title: columnData.title,
@@ -464,6 +476,11 @@ struct TableDataModel {
             let optionsLocal = columnData.options?.map { option in
                 OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
             }
+            let optionsMap: [String: OptionLocal] = columnData.options?.reduce(into: [String: OptionLocal]()) { dict, option in
+                if let id = option.id {
+                    dict[id] = OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+                }
+            } ?? [:]
             let valueUnion = row.cells?.first(where: { $0.key == columnID })?.value
             let defaultDropdownSelectedId = valueUnion?.dropdownValue
             
@@ -471,6 +488,7 @@ struct TableDataModel {
             let columnDataLocal = CellDataModel(id: columnID,
                                                 defaultDropdownSelectedId: columnData.defaultDropdownSelectedId,
                                                 options: optionsLocal,
+                                                optionsMap: optionsMap,
                                                 valueElements: columnData.images ?? [],
                                                 type: columnData.type,
                                                 title: columnData.title,
@@ -730,11 +748,17 @@ struct TableDataModel {
         let optionsLocal = column.options?.map { option in
             OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
         }
+        let optionsMap: [String: OptionLocal] = column.options?.reduce(into: [String: OptionLocal]()) { dict, option in
+            if let id = option.id {
+                dict[id] = OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+            }
+        } ?? [:]
         
         return CellDataModel(
             id: columnId,
             defaultDropdownSelectedId: column.defaultDropdownSelectedId,
             options: optionsLocal,
+            optionsMap: optionsMap,
             valueElements: column.images ?? [],
             type: column.type,
             title: column.title,
@@ -776,6 +800,11 @@ struct TableDataModel {
             for option in column.options ?? []{
                 optionsLocal.append(OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color))
             }
+            let optionsMap: [String: OptionLocal] = column.options?.reduce(into: [String: OptionLocal]()) { dict, option in
+                if let id = option.id {
+                    dict[id] = OptionLocal(id: option.id, deleted: option.deleted, value: option.value, color: option.color)
+                }
+            } ?? [:]
             guard let columnID = column.id else {
                 Log("ColumnID not found", type: .error)
                 return nil
@@ -783,6 +812,7 @@ struct TableDataModel {
             return CellDataModel(id: columnID,
                                  defaultDropdownSelectedId: column.defaultDropdownSelectedId,
                                  options: optionsLocal,
+                                 optionsMap: optionsMap,
                                  valueElements: column.images ?? [],
                                  type: column.type,
                                  title: column.title,
@@ -1032,6 +1062,7 @@ struct CellDataModel: Hashable, Equatable {
     let id: String
     var defaultDropdownSelectedId: String?
     let options: [OptionLocal]?
+    let optionsMap: [String: OptionLocal]
     var valueElements: [ValueElement]
     let type: ColumnTypes?
     var title: String

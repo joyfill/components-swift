@@ -21,12 +21,12 @@ struct TableDropDownOptionListView: View {
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, selectedDropdownValue: String? = nil) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
-        lastSelectedValue = cellModel.wrappedValue.data.options?.first(where: { $0.id == cellModel.wrappedValue.data.defaultDropdownSelectedId })?.value ?? ""
+        lastSelectedValue = cellModel.wrappedValue.data.optionsMap[cellModel.wrappedValue.data.defaultDropdownSelectedId ?? ""]?.value
         
         if let selectedDropdownValue = selectedDropdownValue {
-            _selectedDropdownValue = State(initialValue: cellModel.wrappedValue.data.options?.first(where: { $0.id == selectedDropdownValue })?.value ?? "")
+            _selectedDropdownValue = State(initialValue: cellModel.wrappedValue.data.optionsMap[selectedDropdownValue]?.value ?? "")
         } else if !isUsedForBulkEdit {
-            _selectedDropdownValue = State(initialValue: cellModel.wrappedValue.data.options?.first(where: { $0.id == cellModel.wrappedValue.data.defaultDropdownSelectedId })?.value ?? "")
+            _selectedDropdownValue = State(initialValue: cellModel.wrappedValue.data.optionsMap[cellModel.wrappedValue.data.defaultDropdownSelectedId ?? ""]?.value ?? "")
         }
     }
     
@@ -74,7 +74,7 @@ struct TableDropDownOptionListView: View {
         }
         .onAppear {
             guard !isUsedForBulkEdit else { return }
-            let newValue = cellModel.data.options?.first(where: { $0.id == cellModel.data.defaultDropdownSelectedId })?.value
+            let newValue = cellModel.data.optionsMap[cellModel.data.defaultDropdownSelectedId ?? ""]?.value
             if selectedDropdownValue != newValue {
                 selectedDropdownValue = newValue
             }
