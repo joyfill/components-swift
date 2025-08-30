@@ -12,6 +12,7 @@ struct TableDateView: View {
     @State private var selectedDate: Date = Date()
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
+    let datePickerComponent: DatePickerComponents
         
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
@@ -26,13 +27,7 @@ struct TableDateView: View {
                 }
             }
         }
-    }
-    
-    private var dateBinding: Binding<Date> {
-        Binding(
-            get: { selectedDate ?? Date() },
-            set: { selectedDate = $0 }
-        )
+        datePickerComponent = Utility.getDateType(format: cellModel.wrappedValue.data.format ?? .empty)
     }
     
     var body: some View {
@@ -53,7 +48,7 @@ struct TableDateView: View {
                     HStack {
                         Spacer()
                         
-                        DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: $cellModel.wrappedValue.data.format ?? .empty))
+                        DatePicker("", selection: $selectedDate, displayedComponents: datePickerComponent)
                             .accessibilityIdentifier("TableDateIdentifier")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .labelsHidden()
