@@ -52,7 +52,7 @@ struct TableDateView: View {
                             .font(.system(size: 15))
                             .lineLimit(1)
                         
-//                        Spacer()
+                        Spacer()
                         
                         Image(systemName: "xmark.circle")
                             .foregroundStyle(.blue)
