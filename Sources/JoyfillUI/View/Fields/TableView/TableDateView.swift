@@ -13,7 +13,8 @@ struct TableDateView: View {
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
     let datePickerComponent: DatePickerComponents
-    @State private var dateString: String = ""
+    @State var dateString: String = ""
+    @State var eraseDate: Bool = false
     
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
@@ -21,8 +22,8 @@ struct TableDateView: View {
         if !isUsedForBulkEdit {
             if let dateValue = cellModel.wrappedValue.data.date {
                 if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty) {
+                    _dateString = State(initialValue: dateString)
                     if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? .empty) {
-                        self.dateString = dateString
                         _selectedDate = State(initialValue: date)
                     }
                 }
@@ -33,11 +34,13 @@ struct TableDateView: View {
     
     var body: some View {
         if cellModel.viewMode == .quickView {
-            if !dateString.isEmpty {
-                Text(dateString)
-                    .padding(.horizontal, 8)
-                    .font(.system(size: 15))
-                    .lineLimit(1)
+            if let dateValue = cellModel.data.date {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty) {
+                    Text(dateString)
+                        .padding(.horizontal, 8)
+                        .font(.system(size: 15))
+                        .lineLimit(1)
+                }
             } else {
                 Image(systemName: "calendar")
             }
@@ -49,11 +52,13 @@ struct TableDateView: View {
                             .font(.system(size: 15))
                             .lineLimit(1)
                         
-                        Spacer()
+//                        Spacer()
                         
                         Image(systemName: "xmark.circle")
                             .foregroundStyle(.blue)
                             .onTapGesture {
+                                selectedDate = Date()
+                                eraseDate = true
                                 dateString = ""
                             }
                     } else {
@@ -62,6 +67,7 @@ struct TableDateView: View {
                         Image(systemName: "calendar")
                             .accessibilityIdentifier("CalendarImageIdentifier")
                             .onTapGesture {
+                                eraseDate = false
                                 selectedDate = Date()
                             }
                         
@@ -82,12 +88,12 @@ struct TableDateView: View {
             )
             .onChange(of: selectedDate) { newValue in
                 var cellDataModel = cellModel.data
-                cellDataModel.date = dateToTimestampMilliseconds(date: newValue)
-                cellModel.didChange?(cellDataModel)
+                cellDataModel.date = eraseDate ? nil : dateToTimestampMilliseconds(date: newValue)
                 cellModel.data = cellDataModel
+                cellModel.didChange?(cellDataModel)
                 
                 if let dateString = ValueUnion.double(dateToTimestampMilliseconds(date: newValue)).dateTime(format: cellModel.data.format ?? .empty) {
-                    self.dateString = dateString
+                    self.dateString = eraseDate ? "" : dateString
                 }
             }
         }
