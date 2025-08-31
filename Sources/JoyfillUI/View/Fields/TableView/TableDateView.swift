@@ -109,16 +109,17 @@ private final class _DatePopupViewController: UIViewController {
         dimView.backgroundColor = UIColor.black.withAlphaComponent(0.25)
         dimView.addTarget(self, action: #selector(dimTapped), for: .touchUpInside)
 
-        picker.preferredDatePickerStyle = .wheels
+        picker.preferredDatePickerStyle = mode == .dateAndTime ? .inline : .wheels
         picker.datePickerMode = mode
         picker.date = date
 
-
-        container.backgroundColor = UIColor.systemBackground
+        container.backgroundColor = UIColor.secondarySystemBackground
         container.layer.cornerRadius = 12
+        container.layer.borderWidth = 1
+        container.layer.borderColor = UIColor.separator.cgColor
         container.layer.shadowColor = UIColor.black.cgColor
-        container.layer.shadowOpacity = 0.2
-        container.layer.shadowRadius = 10
+        container.layer.shadowOpacity = 0.25
+        container.layer.shadowRadius = 12
 
         let stack = UIStackView(arrangedSubviews: [picker])
         stack.axis = .vertical
