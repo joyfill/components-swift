@@ -134,10 +134,13 @@ extension DocumentEditor {
 
     func mapOptionIDsToValues(field: JoyDocField, changedCells: [String: Any?]) -> [String: Any?] {
         var changedCells = changedCells
-        if let columns = field.tableColumns {
-            for column in columns {
-                guard let columnId = column.id else { continue }
-                if let value = changedCells[columnId] {
+        
+        if field.fieldType == .collection {
+            
+        } else if field.fieldType == .table {
+            if let columns = field.tableColumns {
+                for column in columns {
+                    guard let columnId = column.id else { continue }
                     // Handle dropdown/multiselect option resolution
                     if let cellValue = changedCells[columnId] {
                         switch column.type {
@@ -160,6 +163,7 @@ extension DocumentEditor {
             }
         }
         return changedCells
+        
     }
 
     func mapOptionValuesToOptionID(field: JoyDocField, changedCells: [String: Any?]) -> [String: Any?] {
