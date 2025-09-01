@@ -144,18 +144,18 @@ struct CollectionModalTopNavigationView: View {
                                 .padding(.bottom, 10)
                                 .accessibilityIdentifier("TableDeleteRowIdentifier")
                             }
-//                            Button(action: {
-//                                showingPopover = false
-//                                viewModel.duplicateRow()
-//                            }) {
-//                                Text("Duplicate \(rowTitle)")
-//                                    .foregroundStyle(.blue)
-//                                    .font(.system(size: 14))
-//                                    .frame(height: 27)
-//                            }
-//                            .padding(.horizontal, 16)
-//                            .padding(.bottom, 10)
-//                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
+                            Button(action: {
+                                showingPopover = false
+                                viewModel.duplicateRow()
+                            }) {
+                                Text("Duplicate \(rowTitle)")
+                                    .foregroundStyle(.blue)
+                                    .font(.system(size: 14))
+                                    .frame(height: 27)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
+                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
                         }
                         .frame(width: 180)
                         .presentationCompactAdaptation(.popover)

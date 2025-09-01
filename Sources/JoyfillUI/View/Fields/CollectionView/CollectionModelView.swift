@@ -21,6 +21,7 @@ struct CollectionRowView: View {
                 let column = columns.first(where: { $0.id == cellModel.data.id })
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+//                    Text("Temporary workaround for SwiftUI") // Temporary workaround for SwiftUI bug https://developer.apple.com/forums/thread/717311
                     .frame(
                         minWidth: viewModel.cellWidthMap[cellModel.data.id],
                         maxWidth: viewModel.cellWidthMap[cellModel.data.id],
@@ -191,9 +192,10 @@ struct CollectionModalView : View {
                         }
 
                     }
-                    .fixedSize(horizontal: false, vertical: true)
+//                    .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
                 }
+//                .transaction { txn in txn.disablesAnimations = true } // during drag
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                         cellProxy.scrollTo(0, anchor: .leading)
@@ -361,7 +363,7 @@ struct CollectionColumnHeaderView: View {
                 .zIndex(currentSelectedCol == index ? 1 : 0)
                 .accessibilityIdentifier("ColumnButtonIdentifier")
 //                .disabled([.image, .block, .date, .progress, .table].contains(column.type ?? .unknown) || viewModel.tableDataModel.cellModels.count == 0 || isHeaderNested)
-                .fixedSize(horizontal: false, vertical: true)
+//                .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(.vertical, 1)

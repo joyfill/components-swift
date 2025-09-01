@@ -760,10 +760,15 @@ struct TableDataModel {
     }
     
     func getLongestBlockText() -> String {
-        filteredcellModels.flatMap { $0.cells }
-            .filter { $0.data.type == .block }
-            .map { $0.data.title }
-            .max(by: { $0.count < $1.count }) ?? ""
+        var longest = ""
+        for model in filteredcellModels {
+            for cell in model.cells where cell.data.type == .block {
+                if cell.data.title.count > longest.count {
+                    longest = cell.data.title
+                }
+            }
+        }
+        return longest
     }
     
     func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {

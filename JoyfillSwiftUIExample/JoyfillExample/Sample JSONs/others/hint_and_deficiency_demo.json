@@ -1,16 +1,16 @@
 {
-  "_id": "67fa8d7805eb82ed29fff882",
+  "_id": "67fa8d7805eb82ed29fff883",
   "type": "document",
   "stage": "draft",
   "metadata": {},
   "identifier": "template_67fa8d780ee252702a043dc2",
-  "name": "Hint and Deficiency Demo",
+  "name": "Hint Demo",
   "createdOn": 1744473464047,
   "files": [
     {
       "_id": "67fa8d789ae291ded87f04a0",
       "metadata": {},
-      "name": "Hint and Deficiency Demo",
+      "name": "Hint Demo",
       "version": 1,
       "styles": {
         "margin": 4
@@ -26,7 +26,7 @@
               "displayType": "original",
               "tableColumns": {},
               "x": 0,
-              "y": 8,
+              "y": 0,
               "width": 8,
               "height": 30
             },
@@ -37,31 +37,10 @@
               "displayType": "original",
               "tableColumns": {},
               "x": 0,
-              "y": 67,
+              "y": 30,
               "width": 8,
               "height": 25,
               "titleDisplay": "inline"
-            },
-            {
-              "_id": "67fa94a4c9bf62b36427c27f",
-              "type": "text",
-              "field": "67fa94a1b378ad9e0b2d764b",
-              "displayType": "original",
-              "x": 0,
-              "y": 0,
-              "width": 4,
-              "height": 8
-            },
-            {
-              "_id": "67fcfde82f73c0e52c490121",
-              "type": "table",
-              "field": "67fcfddee556ee860043f744",
-              "displayType": "original",
-              "tableColumns": {},
-              "x": 0,
-              "y": 38,
-              "width": 8,
-              "height": 29
             }
           ],
           "hidden": false,
@@ -220,19 +199,24 @@
             "67fa8e206988e8303cd6f2e7": "xxxxxxxxx",
             "67fa8e20c0bf00d7dcb01486": "67fa8e20d2fdf29c35b03197",
             "67fa8e20ac59169cdcf7506e": "xx0000123",
-            "67fa91e4a5f01c417a60a3fa": ""
+            "67fa91e4a5f01c417a60a3fa": "67fa91e44dfc6e4f14acd711",
+            "67fa9262c014f71619c540bf": "HD VI",
+            "67fa91e9d090ad0e3a1d0113": "67fa91e92a050065cba36bca",
+            "67fa9277716cd4bd455398b9": "HD FT"
           }
         },
         {
           "_id": "67fa8e20a3e98cac7724d1c7",
-          "cells": {}
+          "cells": {
+            "67fa8e20c0bf00d7dcb01486": ""
+          }
         },
         {
           "_id": "67fa8e20f78ab0f8921da0bd",
           "cells": {}
         }
       ],
-      "identifier": "servicetrade_assets_alarm_devices",
+      "identifier": "servicetrade_assets_alarm_device",
       "tableColumnOrder": [
         "67fa8e20c0bf00d7dcb01486",
         "67fa8e20ac59169cdcf7506e",
@@ -245,7 +229,11 @@
         "67fa8e20de42e614f137a9cf",
         "67fa8e20a3e98cac7724d1c7",
         "67fa8e20f78ab0f8921da0bd"
-      ]
+      ],
+      "metadata": {
+        "_hint_table": "servicetrade_assets_alarm_device_hints",
+        "_hintTable": "servicetrade_assets_alarm_device_hints"
+      }
     },
     {
       "file": "67fa8d789ae291ded87f04a0",
@@ -335,7 +323,7 @@
           }
         }
       ],
-      "identifier": "servicetrade_assets_alarm_devices_hints",
+      "identifier": "servicetrade_assets_alarm_device_hints",
       "tableColumnOrder": [
         "67fa8e20c0bf00d7dcb01486",
         "67fa9262c014f71619c540bf",
@@ -347,96 +335,9 @@
         "67fa8e20f78ab0f8921da0bd",
         "67fa9377cbe87670717a2704"
       ],
-      "hidden": true
-    },
-    {
-      "file": "67fa8d789ae291ded87f04a0",
-      "_id": "67fa94a1b378ad9e0b2d764b",
-      "type": "text",
-      "title": "Location Name",
-      "identifier": "field_67fa94a4d6f03ec808aea6e6",
-      "value": "Example Field 67fa94a4d6f03ec808aea6e6"
-    },
-    {
-      "file": "67fa8d789ae291ded87f04a0",
-      "_id": "67fcfddee556ee860043f744",
-      "type": "table",
-      "title": "Deficiencies",
-      "tableColumns": [
-        {
-          "_id": "67fcfb0acb0b6c9cf52229bc",
-          "type": "text",
-          "title": "Address",
-          "width": 0,
-          "identifier": "field_column_67fcfde8933b09ed54a0d49c"
-        },
-        {
-          "_id": "67fcfb0a1f409385f3694eb8",
-          "type": "text",
-          "title": "Deficiency",
-          "width": 0,
-          "identifier": "field_column_67fcfde82c12cc0f090eddd7"
-        }
-      ],
-      "value": [
-        {
-          "_id": "67fcfb0adf2ae4f0fe5e5fc4",
-          "deleted": true,
-          "cells": {
-            "67fcfb0acb0b6c9cf52229bc": "foo",
-            "67fcfb0a1f409385f3694eb8": "bar"
-          }
-        },
-        {
-          "_id": "67fcfb0adf2ae4f0fe5e5fc6",
-          "deleted": false,
-          "cells": {
-            "67fcfb0acb0b6c9cf52229bc": "xx0000123",
-            "67fcfb0a1f409385f3694eb8": "Visual Inspection Failure"
-          }
-        },
-        {
-          "_id": "67fd03e969ec2c80df383a4c",
-          "deleted": true,
-          "cells": {
-            "67fcfb0acb0b6c9cf52229bc": "ssarse",
-            "67fcfb0a1f409385f3694eb8": "234234"
-          }
-        },
-        {
-          "_id": "0.6185766561960395",
-          "deleted": true,
-          "cells": {
-            "67fcfb0acb0b6c9cf52229bc": "xx0000123",
-            "67fcfb0a1f409385f3694eb8": "Visual Inspection Failure"
-          }
-        },
-        {
-          "_id": "67fd066d8e3d523f33459963",
-          "deleted": true,
-          "cells": {
-            "67fcfb0acb0b6c9cf52229bc": "",
-            "67fcfb0a1f409385f3694eb8": ""
-          }
-        },
-        {
-          "_id": "67fd067732c26e9c439394bd",
-          "deleted": false,
-          "cells": {
-            "67fcfb0acb0b6c9cf52229bc": "",
-            "67fcfb0a1f409385f3694eb8": ""
-          }
-        }
-      ],
-      "identifier": "deficiencies_summary",
-      "tableColumnOrder": [
-        "67fcfb0acb0b6c9cf52229bc",
-        "67fcfb0a1f409385f3694eb8"
-      ],
-      "rowOrder": [
-        "67fd067732c26e9c439394bd"
-      ]
+      "hidden": false
     }
   ],
   "categories": []
 }
+

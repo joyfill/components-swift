@@ -1592,6 +1592,7 @@ extension DocumentEditor {
         events?.onChange(changes: newFieldsArray, document: document)
     }
 }
+
 extension DocumentEditor {
     func makeFieldChangeContext(for fieldIdentifier: FieldIdentifier) -> FieldChangeContext? {
         guard let documentID = documentID else {

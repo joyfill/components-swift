@@ -11,12 +11,10 @@ import JSONSchema
 
 private enum ChangeTargetType: String {
     case fieldUpdate = "field.update"
-
     case fieldValueRowCreate = "field.value.rowCreate"
     case fieldValueRowUpdate = "field.value.rowUpdate"
     case fieldValueRowDelete = "field.value.rowDelete"
     case fieldValueRowMove = "field.value.rowMove"
-    
     case unknown
 }
 
@@ -46,7 +44,7 @@ public class DocumentEditor: ObservableObject {
     
     var fieldMap = [String: JoyDocField]() {
         didSet {
-            document.fields = allFields
+//            document.fields = allFields
         }
     }
     

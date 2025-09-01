@@ -540,7 +540,7 @@ struct ToastMessageView: View {
         }
         .padding(.horizontal, 20)
         .transition(.move(edge: .top))
-        .animation(.easeInOut)
+//        .animation(.easeInOut)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
                 isPresented = false

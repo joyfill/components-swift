@@ -30,8 +30,7 @@ struct DeficiencyTableDemoView: View, FormChangeEvent {
 extension DeficiencyTableDemoView {
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         print("onChange documentID:", document.id)
-        let updatedChanges = deficiencyDemoDocumentEditor.getHintChanges(changes: changes)
-        deficiencyDemoDocumentEditor.change(changes: updatedChanges)
+        deficiencyDemoDocumentEditor.prepopulateDataFromHintsTableFor(document: document, documentEditor: deficiencyDemoDocumentEditor, changeEvent: changes.first!)
     }
     
     func onFocus(event: FieldIdentifier) { }
@@ -43,90 +42,157 @@ extension DeficiencyTableDemoView {
 
 extension DocumentEditor {
     // MARK: - Helper Methods
-
-    func getHintChanges(changes: [Change]) -> [Change] {
-        var updatedChanges: [Change] = []
-
-        let sourceTableFieldID = "67fa8e2a64d97bb156b088db"
-        let hintLookupTableFieldID = "67fa934a0d0062e14617252f"
-        let deviceTypeColumn = "67fa8e20c0bf00d7dcb01486"
-        let visualHintColumn = "67fa9262c014f71619c540bf"
-        let functionalHintColumn = "67fa9277716cd4bd455398b9"
-
-        for change in changes {
-            guard let rowChanges = rowChanges(from: change, sourceFieldID: sourceTableFieldID) else {
-                continue
-            }
-            
-            guard let selectedDeviceType = rowChanges.cellChanges[deviceTypeColumn] as? String else {
-                continue
-            }
-            
-            guard let hintLookupTable = deficiencyDemoDocumentEditor.field(fieldID: hintLookupTableFieldID),
-                  let lookupRows = hintLookupTable.valueToValueElements else {
-                continue
-            }
-
-            guard let matchingHintRow = findMatchingHintRow(
-                in: lookupRows,
-                deviceTypeColumn: deviceTypeColumn,
-                selectedDeviceType: selectedDeviceType
-            ) else {
-                continue
-            }
-
-            let updatedCells = buildUpdatedCells(
-                from: matchingHintRow,
-                columns: [visualHintColumn, functionalHintColumn, deviceTypeColumn]
-            )
-            
-            guard !updatedCells.isEmpty else { continue }
-
-            let updatedRowChange = createRowUpdateChange(
-                from: change,
-                document: document,
-                rowID: rowChanges.rowID,
-                updatedCells: updatedCells
-            )
-
-            updatedChanges.append(updatedRowChange)
+    func prepopulateDataFromHintsTableFor(document: JoyDoc, documentEditor: DocumentEditor, changeEvent: Joyfill.Change) {
+        guard let changedRowID = (changeEvent.dictionary["change"] as? [String: Any?])?["rowId"] as? String else {
+            return
+        }
+        guard let updatedCells = prepopulateDataFromHintsTableFor(document: document, changeEvent: changeEvent, documentEditor: documentEditor) else {
+            return
         }
 
-        return updatedChanges
+        let newChange = createRowUpdateChange(from: changeEvent, document: document, rowID: changedRowID, updatedCells: updatedCells)
+        documentEditor.change(changes: [newChange])
     }
-    
-    private func rowChanges(from change: Change, sourceFieldID: String) -> (rowID: String, cellChanges: [String: Any])? {
-        guard change.target == "field.value.rowUpdate",
-              change.fieldId == sourceFieldID,
-              let rowID = change.change?["rowId"] as? String,
-              let rowData = change.change?["row"] as? [String: Any],
-              let cellChanges = rowData["cells"] as? [String: Any] else {
+
+    func prepopulateDataFromHintsTableFor(document: JoyDoc, changeEvent: Joyfill.Change, documentEditor: DocumentEditor) -> [String: Any]? {
+        guard let fieldID = changeEvent.fieldId else {
             return nil
         }
-        
-        return (rowID: rowID, cellChanges: cellChanges)
-    }
-    
-    private func findMatchingHintRow(
-        in lookupRows: [ValueElement], deviceTypeColumn: String, selectedDeviceType: String) -> ValueElement? {
-        return lookupRows.first { row in
-            row.cells?[deviceTypeColumn]?.text == selectedDeviceType
+
+        guard let matchField = documentEditor.field(fieldID: fieldID) else {
+            return nil
         }
-    }
-    
-    private func buildUpdatedCells(from hintRow: ValueElement, columns: [String]) -> [String: Any] {
-        var updatedCells: [String: Any] = [:]
-        
-        for columnID in columns {
-            if let cellValue = hintRow.cells?[columnID]?.dictionary {
-                updatedCells[columnID] = cellValue
+
+        let hintTableID = "_hintTable"
+
+        guard let hintsTableIdentifier = matchField.metadata?.dictionary[hintTableID] as? String else {
+            return nil
+        }
+
+        guard let hintsTableField = document.fields.first(where: { $0.identifier == hintsTableIdentifier}) else {
+            return nil
+        }
+
+        let kDictKeyChange = "change"
+        let kDictKeyRow = "row"
+        let kDictKeyCells = "cells"
+
+        guard var changedCells = ((changeEvent.dictionary[kDictKeyChange] as? [String: Any?])?[kDictKeyRow] as? [String: Any?])?[kDictKeyCells] as? [String: Any?] else {
+            return nil
+        }
+
+        changedCells = mapOptionIDsToValues(field: matchField, changedCells: changedCells)
+
+        guard let sourceRowCells: [ValueElement] = hintsTableField.resolvedValue?.valueElements else {
+            return nil
+        }
+
+        let existingColumnsIDs = matchField.tableColumns?.compactMap({$0.id}) ?? []
+
+        let changedCellIDs = changedCells.compactMap({$0.key})
+
+        let changedCellsValues: [String] = changedCells.compactMap { $0.value as? String }
+
+        var hintsRows: [ValueElement] = []
+        for cellValue in changedCellsValues {
+            for item in sourceRowCells {
+                for (key, value) in item.cells! {
+                    if cellValue == value.text {
+                        hintsRows.append(item)
+                    }
+                }
             }
         }
-        
+        var updatedCells: [String: Any] = [:]
+
+        for row in hintsRows {
+            for (key, _) in row.cells ?? [:] { // 100 cells, original : 6.
+                if let hintsTableColumn = hintsTableField.tableColumns?.first{ $0.id == key},
+                let matchFieldColumn = matchField.tableColumns?.first { $0.title == hintsTableColumn.title } {
+                    if let cell = row.cells?[hintsTableColumn.id!] {
+                        switch matchFieldColumn.type {
+                        case .dropdown:
+                            let rawValue = cell.text as? String
+                            if let optionID = matchFieldColumn.options?.first(where: { $0.value == rawValue })?.id {
+                                updatedCells[matchFieldColumn.id!] = optionID
+                            }
+
+                        case .multiSelect:
+                            let rawValue = cell.text as? String
+                            if let optionID = matchFieldColumn.options?.first(where: { $0.value == rawValue })?.id {
+                                updatedCells[matchFieldColumn.id!] = optionID
+                            }
+                        default:
+                            updatedCells[matchFieldColumn.id!] = cell.text
+                        }
+                    }
+                }
+            }
+        }
         return updatedCells
     }
-    
-    private func createRowUpdateChange(
+
+    func mapOptionIDsToValues(field: JoyDocField, changedCells: [String: Any?]) -> [String: Any?] {
+        var changedCells = changedCells
+        if let columns = field.tableColumns {
+            for column in columns {
+                guard let columnId = column.id else { continue }
+                if let value = changedCells[columnId] {
+                    // Handle dropdown/multiselect option resolution
+                    if let cellValue = changedCells[columnId] {
+                        switch column.type {
+                        case .dropdown:
+                            let rawValue = cellValue as? String
+                            if let optionValue = column.options?.first(where: { $0.id == rawValue })?.value {
+                                changedCells[columnId] = optionValue
+                            }
+                        case .multiSelect:
+                            let rawArray = cellValue as? Array<String>
+                            let resolvedOptions = rawArray?.compactMap { rawId in
+                                return column.options?.first(where: { $0.id == rawId })?.value
+                            }
+                            changedCells[columnId] = resolvedOptions
+                        default:
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        return changedCells
+    }
+
+    func mapOptionValuesToOptionID(field: JoyDocField, changedCells: [String: Any?]) -> [String: Any?] {
+        var changedCells = changedCells
+        if let columns = field.tableColumns {
+            for column in columns {
+                guard let columnId = column.id else { continue }
+                if let value = changedCells[columnId] {
+                    // Handle dropdown/multiselect option resolution
+                    if let cellValue = changedCells[columnId] {
+                        switch column.type {
+                        case .dropdown:
+                            let rawValue = cellValue as? String
+                            if let optionValue = column.options?.first(where: { $0.id == rawValue })?.value {
+                                changedCells[columnId] = optionValue
+                            }
+                        case .multiSelect:
+                            let rawArray = cellValue as? Array<String>
+                            let resolvedOptions = rawArray?.compactMap { rawId in
+                                return column.options?.first(where: { $0.id == rawId })?.value
+                            }
+                            changedCells[columnId] = resolvedOptions
+                        default:
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        return changedCells
+    }
+
+    func createRowUpdateChange(
         from originalChange: Change,
         document: JoyfillModel.JoyDoc,
         rowID: String,
@@ -155,4 +221,5 @@ extension DocumentEditor {
             createdOn: Date().timeIntervalSince1970
         )
     }
+
 }

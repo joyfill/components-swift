@@ -63,7 +63,7 @@ struct ProgressCircleView: View {
                     )
                     .darkLightThemeColor()
                     .rotationEffect(.degrees(-90))
-                    .animation(.easeOut(duration: 0.5), value: currentProgress)
+//                    .animation(.easeOut(duration: 0.5), value: currentProgress)
             }
             .frame(width: 20, height: 20)
         }
