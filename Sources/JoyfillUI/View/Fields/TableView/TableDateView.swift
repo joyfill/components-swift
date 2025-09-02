@@ -38,8 +38,11 @@ struct TableDateView: View {
                 if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty) {
                     Text(dateString)
                         .padding(.horizontal, 8)
-                        .font(.system(size: 15))
-                        .lineLimit(1)
+                        .font(.system(size: 16))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.7)
+                        .allowsTightening(true)
+                        .layoutPriority(1)
                 }
             } else {
                 Image(systemName: "calendar")
@@ -48,9 +51,24 @@ struct TableDateView: View {
             Group {
                 HStack(spacing: 8) {
                     if !dateString.isEmpty {
-                        Text(dateString)
-                            .font(.system(size: 15))
-                            .lineLimit(1)
+                        Button {
+                            isDatePickerPresented = true
+                        } label: {
+                            Text(dateString)
+                                .darkLightThemeColor()
+                                .font(.system(size: 16))
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.7)
+                                .allowsTightening(true)
+                                .layoutPriority(1)
+                        }
+                        .contentShape(Rectangle())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(Color(uiColor: .secondarySystemFill))
+                        )
                         
                         Spacer()
                         
@@ -62,21 +80,23 @@ struct TableDateView: View {
                                 dateString = ""
                             }
                     } else {
-                        Spacer()
-                        
-                        Image(systemName: "calendar")
-                            .accessibilityIdentifier("CalendarImageIdentifier")
-                            .onTapGesture {
-                                eraseDate = false
-                                selectedDate = Date()
-                            }
-                        
-                        Spacer()
+                        HStack {
+                            Spacer()
+                            
+                            Image(systemName: "calendar")
+                                .accessibilityIdentifier("CalendarImageIdentifier")
+                                
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
                     }
                 }
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    isDatePickerPresented = true
+                    if dateString == "" {
+                        eraseDate = false
+                        selectedDate = Date()
+                    }
                 }
                 .padding(.all, 8)
             }
