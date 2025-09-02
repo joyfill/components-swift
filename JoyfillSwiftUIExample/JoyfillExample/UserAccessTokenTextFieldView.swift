@@ -570,6 +570,7 @@ struct OptionSelectionView: View {
         case imageReplacementTest
         case liveViewTest
         case allFormulaJSONs
+        case tenKRowsCollection
         case schemaValidationExampleView
         case oChangeHandlerTest
         case manipulateDataOnChangeView
@@ -590,6 +591,8 @@ struct OptionSelectionView: View {
                 return "Formulas"
             case .allFormulaJSONs:
                 return "All Formula JSONs"
+            case .tenKRowsCollection:
+                return "10k Rows Collection"
             case .schemaValidationExampleView:
                 return "Schema Validation"
             case .manipulateDataOnChangeView:
@@ -615,6 +618,8 @@ struct OptionSelectionView: View {
                 return "Test formula calculations and expressions"
             case .allFormulaJSONs:
                 return "Test formula calculations and expressions"
+            case .tenKRowsCollection:
+                return "Open heavy sample JSON with 10k rows to stress test"
             case .schemaValidationExampleView:
                 return "Test schema validation and error handling features"
             case .manipulateDataOnChangeView:
@@ -640,6 +645,8 @@ struct OptionSelectionView: View {
                 return "function"
             case .allFormulaJSONs:
                 return "function"
+            case .tenKRowsCollection:
+                return "square.grid.3x3"
             case .schemaValidationExampleView:
                 return "checkmark.seal.fill"
             case .manipulateDataOnChangeView:
@@ -671,6 +678,8 @@ struct OptionSelectionView: View {
                 return .purple
             case .oChangeHandlerTest:
                 return .teal
+            case .tenKRowsCollection:
+                return .green
             }
         }
     }
@@ -799,6 +808,8 @@ struct OptionSelectionView: View {
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
             AllSampleJSONs()
+        case .some(.tenKRowsCollection):
+            AllSampleJSONs(initialFileName: "10kRowsCollection", lockToFileName: true)
         }
     }
 }
