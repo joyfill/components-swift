@@ -12,16 +12,15 @@ struct CollectionRowView: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var rowDataModel: RowDataModel
-    var longestBlockText: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
+        LazyHStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 let column = viewModel.columnsMap[cellModel.data.id]
                 let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                    .frame(width: viewModel.cellWidthMap[cellModel.data.id], height: 60)
+                    .frame(width: 200, height: 60)
                     .overlay(
                         RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
@@ -46,11 +45,9 @@ struct CollectionModalView : View {
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
-    var longestBlockText: String = ""
 
     init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
-        longestBlockText = viewModel.tableDataModel.getLongestBlockText()
     }
 
     var body: some View {
@@ -164,10 +161,10 @@ struct CollectionModalView : View {
                                     
                                     switch rowCellModels.rowType {
                                     case .row:
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, longestBlockText: longestBlockText)
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel)
                                             .frame(height: 60)
                                     case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, longestBlockText: longestBlockText)
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel)
                                             .frame(height: 60)
                                     case .header(level: let level, tableColumns: let tableColumns):
                                         CollectionColumnHeaderView(viewModel: viewModel,
@@ -342,7 +339,7 @@ struct CollectionColumnHeaderView: View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: viewModel.cellWidthMap[column.id ?? ""])
+                    .frame(width: 200)
                     .frame(height: 60)
                     .overlay(
                         Rectangle()

@@ -11,16 +11,16 @@ import SwiftUI
 class Utility {
 
     static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 00
-    static let singleColumnWidth: CGFloat = 170
+    static let singleColumnWidth: CGFloat = 200
     
     static func getCellWidth(type: ColumnTypes, format: DateFormatType, text: String) -> CGFloat {
         switch type {
-        case .block:
-            let measuredWidth = measureTextWidth(text: text, font: UIFont.systemFont(ofSize: 15)) + 20
-            
-            return max(singleColumnWidth, min(measuredWidth, 2 * singleColumnWidth))
-        case .date:
-            return (type == .date) && (format == .dateTime || format == .empty) ? 270 : singleColumnWidth
+//        case .block:
+//            let measuredWidth = measureTextWidth(text: text, font: UIFont.systemFont(ofSize: 15)) + 20
+//            
+//            return max(singleColumnWidth, min(measuredWidth, 2 * singleColumnWidth))
+//        case .date:
+//            return (type == .date) && (format == .dateTime || format == .empty) ? 270 : singleColumnWidth
         default:
             return singleColumnWidth
         }
