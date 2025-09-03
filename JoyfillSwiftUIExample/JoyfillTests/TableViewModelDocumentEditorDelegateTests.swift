@@ -287,4 +287,233 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let ChangeValueFromDocument1 = updatedRowsFromDocumentEditor?.first(where: {$0.id == "68b6b876727664214d96171b"})?.cells?["684c3fedce82027a49234dd3"]
         XCTAssertEqual(ChangeValueFromDocument1?.text, "New row", "Value should be equal from document")
     }
+    
+    func testApplyRowEditChanges_DeleteAndAddRow() {
+        // Given
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        
+        // 1) rowDelete — "684c3fedfed2b76677110b19"
+        let changeDict1: [String: Any] = [
+            "target": "field.value.rowDelete",
+            "pageId": "685750efeb612f4fac5819dd",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "createdOn": 1756880014.0128169,
+            "fieldId": "685750f0489567f18eb8a9ec",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "sdk": "swift",
+            "fileId": "685750ef698da1ab427761ba",
+            "_id": "685750eff3216b45ffe73c80",
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "change": [
+                "rowId": "684c3fedfed2b76677110b19"
+            ] as [String: Any],
+            "v": 1
+        ]
+
+        // 2) rowDelete — "68575b4059f586b81549fc07"
+        let changeDict2: [String: Any] = [
+            "pageId": "685750efeb612f4fac5819dd",
+            "sdk": "swift",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "target": "field.value.rowDelete",
+            "_id": "685750eff3216b45ffe73c80",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "fieldId": "685750f0489567f18eb8a9ec",
+            "fileId": "685750ef698da1ab427761ba",
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "change": [
+                "rowId": "68575b4059f586b81549fc07"
+            ] as [String: Any],
+            "createdOn": 1756880014.012841,
+            "v": 1
+        ]
+
+        // 3) rowDelete — "68575b41d49ad2d821193a3d"
+        let changeDict3: [String: Any] = [
+            "sdk": "swift",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "target": "field.value.rowDelete",
+            "_id": "685750eff3216b45ffe73c80",
+            "v": 1,
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "change": [
+                "rowId": "68575b41d49ad2d821193a3d"
+            ] as [String: Any],
+            "createdOn": 1756880014.01285,
+            "fileId": "685750ef698da1ab427761ba",
+            "pageId": "685750efeb612f4fac5819dd",
+            "fieldId": "685750f0489567f18eb8a9ec"
+        ]
+
+        // 4) rowDelete — "68599845cb06457892ce27b4"
+        let changeDict4: [String: Any] = [
+            "createdOn": 1756880014.0128579,
+            "_id": "685750eff3216b45ffe73c80",
+            "sdk": "swift",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "v": 1,
+            "fileId": "685750ef698da1ab427761ba",
+            "target": "field.value.rowDelete",
+            "fieldId": "685750f0489567f18eb8a9ec",
+            "change": [
+                "rowId": "68599845cb06457892ce27b4"
+            ] as [String: Any],
+            "pageId": "685750efeb612f4fac5819dd"
+        ]
+
+        // 5) rowCreate — new row at index 0 with id "68b7dc8fca504878fa8b36fb"
+        let changeDict5: [String: Any] = [
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "v": 1,
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "createdOn": 1756880015.9110088,
+            "target": "field.value.rowCreate",
+            "change": [
+                "targetRowIndex": 0,
+                "row": [
+                    "_id": "68b7dc8fca504878fa8b36fb",
+                    "cells": [:] as [String: Any]
+                ] as [String: Any]
+            ] as [String: Any],
+            "_id": "685750eff3216b45ffe73c80",
+            "pageId": "685750efeb612f4fac5819dd",
+            "fileId": "685750ef698da1ab427761ba",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "sdk": "swift",
+            "fieldId": "685750f0489567f18eb8a9ec"
+        ]
+
+        // 6) rowUpdate — set "Demo" into cell "684c3fedce82027a49234dd3" for the new row
+        let changeDict6: [String: Any] = [
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "fieldId": "685750f0489567f18eb8a9ec",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "target": "field.value.rowUpdate",
+            "createdOn": 1756880020.799511,
+            "v": 1,
+            "change": [
+                "row": [
+                    "cells": [
+                        "684c3fedce82027a49234dd3": "Demo"
+                    ] as [String: Any],
+                    "_id": "68b7dc8fca504878fa8b36fb"
+                ] as [String: Any],
+                "rowId": "68b7dc8fca504878fa8b36fb"
+            ] as [String: Any],
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "fileId": "685750ef698da1ab427761ba",
+            "sdk": "swift",
+            "_id": "685750eff3216b45ffe73c80",
+            "pageId": "685750efeb612f4fac5819dd"
+        ]
+        
+        let change1 = Change(dictionary: changeDict1)
+        let change2 = Change(dictionary: changeDict2)
+        let change3 = Change(dictionary: changeDict3)
+        let change4 = Change(dictionary: changeDict4)
+        let change5 = Change(dictionary: changeDict5)
+        let change6 = Change(dictionary: changeDict6)
+        documentEditor.change(changes: [change1, change2, change3, change4, change5, change6])
+    
+        // Get the updated rows from both sources
+        let updatedRows = viewModel.tableDataModel.valueToValueElements?.filter({$0.deleted != true})
+        let updatedRowsFromDocumentEditor = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.valueToValueElements?.filter({$0.deleted != true})
+        XCTAssertEqual(updatedRows?.count, 1, "rows count should be 1")
+        XCTAssertEqual(updatedRowsFromDocumentEditor?.count, 1, "rows count should be 1 from document")
+        
+        
+        let ChangeValue1 = updatedRows?.first(where: {$0.id == "68b7dc8fca504878fa8b36fb"})?.cells?["684c3fedce82027a49234dd3"]
+        XCTAssertEqual(ChangeValue1?.text, "Demo", "Value should be equal")
+        
+        let ChangeValueFromDocument1 = updatedRowsFromDocumentEditor?.first(where: {$0.id == "68b7dc8fca504878fa8b36fb"})?.cells?["684c3fedce82027a49234dd3"]
+        XCTAssertEqual(ChangeValueFromDocument1?.text, "Demo", "Value should be equal from document")
+    }
+    
+    func testApplyRowEditChanges_MoveUpRow() {
+        // Given
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+          
+        // 1) rowMove — move row to index 0
+        let changeDict: [String: Any] = [
+            "fileId": "685750ef698da1ab427761ba",
+            "createdOn": 1756896778.8767009,
+            "sdk": "swift",
+            "fieldId": "685750f0489567f18eb8a9ec",
+            "change": [
+                "rowId": "68575b41d49ad2d821193a3d",
+                "targetRowIndex": 0
+            ] as [String: Any],
+            "target": "field.value.rowMove",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "v": 1,
+            "_id": "685750eff3216b45ffe73c80",
+            "pageId": "685750efeb612f4fac5819dd",
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "fieldPositionId": "6857510f4313cfbfb43c516c"
+        ]
+
+        
+        let change = Change(dictionary: changeDict)
+        documentEditor.change(changes: [change])
+    
+        // Get the updated rows from both sources
+        let updatedRows = viewModel.tableDataModel.valueToValueElements
+        let updatedRowsFromDocumentEditor = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.valueToValueElements
+        XCTAssertEqual(updatedRows?.count, 4, "rows count should be 4")
+        XCTAssertEqual(updatedRowsFromDocumentEditor?.count, 4, "rows count should be 4 from document")
+        
+        let rowOrder = viewModel.tableDataModel.rowOrder.firstIndex(where: {$0 == "68575b41d49ad2d821193a3d"})
+        XCTAssertEqual(rowOrder, 0, "Value should be equal")
+        
+        let rowOrderForDocument = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.rowOrder?.firstIndex(where: {$0 == "68575b41d49ad2d821193a3d"})
+        XCTAssertEqual(rowOrderForDocument, 0, "Value should be equal")
+    }
+    
+    func testApplyRowEditChanges_MoveDownRow() {
+        // Given
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        
+        // 1) rowMove — move row to index 4
+        let changeDict: [String: Any] = [
+            "fileId": "685750ef698da1ab427761ba",
+            "target": "field.value.rowMove",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "fieldId": "685750f0489567f18eb8a9ec",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "createdOn": 1756898953.7263479,
+            "change": [
+                "targetRowIndex": 3,
+                "rowId": "684c3fedfed2b76677110b19"
+            ] as [String: Any],
+            "_id": "685750eff3216b45ffe73c80",
+            "v": 1,
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "pageId": "685750efeb612f4fac5819dd",
+            "sdk": "swift"
+        ]
+        
+        let change = Change(dictionary: changeDict)
+        documentEditor.change(changes: [change])
+    
+        // Get the updated rows from both sources
+        let updatedRows = viewModel.tableDataModel.valueToValueElements
+        let updatedRowsFromDocumentEditor = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.valueToValueElements
+        XCTAssertEqual(updatedRows?.count, 4, "rows count should be 4")
+        XCTAssertEqual(updatedRowsFromDocumentEditor?.count, 4, "rows count should be 4 from document")
+        
+        let rowOrder = viewModel.tableDataModel.rowOrder.firstIndex(where: {$0 == "684c3fedfed2b76677110b19"})
+        XCTAssertEqual(rowOrder, 3, "Value should be equal")
+        
+        let rowOrderForDocument = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.rowOrder?.firstIndex(where: {$0 == "684c3fedfed2b76677110b19"})
+        XCTAssertEqual(rowOrderForDocument, 3, "Value should be equal")
+    }
 }
