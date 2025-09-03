@@ -396,6 +396,8 @@ struct FormDestinationView: View {
     let jsonString: String
     @ObservedObject var changeManager: ChangeManager
     @Binding var showChangelogView: Bool
+    @State private var showValidationResults: Bool = false
+    @State private var lastValidation: Validation? = nil
     @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
 
@@ -443,6 +445,7 @@ struct FormDestinationView: View {
             if enableChangelogs {
                 HStack {
                     Spacer()
+                    //here we need to add button for validation results just like we show changelogs here, when we press save button 
                     Button(action: {
                         showChangelogView = true
                     }) {
@@ -468,7 +471,12 @@ struct FormDestinationView: View {
 
             if let editor = documentEditor {
                 Form(documentEditor: editor)
-                SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: false)
+                SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: enableChangelogs ? true : false) { validation in
+                    lastValidation = validation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                        showValidationResults = true
+                    }
+                }
             } else {
                 // Loading state while the editor builds off-main
                 VStack(spacing: 12) {
@@ -482,6 +490,15 @@ struct FormDestinationView: View {
         }
         .sheet(isPresented: $showChangelogView) {
             ChangelogView(changeManager: changeManager)
+        }
+        .sheet(isPresented: $showValidationResults) {
+            if let validation = lastValidation {
+                ValidationResultsView(validation: validation)
+            } else {
+                Text("No validation result available.")
+                    .font(.footnote)
+                    .padding()
+            }
         }
         // Kick off background creation once the view appears
         .task {
