@@ -429,6 +429,9 @@ extension DocumentEditor {
                 field.xTitle = chartData.xTitle
                 field.yTitle = chartData.yTitle
             }
+            if field.fieldType == .date {
+                field.tz = TimeZone.current.identifier
+            }
             updatefield(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
@@ -569,6 +572,7 @@ extension DocumentEditor {
             let model = DateTimeDataModel(fieldIdentifier: fieldIdentifier,
                                           value: fieldData?.value,
                                           format: fieldPosition.format,
+                                          timezoneId: fieldData?.tz,
                                           fieldHeaderModel: fieldHeaderModel)
             dataModelType = .date(model)
         case .signature:

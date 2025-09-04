@@ -1103,6 +1103,7 @@ extension DocumentEditor {
         case .date:
             newCell = cellDataModel.date.map(ValueUnion.double)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement?.tz = TimeZone.current.identifier
         case .number:
             newCell = cellDataModel.number.map(ValueUnion.double)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)

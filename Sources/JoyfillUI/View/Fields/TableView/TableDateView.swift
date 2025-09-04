@@ -21,7 +21,7 @@ struct TableDateView: View {
         self.isUsedForBulkEdit = isUsedForBulkEdit
         if !isUsedForBulkEdit {
             if let dateValue = cellModel.wrappedValue.data.date {
-                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty) {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
                     _dateString = State(initialValue: dateString)
                     if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? .empty) {
                         _selectedDate = State(initialValue: date)
@@ -35,7 +35,7 @@ struct TableDateView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             if let dateValue = cellModel.data.date {
-                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty) {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     Text(dateString)
                         .padding(.horizontal, 8)
                         .font(.system(size: 16))
@@ -109,10 +109,11 @@ struct TableDateView: View {
             .onChange(of: selectedDate) { newValue in
                 var cellDataModel = cellModel.data
                 cellDataModel.date = eraseDate ? nil : dateToTimestampMilliseconds(date: newValue)
+                cellModel.timezoneId = TimeZone.current.identifier
                 cellModel.data = cellDataModel
                 cellModel.didChange?(cellDataModel)
                 
-                if let dateString = ValueUnion.double(dateToTimestampMilliseconds(date: newValue)).dateTime(format: cellModel.data.format ?? .empty) {
+                if let dateString = ValueUnion.double(dateToTimestampMilliseconds(date: newValue)).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     self.dateString = eraseDate ? "" : dateString
                 }
             }

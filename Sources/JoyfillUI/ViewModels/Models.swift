@@ -1124,6 +1124,7 @@ struct DateTimeDataModel {
     var fieldIdentifier: FieldIdentifier
     var value: ValueUnion?
     var format: DateFormatType?
+    var timezoneId: String?
     var fieldHeaderModel: FieldHeaderModel?
 }
 
