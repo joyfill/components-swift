@@ -456,7 +456,7 @@ public extension ValueUnion {
     func dateTime(format: DateFormatType, tzId: String? = nil) -> String? {
         switch self {
         case .string(let string):
-            let date = getTimeFromISO8601Format(iso8601String: string)
+            let date = getTimeFromISO8601Format(iso8601String: string, tzId: tzId)
             return date
         case .double(let integer):
             let date = timestampMillisecondsToDate(value: Int(integer), format: format, tzId: tzId)

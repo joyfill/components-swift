@@ -75,9 +75,10 @@ class Utility {
         }
     }
 
-    static func stringToDate(_ dateString: String, format: DateFormatType) -> Date? {
+    static func stringToDate(_ dateString: String, format: DateFormatType, tzId: String? = nil) -> Date? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.dateFormat
+        dateFormatter.timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
         return dateFormatter.date(from: dateString)
     }
     

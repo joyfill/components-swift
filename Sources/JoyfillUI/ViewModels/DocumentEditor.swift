@@ -418,6 +418,18 @@ extension DocumentEditor {
         return conditionalLogicHandler.shouldRefreshSchema(for: collectionFieldID, columnID: columnID)
     }
     
+    fileprivate func updateTimeZoneIfNeeded(_ field: inout JoyDocField) {
+        if field.fieldType == .date {
+            if let timeZoneString = field.tz {
+                if timeZoneString.isEmpty {
+                    field.tz = TimeZone.current.identifier
+                }
+            } else {
+                field.tz = TimeZone.current.identifier
+            }
+        }
+    }
+    
     public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
@@ -429,9 +441,7 @@ extension DocumentEditor {
                 field.xTitle = chartData.xTitle
                 field.yTitle = chartData.yTitle
             }
-            if field.fieldType == .date {
-                field.tz = TimeZone.current.identifier
-            }
+            updateTimeZoneIfNeeded(&field)
             updatefield(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
