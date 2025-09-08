@@ -19,7 +19,7 @@ class ValidationHandler {
         var fieldValidities = [FieldValidity]()
         var isValid = true
         for pagesForCurrentView in documentEditor.pagesForCurrentView {
-        let fieldPositionIDs = documentEditor.mapWebViewToMobileViewIfNeeded(fieldPositions: pagesForCurrentView.fieldPositions ?? [], isMobileViewActive: false).map {  $0.field }
+            let fieldPositionIDs = documentEditor.mapWebViewToMobileViewIfNeeded(fieldPositions: pagesForCurrentView.fieldPositions ?? [], isMobileViewActive: false).map {  $0.field }
         for id in fieldPositionIDs {
             guard let id = id, let field = documentEditor.fieldMap[id] else {
                 continue
