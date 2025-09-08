@@ -57,7 +57,7 @@ public enum ValueUnion: Codable, Hashable, Equatable {
     public var nullOrEmpty: Bool {
         switch self {
         case .double(let double):
-            return double == 0
+            return double == nil
         case .string(let string):
             return string.isEmpty
         case .array(let stringArray):
@@ -71,7 +71,7 @@ public enum ValueUnion: Codable, Hashable, Equatable {
         case .dictionary(let dictionary):
             return dictionary.isEmpty
         case .int(let int):
-            return int == 0
+            return int == nil
         }
     }
 
