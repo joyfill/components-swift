@@ -38,11 +38,7 @@ struct TableDateView: View {
                 if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     Text(dateString)
                         .padding(.horizontal, 8)
-                        .font(.system(size: 16))
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.7)
-                        .allowsTightening(true)
-                        .layoutPriority(1)
+                        .font(.system(size: 15))
                 }
             } else {
                 Image(systemName: "calendar")
