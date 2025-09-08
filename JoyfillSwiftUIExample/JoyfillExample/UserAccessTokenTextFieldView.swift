@@ -445,7 +445,7 @@ struct FormDestinationView: View {
             if enableChangelogs {
                 HStack {
                     Spacer()
-                    //here we need to add button for validation results just like we show changelogs here, when we press save button 
+                    // TODO: Add a button for validation results, similar to the changelogs button, which should be displayed when the save button is pressed.
                     Button(action: {
                         showChangelogView = true
                     }) {
