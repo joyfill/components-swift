@@ -21,9 +21,9 @@ struct TableDateView: View {
         self.isUsedForBulkEdit = isUsedForBulkEdit
         if !isUsedForBulkEdit {
             if let dateValue = cellModel.wrappedValue.data.date {
-                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty) {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
                     _dateString = State(initialValue: dateString)
-                    if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? .empty) {
+                    if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
                         _selectedDate = State(initialValue: date)
                     }
                 }
@@ -35,7 +35,7 @@ struct TableDateView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             if let dateValue = cellModel.data.date {
-                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty) {
+                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     Text(dateString)
                         .padding(.horizontal, 8)
                         .font(.system(size: 16))
@@ -104,7 +104,8 @@ struct TableDateView: View {
                 date: $selectedDate,
                 components: datePickerComponent,
                 isPresented: $isDatePickerPresented,
-                onCommit: { _ in }
+                onCommit: { _ in },
+                timeZone: TimeZone(identifier: cellModel.timezoneId ?? TimeZone.current.identifier) ?? .current
             )
             .onChange(of: selectedDate) { newValue in
                 var cellDataModel = cellModel.data
@@ -112,7 +113,7 @@ struct TableDateView: View {
                 cellModel.data = cellDataModel
                 cellModel.didChange?(cellDataModel)
                 
-                if let dateString = ValueUnion.double(dateToTimestampMilliseconds(date: newValue)).dateTime(format: cellModel.data.format ?? .empty) {
+                if let dateString = ValueUnion.double(dateToTimestampMilliseconds(date: newValue)).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     self.dateString = eraseDate ? "" : dateString
                 }
             }
@@ -126,8 +127,10 @@ private final class _DatePopupViewController: UIViewController {
     private let picker = UIDatePicker()
     private let dimView = UIControl()
     private let container = UIView()
+    private let timeZone: TimeZone
 
-    init(date: Date, mode: UIDatePicker.Mode) {
+    init(date: Date, mode: UIDatePicker.Mode, timeZone: TimeZone = .current) {
+        self.timeZone = timeZone
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .overFullScreen
         modalTransitionStyle = .crossDissolve
@@ -138,6 +141,7 @@ private final class _DatePopupViewController: UIViewController {
         picker.preferredDatePickerStyle = mode == .dateAndTime ? .inline : .wheels
         picker.datePickerMode = mode
         picker.date = date
+        picker.timeZone = timeZone
 
         container.backgroundColor = UIColor.secondarySystemBackground
         container.layer.cornerRadius = 12
@@ -195,6 +199,7 @@ private struct DatePickerPopup: UIViewControllerRepresentable {
     @Binding var date: Date
     var components: DatePickerComponents
     var onCommit: ((Date) -> Void)?
+    let timeZone: TimeZone
 
     final class Coordinator {
         var presented: _DatePopupViewController?
@@ -206,7 +211,7 @@ private struct DatePickerPopup: UIViewControllerRepresentable {
     func updateUIViewController(_ host: UIViewController, context: Context) {
         if isPresented, context.coordinator.presented == nil {
             let mode = mode(for: components)
-            let vc = _DatePopupViewController(date: date, mode: mode)
+            let vc = _DatePopupViewController(date: date, mode: mode, timeZone: timeZone)
             vc.onClose = { action, newDate in
                 date = newDate
                 isPresented = false
@@ -232,7 +237,7 @@ extension View {
     func datePopup(date: Binding<Date>,
                    components: DatePickerComponents,
                    isPresented: Binding<Bool>,
-                   onCommit: ((Date) -> Void)? = nil) -> some View {
-        background(DatePickerPopup(isPresented: isPresented, date: date, components: components, onCommit: onCommit))
+                   onCommit: ((Date) -> Void)? = nil, timeZone: TimeZone) -> some View {
+        background(DatePickerPopup(isPresented: isPresented, date: date, components: components, onCommit: onCommit, timeZone: timeZone))
     }
 }

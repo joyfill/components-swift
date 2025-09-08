@@ -21,6 +21,7 @@ struct SearchBar: View {
                 let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
+                                                   timezoneId: "",
                                                    data: column,
                                                    documentEditor: viewModel.tableDataModel.documentEditor,
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,

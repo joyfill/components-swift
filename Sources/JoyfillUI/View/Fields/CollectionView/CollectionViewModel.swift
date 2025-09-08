@@ -462,6 +462,7 @@ class CollectionViewModel: ObservableObject {
                 }
                 
                 let cellModel = TableCellModel(rowID: rowID,
+                                               timezoneId: valueElement.tz,
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -537,6 +538,7 @@ class CollectionViewModel: ObservableObject {
                 if let columnModel = columnModel {
                     
                     let cellModel = TableCellModel(rowID: rowID,
+                                                   timezoneId: valueElement.tz,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -573,6 +575,7 @@ class CollectionViewModel: ObservableObject {
                 if let columnModel = columnModel {
                     
                     let cellModel = TableCellModel(rowID: rowID,
+                                                   timezoneId: valueElement.tz,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -623,6 +626,7 @@ class CollectionViewModel: ObservableObject {
             var nestedCells: [TableCellModel] = []
             for cellDataModel in cellDataModels {
                 let cellModel = TableCellModel(rowID: childRowID,
+                                               timezoneId: childRow.tz,
                                                data: cellDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -804,6 +808,7 @@ class CollectionViewModel: ObservableObject {
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
                         let cellModel = TableCellModel(rowID: row.id ?? "",
+                                                       timezoneId: valueElement.tz,
                                                        data: cellDataModel,
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1736,6 +1741,7 @@ class CollectionViewModel: ObservableObject {
                         let cells: [TableCellModel] = cellDataModels.map { cellData in
                             TableCellModel(
                                 rowID: child.id ?? UUID().uuidString,
+                                timezoneId: child.tz,
                                 data: cellData,
                                 documentEditor: tableDataModel.documentEditor,
                                 fieldIdentifier: tableDataModel.fieldIdentifier,

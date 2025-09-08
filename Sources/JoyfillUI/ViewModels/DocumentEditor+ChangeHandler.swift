@@ -1491,6 +1491,7 @@ extension DocumentEditor {
             } else {
                 cells.removeValue(forKey: cellDataModelId)
             }
+            updateTimeZoneIfNeeded(&elements, index)
             elements[index].cells = cells
         } else if let newCell = newCell {
             elements[index].cells = [cellDataModelId: newCell]
@@ -1500,6 +1501,16 @@ extension DocumentEditor {
         return elements
     }
 
+    fileprivate func updateTimeZoneIfNeeded(_ elements: inout [ValueElement], _ i: Int) {
+        if let timeZoneString = elements[i].tz {
+            if timeZoneString.isEmpty {
+                elements[i].tz = TimeZone.current.identifier
+            }
+        } else {
+            elements[i].tz = TimeZone.current.identifier
+        }
+    }
+    
     private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
@@ -1513,6 +1524,7 @@ extension DocumentEditor {
                 } else if let newCell = newCell {
                     elements[i].cells = [cellDataModelId: newCell]
                 }
+                updateTimeZoneIfNeeded(&elements, i)
                 return elements[i]
             }
             if var childrenDict = elements[i].childrens {

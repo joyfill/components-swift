@@ -453,16 +453,16 @@ public extension ValueUnion {
     /// If the `ValueUnion` is a string, it assumes the string is in ISO8601 format and converts it to the specified format.
     /// If the `ValueUnion` is a double, it assumes the double value represents a timestamp in milliseconds and converts it to the specified format.
     /// Returns `nil` if the `ValueUnion` is neither a string nor a double.
-    func dateTime(format: DateFormatType) -> String? {
+    func dateTime(format: DateFormatType, tzId: String? = nil) -> String? {
         switch self {
         case .string(let string):
-            let date = getTimeFromISO8601Format(iso8601String: string)
+            let date = getTimeFromISO8601Format(iso8601String: string, tzId: tzId)
             return date
         case .double(let integer):
-            let date = timestampMillisecondsToDate(value: Int(integer), format: format)
+            let date = timestampMillisecondsToDate(value: Int(integer), format: format, tzId: tzId)
             return date
         case .int(let intValue):
-            let date = timestampMillisecondsToDate(value: Int(intValue), format: format)
+            let date = timestampMillisecondsToDate(value: Int(intValue), format: format, tzId: tzId)
             return date
 
         default:
