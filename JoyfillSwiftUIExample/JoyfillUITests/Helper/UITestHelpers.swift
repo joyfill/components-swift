@@ -135,21 +135,6 @@ extension XCUIApplication {
             }
         }
 
-        // 3) Return/Go/Search/Send/Next variants (text view return won’t dismiss, but some UIs remap it)
-//        let returnCandidates = ["Return", "Go", "Search", "Send", "Next", "Continue"]
-//        for title in returnCandidates {
-//            if kb.buttons[title].exists && kb.buttons[title].isHittable {
-//                kb.buttons[title].tap()
-//                yield(0.15)
-//                if !self.keyboards.element.exists { return }
-//            }
-//            if kb.keys[title].exists && kb.keys[title].isHittable {
-//                kb.keys[title].tap()
-//                yield(0.15)
-//                if !self.keyboards.element.exists { return }
-//            }
-//        }
-
         // 4) Tap outside in a safe zone well above the keyboard (center-top 10%)
         let win = self.windows.firstMatch
         if win.exists {

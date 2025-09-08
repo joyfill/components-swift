@@ -303,7 +303,9 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         firstTextField.tap()
         firstTextField.typeText("visible")
         multilineTextView.tap()
-        multilineTextView.typeText("\u{0001}") // Use keyboard shortcut for TextView
+        multilineTextView.press(forDuration: 1.0)
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 3), "‘Select All’ menu didn’t show up")
+        selectAll.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         multilineTextView.typeText("show")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))

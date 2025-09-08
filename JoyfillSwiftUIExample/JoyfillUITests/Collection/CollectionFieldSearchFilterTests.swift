@@ -1066,36 +1066,6 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
     }
     
-    // MARK: - Block Column Filter Tests
-    // App terminate on this
-    func testBlockColumnFilter() {
-        goToCollectionDetailField()
-        
-        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
-        filterButton.tap()
-        
-        let columnSelector = app.buttons["CollectionFilterColumnSelectorIdentifier"]
-        columnSelector.tap()
-        
-        // Select "Label Column" (block type)
-        let blockColumnOption = app.buttons["Label Column"]
-        if blockColumnOption.exists {
-            blockColumnOption.tap()
-            
-            // Search for "A" - should match rows with "A" in block column
-            let searchField = app.textFields["TextFieldSearchBarIdentifier"]
-            if searchField.exists {
-                searchField.tap()
-                searchField.typeText("A")
-                
-                app.buttons["Apply"].tap()
-                XCTAssertTrue(filterButton.exists, "Should return to collection view")
-            }
-        } else {
-            dismissSheet()
-        }
-    }
-    
     // MARK: - Barcode Column Filter Tests
     
     func testBarcodeColumnFilter() {

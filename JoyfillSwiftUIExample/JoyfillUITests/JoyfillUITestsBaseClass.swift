@@ -114,7 +114,11 @@ class JoyfillUITestsBaseClass: XCTestCase {
         // Global alert/permission handler (added before launch so it's active immediately)
         addUIInterruptionMonitor(withDescription: "System Alerts") { alert in
             for btn in ["Allow", "OK", "Continue", "Don’t Allow", "Remind Me Later", "While Using the App"] {
-                if alert.buttons[btn].exists { alert.buttons[btn].tap(); return true }
+                if alert.buttons[btn].exists
+                {
+                    alert.buttons[btn].tap()
+                    return true
+                }
             }
             return false
         }

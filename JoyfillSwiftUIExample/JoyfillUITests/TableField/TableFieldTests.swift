@@ -240,7 +240,6 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         app.buttons["TableAddRowIdentifier"].tap()
         app.buttons["TableAddRowIdentifier"].tap()
-        //goBack()
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
         let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
