@@ -23,7 +23,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         sampleJSONDocument(fileName: "ChangerHandlerUnit")
     }
     
-    private func createTableViewModel(documentEditor: DocumentEditor) async throws -> CollectionViewModel {
+    private func createCollectionViewModel(documentEditor: DocumentEditor) async throws -> CollectionViewModel {
         let field = documentEditor.field(fieldID: tableFieldID)
         let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible)
         let tableDataModel = TableDataModel(
@@ -36,11 +36,17 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         return try await CollectionViewModel(tableDataModel: tableDataModel)
     }
     
+    func waitForMainQueueToDrain(file: StaticString = #filePath, line: UInt = #line) {
+        let exp = expectation(description: "Drain main queue")
+        DispatchQueue.main.async { exp.fulfill() }
+        wait(for: [exp], timeout: 1.0)
+    }
+    
     func testApplyRowEditChanges_AddNewRow() async throws {
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, validateSchema: false)
         
-        let viewModel = try await createTableViewModel(documentEditor: documentEditor)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         
         let changeDict: [String: Any] = [
@@ -83,7 +89,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_BulkUpdate() async throws {
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, validateSchema: false)
-        let viewModel = try await createTableViewModel(documentEditor: documentEditor)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         
         let changeDict1: [String: Any] = [
@@ -191,7 +197,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         let change3 = Change(dictionary: changeDict3)
         let change4 = Change(dictionary: changeDict4)
         documentEditor.change(changes: [change1, change2, change3, change4])
-        
+        waitForMainQueueToDrain()
         let updatedRows = viewModel.tableDataModel.valueToValueElements
         let updatedRowsFromDocumentEditor = documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.valueToValueElements
         
@@ -217,7 +223,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_AddAndInsert() async throws {
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, validateSchema: false)
-        let viewModel = try await createTableViewModel(documentEditor: documentEditor)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         let changeDict1: [String: Any] = [
             "fieldIdentifier": "field_68575112847f32f878c77daf",
@@ -275,6 +281,8 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         let change1 = Change(dictionary: changeDict1)
         let change2 = Change(dictionary: changeDict2)
         documentEditor.change(changes: [change1, change2])
+        // Ensure that main-queue work has executed before asserting
+        waitForMainQueueToDrain()
         
         // Get the updated rows from both sources
         let updatedRows = viewModel.tableDataModel.valueToValueElements
@@ -293,7 +301,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_DeleteAddAndInsert() async throws {
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, validateSchema: false)
-        let viewModel = try await createTableViewModel(documentEditor: documentEditor)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         // 1) rowDelete — "68575bb9cdb3707c78d6b2ff"
         let changeDict1: [String: Any] = [
@@ -437,7 +445,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         let change5 = Change(dictionary: changeDict5)
         let change6 = Change(dictionary: changeDict6)
         documentEditor.change(changes: [change1, change2, change3, change4, change5, change6])
-        
+        waitForMainQueueToDrain()
         // Get the updated rows from both sources
         let updatedRows = viewModel.tableDataModel.valueToValueElements
         let updatedRowsFromDocumentEditor = documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.valueToValueElements
@@ -456,8 +464,8 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         // Given
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, validateSchema: false)
-        let viewModel = try await createTableViewModel(documentEditor: documentEditor)
-          
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
         let changeDict: [String: Any] = [
             "identifier": "doc_685750eff3216b45ffe73c80",
             "fieldId": "6857510fbfed1553e168161b",
@@ -488,19 +496,19 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(updatedRows?.count, 4, "rows count should be 4")
         XCTAssertEqual(updatedRowsFromDocumentEditor?.count, 4, "rows count should be 4 from document")
         
-//        let rowOrder = viewModel.tableDataModel.rowOrder.firstIndex(where: {$0 == "68582dde1b30a59b4272a5c7"})
-//        XCTAssertEqual(rowOrder, 0, "Value should be equal")
-//        
-//        let rowOrderForDocument = documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.rowOrder?.firstIndex(where: {$0 == "68582dde1b30a59b4272a5c7"})
-//        XCTAssertEqual(rowOrderForDocument, 0, "Value should be equal")
+        let rowIndex = updatedRows?.firstIndex(where: {$0.id == "68582dde1b30a59b4272a5c7"})
+        XCTAssertEqual(rowIndex, 0, "Value should be equal")
+        
+        let rowIndexForDocument = updatedRowsFromDocumentEditor?.firstIndex(where: {$0.id == "68582dde1b30a59b4272a5c7"})
+        XCTAssertEqual(rowIndexForDocument, 0, "Value should be equal")
     }
     
     func testApplyRowEditChanges_MoveDownRow() async throws {
         // Given
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, validateSchema: false)
-        let viewModel = try await createTableViewModel(documentEditor: documentEditor)
-        
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
         let changeDict: [String: Any] = [
             "fieldId": "6857510fbfed1553e168161b",
             "fieldPositionId": "68575112158ff5dbaa9f78e1",
@@ -530,10 +538,10 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(updatedRows?.count, 4, "rows count should be 4")
         XCTAssertEqual(updatedRowsFromDocumentEditor?.count, 4, "rows count should be 4 from document")
         
-//        let rowOrder = viewModel.tableDataModel.rowOrder.firstIndex(where: {$0 == "68575bb9cdb3707c78d6b2ff"})
-//        XCTAssertEqual(rowOrder, 3, "Value should be equal")
-//        
-//        let rowOrderForDocument = documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.rowOrder?.firstIndex(where: {$0 == "68575bb9cdb3707c78d6b2ff"})
-//        XCTAssertEqual(rowOrderForDocument, 3, "Value should be equal")
+        let rowIndex = updatedRows?.firstIndex(where: {$0.id == "68575bb9cdb3707c78d6b2ff"})
+        XCTAssertEqual(rowIndex, 3, "Value should be equal")
+        
+        let rowIndexForDocument = updatedRowsFromDocumentEditor?.firstIndex(where: {$0.id == "68575bb9cdb3707c78d6b2ff"})
+        XCTAssertEqual(rowIndexForDocument, 3, "Value should be equal")
     }
 }

@@ -35,6 +35,12 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         guard let tableDataModel else { fatalError("TableViewModel not found") }
         return TableViewModel(tableDataModel: tableDataModel)
     }
+    
+    func waitForMainQueueToDrain(file: StaticString = #filePath, line: UInt = #line) {
+        let exp = expectation(description: "Drain main queue")
+        DispatchQueue.main.async { exp.fulfill() }
+        wait(for: [exp], timeout: 1.0)
+    }
      
     func testApplyRowEditChanges_AddNewRow() {
         // Given
@@ -175,6 +181,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let change3 = Change(dictionary: changeDict3)
         let change4 = Change(dictionary: changeDict4)
         documentEditor.change(changes: [change1, change2, change3, change4])
+        // Ensure that main-queue work has executed before asserting
+        waitForMainQueueToDrain()
         
         let updatedRows = viewModel.tableDataModel.valueToValueElements
         let updatedRowsFromDocumentEditor = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.valueToValueElements
@@ -273,6 +281,8 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let change2 = Change(dictionary: changeDict2)
         let change3 = Change(dictionary: changeDict3)
         documentEditor.change(changes: [change1, change2, change3])
+        // Ensure that main-queue work has executed before asserting
+        waitForMainQueueToDrain()
         
         // Get the updated rows from both sources
         let updatedRows = viewModel.tableDataModel.valueToValueElements
@@ -287,7 +297,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let ChangeValueFromDocument1 = updatedRowsFromDocumentEditor?.first(where: {$0.id == "68b6b876727664214d96171b"})?.cells?["684c3fedce82027a49234dd3"]
         XCTAssertEqual(ChangeValueFromDocument1?.text, "New row", "Value should be equal from document")
     }
-    
+     
     func testApplyRowEditChanges_DeleteAndAddRow() {
         // Given
         let document = createTestDocument()
@@ -419,7 +429,9 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let change5 = Change(dictionary: changeDict5)
         let change6 = Change(dictionary: changeDict6)
         documentEditor.change(changes: [change1, change2, change3, change4, change5, change6])
-    
+        // Ensure that main-queue work has executed before asserting
+        waitForMainQueueToDrain()
+        
         // Get the updated rows from both sources
         let updatedRows = viewModel.tableDataModel.valueToValueElements?.filter({$0.deleted != true})
         let updatedRowsFromDocumentEditor = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.valueToValueElements?.filter({$0.deleted != true})
