@@ -62,10 +62,14 @@ public struct UploadEvent {
 
 public struct CaptureEvent {
     public var fieldEvent: FieldIdentifier
-
+    public var target: String?
+    public var schemaId: String?
+    public var parentPath: String?
+    public var rowId: String?
+    public var columnId: String?
     public var captureHandler: (ValueUnion) -> Void
 
-    public init(fieldEvent: FieldIdentifier, captureHandler: @escaping (ValueUnion) -> Void) {
+    public init(fieldEvent: FieldIdentifier, target: String? = nil, schemaId: String? = nil, parentPath: String? = nil, rowId: String? = nil, columnId: String? = nil, captureHandler: @escaping (ValueUnion) -> Void) {
         self.fieldEvent = fieldEvent
         self.captureHandler = captureHandler
     }
