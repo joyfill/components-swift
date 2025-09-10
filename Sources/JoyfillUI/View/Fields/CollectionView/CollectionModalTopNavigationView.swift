@@ -390,20 +390,15 @@ struct CollectionEditMultipleRowsSheetView: View {
 
                     if viewModel.tableDataModel.selectedRows.count != 1 {
                         Button(action: {
-                            Task {
-                                isLoading = true
-                                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                                
-                                await MainActor.run {
-                                    viewModel.bulkEdit(changes: changes)
-                                    viewModel.tableDataModel.emptySelection()
-                                    isLoading = false
-                                    presentationMode.wrappedValue.dismiss()
-                                }
+                            Task { @MainActor in
+                                await viewModel.bulkEdit(changes: changes)
+                                viewModel.tableDataModel.emptySelection()
+                                presentationMode.wrappedValue.dismiss()
                             }
+                            
                         }, label: {
                             ZStack {
-                                if isLoading {
+                                if viewModel.isBulkLoading {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle(tint: .gray))
                                         .frame(width: 88, height: 27)
@@ -537,9 +532,10 @@ struct CollectionEditMultipleRowsSheetView: View {
                             default:
                                 break
                             }
-                            
-                            if !isUsedForBulkEdit {
-                                viewModel.bulkEdit(changes: changes)
+                            Task {
+                                if !isUsedForBulkEdit {
+                                    await viewModel.bulkEdit(changes: changes)
+                                }
                             }
                         }
 
@@ -594,9 +590,10 @@ struct CollectionEditMultipleRowsSheetView: View {
                                     } else {
                                         self.changes[colIndex] = ValueUnion.string(newValue)
                                     }
-                                    
-                                    if !isUsedForBulkEdit {
-                                        viewModel.bulkEdit(changes: changes)
+                                    Task { @MainActor in
+                                        if !isUsedForBulkEdit {
+                                            await viewModel.bulkEdit(changes: changes)
+                                        }
                                     }
                                 }
                             )

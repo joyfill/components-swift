@@ -54,6 +54,7 @@ public class DocumentEditor: ObservableObject {
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
     public var events: FormChangeEvent?
+    let backgroundQueue = DispatchQueue(label: "documentEditor.background", qos: .userInitiated)
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
@@ -405,16 +406,28 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func updateSchemaVisibilityOnCellChange(collectionFieldID: String, columnID: String, rowID: String) {
-        conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID)
+    func updateSchemaVisibilityOnCellChange(collectionFieldID: String, columnID: String, rowID: String, valueElement: ValueElement?) {
+        conditionalLogicHandler.updateSchemaVisibility(collectionFieldID: collectionFieldID, columnID: columnID, rowID: rowID, valueElement: valueElement)
     }
     
-    func updateSchemaVisibilityOnNewRow(collectionFieldID: String, rowID: String) {
-        conditionalLogicHandler.updateShowCollectionSchemaMap(collectionFieldID: collectionFieldID, rowID: rowID)
+    func updateSchemaVisibilityOnNewRow(collectionFieldID: String, rowID: String, valueElement: ValueElement?) {
+        conditionalLogicHandler.updateShowCollectionSchemaMap(collectionFieldID: collectionFieldID, rowID: rowID, valueElement: valueElement)
     }
     
     func shouldRefreshSchema(for collectionFieldID: String, columnID: String) -> Bool {
         return conditionalLogicHandler.shouldRefreshSchema(for: collectionFieldID, columnID: columnID)
+    }
+    
+    fileprivate func updateTimeZoneIfNeeded(_ field: inout JoyDocField) {
+        if field.fieldType == .date {
+            if let timeZoneString = field.tz {
+                if timeZoneString.isEmpty || TimeZone(identifier: timeZoneString) == nil {
+                    field.tz = TimeZone.current.identifier
+                }
+            } else {
+                field.tz = TimeZone.current.identifier
+            }
+        }
     }
     
     public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
@@ -428,6 +441,7 @@ extension DocumentEditor {
                 field.xTitle = chartData.xTitle
                 field.yTitle = chartData.yTitle
             }
+            updateTimeZoneIfNeeded(&field)
             updatefield(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
@@ -435,22 +449,6 @@ extension DocumentEditor {
                 self.JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
             }
         }
-    }
-    
-    func getValueElementByRowID(_ rowID: String, from valueElements: [ValueElement]) -> ValueElement? {
-        //Target valueElement which used by condtional logic
-        for element in valueElements {
-            if element.id == rowID {
-                return element
-            } else if let childrens = element.childrens {
-                for children in childrens.values {
-                    if let found = getValueElementByRowID(rowID, from: children.valueToValueElements ?? []) {
-                        return found
-                    }
-                }
-            }
-        }
-        return nil
     }
     
     private func fieldIndexMapValue(pageID: String, index: Int) -> String {
@@ -584,6 +582,7 @@ extension DocumentEditor {
             let model = DateTimeDataModel(fieldIdentifier: fieldIdentifier,
                                           value: fieldData?.value,
                                           format: fieldPosition.format,
+                                          timezoneId: fieldData?.tz,
                                           fieldHeaderModel: fieldHeaderModel)
             dataModelType = .date(model)
         case .signature:

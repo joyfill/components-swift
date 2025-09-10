@@ -36,6 +36,7 @@ class TableViewModel: ObservableObject {
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
+                                               timezoneId: valueElement.tz,
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -88,9 +89,11 @@ class TableViewModel: ObservableObject {
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
-                let columnModel = rowDataMap[rowID]?[colIndex]
+                let columnModel = rowDataMap[rowID]?.1[colIndex]
+                let timezoneId = rowDataMap[rowID]?.0
                 if let columnModel = columnModel {
                     let cellModel = TableCellModel(rowID: rowID,
+                                                   timezoneId: timezoneId,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -107,7 +110,7 @@ class TableViewModel: ObservableObject {
         tableDataModel.filteredcellModels = cellModels
     }
 
-    private func setupRows() -> [String: [CellDataModel]] {
+    private func setupRows() -> [String: (String?, [CellDataModel])] {
         guard let valueElements = tableDataModel.valueToValueElements, !valueElements.isEmpty else {
             return [:]
         }
@@ -115,14 +118,14 @@ class TableViewModel: ObservableObject {
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
         let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
         let tableColumns = tableDataModel.tableColumns
-        var rowToCellMap = [String: [CellDataModel]]()
+        var rowToCellMap = [String: (String?, [CellDataModel])]()
         for row in sortedRows {
             let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
             guard let rowID = row.id else {
                 Log("Could not find row ID for row: \(row)", type: .error)
                 continue
             }
-            rowToCellMap[rowID] = cellRowModel
+            rowToCellMap[rowID] = (row.tz, cellRowModel)
         }
         return rowToCellMap
     }

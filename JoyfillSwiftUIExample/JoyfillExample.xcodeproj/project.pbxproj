@@ -415,6 +415,10 @@
 		E2F568C82E2A4A93005216A6 /* SignatureFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568782E2A45A8005216A6 /* SignatureFieldTestData.json */; };
 		E2F568C92E2A4A99005216A6 /* ChartFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5687F2E2A45BC005216A6 /* ChartFieldTestData.json */; };
 		E2F568CA2E2A4A9F005216A6 /* DropdownFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568942E2A4619005216A6 /* DropdownFieldTestData.json */; };
+		E2FBBAC02E67122E001FBF5B /* 10kRowsCollection.json in Resources */ = {isa = PBXBuildFile; fileRef = E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */; };
+		E2FBBAC12E67122E001FBF5B /* 10kRowsCollection.json in Resources */ = {isa = PBXBuildFile; fileRef = E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */; };
+		E2FBBAC22E67122E001FBF5B /* 10kRowsCollection.json in Resources */ = {isa = PBXBuildFile; fileRef = E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */; };
+		E2FBBAC42E682139001FBF5B /* ValidationResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBBAC32E682139001FBF5B /* ValidationResultsView.swift */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
 		FA1FEAEE2BA4C1F300ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAED2BA4C1F300ABD018 /* Joyfill */; };
@@ -643,6 +647,8 @@
 		E2F568B72E2A4792005216A6 /* NumberFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFieldUITestCases.swift; sourceTree = "<group>"; };
 		E2F568BB2E2A47A1005216A6 /* SingleChoiceFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SingleChoiceFieldTestData.json; sourceTree = "<group>"; };
 		E2F568BC2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceFieldUITestCases.swift; sourceTree = "<group>"; };
+		E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = 10kRowsCollection.json; sourceTree = "<group>"; };
+		E2FBBAC32E682139001FBF5B /* ValidationResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationResultsView.swift; sourceTree = "<group>"; };
 		FA28C9662BB4345C00A2D65C /* FormContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerView.swift; sourceTree = "<group>"; };
 		FA28C9682BB4356000A2D65C /* SaveButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonView.swift; sourceTree = "<group>"; };
 		FA28C96A2BB4359600A2D65C /* ChangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeManager.swift; sourceTree = "<group>"; };
@@ -863,6 +869,7 @@
 				36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */,
 				36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */,
 				36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */,
+				E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */,
 				36A5EF2F2E29725B0059C2A6 /* testrow.json */,
 			);
 			path = others;
@@ -1239,6 +1246,7 @@
 				1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */,
 				36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */,
 				048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */,
+				E2FBBAC32E682139001FBF5B /* ValidationResultsView.swift */,
 				13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */,
 				FA529C512BA1D253000200F5 /* Assets.xcassets */,
 				FA529C532BA1D253000200F5 /* JoyfillExample.entitlements */,
@@ -1475,6 +1483,7 @@
 				E274CB1E2E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */,
 				E274CB1F2E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
 				E2F5689E2E2A461A005216A6 /* DropdownFieldTestData.json in Resources */,
+				E2FBBAC02E67122E001FBF5B /* 10kRowsCollection.json in Resources */,
 				369D45442E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
 				369D45462E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
 				369D45472E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
@@ -1541,6 +1550,7 @@
 				E274CB462E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */,
 				E274CB472E2E84F700B35C09 /* numberFieldValidation.json in Resources */,
 				E274CB482E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */,
+				E2FBBAC22E67122E001FBF5B /* 10kRowsCollection.json in Resources */,
 				E274CB492E2E84F700B35C09 /* textFieldValidation.json in Resources */,
 				E274CB4A2E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */,
 				E274CB4B2E2E84F700B35C09 /* tableFieldValidation.json in Resources */,
@@ -1701,6 +1711,7 @@
 				E274CA862E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
 				369D45752E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
 				E28D10A22E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */,
+				E2FBBAC12E67122E001FBF5B /* 10kRowsCollection.json in Resources */,
 				E2F568C62E2A4A8A005216A6 /* DateTimeFieldTestData.json in Resources */,
 				3682A4C02E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
 				E28D10AE2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */,
@@ -1822,6 +1833,7 @@
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,
 				E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */,
 				364615AE2E29694800F237F6 /* SchemaValidationExampleView.swift in Sources */,
+				E2FBBAC42E682139001FBF5B /* ValidationResultsView.swift in Sources */,
 				FA28C9672BB4345C00A2D65C /* FormContainerView.swift in Sources */,
 				FA28C96B2BB4359600A2D65C /* ChangeManager.swift in Sources */,
 				369D45042E0E4C3F00677280 /* AllSampleJSONs.swift in Sources */,

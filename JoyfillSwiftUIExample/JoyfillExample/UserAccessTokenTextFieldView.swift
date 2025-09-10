@@ -173,6 +173,7 @@ struct UserJsonTextFieldView: View {
     @State private var isFetching: Bool = false
     @State private var showChangelogView = false
     @State private var shouldNavigate: Bool = false
+    @State private var preparedEditor: DocumentEditor? = nil
     let imagePicker = ImagePicker()
     let enableChangelogs: Bool
     
@@ -255,10 +256,28 @@ struct UserJsonTextFieldView: View {
             // Button Section
             VStack(spacing: 16) {
                 Button(action: {
+                    guard errorMessage == nil, !jsonString.isEmpty, !isFetching else { return }
                     isFetching = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        isFetching = false
-                        shouldNavigate = true
+                    preparedEditor = nil
+
+                    let json = jsonString
+                    let cm = changeManagerWrapper.changeManager
+                    Task.detached {
+                        let jsonData = json.data(using: .utf8) ?? Data()
+                        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+                        let editor = DocumentEditor(
+                            document: JoyDoc(dictionary: dictionary),
+                            mode: .fill,
+                            events: cm,
+                            pageID: "",
+                            navigation: true,
+                            validateSchema: false
+                        )
+                        await MainActor.run {
+                            self.preparedEditor = editor
+                            self.isFetching = false
+                            self.shouldNavigate = true
+                        }
                     }
                 }) {
                     HStack {
@@ -287,12 +306,24 @@ struct UserJsonTextFieldView: View {
                 .disabled(jsonString.isEmpty || errorMessage != nil || isFetching)
                 
                 NavigationLink(
-                    destination: FormDestinationView(
-                        jsonString: jsonString,
-                        changeManager: changeManagerWrapper.changeManager,
-                        showChangelogView: $showChangelogView,
-                        enableChangelogs: enableChangelogs
-                    ),
+                    destination: Group {
+                        if let editor = preparedEditor {
+                            FormDestinationView(
+                                editor: editor,
+                                changeManager: changeManagerWrapper.changeManager,
+                                showChangelogView: $showChangelogView,
+                                enableChangelogs: enableChangelogs
+                            )
+                        } else {
+                            // Fallback (should rarely happen): keep old path
+                            FormDestinationView(
+                                jsonString: jsonString,
+                                changeManager: changeManagerWrapper.changeManager,
+                                showChangelogView: $showChangelogView,
+                                enableChangelogs: enableChangelogs
+                            )
+                        }
+                    },
                     isActive: $shouldNavigate
                 ) {
                     EmptyView()
@@ -365,35 +396,56 @@ struct FormDestinationView: View {
     let jsonString: String
     @ObservedObject var changeManager: ChangeManager
     @Binding var showChangelogView: Bool
-    @StateObject private var documentEditor: DocumentEditor
+    @State private var showValidationResults: Bool = false
+    @State private var lastValidation: Validation? = nil
+    @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
-    
+
     init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool) {
         self.jsonString = jsonString
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
         self.enableChangelogs = enableChangelogs
-        
-        // Create DocumentEditor ONCE during initialization
-        let jsonData = jsonString.data(using: .utf8) ?? Data()
-        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
-        
-        self._documentEditor = StateObject(wrappedValue: DocumentEditor(
-            document: JoyDoc(dictionary: dictionary),
-            mode: .fill,
-            events: changeManager,
-            pageID: "",
-            navigation: true,
-            validateSchema: false
-        ))
     }
-    
+
+    init(editor: DocumentEditor, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool) {
+        self.jsonString = ""
+        self.changeManager = changeManager
+        self._showChangelogView = showChangelogView
+        self.enableChangelogs = enableChangelogs
+        self._documentEditor = State(initialValue: editor)
+    }
+
+    // Build the DocumentEditor off the main thread and assign it on the main thread
+    private func buildDocumentEditorInBackground() {
+        // Heavy work (JSON parse + DocumentEditor construction) off the main thread
+        Task.detached { [jsonString, changeManager] in
+            let jsonData = jsonString.data(using: .utf8) ?? Data()
+            let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+
+            // Construct the editor off-main
+            let editor = DocumentEditor(
+                document: JoyDoc(dictionary: dictionary),
+                mode: .fill,
+                events: changeManager,
+                pageID: "",
+                navigation: true,
+                validateSchema: false
+            )
+
+            // Publish to UI on the main actor
+            await MainActor.run {
+                self.documentEditor = editor
+            }
+        }
+    }
+
     var body: some View {
         VStack {
             if enableChangelogs {
                 HStack {
                     Spacer()
-                    
+                    // TODO: Add a button for validation results, similar to the changelogs button, which should be displayed when the save button is pressed.
                     Button(action: {
                         showChangelogView = true
                     }) {
@@ -416,12 +468,43 @@ struct FormDestinationView: View {
                     .padding(.top, 8)
                 }
             }
-            
-            Form(documentEditor: documentEditor)
-            SaveButtonView(changeManager: changeManager, documentEditor: documentEditor, showBothButtons: false)
+
+            if let editor = documentEditor {
+                Form(documentEditor: editor)
+                SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: enableChangelogs ? true : false) { validation in
+                    lastValidation = validation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                        showValidationResults = true
+                    }
+                }
+            } else {
+                // Loading state while the editor builds off-main
+                VStack(spacing: 12) {
+                    ProgressView()
+                    Text("Preparing editor…")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .sheet(isPresented: $showChangelogView) {
             ChangelogView(changeManager: changeManager)
+        }
+        .sheet(isPresented: $showValidationResults) {
+            if let validation = lastValidation {
+                ValidationResultsView(validation: validation)
+            } else {
+                Text("No validation result available.")
+                    .font(.footnote)
+                    .padding()
+            }
+        }
+        // Kick off background creation once the view appears
+        .task {
+            if documentEditor == nil {
+                buildDocumentEditorInBackground()
+            }
         }
     }
 }
@@ -504,6 +587,7 @@ struct OptionSelectionView: View {
         case imageReplacementTest
         case liveViewTest
         case allFormulaJSONs
+        case tenKRowsCollection
         case schemaValidationExampleView
         case oChangeHandlerTest
         case manipulateDataOnChangeView
@@ -524,6 +608,8 @@ struct OptionSelectionView: View {
                 return "Formulas"
             case .allFormulaJSONs:
                 return "All Formula JSONs"
+            case .tenKRowsCollection:
+                return "10k Rows Collection"
             case .schemaValidationExampleView:
                 return "Schema Validation"
             case .manipulateDataOnChangeView:
@@ -549,6 +635,8 @@ struct OptionSelectionView: View {
                 return "Test formula calculations and expressions"
             case .allFormulaJSONs:
                 return "Test formula calculations and expressions"
+            case .tenKRowsCollection:
+                return "Open heavy sample JSON with 10k rows to stress test"
             case .schemaValidationExampleView:
                 return "Test schema validation and error handling features"
             case .manipulateDataOnChangeView:
@@ -574,6 +662,8 @@ struct OptionSelectionView: View {
                 return "function"
             case .allFormulaJSONs:
                 return "function"
+            case .tenKRowsCollection:
+                return "square.grid.3x3"
             case .schemaValidationExampleView:
                 return "checkmark.seal.fill"
             case .manipulateDataOnChangeView:
@@ -605,6 +695,8 @@ struct OptionSelectionView: View {
                 return .purple
             case .oChangeHandlerTest:
                 return .teal
+            case .tenKRowsCollection:
+                return .green
             }
         }
     }
@@ -733,6 +825,8 @@ struct OptionSelectionView: View {
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
             AllSampleJSONs()
+        case .some(.tenKRowsCollection):
+            AllSampleJSONs(initialFileName: "10kRowsCollection", lockToFileName: true)
         }
     }
 }
@@ -850,4 +944,4 @@ struct TestingChangelogsView: View {
         }
         .modifier(KeyboardDismissModifier())
     }
-} 
+}

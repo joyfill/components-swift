@@ -244,11 +244,11 @@ public enum DateFormatType: String {
 ///   - iso8601String: The ISO8601 formatted string representing a date and time.
 ///
 /// - Returns: A formatted time string in the format "hh:mm a".
-public func getTimeFromISO8601Format(iso8601String: String) -> String {
+public func getTimeFromISO8601Format(iso8601String: String, tzId: String? = nil) -> String {
     let dateFormatter = ISO8601DateFormatter()
     let instant = dateFormatter.date(from: iso8601String)
     
-    let timeZone = TimeZone.current
+    let timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
     let zonedDateTime = instant ?? Date()
     
     let formatter = DateFormatter()
@@ -266,10 +266,12 @@ public func getTimeFromISO8601Format(iso8601String: String) -> String {
 ///   - format: The desired format for the date string. Supported formats are "MM/DD/YYYY", "hh:mma", and any other custom format.
 ///
 /// - Returns: A formatted date string based on the provided timestamp value and format.
-public func timestampMillisecondsToDate(value: Int, format: DateFormatType) -> String {
+public func timestampMillisecondsToDate(value: Int, format: DateFormatType, tzId: String? = nil) -> String {
     let timestampMilliseconds: TimeInterval = TimeInterval(value)
     let date = Date(timeIntervalSince1970: timestampMilliseconds / 1000.0)
     let dateFormatter = DateFormatter()
+    let timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
+    dateFormatter.timeZone = timeZone
     
     if format == .dateOnly {
         dateFormatter.dateFormat = "MMMM d, yyyy"
