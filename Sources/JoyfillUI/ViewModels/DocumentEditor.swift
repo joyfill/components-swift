@@ -421,7 +421,7 @@ extension DocumentEditor {
     fileprivate func updateTimeZoneIfNeeded(_ field: inout JoyDocField) {
         if field.fieldType == .date {
             if let timeZoneString = field.tz {
-                if timeZoneString.isEmpty {
+                if timeZoneString.isEmpty || TimeZone(identifier: timeZoneString) == nil {
                     field.tz = TimeZone.current.identifier
                 }
             } else {

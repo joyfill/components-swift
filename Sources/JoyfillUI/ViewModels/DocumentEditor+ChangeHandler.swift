@@ -1503,7 +1503,7 @@ extension DocumentEditor {
 
     fileprivate func updateTimeZoneIfNeeded(_ elements: inout [ValueElement], _ i: Int) {
         if let timeZoneString = elements[i].tz {
-            if timeZoneString.isEmpty {
+            if timeZoneString.isEmpty || TimeZone(identifier: timeZoneString) == nil {
                 elements[i].tz = TimeZone.current.identifier
             }
         } else {
