@@ -717,7 +717,7 @@ extension DocumentEditor {
         return nil
     }
     
-    private func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
+    func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
         for (parentKey,elements) in child {
             guard !elements.isEmpty else { continue }
             for i in 0..<elements.count {

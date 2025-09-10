@@ -12,8 +12,9 @@ import JoyfillModel
      @State var valueElements: [ValueElement] = []
      @State var images: [ImageState] = []
      let isMultiEnabled: Bool
+     var viewModel: CollectionViewModel?
 
-     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
+     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, viewModel: CollectionViewModel? = nil) {
          _cellModel = cellModel
          _showMoreImages = State(wrappedValue: 6)
          self.isUsedForBulkEdit = isUsedForBulkEdit
@@ -21,6 +22,7 @@ import JoyfillModel
              _valueElements = State(initialValue: cellModel.wrappedValue.data.valueElements)
          }
          isMultiEnabled = cellModel.wrappedValue.data.multi ?? false
+         self.viewModel = viewModel
      }
     
     var body: some View {
@@ -87,7 +89,8 @@ import JoyfillModel
     }
      
      func uploadAction() {
-         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier, multi: isMultiEnabled) { urls in
+         let result = viewModel?.getParenthPath(rowId: cellModel.rowID)
+         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier, target: "field.update", multi: isMultiEnabled, schemaId: result?.1, parentPath: result?.0, rowId: cellModel.rowID, columnId: cellModel.data.id) { urls in
              var urlsToProcess: [String] = []
              if !isMultiEnabled {
                  if let firstURL = urls.first {

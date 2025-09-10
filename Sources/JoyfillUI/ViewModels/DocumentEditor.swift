@@ -655,7 +655,7 @@ extension DocumentEditor {
                 continue
             }
             let fieldData = fieldMap[fieldPositionFieldID]
-            let fieldIdentifier = FieldIdentifier(fieldID: fieldPositionFieldID, pageID: newPageID, fileID: fileId)
+            let fieldIdentifier = FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldPositionFieldID, fieldIdentifier: fieldData?.identifier, pageID: newPageID, fileID: fileId, fieldPositionId: fieldPosition.id)
             var dataModelType: FieldListModelType = .none
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
             

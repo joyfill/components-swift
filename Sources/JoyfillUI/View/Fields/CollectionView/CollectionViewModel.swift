@@ -1844,6 +1844,13 @@ extension CollectionViewModel {
             
         }
     }
+    
+    func getParenthPath(rowId: String) -> (String, String) {
+        let rowDataModel = tableDataModel.filteredcellModels.first { $0.rowID == rowId }
+        let parentPath = tableDataModel.documentEditor?.computeParentPath(targetParentId: rowDataModel?.rowType.parentID?.rowID ?? "", nestedKey: rowDataModel?.rowType.parentSchemaKey ?? "", in: [rootSchemaKey : tableDataModel.valueToValueElements ?? []])
+        let schemaKey = rowDataModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel?.rowType.parentSchemaKey ?? ""
+        return (parentPath ?? "", schemaKey)
+    }
 }
 
 // MARK: - DocumentEditorDelegate methods
