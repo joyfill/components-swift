@@ -21,7 +21,7 @@ struct CollectionViewCellBuilder: View {
             TableDropDownOptionListView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case .image:
-            TableImageView(cellModel: $cellModel)
+            TableImageView(cellModel: $cellModel, viewModel: viewModel)
                 .disabled(cellModel.editMode == .readonly)
         case .block:
             TableBlockView(cellModel: $cellModel)
