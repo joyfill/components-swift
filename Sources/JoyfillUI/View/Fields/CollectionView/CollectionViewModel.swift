@@ -19,7 +19,9 @@ class CollectionViewModel: ObservableObject {
     @Published var blockLongestTextMap: [String: String] = [:]
     @Published var rowToValueElementMap: [String: ValueElement] = [:]
     @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
+    @Published var columnsMap: [String: FieldTableColumn] = [:]
     @Published var isLoading: Bool = false
+    @Published var isBulkLoading: Bool = false
     @Published var isSearching: Bool = false
     private var requiredColumnIds: [String] = []
     var rootSchemaKey: String = ""
@@ -39,13 +41,15 @@ class CollectionViewModel: ObservableObject {
     
     func initializeAsync() {
         DispatchQueue.global().async {
-            let blockLongestTextMap = self.buildBlockLongestTextMap()
+            let columnsMap = self.getTableColumns()
             let rowToValueElementMap = self.getBuildRowToValueElementMap()
+            let blockLongestTextMap = self.buildBlockLongestTextMap()
             let cellWidthMap = self.cellWidthMapping()
             let cellModels = self.getCellModels()
             let collectionWidth = self.getCollectionWidth()
 
             DispatchQueue.main.async {
+                self.columnsMap = columnsMap
                 self.blockLongestTextMap = blockLongestTextMap
                 self.rowToValueElementMap = rowToValueElementMap
                 self.cellWidthMap = cellWidthMap
@@ -66,26 +70,27 @@ class CollectionViewModel: ObservableObject {
             }
         }
     }
+    
+    func getTableColumns() -> [String : FieldTableColumn] {
+        var map: [String: FieldTableColumn] = [:]
+        for (key, _) in tableDataModel.schema {
+            let tableColumns = tableDataModel.filterTableColumns(key: key)
+            for column in tableColumns {
+                if let id = column.id, map[id] == nil {
+                    map[id] = column
+                }
+            }
+        }
+        return map
+    }
         
     func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
         var longestText = ""
-        
-        for valueElement in valueElements {
+        for valueElement in rowToValueElementMap.values {
             if let cell = valueElement.cells?.first(where: { $0.key == columnID })?.value,
                let text = cell.text {
                 if text.count > longestText.count {
                     longestText = text
-                }
-            }
-            
-            if let childrenDict = valueElement.childrens {
-                for (_, child) in childrenDict {
-                    if let nestedValueElements = child.valueToValueElements {
-                        let nestedLongest = getLongestBlockTextRecursive(columnID: columnID, valueElements: nestedValueElements)
-                        if nestedLongest.count > longestText.count {
-                            longestText = nestedLongest
-                        }
-                    }
                 }
             }
         }
@@ -457,6 +462,7 @@ class CollectionViewModel: ObservableObject {
                 }
                 
                 let cellModel = TableCellModel(rowID: rowID,
+                                               timezoneId: valueElement.tz,
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -465,11 +471,7 @@ class CollectionViewModel: ObservableObject {
                     let columnIndex = columns.firstIndex(where: { column in
                         column.id == cellDataModel.id
                     })
-                    let result = self.cellDidChange(rowId: rowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
-                    self.tableDataModel.valueToValueElements = result.0
-                    if let valueElement = result.1 {
-                        self.rowToValueElementMap[rowID] = valueElement
-                    }
+                    self.cellDidChange(rowId: rowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                 }
                 rowCellModels.append(cellModel)
             }
@@ -487,7 +489,7 @@ class CollectionViewModel: ObservableObject {
                                                                childrens: childrens,
                                                                rowWidth: rowWidth(columns, level)))
         }
-        tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID, valueElement: rowToValueElementMap[rowID])
         updateCollectionWidth()
     }
     
@@ -536,16 +538,13 @@ class CollectionViewModel: ObservableObject {
                 if let columnModel = columnModel {
                     
                     let cellModel = TableCellModel(rowID: rowID,
+                                                   timezoneId: valueElement.tz,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        let result = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
-                        self.tableDataModel.valueToValueElements = result.0
-                        if let valueElement = result.1 {
-                            self.rowToValueElementMap[rowID] = valueElement
-                        }
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -576,16 +575,13 @@ class CollectionViewModel: ObservableObject {
                 if let columnModel = columnModel {
                     
                     let cellModel = TableCellModel(rowID: rowID,
+                                                   timezoneId: valueElement.tz,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
                                                    editMode: tableDataModel.mode) { cellDataModel in
-                        let result = self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
-                        self.tableDataModel.valueToValueElements = result.0
-                        if let valueElement = result.1 {
-                            self.rowToValueElementMap[rowID] = valueElement
-                        }
+                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -630,6 +626,7 @@ class CollectionViewModel: ObservableObject {
             var nestedCells: [TableCellModel] = []
             for cellDataModel in cellDataModels {
                 let cellModel = TableCellModel(rowID: childRowID,
+                                               timezoneId: childRow.tz,
                                                data: cellDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -638,11 +635,7 @@ class CollectionViewModel: ObservableObject {
                     let columnIndex = filteredTableColumns.firstIndex(where: { column in
                         column.id == cellDataModel.id
                     })
-                    let result = self.cellDidChange(rowId: childRowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
-                    self.tableDataModel.valueToValueElements = result.0
-                    if let valueElement = result.1 {
-                        self.rowToValueElementMap[childRowID] = valueElement
-                    }
+                    self.cellDidChange(rowId: childRowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                 }
                 nestedCells.append(cellModel)
             }
@@ -815,6 +808,7 @@ class CollectionViewModel: ObservableObject {
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
                         let cellModel = TableCellModel(rowID: row.id ?? "",
+                                                       timezoneId: valueElement.tz,
                                                        data: cellDataModel,
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -823,11 +817,7 @@ class CollectionViewModel: ObservableObject {
                             let columnIndex = filteredTableColumns.firstIndex(where: { column in
                                 column.id == cellDataModel.id
                             })
-                            let result = self.cellDidChange(rowId: row.id ?? "", colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
-                            self.tableDataModel.valueToValueElements = result.0
-                            if let valueElement = result.1 {
-                                self.rowToValueElementMap[row.id ?? ""] = valueElement
-                            }
+                            self.cellDidChange(rowId: row.id ?? "", colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                         }
                         subCells.append(cellModel)
                     }
@@ -1577,7 +1567,7 @@ class CollectionViewModel: ObservableObject {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true) -> ([ValueElement], ValueElement?) {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true) {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
@@ -1589,12 +1579,15 @@ class CollectionViewModel: ObservableObject {
                                                                         nestedKey: nestedKey,
                                                                         parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "",
                                                                         callOnChange: callOnChange) ?? ([], nil)
-        tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
+        self.tableDataModel.valueToValueElements = result.0
+        if let valueElement = result.1 {
+            self.rowToValueElementMap[rowId] = valueElement
+        }
+        
+        tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
         }
-        
-        return (result.0, result.1)
     }
     
     func refreshCollectionSchema(rowID: String) {
@@ -1616,15 +1609,9 @@ class CollectionViewModel: ObservableObject {
 //        tableDataModel.filterCollectionRowsIfNeeded()
         sortRowsIfNeeded()
     }
-
-    func bulkEdit(changes: [Int: ValueUnion]) {
-        let tableColumns = getTableColumnsForSelectedRows()
-        var columnIDChanges = [String: ValueUnion]()
-        changes.forEach { (colIndex: Int, value: ValueUnion) in
-            guard let cellDataModelId = tableColumns[colIndex].id else { return }
-            columnIDChanges[cellDataModelId] = value
-        }
-        
+    
+    @MainActor
+    fileprivate func updateJSON(_ columnIDChanges: [String : ValueUnion]) async {
         var parentRowID = ""
         var nestedSchemaKey = ""
         
@@ -1635,21 +1622,38 @@ class CollectionViewModel: ObservableObject {
             parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
             nestedSchemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
         }
-        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
-                                                                      selectedRows: tableDataModel.selectedRows,
-                                                                      fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                      parentRowId: parentRowID,
-                                                                      nestedKey: nestedSchemaKey,
-                                                                      rootSchemaKey: rootSchemaKey)
+        
+        // Await the async operation - main thread waits but stays free for UI
+        let result = await tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
+                                                                            selectedRows: tableDataModel.selectedRows,
+                                                                            fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                            parentRowId: parentRowID,
+                                                                            nestedKey: nestedSchemaKey,
+                                                                            rootSchemaKey: rootSchemaKey)
+        // Update UI - already on MainActor
         tableDataModel.valueToValueElements = result?.0
         for (key, value) in result?.1 ?? [:] {
             rowToValueElementMap[key] = value
         }
+    }
+    
+    @MainActor
+    func bulkEdit(changes: [Int: ValueUnion]) async {
+        isBulkLoading = true
         
+        let tableColumns = getTableColumnsForSelectedRows()
+        var columnIDChanges = [String: ValueUnion]()
+        changes.forEach { (colIndex: Int, value: ValueUnion) in
+            guard let cellDataModelId = tableColumns[colIndex].id else { return }
+            columnIDChanges[cellDataModelId] = value
+        }
+        
+        await updateJSON(columnIDChanges)
+
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
-                let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
                 var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = changes[colIndex] else { return }
                 
@@ -1674,16 +1678,17 @@ class CollectionViewModel: ObservableObject {
                 default:
                     break
                 }
-                
-                tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
-                
-                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId)
+                rowDataModel.cells[colIndex].data = cellDataModel
+                rowDataModel.cells[colIndex].id = UUID()
+                                
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
                 if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: rowId)
                 }
             }
+            tableDataModel.filteredcellModels[rowIndex] = rowDataModel
         }
-        
+        isBulkLoading = false
         sortRowsIfNeeded()
     }
     
@@ -1736,6 +1741,7 @@ class CollectionViewModel: ObservableObject {
                         let cells: [TableCellModel] = cellDataModels.map { cellData in
                             TableCellModel(
                                 rowID: child.id ?? UUID().uuidString,
+                                timezoneId: child.tz,
                                 data: cellData,
                                 documentEditor: tableDataModel.documentEditor,
                                 fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1828,17 +1834,14 @@ extension CollectionViewModel {
                 cellDataModel: cell,
                 isBulkEdit: true
             )
-            let result = cellDidChange(
+            cellDidChange(
                 rowId: rowID,
                 colIndex: colIndex,
                 cellDataModel: cell,
                 isNestedCell: true,
                 callOnChange: false
             )
-            tableDataModel.valueToValueElements = result.0
-            if let element = result.1 {
-                rowToValueElementMap[rowID] = element
-            }
+            
         }
     }
     

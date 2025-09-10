@@ -407,11 +407,10 @@ class ConditionalLogicHandler {
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
 
-    func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String) {
+    func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String, valueElement: ValueElement?) {
         guard let dependencyLogic = collectionDependencyMap[collectionFieldID], let affectedSchemas = dependencyLogic.columnDependencyMap[columnID] else { return }
         
-        guard let field = documentEditor.field(fieldID: collectionFieldID),
-              let valueElement = documentEditor.getValueElementByRowID(rowID, from: field.valueToValueElements ?? []) else { return }
+        guard let field = documentEditor.field(fieldID: collectionFieldID) else { return }
                 
         for schemaID in affectedSchemas {
             let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: schemaID)
@@ -430,13 +429,12 @@ class ConditionalLogicHandler {
         }
     }
     
-    func updateShowCollectionSchemaMap(collectionFieldID: String, rowID: String) {
+    func updateShowCollectionSchemaMap(collectionFieldID: String, rowID: String, valueElement: ValueElement?) {
         var collectionLogic = showCollectionSchemaMap[collectionFieldID] ?? CollectionSchemaLogic()
         
-        guard let field = documentEditor.field(fieldID: collectionFieldID),
-              let valueElement = documentEditor.getValueElementByRowID(rowID, from: field.valueToValueElements ?? []) else { return }
+        guard let field = documentEditor.field(fieldID: collectionFieldID) else { return }
         
-        for (childSchemaID, child) in valueElement.childrens ?? [:] {
+        for (childSchemaID, child) in valueElement?.childrens ?? [:] {
             let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: childSchemaID)
             let shouldBeShown = shouldShow(
                 fullSchema: field.schema,
