@@ -799,8 +799,10 @@ extension DocumentEditor {
                 if var cells = elements[index].cells {
                     cells[cellDataModelId] = change
                     elements[index].cells = cells
+                    updateTimeZoneIfNeeded(&elements, index)
                 } else {
                     elements[index].cells = [cellDataModelId : change]
+                    updateTimeZoneIfNeeded(&elements, index)
                 }
             }
         }
@@ -946,6 +948,7 @@ extension DocumentEditor {
                 for (k, v) in changes { cells[k] = v }
                 row.cells = cells
                 elements[idx] = row
+                updateTimeZoneIfNeeded(&elements, idx)
                 updated[rowId] = row
             }
             return updated
@@ -988,6 +991,7 @@ extension DocumentEditor {
             for (k, v) in changes { cells[k] = v }
             row.cells = cells
             current[idx] = row
+            updateTimeZoneIfNeeded(&elements, idx)
             updated[rowId] = row
         }
 
