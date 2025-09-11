@@ -856,13 +856,19 @@ extension DocumentEditor {
                 let parentPath = self.computeParentPath(targetParentId: parentRowId,
                                                         nestedKey: nestedKey,
                                                         in: [rootSchemaKey : elements]) ?? ""
-
+                let columns = self.field(fieldID: fieldIdentifier.fieldID)?.schema?[nestedKey]?.tableColumns ?? []
+                var isDateColumn = false
                 var updatedElements: [String : ValueElement] = [:]
                 var rows: [[String : Any]] = []
                 var changesToSend: [String: Any] = [:]
                 
                 for change in changes {
                     changesToSend[change.key] = change.value.dictionary
+                    if let column = columns.first(where: {$0.id == change.key}) {
+                        if column.type == .date {
+                            isDateColumn = true
+                        }
+                    }
                 }
 
                 // Apply all updates in one pass for this parentPath (depth-sensitive fast path)
@@ -872,8 +878,12 @@ extension DocumentEditor {
                                                         in: &elements)
                 // Build rows payload after mutation
                 for rowId in selectedRows {
-                    if updatedElements[rowId] != nil {
-                        rows.append(["_id": rowId, "cells": changesToSend])
+                    if let updated = updatedElements[rowId] {
+                        var row: [String: Any] = ["_id": rowId, "cells": changesToSend]
+                        if isDateColumn {
+                            row["tz"] = updated.tz
+                        }
+                        rows.append(row)
                     }
                 }
                 
@@ -1132,10 +1142,13 @@ extension DocumentEditor {
             let cells = [
                 cellDataModel.id : newCell?.dictionary
             ]
-            let row: [String : Any] = [
+            var row: [String : Any] = [
                 "_id" : rowId,
                 "cells" : cells
             ]
+            if cellDataModel.type == .date {
+                row["tz"] = updatedElement?.tz
+            }
             guard let currentField = fieldMap[fieldId] else {
                 Log("Failed to find field \(fieldId)", type: .error)
                 return ([], nil)
