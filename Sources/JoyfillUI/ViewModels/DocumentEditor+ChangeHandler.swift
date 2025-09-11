@@ -802,10 +802,10 @@ extension DocumentEditor {
                 if var cells = elements[index].cells {
                     cells[cellDataModelId] = change
                     elements[index].cells = cells
-                    updateTimeZoneIfNeeded(&elements, index)
+                    updateTimeZoneIfNeeded(&elements[index])
                 } else {
                     elements[index].cells = [cellDataModelId : change]
-                    updateTimeZoneIfNeeded(&elements, index)
+                    updateTimeZoneIfNeeded(&elements[index])
                 }
             }
         }
@@ -971,8 +971,8 @@ extension DocumentEditor {
                 var cells = row.cells ?? [:]
                 for (k, v) in changes { cells[k] = v }
                 row.cells = cells
+                updateTimeZoneIfNeeded(&row)
                 elements[idx] = row
-                updateTimeZoneIfNeeded(&elements, idx)
                 updated[rowId] = row
             }
             return updated
@@ -1014,8 +1014,8 @@ extension DocumentEditor {
             var cells = row.cells ?? [:]
             for (k, v) in changes { cells[k] = v }
             row.cells = cells
+            updateTimeZoneIfNeeded(&row)
             current[idx] = row
-            updateTimeZoneIfNeeded(&elements, idx)
             updated[rowId] = row
         }
 
@@ -1527,9 +1527,10 @@ extension DocumentEditor {
             } else {
                 cells.removeValue(forKey: cellDataModelId)
             }
-            updateTimeZoneIfNeeded(&elements, index)
+            updateTimeZoneIfNeeded(&elements[index])
             elements[index].cells = cells
         } else if let newCell = newCell {
+            updateTimeZoneIfNeeded(&elements[index])
             elements[index].cells = [cellDataModelId: newCell]
         }
         
@@ -1537,13 +1538,13 @@ extension DocumentEditor {
         return elements
     }
 
-    fileprivate func updateTimeZoneIfNeeded(_ elements: inout [ValueElement], _ i: Int) {
-        if let timeZoneString = elements[i].tz {
+    fileprivate func updateTimeZoneIfNeeded(_ element: inout ValueElement) {
+        if let timeZoneString = element.tz {
             if timeZoneString.isEmpty || TimeZone(identifier: timeZoneString) == nil {
-                elements[i].tz = TimeZone.current.identifier
+                element.tz = TimeZone.current.identifier
             }
         } else {
-            elements[i].tz = TimeZone.current.identifier
+            element.tz = TimeZone.current.identifier
         }
     }
     
@@ -1560,7 +1561,7 @@ extension DocumentEditor {
                 } else if let newCell = newCell {
                     elements[i].cells = [cellDataModelId: newCell]
                 }
-                updateTimeZoneIfNeeded(&elements, i)
+                updateTimeZoneIfNeeded(&elements[i])
                 return elements[i]
             }
             if var childrenDict = elements[i].childrens {
