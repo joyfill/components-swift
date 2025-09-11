@@ -255,8 +255,8 @@ extension DocumentEditor {
         rowID: String,
         cellDataModel: CellDataModel
     ) {
-        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder
-        else { return }
+        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder else { return }
+        let valueElement = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements?.first(where: { $0.id == rowID })
         guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
             Log("Row index not found: \(rowID)", type: .error)
             return
@@ -266,10 +266,13 @@ extension DocumentEditor {
         let cells = [
             cellDataModel.id: newCell?.dictionary
         ]
-        let row: [String : Any] = [
+        var row: [String : Any] = [
             "_id" : rowID,
             "cells" : cells
         ]
+        if cellDataModel.type == .date {
+            row["tz"] = valueElement?.tz
+        }
         sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
     
@@ -818,21 +821,32 @@ extension DocumentEditor {
             Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
             return
         }
+        let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
+        var isDateColumn: Bool = false
         var rows: [[String : Any]] = []
         var changesToSend: [String: Any] = [:]
         
         for change in changes {
             changesToSend[change.key] = change.value.dictionary
+            if let column = columns.first(where: {$0.id == change.key}) {
+                if column.type == .date {
+                    isDateColumn = true
+                }
+            }
         }
         
         for rowID in selectedRows {
-            let row: [String : Any] = [
+            var row: [String : Any] = [
                 "_id" : rowID,
                 "cells" : changesToSend
             ]
-            rows.append(row)
             
             updateValueElementsForBulk(changes, &elements, rowID)
+            
+            if isDateColumn {
+                row["tz"] = elements.first(where: {$0.id == rowID})?.tz
+            }
+            rows.append(row)
         }
 
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
