@@ -1470,6 +1470,11 @@ extension DocumentEditor {
         switch fieldData.type {
         case "chart":
             return chartChanges(fieldData: fieldData)
+        case "date":
+            return [
+                "value": fieldData.value?.dictionary,
+                "tz": fieldData.tz
+            ]
         default:
             return ["value": fieldData.value?.dictionary]
         }
