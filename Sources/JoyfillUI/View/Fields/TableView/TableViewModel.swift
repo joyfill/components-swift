@@ -361,18 +361,51 @@ class TableViewModel: ObservableObject {
         return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange) ?? []
     }
 
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
+        for rowId in tableDataModel.selectedRows {
+            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+            var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
+            for (key,value) in columnIDChanges {
+                if let column = tableColumns.first(where: { $0.id == key }) {
+                    if column.type == .date {
+                        let sourceTimeZone = TimeZone.current
+                        let targetTimeZone = TimeZone(identifier: rowDataModel.cells.first?.timezoneId ?? TimeZone.current.identifier) ?? .current
+                        if let epochMillis = value.number {
+                            let format = DateFormatType(rawValue: column.format ?? "")
+                            let converted = Utility.convertEpochBetweenTimezones(epochMillis: epochMillis,
+                                                                         from: sourceTimeZone,
+                                                                         to: targetTimeZone,
+                                                                         format: format)
+                            perRowChanges[key] = ValueUnion.double(converted)
+                        }
+                    } else {
+                        perRowChanges[key] = value
+                    }
+                }
+            }
+            if !perRowChanges.isEmpty {
+                newChanges[rowId] = perRowChanges
+            }
+        }
+    }
+    
     func bulkEdit(changes: [Int: ValueUnion]) {
         var columnIDChanges = [String: ValueUnion]()
         changes.forEach { (colIndex: Int, value: ValueUnion) in
             guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
             columnIDChanges[cellDataModelId] = value
         }
-        tableDataModel.documentEditor?.bulkEdit(changes: columnIDChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+        
+        var newChanges: [String: [String: ValueUnion]] = [:]
+        makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
+        
+        tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
-                guard let change = changes[colIndex] else { return }
+                guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
                 
                 switch cellDataModel.type {
                 case .dropdown:

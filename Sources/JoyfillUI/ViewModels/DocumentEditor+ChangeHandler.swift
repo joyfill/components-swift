@@ -793,9 +793,10 @@ extension DocumentEditor {
         return (elements, newRow)
     }
 
-    fileprivate func updateValueElementsForBulk(_ changes: [String : ValueUnion], _ elements: inout [ValueElement], _ rowID: String) {
-        for cellDataModelId in changes.keys {
-            if let change = changes[cellDataModelId] {
+    fileprivate func updateValueElementsForBulk(_ changes: [String: [String : ValueUnion]], _ elements: inout [ValueElement], _ rowID: String) {
+        let change = changes[rowID] ?? [:]
+        for cellDataModelId in change.keys {
+            if let change = change[cellDataModelId] {
                 guard let index = elements.firstIndex(where: { $0.id == rowID }) else {
                     return
                 }
@@ -816,7 +817,7 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
             return
@@ -824,21 +825,20 @@ extension DocumentEditor {
         let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
         var isDateColumn: Bool = false
         var rows: [[String : Any]] = []
-        var changesToSend: [String: Any] = [:]
-        
-        for change in changes {
-            changesToSend[change.key] = change.value.dictionary
-            if let column = columns.first(where: {$0.id == change.key}) {
-                if column.type == .date {
-                    isDateColumn = true
-                }
-            }
-        }
         
         for rowID in selectedRows {
+            var changeToSend: [String: Any] = [:]
+            for (key, value) in changes[rowID] ?? [:] {
+                if let column = columns.first(where: {$0.id == key}) {
+                    if column.type == .date {
+                        isDateColumn = true
+                    }
+                }
+                changeToSend[key] = value.dictionary
+            }
             var row: [String : Any] = [
                 "_id" : rowID,
-                "cells" : changesToSend
+                "cells" : changeToSend
             ]
             
             updateValueElementsForBulk(changes, &elements, rowID)
