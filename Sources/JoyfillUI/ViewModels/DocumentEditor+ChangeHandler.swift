@@ -854,7 +854,7 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: rows)
     }
     
-    public func bulkEditForNested(changes: [String: ValueUnion],
+    public func bulkEditForNested(changes: [String: [String : ValueUnion]],
                                   selectedRows: [String],
                                   fieldIdentifier: FieldIdentifier,
                                   parentRowId: String,
@@ -874,16 +874,6 @@ extension DocumentEditor {
                 var isDateColumn = false
                 var updatedElements: [String : ValueElement] = [:]
                 var rows: [[String : Any]] = []
-                var changesToSend: [String: Any] = [:]
-                
-                for change in changes {
-                    changesToSend[change.key] = change.value.dictionary
-                    if let column = columns.first(where: {$0.id == change.key}) {
-                        if column.type == .date {
-                            isDateColumn = true
-                        }
-                    }
-                }
 
                 // Apply all updates in one pass for this parentPath (depth-sensitive fast path)
                 updatedElements = self.applyBulkChanges(at: parentPath,
@@ -892,8 +882,18 @@ extension DocumentEditor {
                                                         in: &elements)
                 // Build rows payload after mutation
                 for rowId in selectedRows {
+                    var changeToSend: [String: Any] = [:]
+                    for (key, value) in changes[rowId] ?? [:] {
+                        if let column = columns.first(where: {$0.id == key}) {
+                            if column.type == .date {
+                                isDateColumn = true
+                            }
+                        }
+                        changeToSend[key] = value.dictionary
+                    }
+                    
                     if let updated = updatedElements[rowId] {
-                        var row: [String: Any] = ["_id": rowId, "cells": changesToSend]
+                        var row: [String: Any] = ["_id": rowId, "cells": changeToSend]
                         if isDateColumn {
                             row["tz"] = updated.tz
                         }
@@ -955,7 +955,7 @@ extension DocumentEditor {
     /// Returns a map of updated rowId -> updated ValueElement.
     private func applyBulkChanges(at parentPath: String,
                                   selectedRows: [String],
-                                  changes: [String: ValueUnion],
+                                  changes: [String: [String : ValueUnion]],
                                   in elements: inout [ValueElement]) -> [String : ValueElement] {
         // Root-level fast path
         if parentPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -969,7 +969,10 @@ extension DocumentEditor {
                 guard let idx = indexById[rowId] else { continue }
                 var row = elements[idx]
                 var cells = row.cells ?? [:]
-                for (k, v) in changes { cells[k] = v }
+                let changesToSave = changes[rowId] ?? [:]
+                for (k, v) in changesToSave {
+                    cells[k] = v
+                }
                 row.cells = cells
                 updateTimeZoneIfNeeded(&row)
                 elements[idx] = row
@@ -1012,7 +1015,10 @@ extension DocumentEditor {
             guard let idx = indexById[rowId] else { continue }
             var row = current[idx]
             var cells = row.cells ?? [:]
-            for (k, v) in changes { cells[k] = v }
+            let changesToSave = changes[rowId] ?? [:]
+            for (k, v) in changesToSave {
+                cells[k] = v
+            }
             row.cells = cells
             updateTimeZoneIfNeeded(&row)
             current[idx] = row

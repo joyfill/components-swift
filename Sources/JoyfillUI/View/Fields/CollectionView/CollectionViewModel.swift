@@ -1611,7 +1611,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     @MainActor
-    fileprivate func updateJSON(_ columnIDChanges: [String : ValueUnion]) async {
+    fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]]) async {
         var parentRowID = ""
         var nestedSchemaKey = ""
         
@@ -1637,6 +1637,35 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    fileprivate func extractedFunc(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
+        for rowId in tableDataModel.selectedRows {
+            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+            var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
+            for (key,value) in columnIDChanges {
+                if let column = tableColumns.first(where: { $0.id == key }) {
+                    if column.type == .date {
+                        let sourceTimeZone = TimeZone.current
+                        let targetTimeZone = TimeZone(identifier: rowDataModel.cells.first?.timezoneId ?? TimeZone.current.identifier) ?? .current
+                        if let epochMillis = value.number {
+                            let format = DateFormatType(rawValue: column.format ?? "")
+                            let converted = convertEpochBetweenTimezones(epochMillis: epochMillis,
+                                                                         from: sourceTimeZone,
+                                                                         to: targetTimeZone,
+                                                                         format: format)
+                            perRowChanges[key] = ValueUnion.double(converted)
+                        }
+                    } else {
+                        perRowChanges[key] = value
+                    }
+                }
+            }
+            if !perRowChanges.isEmpty {
+                newChanges[rowId] = perRowChanges
+            }
+        }
+    }
+    
     @MainActor
     func bulkEdit(changes: [Int: ValueUnion]) async {
         isBulkLoading = true
@@ -1648,15 +1677,17 @@ class CollectionViewModel: ObservableObject {
             columnIDChanges[cellDataModelId] = value
         }
         
-        await updateJSON(columnIDChanges)
+        var newChanges: [String: [String: ValueUnion]] = [:]
+        extractedFunc(&newChanges, columnIDChanges, tableColumns)
+        
+        await updateJSON(newChanges)
 
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = rowDataModel.cells[colIndex].data
-                guard let change = changes[colIndex] else { return }
-                
+                guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
                 switch cellDataModel.type {
                 case .dropdown:
                     cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change.text }.first?.value ?? ""
@@ -1769,6 +1800,40 @@ class CollectionViewModel: ObservableObject {
 
         // If schema is unrelated to the active filtered schema, do not show
         return false
+    }
+}
+
+// MARK: - Timezone conversion helpers
+extension CollectionViewModel {
+    /// Converts an epoch milliseconds value between timezones while preserving local components.
+    /// For date-only values, preserves the calendar day and normalizes to 12:00 in the target timezone.
+    /// For date-time values, preserves wall-clock components (year, month, day, hour, minute, second).
+    func convertEpochBetweenTimezones(epochMillis: Double,
+                                      from: TimeZone,
+                                      to: TimeZone,
+                                      format: DateFormatType?) -> Double {
+        let sourceDate = Date(timeIntervalSince1970: epochMillis / 1000.0)
+
+        var fromCalendar = Calendar(identifier: .gregorian)
+        fromCalendar.timeZone = from
+
+        var toCalendar = Calendar(identifier: .gregorian)
+        toCalendar.timeZone = to
+
+        if format == .dateOnly {
+            let ymd = fromCalendar.dateComponents([.year, .month, .day], from: sourceDate)
+            var atNoon = DateComponents()
+            atNoon.year = ymd.year
+            atNoon.month = ymd.month
+            atNoon.day = ymd.day
+            atNoon.hour = 12
+            let targetLocalDate = toCalendar.date(from: atNoon) ?? sourceDate
+            return dateToTimestampMilliseconds(date: targetLocalDate)
+        }
+
+        let comps = fromCalendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: sourceDate)
+        let targetDate = toCalendar.date(from: comps) ?? sourceDate
+        return dateToTimestampMilliseconds(date: targetDate)
     }
 }
 
