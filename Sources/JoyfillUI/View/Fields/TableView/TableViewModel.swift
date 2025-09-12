@@ -59,6 +59,10 @@ class TableViewModel: ObservableObject {
         }
     }
     
+    func getThreeRowsForQuickView() -> [RowDataModel] {
+        return Array(tableDataModel.filteredcellModels.prefix(3))
+    }
+    
     func getProgress(rowId: String) -> (Int, Int) {
         guard let rowCells = tableDataModel.cellModels
             .first(where: { $0.rowID == rowId })?.cells else {
