@@ -818,7 +818,12 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
-        documentEditor.bulkEdit(changes: changes, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
+        var newChanges: [String: [String: ValueUnion]] = [:]
+        for rowId in rowIds {
+            newChanges[rowId] = changes
+        }
+        
+        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
@@ -866,7 +871,11 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
-        documentEditor.bulkEdit(changes: changes, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
+        var newChanges: [String: [String: ValueUnion]] = [:]
+        for rowId in rowIds {
+            newChanges[rowId] = changes
+        }
+        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
@@ -912,7 +921,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
         // Pass different row id - when row id not match for bulk edit
-        documentEditor.bulkEdit(changes: changes, selectedRows: ["rowIds"], fieldIdentifier: fieldIdentifier)
+        documentEditor.bulkEdit(changes: ["rowIds" : changes], selectedRows: ["rowIds"], fieldIdentifier: fieldIdentifier)
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
