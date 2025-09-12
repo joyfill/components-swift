@@ -1649,7 +1649,7 @@ class CollectionViewModel: ObservableObject {
                         let targetTimeZone = TimeZone(identifier: rowDataModel.cells.first?.timezoneId ?? TimeZone.current.identifier) ?? .current
                         if let epochMillis = value.number {
                             let format = DateFormatType(rawValue: column.format ?? "")
-                            let converted = convertEpochBetweenTimezones(epochMillis: epochMillis,
+                            let converted = Utility.convertEpochBetweenTimezones(epochMillis: epochMillis,
                                                                          from: sourceTimeZone,
                                                                          to: targetTimeZone,
                                                                          format: format)
@@ -1800,40 +1800,6 @@ class CollectionViewModel: ObservableObject {
 
         // If schema is unrelated to the active filtered schema, do not show
         return false
-    }
-}
-
-// MARK: - Timezone conversion helpers
-extension CollectionViewModel {
-    /// Converts an epoch milliseconds value between timezones while preserving local components.
-    /// For date-only values, preserves the calendar day and normalizes to 12:00 in the target timezone.
-    /// For date-time values, preserves wall-clock components (year, month, day, hour, minute, second).
-    func convertEpochBetweenTimezones(epochMillis: Double,
-                                      from: TimeZone,
-                                      to: TimeZone,
-                                      format: DateFormatType?) -> Double {
-        let sourceDate = Date(timeIntervalSince1970: epochMillis / 1000.0)
-
-        var fromCalendar = Calendar(identifier: .gregorian)
-        fromCalendar.timeZone = from
-
-        var toCalendar = Calendar(identifier: .gregorian)
-        toCalendar.timeZone = to
-
-        if format == .dateOnly {
-            let ymd = fromCalendar.dateComponents([.year, .month, .day], from: sourceDate)
-            var atNoon = DateComponents()
-            atNoon.year = ymd.year
-            atNoon.month = ymd.month
-            atNoon.day = ymd.day
-            atNoon.hour = 12
-            let targetLocalDate = toCalendar.date(from: atNoon) ?? sourceDate
-            return dateToTimestampMilliseconds(date: targetLocalDate)
-        }
-
-        let comps = fromCalendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: sourceDate)
-        let targetDate = toCalendar.date(from: comps) ?? sourceDate
-        return dateToTimestampMilliseconds(date: targetDate)
     }
 }
 

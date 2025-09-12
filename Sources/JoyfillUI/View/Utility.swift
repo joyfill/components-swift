@@ -96,5 +96,33 @@ class Utility {
             }
         }
     }
+    
+    static func convertEpochBetweenTimezones(epochMillis: Double,
+                                      from: TimeZone,
+                                      to: TimeZone,
+                                      format: DateFormatType?) -> Double {
+        let sourceDate = Date(timeIntervalSince1970: epochMillis / 1000.0)
+
+        var fromCalendar = Calendar(identifier: .gregorian)
+        fromCalendar.timeZone = from
+
+        var toCalendar = Calendar(identifier: .gregorian)
+        toCalendar.timeZone = to
+
+        if format == .dateOnly {
+            let ymd = fromCalendar.dateComponents([.year, .month, .day], from: sourceDate)
+            var atNoon = DateComponents()
+            atNoon.year = ymd.year
+            atNoon.month = ymd.month
+            atNoon.day = ymd.day
+            atNoon.hour = 12
+            let targetLocalDate = toCalendar.date(from: atNoon) ?? sourceDate
+            return dateToTimestampMilliseconds(date: targetLocalDate)
+        }
+
+        let comps = fromCalendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: sourceDate)
+        let targetDate = toCalendar.date(from: comps) ?? sourceDate
+        return dateToTimestampMilliseconds(date: targetDate)
+    }
 }
 
