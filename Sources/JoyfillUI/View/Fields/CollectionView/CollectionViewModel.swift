@@ -1637,7 +1637,7 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
-    fileprivate func extractedFunc(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
@@ -1678,7 +1678,7 @@ class CollectionViewModel: ObservableObject {
         }
         
         var newChanges: [String: [String: ValueUnion]] = [:]
-        extractedFunc(&newChanges, columnIDChanges, tableColumns)
+        makeChangeDict(&newChanges, columnIDChanges, tableColumns)
         
         await updateJSON(newChanges)
 
