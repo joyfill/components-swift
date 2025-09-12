@@ -1184,13 +1184,17 @@ extension DocumentEditorChangeHandlerTests {
         
         // Bulk edit: update a specific cell for all nested rows.
         let changes: [String: ValueUnion] = ["67ddc5adbb96a9b9f9ff1480": .string("Updated Nested")]
+        var newChanges: [String: [String: ValueUnion]] = [:]
         let nestedRowIds = initialNestedRows.map { $0.id! }
-//        _ = await documentEditor.bulkEditForNested(changes: changes,
-//                                            selectedRows: nestedRowIds,
-//                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
-//                                            parentRowId: parentRowId,
-//                                            nestedKey: nestedKey,
-//                                            rootSchemaKey: collectionFieldID)
+        for nestedRowId in nestedRowIds {
+            newChanges[nestedRowId] = changes
+        }
+        _ = await documentEditor.bulkEditForNested(changes: newChanges,
+                                            selectedRows: nestedRowIds,
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            parentRowId: parentRowId,
+                                            nestedKey: nestedKey,
+                                            rootSchemaKey: collectionFieldID)
         // Fetch the nested rows again.
         guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
               let updatedChildren = updatedParent.childrens?[nestedKey],
