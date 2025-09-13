@@ -10,35 +10,66 @@ import JoyfillModel
 import JSONSchema
 
 public struct FieldIdentifier: Equatable {
+    public var _id: String?
+    public var identifier: String?
     public let fieldID: String
+    public var fieldIdentifier: String?
     public var pageID: String?
     public var fileID: String?
-
-    public init(fieldID: String, pageID: String? = nil, fileID: String? = nil) {
+    public var fieldPositionId: String?
+    
+    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil) {
+        self._id = _id
+        self.identifier = identifier
         self.fieldID = fieldID
+        self.fieldIdentifier = fieldIdentifier
         self.pageID = pageID
         self.fileID = fileID
+        self.fieldPositionId = fieldPositionId
     }
 }
 
 public struct UploadEvent {
     public var fieldEvent: FieldIdentifier
+    public var target: String?
     public let multi: Bool
+    public var schemaId: String?
+    public var parentPath: String?
+    public var rowId: String?
+    public var columnId: String?
     public var uploadHandler: ([String]) -> Void
 
-    public init(fieldEvent: FieldIdentifier, multi: Bool, uploadHandler: @escaping ([String]) -> Void) {
+    public init(
+        fieldEvent: FieldIdentifier,
+        target: String? = nil,
+        multi: Bool,
+        schemaId: String? = nil,
+        parentPath: String? = nil,
+        rowId: String? = nil,
+        columnId: String? = nil,
+        uploadHandler: @escaping ([String]) -> Void
+    ) {
         self.fieldEvent = fieldEvent
-        self.uploadHandler = uploadHandler
+        self.target = target
         self.multi = multi
+        self.schemaId = schemaId
+        self.parentPath = parentPath
+        self.rowId = rowId
+        self.columnId = columnId
+        self.uploadHandler = uploadHandler
     }
 }
 
 public struct CaptureEvent {
     public var fieldEvent: FieldIdentifier
-
+    public var target: String?
+    public var schemaId: String?
+    public var parentPath: String?
+    public var rowId: String?
+    public var columnId: String?
     public var captureHandler: (ValueUnion) -> Void
 
-    public init(fieldEvent: FieldIdentifier, captureHandler: @escaping (ValueUnion) -> Void) {
+    public init(fieldEvent: FieldIdentifier, target: String? = nil, schemaId: String? = nil, parentPath: String? = nil, rowId: String? = nil, columnId: String? = nil, captureHandler: @escaping (ValueUnion) -> Void) {
         self.fieldEvent = fieldEvent
         self.captureHandler = captureHandler
     }

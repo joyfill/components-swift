@@ -717,7 +717,7 @@ extension DocumentEditor {
         return nil
     }
     
-    private func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
+    func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
         for (parentKey,elements) in child {
             guard !elements.isEmpty else { continue }
             for i in 0..<elements.count {
@@ -838,39 +838,64 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: rows)
     }
     
-    public func bulkEditForNested(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier, parentRowId: String,nestedKey: String, rootSchemaKey: String ) -> ([ValueElement], [String : ValueElement]) {
-        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            return ([],[:])
-        }
-        var updatedElements: [String : ValueElement] = [:]
-        var rows: [[String : Any]] = []
-        var changesToSend: [String: Any] = [:]
-        
-        for change in changes {
-            changesToSend[change.key] = change.value.dictionary
-        }
-        
-        for rowId in selectedRows {
-            let row: [String : Any] = [
-                "_id" : rowId,
-                "cells" : changesToSend
-            ]
-            rows.append(row)
-            updatedElements[rowId] = updateCells(for: rowId, with: changes, in: &elements)
-        }
-        
-        fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
-        
-        let fieldID = fieldIdentifier.fieldID
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldID]?.value)
+    public func bulkEditForNested(changes: [String: ValueUnion],
+                                  selectedRows: [String],
+                                  fieldIdentifier: FieldIdentifier,
+                                  parentRowId: String,
+                                  nestedKey: String,
+                                  rootSchemaKey: String ) async -> ([ValueElement], [String : ValueElement]) {
+        return await withCheckedContinuation { continuation in
+            backgroundQueue.async {
+                guard var elements = self.field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
+                    continuation.resume(returning: ([], [:]))
+                    return
+                }
 
-        guard let currentField = fieldMap[fieldID] else {
-            Log("Failed to find field \(fieldID)", type: .error)
-            return ([], [:])
+                let parentPath = self.computeParentPath(targetParentId: parentRowId,
+                                                        nestedKey: nestedKey,
+                                                        in: [rootSchemaKey : elements]) ?? ""
+
+                var updatedElements: [String : ValueElement] = [:]
+                var rows: [[String : Any]] = []
+                var changesToSend: [String: Any] = [:]
+                
+                for change in changes {
+                    changesToSend[change.key] = change.value.dictionary
+                }
+
+                // Apply all updates in one pass for this parentPath (depth-sensitive fast path)
+                updatedElements = self.applyBulkChanges(at: parentPath,
+                                                        selectedRows: selectedRows,
+                                                        changes: changes,
+                                                        in: &elements)
+                // Build rows payload after mutation
+                for rowId in selectedRows {
+                    if updatedElements[rowId] != nil {
+                        rows.append(["_id": rowId, "cells": changesToSend])
+                    }
+                }
+                
+                self.fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
+                
+                let fieldID = fieldIdentifier.fieldID
+                let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
+                                                  updateValue: self.fieldMap[fieldID]?.value)
+                
+                guard let currentField = self.fieldMap[fieldID] else {
+                    Log("Failed to find field \(fieldID)", type: .error)
+                    continuation.resume(returning: ([], [:]))
+                    return
+                }
+
+                self.handleRowCellOnChange(event: changeEvent,
+                                           currentField: currentField,
+                                           rows: rows,
+                                           parentPath: parentPath,
+                                           schemaId: nestedKey)
+                let result = (elements, updatedElements)
+                continuation.resume(returning: result)
+            }
         }
-        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        handleRowCellOnChange(event: changeEvent, currentField: currentField, rows: rows, parentPath: parentPath, schemaId: nestedKey)
-        return (elements, updatedElements)
     }
 
     private func updateCells(for rowId: String, with changes: [String: ValueUnion], in elements: inout [ValueElement]) -> ValueElement? {
@@ -897,6 +922,93 @@ extension DocumentEditor {
             }
         }
         return nil
+    }
+
+    /// Applies bulk changes to a nested array addressed by `parentPath` in one pass,
+    /// minimizing array copy/bubble overhead by writing back only once.
+    /// Returns a map of updated rowId -> updated ValueElement.
+    private func applyBulkChanges(at parentPath: String,
+                                  selectedRows: [String],
+                                  changes: [String: ValueUnion],
+                                  in elements: inout [ValueElement]) -> [String : ValueElement] {
+        // Root-level fast path
+        if parentPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            var updated: [String : ValueElement] = [:]
+            // Build an index map once
+            var indexById: [String : Int] = [:]
+            indexById.reserveCapacity(elements.count)
+            for (idx, el) in elements.enumerated() { if let id = el.id { indexById[id] = idx } }
+
+            for rowId in selectedRows {
+                guard let idx = indexById[rowId] else { continue }
+                var row = elements[idx]
+                var cells = row.cells ?? [:]
+                for (k, v) in changes { cells[k] = v }
+                row.cells = cells
+                elements[idx] = row
+                updated[rowId] = row
+            }
+            return updated
+        }
+
+        // Nested path: resolve once, mutate many, bubble once
+        let tokens = parentPath.split(separator: ".").map(String.init)
+        guard !tokens.isEmpty, tokens.count % 2 == 0 else { return [:] }
+
+        // Descend keeping a stack for bubbling back up later
+        var current = elements
+        var stack: [(container: [ValueElement], parentIndex: Int, childKey: String)] = []
+        var i = 0
+        while i + 1 < tokens.count {
+            guard let idx = Int(tokens[i]) else { return [:] }
+            let key = tokens[i + 1]
+            guard idx >= 0 && idx < current.count else { return [:] }
+
+            var parentEl = current[idx]
+            guard var children = parentEl.childrens,
+                  var child = children[key],
+                  var nested = child.valueToValueElements else {
+                return [:]
+            }
+            stack.append((container: current, parentIndex: idx, childKey: key))
+            current = nested
+            i += 2
+        }
+
+        // Build index map once for the resolved nested array
+        var indexById: [String : Int] = [:]
+        indexById.reserveCapacity(current.count)
+        for (idx, el) in current.enumerated() { if let id = el.id { indexById[id] = idx } }
+
+        var updated: [String : ValueElement] = [:]
+        for rowId in selectedRows {
+            guard let idx = indexById[rowId] else { continue }
+            var row = current[idx]
+            var cells = row.cells ?? [:]
+            for (k, v) in changes { cells[k] = v }
+            row.cells = cells
+            current[idx] = row
+            updated[rowId] = row
+        }
+
+        // Bubble updated nested array back up once
+        while let frame = stack.popLast() {
+            var container = frame.container
+            var parentEl = container[frame.parentIndex]
+            var children = parentEl.childrens ?? [:]
+            if var child = children[frame.childKey] {
+                child.value = ValueUnion.valueElementArray(current)
+                children[frame.childKey] = child
+                parentEl.childrens = children
+                container[frame.parentIndex] = parentEl
+                current = container
+            } else {
+                return [:]
+            }
+        }
+        // Write back to root elements reference
+        elements = current
+        return updated
     }
 
     private func getEmptyChildrenObject() -> Children {
@@ -1379,6 +1491,7 @@ extension DocumentEditor {
             } else {
                 cells.removeValue(forKey: cellDataModelId)
             }
+            updateTimeZoneIfNeeded(&elements, index)
             elements[index].cells = cells
         } else if let newCell = newCell {
             elements[index].cells = [cellDataModelId: newCell]
@@ -1388,6 +1501,16 @@ extension DocumentEditor {
         return elements
     }
 
+    fileprivate func updateTimeZoneIfNeeded(_ elements: inout [ValueElement], _ i: Int) {
+        if let timeZoneString = elements[i].tz {
+            if timeZoneString.isEmpty || TimeZone(identifier: timeZoneString) == nil {
+                elements[i].tz = TimeZone.current.identifier
+            }
+        } else {
+            elements[i].tz = TimeZone.current.identifier
+        }
+    }
+    
     private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
@@ -1401,6 +1524,7 @@ extension DocumentEditor {
                 } else if let newCell = newCell {
                     elements[i].cells = [cellDataModelId: newCell]
                 }
+                updateTimeZoneIfNeeded(&elements, i)
                 return elements[i]
             }
             if var childrenDict = elements[i].childrens {

@@ -363,6 +363,12 @@ public struct JoyDocField: Equatable {
         set { dictionary["hidden"] = newValue }
     }
     
+    /// The timezone of the date field.
+    public var tz: String? {
+        get { dictionary["tz"] as? String }
+        set { dictionary["tz"] = newValue }
+    }
+    
     
     /// A Boolean property that indicates whether the field supports multiple values.
     ///
@@ -1320,6 +1326,12 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     /// Sets the deleted flag to `true`.
     public mutating func setDeleted() {
         deleted = true
+    }
+    
+    /// The timezone of the date
+    public var tz: String? {
+        get { (dictionary["tz"] as? ValueUnion)?.text }
+        set { setValue(newValue, key: "tz") }
     }
 }
 

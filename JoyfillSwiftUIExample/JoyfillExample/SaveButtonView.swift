@@ -13,6 +13,7 @@ struct SaveButtonView: View {
     let documentEditor: DocumentEditor
 
     let showBothButtons: Bool
+    var onValidation: ((Validation) -> Void)? = nil
     @State private var copyButtonLabel = "Copy JSON"
 
     var body: some View {
@@ -38,6 +39,7 @@ struct SaveButtonView: View {
             for fieldResult in result.fieldValidities {
                 print("Field status:", fieldResult.field.id ?? "No field id", ":", fieldResult.status)
             }
+            onValidation?(result)
         }) {
             Label("Save", systemImage: "tray.and.arrow.down")
                 .frame(maxWidth: .infinity)

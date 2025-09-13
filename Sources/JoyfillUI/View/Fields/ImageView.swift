@@ -180,7 +180,7 @@ struct ImageView: View {
     }
     
     func uploadAction() {
-        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, multi: isMultiEnabled, uploadHandler: { urls in
+        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, target: "field.update", multi: isMultiEnabled, uploadHandler: { urls in
             var urlsToProcess: [String] = []
             if !isMultiEnabled {
                 if let firstURL = urls.first {

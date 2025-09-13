@@ -13,8 +13,8 @@ struct DateTimeView: View {
         self.dateTimeDataModel = dateTimeDataModel
         self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
-            let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty) ?? ""
-            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
+            let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
+            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }
@@ -30,6 +30,7 @@ struct DateTimeView: View {
                         .accessibilityIdentifier("DateIdenitfier")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .labelsHidden()
+                        .environment(\.timeZone, TimeZone(identifier: dateTimeDataModel.timezoneId ?? TimeZone.current.identifier) ?? .current)
 
                     Button(action: {
                         isDatePickerPresented = false
@@ -85,8 +86,8 @@ struct DateTimeView: View {
         .onChange(of: dateTimeDataModel.value) { newValue in
             if lastModelValue != newValue {
                 if let value = newValue {
-                    let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty) ?? ""
-                    if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty) {
+                    let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
+                    if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                         selectedDate = date
                         isDatePickerPresented = true
                     }
