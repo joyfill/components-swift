@@ -12,6 +12,8 @@ struct UserAccessTokenTextFieldView: View {
     @State var templateAndDocuments: ([Document], [Document]) = ([], [])
     @State var apiService: APIService? = nil
     @State private var isFetching: Bool = false
+    @State private var useCustomLicense: Bool = false
+    @State private var customLicenseKey: String = ""
     var isAlreadyToken: Bool
     let enableChangelogs: Bool
     
@@ -22,10 +24,10 @@ struct UserAccessTokenTextFieldView: View {
     
     var body: some View {
         if isAlreadyToken {
-            NavigationLink(
-                destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
-                                                       result: templateAndDocuments, isAlreadyToken: true, enableChangelogs: enableChangelogs)),
-                isActive: isAlreadyToken ? Binding.constant(true) : $showTemplate
+                NavigationLink(
+                    destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
+                                                           result: templateAndDocuments, isAlreadyToken: true, enableChangelogs: enableChangelogs, customLicense: useCustomLicense ? customLicenseKey : nil)),
+                    isActive: isAlreadyToken ? Binding.constant(true) : $showTemplate
             ) {
                 EmptyView()
             }
@@ -88,6 +90,64 @@ struct UserAccessTokenTextFieldView: View {
                 }
                 .padding(.horizontal, 20)
                 
+                // Custom License Section
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        Toggle("Use Custom License Key", isOn: $useCustomLicense)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    if useCustomLicense {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Custom License Key")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 20)
+                            
+                            ZStack(alignment: .trailing) {
+                                TextEditor(text: $customLicenseKey)
+                                    .font(.system(.body, design: .monospaced))
+                                    .frame(height: 120)
+                                    .padding(16)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(Color.gray.opacity(0.05))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+                                            .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                                    )
+                                
+                                if !customLicenseKey.isEmpty {
+                                    Button(action: {
+                                        customLicenseKey = ""
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.blue)
+                                            .background(Circle().fill(.white))
+                                            .imageScale(.large)
+                                            .padding(16)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            
+                            if !customLicenseKey.isEmpty {
+                                Text("License key length: \(customLicenseKey.count)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 20)
+                            }
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                }
+                .animation(.easeInOut(duration: 0.3), value: useCustomLicense)
+                
                 // Button Section
                 VStack(spacing: 16) {
                     Button(action: {
@@ -136,7 +196,7 @@ struct UserAccessTokenTextFieldView: View {
                 
                 NavigationLink(
                     destination: LazyView(TemplateListView(userAccessToken: userAccessToken,
-                                                           result: templateAndDocuments, isAlreadyToken: false, enableChangelogs: enableChangelogs)),
+                                                           result: templateAndDocuments, isAlreadyToken: false, enableChangelogs: enableChangelogs, customLicense: useCustomLicense ? customLicenseKey : nil)),
                     isActive: $showTemplate
                 ) {
                     EmptyView()
@@ -174,6 +234,8 @@ struct UserJsonTextFieldView: View {
     @State private var showChangelogView = false
     @State private var shouldNavigate: Bool = false
     @State private var preparedEditor: DocumentEditor? = nil
+    @State private var useCustomLicense: Bool = false
+    @State private var customLicenseKey: String = ""
     let imagePicker = ImagePicker()
     let enableChangelogs: Bool
     
@@ -253,6 +315,64 @@ struct UserJsonTextFieldView: View {
             }
             .padding(.horizontal, 20)
             
+            // Custom License Section
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Toggle("Use Custom License Key", isOn: $useCustomLicense)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                }
+                .padding(.horizontal, 20)
+                
+                if useCustomLicense {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Custom License Key")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                            .padding(.horizontal, 20)
+                        
+                        ZStack(alignment: .trailing) {
+                            TextEditor(text: $customLicenseKey)
+                                .font(.system(.body, design: .monospaced))
+                                .frame(height: 120)
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .fill(Color.gray.opacity(0.05))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.gray.opacity(0.15), lineWidth: 1)
+                                        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                                )
+                            
+                            if !customLicenseKey.isEmpty {
+                                Button(action: {
+                                    customLicenseKey = ""
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.blue)
+                                        .background(Circle().fill(.white))
+                                        .imageScale(.large)
+                                        .padding(16)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        if !customLicenseKey.isEmpty {
+                            Text("License key length: \(customLicenseKey.count)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 20)
+                        }
+                    }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+            }
+            .animation(.easeInOut(duration: 0.3), value: useCustomLicense)
+            
             // Button Section
             VStack(spacing: 16) {
                 Button(action: {
@@ -265,13 +385,15 @@ struct UserJsonTextFieldView: View {
                     Task.detached {
                         let jsonData = json.data(using: .utf8) ?? Data()
                         let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+                        let license = await useCustomLicense ? customLicenseKey : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZXIiOiJKb3lmaWxsIExMQyIsImlzc3VlZCI6IlNlcnZpY2UgVHJhZGUiLCJjb2xsZWN0aW9uRmllbGQiOnRydWV9.EA_6ZEq9viV6omtSquXzHkGMMIOtqyR2utE6sq2swATFn7-GCR032WZyxkJhc7dSl9rBG0sSNdQhfLYafKpJ07LD2jK7izKXcl0lZ4OkYWUjBlJzZqQVS9VIfkJxZg_CshuyTI5Srzw0-V8AuuaC_Lu2oAEiRxwMqCWXuZl6uHloe2sO5XmMUcZnkoOlwmNwsKwgjmL2N_9-FuuMha15jcqsEcgoA4y2caGIGsXdJlvEaQKT81nn4fN79eYGHVv_EucFutZLLLDbtZLheIYaV9gIGUrFyX210AGZ56sp6tGuadHu9yqQGM_a6kK_d5A97tnMlOzg06-CvWXzEaibMduxX1fecg8_iu6mUgA_1HN8E5FjtBtDUa6qpcIVMlGFss2rWiu1NdDBnZPhu6ZDPy9-h3edVFrGF-qCAaEk_Kvg2H4qnRhdZOzvS1JA1ZgxTKTH9UeQff5QJ8k4h83rG5_aPHuAEwj1KD9nK_h9Qlk3ClIUO_vaRxYl-SyyOffCUBBbnwCdyV4oKE4giJAxBbsup_pKYGZFKgpeBx_s3hOFvrHjShd-pFqgBJJUGf8Niz2yge4y7U0efuG9XAYKeIqAm5KF9x7_oDMmXYswF554QOb49V8SCaOmjTs3hU2zf0TzWv4WTOLW78Ahd4q3-pJVG8535r1oOH8Z7YiI6-4"
                         let editor = DocumentEditor(
                             document: JoyDoc(dictionary: dictionary),
                             mode: .fill,
                             events: cm,
                             pageID: "",
                             navigation: true,
-                            validateSchema: false
+                            validateSchema: false,
+                            license: license
                         )
                         await MainActor.run {
                             self.preparedEditor = editor
@@ -424,13 +546,15 @@ struct FormDestinationView: View {
             let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
 
             // Construct the editor off-main
+            let license = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZXIiOiJKb3lmaWxsIExMQyIsImlzc3VlZCI6IlNlcnZpY2UgVHJhZGUiLCJjb2xsZWN0aW9uRmllbGQiOnRydWV9.EA_6ZEq9viV6omtSquXzHkGMMIOtqyR2utE6sq2swATFn7-GCR032WZyxkJhc7dSl9rBG0sSNdQhfLYafKpJ07LD2jK7izKXcl0lZ4OkYWUjBlJzZqQVS9VIfkJxZg_CshuyTI5Srzw0-V8AuuaC_Lu2oAEiRxwMqCWXuZl6uHloe2sO5XmMUcZnkoOlwmNwsKwgjmL2N_9-FuuMha15jcqsEcgoA4y2caGIGsXdJlvEaQKT81nn4fN79eYGHVv_EucFutZLLLDbtZLheIYaV9gIGUrFyX210AGZ56sp6tGuadHu9yqQGM_a6kK_d5A97tnMlOzg06-CvWXzEaibMduxX1fecg8_iu6mUgA_1HN8E5FjtBtDUa6qpcIVMlGFss2rWiu1NdDBnZPhu6ZDPy9-h3edVFrGF-qCAaEk_Kvg2H4qnRhdZOzvS1JA1ZgxTKTH9UeQff5QJ8k4h83rG5_aPHuAEwj1KD9nK_h9Qlk3ClIUO_vaRxYl-SyyOffCUBBbnwCdyV4oKE4giJAxBbsup_pKYGZFKgpeBx_s3hOFvrHjShd-pFqgBJJUGf8Niz2yge4y7U0efuG9XAYKeIqAm5KF9x7_oDMmXYswF554QOb49V8SCaOmjTs3hU2zf0TzWv4WTOLW78Ahd4q3-pJVG8535r1oOH8Z7YiI6-4"
             let editor = DocumentEditor(
                 document: JoyDoc(dictionary: dictionary),
                 mode: .fill,
                 events: changeManager,
                 pageID: "",
                 navigation: true,
-                validateSchema: false
+                validateSchema: false,
+                license: license
             )
 
             // Publish to UI on the main actor
