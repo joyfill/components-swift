@@ -4,7 +4,7 @@ import Security
 /// Minimal JWT validator for Joyfill license enforcement.
 /// - Verifies RS256 signature using embedded PEM public key
 /// - Returns `collectionField` claim (default false)
-enum LicenseValidator {
+struct LicenseValidator {
     static func isCollectionEnabled(licenseToken: String?) -> Bool {
         guard let token = licenseToken, !token.isEmpty else { return false }
         guard let payload = verifyAndDecodePayload(token: token) else { return false }
