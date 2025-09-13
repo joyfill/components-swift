@@ -38,6 +38,7 @@ public class DocumentEditor: ObservableObject {
     public var schemaError: SchemaValidationError?
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = []
+    private var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
     public var isPageDuplicateEnabled: Bool = true
@@ -60,7 +61,14 @@ public class DocumentEditor: ObservableObject {
     var conditionalLogicHandler: ConditionalLogicHandler!
     private var JoyfillDocContext: JoyfillDocContext!
 
-    public init(document: JoyDoc, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String? = nil, navigation: Bool = true, isPageDuplicateEnabled: Bool = false, validateSchema: Bool = true) {
+    public init(document: JoyDoc,
+                mode: Mode = .fill,
+                events: FormChangeEvent? = nil,
+                pageID: String? = nil,
+                navigation: Bool = true,
+                isPageDuplicateEnabled: Bool = false,
+                validateSchema: Bool = true,
+                license: String? = nil) {
         // Perform schema validation first
         let schemaManager = JoyfillSchemaManager()
         
@@ -88,6 +96,8 @@ public class DocumentEditor: ObservableObject {
         self.showPageNavigationView = navigation
         self.currentPageID = ""
         self.events = events
+        // Set feature flags from license
+        self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
         updateFieldMap()
         updateFieldPositionMap()
 
@@ -655,6 +665,9 @@ extension DocumentEditor {
                 continue
             }
             let fieldData = fieldMap[fieldPositionFieldID]
+            if fieldData?.fieldType == .collection && !isCollectionFieldEnabled {
+                continue
+            }
             let fieldIdentifier = FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldPositionFieldID, fieldIdentifier: fieldData?.identifier, pageID: newPageID, fileID: fileId, fieldPositionId: fieldPosition.id)
             var dataModelType: FieldListModelType = .none
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
