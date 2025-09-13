@@ -35,7 +35,7 @@ public struct UploadEvent {
     public let multi: Bool
     public var schemaId: String?
     public var parentPath: String?
-    public var rowId: String?
+    public var rowIds: [String]?
     public var columnId: String?
     public var uploadHandler: ([String]) -> Void
 
@@ -45,7 +45,7 @@ public struct UploadEvent {
         multi: Bool,
         schemaId: String? = nil,
         parentPath: String? = nil,
-        rowId: String? = nil,
+        rowIds: [String]? = [],
         columnId: String? = nil,
         uploadHandler: @escaping ([String]) -> Void
     ) {
@@ -54,7 +54,7 @@ public struct UploadEvent {
         self.multi = multi
         self.schemaId = schemaId
         self.parentPath = parentPath
-        self.rowId = rowId
+        self.rowIds = rowIds
         self.columnId = columnId
         self.uploadHandler = uploadHandler
     }
@@ -65,13 +65,18 @@ public struct CaptureEvent {
     public var target: String?
     public var schemaId: String?
     public var parentPath: String?
-    public var rowId: String?
+    public var rowIds: [String]?
     public var columnId: String?
     public var captureHandler: (ValueUnion) -> Void
 
-    public init(fieldEvent: FieldIdentifier, target: String? = nil, schemaId: String? = nil, parentPath: String? = nil, rowId: String? = nil, columnId: String? = nil, captureHandler: @escaping (ValueUnion) -> Void) {
+    public init(fieldEvent: FieldIdentifier, target: String? = nil, schemaId: String? = nil, parentPath: String? = nil, rowIds: [String]? = nil, columnId: String? = nil, captureHandler: @escaping (ValueUnion) -> Void) {
         self.fieldEvent = fieldEvent
         self.captureHandler = captureHandler
+        self.target = target
+        self.schemaId = schemaId
+        self.parentPath = parentPath
+        self.rowIds = rowIds
+        self.columnId = columnId
     }
 }
 

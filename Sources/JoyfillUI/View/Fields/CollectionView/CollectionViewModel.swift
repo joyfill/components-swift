@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import JoyfillModel
 
-class CollectionViewModel: ObservableObject {
+class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var tableDataModel: TableDataModel
     
     @Published var shouldShowAddRowButton: Bool = false
@@ -1611,7 +1611,7 @@ class CollectionViewModel: ObservableObject {
     }
     
     @MainActor
-    fileprivate func updateJSON(_ columnIDChanges: [String : ValueUnion]) async {
+    fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]]) async {
         var parentRowID = ""
         var nestedSchemaKey = ""
         
@@ -1637,6 +1637,35 @@ class CollectionViewModel: ObservableObject {
         }
     }
     
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
+        for rowId in tableDataModel.selectedRows {
+            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+            var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
+            for (key,value) in columnIDChanges {
+                if let column = tableColumns.first(where: { $0.id == key }) {
+                    if column.type == .date {
+                        let sourceTimeZone = TimeZone.current
+                        let targetTimeZone = TimeZone(identifier: rowDataModel.cells.first?.timezoneId ?? TimeZone.current.identifier) ?? .current
+                        if let epochMillis = value.number {
+                            let format = DateFormatType(rawValue: column.format ?? "")
+                            let converted = Utility.convertEpochBetweenTimezones(epochMillis: epochMillis,
+                                                                         from: sourceTimeZone,
+                                                                         to: targetTimeZone,
+                                                                         format: format)
+                            perRowChanges[key] = ValueUnion.double(converted)
+                        }
+                    } else {
+                        perRowChanges[key] = value
+                    }
+                }
+            }
+            if !perRowChanges.isEmpty {
+                newChanges[rowId] = perRowChanges
+            }
+        }
+    }
+    
     @MainActor
     func bulkEdit(changes: [Int: ValueUnion]) async {
         isBulkLoading = true
@@ -1648,15 +1677,17 @@ class CollectionViewModel: ObservableObject {
             columnIDChanges[cellDataModelId] = value
         }
         
-        await updateJSON(columnIDChanges)
+        var newChanges: [String: [String: ValueUnion]] = [:]
+        makeChangeDict(&newChanges, columnIDChanges, tableColumns)
+        
+        await updateJSON(newChanges)
 
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = rowDataModel.cells[colIndex].data
-                guard let change = changes[colIndex] else { return }
-                
+                guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
                 switch cellDataModel.type {
                 case .dropdown:
                     cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change.text }.first?.value ?? ""
@@ -2004,4 +2035,9 @@ extension CollectionViewModel: DocumentEditorDelegate {
             moveRootRows(targetRowIndex, &rowIndex, rowID)
         }
     }
+}
+
+protocol TableDataViewModelProtocol {
+    var tableDataModel: TableDataModel { get }
+    func getParenthPath(rowId: String) -> (String, String)
 }

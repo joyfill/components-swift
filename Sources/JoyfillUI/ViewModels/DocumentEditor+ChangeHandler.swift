@@ -255,8 +255,8 @@ extension DocumentEditor {
         rowID: String,
         cellDataModel: CellDataModel
     ) {
-        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder
-        else { return }
+        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder else { return }
+        let valueElement = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements?.first(where: { $0.id == rowID })
         guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
             Log("Row index not found: \(rowID)", type: .error)
             return
@@ -266,10 +266,13 @@ extension DocumentEditor {
         let cells = [
             cellDataModel.id: newCell?.dictionary
         ]
-        let row: [String : Any] = [
+        var row: [String : Any] = [
             "_id" : rowID,
             "cells" : cells
         ]
+        if cellDataModel.type == .date {
+            row["tz"] = valueElement?.tz
+        }
         sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
     
@@ -790,17 +793,20 @@ extension DocumentEditor {
         return (elements, newRow)
     }
 
-    fileprivate func updateValueElementsForBulk(_ changes: [String : ValueUnion], _ elements: inout [ValueElement], _ rowID: String) {
-        for cellDataModelId in changes.keys {
-            if let change = changes[cellDataModelId] {
+    fileprivate func updateValueElementsForBulk(_ changes: [String: [String : ValueUnion]], _ elements: inout [ValueElement], _ rowID: String) {
+        let change = changes[rowID] ?? [:]
+        for cellDataModelId in change.keys {
+            if let change = change[cellDataModelId] {
                 guard let index = elements.firstIndex(where: { $0.id == rowID }) else {
                     return
                 }
                 if var cells = elements[index].cells {
                     cells[cellDataModelId] = change
                     elements[index].cells = cells
+                    updateTimeZoneIfNeeded(&elements[index])
                 } else {
                     elements[index].cells = [cellDataModelId : change]
+                    updateTimeZoneIfNeeded(&elements[index])
                 }
             }
         }
@@ -811,26 +817,36 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: ValueUnion], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
+    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
         guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
             Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
             return
         }
+        let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
+        var isDateColumn: Bool = false
         var rows: [[String : Any]] = []
-        var changesToSend: [String: Any] = [:]
-        
-        for change in changes {
-            changesToSend[change.key] = change.value.dictionary
-        }
         
         for rowID in selectedRows {
-            let row: [String : Any] = [
+            var changeToSend: [String: Any] = [:]
+            for (key, value) in changes[rowID] ?? [:] {
+                if let column = columns.first(where: {$0.id == key}) {
+                    if column.type == .date {
+                        isDateColumn = true
+                    }
+                }
+                changeToSend[key] = value.dictionary
+            }
+            var row: [String : Any] = [
                 "_id" : rowID,
-                "cells" : changesToSend
+                "cells" : changeToSend
             ]
-            rows.append(row)
             
             updateValueElementsForBulk(changes, &elements, rowID)
+            
+            if isDateColumn {
+                row["tz"] = elements.first(where: {$0.id == rowID})?.tz
+            }
+            rows.append(row)
         }
 
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
@@ -838,7 +854,7 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: rows)
     }
     
-    public func bulkEditForNested(changes: [String: ValueUnion],
+    public func bulkEditForNested(changes: [String: [String : ValueUnion]],
                                   selectedRows: [String],
                                   fieldIdentifier: FieldIdentifier,
                                   parentRowId: String,
@@ -854,14 +870,10 @@ extension DocumentEditor {
                 let parentPath = self.computeParentPath(targetParentId: parentRowId,
                                                         nestedKey: nestedKey,
                                                         in: [rootSchemaKey : elements]) ?? ""
-
+                let columns = self.field(fieldID: fieldIdentifier.fieldID)?.schema?[nestedKey]?.tableColumns ?? []
+                var isDateColumn = false
                 var updatedElements: [String : ValueElement] = [:]
                 var rows: [[String : Any]] = []
-                var changesToSend: [String: Any] = [:]
-                
-                for change in changes {
-                    changesToSend[change.key] = change.value.dictionary
-                }
 
                 // Apply all updates in one pass for this parentPath (depth-sensitive fast path)
                 updatedElements = self.applyBulkChanges(at: parentPath,
@@ -870,8 +882,22 @@ extension DocumentEditor {
                                                         in: &elements)
                 // Build rows payload after mutation
                 for rowId in selectedRows {
-                    if updatedElements[rowId] != nil {
-                        rows.append(["_id": rowId, "cells": changesToSend])
+                    var changeToSend: [String: Any] = [:]
+                    for (key, value) in changes[rowId] ?? [:] {
+                        if let column = columns.first(where: {$0.id == key}) {
+                            if column.type == .date {
+                                isDateColumn = true
+                            }
+                        }
+                        changeToSend[key] = value.dictionary
+                    }
+                    
+                    if let updated = updatedElements[rowId] {
+                        var row: [String: Any] = ["_id": rowId, "cells": changeToSend]
+                        if isDateColumn {
+                            row["tz"] = updated.tz
+                        }
+                        rows.append(row)
                     }
                 }
                 
@@ -929,7 +955,7 @@ extension DocumentEditor {
     /// Returns a map of updated rowId -> updated ValueElement.
     private func applyBulkChanges(at parentPath: String,
                                   selectedRows: [String],
-                                  changes: [String: ValueUnion],
+                                  changes: [String: [String : ValueUnion]],
                                   in elements: inout [ValueElement]) -> [String : ValueElement] {
         // Root-level fast path
         if parentPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -943,8 +969,12 @@ extension DocumentEditor {
                 guard let idx = indexById[rowId] else { continue }
                 var row = elements[idx]
                 var cells = row.cells ?? [:]
-                for (k, v) in changes { cells[k] = v }
+                let changesToSave = changes[rowId] ?? [:]
+                for (k, v) in changesToSave {
+                    cells[k] = v
+                }
                 row.cells = cells
+                updateTimeZoneIfNeeded(&row)
                 elements[idx] = row
                 updated[rowId] = row
             }
@@ -985,8 +1015,12 @@ extension DocumentEditor {
             guard let idx = indexById[rowId] else { continue }
             var row = current[idx]
             var cells = row.cells ?? [:]
-            for (k, v) in changes { cells[k] = v }
+            let changesToSave = changes[rowId] ?? [:]
+            for (k, v) in changesToSave {
+                cells[k] = v
+            }
             row.cells = cells
+            updateTimeZoneIfNeeded(&row)
             current[idx] = row
             updated[rowId] = row
         }
@@ -1128,10 +1162,13 @@ extension DocumentEditor {
             let cells = [
                 cellDataModel.id : newCell?.dictionary
             ]
-            let row: [String : Any] = [
+            var row: [String : Any] = [
                 "_id" : rowId,
                 "cells" : cells
             ]
+            if cellDataModel.type == .date {
+                row["tz"] = updatedElement?.tz
+            }
             guard let currentField = fieldMap[fieldId] else {
                 Log("Failed to find field \(fieldId)", type: .error)
                 return ([], nil)
@@ -1439,6 +1476,11 @@ extension DocumentEditor {
         switch fieldData.type {
         case "chart":
             return chartChanges(fieldData: fieldData)
+        case "date":
+            return [
+                "value": fieldData.value?.dictionary,
+                "tz": fieldData.tz
+            ]
         default:
             return ["value": fieldData.value?.dictionary]
         }
@@ -1491,9 +1533,10 @@ extension DocumentEditor {
             } else {
                 cells.removeValue(forKey: cellDataModelId)
             }
-            updateTimeZoneIfNeeded(&elements, index)
+            updateTimeZoneIfNeeded(&elements[index])
             elements[index].cells = cells
         } else if let newCell = newCell {
+            updateTimeZoneIfNeeded(&elements[index])
             elements[index].cells = [cellDataModelId: newCell]
         }
         
@@ -1501,13 +1544,13 @@ extension DocumentEditor {
         return elements
     }
 
-    fileprivate func updateTimeZoneIfNeeded(_ elements: inout [ValueElement], _ i: Int) {
-        if let timeZoneString = elements[i].tz {
+    fileprivate func updateTimeZoneIfNeeded(_ element: inout ValueElement) {
+        if let timeZoneString = element.tz {
             if timeZoneString.isEmpty || TimeZone(identifier: timeZoneString) == nil {
-                elements[i].tz = TimeZone.current.identifier
+                element.tz = TimeZone.current.identifier
             }
         } else {
-            elements[i].tz = TimeZone.current.identifier
+            element.tz = TimeZone.current.identifier
         }
     }
     
@@ -1524,7 +1567,7 @@ extension DocumentEditor {
                 } else if let newCell = newCell {
                     elements[i].cells = [cellDataModelId: newCell]
                 }
-                updateTimeZoneIfNeeded(&elements, i)
+                updateTimeZoneIfNeeded(&elements[i])
                 return elements[i]
             }
             if var childrenDict = elements[i].childrens {

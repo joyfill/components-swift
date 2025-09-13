@@ -143,6 +143,7 @@ struct CollectionQuickView : View {
                             let cell = rowDataModel.cells[index]
                             
                             let cellModel = TableCellModel(rowID: cell.rowID,
+                                                           timezoneId: cell.timezoneId,
                                                            data: cell.data,
                                                            documentEditor: viewModel.tableDataModel.documentEditor,
                                                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
