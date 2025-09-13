@@ -544,7 +544,7 @@ struct EditMultipleRowsSheetView: View {
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
-                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
@@ -566,7 +566,7 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.bottom, -8)
                                 HStack {
                                     Spacer()
-                                    TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+                                    TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                         .padding(.vertical, 4)
                                     Spacer()
                                 }

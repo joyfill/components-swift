@@ -661,7 +661,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             HStack {
                                 Spacer()
-                                TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+                                TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .padding(.vertical, 4)
                                 Spacer()
                             }
@@ -696,7 +696,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                         case .barcode:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
-                            TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                            TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                 .frame(minHeight: 40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)

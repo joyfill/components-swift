@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import JoyfillModel
 
-class CollectionViewModel: ObservableObject {
+class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var tableDataModel: TableDataModel
     
     @Published var shouldShowAddRowButton: Bool = false
@@ -2035,4 +2035,9 @@ extension CollectionViewModel: DocumentEditorDelegate {
             moveRootRows(targetRowIndex, &rowIndex, rowID)
         }
     }
+}
+
+protocol TableDataViewModelProtocol {
+    var tableDataModel: TableDataModel { get }
+    func getParenthPath(rowId: String) -> (String, String)
 }

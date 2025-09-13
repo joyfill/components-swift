@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import JoyfillModel
 
-class TableViewModel: ObservableObject {
+class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var tableDataModel: TableDataModel
     
     @Published var shouldShowAddRowButton: Bool = false
@@ -441,6 +441,10 @@ class TableViewModel: ObservableObject {
     
     func sendEventsIfNeeded() {
         tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+    }
+    
+    func getParenthPath(rowId: String) -> (String, String) {
+        return ("", "")
     }
 }
 
