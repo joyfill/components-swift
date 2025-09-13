@@ -112,7 +112,7 @@ extension ChangeManager: FormChangeEvent {
         print(">>>>>>>>onUpload", event.fieldEvent.fieldID)
         let timestamp = DateFormatter.timestamp.string(from: Date())
         DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Upload: \(event.fieldEvent.fieldID)")
+            self.displayedChangelogs.append("[\(timestamp)] Upload: \(self.formatUploadEvent(event))")
         }
         showImagePicker(event.uploadHandler)
     }
@@ -121,9 +121,46 @@ extension ChangeManager: FormChangeEvent {
         print(">>>>>>>>onCapture", event.fieldEvent.fieldID)
         let timestamp = DateFormatter.timestamp.string(from: Date())
         DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Capture: \(event.fieldEvent.fieldID)")
+            self.displayedChangelogs.append("[\(timestamp)] Capture: \(self.formatCaptureEvent(event))")
         }
         showScan(event.captureHandler)
+    }
+    
+    // MARK: - Event Formatting Helpers
+    
+    private func formatUploadEvent(_ event: UploadEvent) -> String {
+        let fieldEvent = formatFieldIdentifier(event.fieldEvent)
+        let target = event.target ?? "nil"
+        let multi = event.multi
+        let schemaId = event.schemaId ?? "nil"
+        let parentPath = event.parentPath ?? "nil"
+        let rowIds = event.rowIds?.description ?? "nil"
+        let columnId = event.columnId ?? "nil"
+        
+        return "UploadEvent(fieldEvent: \(fieldEvent), target: \(target), multi: \(multi), schemaId: \(schemaId), parentPath: \(parentPath), rowIds: \(rowIds), columnId: \(columnId), uploadHandler: (Function))"
+    }
+    
+    private func formatCaptureEvent(_ event: CaptureEvent) -> String {
+        let fieldEvent = formatFieldIdentifier(event.fieldEvent)
+        let target = event.target ?? "nil"
+        let schemaId = event.schemaId ?? "nil"
+        let parentPath = event.parentPath ?? "nil"
+        let rowIds = event.rowIds?.description ?? "nil"
+        let columnId = event.columnId ?? "nil"
+        
+        return "CaptureEvent(fieldEvent: \(fieldEvent), target: \(target), schemaId: \(schemaId), parentPath: \(parentPath), rowIds: \(rowIds), columnId: \(columnId), captureHandler: (Function))"
+    }
+    
+    private func formatFieldIdentifier(_ fieldEvent: FieldIdentifier) -> String {
+        let id = fieldEvent._id ?? "nil"
+        let identifier = fieldEvent.identifier ?? "nil"
+        let fieldID = fieldEvent.fieldID
+        let fieldIdentifier = fieldEvent.fieldIdentifier ?? "nil"
+        let pageID = fieldEvent.pageID ?? "nil"
+        let fileID = fieldEvent.fileID ?? "nil"
+        let fieldPositionId = fieldEvent.fieldPositionId ?? "nil"
+        
+        return "Joyfill.FieldIdentifier(_id: \(id), identifier: \(identifier), fieldID: \"\(fieldID)\", fieldIdentifier: \(fieldIdentifier), pageID: \(pageID), fileID: \(fileID), fieldPositionId: \(fieldPositionId))"
     }
 }
 
