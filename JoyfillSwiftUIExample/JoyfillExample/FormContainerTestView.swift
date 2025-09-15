@@ -15,7 +15,7 @@ struct FormContainerTestView: View {
 
     init(document: JoyDoc, pageID: String) {
         let changeManager = TestChangeManager()
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true)
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true, license: licenseKey)
         self.changeManager = changeManager
         self.changeManager.documentEditor = documentEditor
     }

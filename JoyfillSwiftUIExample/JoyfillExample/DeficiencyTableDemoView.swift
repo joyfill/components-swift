@@ -17,7 +17,7 @@ struct DeficiencyTableDemoView: View, FormChangeEvent {
     
     init() {
         let document = sampleJSONDocument(fileName: "hint_and_deficiency_demo")
-        deficiencyDemoDocumentEditor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, validateSchema: false)
+        deficiencyDemoDocumentEditor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, validateSchema: false, license: licenseKey)
     }
     
     var body: some View {
