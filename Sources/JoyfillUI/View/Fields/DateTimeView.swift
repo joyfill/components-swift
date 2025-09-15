@@ -66,6 +66,7 @@ struct DateTimeView: View {
                 .onTapGesture {
                     isDatePickerPresented = true
                     selectedDate = Date()
+                    convertDateAccToTimezone()
                 }
             }
         }
@@ -97,6 +98,17 @@ struct DateTimeView: View {
                     selectedDate = Date()
                 }
                 lastModelValue = newValue
+            }
+        }
+    }
+    
+    fileprivate func convertDateAccToTimezone() {
+        let timeZone = TimeZone(identifier: dateTimeDataModel.timezoneId ?? TimeZone.current.identifier)
+        let convertedDate = Utility.convertEpochBetweenTimezones(epochMillis: dateToTimestampMilliseconds(date: selectedDate), from: TimeZone.current, to: timeZone ?? TimeZone.current, format: dateTimeDataModel.format)
+        
+        if let dateString = ValueUnion.double(convertedDate).dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
+            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
+                self.selectedDate = date
             }
         }
     }

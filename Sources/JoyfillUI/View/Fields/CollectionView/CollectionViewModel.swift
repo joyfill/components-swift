@@ -1644,7 +1644,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
             for (key,value) in columnIDChanges {
                 if let column = tableColumns.first(where: { $0.id == key }) {
-                    if column.type == .date {
+                    if column.type == .date && tableDataModel.selectedRows.count > 1 {
                         let sourceTimeZone = TimeZone.current
                         let targetTimeZone = TimeZone(identifier: rowDataModel.cells.first?.timezoneId ?? TimeZone.current.identifier) ?? .current
                         if let epochMillis = value.number {
