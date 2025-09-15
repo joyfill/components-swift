@@ -29,6 +29,7 @@ struct SchemaValidationExampleView: View {
 
     public var body: some View {
         NavigationView {
+            ScrollView {
             VStack(spacing: 16) {
                 // Toggle between sample and custom JSON
                 Picker("Document Source", selection: $useCustomJSON) {
@@ -258,6 +259,8 @@ struct SchemaValidationExampleView: View {
                 
                 Spacer()
             }
+            }
+            .modifier(KeyboardDismissModifier())
             .navigationTitle("Schema Validation")
             .navigationBarTitleDisplayMode(.inline)
         }
