@@ -18,7 +18,7 @@ struct SchemaValidationExampleView: View {
 
     init() {
         let document = sampleJSONDocument(fileName: "ErrorHandling")
-        self.documentEditor = DocumentEditor(document: document, events: changeManagerWraper.changeManager)
+        self.documentEditor = DocumentEditor(document: document, events: changeManagerWraper.changeManager, license: licenseKey)
         
         // Initialize with the sample document JSON
         if let jsonData = try? JSONSerialization.data(withJSONObject: document.dictionary, options: .prettyPrinted),
@@ -29,6 +29,7 @@ struct SchemaValidationExampleView: View {
 
     public var body: some View {
         NavigationView {
+            ScrollView {
             VStack(spacing: 16) {
                 // Toggle between sample and custom JSON
                 Picker("Document Source", selection: $useCustomJSON) {
@@ -258,6 +259,8 @@ struct SchemaValidationExampleView: View {
                 
                 Spacer()
             }
+            }
+            .modifier(KeyboardDismissModifier())
             .navigationTitle("Schema Validation")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -417,7 +420,7 @@ struct SchemaValidationExampleView: View {
     
     private func getCurrentDocumentEditor() -> DocumentEditor {
         let document = getCurrentDocument()
-        return DocumentEditor(document: document, events: changeManagerWraper.changeManager)
+        return DocumentEditor(document: document, events: changeManagerWraper.changeManager, license: licenseKey)
     }
     
     private func resetToSampleDocument() {

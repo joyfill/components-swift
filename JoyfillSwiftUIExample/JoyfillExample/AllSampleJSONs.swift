@@ -135,14 +135,14 @@ struct AllSampleJSONs: View, FormChangeEvent {
             do {
                 let document = sampleJSONDocument(fileName: fileName)
                 // Construct the editor off the main thread to avoid UI hitching
-                let editor = DocumentEditor(document: document, events: self, validateSchema: false)
+                let editor = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)
                 DispatchQueue.main.async {
                     self.documentEditor = editor
                     self.isLoading = false
                 }
             } catch {
                 let fallback = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
-                let editor = DocumentEditor(document: fallback, events: self, validateSchema: false)
+                let editor = DocumentEditor(document: fallback, events: self, validateSchema: false, license: licenseKey)
                 DispatchQueue.main.async {
                     self.documentEditor = editor
                     self.isLoading = false

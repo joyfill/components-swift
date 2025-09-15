@@ -129,39 +129,130 @@ extension ChangeManager: FormChangeEvent {
     // MARK: - Event Formatting Helpers
     
     private func formatUploadEvent(_ event: UploadEvent) -> String {
-        let fieldEvent = formatFieldIdentifier(event.fieldEvent)
-        let target = event.target ?? "nil"
-        let multi = event.multi
-        let schemaId = event.schemaId ?? "nil"
-        let parentPath = event.parentPath ?? "nil"
-        let rowIds = event.rowIds?.description ?? "nil"
-        let columnId = event.columnId ?? "nil"
+        var eventDict: [String: Any] = [:]
         
-        return "UploadEvent(fieldEvent: \(fieldEvent), target: \(target), multi: \(multi), schemaId: \(schemaId), parentPath: \(parentPath), rowIds: \(rowIds), columnId: \(columnId), uploadHandler: (Function))"
+        // Add fieldEvent details as nested dictionary
+        eventDict["fieldEvent"] = createFieldIdentifierDict(event.fieldEvent)
+        
+        // Add non-nil optional values
+        if let target = event.target {
+            eventDict["target"] = target
+        }
+        
+        eventDict["multi"] = event.multi
+        
+        if let schemaId = event.schemaId {
+            eventDict["schemaId"] = schemaId
+        }
+        
+        if let parentPath = event.parentPath, !parentPath.isEmpty {
+            eventDict["parentPath"] = parentPath
+        }
+        
+        if let rowIds = event.rowIds, !rowIds.isEmpty {
+            eventDict["rowIds"] = rowIds
+        }
+        
+        if let columnId = event.columnId {
+            eventDict["columnId"] = columnId
+        }
+        
+        return "UploadEvent: \(formatDictionary(eventDict))"
     }
     
     private func formatCaptureEvent(_ event: CaptureEvent) -> String {
-        let fieldEvent = formatFieldIdentifier(event.fieldEvent)
-        let target = event.target ?? "nil"
-        let schemaId = event.schemaId ?? "nil"
-        let parentPath = event.parentPath ?? "nil"
-        let rowIds = event.rowIds?.description ?? "nil"
-        let columnId = event.columnId ?? "nil"
+        var eventDict: [String: Any] = [:]
         
-        return "CaptureEvent(fieldEvent: \(fieldEvent), target: \(target), schemaId: \(schemaId), parentPath: \(parentPath), rowIds: \(rowIds), columnId: \(columnId), captureHandler: (Function))"
+        // Add fieldEvent details as nested dictionary
+        eventDict["fieldEvent"] = createFieldIdentifierDict(event.fieldEvent)
+        
+        // Add non-nil optional values
+        if let target = event.target {
+            eventDict["target"] = target
+        }
+        
+        if let schemaId = event.schemaId {
+            eventDict["schemaId"] = schemaId
+        }
+        
+        if let parentPath = event.parentPath, !parentPath.isEmpty {
+            eventDict["parentPath"] = parentPath
+        }
+        
+        if let rowIds = event.rowIds, !rowIds.isEmpty {
+            eventDict["rowIds"] = rowIds
+        }
+        
+        if let columnId = event.columnId {
+            eventDict["columnId"] = columnId
+        }
+        
+        return "CaptureEvent: \(formatDictionary(eventDict))"
     }
     
-    private func formatFieldIdentifier(_ fieldEvent: FieldIdentifier) -> String {
-        let id = fieldEvent._id ?? "nil"
-        let identifier = fieldEvent.identifier ?? "nil"
-        let fieldID = fieldEvent.fieldID
-        let fieldIdentifier = fieldEvent.fieldIdentifier ?? "nil"
-        let pageID = fieldEvent.pageID ?? "nil"
-        let fileID = fieldEvent.fileID ?? "nil"
-        let fieldPositionId = fieldEvent.fieldPositionId ?? "nil"
+    private func createFieldIdentifierDict(_ fieldEvent: FieldIdentifier) -> [String: Any] {
+        var fieldDict: [String: Any] = [:]
         
-        return "Joyfill.FieldIdentifier(_id: \(id), identifier: \(identifier), fieldID: \"\(fieldID)\", fieldIdentifier: \(fieldIdentifier), pageID: \(pageID), fileID: \(fileID), fieldPositionId: \(fieldPositionId))"
+        // Always include fieldID (required)
+        fieldDict["fieldID"] = fieldEvent.fieldID
+        
+        // Add optional properties if they exist
+        if let id = fieldEvent._id {
+            fieldDict["_id"] = id
+        }
+        
+        if let identifier = fieldEvent.identifier {
+            fieldDict["identifier"] = identifier
+        }
+        
+        if let fieldIdentifier = fieldEvent.fieldIdentifier {
+            fieldDict["fieldIdentifier"] = fieldIdentifier
+        }
+        
+        if let pageID = fieldEvent.pageID {
+            fieldDict["pageID"] = pageID
+        }
+        
+        if let fileID = fieldEvent.fileID {
+            fieldDict["fileID"] = fileID
+        }
+        
+        if let fieldPositionId = fieldEvent.fieldPositionId {
+            fieldDict["fieldPositionId"] = fieldPositionId
+        }
+        
+        return fieldDict
     }
+    
+    private func formatDictionary(_ dict: [String: Any], indent: String = "") -> String {
+        var result = "{\n"
+        let nextIndent = indent + "  "
+        
+        for (key, value) in dict.sorted(by: { $0.key < $1.key }) {
+            result += "\(nextIndent)\"\(key)\": "
+            
+            if let nestedDict = value as? [String: Any] {
+                result += formatDictionary(nestedDict, indent: nextIndent)
+            } else if let stringValue = value as? String {
+                result += "\"\(stringValue)\""
+            } else if let arrayValue = value as? [String] {
+                result += "[\(arrayValue.map { "\"\($0)\"" }.joined(separator: ", "))]"
+            } else {
+                result += "\(value)"
+            }
+            
+            result += ",\n"
+        }
+        
+        // Remove last comma and newline, then close bracket
+        if result.hasSuffix(",\n") {
+            result = String(result.dropLast(2)) + "\n"
+        }
+        result += "\(indent)}"
+        
+        return result
+    }
+    
 }
 
 extension DateFormatter {

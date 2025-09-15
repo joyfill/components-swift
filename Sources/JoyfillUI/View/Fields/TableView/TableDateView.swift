@@ -87,14 +87,14 @@ struct TableDateView: View {
                         .contentShape(Rectangle())
                     }
                 }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    if dateString == "" {
-                        eraseDate = false
-                        selectedDate = Date()
-                    }
-                }
                 .padding(.all, 8)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                if dateString == "" {
+                    eraseDate = false
+                    selectedDate = Date()
+                }
             }
             .datePopup(
                 date: $selectedDate,
