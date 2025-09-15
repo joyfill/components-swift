@@ -129,39 +129,101 @@ extension ChangeManager: FormChangeEvent {
     // MARK: - Event Formatting Helpers
     
     private func formatUploadEvent(_ event: UploadEvent) -> String {
-        let fieldEvent = formatFieldIdentifier(event.fieldEvent)
-        let target = event.target ?? "nil"
-        let multi = event.multi
-        let schemaId = event.schemaId ?? "nil"
-        let parentPath = event.parentPath ?? "nil"
-        let rowIds = event.rowIds?.description ?? "nil"
-        let columnId = event.columnId ?? "nil"
+        var details: [String] = []
         
-        return "UploadEvent(fieldEvent: \(fieldEvent), target: \(target), multi: \(multi), schemaId: \(schemaId), parentPath: \(parentPath), rowIds: \(rowIds), columnId: \(columnId), uploadHandler: (Function))"
+        // Add fieldEvent details
+        details.append("fieldEvent: \(formatFieldIdentifier(event.fieldEvent))")
+        
+        // Add non-nil optional values
+        if let target = event.target {
+            details.append("target: \(target)")
+        }
+        
+        details.append("multi: \(event.multi)")
+        
+        if let schemaId = event.schemaId {
+            details.append("schemaId: \(schemaId)")
+        }
+        
+        if let parentPath = event.parentPath, !parentPath.isEmpty {
+            details.append("parentPath: \(parentPath)")
+        }
+        
+        if let rowIds = event.rowIds, !rowIds.isEmpty {
+            details.append("rowIds: \(rowIds)")
+        }
+        
+        if let columnId = event.columnId {
+            details.append("columnId: \(columnId)")
+        }
+        
+        return "UploadEvent(\n   " + details.joined(separator: "\n   ") + "\n)"
     }
     
     private func formatCaptureEvent(_ event: CaptureEvent) -> String {
-        let fieldEvent = formatFieldIdentifier(event.fieldEvent)
-        let target = event.target ?? "nil"
-        let schemaId = event.schemaId ?? "nil"
-        let parentPath = event.parentPath ?? "nil"
-        let rowIds = event.rowIds?.description ?? "nil"
-        let columnId = event.columnId ?? "nil"
+        var details: [String] = []
         
-        return "CaptureEvent(fieldEvent: \(fieldEvent), target: \(target), schemaId: \(schemaId), parentPath: \(parentPath), rowIds: \(rowIds), columnId: \(columnId), captureHandler: (Function))"
+        // Add fieldEvent details
+        details.append("fieldEvent: \(formatFieldIdentifier(event.fieldEvent))")
+        
+        // Add non-nil optional values
+        if let target = event.target {
+            details.append("target: \(target)")
+        }
+        
+        if let schemaId = event.schemaId {
+            details.append("schemaId: \(schemaId)")
+        }
+        
+        if let parentPath = event.parentPath, !parentPath.isEmpty {
+            details.append("parentPath: \(parentPath)")
+        }
+        
+        if let rowIds = event.rowIds, !rowIds.isEmpty {
+            details.append("rowIds: \(rowIds)")
+        }
+        
+        if let columnId = event.columnId {
+            details.append("columnId: \(columnId)")
+        }
+        
+        return "CaptureEvent(\n   " + details.joined(separator: "\n   ") + "\n)"
     }
     
     private func formatFieldIdentifier(_ fieldEvent: FieldIdentifier) -> String {
-        let id = fieldEvent._id ?? "nil"
-        let identifier = fieldEvent.identifier ?? "nil"
-        let fieldID = fieldEvent.fieldID
-        let fieldIdentifier = fieldEvent.fieldIdentifier ?? "nil"
-        let pageID = fieldEvent.pageID ?? "nil"
-        let fileID = fieldEvent.fileID ?? "nil"
-        let fieldPositionId = fieldEvent.fieldPositionId ?? "nil"
+        var fieldDetails: [String] = []
         
-        return "Joyfill.FieldIdentifier(_id: \(id), identifier: \(identifier), fieldID: \"\(fieldID)\", fieldIdentifier: \(fieldIdentifier), pageID: \(pageID), fileID: \(fileID), fieldPositionId: \(fieldPositionId))"
+        // Always include fieldID (required)
+        fieldDetails.append("fieldID: \(fieldEvent.fieldID)")
+        
+        // Add optional properties if they exist
+        if let id = fieldEvent._id {
+            fieldDetails.append("_id: \(id)")
+        }
+        
+        if let identifier = fieldEvent.identifier {
+            fieldDetails.append("identifier: \(identifier)")
+        }
+        
+        if let fieldIdentifier = fieldEvent.fieldIdentifier {
+            fieldDetails.append("fieldIdentifier: \(fieldIdentifier)")
+        }
+        
+        if let pageID = fieldEvent.pageID {
+            fieldDetails.append("pageID: \(pageID)")
+        }
+        
+        if let fileID = fieldEvent.fileID {
+            fieldDetails.append("fileID: \(fileID)")
+        }
+        
+        if let fieldPositionId = fieldEvent.fieldPositionId {
+            fieldDetails.append("fieldPositionId: \(fieldPositionId)")
+        }
+        
+        return "FieldIdentifier(\n      " + fieldDetails.joined(separator: "\n      ") + "\n   )"
     }
+    
 }
 
 extension DateFormatter {
