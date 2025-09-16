@@ -471,7 +471,8 @@ extension DocumentEditor {
         resultFieldPositions.reserveCapacity(fieldPositions.count)
         
         for fp in fieldPositions {
-            if let field = fp.field, uniqueFields.insert(field).inserted {
+            if let field = fp.field, !uniqueFields.contains(field) {
+                uniqueFields.insert(field)
                 var modifiableFP = fp
                 if !isMobileViewActive {
                     modifiableFP.titleDisplay = "inline"
