@@ -7,25 +7,52 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */; };
 		048149FA2CDA8F8E0061FBDC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048149F92CDA8F8E0061FBDC /* JoyfillModel */; };
 		048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048149FC2CDA8F9A0061FBDC /* JoyfillAPIService */; };
 		048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */; };
+		1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
+		1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */; };
+		1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */; };
+		1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */; };
 		1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 132493792BA570F9002C6ADC /* Joyfill */; };
 		1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 1324937C2BAD5A42002C6ADC /* JoyfillModel */; };
+		134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 134FC0792BDA82E9008B7030 /* JoyfillTests.swift */; };
+		136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */; };
+		13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */; };
+		13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */; };
 		13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */; };
 		13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */; };
+		36006C092E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
+		36006C0A2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		36006C0B2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */ = {isa = PBXBuildFile; fileRef = 36006C082E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json */; };
 		360BC7F62C3E88E500735516 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F52C3E88E500735516 /* JoyfillAPIService */; };
 		360BC7F92C3E896D00735516 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 360BC7F82C3E896D00735516 /* JoyfillModel */; };
+		361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361164D92DD70625003DEB4F /* WisdomTests.swift */; };
 		36143FED2E2F57AF006B9048 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FEC2E2F57AF006B9048 /* Joyfill */; };
 		36143FEF2E2F57AF006B9048 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FEE2E2F57AF006B9048 /* JoyfillAPIService */; };
 		36143FF12E2F57AF006B9048 /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FF02E2F57AF006B9048 /* JoyfillFormulas */; };
 		36143FF32E2F57AF006B9048 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FF22E2F57AF006B9048 /* JoyfillModel */; };
+		36143FF52E2F57D5006B9048 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FF42E2F57D5006B9048 /* JoyfillModel */; };
+		36143FF72E2F57DA006B9048 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FF62E2F57DA006B9048 /* Joyfill */; };
+		36143FF92E2F57DE006B9048 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FF82E2F57DE006B9048 /* Joyfill */; };
 		36143FFC2E2F57F3006B9048 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = 36143FFB2E2F57F3006B9048 /* JSONSchema */; };
 		361D90C52E296BD7003CE807 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 361D90C42E296BD7003CE807 /* Joyfill */; };
 		361D90C82E296CA9003CE807 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 361D90C72E296CA9003CE807 /* JoyfillModel */; };
 		361D90CB2E296CBD003CE807 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 361D90CA2E296CBD003CE807 /* JoyfillAPIService */; };
 		362211402BCEB10200BD98B5 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 3622113F2BCEB10200BD98B5 /* JoyfillAPIService */; };
+		3627464B2E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */; };
+		3627464C2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */; };
+		3627464D2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */; };
+		3627464E2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */; };
+		3627464F2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */; };
+		362746502E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */; };
+		362746512E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */; };
+		362746522E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */; };
+		362746532E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */; };
+		362746542E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746472E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json */; };
+		362746552E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746462E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json */; };
+		362746562E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */; };
 		362746572E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746452E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json */; };
 		362746582E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746482E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json */; };
 		362746592E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 362746492E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json */; };
@@ -34,8 +61,14 @@
 		3627465C2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627464A2E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json */; };
 		3627466F2E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627466E2E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json */; };
 		362746702E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627466D2E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json */; };
+		362746712E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627466E2E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json */; };
+		362746722E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627466D2E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json */; };
+		362746732E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627466E2E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json */; };
+		362746742E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3627466D2E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json */; };
+		362746762E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362746752E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift */; };
 		36294F1A2BD67884006C03A6 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F192BD67884006C03A6 /* JoyfillModel */; };
 		36294F1D2BD67FC4006C03A6 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36294F1C2BD67FC4006C03A6 /* JoyfillAPIService */; };
+		362A560D2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362A560C2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift */; };
 		363AEF702C510DF00082359B /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363AEF6F2C510DF00082359B /* JoyfillAPIService */; };
 		363B43F62E29593D0027FFB9 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363B43F52E29593D0027FFB9 /* JoyfillAPIService */; };
 		364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EC2C510BEC00BA870F /* JoyfillAPIService */; };
@@ -46,7 +79,14 @@
 		3656F8992DF076DA001590B2 /* FormBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3656F8982DF076DA001590B2 /* FormBuilderView.swift */; };
 		3661908A2BF239BD006ED7CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 366190892BF239BD006ED7CF /* JoyfillModel */; };
 		3682A4C02E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4BF2E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json */; };
+		3682A4C12E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4BF2E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json */; };
+		3682A4C22E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4BF2E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json */; };
+		3682A4C42E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */; };
+		3682A4C82E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4C72E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json */; };
+		3682A4C92E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4C72E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json */; };
 		3682A4CA2E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */ = {isa = PBXBuildFile; fileRef = 3682A4C72E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json */; };
+		3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */; };
+		369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */; };
 		3697A95D2E27837600FA87E3 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A95C2E27837600FA87E3 /* JoyfillModel */; };
 		3697A9622E27839100FA87E3 /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A9612E27839100FA87E3 /* JoyfillFormulas */; };
 		369D45042E0E4C3F00677280 /* AllSampleJSONs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369D45032E0E4C2600677280 /* AllSampleJSONs.swift */; };
@@ -58,12 +98,57 @@
 		369D45292E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450C2E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json */; };
 		369D452B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450E2E0E51AC00677280 /* FormulaTemplate_TableField.json */; };
 		369D452C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450F2E0E51AC00677280 /* FormulaTemplate_TextareaField.json */; };
+		369D452E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */; };
+		369D45342E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45092E0E51AC00677280 /* FormulaTemplate_CollectionField.json */; };
+		369D45362E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450D2E0E51AC00677280 /* FormulaTemplate_NumberField.json */; };
+		369D45372E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450B2E0E51AC00677280 /* FormulaTemplate_DropdownField.json */; };
+		369D45382E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450A2E0E51AC00677280 /* FormulaTemplate_DateField.json */; };
+		369D45392E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450C2E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json */; };
+		369D453B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450E2E0E51AC00677280 /* FormulaTemplate_TableField.json */; };
+		369D453C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450F2E0E51AC00677280 /* FormulaTemplate_TextareaField.json */; };
+		369D453E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */; };
+		369D45442E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45092E0E51AC00677280 /* FormulaTemplate_CollectionField.json */; };
+		369D45462E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450D2E0E51AC00677280 /* FormulaTemplate_NumberField.json */; };
+		369D45472E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450B2E0E51AC00677280 /* FormulaTemplate_DropdownField.json */; };
+		369D45482E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450A2E0E51AC00677280 /* FormulaTemplate_DateField.json */; };
+		369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450C2E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json */; };
+		369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450E2E0E51AC00677280 /* FormulaTemplate_TableField.json */; };
+		369D454C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450F2E0E51AC00677280 /* FormulaTemplate_TextareaField.json */; };
+		369D45672E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45642E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json */; };
+		369D45682E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45662E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json */; };
+		369D45692E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45622E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json */; };
+		369D456A2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45632E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json */; };
+		369D456B2E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45652E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json */; };
+		369D456C2E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45642E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json */; };
+		369D456D2E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45662E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json */; };
+		369D456E2E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45622E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json */; };
+		369D456F2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45632E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json */; };
+		369D45702E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45652E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json */; };
 		369D45712E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45642E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json */; };
 		369D45722E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45662E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json */; };
 		369D45732E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45622E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json */; };
 		369D45742E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45632E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json */; };
 		369D45752E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45652E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json */; };
+		369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */; };
 		36A5EF162E296DC80059C2A6 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36A5EF152E296DC80059C2A6 /* Joyfill */; };
+		36A5EF312E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
+		36A5EF322E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
+		36A5EF332E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
+		36A5EF342E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */; };
+		36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF272E29725B0059C2A6 /* CollectionFilter.json */; };
+		36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */; };
+		36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
+		36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
+		36A5EF3A2E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
+		36A5EF3B2E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
+		36A5EF3C2E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
+		36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
+		36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2C2E29725B0059C2A6 /* hint_and_deficiency_demo.json */; };
+		36A5EF402E29725B0059C2A6 /* CollectionFilter.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF272E29725B0059C2A6 /* CollectionFilter.json */; };
+		36A5EF412E29725B0059C2A6 /* FirstPageHidden.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */; };
+		36A5EF422E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
+		36A5EF432E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
+		36A5EF442E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
 		36A5EF452E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
 		36A5EF462E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
 		36A5EF472E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
@@ -73,6 +158,7 @@
 		36A5EF4C2E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
 		36A5EF4D2E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
 		36A5EF4E2E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
+		36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */; };
 		36C6F4C52CEF4CEC001765CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36C6F4C42CEF4CEC001765CF /* JoyfillModel */; };
 		36CAEB5F2E2E90A0003D328E /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36CAEB5E2E2E90A0003D328E /* Joyfill */; };
 		36CAEB622E2E90B1003D328E /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CAEB612E2E90B1003D328E /* JoyfillAPIService */; };
@@ -80,8 +166,30 @@
 		36CE14692DB7F90B00799B25 /* JoyDoc+helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */; };
 		36CFA0532CE2068300B7DE34 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA0522CE2068300B7DE34 /* JoyfillModel */; };
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
+		36F4DB782E6F394500C9AD4A /* LicenseValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */; };
+		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
+		E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54652DFADD72006E05E9 /* JoyfillModel */; };
+		E27061C82E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */; };
+		E27061CA2E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27061C92E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift */; };
+		E27061CC2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */; };
 		E27061CE2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
+		E27061CF2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
+		E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
+		E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */; };
+		E274CA432E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
+		E274CA442E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
+		E274CA452E2E7FB000B35C09 /* textField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA412E2E7FB000B35C09 /* textField.json */; };
+		E274CA462E2E7FB000B35C09 /* imageField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3B2E2E7FB000B35C09 /* imageField.json */; };
+		E274CA472E2E7FB000B35C09 /* blockField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA352E2E7FB000B35C09 /* blockField.json */; };
+		E274CA482E2E7FB000B35C09 /* tableField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA402E2E7FB000B35C09 /* tableField.json */; };
+		E274CA492E2E7FB000B35C09 /* dropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA392E2E7FB000B35C09 /* dropdownField.json */; };
+		E274CA4A2E2E7FB000B35C09 /* dateField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA382E2E7FB000B35C09 /* dateField.json */; };
+		E274CA4B2E2E7FB000B35C09 /* fileField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3A2E2E7FB000B35C09 /* fileField.json */; };
+		E274CA4C2E2E7FB000B35C09 /* signatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3F2E2E7FB000B35C09 /* signatureField.json */; };
+		E274CA4D2E2E7FB000B35C09 /* multilineTextField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */; };
+		E274CA4E2E2E7FB000B35C09 /* collectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA372E2E7FB000B35C09 /* collectionField.json */; };
+		E274CA4F2E2E7FB000B35C09 /* multiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */; };
 		E274CA502E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
 		E274CA512E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
 		E274CA522E2E7FB000B35C09 /* textField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA412E2E7FB000B35C09 /* textField.json */; };
@@ -95,12 +203,62 @@
 		E274CA5A2E2E7FB000B35C09 /* multilineTextField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */; };
 		E274CA5B2E2E7FB000B35C09 /* collectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA372E2E7FB000B35C09 /* collectionField.json */; };
 		E274CA5C2E2E7FB000B35C09 /* multiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */; };
+		E274CA5D2E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
+		E274CA5E2E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
+		E274CA5F2E2E7FB000B35C09 /* textField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA412E2E7FB000B35C09 /* textField.json */; };
+		E274CA602E2E7FB000B35C09 /* imageField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3B2E2E7FB000B35C09 /* imageField.json */; };
+		E274CA612E2E7FB000B35C09 /* blockField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA352E2E7FB000B35C09 /* blockField.json */; };
+		E274CA622E2E7FB000B35C09 /* tableField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA402E2E7FB000B35C09 /* tableField.json */; };
+		E274CA632E2E7FB000B35C09 /* dropdownField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA392E2E7FB000B35C09 /* dropdownField.json */; };
+		E274CA642E2E7FB000B35C09 /* dateField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA382E2E7FB000B35C09 /* dateField.json */; };
+		E274CA652E2E7FB000B35C09 /* fileField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3A2E2E7FB000B35C09 /* fileField.json */; };
+		E274CA662E2E7FB000B35C09 /* signatureField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3F2E2E7FB000B35C09 /* signatureField.json */; };
+		E274CA672E2E7FB000B35C09 /* multilineTextField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3C2E2E7FB000B35C09 /* multilineTextField.json */; };
+		E274CA682E2E7FB000B35C09 /* collectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA372E2E7FB000B35C09 /* collectionField.json */; };
+		E274CA692E2E7FB000B35C09 /* multiSelectField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3D2E2E7FB000B35C09 /* multiSelectField.json */; };
+		E274CA6C2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */; };
 		E274CA6D2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */; };
+		E274CA6E2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6A2E2E7FCD00B35C09 /* conditionalLogicTemplate.json */; };
 		E274CA712E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */; };
+		E274CA722E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */; };
+		E274CA732E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA6F2E2E7FD600B35C09 /* defaultEmptyTemplate.json */; };
+		E274CA762E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */; };
 		E274CA772E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */; };
+		E274CA782E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA742E2E7FDE00B35C09 /* fileSettingsTemplate.json */; };
+		E274CA7B2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */; };
+		E274CA7C2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */; };
 		E274CA7D2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA792E2E7FE700B35C09 /* greatWallOfQATemplate.json */; };
+		E274CA802E2E7FF000B35C09 /* metadataTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */; };
+		E274CA812E2E7FF000B35C09 /* metadataTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */; };
 		E274CA822E2E7FF000B35C09 /* metadataTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA7E2E2E7FF000B35C09 /* metadataTemplate.json */; };
+		E274CA852E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */; };
 		E274CA862E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */; };
+		E274CA872E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA832E2E7FFB00B35C09 /* PageSettingsTemplate.json */; };
+		E274CB072E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */; };
+		E274CB082E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */; };
+		E274CB092E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */; };
+		E274CB0A2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF52E2E84F700B35C09 /* baseSignatureTemplateValidation.json */; };
+		E274CB0B2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */; };
+		E274CB0C2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFF2E2E84F700B35C09 /* inputGroupFieldValidation.json */; };
+		E274CB0D2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF02E2E84F700B35C09 /* baseImageTemplateValidation.json */; };
+		E274CB0E2E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEE2E2E84F700B35C09 /* baseCollectionTemplateValidation.json */; };
+		E274CB0F2E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF42E2E84F700B35C09 /* BaseNumberTemplateValidation.json */; };
+		E274CB102E2E84F700B35C09 /* dateFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFC2E2E84F700B35C09 /* dateFieldValidation.json */; };
+		E274CB112E2E84F700B35C09 /* chartFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF92E2E84F700B35C09 /* chartFieldValidation.json */; };
+		E274CB122E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAED2E2E84F700B35C09 /* baseChartTemplateValidation.json */; };
+		E274CB132E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB002E2E84F700B35C09 /* multilineTextFieldValidation.json */; };
+		E274CB142E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF62E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json */; };
+		E274CB152E2E84F700B35C09 /* numberFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB022E2E84F700B35C09 /* numberFieldValidation.json */; };
+		E274CB162E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF12E2E84F700B35C09 /* baseInputGroupTemplateValidation.json */; };
+		E274CB172E2E84F700B35C09 /* textFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB052E2E84F700B35C09 /* textFieldValidation.json */; };
+		E274CB182E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF82E2E84F700B35C09 /* baseTableTemplateValidation.json */; };
+		E274CB192E2E84F700B35C09 /* tableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB042E2E84F700B35C09 /* tableFieldValidation.json */; };
+		E274CB1A2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF32E2E84F700B35C09 /* baseMultiselectTemplateValidation.json */; };
+		E274CB1B2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF22E2E84F700B35C09 /* baseMultilineTemplateValidation.json */; };
+		E274CB1C2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB012E2E84F700B35C09 /* multiSelectFieldValidation.json */; };
+		E274CB1D2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */; };
+		E274CB1E2E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */; };
+		E274CB1F2E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */; };
 		E274CB202E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */; };
 		E274CB212E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */; };
 		E274CB222E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */; };
@@ -126,15 +284,52 @@
 		E274CB362E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */; };
 		E274CB372E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */; };
 		E274CB382E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */; };
+		E274CB392E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFB2E2E84F700B35C09 /* collectionTableFieldValidation.json */; };
+		E274CB3A2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFA2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json */; };
+		E274CB3B2E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFE2E2E84F700B35C09 /* imageAndFileFieldValidation.json */; };
+		E274CB3C2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF52E2E84F700B35C09 /* baseSignatureTemplateValidation.json */; };
+		E274CB3D2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB032E2E84F700B35C09 /* signatureFieldValidation.json */; };
+		E274CB3E2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFF2E2E84F700B35C09 /* inputGroupFieldValidation.json */; };
+		E274CB3F2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF02E2E84F700B35C09 /* baseImageTemplateValidation.json */; };
+		E274CB402E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEE2E2E84F700B35C09 /* baseCollectionTemplateValidation.json */; };
+		E274CB412E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF42E2E84F700B35C09 /* BaseNumberTemplateValidation.json */; };
+		E274CB422E2E84F700B35C09 /* dateFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFC2E2E84F700B35C09 /* dateFieldValidation.json */; };
+		E274CB432E2E84F700B35C09 /* chartFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF92E2E84F700B35C09 /* chartFieldValidation.json */; };
+		E274CB442E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAED2E2E84F700B35C09 /* baseChartTemplateValidation.json */; };
+		E274CB452E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB002E2E84F700B35C09 /* multilineTextFieldValidation.json */; };
+		E274CB462E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF62E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json */; };
+		E274CB472E2E84F700B35C09 /* numberFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB022E2E84F700B35C09 /* numberFieldValidation.json */; };
+		E274CB482E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF12E2E84F700B35C09 /* baseInputGroupTemplateValidation.json */; };
+		E274CB492E2E84F700B35C09 /* textFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB052E2E84F700B35C09 /* textFieldValidation.json */; };
+		E274CB4A2E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF82E2E84F700B35C09 /* baseTableTemplateValidation.json */; };
+		E274CB4B2E2E84F700B35C09 /* tableFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB042E2E84F700B35C09 /* tableFieldValidation.json */; };
+		E274CB4C2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF32E2E84F700B35C09 /* baseMultiselectTemplateValidation.json */; };
+		E274CB4D2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF22E2E84F700B35C09 /* baseMultilineTemplateValidation.json */; };
+		E274CB4E2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB012E2E84F700B35C09 /* multiSelectFieldValidation.json */; };
+		E274CB4F2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAEF2E2E84F700B35C09 /* baseDropdownTemplateValidation.json */; };
+		E274CB502E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAF72E2E84F700B35C09 /* baseTableTemplate 2Validation.json */; };
+		E274CB512E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CAFD2E2E84F700B35C09 /* dropdownFieldValidation.json */; };
 		E274CB532E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */; };
+		E274CB542E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */; };
+		E274CB552E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CB522E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json */; };
 		E27C87E32D394387008EA35C /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E22D394387008EA35C /* CameraScanner.swift */; };
 		E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */; };
 		E28D10812E2B776400E59B5F /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = E28D10802E2B776400E59B5F /* Joyfill */; };
+		E28D109D2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D109C2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json */; };
+		E28D109E2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D109C2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json */; };
 		E28D109F2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D109C2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json */; };
+		E28D10A12E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A02E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json */; };
 		E28D10A22E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A02E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json */; };
+		E28D10A32E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A02E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json */; };
+		E28D10A52E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A42E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json */; };
 		E28D10A62E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A42E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json */; };
+		E28D10A72E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A42E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json */; };
 		E28D10A92E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A82E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json */; };
+		E28D10AA2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A82E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json */; };
+		E28D10AB2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10A82E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json */; };
+		E28D10AD2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
 		E28D10AE2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
+		E28D10AF2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
 		E2A67F7C2E2FF618000E057F /* TableFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5688B2E2A45F9005216A6 /* TableFieldTestData.json */; };
 		E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */; };
 		E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */; };
@@ -144,9 +339,77 @@
 		E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */; };
 		E2B5F75F2D75E5F30057FD85 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */; };
 		E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */; };
+		E2B8E3B92E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E2B8E3B82E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json */; };
+		E2B8E3BA2E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E2B8E3B82E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json */; };
 		E2B8E3BB2E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */ = {isa = PBXBuildFile; fileRef = E2B8E3B82E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json */; };
+		E2B8E3C02E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3BD2E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift */; };
+		E2B8E3C22E436F2D00AC6018 /* FormulaTemplate_TextareaFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3C12E436F2D00AC6018 /* FormulaTemplate_TextareaFieldTests.swift */; };
+		E2B8E3C42E436F3300AC6018 /* FormulaTemplate_MultiSelectFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3C32E436F3300AC6018 /* FormulaTemplate_MultiSelectFieldTests.swift */; };
+		E2B8E3C62E436F4100AC6018 /* FormulaTemplate_NumberFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3C52E436F4100AC6018 /* FormulaTemplate_NumberFieldTests.swift */; };
+		E2B8E3D22E43753300AC6018 /* ConditionalLogic_FormulaTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3C82E43753300AC6018 /* ConditionalLogic_FormulaTemplateTests.swift */; };
+		E2B8E3D32E43753300AC6018 /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3CD2E43753300AC6018 /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests.swift */; };
+		E2B8E3D42E43753300AC6018 /* FormulaTemplate_ConditionalEvaluationCircularReferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3CC2E43753300AC6018 /* FormulaTemplate_ConditionalEvaluationCircularReferenceTests.swift */; };
+		E2B8E3D52E43753300AC6018 /* FormulaTemplate_ArithmeticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3CB2E43753300AC6018 /* FormulaTemplate_ArithmeticTests.swift */; };
+		E2B8E3D62E43753300AC6018 /* EncapsulatedCircularReference_FormulaTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3C92E43753300AC6018 /* EncapsulatedCircularReference_FormulaTemplateTests.swift */; };
+		E2B8E3D72E43753300AC6018 /* JoyfillResolver_LongChainIndirectCircularDependencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3CF2E43753300AC6018 /* JoyfillResolver_LongChainIndirectCircularDependencyTests.swift */; };
+		E2B8E3D82E43753300AC6018 /* JoyfillResolver_IndirectCircularErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3CE2E43753300AC6018 /* JoyfillResolver_IndirectCircularErrorTests.swift */; };
+		E2B8E3D92E43753300AC6018 /* JoyfillResolverTemplate_ComplexWorkingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3D02E43753300AC6018 /* JoyfillResolverTemplate_ComplexWorkingTests.swift */; };
+		E2B8E3DA2E43753300AC6018 /* FormulaTemplate_Arithmetic_ResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3CA2E43753300AC6018 /* FormulaTemplate_Arithmetic_ResolverTests.swift */; };
+		E2B8E3E22E4378D200AC6018 /* FormulaTemplate_EqualityOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3DB2E4378D200AC6018 /* FormulaTemplate_EqualityOperatorTests.swift */; };
+		E2B8E3E32E4378D200AC6018 /* FormulaTemplate_GreaterThanOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3DC2E4378D200AC6018 /* FormulaTemplate_GreaterThanOperatorTests.swift */; };
+		E2B8E3E42E4378D200AC6018 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3DF2E4378D200AC6018 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift */; };
+		E2B8E3E52E4378D200AC6018 /* FormulaTemplate_UnequalOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3E02E4378D200AC6018 /* FormulaTemplate_UnequalOperatorTests.swift */; };
+		E2B8E3E62E4378D200AC6018 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3DD2E4378D200AC6018 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift */; };
+		E2B8E3E72E4378D200AC6018 /* FormulaTemplate_LessThanOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3DE2E4378D200AC6018 /* FormulaTemplate_LessThanOperatorTests.swift */; };
+		E2B8E3E92E43803300AC6018 /* FormulaTemplate_TextFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3E82E43803300AC6018 /* FormulaTemplate_TextFieldTests.swift */; };
+		E2B8E3EB2E43804900AC6018 /* FormulaTemplate_SignatureFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3EA2E43804900AC6018 /* FormulaTemplate_SignatureFieldTests.swift */; };
+		E2B8E3ED2E43805A00AC6018 /* FormulaTemplate_DropdownFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3EC2E43805A00AC6018 /* FormulaTemplate_DropdownFieldTests.swift */; };
+		E2B8E3EF2E43806700AC6018 /* FormulaTemplate_BlockFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8E3EE2E43806700AC6018 /* FormulaTemplate_BlockFieldTests.swift */; };
+		E2C8BD272E4628A900B93B9E /* MobileTitleDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */; };
+		E2C8BD292E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD282E462A8800B93B9E /* AllFieldTitleDispalayed.json */; };
 		E2C8BD2A2E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD282E462A8800B93B9E /* AllFieldTitleDispalayed.json */; };
+		E2C8BD2B2E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD282E462A8800B93B9E /* AllFieldTitleDispalayed.json */; };
 		E2C8BD2D2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */; };
+		E2C8BD2E2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */; };
+		E2C8BD2F2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */; };
+		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
+		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
+		E2F568672E2A4556005216A6 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568652E2A4556005216A6 /* DateTimeFieldUITestCases.swift */; };
+		E2F568682E2A4556005216A6 /* DateTimeFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568642E2A4556005216A6 /* DateTimeFieldTests.swift */; };
+		E2F568692E2A4556005216A6 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568632E2A4556005216A6 /* DateTimeFieldTestData.json */; };
+		E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568732E2A4594005216A6 /* ImageFieldUITestCases.swift */; };
+		E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568722E2A4594005216A6 /* ImageFieldTests.swift */; };
+		E2F568772E2A4594005216A6 /* ImageFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568712E2A4594005216A6 /* ImageFieldTestData.json */; };
+		E2F5687C2E2A45A8005216A6 /* SignatureFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568792E2A45A8005216A6 /* SignatureFieldTests.swift */; };
+		E2F5687D2E2A45A8005216A6 /* SignatureFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F5687A2E2A45A8005216A6 /* SignatureFieldUITestCases.swift */; };
+		E2F5687E2E2A45A8005216A6 /* SignatureFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568782E2A45A8005216A6 /* SignatureFieldTestData.json */; };
+		E2F568832E2A45BC005216A6 /* ChartFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568802E2A45BC005216A6 /* ChartFieldTests.swift */; };
+		E2F568842E2A45BC005216A6 /* ChartFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568812E2A45BC005216A6 /* ChartFieldUITestCases.swift */; };
+		E2F568852E2A45BC005216A6 /* ChartFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5687F2E2A45BC005216A6 /* ChartFieldTestData.json */; };
+		E2F568892E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568862E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift */; };
+		E2F5688A2E2A45D6005216A6 /* CollectionFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568872E2A45D6005216A6 /* CollectionFieldTests.swift */; };
+		E2F568902E2A45F9005216A6 /* TableFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F5688D2E2A45F9005216A6 /* TableFieldUITestCases.swift */; };
+		E2F568912E2A45F9005216A6 /* TableFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F5688C2E2A45F9005216A6 /* TableFieldTests.swift */; };
+		E2F568922E2A45F9005216A6 /* TableNumber_Block_DateFieldTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F5688E2E2A45F9005216A6 /* TableNumber_Block_DateFieldTest.swift */; };
+		E2F568932E2A45F9005216A6 /* TableFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5688B2E2A45F9005216A6 /* TableFieldTestData.json */; };
+		E2F5689A2E2A461A005216A6 /* SelectionFieldHidePageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568962E2A4619005216A6 /* SelectionFieldHidePageLogicTests.swift */; };
+		E2F5689B2E2A461A005216A6 /* SelectionFieldLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568972E2A4619005216A6 /* SelectionFieldLogicTests.swift */; };
+		E2F5689C2E2A461A005216A6 /* SelectionFieldShowPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568982E2A4619005216A6 /* SelectionFieldShowPageLogicTests.swift */; };
+		E2F5689D2E2A461A005216A6 /* DropdownFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568952E2A4619005216A6 /* DropdownFieldUITestCases.swift */; };
+		E2F5689E2E2A461A005216A6 /* DropdownFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568942E2A4619005216A6 /* DropdownFieldTestData.json */; };
+		E2F568A22E2A4724005216A6 /* TextFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568A02E2A4724005216A6 /* TextFieldUITestCases.swift */; };
+		E2F568A32E2A4724005216A6 /* TextFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5689F2E2A4724005216A6 /* TextFieldTestData.json */; };
+		E2F568A72E2A473D005216A6 /* DisplayTextFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568A52E2A473D005216A6 /* DisplayTextFieldUITestCases.swift */; };
+		E2F568A82E2A473D005216A6 /* DisplayTextFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568A42E2A473D005216A6 /* DisplayTextFieldTestData.json */; };
+		E2F568AB2E2A4758005216A6 /* UITestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568A92E2A4758005216A6 /* UITestHelpers.swift */; };
+		E2F568AF2E2A476A005216A6 /* MultilineTextFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568AD2E2A476A005216A6 /* MultilineTextFieldUITestCases.swift */; };
+		E2F568B02E2A476A005216A6 /* MultilineTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568AC2E2A476A005216A6 /* MultilineTestData.json */; };
+		E2F568B42E2A4786005216A6 /* MultiSelectFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568B22E2A4786005216A6 /* MultiSelectFieldUITestCases.swift */; };
+		E2F568B52E2A4786005216A6 /* MultiSelectFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568B12E2A4786005216A6 /* MultiSelectFieldTestData.json */; };
+		E2F568B92E2A4792005216A6 /* NumberFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568B72E2A4792005216A6 /* NumberFieldUITestCases.swift */; };
+		E2F568BA2E2A4792005216A6 /* NumberFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568B62E2A4792005216A6 /* NumberFieldTestData.json */; };
+		E2F568BE2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568BC2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift */; };
+		E2F568BF2E2A47A1005216A6 /* SingleChoiceFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568BB2E2A47A1005216A6 /* SingleChoiceFieldTestData.json */; };
 		E2F568C02E2A4A6B005216A6 /* NumberFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568B62E2A4792005216A6 /* NumberFieldTestData.json */; };
 		E2F568C12E2A4A6F005216A6 /* SingleChoiceFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568BB2E2A47A1005216A6 /* SingleChoiceFieldTestData.json */; };
 		E2F568C22E2A4A75005216A6 /* MultiSelectFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568B12E2A4786005216A6 /* MultiSelectFieldTestData.json */; };
@@ -158,7 +421,9 @@
 		E2F568C82E2A4A93005216A6 /* SignatureFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568782E2A45A8005216A6 /* SignatureFieldTestData.json */; };
 		E2F568C92E2A4A99005216A6 /* ChartFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5687F2E2A45BC005216A6 /* ChartFieldTestData.json */; };
 		E2F568CA2E2A4A9F005216A6 /* DropdownFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568942E2A4619005216A6 /* DropdownFieldTestData.json */; };
+		E2FBBAC02E67122E001FBF5B /* 10kRowsCollection.json in Resources */ = {isa = PBXBuildFile; fileRef = E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */; };
 		E2FBBAC12E67122E001FBF5B /* 10kRowsCollection.json in Resources */ = {isa = PBXBuildFile; fileRef = E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */; };
+		E2FBBAC22E67122E001FBF5B /* 10kRowsCollection.json in Resources */ = {isa = PBXBuildFile; fileRef = E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */; };
 		E2FBBAC42E682139001FBF5B /* ValidationResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBBAC32E682139001FBF5B /* ValidationResultsView.swift */; };
 		FA1FEAE22BA466CB00ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAE12BA466CB00ABD018 /* Joyfill */; };
 		FA1FEAEB2BA46C1200ABD018 /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FA1FEAEA2BA46C1200ABD018 /* Joyfill */; };
@@ -179,14 +444,33 @@
 		FAACBA602BA1D3AD00B610AB /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = FAACBA5F2BA1D3AD00B610AB /* Joyfill */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1307CF1F2BE36ECE00B19FBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FA529C422BA1D251000200F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA529C492BA1D251000200F5;
+			remoteInfo = JoyfillExample;
+		};
+		134FC07B2BDA82E9008B7030 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FA529C422BA1D251000200F5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA529C492BA1D251000200F5;
+			remoteInfo = JoyfillExample;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTestCase.swift; sourceTree = "<group>"; };
 		048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccessTokenTextFieldView.swift; sourceTree = "<group>"; };
 		04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JoyfillExample.entitlements; sourceTree = "<group>"; };
 		1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+DummyModel.swift"; sourceTree = "<group>"; };
 		1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+Assert.swift"; sourceTree = "<group>"; };
+		1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITests.swift; sourceTree = "<group>"; };
 		1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		134FC0792BDA82E9008B7030 /* JoyfillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillTests.swift; sourceTree = "<group>"; };
 		136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageNavigationFieldTest.swift; sourceTree = "<group>"; };
 		13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalLogicTests.swift; sourceTree = "<group>"; };
@@ -388,6 +672,25 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1307CF162BE36ECD00B19FBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36143FF92E2F57DE006B9048 /* Joyfill in Frameworks */,
+				E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		134FC0742BDA82E9008B7030 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36143FF72E2F57DA006B9048 /* Joyfill in Frameworks */,
+				36143FF52E2F57D5006B9048 /* JoyfillModel in Frameworks */,
+				E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FA529C472BA1D251000200F5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -931,6 +1234,8 @@
 			isa = PBXGroup;
 			children = (
 				FA529C4A2BA1D251000200F5 /* JoyfillExample.app */,
+				134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */,
+				1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -983,6 +1288,51 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1307CF182BE36ECD00B19FBA /* JoyfillUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1307CF212BE36ECE00B19FBA /* Build configuration list for PBXNativeTarget "JoyfillUITests" */;
+			buildPhases = (
+				1307CF152BE36ECD00B19FBA /* Sources */,
+				1307CF162BE36ECD00B19FBA /* Frameworks */,
+				1307CF172BE36ECD00B19FBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1307CF202BE36ECE00B19FBA /* PBXTargetDependency */,
+			);
+			name = JoyfillUITests;
+			packageProductDependencies = (
+				E26A54652DFADD72006E05E9 /* JoyfillModel */,
+				36143FF82E2F57DE006B9048 /* Joyfill */,
+			);
+			productName = JoyfillUITests;
+			productReference = 1307CF192BE36ECE00B19FBA /* JoyfillUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		134FC0762BDA82E9008B7030 /* JoyfillTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 134FC07F2BDA82E9008B7030 /* Build configuration list for PBXNativeTarget "JoyfillTests" */;
+			buildPhases = (
+				134FC0732BDA82E9008B7030 /* Sources */,
+				134FC0742BDA82E9008B7030 /* Frameworks */,
+				134FC0752BDA82E9008B7030 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				134FC07C2BDA82E9008B7030 /* PBXTargetDependency */,
+			);
+			name = JoyfillTests;
+			packageProductDependencies = (
+				36143FF42E2F57D5006B9048 /* JoyfillModel */,
+				36143FF62E2F57DA006B9048 /* Joyfill */,
+				E2CC9FEF2E377AA800797331 /* JSONSchema */,
+			);
+			productName = JoyfillTests;
+			productReference = 134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		FA529C492BA1D251000200F5 /* JoyfillExample */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA529C6F2BA1D253000200F5 /* Build configuration list for PBXNativeTarget "JoyfillExample" */;
@@ -1055,6 +1405,14 @@
 				LastSwiftUpdateCheck = 1520;
 				LastUpgradeCheck = 1520;
 				TargetAttributes = {
+					1307CF182BE36ECD00B19FBA = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = FA529C492BA1D251000200F5;
+					};
+					134FC0762BDA82E9008B7030 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = FA529C492BA1D251000200F5;
+					};
 					FA529C492BA1D251000200F5 = {
 						CreatedOnToolsVersion = 15.2;
 					};
@@ -1078,11 +1436,215 @@
 			projectRoot = "";
 			targets = (
 				FA529C492BA1D251000200F5 /* JoyfillExample */,
+				134FC0762BDA82E9008B7030 /* JoyfillTests */,
+				1307CF182BE36ECD00B19FBA /* JoyfillUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1307CF172BE36ECD00B19FBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3682A4C92E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */,
+				369D45672E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
+				E2B8E3B92E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */,
+				369D45682E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
+				E274CA852E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
+				E274CA732E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
+				369D45692E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
+				E2F568772E2A4594005216A6 /* ImageFieldTestData.json in Resources */,
+				36A5EF312E29725B0059C2A6 /* TableNewColumns.json in Resources */,
+				36A5EF322E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
+				36A5EF332E29725B0059C2A6 /* testrow.json in Resources */,
+				E2F5687E2E2A45A8005216A6 /* SignatureFieldTestData.json in Resources */,
+				36A5EF342E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
+				E274CA812E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
+				E28D10AD2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */,
+				E2F568A32E2A4724005216A6 /* TextFieldTestData.json in Resources */,
+				E274CB552E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
+				E2F568BA2E2A4792005216A6 /* NumberFieldTestData.json in Resources */,
+				36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
+				E2C8BD2B2E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */,
+				36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */,
+				36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */,
+				36A5EF3A2E29725B0059C2A6 /* Joydocjson.json in Resources */,
+				369D456A2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
+				E2F568B02E2A476A005216A6 /* MultilineTestData.json in Resources */,
+				E28D10A32E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */,
+				E2F568BF2E2A47A1005216A6 /* SingleChoiceFieldTestData.json in Resources */,
+				369D456B2E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
+				E2F568692E2A4556005216A6 /* DateTimeFieldTestData.json in Resources */,
+				369D453E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
+				3682A4C12E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
+				E274CB072E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */,
+				E274CB082E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */,
+				E274CB092E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */,
+				E274CB0A2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */,
+				E274CB0B2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */,
+				E274CB0C2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */,
+				E274CB0D2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */,
+				E274CB0E2E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */,
+				E274CB0F2E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */,
+				E274CB102E2E84F700B35C09 /* dateFieldValidation.json in Resources */,
+				E274CB112E2E84F700B35C09 /* chartFieldValidation.json in Resources */,
+				E274CB122E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */,
+				E274CB132E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */,
+				E274CB142E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */,
+				E274CB152E2E84F700B35C09 /* numberFieldValidation.json in Resources */,
+				E274CB162E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */,
+				E274CB172E2E84F700B35C09 /* textFieldValidation.json in Resources */,
+				E274CB182E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */,
+				E274CB192E2E84F700B35C09 /* tableFieldValidation.json in Resources */,
+				E274CB1A2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */,
+				E274CB1B2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */,
+				E274CB1C2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */,
+				E274CB1D2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */,
+				E274CB1E2E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */,
+				E274CB1F2E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
+				E2F5689E2E2A461A005216A6 /* DropdownFieldTestData.json in Resources */,
+				E2FBBAC02E67122E001FBF5B /* 10kRowsCollection.json in Resources */,
+				369D45442E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
+				369D45462E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
+				369D45472E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
+				369D45482E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
+				369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
+				369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
+				E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
+				369D454C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
+				362746512E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
+				E2F568852E2A45BC005216A6 /* ChartFieldTestData.json in Resources */,
+				362746522E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
+				362746532E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
+				362746542E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
+				362746732E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */,
+				E274CA432E2E7FB000B35C09 /* chartField.json in Resources */,
+				E274CA442E2E7FB000B35C09 /* numberField.json in Resources */,
+				E274CA452E2E7FB000B35C09 /* textField.json in Resources */,
+				E274CA462E2E7FB000B35C09 /* imageField.json in Resources */,
+				E274CA472E2E7FB000B35C09 /* blockField.json in Resources */,
+				E274CA482E2E7FB000B35C09 /* tableField.json in Resources */,
+				E274CA492E2E7FB000B35C09 /* dropdownField.json in Resources */,
+				E274CA4A2E2E7FB000B35C09 /* dateField.json in Resources */,
+				E274CA4B2E2E7FB000B35C09 /* fileField.json in Resources */,
+				E274CA4C2E2E7FB000B35C09 /* signatureField.json in Resources */,
+				E274CA4D2E2E7FB000B35C09 /* multilineTextField.json in Resources */,
+				E274CA4E2E2E7FB000B35C09 /* collectionField.json in Resources */,
+				E274CA4F2E2E7FB000B35C09 /* multiSelectField.json in Resources */,
+				E28D10AB2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */,
+				E2F568A82E2A473D005216A6 /* DisplayTextFieldTestData.json in Resources */,
+				E274CA782E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */,
+				E28D10A72E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */,
+				E274CA6E2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */,
+				E274CA7C2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */,
+				E28D109D2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */,
+				E2F568B52E2A4786005216A6 /* MultiSelectFieldTestData.json in Resources */,
+				E2F568932E2A45F9005216A6 /* TableFieldTestData.json in Resources */,
+				E2C8BD2F2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */,
+				362746742E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json in Resources */,
+				362746552E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */,
+				362746562E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */,
+				36006C092E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		134FC0752BDA82E9008B7030 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E274CA7B2E2E7FE700B35C09 /* greatWallOfQATemplate.json in Resources */,
+				3682A4C82E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */,
+				E28D10AF2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */,
+				E274CB392E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */,
+				E274CB3A2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */,
+				E274CB3B2E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */,
+				E274CB3C2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */,
+				E274CB3D2E2E84F700B35C09 /* signatureFieldValidation.json in Resources */,
+				E274CB3E2E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */,
+				E274CB3F2E2E84F700B35C09 /* baseImageTemplateValidation.json in Resources */,
+				E274CB402E2E84F700B35C09 /* baseCollectionTemplateValidation.json in Resources */,
+				E274CB412E2E84F700B35C09 /* BaseNumberTemplateValidation.json in Resources */,
+				E274CB422E2E84F700B35C09 /* dateFieldValidation.json in Resources */,
+				E274CB432E2E84F700B35C09 /* chartFieldValidation.json in Resources */,
+				E274CB442E2E84F700B35C09 /* baseChartTemplateValidation.json in Resources */,
+				E274CB452E2E84F700B35C09 /* multilineTextFieldValidation.json in Resources */,
+				E274CB462E2E84F700B35C09 /* baseTableCollectionTemplateValidation.json in Resources */,
+				E274CB472E2E84F700B35C09 /* numberFieldValidation.json in Resources */,
+				E274CB482E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */,
+				E2FBBAC22E67122E001FBF5B /* 10kRowsCollection.json in Resources */,
+				E274CB492E2E84F700B35C09 /* textFieldValidation.json in Resources */,
+				E274CB4A2E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */,
+				E274CB4B2E2E84F700B35C09 /* tableFieldValidation.json in Resources */,
+				E274CB4C2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */,
+				E274CB4D2E2E84F700B35C09 /* baseMultilineTemplateValidation.json in Resources */,
+				E274CB4E2E2E84F700B35C09 /* multiSelectFieldValidation.json in Resources */,
+				E274CB4F2E2E84F700B35C09 /* baseDropdownTemplateValidation.json in Resources */,
+				E2B8E3BA2E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */,
+				E274CB502E2E84F700B35C09 /* baseTableTemplate 2Validation.json in Resources */,
+				E274CB512E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
+				369D456C2E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
+				369D456D2E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
+				369D456E2E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
+				36A5EF3B2E29725B0059C2A6 /* TableNewColumns.json in Resources */,
+				36A5EF3C2E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
+				36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */,
+				36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
+				36A5EF402E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				E274CA872E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
+				36A5EF412E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
+				36A5EF422E29725B0059C2A6 /* 3000-fields.json in Resources */,
+				36A5EF432E29725B0059C2A6 /* ErrorHandling.json in Resources */,
+				36A5EF442E29725B0059C2A6 /* Joydocjson.json in Resources */,
+				369D456F2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
+				E274CB542E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
+				369D45702E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
+				369D452E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
+				3682A4C22E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
+				369D45342E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
+				369D45362E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
+				E274CA722E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
+				369D45372E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
+				E28D10A52E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */,
+				E27061CF2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
+				369D45382E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
+				369D45392E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
+				369D453B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
+				369D453C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
+				3627464B2E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
+				E2C8BD2E2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */,
+				3627464C2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
+				3627464D2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
+				3627464E2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
+				E28D109E2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */,
+				362746712E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */,
+				E274CA802E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
+				E274CA5D2E2E7FB000B35C09 /* chartField.json in Resources */,
+				E274CA762E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */,
+				E274CA5E2E2E7FB000B35C09 /* numberField.json in Resources */,
+				E274CA5F2E2E7FB000B35C09 /* textField.json in Resources */,
+				E274CA602E2E7FB000B35C09 /* imageField.json in Resources */,
+				E274CA612E2E7FB000B35C09 /* blockField.json in Resources */,
+				E274CA622E2E7FB000B35C09 /* tableField.json in Resources */,
+				E274CA632E2E7FB000B35C09 /* dropdownField.json in Resources */,
+				E274CA642E2E7FB000B35C09 /* dateField.json in Resources */,
+				E274CA652E2E7FB000B35C09 /* fileField.json in Resources */,
+				E274CA662E2E7FB000B35C09 /* signatureField.json in Resources */,
+				E2C8BD292E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */,
+				E274CA6C2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */,
+				E274CA672E2E7FB000B35C09 /* multilineTextField.json in Resources */,
+				E274CA682E2E7FB000B35C09 /* collectionField.json in Resources */,
+				E274CA692E2E7FB000B35C09 /* multiSelectField.json in Resources */,
+				E28D10AA2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */,
+				E28D10A12E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */,
+				362746722E26DDC7005B0FA7 /* FormulaTemplate_BlockField.json in Resources */,
+				3627464F2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOperator.json in Resources */,
+				362746502E24F0D0005B0FA7 /* FormulaTemplate_UnequalOperator.json in Resources */,
+				36006C0A2E1BE5E000159BF0 /* FormulaTemplate_Arithmetic.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FA529C482BA1D251000200F5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1195,6 +1757,92 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1307CF152BE36ECD00B19FBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2F568A72E2A473D005216A6 /* DisplayTextFieldUITestCases.swift in Sources */,
+				E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */,
+				E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */,
+				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
+				E2F5687C2E2A45A8005216A6 /* SignatureFieldTests.swift in Sources */,
+				E2F5687D2E2A45A8005216A6 /* SignatureFieldUITestCases.swift in Sources */,
+				E2F5689A2E2A461A005216A6 /* SelectionFieldHidePageLogicTests.swift in Sources */,
+				E2F5689B2E2A461A005216A6 /* SelectionFieldLogicTests.swift in Sources */,
+				E2F5689C2E2A461A005216A6 /* SelectionFieldShowPageLogicTests.swift in Sources */,
+				E2F5689D2E2A461A005216A6 /* DropdownFieldUITestCases.swift in Sources */,
+				13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */,
+				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
+				1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */,
+				E2F568832E2A45BC005216A6 /* ChartFieldTests.swift in Sources */,
+				E2F568902E2A45F9005216A6 /* TableFieldUITestCases.swift in Sources */,
+				E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */,
+				E2F568A22E2A4724005216A6 /* TextFieldUITestCases.swift in Sources */,
+				E2F568BE2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift in Sources */,
+				E2F568B92E2A4792005216A6 /* NumberFieldUITestCases.swift in Sources */,
+				E2F568912E2A45F9005216A6 /* TableFieldTests.swift in Sources */,
+				E2F568922E2A45F9005216A6 /* TableNumber_Block_DateFieldTest.swift in Sources */,
+				E2F568842E2A45BC005216A6 /* ChartFieldUITestCases.swift in Sources */,
+				E2F568672E2A4556005216A6 /* DateTimeFieldUITestCases.swift in Sources */,
+				E2F568682E2A4556005216A6 /* DateTimeFieldTests.swift in Sources */,
+				13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */,
+				E2F568892E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift in Sources */,
+				E2F5688A2E2A45D6005216A6 /* CollectionFieldTests.swift in Sources */,
+				E2F568B42E2A4786005216A6 /* MultiSelectFieldUITestCases.swift in Sources */,
+				E2F568AB2E2A4758005216A6 /* UITestHelpers.swift in Sources */,
+				362A560D2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift in Sources */,
+				E2F568AF2E2A476A005216A6 /* MultilineTextFieldUITestCases.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		134FC0732BDA82E9008B7030 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2B8E3C02E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift in Sources */,
+				3682A4C42E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift in Sources */,
+				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
+				E27061CA2E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift in Sources */,
+				E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */,
+				E2B8E3D22E43753300AC6018 /* ConditionalLogic_FormulaTemplateTests.swift in Sources */,
+				E2B8E3D32E43753300AC6018 /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests.swift in Sources */,
+				E2B8E3D42E43753300AC6018 /* FormulaTemplate_ConditionalEvaluationCircularReferenceTests.swift in Sources */,
+				E2B8E3EB2E43804900AC6018 /* FormulaTemplate_SignatureFieldTests.swift in Sources */,
+				E2B8E3D52E43753300AC6018 /* FormulaTemplate_ArithmeticTests.swift in Sources */,
+				E2B8E3D62E43753300AC6018 /* EncapsulatedCircularReference_FormulaTemplateTests.swift in Sources */,
+				E2B8E3D72E43753300AC6018 /* JoyfillResolver_LongChainIndirectCircularDependencyTests.swift in Sources */,
+				E2B8E3D82E43753300AC6018 /* JoyfillResolver_IndirectCircularErrorTests.swift in Sources */,
+				E27061C82E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift in Sources */,
+				E2B8E3D92E43753300AC6018 /* JoyfillResolverTemplate_ComplexWorkingTests.swift in Sources */,
+				E2B8E3E22E4378D200AC6018 /* FormulaTemplate_EqualityOperatorTests.swift in Sources */,
+				E2B8E3E32E4378D200AC6018 /* FormulaTemplate_GreaterThanOperatorTests.swift in Sources */,
+				E2B8E3E42E4378D200AC6018 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift in Sources */,
+				E2B8E3E52E4378D200AC6018 /* FormulaTemplate_UnequalOperatorTests.swift in Sources */,
+				E2C8BD272E4628A900B93B9E /* MobileTitleDisplayTests.swift in Sources */,
+				E2B8E3E62E4378D200AC6018 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift in Sources */,
+				E2B8E3E72E4378D200AC6018 /* FormulaTemplate_LessThanOperatorTests.swift in Sources */,
+				E2B8E3DA2E43753300AC6018 /* FormulaTemplate_Arithmetic_ResolverTests.swift in Sources */,
+				E2B8E3ED2E43805A00AC6018 /* FormulaTemplate_DropdownFieldTests.swift in Sources */,
+				E2B8E3EF2E43806700AC6018 /* FormulaTemplate_BlockFieldTests.swift in Sources */,
+				36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */,
+				369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */,
+				369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */,
+				E2B8E3C22E436F2D00AC6018 /* FormulaTemplate_TextareaFieldTests.swift in Sources */,
+				E27061CC2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
+				E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */,
+				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
+				362746762E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift in Sources */,
+				E2B8E3E92E43803300AC6018 /* FormulaTemplate_TextFieldTests.swift in Sources */,
+				E2B8E3C62E436F4100AC6018 /* FormulaTemplate_NumberFieldTests.swift in Sources */,
+				361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */,
+				1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */,
+				36F4DB782E6F394500C9AD4A /* LicenseValidatorTests.swift in Sources */,
+				E2B8E3C42E436F3300AC6018 /* FormulaTemplate_MultiSelectFieldTests.swift in Sources */,
+				0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */,
+				134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FA529C462BA1D251000200F5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1229,7 +1877,112 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		1307CF202BE36ECE00B19FBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA529C492BA1D251000200F5 /* JoyfillExample */;
+			targetProxy = 1307CF1F2BE36ECE00B19FBA /* PBXContainerItemProxy */;
+		};
+		134FC07C2BDA82E9008B7030 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA529C492BA1D251000200F5 /* JoyfillExample */;
+			targetProxy = 134FC07B2BDA82E9008B7030 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		1307CF222BE36ECE00B19FBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillUITests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JoyfillExample;
+			};
+			name = Debug;
+		};
+		1307CF232BE36ECE00B19FBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillUITests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JoyfillExample;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		134FC07D2BDA82E9008B7030 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillTests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JoyfillExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JoyfillExample";
+			};
+			name = Debug;
+		};
+		134FC07E2BDA82E9008B7030 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = App.JoyfillTests;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.joyfill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JoyfillExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JoyfillExample";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		FA529C6D2BA1D253000200F5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1358,10 +2111,10 @@
 				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 63;
+				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
@@ -1379,7 +2132,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1399,10 +2152,10 @@
 				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 63;
+				CURRENT_PROJECT_VERSION = 18;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
-				DEVELOPMENT_TEAM = Y5JMZSQP2T;
+				DEVELOPMENT_TEAM = Z928FCJVR4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to the camera to scan text.";
@@ -1420,7 +2173,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1435,6 +2188,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1307CF212BE36ECE00B19FBA /* Build configuration list for PBXNativeTarget "JoyfillUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1307CF222BE36ECE00B19FBA /* Debug */,
+				1307CF232BE36ECE00B19FBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		134FC07F2BDA82E9008B7030 /* Build configuration list for PBXNativeTarget "JoyfillTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				134FC07D2BDA82E9008B7030 /* Debug */,
+				134FC07E2BDA82E9008B7030 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FA529C452BA1D251000200F5 /* Build configuration list for PBXProject "JoyfillExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1513,6 +2284,21 @@
 		36143FF22E2F57AF006B9048 /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillModel;
+		};
+		36143FF42E2F57D5006B9048 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36143FE92E2F57AF006B9048 /* XCLocalSwiftPackageReference "../../components-swift" */;
+			productName = JoyfillModel;
+		};
+		36143FF62E2F57DA006B9048 /* Joyfill */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36143FE92E2F57AF006B9048 /* XCLocalSwiftPackageReference "../../components-swift" */;
+			productName = Joyfill;
+		};
+		36143FF82E2F57DE006B9048 /* Joyfill */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36143FE92E2F57AF006B9048 /* XCLocalSwiftPackageReference "../../components-swift" */;
+			productName = Joyfill;
 		};
 		36143FFB2E2F57F3006B9048 /* JSONSchema */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1599,6 +2385,10 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillModel;
 		};
+		E26A54652DFADD72006E05E9 /* JoyfillModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JoyfillModel;
+		};
 		E28D10802E2B776400E59B5F /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Joyfill;
@@ -1610,6 +2400,11 @@
 		E2B5F75E2D75E5F30057FD85 /* JoyfillAPIService */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = JoyfillAPIService;
+		};
+		E2CC9FEF2E377AA800797331 /* JSONSchema */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36143FFA2E2F57F3006B9048 /* XCRemoteSwiftPackageReference "JSONSchema" */;
+			productName = JSONSchema;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
 			isa = XCSwiftPackageProductDependency;
