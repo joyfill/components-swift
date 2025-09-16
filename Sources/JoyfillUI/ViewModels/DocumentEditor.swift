@@ -466,7 +466,21 @@ extension DocumentEditor {
     }
     
     public func mapWebViewToMobileViewIfNeeded(fieldPositions: [FieldPosition], isMobileViewActive: Bool) -> [FieldPosition] {
-        let sortedFieldPositions = fieldPositions.sorted { fp1, fp2 in
+        var uniqueFields = Set<String>()
+        var resultFieldPositions = [FieldPosition]()
+        resultFieldPositions.reserveCapacity(fieldPositions.count)
+        
+        for fp in fieldPositions {
+            if let field = fp.field, uniqueFields.insert(field).inserted {
+                var modifiableFP = fp
+                if !isMobileViewActive {
+                    modifiableFP.titleDisplay = "inline"
+                }
+                resultFieldPositions.append(modifiableFP)
+            }
+        }
+        
+        return resultFieldPositions.sorted { fp1, fp2 in
             guard let y1 = fp1.y, let y2 = fp2.y, let x1 = fp1.x, let x2 = fp2.x else {
                 return false
             }
@@ -476,21 +490,6 @@ extension DocumentEditor {
                 return Int(y1) < Int(y2)
             }
         }
-        var uniqueFields = Set<String>()
-        var resultFieldPositions = [FieldPosition]()
-        resultFieldPositions.reserveCapacity(sortedFieldPositions.count)
-        
-        for fp in sortedFieldPositions {
-            guard let displayType = fp.displayType, displayType == "original" else { continue }
-            if let field = fp.field, uniqueFields.insert(field).inserted {
-                var modifiableFP = fp
-                if !isMobileViewActive {
-                    modifiableFP.titleDisplay = "inline"
-                }
-                resultFieldPositions.append(modifiableFP)
-            }
-        }
-        return resultFieldPositions
     }
     
     private func pageIDAndIndex(key: String) -> (String, Int)? {
