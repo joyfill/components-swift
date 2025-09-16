@@ -349,9 +349,11 @@ struct EditMultipleRowsSheetView: View {
 
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     if let row = viewModel.tableDataModel.selectedRows.first {
+                        let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
                         if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
                         var cellModel = TableCellModel(rowID: row,
+                                                       timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
                                                        data: cell,
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
                                                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
@@ -544,7 +546,7 @@ struct EditMultipleRowsSheetView: View {
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
-                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
@@ -566,7 +568,7 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.bottom, -8)
                                 HStack {
                                     Spacer()
-                                    TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+                                    TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                         .padding(.vertical, 4)
                                     Spacer()
                                 }

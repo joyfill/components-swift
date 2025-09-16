@@ -18,9 +18,14 @@ class ValidationHandler {
     func validate() -> Validation {
         var fieldValidities = [FieldValidity]()
         var isValid = true
-        let fieldPositionIDs = documentEditor.mapWebViewToMobileViewIfNeeded(fieldPositions: documentEditor.allFieldPositions, isMobileViewActive: false).map {  $0.field }
+        for pagesForCurrentView in documentEditor.pagesForCurrentView {
+            let fieldPositionIDs = documentEditor.mapWebViewToMobileViewIfNeeded(fieldPositions: pagesForCurrentView.fieldPositions ?? [], isMobileViewActive: false).map {  $0.field }
         for id in fieldPositionIDs {
             guard let id = id, let field = documentEditor.fieldMap[id] else {
+                continue
+            }
+            if !documentEditor.shouldShow(page: pagesForCurrentView) {
+                fieldValidities.append(FieldValidity(field: field, status: .valid))
                 continue
             }
             if !documentEditor.shouldShow(fieldID: field.id) {
@@ -58,7 +63,7 @@ class ValidationHandler {
                 fieldValidities.append(FieldValidity(field: field, status: .invalid))
             }
         }
-
+        }
         return Validation(status: isValid ? .valid: .invalid, fieldValidities: fieldValidities)
     }
      

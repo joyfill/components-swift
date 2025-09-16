@@ -363,6 +363,12 @@ public struct JoyDocField: Equatable {
         set { dictionary["hidden"] = newValue }
     }
     
+    /// The timezone of the date field.
+    public var tz: String? {
+        get { dictionary["tz"] as? String }
+        set { dictionary["tz"] = newValue }
+    }
+    
     
     /// A Boolean property that indicates whether the field supports multiple values.
     ///
@@ -1321,6 +1327,12 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     public mutating func setDeleted() {
         deleted = true
     }
+    
+    /// The timezone of the date
+    public var tz: String? {
+        get { (dictionary["tz"] as? ValueUnion)?.text }
+        set { setValue(newValue, key: "tz") }
+    }
 }
 
 public struct Children {
@@ -1773,8 +1785,32 @@ public struct FieldPosition {
     }
 
     public var tableColumns: [TableColumn]? {
-        get { (dictionary["tableColumns"] as? [[String: Any]])?.compactMap(TableColumn.init) ?? [] }
-        set { dictionary["tableColumns"] = newValue?.compactMap{ $0.dictionary } }
+        get {
+            if let arr = dictionary["tableColumns"] as? [[String: Any]] {
+                return arr.compactMap(TableColumn.init)
+            }
+            if let dict = dictionary["tableColumns"] as? [String: [String: Any]] {
+                return dict.map { (id, payload) in
+                    var merged = payload
+                    if merged["_id"] == nil { merged["_id"] = id }
+                    return TableColumn(dictionary: merged)
+                }
+            }
+            return nil
+        }
+        set {
+            guard let newValue = newValue else {
+                dictionary["tableColumns"] = nil
+                return
+            }
+            var dict = [String: [String: Any]]()
+            for col in newValue {
+                if let id = col.id {
+                    dict[id] = col.dictionary
+                }
+            }
+            dictionary["tableColumns"] = dict
+        }
     }
     
     public var schema: [String : FieldPositionSchema]? {

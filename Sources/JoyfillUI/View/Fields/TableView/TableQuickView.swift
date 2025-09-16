@@ -104,28 +104,27 @@ struct TableQuickView : View {
     var table: some View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: 0) {
-                let rows = (viewModel.tableDataModel.rowOrder.prefix(3).count != 0) ? viewModel.tableDataModel.rowOrder.prefix(3) : ["Dummy-rowID"]
-                ForEach(rows, id: \.self) { row in
+                let rowsDataModels = viewModel.getThreeRowsForQuickView()
+                ForEach(rowsDataModels, id: \.self) { rowDataModel in
                     HStack(alignment: .top, spacing: 0) {
                         ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
-                            // Cell
-                            let cell = viewModel.tableDataModel.getQuickFieldTableColumn(row: row, col: index)
-                            if let cell = cell {
-                                let cellModel = TableCellModel(rowID: row,
-                                                               data: cell,
-                                                               documentEditor: viewModel.tableDataModel.documentEditor,
-                                                               fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                               viewMode: .quickView,
-                                                               editMode: viewModel.tableDataModel.mode,
-                                                               didChange: nil)
-                                ZStack {
-                                    Rectangle()
-                                        .stroke()
-                                        .foregroundColor(Color.tableCellBorderColor)
-                                    TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
-                                }
-                                .frame(width: geometry.size.width / 3, height: rowHeight)
+                            let cell = rowDataModel.cells[index]
+                            
+                            let cellModel = TableCellModel(rowID: cell.rowID,
+                                                           timezoneId: cell.timezoneId,
+                                                           data: cell.data,
+                                                           documentEditor: viewModel.tableDataModel.documentEditor,
+                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                           viewMode: .quickView,
+                                                           editMode: viewModel.tableDataModel.mode,
+                                                           didChange: nil)
+                            ZStack {
+                                Rectangle()
+                                    .stroke()
+                                    .foregroundColor(Color.tableCellBorderColor)
+                                TableViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
                             }
+                            .frame(width: geometry.size.width / 3, height: rowHeight)
                         }
                     }
                 }

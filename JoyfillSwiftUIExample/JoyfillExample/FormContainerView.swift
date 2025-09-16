@@ -13,8 +13,9 @@ struct FormContainerView: View {
     @State private var showChangelogView = false
     let enableChangelogs: Bool
 
-    init(document: JoyDoc, pageID: String, changeManager: ChangeManager, enableChangelogs: Bool = true) {
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true)
+    init(document: JoyDoc, pageID: String, changeManager: ChangeManager, enableChangelogs: Bool = true, customLicense: String? = nil) {
+        let license = customLicense ?? licenseKey
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true, license: license)
         self.changeManager = changeManager
         self.enableChangelogs = enableChangelogs
     }

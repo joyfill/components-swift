@@ -13,10 +13,13 @@ import SwiftUI
 struct AllSampleJSONs: View, FormChangeEvent {
     let imagePicker = ImagePicker()
     @State private var documentEditor: DocumentEditor?
-    @State private var selectedJSONFile: String = "JoyfillResolver_DirectSelfCircularReference"
+    @State private var selectedJSONFile: String
+    private let lockToFileName: Bool
+    @State private var isLoading: Bool = false
     
     // All available JSON files from Formula-sample directory
     private let resolverFiles = [
+        "10kRowsCollection",
         "FSMIndustry_FormulaTemplate",
         "ConditionalLogic_FormulaTemplate",
         "JoyfillResolver_SimpleWorking",
@@ -60,50 +63,55 @@ struct AllSampleJSONs: View, FormChangeEvent {
         resolverFiles + fieldFiles + parserFiles
     }
     
-    init() {
-        let document = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
-        _documentEditor = State(initialValue: DocumentEditor(document: document, events: self, validateSchema: false))
+    init(initialFileName: String? = nil, lockToFileName: Bool = false) {
+        let initial = initialFileName ?? "JoyfillResolver_DirectSelfCircularReference"
+        _selectedJSONFile = State(initialValue: initial)
+        _documentEditor = State(initialValue: nil)
+        _isLoading = State(initialValue: true)
+        self.lockToFileName = lockToFileName
     }
 
     var body: some View {
         NavigationView {
             VStack {
-                // JSON File Picker
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Select JSON Sample")
-                        .font(.headline)
-                        .padding(.horizontal)
-                    
-                    Picker("Select JSON File", selection: $selectedJSONFile) {
-                        Section("Resolver Files") {
-                            ForEach(resolverFiles, id: \.self) { fileName in
-                                Text(fileName)
-                                    .tag(fileName)
-                            }
-                        }
+                if !lockToFileName {
+                    // JSON File Picker
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Select JSON Sample")
+                            .font(.headline)
+                            .padding(.horizontal)
                         
-                        Section("Field Files") {
-                            ForEach(fieldFiles, id: \.self) { fileName in
-                                Text(fileName)
-                                    .tag(fileName)
+                        Picker("Select JSON File", selection: $selectedJSONFile) {
+                            Section("Resolver Files") {
+                                ForEach(resolverFiles, id: \.self) { fileName in
+                                    Text(fileName)
+                                        .tag(fileName)
+                                }
                             }
-                        }
+                            
+                            Section("Field Files") {
+                                ForEach(fieldFiles, id: \.self) { fileName in
+                                    Text(fileName)
+                                        .tag(fileName)
+                                }
+                            }
 
-                        Section("Parser Files") {
-                            ForEach(parserFiles, id: \.self) { fileName in
-                                Text(fileName)
-                                    .tag(fileName)
+                            Section("Parser Files") {
+                                ForEach(parserFiles, id: \.self) { fileName in
+                                    Text(fileName)
+                                        .tag(fileName)
+                                }
                             }
                         }
+                        .pickerStyle(MenuPickerStyle())
+                        .padding(.horizontal)
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    .padding(.horizontal)
                 }
                 
                 Divider()
                 
                 // Form Display
-                if let documentEditor = documentEditor {
+                if let documentEditor = documentEditor, !isLoading {
                     Form(documentEditor: documentEditor)
                         .tint(.red)
                 } else {
@@ -111,24 +119,35 @@ struct AllSampleJSONs: View, FormChangeEvent {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .navigationTitle("Formula Samples")
+            .navigationTitle(lockToFileName ? selectedJSONFile : "Formula Samples")
             .navigationBarTitleDisplayMode(.inline)
         }
         .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
+        .onAppear { loadDocumentAsync(fileName: selectedJSONFile) }
         .onChange(of: selectedJSONFile) { newFileName in
-            loadDocument(fileName: newFileName)
+            if !lockToFileName { loadDocumentAsync(fileName: newFileName) }
         }
     }
     
-    private func loadDocument(fileName: String) {
-        do {
-            let document = sampleJSONDocument(fileName: fileName)
-            documentEditor = DocumentEditor(document: document, events: self, validateSchema: false)
-        } catch {
-            print("Error loading document: \(fileName) - \(error)")
-            // Fallback to default if loading fails
-            let document = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
-            documentEditor = DocumentEditor(document: document, events: self, validateSchema: false)
+    private func loadDocumentAsync(fileName: String) {
+        isLoading = true
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let document = sampleJSONDocument(fileName: fileName)
+                // Construct the editor off the main thread to avoid UI hitching
+                let editor = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)
+                DispatchQueue.main.async {
+                    self.documentEditor = editor
+                    self.isLoading = false
+                }
+            } catch {
+                let fallback = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
+                let editor = DocumentEditor(document: fallback, events: self, validateSchema: false, license: licenseKey)
+                DispatchQueue.main.async {
+                    self.documentEditor = editor
+                    self.isLoading = false
+                }
+            }
         }
     }
 
