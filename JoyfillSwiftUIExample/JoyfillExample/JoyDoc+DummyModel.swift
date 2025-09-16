@@ -2,6 +2,7 @@ import Foundation
 import JoyfillModel
 
 extension JoyDoc {
+
     func setDocument() -> JoyDoc {
         var document = self
         document.id = "6629fc6367b3a40644096182"
@@ -526,7 +527,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredImagefieldsWithoutValue() -> JoyDoc {
+    func setRequiredImagefieldsWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "image"
         field.id = "6629fab36e8925135f0cdd4f"
@@ -546,6 +547,7 @@ extension JoyDoc {
         field.tipVisible = false
         field.multi = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
@@ -742,24 +744,6 @@ extension JoyDoc {
         return document
     }
     
-    func setNumberField() -> JoyDoc {
-        var field = JoyDocField()
-        field.type = "number"
-        field.id = "6629fb3df03de10b26270ab3"
-        field.identifier = "field_6629fb3fabb87e37c9578b8b"
-        field.title = "Number"
-        field.description = ""
-        field.value = .double(98789)
-        field.required = false
-        field.tipTitle = ""
-        field.tipDescription = ""
-        field.tipVisible = false
-        field.file = "6629fab3c0ba3fb775b4a55c"
-        var document = self
-        document.fields.append(field)
-        return document
-    }
-    
     // Status - invalid
     func setRequiredNumberFieldWithoutValue() -> JoyDoc {
         var field = JoyDocField()
@@ -816,7 +800,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredDateFieldWithoutValue() -> JoyDoc {
+    func setRequiredDateFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "date"
         field.id = "6629fb44c79bb16ce072d233"
@@ -829,6 +813,7 @@ extension JoyDoc {
         field.tipDescription = ""
         field.tipVisible = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
@@ -988,7 +973,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredDropdownFieldWithoutValue() -> JoyDoc {
+    func setRequiredDropdownFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "dropdown"
         field.id = "6629fb77593e3791638628bb"
@@ -997,6 +982,7 @@ extension JoyDoc {
         field.description = ""
         field.value = .string("")
         field.required = true
+        field.hidden = hidden
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false
@@ -1197,7 +1183,7 @@ extension JoyDoc {
     }
     
     // Status - invalid
-    func setRequiredSignatureFieldWithoutValue() -> JoyDoc {
+    func setRequiredSignatureFieldWithoutValue(hidden: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "signature"
         field.id = "6629fbb8cd16c0c4d308a252"
@@ -1210,6 +1196,7 @@ extension JoyDoc {
         field.tipDescription = ""
         field.tipVisible = false
         field.file = "6629fab3c0ba3fb775b4a55c"
+        field.hidden = hidden
         var document = self
         document.fields.append(field)
         return document
@@ -1621,7 +1608,7 @@ extension JoyDoc {
         return document
     }
     
-    func setNumberPosition() -> JoyDoc {
+    func setNumberPositionInMobile() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb3df03de10b26270ab3"
         fieldPosition.displayType = "original"
@@ -1633,10 +1620,11 @@ extension JoyDoc {
         fieldPosition.type = .number
         var document = self
         document.files[0].pages?[0].fieldPositions?.append(fieldPosition)
+
         return document
     }
-    
-    func setNumberPositionInMobile() -> JoyDoc {
+
+    func setNumberPosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb3df03de10b26270ab3"
         fieldPosition.displayType = "original"
@@ -1650,7 +1638,7 @@ extension JoyDoc {
         document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
         return document
     }
-    
+
     func setDatePosition() -> JoyDoc {
         var fieldPosition = FieldPosition()
         fieldPosition.field = "6629fb44c79bb16ce072d233"
@@ -2326,13 +2314,14 @@ extension JoyDoc {
         return updatedDocument
     }
     
-    func setNumberField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setNumberField(hidden: Bool = false, value: ValueUnion? = .double(98789)) -> JoyDoc {
         var field = JoyDocField()
         field.type = "number"
         field.id = "6629fb3df03de10b26270ab3"
         field.identifier = "field_6629fb3fabb87e37c9578b8b"
         field.title = "Number"
         field.description = ""
+        field.required = false
         field.value = value
         field.tipTitle = ""
         field.tipDescription = ""
@@ -2344,7 +2333,7 @@ extension JoyDoc {
         return document
     }
     
-    func setTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setTextField(hidden: Bool, value: ValueUnion, required: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "text"
         field.id = "66aa2865da10ac1c7b7acb1d"
@@ -2357,6 +2346,7 @@ extension JoyDoc {
         field.tipVisible = false
         field.file = "66a0fdb2acd89d30121053b9"
         field.hidden = hidden
+        field.required = required
         var document = self
         document.fields.append(field)
         return document
@@ -2432,7 +2422,7 @@ extension JoyDoc {
     }
     
     //Set multiline field
-    func setMultilineTextField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setMultilineTextField(hidden: Bool, value: ValueUnion, required: Bool = false) -> JoyDoc {
         var field = JoyDocField()
         field.type = "textarea"
         field.id = "6629fb2b9a487ce1c1f35f6c"
@@ -2441,7 +2431,7 @@ extension JoyDoc {
         field.hidden = hidden
         field.description = ""
         field.value = value
-        field.required = false
+        field.required = required
         field.tipTitle = ""
         field.tipDescription = ""
         field.tipVisible = false

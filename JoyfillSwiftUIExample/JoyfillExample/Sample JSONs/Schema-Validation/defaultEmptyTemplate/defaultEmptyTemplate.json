@@ -1,0 +1,45 @@
+{
+  "_id": "686fcc012bc57a59b7246d4d",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_686fcc012bc57a59b7246d4d",
+  "name": "Default Empty Template",
+  "createdOn": 1752157196321,
+  "files": [
+    {
+      "_id": "686fcc0108d51ab760970d0a",
+      "metadata": {},
+      "name": "Default Empty Template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "686fcc015718a8cc66ceb49d",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "686fcc015718a8cc66ceb49d"
+      ],
+      "views": []
+    }
+  ],
+  "fields": [],
+  "deleted": false,
+  "categories": []
+}

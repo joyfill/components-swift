@@ -1,0 +1,222 @@
+{
+  "_id": "6867ae9466520f3579d54e36",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_6867ae9466520f3579d54e36",
+  "name": "Validator template",
+  "createdOn": 1751625365737,
+  "files": [
+    {
+      "_id": "6867ae9483bfee0fd65acc1f",
+      "metadata": {},
+      "name": "Validator template",
+      "version": 1,
+      "styles": {
+        "margin": 4,
+        "titleFontSize": 14,
+        "titleFontColor": "#0700ff",
+        "titleFontStyle": "italic",
+        "titleTextDecoration": "underline",
+        "titleTextTransform": "uppercase",
+        "fontSize": 14,
+        "backgroundColor": "#ffdb00",
+        "borderColor": "#ee0bff",
+        "borderRadius": 2,
+        "borderWidth": 2
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "field": "6867ae9d4b148b77267d6edd",
+              "displayType": "original",
+              "width": 4,
+              "height": 8,
+              "x": 0,
+              "y": 0,
+              "_id": "6867ae9f1b57b7337c3df9b8",
+              "type": "text"
+            }
+          ],
+          "metadata": {},
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "6867ae9406fcfc69d003292f"
+        },
+        {
+          "name": "",
+          "fieldPositions": [
+            {
+              "field": "6867f2393ed84f14a6c4df62",
+              "displayType": "original",
+              "width": 4,
+              "height": 8,
+              "x": 0,
+              "y": 0,
+              "_id": "6867f23aee7ba45766305079",
+              "type": "text"
+            }
+          ],
+          "metadata": {},
+          "logic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "file": "6867ae9483bfee0fd65acc1f",
+                "page": "6867ae9406fcfc69d003292f",
+                "field": "6867ae9d4b148b77267d6edd",
+                "condition": "*=",
+                "_id": "6867f2560361a1fff1a0ddd0"
+              }
+            ],
+            "_id": "6867f2560361a1fff1a0ddcf"
+          },
+          "hidden": true,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "6867f23773b8d0d7db279244"
+        }
+      ],
+      "pageOrder": [
+        "6867ae9406fcfc69d003292f",
+        "6867f23773b8d0d7db279244"
+      ],
+      "views": [
+        {
+          "_id": "687610ebd41fdada5e969de5",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "field": "6867ae9d4b148b77267d6edd",
+                  "displayType": "original",
+                  "width": 1,
+                  "height": 64,
+                  "x": 0,
+                  "y": 0,
+                  "_id": "6867ae9f1b57b7337c3df9b8",
+                  "type": "text",
+                  "titleDisplay": "inline"
+                }
+              ],
+              "metadata": {},
+              "hidden": false,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "6867ae9406fcfc69d003292f",
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": ""
+            },
+            {
+              "name": "",
+              "fieldPositions": [
+                {
+                  "field": "6867f2393ed84f14a6c4df62",
+                  "displayType": "original",
+                  "width": 408,
+                  "height": 64,
+                  "x": 0,
+                  "y": 0,
+                  "_id": "6867f23aee7ba45766305079",
+                  "type": "text",
+                  "titleDisplay": "inline"
+                }
+              ],
+              "metadata": {},
+              "logic": {
+                "action": "show",
+                "eval": "and",
+                "conditions": [
+                  {
+                    "file": "6867ae9483bfee0fd65acc1f",
+                    "page": "6867ae9406fcfc69d003292f",
+                    "field": "6867ae9d4b148b77267d6edd",
+                    "condition": "*=",
+                    "_id": "6867f2560361a1fff1a0ddd0"
+                  }
+                ],
+                "_id": "6867f2560361a1fff1a0ddcf"
+              },
+              "hidden": true,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "6867f23773b8d0d7db279244",
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "6867ae9406fcfc69d003292f",
+            "6867f23773b8d0d7db279244"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "type": "text",
+      "_id": "6867ae9d4b148b77267d6edd",
+      "identifier": "field_6867ae9f823c1affdafca6b4",
+      "title": "Text",
+      "description": "",
+      "required": true,
+      "tipTitle": "",
+      "tipDescription": "",
+      "tipVisible": false,
+      "metadata": {},
+      "file": "6867ae9483bfee0fd65acc1f"
+    },
+    {
+      "type": "text",
+      "_id": "6867f2393ed84f14a6c4df62",
+      "identifier": "field_6867f23a80133de332d39a74",
+      "title": "Text",
+      "description": "",
+      "required": false,
+      "tipTitle": "",
+      "tipDescription": "",
+      "tipVisible": false,
+      "metadata": {},
+      "file": "6867ae9483bfee0fd65acc1f"
+    }
+  ],
+  "deleted": false,
+  "categories": []
+}

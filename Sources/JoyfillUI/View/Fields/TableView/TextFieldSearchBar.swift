@@ -16,7 +16,6 @@ struct TextFieldSearchBar: View {
             .font(.system(size: 12))
             .foregroundColor(.black)
             .padding(.all, 4)
-            .frame(height: 25)
             .background(.white)
             .cornerRadius(6)
             .padding(.leading, 8)

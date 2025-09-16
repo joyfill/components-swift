@@ -21,7 +21,7 @@ struct CollectionViewCellBuilder: View {
             TableDropDownOptionListView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case .image:
-            TableImageView(cellModel: $cellModel)
+            TableImageView(cellModel: $cellModel, viewModel: viewModel)
                 .disabled(cellModel.editMode == .readonly)
         case .block:
             TableBlockView(cellModel: $cellModel)
@@ -37,7 +37,7 @@ struct CollectionViewCellBuilder: View {
         case .progress:
             CollectionProgressView(cellModel: $cellModel, viewModel: viewModel)
         case .barcode:
-            TableBarcodeView(cellModel: $cellModel)
+            TableBarcodeView(cellModel: $cellModel, viewModel: viewModel)
                 .disabled(cellModel.editMode == .readonly)
         case .signature:
             TableSignatureView(cellModel: $cellModel)

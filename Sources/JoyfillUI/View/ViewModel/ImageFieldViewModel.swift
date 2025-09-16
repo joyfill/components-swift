@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //
 
@@ -26,13 +26,13 @@ class APIService {
                 let imageData = try Data(contentsOf: url)
                 completion(imageData)
             } catch {
-                print("Error loading image from file URL: \(error.localizedDescription)")
+                Log("Error loading image from file URL: \(error.localizedDescription)", type: .warning)
                 completion(nil)
             }
         } else {
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
                 guard let data = data, error == nil else {
-                    print("Error loading image from URL: \(error?.localizedDescription ?? "Unknown error")")
+                    Log("Error loading image from URL: \(error?.localizedDescription ?? "Unknown error")", type: .warning)
                     completion(nil)
                     return
                 }
@@ -56,7 +56,7 @@ public class ImageFieldViewModel: ObservableObject {
                 if let imageData = imageData, let image = UIImage(data: imageData) {
                     loadedImages.append(image)
                 } else {
-                    print("Failed to load image from URL: \(String(describing: imageURL))")
+                    Log("Failed to load image from URL: \(String(describing: imageURL))", type: .warning)
                 }
             }
         }
@@ -71,7 +71,7 @@ public class ImageFieldViewModel: ObservableObject {
             if let imageData = imageData, let image = UIImage(data: imageData) {
                 completion(image)
             } else {
-                print("Failed to load image from URL: \(String(describing: imageURL))")
+                Log("Failed to load image from URL: \(String(describing: imageURL))", type: .warning)
                 completion(nil)
             }
         }

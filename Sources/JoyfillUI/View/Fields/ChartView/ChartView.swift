@@ -24,7 +24,7 @@ struct ChartView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(chartDataModel.fieldHeaderModel)
+            FieldHeaderView(chartDataModel.fieldHeaderModel, isFilled: !(valueElements.isEmpty))
             
 //            RoundedRectangle(cornerRadius: 10)
 //                .stroke(Color.allFieldBorderColor, lineWidth: 1)

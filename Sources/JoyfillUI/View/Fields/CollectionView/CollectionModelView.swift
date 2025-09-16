@@ -12,86 +12,64 @@ struct CollectionRowView: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var rowDataModel: RowDataModel
-    var longestBlockText: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            let columns = viewModel.tableDataModel.schema[rowDataModel.rowType.isRow ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey]?.tableColumns ?? []
+        LazyHStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                let column = columns.first(where: { $0.id == cellModel.data.id })
+                let column = viewModel.columnsMap[cellModel.data.id]
+                let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                    .frame(
-                        minWidth: viewModel.cellWidthMap[cellModel.data.id],
-                        maxWidth: viewModel.cellWidthMap[cellModel.data.id],
-                        minHeight: 50,
-                        maxHeight: .infinity
-                    )
+                    .frame(width: 200, height: 60)
                     .overlay(
-                        ZStack {
-                            // Outer border
-                            RoundedRectangle(cornerRadius: 0)
-                                .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
-
-                            if let required = column?.required, required, !cellModel.data.isCellFilled {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .inset(by: 2)
-                                    .stroke(colorScheme == .dark ? Color.pink : Color.red, lineWidth: colorScheme == .dark ? 1 : 0.5)
-                            }
-                        }
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
                     )
+                    .overlay {
+                        if showRequired {
+                            RoundedRectangle(cornerRadius: 8)
+                                .inset(by: 2)
+                                .stroke(colorScheme == .dark ? Color.pink : Color.red,
+                                        lineWidth: colorScheme == .dark ? 1 : 0.5)
+                        }
+                    }
             }
         }
     }
 }
 
 struct CollectionModalView : View {
-    @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
     @State private var showEditMultipleRowsSheetView: Bool = false
+    @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
-    var longestBlockText: String = ""
 
     init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
-        UIScrollView.appearance().bounces = false
-        longestBlockText = viewModel.tableDataModel.getLongestBlockText()
     }
 
     var body: some View {
         VStack {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true })
+                onEditTap: { showEditMultipleRowsSheetView = true },
+                onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
             }
+            .sheet(isPresented: $showFilterModal) {
+                CollectionFilterModal(viewModel: viewModel)
+            }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
-            clearFilter()
         })
-        .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
-            viewModel.tableDataModel.filterRowsIfNeeded()
-            sortRowsIfNeeded()
-        }
-        .onChange(of: viewModel.tableDataModel.filterModels ) { _ in
-            viewModel.tableDataModel.filterRowsIfNeeded()
-            sortRowsIfNeeded()
-            viewModel.tableDataModel.emptySelection()
-        }
-        .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
-//            for model in viewModel.tableDataModel.filteredcellModels {
-//                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
-//                    viewModel.tableDataModel.cellModels[index] = model
-//                }
-//            }
-        }
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(
                 title: Text("Reset Selection"),
@@ -106,109 +84,9 @@ struct CollectionModalView : View {
         }
     }
 
-    func clearFilter() {
-        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
-        for i in 0..<viewModel.tableDataModel.filterModels.count {
-            viewModel.tableDataModel.filterModels[i].filterText = ""
-        }
-        viewModel.tableDataModel.emptySelection()
-    }
-
-    func sortRowsIfNeeded() {
-        if currentSelectedCol != Int.min {
-            guard viewModel.tableDataModel.sortModel.order != .none else { return }
-            viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowModel1, rowModel2 in
-                let column1 = rowModel1.cells[currentSelectedCol].data
-                let column2 = rowModel2.cells[currentSelectedCol].data
-                switch column1.type {
-                case .text:
-                    switch viewModel.tableDataModel.sortModel.order {
-                    case .ascending:
-                        return (column1.title ?? "") < (column2.title ?? "")
-                    case .descending:
-                        return (column1.title ?? "") > (column2.title ?? "")
-                    case .none:
-                        return true
-                    }
-                case .dropdown:
-                    switch viewModel.tableDataModel.sortModel.order {
-                    case .ascending:
-                        return (column1.selectedOptionText ?? "") < (column2.selectedOptionText ?? "")
-                    case .descending:
-                        return (column1.selectedOptionText ?? "") > (column2.selectedOptionText ?? "")
-                    case .none:
-                        return true
-                    }
-                case .number:
-                    switch viewModel.tableDataModel.sortModel.order {
-                    case .ascending:
-                        return (column1.number ?? 0) < (column2.number ?? 0)
-                    case .descending:
-                        return (column1.number ?? 0) > (column2.number ?? 0)
-                    case .none:
-                        return true
-                    }
-                case .barcode:
-                    switch viewModel.tableDataModel.sortModel.order {
-                    case .ascending:
-                        return (column1.title ?? "") < (column2.title ?? "")
-                    case .descending:
-                        return (column1.title ?? "") > (column2.title ?? "")
-                    case .none:
-                        return true
-                    }
-                default:
-                    return false
-                }
-            }
-        }
-    }
-
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                let rootSchema = viewModel.tableDataModel.schema[viewModel.rootSchemaKey]
-
-                if #available(iOS 16, *) {
-                    ScrollView([.horizontal], showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            RootTitleRowView(viewModel: viewModel, textHeight: textHeight, colorScheme: colorScheme, rootSchema: rootSchema)
-                                .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
-                                .offset(x: offset.x)
-
-                            HStack(spacing: 0) {
-                                rowSelectorHeader
-
-                                CollectionColumnHeaderView(viewModel: viewModel,
-                                                           tableColumns: viewModel.tableDataModel.tableColumns,
-                                                           currentSelectedCol: $currentSelectedCol,
-                                                           colorScheme: colorScheme,
-                                                           isHeaderNested: false)
-                                .offset(x: offset.x)
-                            }
-                        }
-                    }
-                    .scrollDisabled(true)
-                } else {
-                    ScrollView([.horizontal], showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            RootTitleRowView(viewModel: viewModel, textHeight: textHeight, colorScheme: colorScheme, rootSchema: rootSchema)
-                                .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
-                                .offset(x: offset.x)
-
-                            HStack(spacing: 0) {
-                                rowSelectorHeader
-                                CollectionColumnHeaderView(viewModel: viewModel,
-                                                           tableColumns: viewModel.tableDataModel.tableColumns,
-                                                           currentSelectedCol: $currentSelectedCol,
-                                                           colorScheme: colorScheme,
-                                                           isHeaderNested: false)
-                                .offset(x: offset.x)
-                            }
-                        }
-                    }
-                }
-
                 collection
                     .coordinateSpace(name: "scroll")
             }
@@ -224,7 +102,7 @@ struct CollectionModalView : View {
             if viewModel.showRowSelector  {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
-                    .foregroundColor(viewModel.tableDataModel.cellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
+                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 || viewModel.tableDataModel.hasActiveFilters ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
                         if !viewModel.tableDataModel.allRowSelected {
                             viewModel.tableDataModel.selectAllRows()
@@ -232,8 +110,8 @@ struct CollectionModalView : View {
                             viewModel.tableDataModel.emptySelection()
                         }
                     }
-                    .disabled(viewModel.tableDataModel.cellModels.count == 0)
-                    .accessibilityIdentifier("SelectAllRowSelectorButton")
+                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0 || viewModel.tableDataModel.hasActiveFilters)
+                    .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
             Text("#")
@@ -244,7 +122,6 @@ struct CollectionModalView : View {
         .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 80, height: 60)
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-        .offset(x: offset.x)
     }
 
     var collection: some View {
@@ -252,27 +129,54 @@ struct CollectionModalView : View {
             GeometryReader { geometry in
                 ScrollView([.vertical, .horizontal], showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(Array($viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.element.wrappedValue.rowID) { (index, $rowCellModels) in
-                            HStack(spacing: 0) {
-                                CollectionRowsHeaderView(viewModel: viewModel, rowModel: $rowCellModels, colorScheme: colorScheme, index: index)
-
-                                switch rowCellModels.rowType {
-                                case .row:
-                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                        let rootSchema = viewModel.tableDataModel.schema[viewModel.rootSchemaKey]
+                        RootTitleRowView(viewModel: viewModel, textHeight: textHeight, colorScheme: colorScheme, rootSchema: rootSchema)
+                            .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
+                        
+                        HStack(spacing: 0) {
+                            rowSelectorHeader
+                            
+                            CollectionColumnHeaderView(viewModel: viewModel,
+                                                       tableColumns: viewModel.tableDataModel.tableColumns,
+                                                       currentSelectedCol: $currentSelectedCol,
+                                                       colorScheme: colorScheme,
+                                                       isHeaderNested: false)
+                        }
+                        
+                        var safeFilteredModels = viewModel.tableDataModel.filteredcellModels
+                        ForEach(Array(safeFilteredModels.enumerated()), id: \.element.rowID) { (index, rowCellModels) in
+                            if index < safeFilteredModels.count {
+                                HStack(spacing: 0) {
+                                    let bindingRowModel = Binding(get: {
+                                        safeFilteredModels[index]
+                                    }, set: { newValue in
+                                        if index < viewModel.tableDataModel.filteredcellModels.count {
+                                            viewModel.tableDataModel.filteredcellModels[index] = newValue
+                                            safeFilteredModels[index] = newValue
+                                        } else {
+                                            Log("Row not found at this index ", type: .error)
+                                        }
+                                    })
+                                    CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index)
+                                    
+                                    switch rowCellModels.rowType {
+                                    case .row:
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel)
+                                            .frame(height: 60)
+                                    case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel)
+                                            .frame(height: 60)
+                                    case .header(level: let level, tableColumns: let tableColumns):
+                                        CollectionColumnHeaderView(viewModel: viewModel,
+                                                                   tableColumns: tableColumns ?? [],
+                                                                   currentSelectedCol: $currentSelectedCol,
+                                                                   colorScheme: colorScheme,
+                                                                   isHeaderNested: true)
                                         .frame(height: 60)
-                                case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
-                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
-                                        .frame(height: 60)
-                                case .header(level: let level, tableColumns: let tableColumns):
-                                    CollectionColumnHeaderView(viewModel: viewModel,
-                                                               tableColumns: tableColumns ?? [],
-                                                               currentSelectedCol: $currentSelectedCol,
-                                                               colorScheme: colorScheme,
-                                                               isHeaderNested: true)
-                                    .frame(height: 60)
-                                case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
-                                    CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID:  parentID ?? ("",""))
-                                        .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                                    case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
+                                        CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
+                                            .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                                    }
                                 }
                             }
                         }
@@ -280,13 +184,6 @@ struct CollectionModalView : View {
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
-                    .background( GeometryReader { geo in
-                        Color.clear
-                            .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
-                    })
-                    .onPreferenceChange(ViewOffsetKey.self) { value in
-                        offset = value
-                    }
                 }
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
@@ -310,8 +207,9 @@ struct CollectionExpanderView: View {
 
     var body: some View {
         HStack {
-            if viewModel.tableDataModel.mode != .readonly {
+            if viewModel.tableDataModel.mode != .readonly && !viewModel.tableDataModel.hasActiveFilters {
                 Button(action: {
+//                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
                     viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
@@ -326,7 +224,7 @@ struct CollectionExpanderView: View {
                 .accessibilityIdentifier("collectionSchemaAddRowButton")
             }
             let rowID = parentID.rowID
-            let children = viewModel.getChildren(forRowId: rowID, in: viewModel.tableDataModel.valueToValueElements ?? [])
+            let children = viewModel.rowToValueElementMap[rowID]?.childrens
 
             let schemaID = schemaValue?.0 ?? ""
             let childValueElements = children?[schemaID]?.valueToValueElements
@@ -362,7 +260,7 @@ struct RootTitleRowView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if viewModel.tableDataModel.mode != .readonly {
+            if viewModel.tableDataModel.mode != .readonly && !viewModel.tableDataModel.hasActiveFilters {
                 Button(action: {
                     viewModel.addRow()
                 }) {
@@ -441,7 +339,7 @@ struct CollectionColumnHeaderView: View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: viewModel.cellWidthMap[column.id ?? ""])
+                    .frame(width: 200)
                     .frame(height: 60)
                     .overlay(
                         Rectangle()
@@ -457,6 +355,7 @@ struct CollectionColumnHeaderView: View {
                 .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .frame(width: viewModel.collectionWidth, alignment: .leading)
         .padding(.vertical, 1)
     }
 }
@@ -513,9 +412,11 @@ struct CollectionRowsHeaderView: View {
                                 Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                     .frame(width: 40, height: 60)
                                     .border(Color.tableCellBorderColor)
+                                    .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
                                     .onTapGesture {
                                         viewModel.expandTables(rowDataModel: rowModel, level: level)
                                     }
+                                    .accessibilityIdentifier("CollectionExpandCollapseNestedButton\(nestedIndex)")
                             } else {
                                 EmptyRectangleWithBorders(colorScheme: colorScheme, width: 40, height: 60)
                             }
@@ -548,16 +449,15 @@ struct CollectionRowsHeaderView: View {
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
-                            viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
                         }
-                        .accessibilityIdentifier("MyButton")
-
+                        .accessibilityIdentifier("selectRowItem\(index)")
                 }
             case .header:
                 if viewModel.showRowSelector {
                     Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "circle.square.fill" : "square")
                         .frame(width: 40, height: 60)
-                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 ? Color.gray.opacity(0.4) : nil)
+                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || viewModel.tableDataModel.hasActiveFilters ? Color.gray.opacity(0.4) : nil)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             if !viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) {
@@ -566,7 +466,8 @@ struct CollectionRowsHeaderView: View {
                                 viewModel.tableDataModel.emptySelection()
                             }
                         }
-                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
+                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || viewModel.tableDataModel.hasActiveFilters)
+                        .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):
                 if viewModel.showRowSelector {
@@ -575,9 +476,9 @@ struct CollectionRowsHeaderView: View {
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
-                            viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
                         }
-                        .accessibilityIdentifier("MyButton")
+                        .accessibilityIdentifier("selectNestedRowItem\(index)")
                 }
             case .tableExpander:
                 EmptyView()

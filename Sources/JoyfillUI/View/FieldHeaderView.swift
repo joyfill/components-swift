@@ -10,9 +10,11 @@ struct FieldHeaderView: View {
     @State private var alertDescription: String? = nil
     @State private var showAlert: Bool = false
     let fieldHeaderModel: FieldHeaderModel?
+    let isFilled: Bool
     
-    public init(_ fieldHeaderModel: FieldHeaderModel?) {
+    public init(_ fieldHeaderModel: FieldHeaderModel?, isFilled: Bool = false) {
         self.fieldHeaderModel = fieldHeaderModel
+        self.isFilled = isFilled
     }
     
     var body: some View {
@@ -23,7 +25,7 @@ struct FieldHeaderView: View {
                 
                 if fieldHeaderModel?.required == true {
                     Image(systemName: "asterisk")
-                        .foregroundColor(.red)
+                        .foregroundColor(isFilled ? .gray : .red)
                         .imageScale(.small)
                 }
                 

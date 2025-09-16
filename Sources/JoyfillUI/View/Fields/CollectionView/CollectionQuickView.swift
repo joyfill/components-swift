@@ -10,8 +10,7 @@ import JoyfillModel
 
 struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
-    private let screenWidth = UIScreen.main.bounds.width
-    @ObservedObject private var viewModel: CollectionViewModel
+    @StateObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
@@ -20,31 +19,58 @@ struct CollectionQuickView : View {
     @State private var refreshID = UUID()
     
     public init(tableDataModel: TableDataModel, eventHandler: FieldChangeEvents) {
-        self.viewModel = CollectionViewModel(tableDataModel: tableDataModel)
+        self._viewModel = StateObject(wrappedValue: CollectionViewModel(tableDataModel: tableDataModel))
         self.tableDataModel = tableDataModel
         self.eventHandler = eventHandler
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(tableDataModel.fieldHeaderModel)
+            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
+
+            if viewModel.isLoading {
+                loadingView
+            } else {
+                collectionContent
+            }
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack {
+            HStack {
+                Spacer()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .scaleEffect(1.2)
+                Text("Loading collection...")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+            .frame(height: 120)
+        }
+        .frame(maxWidth: .infinity)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+        )
+    }
+    
+    private var collectionContent: some View {
+        VStack(alignment: .leading) {
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
-                    ScrollView([.horizontal]) {
-                        colsHeader
-                            .offset(x: offset.x)
-                    }
-                    .disabled(true)
-                    .background(Color.clear)
-                    .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
+                    colsHeader
+                        .disabled(true)
+                        .background(.clear)
+                        .cornerRadius(14, corners: [.topRight, .topLeft], borderColor: Color.tableCellBorderColor)
+                        .frame(height: rowHeight)
                     
                     collection
-                        .id(refreshID)
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
-                .frame(maxHeight:
-                        (CGFloat((viewModel.tableDataModel.cellModels.isEmpty ? 2:  viewModel.tableDataModel.cellModels.count)) * rowHeight + rowHeight)
-                )
+                .frame(height: min(CGFloat(viewModel.tableDataModel.filteredcellModels.count), 3) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -52,7 +78,7 @@ struct CollectionQuickView : View {
             )
             
             Button(action: {
-                isTableModalViewPresented.toggle()
+                isTableModalViewPresented = true
                 eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
@@ -63,9 +89,10 @@ struct CollectionQuickView : View {
                     Image(systemName: "chevron.forward")
                         .foregroundStyle(.blue)
                         .font(.system(size: 8, weight: .heavy))
-                        .padding(EdgeInsets(top: 2, leading: 2, bottom: 0, trailing: 8))
+                        .padding(.horizontal, 4)
                     
-                    Text(viewModel.tableDataModel.viewMoreText)
+                    Text(viewModel.tableDataModel.collectionRowsCount)
+                        .darkLightThemeColor()
                         .font(.system(size: 16))
                 }
                 .foregroundStyle(.black)
@@ -86,55 +113,56 @@ struct CollectionQuickView : View {
             .frame(width: 0, height: 0)
             .hidden()
         }
-        .onAppear() {
-            refreshID = UUID()
-        }
     }
     
     var colsHeader: some View {
-        HStack(alignment: .top, spacing: 0) {
-            ForEach(viewModel.tableDataModel.tableColumns.prefix(3), id: \.id) { col in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id!))
-                        .padding(.horizontal, 4)
+        GeometryReader { geometry in
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(viewModel.tableDataModel.tableColumns.prefix(3), id: \.id) { col in
+                    ZStack {
+                        Rectangle()
+                            .stroke()
+                            .foregroundColor(Color.tableCellBorderColor)
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
+                            .padding(.horizontal, 4)
+                    }
+                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                    .frame(width: geometry.size.width / 3, height: rowHeight)
                 }
-                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .frame(width: (screenWidth / 3) - 8, height: rowHeight)
             }
         }
     }
     
     var collection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            let rowsDataModels = viewModel.getThreeRowsForQuickView()
-            ForEach(rowsDataModels, id: \.self) { rowDataModel in
-                HStack(alignment: .top, spacing: 0) {
-                    ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
-                        let cell = rowDataModel.cells[index]
-                        
-                        let cellModel = TableCellModel(rowID: cell.rowID,
-                                                       data: cell.data,
-                                                       documentEditor: viewModel.tableDataModel.documentEditor,
-                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                       viewMode: .quickView,
-                                                       editMode: viewModel.tableDataModel.mode,
-                                                       didChange: nil)
-                        ZStack {
-                            Rectangle()
-                                .stroke()
-                                .foregroundColor(Color.tableCellBorderColor)
-                            CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 0) {
+                let rowsDataModels = viewModel.getThreeRowsForQuickView()
+                ForEach(rowsDataModels, id: \.self) { rowDataModel in
+                    HStack(alignment: .top, spacing: 0) {
+                        ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
+                            let cell = rowDataModel.cells[index]
+                            
+                            let cellModel = TableCellModel(rowID: cell.rowID,
+                                                           timezoneId: cell.timezoneId,
+                                                           data: cell.data,
+                                                           documentEditor: viewModel.tableDataModel.documentEditor,
+                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                           viewMode: .quickView,
+                                                           editMode: viewModel.tableDataModel.mode,
+                                                           didChange: nil)
+                            ZStack {
+                                Rectangle()
+                                    .stroke()
+                                    .foregroundColor(Color.tableCellBorderColor)
+                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
+                            }
+                            .frame(width: geometry.size.width / 3, height: rowHeight)
                         }
-                        .frame(width: (screenWidth / 3) - 8, height: rowHeight)
                     }
                 }
             }
+            .id(viewModel.uuid)
+            .disabled(true)
         }
-        .id(viewModel.uuid)
-        .disabled(true)
     }
 }
-

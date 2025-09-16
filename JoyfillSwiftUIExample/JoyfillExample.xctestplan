@@ -22,6 +22,13 @@
         "identifier" : "1307CF182BE36ECD00B19FBA",
         "name" : "JoyfillUITests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:JoyfillExample.xcodeproj",
+        "identifier" : "134FC0762BDA82E9008B7030",
+        "name" : "JoyfillTests"
+      }
     }
   ],
   "version" : 1

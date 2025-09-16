@@ -1,0 +1,359 @@
+{
+  "_id": "68779ec00f4a740e6db5f261",
+  "type": "template",
+  "name": "NO-1284 Optional Properties Removed Template",
+  "createdOn": 1752669902986,
+  "files": [
+    {
+      "_id": "68779ec0c656659458e50af5",
+      "name": "NO-1284 Optional Properties Removed Template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "6877d3d484b500fd4a5c22f7",
+              "type": "text",
+              "field": "6877d3cd6b4efa3213718674",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d56610cf743d92d469",
+              "type": "text",
+              "field": "6877d3d476f67406d6f6c544",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d768d4fe347907fdcb",
+              "type": "text",
+              "field": "6877d3d646718f6becc75cb0",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d83dd1007b01648075",
+              "type": "text",
+              "field": "6877d3d77d3d39593eb5ef64",
+              "displayType": "original",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6877d3d9ae3cbb5da3c72d70",
+              "type": "text",
+              "field": "6877d3d8df9aeb108b70c1f5",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68789cf2d74eef3464c73e4c",
+              "type": "chart",
+              "field": "68789ce9581aeaade85af95e",
+              "displayType": "original",
+              "primaryDisplayOnly": false,
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 27
+            },
+            {
+              "_id": "68789cf3dd829a83fae50b13",
+              "type": "chart",
+              "field": "68789cf27b43cc1ee3273e42",
+              "displayType": "original",
+              "primaryDisplayOnly": false,
+              "x": 0,
+              "y": 51,
+              "width": 8,
+              "height": 96
+            }
+          ],
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "_id": "68779ec0ef32e5de07b769f3"
+        },
+        {
+          "_id": "6877e65f2dae346682842123",
+          "name": "PDF Page ",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 1,
+          "cols": 816,
+          "fieldPositions": [
+            {
+              "_id": "68789ddf0719af7dace2e929",
+              "type": "textarea",
+              "field": "68789dd6a18358ff40d8c9a1",
+              "displayType": "original",
+              "x": 38,
+              "y": 23,
+              "width": 456,
+              "height": 201
+            }
+          ],
+          "layout": "float",
+          "presentation": "transparent"
+        }
+      ],
+      "pageOrder": [
+        "68779ec0ef32e5de07b769f3",
+        "6877e65f2dae346682842123"
+      ],
+      "views": [
+        {
+          "_id": "6878ac3d4c1802ea995a6af7",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "6877d3d484b500fd4a5c22f7",
+                  "type": "text",
+                  "field": "6877d3cd6b4efa3213718674",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64
+                },
+                {
+                  "_id": "6877d3d56610cf743d92d469",
+                  "type": "text",
+                  "field": "6877d3d476f67406d6f6c544",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 64,
+                  "width": 1,
+                  "height": 64
+                },
+                {
+                  "_id": "6877d3d768d4fe347907fdcb",
+                  "type": "text",
+                  "field": "6877d3d646718f6becc75cb0",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 128,
+                  "width": 1,
+                  "height": 64
+                },
+                {
+                  "_id": "6877d3d83dd1007b01648075",
+                  "type": "text",
+                  "field": "6877d3d77d3d39593eb5ef64",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 192,
+                  "width": 1,
+                  "height": 64
+                },
+                {
+                  "_id": "6877d3d9ae3cbb5da3c72d70",
+                  "type": "text",
+                  "field": "6877d3d8df9aeb108b70c1f5",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 256,
+                  "width": 1,
+                  "height": 64
+                },
+                {
+                  "_id": "68789cf2d74eef3464c73e4c",
+                  "type": "chart",
+                  "field": "68789ce9581aeaade85af95e",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 320,
+                  "width": 1,
+                  "height": 216
+                },
+                {
+                  "_id": "68789cf3dd829a83fae50b13",
+                  "type": "chart",
+                  "field": "68789cf27b43cc1ee3273e42",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 536,
+                  "width": 1,
+                  "height": 216
+                
+                }
+              ],
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "_id": "68779ec0ef32e5de07b769f3",
+              "fileName": "",
+              "filePath": ""
+            },
+            {
+              "_id": "6877e65f2dae346682842123",
+              "name": "PDF Page ",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "fieldPositions": [
+                {
+                  "_id": "68789ddf0719af7dace2e929",
+                  "type": "textarea",
+                  "field": "68789dd6a18358ff40d8c9a1",
+                  "displayType": "original",
+
+                  "x": 0,
+                  "y": 23,
+                  "width": 408,
+                  "height": 180
+                }
+              ],
+              "layout": "grid",
+              "presentation": "normal",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "68779ec0ef32e5de07b769f3",
+            "6877e65f2dae346682842123"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3cd6b4efa3213718674",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d476f67406d6f6c544",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d646718f6becc75cb0",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d77d3d39593eb5ef64",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "6877d3d8df9aeb108b70c1f5",
+      "type": "text"
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "68789ce9581aeaade85af95e",
+      "type": "chart",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "68789cf27b43cc1ee3273e42",
+      "type": "chart",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 22,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 22,
+     
+      "value": [
+        {
+          "_id": "68789d7bd19352a0f8ab8c9f",
+          "points": [
+            {
+              "_id": "68789d7bff98dc5f5d820568",
+              "y": 22,
+              "x": 88
+            },
+            {
+              "_id": "68789d7b66f4441f3c4e14f3",
+              "y": 45,
+              "x": 79
+            },
+            {
+              "_id": "68789d7b1a0fb861f8ebf02b",
+              "y": 77,
+              "x": 99
+            },
+            {
+              "_id": "68789daa406bde36780896eb",
+              "y": 0,
+              "x": 0
+            },
+            {
+              "_id": "68789daac181c5533449eaad",
+              "y": 0,
+              "x": 0
+            }
+          ]
+        },
+        {
+          "_id": "68789d9ff1155b5094ce8dc3",
+          "points": [
+            {
+              "_id": "68789d9fa94b288e6b328f16",
+              "y": 55,
+              "x": 23
+            },
+            {
+              "_id": "68789d9f074ac0b1550a3c49",
+              "y": 78,
+              "x": 98
+            },
+            {
+              "_id": "68789d9f5151e7000b9e2096",
+              "y": 89,
+              "x": 76
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "68779ec0c656659458e50af5",
+      "_id": "68789dd6a18358ff40d8c9a1",
+      "type": "textarea"
+    }
+  ],
+  "deleted": false
+}

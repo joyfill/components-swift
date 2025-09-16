@@ -1,0 +1,71 @@
+{
+    "_id": "685750eff3216b45ffe73c80",
+    "identifier": "doc_685750eff3216b45ffe73c80",
+    "name": "New Doc",
+    "files": [
+        {
+            "_id": "685750ef698da1ab427761ba",
+            "name": "New File",
+            "pageOrder": [
+                "685750efeb612f4fac5819dd"
+            ],
+            "pages": [
+                {
+                    "_id": "685750efeb612f4fac5819dd",
+                    "name": "New Page",
+                    "width": 816,
+                    "height": 1056,
+                    "rowHeight": 8,
+                    "cols": 8,
+                    "fieldPositions": [
+                        {
+                            "_id": "685c178e0f41f590609f4bf6",
+                            "type": "text",
+                            "field": "685c17899719520979c0785d",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 0,
+                            "width": 4,
+                            "height": 8,
+                            "titleDisplay": "none"
+                        },
+                        {
+                            "_id": "685c1797f9b600e684ad6077",
+                            "type": "number",
+                            "field": "685c178e92ac1037adfcc697",
+                            "displayType": "original",
+                            "x": 4,
+                            "y": 0,
+                            "width": 4,
+                            "height": 8,
+                            "titleDisplay": "none"
+                        }
+                    ],
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "padding": 24
+                }
+            ],
+            "styles": {
+                "margin": 4
+            }
+        }
+    ],
+    "fields": [
+        {
+            "file": "685750ef698da1ab427761ba",
+            "_id": "685c17899719520979c0785d",
+            "type": "text",
+            "title": "Should be visible on mobile!",
+            "identifier": "field_685c178ea4d1c24d27b44d8e"
+        },
+        {
+            "file": "685750ef698da1ab427761ba",
+            "_id": "685c178e92ac1037adfcc697",
+            "type": "number",
+            "title": "Should be visible on mobile too!",
+            "identifier": "field_685c1797cf1e374a7f9abd4d"
+        }
+    ],
+    "type": "document"
+}

@@ -1,0 +1,612 @@
+{
+  "_id": "686fcc012bc57a59b7246d4d",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_686fcc012bc57a59b7246d4d",
+  "name": "NO-1284 Blank template",
+  "createdOn": 1752157196321,
+  "files": [
+    {
+      "_id": "686fcc0108d51ab760970d0a",
+      "metadata": {},
+      "name": "NO-1284 Blank template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "6870e614465d276b79493e6e",
+              "type": "text",
+              "field": "6870e460b6ab0e5991bcc26b",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e615950a3ae35d29b439",
+              "type": "text",
+              "field": "6870e61491c9694eea4a7d53",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e61715ae1e5b24a449a9",
+              "type": "text",
+              "field": "6870e6152e3c98688985c22e",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e65d0a270988ef778622",
+              "type": "text",
+              "field": "6870e617dec7f715891683a8",
+              "displayType": "original",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e65eafefb2a3967f58b7",
+              "type": "text",
+              "field": "6870e65d9c4ef49f9b6a8fb8",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870ec032bccfe83fc0c114f",
+              "type": "chart",
+              "field": "6870ebff2c2895ea985f1383",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 27,
+              "titleDisplay": "none"
+            },
+            {
+              "_id": "6870ec04822f96063e69f4d8",
+              "type": "chart",
+              "field": "6870ec036bc009d8a2b76ae6",
+              "displayType": "original",
+              "primaryDisplayOnly": false,
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 27,
+              "titleFontSize": 14,
+              "titleFontColor": "#0024ff",
+              "titleFontStyle": "italic",
+              "titleTextDecoration": "underline",
+              "titleTextTransform": "uppercase",
+              "fontSize": 14,
+              "fontColor": "#002fff",
+              "fontWeight": "bold",
+              "fontStyle": "italic",
+              "textDecoration": "underline",
+              "textTransform": "uppercase",
+              "backgroundColor": "#ffe500",
+              "borderColor": "#e200ff",
+              "primaryMaxHeight": 122
+            },
+            {
+              "_id": "6870ec0678cf032655cf7766",
+              "type": "chart",
+              "field": "6870ec04b0898a63cc4f03ae",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 0,
+              "y": 51,
+              "width": 4,
+              "height": 27,
+              "titleTextAlign": "right"
+            },
+            {
+              "_id": "6870ec079d58f98394df4d85",
+              "type": "chart",
+              "field": "6870ec067c68ea6da38e8db4",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 4,
+              "y": 43,
+              "width": 4,
+              "height": 27,
+              "titleTextAlign": "center",
+              "textAlign": "center",
+              "fontWeight": "normal",
+              "titleFontStyle": "italic",
+              "titleFontWeight": "bold"
+            },
+            {
+              "_id": "6870ec0919fb4d6394ea0b08",
+              "type": "chart",
+              "field": "6870ec07784db2e0fa8b5a04",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 0,
+              "y": 78,
+              "width": 4,
+              "height": 27
+            },
+            {
+              "_id": "6870ed62ec43c35b4eecf50f",
+              "type": "chart",
+              "field": "6870ed5d1e44a3fe2999782f",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 4,
+              "y": 70,
+              "width": 4,
+              "height": 27,
+              "titleTextAlign": "right",
+              "textAlign": "right",
+              "backgroundColor": "#a3ff07"
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "686fcc015718a8cc66ceb49d",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "686fcc015718a8cc66ceb49d"
+      ],
+      "views": [
+        {
+          "_id": "6870eeee6ed8b0d7f14c130c",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "6870e614465d276b79493e6e",
+                  "type": "text",
+                  "field": "6870e460b6ab0e5991bcc26b",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e615950a3ae35d29b439",
+                  "type": "text",
+                  "field": "6870e61491c9694eea4a7d53",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 64,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e61715ae1e5b24a449a9",
+                  "type": "text",
+                  "field": "6870e6152e3c98688985c22e",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 128,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e65d0a270988ef778622",
+                  "type": "text",
+                  "field": "6870e617dec7f715891683a8",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 192,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e65eafefb2a3967f58b7",
+                  "type": "text",
+                  "field": "6870e65d9c4ef49f9b6a8fb8",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 256,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ec032bccfe83fc0c114f",
+                  "type": "chart",
+                  "field": "6870ebff2c2895ea985f1383",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 320,
+                  "width": 1,
+                  "height": 216,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ec04822f96063e69f4d8",
+                  "type": "chart",
+                  "field": "6870ec036bc009d8a2b76ae6",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 536,
+                  "width": 1,
+                  "height": 216,
+                  "titleFontSize": 14,
+                  "titleFontColor": "#0024ff",
+                  "titleFontStyle": "italic",
+                  "titleTextDecoration": "underline",
+                  "titleTextTransform": "uppercase",
+                  "fontSize": 14,
+                  "fontColor": "#002fff",
+                  "fontWeight": "bold",
+                  "fontStyle": "italic",
+                  "textDecoration": "underline",
+                  "textTransform": "uppercase",
+                  "backgroundColor": "#ffe500",
+                  "borderColor": "#e200ff",
+                  "primaryMaxHeight": 122,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ec079d58f98394df4d85",
+                  "type": "chart",
+                  "field": "6870ec067c68ea6da38e8db4",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 752,
+                  "width": 1,
+                  "height": 216,
+                  "titleTextAlign": "center",
+                  "textAlign": "center",
+                  "fontWeight": "normal",
+                  "titleFontStyle": "italic",
+                  "titleFontWeight": "bold",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ec0678cf032655cf7766",
+                  "type": "chart",
+                  "field": "6870ec04b0898a63cc4f03ae",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 968,
+                  "width": 1,
+                  "height": 216,
+                  "titleTextAlign": "right",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ed62ec43c35b4eecf50f",
+                  "type": "chart",
+                  "field": "6870ed5d1e44a3fe2999782f",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 1184,
+                  "width": 1,
+                  "height": 216,
+                  "titleTextAlign": "right",
+                  "textAlign": "right",
+                  "backgroundColor": "#a3ff07",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ec0919fb4d6394ea0b08",
+                  "type": "chart",
+                  "field": "6870ec07784db2e0fa8b5a04",
+                  "displayType": "original",
+                  "primaryDisplayOnly": true,
+                  "x": 0,
+                  "y": 1400,
+                  "width": 1,
+                  "height": 216,
+                  "titleDisplay": "inline"
+                }
+              ],
+              "hidden": false,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "686fcc015718a8cc66ceb49d",
+              "metadata": {},
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "686fcc015718a8cc66ceb49d"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e460b6ab0e5991bcc26b",
+      "type": "text",
+      "title": "Text is filled ",
+      "identifier": "field_6870e614bf5b7b358b05f00c",
+      "value": "This field must be filled "
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e61491c9694eea4a7d53",
+      "type": "text",
+      "title": "Text is empty",
+      "identifier": "field_6870e615bc6fbade28599bd9"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e6152e3c98688985c22e",
+      "type": "text",
+      "title": "Text is god",
+      "identifier": "field_6870e6172795cba81ca09df1",
+      "value": "god"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e617dec7f715891683a8",
+      "type": "text",
+      "title": "Text is not thanos",
+      "identifier": "field_6870e65d2d5525436cae495a",
+      "value": "testing it "
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e65d9c4ef49f9b6a8fb8",
+      "type": "text",
+      "title": "Text contains god ",
+      "identifier": "field_6870e65e16f9894000e7c874",
+      "value": "god is great"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ebff2c2895ea985f1383",
+      "type": "chart",
+      "title": "Chart",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6870ec030d6c449ce40c3748",
+      "disabled": true
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ec036bc009d8a2b76ae6",
+      "type": "chart",
+      "title": "Chart || Text is filled ",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6870ec04d27551d69ff285aa",
+      "required": true,
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e460b6ab0e5991bcc26b",
+            "condition": "*="
+          }
+        ]
+      },
+      "tipVisible": true,
+      "tipTitle": "Chart field tooltip",
+      "tipDescription": "Tooltip description",
+      "value": [
+        {
+          "_id": "6870ec6a5b2182f88023bdf2",
+          "deleted": false,
+          "title": "Chart title ",
+          "description": "Chart description",
+          "points": [
+            {
+              "_id": "6870ec6a02cf8e56b5450c62",
+              "label": "First point",
+              "y": 22,
+              "x": 22
+            },
+            {
+              "_id": "6870ec6a1a1ef4155c3826e9",
+              "label": "Second point ",
+              "y": 45,
+              "x": 45
+            },
+            {
+              "_id": "6870ec6ab39c4d26ad9d5e3d",
+              "label": "Third point ",
+              "y": 78,
+              "x": 78
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ec04b0898a63cc4f03ae",
+      "type": "chart",
+      "title": "Chart || text is god ",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6870ec067f23060a133dba7a",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e6152e3c98688985c22e",
+            "condition": "=",
+            "value": "god"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ec067c68ea6da38e8db4",
+      "type": "chart",
+      "title": "Chart || Text is empty ",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6870ec07622196f8b0ae0138",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e61491c9694eea4a7d53",
+            "condition": "null="
+          }
+        ]
+      },
+      "value": [
+        {
+          "_id": "6870ecf4b67ebb94ee278b45",
+          "deleted": false,
+          "title": "Title test",
+          "description": "Details test",
+          "points": [
+            {
+              "_id": "6870ecf42550b408c17ccec2",
+              "label": "Label1",
+              "y": 40,
+              "x": 55
+            },
+            {
+              "_id": "6870ecf429bedf84fc38ed77",
+              "label": "Label 2",
+              "y": 67,
+              "x": 77
+            },
+            {
+              "_id": "6870ecf437a5d603041ffb4f",
+              "label": "Label 3",
+              "y": 88,
+              "x": 99
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ec07784db2e0fa8b5a04",
+      "type": "chart",
+      "title": "Chart || text is not thanos",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6870ec098b02855659618e16",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e617dec7f715891683a8",
+            "condition": "!=",
+            "value": "thanos"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ed5d1e44a3fe2999782f",
+      "type": "chart",
+      "title": "Chart contains god",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6870ed6204925dcf071552d0",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e65d9c4ef49f9b6a8fb8",
+            "condition": "?=",
+            "value": "god"
+          }
+        ]
+      }
+    }
+  ],
+  "deleted": false,
+  "categories": []
+}

@@ -10,15 +10,19 @@ import JoyfillModel
      @Binding var cellModel: TableCellModel
      private var isUsedForBulkEdit = false
      @State var valueElements: [ValueElement] = []
-     @State var images: [UIImage] = []
+     @State var images: [ImageState] = []
+     let isMultiEnabled: Bool
+     var viewModel: TableDataViewModelProtocol?
 
-     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
+     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, viewModel: TableDataViewModelProtocol? = nil) {
          _cellModel = cellModel
          _showMoreImages = State(wrappedValue: 6)
          self.isUsedForBulkEdit = isUsedForBulkEdit
          if !isUsedForBulkEdit {
              _valueElements = State(initialValue: cellModel.wrappedValue.data.valueElements)
          }
+         isMultiEnabled = cellModel.wrappedValue.data.multi ?? false
+         self.viewModel = viewModel
      }
     
     var body: some View {
@@ -33,10 +37,12 @@ import JoyfillModel
                         .darkLightThemeColor()
                 }
                 .font(.system(size: 15))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .contentShape(Rectangle())
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .sheet(isPresented: $showMoreImages2) {
-                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
@@ -61,10 +67,12 @@ import JoyfillModel
                         .darkLightThemeColor()
                 }
                 .font(.system(size: 15))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             })
             .accessibilityIdentifier("TableImageIdentifier")
             .fullScreenCover(isPresented: $showMoreImages2) {
-                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: true, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
+                MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
             .onChange(of: showMoreImages) { newValue in
@@ -81,8 +89,25 @@ import JoyfillModel
     }
      
      func uploadAction() {
-         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier) { urls in
-             for imageURL in urls {
+         let result = viewModel?.getParenthPath(rowId: cellModel.rowID)
+         var rowIds: [String] = [cellModel.rowID]
+         if isUsedForBulkEdit {
+             rowIds = viewModel?.tableDataModel.selectedRows ?? []
+         }
+         let uploadEvent = UploadEvent(fieldEvent: cellModel.fieldIdentifier, target: "field.update", multi: isMultiEnabled, schemaId: result?.1, parentPath: result?.0, rowIds: rowIds, columnId: cellModel.data.id) { urls in
+             var urlsToProcess: [String] = []
+             if !isMultiEnabled {
+                 if let firstURL = urls.first {
+                     urlsToProcess = [firstURL]
+                 }
+                 images = []
+                 valueElements = []
+                 cellModel.data.valueElements = []
+             } else {
+                 urlsToProcess = urls
+             }
+             
+             for imageURL in urlsToProcess {
                  let valueElement = cellModel.data.valueElements.first { valueElement in
                      if valueElement.url == imageURL {
                          return true

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TableSignatureView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Binding var cellModel: TableCellModel
     @State var isEditable: Bool = false
     @State private var lines: [Line] = []
@@ -8,6 +9,7 @@ struct TableSignatureView: View {
     @State private var signatureImage: UIImage?
     @State private var showCanvasSignatureView: Bool = false
     @State var title: String = ""
+    @State var showError: Bool = false
     
     init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
@@ -22,13 +24,15 @@ struct TableSignatureView: View {
             showCanvasSignatureView = true
         }, label: {
             Image(systemName: "signature")
-                .foregroundColor((title.isEmpty || title == nil) ? .gray : .black)
+                .foregroundColor((title.isEmpty || title == nil) ? .gray : colorScheme == .dark ? .white : .black)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .contentShape(Rectangle())
         })
         .accessibilityIdentifier("TableSignatureOpenSheetButton")
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
             isEditable = false
         }) {
-            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, isEditable: $isEditable)
+            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $title, showError: $showError, isEditable: $isEditable)
         }
         .onChange(of: signatureImage) { newImage in
             if let newImage = newImage, let data = newImage.pngData() {
@@ -39,15 +43,22 @@ struct TableSignatureView: View {
                 cellModel.data.title = ""
                 title = ""
             }
+        }
+        .onChange(of: title) { newValue in
+            cellModel.data.title = newValue
             cellModel.didChange?(cellModel.data)
         }
     }
     
     func loadImageFromURL() {
-        APIService.loadImage(from: title) { imageData in
-            if let imageData = imageData, let image = UIImage(data: imageData) {
-                DispatchQueue.main.async {
-                    self.signatureImage = image
+        if !title.isEmpty {
+            APIService.loadImage(from: title) { imageData in
+                if let imageData = imageData, let image = UIImage(data: imageData) {
+                    DispatchQueue.main.async {
+                        self.signatureImage = image
+                    }
+                } else {
+                    showError = true
                 }
             }
         }

@@ -18,9 +18,14 @@ class ValidationHandler {
     func validate() -> Validation {
         var fieldValidities = [FieldValidity]()
         var isValid = true
-        let fieldPositionIDs = documentEditor.mapWebViewToMobileView(fieldPositions: documentEditor.allFieldPositions).map {  $0.field }
+        for pagesForCurrentView in documentEditor.pagesForCurrentView {
+            let fieldPositionIDs = documentEditor.mapWebViewToMobileViewIfNeeded(fieldPositions: pagesForCurrentView.fieldPositions ?? [], isMobileViewActive: false).map {  $0.field }
         for id in fieldPositionIDs {
             guard let id = id, let field = documentEditor.fieldMap[id] else {
+                continue
+            }
+            if !documentEditor.shouldShow(page: pagesForCurrentView) {
+                fieldValidities.append(FieldValidity(field: field, status: .valid))
                 continue
             }
             if !documentEditor.shouldShow(fieldID: field.id) {
@@ -32,15 +37,19 @@ class ValidationHandler {
                 fieldValidities.append(FieldValidity(field: field, status: .valid))
                 continue
             }
+            guard let fieldID = field.id else {
+                Log("Missing field ID", type: .error)
+                continue
+            }
             
             if field.fieldType == .table {
-                let tableFieldValidity = validateTableField(id: field.id!)
+                let tableFieldValidity = validateTableField(id: fieldID)
                 if tableFieldValidity.status == .invalid {
                     isValid = false
                 }
                 fieldValidities.append(tableFieldValidity)
             } else if field.fieldType == .collection {
-                let collectionFieldValidity = validateCollectionField(id: field.id!)
+                let collectionFieldValidity = validateCollectionField(id: fieldID)
                 if collectionFieldValidity.status == .invalid {
                     isValid = false
                 }
@@ -54,7 +63,7 @@ class ValidationHandler {
                 fieldValidities.append(FieldValidity(field: field, status: .invalid))
             }
         }
-
+        }
         return Validation(status: isValid ? .valid: .invalid, fieldValidities: fieldValidities)
     }
      

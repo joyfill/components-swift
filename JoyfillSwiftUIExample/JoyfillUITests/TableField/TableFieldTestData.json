@@ -1,0 +1,480 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6875c7c5e988bf485f897df6",
+      "type": "table",
+      "title": "This is first\ntable with multiline header\ntext.",
+      "tableColumns": [
+        {
+          "_id": "687478ee0b423b73bb24cafa",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_6875c7cc2720bd870ef04465"
+        },
+        {
+          "_id": "6875f77d94bf1a887629d6c1",
+          "type": "image",
+          "title": "Image Column"
+        },
+        {
+          "_id": "6875f780cf958bc05e29aa23",
+          "type": "multiSelect",
+          "title": "Multiselect Column",
+          "width": 0,
+          "options": [
+            {
+              "_id": "6875f780670074fb5290fb3c",
+              "value": "Option 1",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            },
+            {
+              "_id": "6875f7807b61fddcd6542777",
+              "value": "Option 2",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            },
+            {
+              "_id": "6875f78099cf69f38c639e66",
+              "value": "Option 3",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            }
+          ]
+        },
+        {
+          "_id": "6875f786e39a025afbe7d481",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "options": [
+            {
+              "_id": "6875f7865f5cc15caa852f92",
+              "value": "Yes",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875f786d919c74b0431f110",
+              "value": "No",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875f78679f80292e284d565",
+              "value": "N/A",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            }
+          ]
+        },
+        {
+          "_id": "6875f868ebe7eede60eb0f7c",
+          "type": "number",
+          "title": "Number Column",
+          "width": 0
+        },
+        {
+          "_id": "6875f873e4ac8460314997f8",
+          "type": "date",
+          "title": "Date Column",
+          "width": 0
+        },
+        {
+          "_id": "6875f89d075904bfa381619b",
+          "type": "barcode",
+          "title": "Barcode Column",
+          "width": 0
+        },
+        {
+          "_id": "6875f89ffad5aad06e550a6f",
+          "type": "signature",
+          "title": "Signature Column",
+          "width": 0
+        },
+        {
+          "_id": "6875f8a492d8e9519e224f56",
+          "type": "block",
+          "title": "Block Column",
+          "width": 0
+        }
+      ],
+      "value": [
+        {
+          "_id": "687478ee886e5d76ed0b3d1c",
+          "deleted": false,
+          "cells": {
+            "687478ee0b423b73bb24cafa": "AB",
+            "6875f780cf958bc05e29aa23": [
+              "6875f780670074fb5290fb3c"
+            ],
+            "6875f786e39a025afbe7d481": "6875f7865f5cc15caa852f92",
+            "6875f868ebe7eede60eb0f7c": 12,
+            "6875f873e4ac8460314997f8": 1752517800000,
+            "6875f89d075904bfa381619b": "123",
+            "6875f8a492d8e9519e224f56": "asdf"
+          }
+        },
+        {
+          "_id": "687478ee1e0ca49349e0a075",
+          "deleted": false,
+          "cells": {
+            "687478ee0b423b73bb24cafa": "CD",
+            "6875f780cf958bc05e29aa23": [
+              "6875f7807b61fddcd6542777"
+            ],
+            "6875f786e39a025afbe7d481": "6875f786d919c74b0431f110",
+            "6875f868ebe7eede60eb0f7c": 34,
+            "6875f873e4ac8460314997f8": 1752949800000,
+            "6875f89d075904bfa381619b": "456",
+            "6875f8a492d8e9519e224f56": "zxcv"
+          }
+        },
+        {
+          "_id": "687478eed6da76bdcdd856fc",
+          "deleted": true,
+          "cells": {}
+        },
+        {
+          "_id": "6876114e086c6b11d43128f0",
+          "deleted": false,
+          "cells": {
+            "687478ee0b423b73bb24cafa": "{ \"strokes\": [], \"meta\": \"测试\" }\n",
+            "6875f77d94bf1a887629d6c1": "",
+            "6875f780cf958bc05e29aa23": "",
+            "6875f786e39a025afbe7d481": "",
+            "6875f868ebe7eede60eb0f7c": "",
+            "6875f873e4ac8460314997f8": "",
+            "6875f89d075904bfa381619b": "",
+            "6875f89ffad5aad06e550a6f": "",
+            "6875f8a492d8e9519e224f56": ""
+          }
+        },
+        {
+          "_id": "6876115a1090bf3ce1c4da86",
+          "deleted": false,
+          "cells": {
+            "687478ee0b423b73bb24cafa": "<div>HTML &nbsp; block 🎨</div>",
+            "6875f77d94bf1a887629d6c1": "",
+            "6875f780cf958bc05e29aa23": "",
+            "6875f786e39a025afbe7d481": "",
+            "6875f868ebe7eede60eb0f7c": "",
+            "6875f873e4ac8460314997f8": "",
+            "6875f89d075904bfa381619b": "",
+            "6875f89ffad5aad06e550a6f": "",
+            "6875f8a492d8e9519e224f56": ""
+          }
+        },
+        {
+          "_id": "6876116f58ec244e8992aaf0",
+          "deleted": false,
+          "cells": {
+            "687478ee0b423b73bb24cafa": "ABC-📦-XYZ\n",
+            "6875f77d94bf1a887629d6c1": "",
+            "6875f780cf958bc05e29aa23": "",
+            "6875f786e39a025afbe7d481": "",
+            "6875f868ebe7eede60eb0f7c": "",
+            "6875f873e4ac8460314997f8": "",
+            "6875f89d075904bfa381619b": "",
+            "6875f89ffad5aad06e550a6f": "",
+            "6875f8a492d8e9519e224f56": ""
+          }
+        },
+        {
+          "_id": "6876117c70b49166431bb0b4",
+          "deleted": false,
+          "cells": {
+            "687478ee0b423b73bb24cafa": "Line1\\nLine2\\nLine3",
+            "6875f77d94bf1a887629d6c1": "",
+            "6875f780cf958bc05e29aa23": "",
+            "6875f786e39a025afbe7d481": "",
+            "6875f868ebe7eede60eb0f7c": "",
+            "6875f873e4ac8460314997f8": "",
+            "6875f89d075904bfa381619b": "",
+            "6875f89ffad5aad06e550a6f": "",
+            "6875f8a492d8e9519e224f56": ""
+          }
+        }
+      ],
+      "identifier": "field_6875c7ccc7953a86420924d9",
+      "tableColumnOrder": [
+        "687478ee0b423b73bb24cafa",
+        "6875f77d94bf1a887629d6c1",
+        "6875f780cf958bc05e29aa23",
+        "6875f786e39a025afbe7d481",
+        "6875f868ebe7eede60eb0f7c",
+        "6875f873e4ac8460314997f8",
+        "6875f89d075904bfa381619b",
+        "6875f89ffad5aad06e550a6f",
+        "6875f8a492d8e9519e224f56"
+      ],
+      "rowOrder": [
+        "687478ee886e5d76ed0b3d1c",
+        "687478ee1e0ca49349e0a075",
+        "6876114e086c6b11d43128f0",
+        "6876115a1090bf3ce1c4da86",
+        "6876116f58ec244e8992aaf0",
+        "6876117c70b49166431bb0b4"
+      ],
+      "required": true,
+      "tipVisible": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "687611c6fc71d7ba258e7870",
+      "type": "table",
+      "title": "",
+      "tableColumns": [
+        {
+          "_id": "6875dfe7ce1d16f75eba8bea",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_68761cee678c3c621a96f3a2"
+        },
+        {
+          "_id": "6875dfe705ee2e896a057427",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "options": [
+            {
+              "_id": "6875dfe7a1689091b40faa35",
+              "value": "Yes",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875dfe7962bedc7cc3352d7",
+              "value": "No",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875dfe7ff283562ad61672d",
+              "value": "N/A",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            }
+          ],
+          "identifier": "field_column_68761ceec2c11b31f2b9716e"
+        },
+        {
+          "_id": "6875dfe7f30b08882e61b0fa",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_68761cee83549741ff7d9778"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6875dfe73b5823dc2fd3fe0d",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6875dfe76cf5253a5ac993f5",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6875dfe7ea4f9c4211af1f6b",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_68761ceef3dd8bebe67ede46",
+      "tableColumnOrder": [
+        "6875dfe7ce1d16f75eba8bea",
+        "6875dfe705ee2e896a057427",
+        "6875dfe7f30b08882e61b0fa"
+      ],
+      "rowOrder": [
+        "6875dfe73b5823dc2fd3fe0d",
+        "6875dfe76cf5253a5ac993f5",
+        "6875dfe7ea4f9c4211af1f6b"
+      ],
+      "disabled": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68761cf563822bb2ffcb0afc",
+      "type": "table",
+      "title": "Second Table",
+      "tableColumns": [
+        {
+          "_id": "6875dfe7ce1d16f75eba8bea",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_68761d0ad958c5a893bc51d4"
+        },
+        {
+          "_id": "6875dfe705ee2e896a057427",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "options": [
+            {
+              "_id": "6875dfe7a1689091b40faa35",
+              "value": "Yes",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875dfe7962bedc7cc3352d7",
+              "value": "No",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875dfe7ff283562ad61672d",
+              "value": "N/A",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            }
+          ],
+          "identifier": "field_column_68761d0ae494e7a5c787ce37"
+        },
+        {
+          "_id": "6875dfe7f30b08882e61b0fa",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_68761d0a989488dce1a4a9fe"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6875dfe73b5823dc2fd3fe0d",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6875dfe76cf5253a5ac993f5",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6875dfe7ea4f9c4211af1f6b",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_68761d0ad90ce218ffb41b70",
+      "tableColumnOrder": [
+        "6875dfe7ce1d16f75eba8bea",
+        "6875dfe705ee2e896a057427",
+        "6875dfe7f30b08882e61b0fa"
+      ],
+      "rowOrder": [
+        "6875dfe73b5823dc2fd3fe0d",
+        "6875dfe76cf5253a5ac993f5",
+        "6875dfe7ea4f9c4211af1f6b"
+      ]
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "6875c7ccc68951e6aff6ebea",
+              "type": "table",
+              "field": "6875c7c5e988bf485f897df6",
+              "displayType": "original",
+              "tableColumns": {},
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 39
+            },
+            {
+              "_id": "68761ceeb42b54e96605558f",
+              "type": "table",
+              "field": "687611c6fc71d7ba258e7870",
+              "displayType": "original",
+              "tableColumns": {},
+              "x": 0,
+              "y": 54,
+              "width": 8,
+              "height": 15
+            },
+            {
+              "_id": "68761d0af9902feb43f7354a",
+              "type": "table",
+              "field": "68761cf563822bb2ffcb0afc",
+              "displayType": "original",
+              "tableColumns": {},
+              "x": 0,
+              "y": 39,
+              "width": 8,
+              "height": 15
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}

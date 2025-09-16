@@ -21,17 +21,13 @@ struct TableBlockView: View {
                 .font(.system(size: 15))
                 .lineLimit(1)
         } else {
-            GeometryReader { geometry in
                 ScrollView {
                     Text(cellModel.data.title)
                         .accessibilityIdentifier("TabelBlockFieldIdentifier")
                         .font(.system(size: 15))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.all, 8)
-                        .frame(minHeight: geometry.size.height)
-                        .frame(maxHeight: .infinity, alignment: .center)
                 }
-            }
         }
     }
 }

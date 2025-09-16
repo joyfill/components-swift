@@ -95,7 +95,7 @@ func parseRT(data: Data) -> AttributedString? {
         }
         return AttributedString(attributedTextArray)
     } catch {
-        print("Error parsing JSON: \(error)")
+        Log("Error parsing JSON: \(error)", type: .warning)
     }
     return AttributedString(attributedTextArray)
 }
