@@ -168,9 +168,14 @@
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
 		36F4DB782E6F394500C9AD4A /* LicenseValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
-		E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
 		E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54652DFADD72006E05E9 /* JoyfillModel */; };
+		E27061C82E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */; };
+		E27061CA2E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27061C92E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift */; };
+		E27061CC2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */; };
+		E27061CE2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
+		E27061CF2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
+		E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
 		E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */; };
 		E274CA432E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
 		E274CA442E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
@@ -525,7 +530,10 @@
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseValidatorTests.swift; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
-		E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
+		E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
+		E27061C92E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
+		E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
+		E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ChangerHandlerUnit.json; sourceTree = "<group>"; };
 		E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerUITests.swift; sourceTree = "<group>"; };
 		E274CA352E2E7FB000B35C09 /* blockField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = blockField.json; sourceTree = "<group>"; };
 		E274CA362E2E7FB000B35C09 /* chartField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chartField.json; sourceTree = "<group>"; };
@@ -768,6 +776,7 @@
 			isa = PBXGroup;
 			children = (
 				E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */,
+				E27061C62E797E12006BAD18 /* OnChangeHandler */,
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
 				E2CC9FEC2E375DE500797331 /* SchemaValidation */,
 				E2B8E3BC2E4361DF00AC6018 /* Formula */,
@@ -775,7 +784,6 @@
 				36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
-				E254BF812D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift */,
 			);
 			path = JoyfillTests;
 			sourceTree = "<group>";
@@ -865,6 +873,7 @@
 				36A5EF262E29725B0059C2A6 /* 3000-fields.json */,
 				36A5EF272E29725B0059C2A6 /* CollectionFilter.json */,
 				36A5EF282E29725B0059C2A6 /* ErrorHandling.json */,
+				E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */,
 				36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */,
 				E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */,
 				E2C8BD282E462A8800B93B9E /* AllFieldTitleDispalayed.json */,
@@ -876,6 +885,16 @@
 				36A5EF2F2E29725B0059C2A6 /* testrow.json */,
 			);
 			path = others;
+			sourceTree = "<group>";
+		};
+		E27061C62E797E12006BAD18 /* OnChangeHandler */ = {
+			isa = PBXGroup;
+			children = (
+				E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */,
+				E27061C92E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift */,
+				E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */,
+			);
+			path = OnChangeHandler;
 			sourceTree = "<group>";
 		};
 		E274CA302E2E60A000B35C09 /* ChangeUITests */ = {
@@ -1493,6 +1512,7 @@
 				369D45482E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
 				369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
+				E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
 				369D454C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
 				362746512E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
 				E2F568852E2A45BC005216A6 /* ChartFieldTestData.json in Resources */,
@@ -1587,6 +1607,7 @@
 				E274CA722E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
 				369D45372E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
 				E28D10A52E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */,
+				E27061CF2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
 				369D45382E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
 				369D45392E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D453B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
@@ -1725,6 +1746,7 @@
 				E2F568C32E2A4A7A005216A6 /* MultilineTestData.json in Resources */,
 				369D452C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
 				E2F568C42E2A4A80005216A6 /* DisplayTextFieldTestData.json in Resources */,
+				E27061CE2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
 				FA529C562BA1D253000200F5 /* Preview Assets.xcassets in Resources */,
 				FA529C522BA1D253000200F5 /* Assets.xcassets in Resources */,
 				E274CA822E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
@@ -1780,6 +1802,7 @@
 				E2B8E3C02E43652E00AC6018 /* FormulaTemplate_FSMIndustryTests.swift in Sources */,
 				3682A4C42E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift in Sources */,
 				1307CF142BE1292900B19FBA /* JoyDoc+Assert.swift in Sources */,
+				E27061CA2E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift in Sources */,
 				E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */,
 				E2B8E3D22E43753300AC6018 /* ConditionalLogic_FormulaTemplateTests.swift in Sources */,
 				E2B8E3D32E43753300AC6018 /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests.swift in Sources */,
@@ -1789,6 +1812,7 @@
 				E2B8E3D62E43753300AC6018 /* EncapsulatedCircularReference_FormulaTemplateTests.swift in Sources */,
 				E2B8E3D72E43753300AC6018 /* JoyfillResolver_LongChainIndirectCircularDependencyTests.swift in Sources */,
 				E2B8E3D82E43753300AC6018 /* JoyfillResolver_IndirectCircularErrorTests.swift in Sources */,
+				E27061C82E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift in Sources */,
 				E2B8E3D92E43753300AC6018 /* JoyfillResolverTemplate_ComplexWorkingTests.swift in Sources */,
 				E2B8E3E22E4378D200AC6018 /* FormulaTemplate_EqualityOperatorTests.swift in Sources */,
 				E2B8E3E32E4378D200AC6018 /* FormulaTemplate_GreaterThanOperatorTests.swift in Sources */,
@@ -1804,11 +1828,11 @@
 				369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */,
 				369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */,
 				E2B8E3C22E436F2D00AC6018 /* FormulaTemplate_TextareaFieldTests.swift in Sources */,
+				E27061CC2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
 				E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
 				362746762E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift in Sources */,
 				E2B8E3E92E43803300AC6018 /* FormulaTemplate_TextFieldTests.swift in Sources */,
-				E254BF822D410FA00083C3E4 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
 				E2B8E3C62E436F4100AC6018 /* FormulaTemplate_NumberFieldTests.swift in Sources */,
 				361164DA2DD70625003DEB4F /* WisdomTests.swift in Sources */,
 				1307CF122BE1290800B19FBA /* JoyDoc+DummyModel.swift in Sources */,
