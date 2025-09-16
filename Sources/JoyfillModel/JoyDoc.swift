@@ -1785,8 +1785,32 @@ public struct FieldPosition {
     }
 
     public var tableColumns: [TableColumn]? {
-        get { (dictionary["tableColumns"] as? [[String: Any]])?.compactMap(TableColumn.init) ?? [] }
-        set { dictionary["tableColumns"] = newValue?.compactMap{ $0.dictionary } }
+        get {
+            if let arr = dictionary["tableColumns"] as? [[String: Any]] {
+                return arr.compactMap(TableColumn.init)
+            }
+            if let dict = dictionary["tableColumns"] as? [String: [String: Any]] {
+                return dict.map { (id, payload) in
+                    var merged = payload
+                    if merged["_id"] == nil { merged["_id"] = id }
+                    return TableColumn(dictionary: merged)
+                }
+            }
+            return nil
+        }
+        set {
+            guard let newValue = newValue else {
+                dictionary["tableColumns"] = nil
+                return
+            }
+            var dict = [String: [String: Any]]()
+            for col in newValue {
+                if let id = col.id {
+                    dict[id] = col.dictionary
+                }
+            }
+            dictionary["tableColumns"] = dict
+        }
     }
     
     public var schema: [String : FieldPositionSchema]? {
