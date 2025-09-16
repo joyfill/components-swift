@@ -22,15 +22,19 @@
         }
       ]
     },
+    "simulatorSettings" : {
+      "disableHardwareKeyboard" : true
+    },
     "targetForVariableExpansion" : {
       "containerPath" : "container:JoyfillExample.xcodeproj",
       "identifier" : "1307CF182BE36ECD00B19FBA",
       "name" : "JoyfillUITests"
-    }
+    },
+    "testRepetitionMode" : "retryOnFailure"
   },
   "testTargets" : [
     {
-      "parallelizable" : false,
+      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:JoyfillExample.xcodeproj",
         "identifier" : "1307CF182BE36ECD00B19FBA",

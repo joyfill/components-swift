@@ -97,7 +97,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         // make a selection
         let firstOption = app.buttons.matching(identifier: "MultiSelectionIdenitfier").element(boundBy: 0)
         firstOption.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         // asterisk should still be there
         XCTAssertTrue(asteriskIcon.exists, "Asterisk should remain after making a selection")
@@ -116,7 +116,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         // scroll up/down
         app.swipeUp()
         app.swipeDown()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         // verify label(s) still selected in payload
         let result = onChangeResultValue()
@@ -147,7 +147,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")
@@ -191,7 +191,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         // Verify that the onChange payload contains correct field metadata
         let firstOption = app.buttons.matching(identifier: "MultiSelectionIdenitfier").element(boundBy: 0)
         firstOption.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let payload = onChangeResult().dictionary
         XCTAssertEqual(payload["fieldId"] as? String, "686b8caac1c10cb7f16c1c9c")
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
@@ -217,7 +217,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(collectionViewsQuery.children(matching: .cell).element(boundBy: 2).children(matching: .other).element(boundBy: 1).children(matching: .other).element.exists)
         app.swipeUp()
         collectionViewsQuery.buttons["Option 1"].images["circle"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(collectionViewsQuery.children(matching: .cell).element(boundBy: 2).children(matching: .other).element(boundBy: 2).children(matching: .other).element.exists)
     }
 
@@ -234,7 +234,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         let collectionViewsQuery = app.collectionViews;
         collectionViewsQuery.buttons["option 3"].images["circle"].tap()
         app.swipeDown()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertTrue(isSecondGroupHidden())
     }
     

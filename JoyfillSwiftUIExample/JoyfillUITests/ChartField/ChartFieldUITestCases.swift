@@ -20,7 +20,7 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         var attempts = 0
         while !chartViewButton.exists && attempts < 5 {
             app.swipeUp()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             attempts += 1
         }
         
@@ -91,15 +91,20 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         app.buttons["ShowHideButtonIdentifier"].tap()
         let verticalTF = app.textFields["VerticalTextFieldIdentifier"]
         let horizontalTF = app.textFields["HorizontalTextFieldIdentifier"]
-        verticalTF.tap(); verticalTF.typeText(" UpdatedY")
-        horizontalTF.tap(); horizontalTF.typeText(" UpdatedX")
+        verticalTF.tap()
+        app.selectAllInTextField(in: verticalTF, app: app)
+        verticalTF.typeText("one")
+        horizontalTF.tap()
+        app.selectAllInTextField(in: horizontalTF, app: app)
+        horizontalTF.typeText("two")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         // Navigate away
         goBack()
         // Return and verify changes persist
         goToChartDetailField(index: 0)
         app.buttons["ShowHideButtonIdentifier"].tap()
-        XCTAssertEqual(verticalTF.value as? String, "Vertical UpdatedY")
-        XCTAssertEqual(horizontalTF.value as? String, "Horizontal UpdatedX")
+        XCTAssertEqual(verticalTF.value as? String, "one")
+        XCTAssertEqual(horizontalTF.value as? String, "two")
     }
 
     func testChartFieldOnFocusAndOnBlur() {
@@ -136,7 +141,7 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")

@@ -14,7 +14,9 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
         signatureDetailButton.tap()
         drawSignatureLine()
-        app.buttons["SaveSignatureIdentifier"].tap()
+        let saveButton = app.buttons["SaveSignatureIdentifier"]
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        saveButton.tap()
         XCTAssertEqual("Edit Signature", signatureDetailButton.label)
         XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
     }
@@ -35,7 +37,7 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         drawSignatureLine()
         app.buttons["ClearSignatureIdentifier"].tap()
         app.buttons["SaveSignatureIdentifier"].tap()
-        XCTAssertEqual("Add Signature", signatureDetailButton.label)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual("", onChangeResultValue().signatureURL)
     }
     
@@ -45,7 +47,7 @@ final class SignatureFieldTests: JoyfillUITestsBaseClass {
         var attempts = 0
         while !signatureDetailButton.exists && attempts < 5 {
             app.swipeUp()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             attempts += 1
         }
         

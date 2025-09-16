@@ -17,7 +17,6 @@
   },
   "testTargets" : [
     {
-      "enabled" : false,
       "target" : {
         "containerPath" : "container:JoyfillExample.xcodeproj",
         "identifier" : "1307CF182BE36ECD00B19FBA",

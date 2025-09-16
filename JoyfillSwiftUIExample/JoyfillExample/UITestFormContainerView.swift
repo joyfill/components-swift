@@ -4,10 +4,45 @@ import JoyfillModel
 
 func sampleJSONDocument(fileName: String? = nil) -> JoyDoc {
     let jsonFileName = fileName ?? "Joydocjson"
-    let path = Bundle.main.path(forResource: jsonFileName, ofType: "json")!
-    let data = try! Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-    let dict = try! JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
-    return JoyDoc(dictionary: dict)
+    
+    // Try to find the JSON file in the bundle
+    guard let path = Bundle.main.path(forResource: jsonFileName, ofType: "json") else {
+        print("Warning: Could not find JSON file '\(jsonFileName).json' in bundle. Using default.")
+        return createDefaultJoyDoc()
+    }
+    
+    do {
+        let data = try Data(contentsOf: URL(fileURLWithPath: path))
+        let dict = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as! [String: Any]
+        return JoyDoc(dictionary: dict)
+    } catch {
+        print("Error loading JSON file '\(jsonFileName).json': \(error). Using default.")
+        return createDefaultJoyDoc()
+    }
+}
+
+// Safe fallback function that creates a minimal JoyDoc
+private func createDefaultJoyDoc() -> JoyDoc {
+    // Create a minimal valid JoyDoc structure
+    let defaultDict: [String: Any] = [
+        "id": "default-doc",
+        "name": "Default Document",
+        "pages": [
+            [
+                "id": "page-1",
+                "name": "Page 1",
+                "fields": []
+            ]
+        ]
+    ]
+    
+    do {
+        return JoyDoc(dictionary: defaultDict)
+    } catch {
+        print("Error creating default JoyDoc: \(error)")
+        // Return an even more minimal structure
+        return JoyDoc(dictionary: ["id": "fallback-doc", "pages": []])
+    }
 }
 
 struct UITestFormContainerView: View {

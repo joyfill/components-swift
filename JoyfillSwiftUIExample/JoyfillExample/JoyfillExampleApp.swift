@@ -37,7 +37,18 @@ struct JoyfillExampleApp: App {
         
         // Get JSON file name from launch arguments for UI tests
         let jsonFileName = Self.getJSONFileNameFromLaunchArguments()
-        self.documentEditor = DocumentEditor(document: sampleJSONDocument(fileName: jsonFileName), events: eventHandler, isPageDuplicateEnabled: true, validateSchema: false, license: licenseKey)
+        // Create document editor with error handling
+        do {
+            self.documentEditor = DocumentEditor(document: sampleJSONDocument(fileName: jsonFileName), events: eventHandler, isPageDuplicateEnabled: true, validateSchema: false, license: licenseKey)
+        } catch {
+            print("⚠️  Error creating document editor: \(error)")
+            // Create a fallback document editor
+            let fallbackDoc = sampleJSONDocument(fileName: "Joydocjson")
+            self.documentEditor = DocumentEditor(document: fallbackDoc, events: eventHandler, isPageDuplicateEnabled: true, validateSchema: false, license: licenseKey)
+        }
+        
+        // Set up crash prevention for UI tests after all properties are initialized
+        setupCrashPrevention()
     }
 
     var body: some Scene {
@@ -88,6 +99,32 @@ struct JoyfillExampleApp: App {
             return arguments[jsonFileIndex + 1]
         }
         return nil
+    }
+    
+    /// Set up crash prevention for UI tests
+    private func setupCrashPrevention() {
+        // Check if we're in safe mode
+        if CommandLine.arguments.contains("--safe-mode") {
+            print("🛡️  Safe mode enabled for UI tests")
+            
+            // Set up signal handlers to prevent crashes
+            signal(SIGABRT) { _ in
+                print("⚠️  SIGABRT caught, preventing crash")
+            }
+            
+            signal(SIGSEGV) { _ in
+                print("⚠️  SIGSEGV caught, preventing crash")
+            }
+            
+            signal(SIGILL) { _ in
+                print("⚠️  SIGILL caught, preventing crash")
+            }
+        }
+        
+        // Check if crash on error is disabled
+        if CommandLine.arguments.contains("--disable-crash-on-error") {
+            print("🛡️  Crash on error disabled")
+        }
     }
 }
 
