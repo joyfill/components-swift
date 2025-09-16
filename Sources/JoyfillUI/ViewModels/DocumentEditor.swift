@@ -481,6 +481,7 @@ extension DocumentEditor {
         resultFieldPositions.reserveCapacity(sortedFieldPositions.count)
         
         for fp in sortedFieldPositions {
+            guard let displayType = fp.displayType, displayType == "original" else { continue }
             if let field = fp.field, uniqueFields.insert(field).inserted {
                 var modifiableFP = fp
                 if !isMobileViewActive {
