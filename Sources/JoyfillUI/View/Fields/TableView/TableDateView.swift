@@ -94,6 +94,7 @@ struct TableDateView: View {
                 if dateString == "" {
                     eraseDate = false
                     selectedDate = Date()
+                    convertDateAccToTimezone()
                 }
             }
             .datePopup(
@@ -112,6 +113,18 @@ struct TableDateView: View {
                 if let dateString = ValueUnion.double(dateToTimestampMilliseconds(date: newValue)).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     self.dateString = eraseDate ? "" : dateString
                 }
+            }
+        }
+    }
+    
+    fileprivate func convertDateAccToTimezone() {
+        let timeZone = TimeZone(identifier: cellModel.timezoneId ?? TimeZone.current.identifier)
+        let convertedDate = Utility.convertEpochBetweenTimezones(epochMillis: dateToTimestampMilliseconds(date: selectedDate), from: TimeZone.current, to: timeZone ?? TimeZone.current, format: cellModel.data.format)
+        
+        if let dateString = ValueUnion.double(convertedDate).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
+            self.dateString = dateString
+            if let date = Utility.stringToDate(dateString, format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
+                self.selectedDate = date
             }
         }
     }

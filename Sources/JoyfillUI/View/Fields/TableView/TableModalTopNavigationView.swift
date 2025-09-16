@@ -349,9 +349,11 @@ struct EditMultipleRowsSheetView: View {
 
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     if let row = viewModel.tableDataModel.selectedRows.first {
+                        let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
                         if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
                         var cellModel = TableCellModel(rowID: row,
+                                                       timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
                                                        data: cell,
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
                                                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
