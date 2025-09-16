@@ -15,15 +15,21 @@ public struct TemplateListView: View {
     @State var showNewSubmission = false
     private var apiService: APIService
     @State var document: JoyDoc?
+    @State var showCameraScannerView: Bool = false
+    @State var scanResults: String = ""
     @State private var currentTemplatePage: Int = 1
     @State private var isLoadingMoreTemplates: Bool = false
     @State private var hasMoreTemplates: Bool = true
     @State private var searchText: String = ""
     var isAlreadyToken: Bool
+    let enableChangelogs: Bool
+    let customLicense: String?
     let imagePicker = ImagePicker()
     
-    init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool) {
+    init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool, enableChangelogs: Bool = true, customLicense: String? = nil) {
         self.isAlreadyToken = isAlreadyToken
+        self.enableChangelogs = enableChangelogs
+        self.customLicense = customLicense
         if isAlreadyToken {
             self.apiService = APIService(accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk",
                                          baseURL: "https://api-joy.joyfill.io/v1")
@@ -38,7 +44,8 @@ public struct TemplateListView: View {
     private var changeManager: ChangeManager {
         return ChangeManager(
             apiService: apiService,
-            showImagePicker: imagePicker.showPickerOptions
+            showImagePicker: imagePicker.showPickerOptions,
+            showScan: showScan
         )
     }
     
@@ -68,8 +75,10 @@ public struct TemplateListView: View {
                             ForEach(filteredTemplates) { template in
                                 VStack(alignment: .trailing) {
                                     NavigationLink {
-                                        DocumentSubmissionsListView(apiService: apiService, identifier: template.identifier,
-                                                                    title: String(template.identifier.suffix(8)))
+                                        DocumentSubmissionsListView(apiService: apiService,
+                                                                    identifier: template.identifier,
+                                                                    title: String(template.identifier.suffix(8)),
+                                                                    enableChangelogs: enableChangelogs)
                                     } label: {
                                         HStack {
                                             Image(systemName: "doc")
@@ -79,7 +88,7 @@ public struct TemplateListView: View {
                                     }
                                     
                                     if showNewSubmission {
-                                        NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager), isActive: $showNewSubmission)
+                                        NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager, enableChangelogs: enableChangelogs, customLicense: customLicense), isActive: $showNewSubmission)
                                     }
                                     
                                     Button(action: {
@@ -119,6 +128,11 @@ public struct TemplateListView: View {
     
     private func showImagePicker(uploadHandler: ([String]) -> Void) {
         uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    }
+    
+    private func showScan(captureHandler: (ValueUnion) -> Void) {
+        showCameraScannerView = true
+        captureHandler(.string(scanResults))
     }
     
     private func loadMoreTemplates() {

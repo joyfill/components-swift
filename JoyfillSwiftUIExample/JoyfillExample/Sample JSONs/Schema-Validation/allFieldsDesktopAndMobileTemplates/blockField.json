@@ -1,0 +1,707 @@
+{
+  "_id": "686fcc012bc57a59b7246d4d",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_686fcc012bc57a59b7246d4d",
+  "name": "NO-1284 Blank template",
+  "createdOn": 1752157196321,
+  "files": [
+    {
+      "_id": "686fcc0108d51ab760970d0a",
+      "metadata": {},
+      "name": "NO-1284 Blank template",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "6870e614465d276b79493e6e",
+              "type": "text",
+              "field": "6870e460b6ab0e5991bcc26b",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e615950a3ae35d29b439",
+              "type": "text",
+              "field": "6870e61491c9694eea4a7d53",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e61715ae1e5b24a449a9",
+              "type": "text",
+              "field": "6870e6152e3c98688985c22e",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e65d0a270988ef778622",
+              "type": "text",
+              "field": "6870e617dec7f715891683a8",
+              "displayType": "original",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e65eafefb2a3967f58b7",
+              "type": "text",
+              "field": "6870e65d9c4ef49f9b6a8fb8",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "6870e940a23cfb4186f23511",
+              "type": "block",
+              "field": "6870e93abd8f9b24756715e8",
+              "displayType": "original",
+              "fontSize": 22,
+              "fontWeight": "bold",
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 5,
+              "fontColor": "#003aff",
+              "fontStyle": "italic",
+              "textDecoration": "underline",
+              "textTransform": "uppercase",
+              "backgroundColor": "#edff05",
+              "borderColor": "#e410ff",
+              "padding": 2
+            },
+            {
+              "_id": "6870e941e4f57712afb47f38",
+              "type": "block",
+              "field": "6870e940508129857125d0e8",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 5,
+              "textAlign": "center",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "_id": "6870e9420a4442f1662a33f0",
+              "type": "block",
+              "field": "6870e941df6fa1e6b2387ecf",
+              "displayType": "original",
+              "borderColor": "transparent",
+              "backgroundColor": "#c2e607",
+              "x": 0,
+              "y": 29,
+              "width": 4,
+              "height": 5,
+              "fontColor": "#0004ff"
+            },
+            {
+              "_id": "6870e9728b51f8a5f1713424",
+              "type": "block",
+              "field": "6870e96d36580567082391ef",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 4,
+              "y": 31,
+              "width": 4,
+              "height": 5
+            },
+            {
+              "_id": "6870e973165fcb57c16e7430",
+              "type": "block",
+              "field": "6870e9727e64c286f2c22387",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 4,
+              "y": 21,
+              "width": 4,
+              "height": 10,
+              "textAlign": "right"
+            },
+            {
+              "_id": "6870e9742075483138ac3efb",
+              "type": "block",
+              "field": "6870e9732345f178d167ddad",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 4,
+              "y": 36,
+              "width": 4,
+              "height": 5
+            },
+            {
+              "_id": "6870ea79612189654041a96c",
+              "type": "block",
+              "field": "6870ea70d00df1b5450128bf",
+              "displayType": "original",
+              "borderColor": "transparent",
+              "backgroundColor": "#0050ff",
+              "x": 4,
+              "y": 46,
+              "width": 4,
+              "height": 5
+            },
+            {
+              "_id": "6870ea884f89f8f0e9cf38a9",
+              "type": "block",
+              "field": "6870ea8731e2bf3b510bc884",
+              "displayType": "original",
+              "borderColor": "transparent",
+              "backgroundColor": "#edff00",
+              "x": 4,
+              "y": 51,
+              "width": 4,
+              "height": 5
+            },
+            {
+              "_id": "6870ea9ecc3f484b97d7b631",
+              "type": "block",
+              "field": "6870ea9728a291bb50350450",
+              "displayType": "original",
+              "borderColor": "transparent",
+              "backgroundColor": "#00f4ff",
+              "x": 0,
+              "y": 34,
+              "width": 4,
+              "height": 5
+            },
+            {
+              "_id": "6870eab99d8716bbab761a03",
+              "type": "block",
+              "field": "6870eaaddb88d04b5be632db",
+              "displayType": "original",
+              "borderColor": "transparent",
+              "backgroundColor": "#ffaf00",
+              "x": 4,
+              "y": 41,
+              "width": 4,
+              "height": 5
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "686fcc015718a8cc66ceb49d",
+          "metadata": {}
+        }
+      ],
+      "pageOrder": [
+        "686fcc015718a8cc66ceb49d"
+      ],
+      "views": [
+        {
+          "_id": "6870eb7afcd0d9b8101c9cf0",
+          "type": "mobile",
+          "pages": [
+            {
+              "name": "New Page",
+              "fieldPositions": [
+                {
+                  "_id": "6870e614465d276b79493e6e",
+                  "type": "text",
+                  "field": "6870e460b6ab0e5991bcc26b",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e615950a3ae35d29b439",
+                  "type": "text",
+                  "field": "6870e61491c9694eea4a7d53",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 64,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e61715ae1e5b24a449a9",
+                  "type": "text",
+                  "field": "6870e6152e3c98688985c22e",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 128,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e65d0a270988ef778622",
+                  "type": "text",
+                  "field": "6870e617dec7f715891683a8",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 192,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e65eafefb2a3967f58b7",
+                  "type": "text",
+                  "field": "6870e65d9c4ef49f9b6a8fb8",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 256,
+                  "width": 1,
+                  "height": 64,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e940a23cfb4186f23511",
+                  "type": "block",
+                  "field": "6870e93abd8f9b24756715e8",
+                  "displayType": "original",
+                  "fontSize": 22,
+                  "fontWeight": "bold",
+                  "x": 0,
+                  "y": 320,
+                  "width": 1,
+                  "height": 40,
+                  "fontColor": "#003aff",
+                  "fontStyle": "italic",
+                  "textDecoration": "underline",
+                  "textTransform": "uppercase",
+                  "backgroundColor": "#edff05",
+                  "borderColor": "#e410ff",
+                  "padding": 2,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e973165fcb57c16e7430",
+                  "type": "block",
+                  "field": "6870e9727e64c286f2c22387",
+                  "displayType": "original",
+                  "fontSize": 28,
+                  "fontWeight": "bold",
+                  "x": 0,
+                  "y": 360,
+                  "width": 1,
+                  "height": 40,
+                  "textAlign": "right",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e941e4f57712afb47f38",
+                  "type": "block",
+                  "field": "6870e940508129857125d0e8",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 400,
+                  "width": 1,
+                  "height": 40,
+                  "textAlign": "center",
+                  "fontSize": 12,
+                  "fontWeight": "normal",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e9420a4442f1662a33f0",
+                  "type": "block",
+                  "field": "6870e941df6fa1e6b2387ecf",
+                  "displayType": "original",
+                  "borderColor": "transparent",
+                  "backgroundColor": "#c2e607",
+                  "x": 0,
+                  "y": 440,
+                  "width": 1,
+                  "height": 40,
+                  "fontColor": "#0004ff",
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e9728b51f8a5f1713424",
+                  "type": "block",
+                  "field": "6870e96d36580567082391ef",
+                  "displayType": "original",
+                  "fontSize": 28,
+                  "fontWeight": "bold",
+                  "x": 0,
+                  "y": 480,
+                  "width": 1,
+                  "height": 40,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ea9ecc3f484b97d7b631",
+                  "type": "block",
+                  "field": "6870ea9728a291bb50350450",
+                  "displayType": "original",
+                  "borderColor": "transparent",
+                  "backgroundColor": "#00f4ff",
+                  "x": 0,
+                  "y": 520,
+                  "width": 1,
+                  "height": 40,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870e9742075483138ac3efb",
+                  "type": "block",
+                  "field": "6870e9732345f178d167ddad",
+                  "displayType": "original",
+                  "fontSize": 28,
+                  "fontWeight": "bold",
+                  "x": 0,
+                  "y": 560,
+                  "width": 1,
+                  "height": 40,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870eab99d8716bbab761a03",
+                  "type": "block",
+                  "field": "6870eaaddb88d04b5be632db",
+                  "displayType": "original",
+                  "borderColor": "transparent",
+                  "backgroundColor": "#ffaf00",
+                  "x": 0,
+                  "y": 600,
+                  "width": 1,
+                  "height": 40,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ea79612189654041a96c",
+                  "type": "block",
+                  "field": "6870ea70d00df1b5450128bf",
+                  "displayType": "original",
+                  "borderColor": "transparent",
+                  "backgroundColor": "#0050ff",
+                  "x": 0,
+                  "y": 640,
+                  "width": 1,
+                  "height": 40,
+                  "titleDisplay": "inline"
+                },
+                {
+                  "_id": "6870ea884f89f8f0e9cf38a9",
+                  "type": "block",
+                  "field": "6870ea8731e2bf3b510bc884",
+                  "displayType": "original",
+                  "borderColor": "transparent",
+                  "backgroundColor": "#edff00",
+                  "x": 0,
+                  "y": 680,
+                  "width": 1,
+                  "height": 40,
+                  "titleDisplay": "inline"
+                }
+              ],
+              "hidden": false,
+              "width": 816,
+              "height": 1056,
+              "cols": 1,
+              "rowHeight": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 12,
+              "borderWidth": 0,
+              "_id": "686fcc015718a8cc66ceb49d",
+              "metadata": {},
+              "backgroundImage": "",
+              "fileName": "",
+              "filePath": ""
+            }
+          ],
+          "pageOrder": [
+            "686fcc015718a8cc66ceb49d"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e460b6ab0e5991bcc26b",
+      "type": "text",
+      "title": "Text is filled ",
+      "identifier": "field_6870e614bf5b7b358b05f00c",
+      "value": "This field must be filled "
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e61491c9694eea4a7d53",
+      "type": "text",
+      "title": "Text is empty",
+      "identifier": "field_6870e615bc6fbade28599bd9"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e6152e3c98688985c22e",
+      "type": "text",
+      "title": "Text is god",
+      "identifier": "field_6870e6172795cba81ca09df1",
+      "value": "god"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e617dec7f715891683a8",
+      "type": "text",
+      "title": "Text is not thanos",
+      "identifier": "field_6870e65d2d5525436cae495a",
+      "value": "testing it "
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e65d9c4ef49f9b6a8fb8",
+      "type": "text",
+      "title": "Text contains god ",
+      "identifier": "field_6870e65e16f9894000e7c874",
+      "value": "god is great"
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e93abd8f9b24756715e8",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Heading || text is filled ",
+      "identifier": "field_6870e940026b1ed1a214113d",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e460b6ab0e5991bcc26b",
+            "condition": "*="
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e940508129857125d0e8",
+      "type": "block",
+      "title": "Display Text",
+      "value": "Display text || text is empty",
+      "identifier": "field_6870e9416ad841f8c7399c7f",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e61491c9694eea4a7d53",
+            "condition": "null="
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e941df6fa1e6b2387ecf",
+      "type": "block",
+      "title": "Empty Space",
+      "identifier": "field_6870e942746ea6ae2b6a287c",
+      "value": "",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e6152e3c98688985c22e",
+            "condition": "=",
+            "value": "god"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e96d36580567082391ef",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Heading || text is god ",
+      "identifier": "field_6870e97222a51f2f23cb2607",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e6152e3c98688985c22e",
+            "condition": "=",
+            "value": "god"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e9727e64c286f2c22387",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Heading || Text is not thanos",
+      "identifier": "field_6870e9739113cdbcd1a5e2e1",
+      "hidden": true,
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e617dec7f715891683a8",
+            "condition": "!=",
+            "value": "thanos"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870e9732345f178d167ddad",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Heading || Text contains god ",
+      "identifier": "field_6870e974bf14c081b0193c0f",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e65d9c4ef49f9b6a8fb8",
+            "condition": "?=",
+            "value": "god"
+          }
+        ]
+      }
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ea70d00df1b5450128bf",
+      "type": "block",
+      "title": "Empty Space",
+      "identifier": "field_6870ea79cffa429bafd42c01",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e61491c9694eea4a7d53",
+            "condition": "null="
+          }
+        ]
+      },
+      "value": "",
+      "hidden": true
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ea8731e2bf3b510bc884",
+      "type": "block",
+      "title": "Empty Space",
+      "identifier": "field_6870ea882dcd2787dc4a792e",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e6152e3c98688985c22e",
+            "condition": "!=",
+            "value": "thanos"
+          }
+        ]
+      },
+      "value": "",
+      "hidden": true
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870ea9728a291bb50350450",
+      "type": "block",
+      "title": "Empty Space",
+      "identifier": "field_6870ea9e211714464184e42f",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e617dec7f715891683a8",
+            "condition": "?=",
+            "value": "god"
+          }
+        ]
+      },
+      "value": "",
+      "hidden": true
+    },
+    {
+      "file": "686fcc0108d51ab760970d0a",
+      "_id": "6870eaaddb88d04b5be632db",
+      "type": "block",
+      "title": "Empty Space",
+      "identifier": "field_6870eab91a04e69a7fc956b2",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "686fcc0108d51ab760970d0a",
+            "page": "686fcc015718a8cc66ceb49d",
+            "field": "6870e460b6ab0e5991bcc26b",
+            "condition": "*=",
+            "value": "god"
+          }
+        ]
+      },
+      "hidden": true,
+      "value": ""
+    }
+  ],
+  "deleted": false,
+  "categories": []
+}

@@ -1,0 +1,120 @@
+{
+  "_id": "685dac6615b46a02d3b46239",
+  "identifier": "doc_685dac6615b46a02d3b46239",
+  "name": "New Doc",
+  "createdOn": 31232313,
+  "deleted": false,
+  "files": [
+    {
+      "_id": "685dac66e8a722aea5d16383",
+      "name": "New File",
+      "pageOrder": [
+        "685dac669754239fb4fd8d23"
+      ],
+      "pages": [
+        {
+          "_id": "685dac669754239fb4fd8d23",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "685eea70f37d6f6d673fd916",
+              "type": "signature",
+              "field": "signature1",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "fp_text1",
+              "type": "text",
+              "field": "text1",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 4
+            },
+            {
+              "_id": "fp_text2",
+              "type": "text",
+              "field": "text2",
+              "displayType": "original",
+              "x": 4,
+              "y": 24,
+              "width": 4,
+              "height": 4
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "signature1",
+      "type": "signature",
+      "title": "Signature1",
+      "identifier": "field_685eea70a1067102f3e93dba",
+      "value": "data:image/png;base64,..."
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "text1",
+      "type": "text",
+      "title": "Signature Presence",
+      "identifier": "field_text1",
+      "formulas": [
+        {
+          "_id": "AF_signaturePresent",
+          "formula": "signaturePresent",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "685dac66e8a722aea5d16383",
+      "_id": "text2",
+      "type": "text",
+      "title": "Signature Status",
+      "identifier": "field_text2",
+      "formulas": [
+        {
+          "_id": "AF_signatureStatus",
+          "formula": "signatureStatus",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "type": "document",
+  "formulas": [
+    {
+      "_id": "signaturePresent",
+      "desc": "True if signature1 has content",
+      "type": "calc",
+      "scope": "private",
+      "expression": "not(empty(signature1))"
+    },
+    {
+      "_id": "signatureStatus",
+      "desc": "Returns 'Signed' or 'Missing' depending on value",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(not(empty(signature1)), \"Signed\", \"Missing\")"
+    }
+  ]
+}

@@ -1,0 +1,805 @@
+{
+  "_id": "greater_than_equal_operator_doc",
+  "identifier": "doc_greater_than_equal_operator_doc",
+  "name": "Greater Than or Equal Operator",
+  "type": "document",
+  "files": [
+    {
+      "_id": "file1",
+      "name": "Main File",
+      "pageOrder": [
+        "page1"
+      ],
+      "pages": [
+        {
+          "_id": "page1",
+          "name": "Page 1",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "fieldPositions": [
+            {
+              "_id": "fp_text1",
+              "type": "text",
+              "field": "text1",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text2",
+              "type": "text",
+              "field": "text2",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text3",
+              "type": "text",
+              "field": "text3",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text4",
+              "type": "text",
+              "field": "text4",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text5",
+              "type": "text",
+              "field": "text5",
+              "displayType": "original",
+              "x": 0,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text6",
+              "type": "text",
+              "field": "text6",
+              "displayType": "original",
+              "x": 0,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text7",
+              "type": "text",
+              "field": "text7",
+              "displayType": "original",
+              "x": 0,
+              "y": 48,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text8",
+              "type": "text",
+              "field": "text8",
+              "displayType": "original",
+              "x": 0,
+              "y": 56,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text9",
+              "type": "text",
+              "field": "text9",
+              "displayType": "original",
+              "x": 0,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text10",
+              "type": "text",
+              "field": "text10",
+              "displayType": "original",
+              "x": 0,
+              "y": 72,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text11",
+              "type": "text",
+              "field": "text11",
+              "displayType": "original",
+              "x": 0,
+              "y": 80,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text12",
+              "type": "text",
+              "field": "text12",
+              "displayType": "original",
+              "x": 0,
+              "y": 88,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text13",
+              "type": "text",
+              "field": "text13",
+              "displayType": "original",
+              "x": 0,
+              "y": 96,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text14",
+              "type": "text",
+              "field": "text14",
+              "displayType": "original",
+              "x": 0,
+              "y": 104,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text15",
+              "type": "text",
+              "field": "text15",
+              "displayType": "original",
+              "x": 0,
+              "y": 112,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text16",
+              "type": "text",
+              "field": "text16",
+              "displayType": "original",
+              "x": 0,
+              "y": 120,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text17",
+              "type": "text",
+              "field": "text17",
+              "displayType": "original",
+              "x": 0,
+              "y": 128,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text18",
+              "type": "text",
+              "field": "text18",
+              "displayType": "original",
+              "x": 0,
+              "y": 136,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text19",
+              "type": "text",
+              "field": "text19",
+              "displayType": "original",
+              "x": 0,
+              "y": 144,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text20",
+              "type": "text",
+              "field": "text20",
+              "displayType": "original",
+              "x": 0,
+              "y": 152,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text21",
+              "type": "text",
+              "field": "text21",
+              "displayType": "original",
+              "x": 0,
+              "y": 160,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text22",
+              "type": "text",
+              "field": "text22",
+              "displayType": "original",
+              "x": 0,
+              "y": 168,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text23",
+              "type": "text",
+              "field": "text23",
+              "displayType": "original",
+              "x": 0,
+              "y": 176,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_text24",
+              "type": "text",
+              "field": "text24",
+              "displayType": "original",
+              "x": 0,
+              "y": 184,
+              "width": 4,
+              "height": 8
+            }
+          ]
+        }
+      ],
+      "styles": {
+        "margin": 4
+      }
+    }
+  ],
+  "fields": [
+    {
+      "file": "file1",
+      "_id": "text1",
+      "type": "text",
+      "title": "2 >= 1 (Expect: Working)",
+      "identifier": "field_text1",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text1Formula",
+          "formula": "if2GreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text2",
+      "type": "text",
+      "title": "1 >= 1 (Expect: Working)",
+      "identifier": "field_text2",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text2Formula",
+          "formula": "if1GreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text3",
+      "type": "text",
+      "title": "1 >= 2 (Expect: Working)",
+      "identifier": "field_text3",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text3Formula",
+          "formula": "if1GreaterThanOrEqual2Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text4",
+      "type": "text",
+      "title": "0 >= -1 (Expect: Working)",
+      "identifier": "field_text4",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text4Formula",
+          "formula": "if0GreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text5",
+      "type": "text",
+      "title": "-3 >= -3 (Expect: Working)",
+      "identifier": "field_text5",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text5Formula",
+          "formula": "if3GreaterThanOrEqual3Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text6",
+      "type": "text",
+      "title": "-5 >= -2 (Expect: Working)",
+      "identifier": "field_text6",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text6Formula",
+          "formula": "if5GreaterThanOrEqual2Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text7",
+      "type": "text",
+      "title": "100 >= 99 (Expect: Working)",
+      "identifier": "field_text7",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text7Formula",
+          "formula": "if100GreaterThanOrEqual99Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text8",
+      "type": "text",
+      "title": "99.9 >= 100 (Expect: Working)",
+      "identifier": "field_text8",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text8Formula",
+          "formula": "if999GreaterThanOrEqual100Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text9",
+      "type": "text",
+      "title": "-1 >= 0 (Expect: Working)",
+      "identifier": "field_text9",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text9Formula",
+          "formula": "if1NumberGreaterThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text10",
+      "type": "text",
+      "title": "-100 >= -101 (Expect: Working)",
+      "identifier": "field_text10",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text10Formula",
+          "formula": "if100GreaterThanOrEqual101Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text11",
+      "type": "text",
+      "title": "\"10\" >= 5 (Expect: Working)",
+      "identifier": "field_text11",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text11Formula",
+          "formula": "if10GreaterThanOrEqual5Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text12",
+      "type": "text",
+      "title": "\"5\" >= \"1\" (Expect: Working)",
+      "identifier": "field_text12",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text12Formula",
+          "formula": "if5GreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text13",
+      "type": "text",
+      "title": "\"hello\" >= \"abc\" (Expect: Working)",
+      "identifier": "field_text13",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text13Formula",
+          "formula": "ifhelloGreaterThanOrEqualabcWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text14",
+      "type": "text",
+      "title": "true >= false (Expect: Working)",
+      "identifier": "field_text14",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text14Formula",
+          "formula": "iftrueGreaterThanOrEqualfalseWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text15",
+      "type": "text",
+      "title": "false >= true (Expect: Working)",
+      "identifier": "field_text15",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text15Formula",
+          "formula": "iffalseGreaterThanOrEqualtrueWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text16",
+      "type": "text",
+      "title": "true >= 1 (Expect: Working)",
+      "identifier": "field_text16",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text16Formula",
+          "formula": "iftrueGreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text17",
+      "type": "text",
+      "title": "null >= 0 (Expect: Working)",
+      "identifier": "field_text17",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text17Formula",
+          "formula": "ifnullGreaterThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text18",
+      "type": "text",
+      "title": "null >= null (Expect: Working)",
+      "identifier": "field_text18",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text18Formula",
+          "formula": "ifnullGreaterThanOrEqualnullWorking",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text19",
+      "type": "text",
+      "title": "\"\" >= 0 (Expect: Working)",
+      "identifier": "field_text19",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text19Formula",
+          "formula": "ifGreaterThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text20",
+      "type": "text",
+      "title": "\"abc\" >= 0 (Expect: Working)",
+      "identifier": "field_text20",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text20Formula",
+          "formula": "ifabcGreaterThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text21",
+      "type": "text",
+      "title": "[] >= 1 (Expect: Working)",
+      "identifier": "field_text21",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text21Formula",
+          "formula": "ifArrayGreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text22",
+      "type": "text",
+      "title": "[1] >= 0 (Expect: Working)",
+      "identifier": "field_text22",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text22Formula",
+          "formula": "if1GreaterThanOrEqual0Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text23",
+      "type": "text",
+      "title": "{} >= 1 (Expect: Working)",
+      "identifier": "field_text23",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text23Formula",
+          "formula": "ifObjectGreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "file1",
+      "_id": "text24",
+      "type": "text",
+      "title": "{ a: 1 } >= 1 (Expect: Working)",
+      "identifier": "field_text24",
+      "value": "",
+      "formulas": [
+        {
+          "_id": "text24Formula",
+          "formula": "ifa1GreaterThanOrEqual1Working",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "formulas": [
+    {
+      "_id": "if2GreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(2 >= 1, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if1GreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(1 >= 1, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if1GreaterThanOrEqual2Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(1 >= 2, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if0GreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(0 >= -1, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if3GreaterThanOrEqual3Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(-3 >= -3, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if5GreaterThanOrEqual2Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(-5 >= -2, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if100GreaterThanOrEqual99Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(100 >= 99, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if999GreaterThanOrEqual100Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(99.9 >= 100, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if1NumberGreaterThanOrEqual0Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(-1 >= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if100GreaterThanOrEqual101Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(-100 >= -101, \"Working\", \"Broken\")"
+    },
+    {
+      "_id": "if10GreaterThanOrEqual5Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"10\" >= 5, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if5GreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"5\" >= \"1\", \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifhelloGreaterThanOrEqualabcWorking",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"hello\" >= \"abc\", \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iftrueGreaterThanOrEqualfalseWorking",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(true >= false, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iffalseGreaterThanOrEqualtrueWorking",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(false >= true, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "iftrueGreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(true >= 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifnullGreaterThanOrEqual0Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null >= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifnullGreaterThanOrEqualnullWorking",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(null >= null, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifGreaterThanOrEqual0Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"\" >= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifabcGreaterThanOrEqual0Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(\"abc\" >= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifArrayGreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if([] >= 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "if1GreaterThanOrEqual0Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if([1] >= 0, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifObjectGreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if({} >= 1, \"Broken\", \"Working\")"
+    },
+    {
+      "_id": "ifa1GreaterThanOrEqual1Working",
+      "desc": "",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if({ a: 1 } >= 1, \"Broken\", \"Working\")"
+    }
+  ]
+}

@@ -17,6 +17,9 @@ struct DocumentSubmissionsListView: View {
     @State var document: JoyDoc?
     @State private var showDocumentDetails = false
     @State private var isloading = true
+    @State private var showCameraScannerView = false
+    @State private var scanResults: String = ""
+    @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
     @State var fetchSubmissions = true
     @State var identifier: String
     @State private var currentDocumentPage: Int = 1
@@ -24,14 +27,16 @@ struct DocumentSubmissionsListView: View {
     @State private var hasMoreDocuments: Bool = true
     @State private var currentUploadHandler: (([String]) -> Void)?
     let imagePicker = ImagePicker()
+    let enableChangelogs: Bool
 
     let title: String
     private let apiService: APIService
     
-    init(apiService: APIService, identifier: String, title: String) {
+    init(apiService: APIService, identifier: String, title: String, enableChangelogs: Bool = true) {
         self.apiService = apiService
         self.title = title
         self.identifier = identifier
+        self.enableChangelogs = enableChangelogs
     }
     
     var body: some View {
@@ -45,7 +50,7 @@ struct DocumentSubmissionsListView: View {
         } else {
             VStack(alignment: .leading) {
                 if showDocumentDetails {
-                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager), isActive: $showDocumentDetails)
+                    NavigationLink("", destination: FormContainerView(document: document!, pageID: pageID, changeManager: changeManager, enableChangelogs: enableChangelogs), isActive: $showDocumentDetails)
                 }
                 List {
                     Section(header: Text("Documents")
@@ -69,14 +74,27 @@ struct DocumentSubmissionsListView: View {
                 }
             }
             .navigationTitle(title)
-            
-            if isLoadingMoreDocuments {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
+            .sheet(isPresented: $showCameraScannerView) {
+                if #available(iOS 16.0, *) {
+                    CameraScanner(startScanning: $showCameraScannerView,
+                                  scanResult: $scanResults,
+                                  onSave: { result in
+                        if let currentCaptureHandler = currentCaptureHandler {
+                            currentCaptureHandler(.string(result))
+                        }
+                    })
+                } else {
+                    // Fallback on earlier versions
                 }
-                .padding()
+                
+                if isLoadingMoreDocuments {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .padding()
+                }
             }
         }
     }
@@ -86,16 +104,23 @@ struct DocumentSubmissionsListView: View {
     }
     
     private var changeManager: ChangeManager {
-        return ChangeManager(
-            apiService: apiService,
-            showImagePicker: imagePicker.showPickerOptions
-        )
+        ChangeManager(apiService: apiService, showImagePicker: imagePicker.showPickerOptions, showScan: showScan)
+    }
+    
+    private func showImagePicker(uploadHandler: ([String]) -> Void) {
+        uploadHandler(["https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw"])
+    }
+    
+    private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
+        currentCaptureHandler = captureHandler
+        showCameraScannerView = true
+        presentCameraScannerView()
     }
 
     private func fetchLocalDocument() {
         isloading = true
         DispatchQueue.global().async {
-            self.document = sampleJSONDocument(fileName: "Joydocjson")
+            self.document = sampleJSONDocument(fileName: "TableNewColumns")
             DispatchQueue.main.async {
                 showDocumentDetails = true
                 isloading = false
@@ -123,6 +148,34 @@ struct DocumentSubmissionsListView: View {
                 }
             }
         }
+    }
+    
+    func presentCameraScannerView() {
+        guard let topVC = UIViewController.topViewController() else {
+            print("No top view controller found.")
+            return
+        }
+        let hostingController: UIHostingController<AnyView>
+        if #available(iOS 16.0, *) {
+            let swiftUIView = CameraScanner(
+                startScanning: $showCameraScannerView,
+                scanResult: $scanResults,
+                onSave: { result in
+                    if let currentCaptureHandler = currentCaptureHandler {
+                        currentCaptureHandler(.string(result))
+                    }
+                }
+            )
+            hostingController = UIHostingController(rootView: AnyView(swiftUIView))
+        } else {
+            // Fallback on earlier versions
+            let fallbackView = Text("Camera scanner is not available on this version.")
+                .padding()
+                .multilineTextAlignment(.center)
+            hostingController = UIHostingController(rootView: AnyView(fallbackView))
+        }
+        
+        topVC.present(hostingController, animated: true, completion: nil)
     }
 
     private func fetchDocuments(identifier: String, completion: @escaping (() -> Void)) {

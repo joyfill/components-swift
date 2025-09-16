@@ -95,6 +95,7 @@ final class ConditionalLogicTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(hideFieldOnConditionTrueTextField.exists, "The hideFieldOnConditionTrue text field does not exist.")
         hideFieldOnConditionTrueTextField.tap()
         hideFieldOnConditionTrueTextField.typeText("FIELD IS HIDE WHEN CONDITION TRUE\n")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual("FIELD IS HIDE WHEN CONDITION TRUE", onChangeResultValue().text!)
         
         let hideFieldTitle = "Field Hide When Condition True"

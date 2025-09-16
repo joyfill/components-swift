@@ -1,0 +1,443 @@
+{
+    "_id": "6850502a3339c0544b50778e",
+    "identifier": "doc_6850502a3339c0544b50778e",
+    "name": "Dropdown Field Formula Template",
+    "files": [
+        {
+            "_id": "6850502ad5b54e6d8570fbbf",
+            "name": "New File",
+            "pageOrder": [
+                "6850502aef6b6d67d4597e93"
+            ],
+            "pages": [
+                {
+                    "_id": "6850502aef6b6d67d4597e93",
+                    "name": "New Page",
+                    "width": 816,
+                    "height": 1056,
+                    "rowHeight": 8,
+                    "cols": 8,
+                    "fieldPositions": [
+                        {
+                            "_id": "6855a17a79e705bf9a601366",
+                            "type": "text",
+                            "field": "text3",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 13,
+                            "width": 8,
+                            "height": 9
+                        },
+                        {
+                            "_id": "6855a18f5be82efe1e2e3a68",
+                            "type": "text",
+                            "field": "text2",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 22,
+                            "width": 8,
+                            "height": 8
+                        },
+                        {
+                            "_id": "6855a1ebc533dd8ef3b4a2c6",
+                            "type": "number",
+                            "field": "number1",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 30,
+                            "width": 8,
+                            "height": 8
+                        },
+                        {
+                            "_id": "6855a20dc6193d5231e66890",
+                            "type": "text",
+                            "field": "text1",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 38,
+                            "width": 8,
+                            "height": 8
+                        },
+                        {
+                            "_id": "6855b498befdbec6f9e01f78",
+                            "type": "dropdown",
+                            "field": "dropdown1",
+                            "displayType": "original",
+                            "targetValue": "684c3fed5216e0fbf165bcf4",
+                            "x": 2,
+                            "y": 0,
+                            "width": 4,
+                            "height": 8
+                        },
+                        {
+                            "_id": "68936ec25b2c377723cfb614",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 28,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 8,
+                            "width": 8,
+                            "height": 5,
+                            "field": "block1",
+                            "textAlign": "center"
+                        },
+                        {
+                            "_id": "68936f255c9541a6bfadd68d",
+                            "type": "block",
+                            "displayType": "original",
+                            "fontSize": 28,
+                            "fontWeight": "bold",
+                            "x": 0,
+                            "y": 46,
+                            "width": 8,
+                            "height": 5,
+                            "field": "block2",
+                            "textAlign": "center"
+                        },
+                        {
+                            "_id": "68936f4be7377f49bc289419",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "68936547268507ffd443b4a6",
+                            "x": 0,
+                            "y": 51,
+                            "width": 8,
+                            "height": 8,
+                            "field": "dropdown2"
+                        },
+                        {
+                            "_id": "68936f7b8833535a452dfafe",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "68936547268507ffd443b4a6",
+                            "x": 0,
+                            "y": 59,
+                            "width": 8,
+                            "height": 8,
+                            "field": "dropdown3"
+                        },
+                        {
+                            "_id": "689372869797e053a13a73ca",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "68936547268507ffd443b4a6",
+                            "x": 0,
+                            "y": 67,
+                            "width": 8,
+                            "height": 8,
+                            "field": "dropdown4"
+                        },
+                        {
+                            "_id": "689395a63cf600cb7ea9273e",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "689395503cdae2d5ba7d7839",
+                            "x": 0,
+                            "y": 75,
+                            "width": 8,
+                            "height": 8,
+                            "field": "dropdown5"
+                        }
+                    ],
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "padding": 24
+                }
+            ],
+            "styles": {
+                "margin": 4
+            }
+        }
+    ],
+    "fields": [
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "text3",
+            "type": "text",
+            "title": "text3 (Expect: \"Selected: <Option Text>\")",
+            "identifier": "field_6855a17ad6e245b0b6045450",
+            "formulas": [
+                {
+                    "_id": "F005",
+                    "key": "value",
+                    "formula": "dropdownConcat"
+                }
+            ],
+            "value": "Selected: Yes"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "text2",
+            "type": "text",
+            "title": "text2 (Expect: \"Approved\" when dropdown1 has \"No\" selected and \"Pending\" for any other value including empty)",
+            "identifier": "field_6855a18f2aca06f83946064d",
+            "formulas": [
+                {
+                    "_id": "F002",
+                    "key": "value",
+                    "formula": "dropdownApprovedPending"
+                }
+            ],
+            "value": "Pending"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "number1",
+            "type": "number",
+            "title": "Display 1, 2, or 3 based on selected option.",
+            "identifier": "field_6855a1eb2693ebdf695fe9ce",
+            "formulas": [
+                {
+                    "_id": "F003",
+                    "key": "value",
+                    "formula": "dropdownToNumber"
+                }
+            ],
+            "value": 1
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "text1",
+            "type": "text",
+            "title": "Display \"true\" is any option value is selected and \"false\" for no selected option.",
+            "identifier": "field_6855a20d13afe3315c1c110a",
+            "formulas": [
+                {
+                    "_id": "F001",
+                    "key": "value",
+                    "formula": "dropdownNotEmpty"
+                }
+            ],
+            "value": "true"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "dropdown1",
+            "type": "dropdown",
+            "title": "dropdown1",
+            "options": [
+                {
+                    "_id": "684c3fed5216e0fbf165bcf4",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "684c3fed67c3ba686c8c714b",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "684c3fed45e5c3cab9116af1",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_6855b498c264210b533cc90e",
+            "value": "684c3fed5216e0fbf165bcf4"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "block1",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Read",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "block2",
+            "type": "block",
+            "title": "Heading Text",
+            "value": "Write",
+            "identifier": "field_block1"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "dropdown2",
+            "type": "dropdown",
+            "title": "drodown2 (Expect: \"Yes\" when dropdown1 has any option selected)",
+            "options": [
+                {
+                    "_id": "68936547268507ffd443b4a6",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "6893654764c5bbde268c8679",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "689365477e5ca81b8bc1bf8a",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_dropdown2",
+            "formulas": [
+                {
+                    "_id": "689373d5aa2d3f0676320657",
+                    "formula": "drodown2(expect:\"yes\"whendropdown1hasanyoptionselected)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "Yes"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "dropdown3",
+            "type": "dropdown",
+            "title": "dropdown3 (Expect empty when dropdown1 has any value selected and \"No\" when dropdown1 is empty)",
+            "options": [
+                {
+                    "_id": "68936547268507ffd443b4a6",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "6893654764c5bbde268c8679",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "689365477e5ca81b8bc1bf8a",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_dropdown3",
+            "value": "",
+            "formulas": [
+                {
+                    "_id": "689373d566560a0ca04b6183",
+                    "formula": "dropdown3(expectemptywhendropdown1hasanyvalueselected)_formula",
+                    "key": "value"
+                }
+            ]
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "dropdown4",
+            "type": "dropdown",
+            "title": "dropdown4 (Expect dropdown1 text display value to be mirrored in this dropdown)",
+            "options": [
+                {
+                    "_id": "68936547268507ffd443b4a6",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "6893654764c5bbde268c8679",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "689365477e5ca81b8bc1bf8a",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_dropdown4",
+            "formulas": [
+                {
+                    "_id": "689373d55f402e15b7c5a855",
+                    "formula": "dropdown4(expectdropdown1textdisplayvaluetobemirroredinthisdropdown)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "Yes"
+        },
+        {
+            "file": "6850502ad5b54e6d8570fbbf",
+            "_id": "dropdown5",
+            "type": "dropdown",
+            "title": "dropdown5: (Expect: Empty because we are using a string value that doesnt exist in the options)",
+            "options": [
+                {
+                    "_id": "689395503cdae2d5ba7d7839",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "68939550f378fe2b251a1e2a",
+                    "value": "No",
+                    "deleted": false
+                },
+                {
+                    "_id": "6893955063b807b25b61b0dd",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_dropdown5",
+            "formulas": [
+                {
+                    "_id": "6893963c3bcfb2feea961cd2",
+                    "formula": "dropdown5:(expect:emptybecauseweareusingastringvaluethatdoesntexistintheoptions)_formula",
+                    "key": "value"
+                }
+            ],
+            "value": "Does Not Exist"
+        }
+    ],
+    "type": "document",
+    "formulas": [
+        {
+            "_id": "dropdownApprovedPending",
+            "desc": "If No → Approved, else Pending",
+            "type": "calc",
+            "scope": "private",
+            "expression": "if(dropdown1 == \"No\", \"Approved\", \"Pending\")"
+        },
+        {
+            "_id": "dropdownToNumber",
+            "desc": "Map dropdown1 to numeric",
+            "type": "calc",
+            "scope": "private",
+            "expression": "toNumber(if(dropdown1 == \"Yes\", \"1\", if(dropdown1 == \"No\", \"2\", if(dropdown1 == \"N/A\", \"3\", \"0\"))))"
+        },
+        {
+            "_id": "dropdownNotEmpty",
+            "desc": "Check if dropdown1 has value",
+            "type": "calc",
+            "scope": "private",
+            "expression": "not(empty(dropdown1))"
+        },
+        {
+            "_id": "dropdownConcat",
+            "desc": "Label + dropdown1",
+            "type": "calc",
+            "scope": "private",
+            "expression": "concat(\"Selected: \", dropdown1)"
+        },
+        {
+            "_id": "drodown2(expect:\"yes\"whendropdown1hasanyoptionselected)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(not(empty(dropdown1)), \"Yes\", \"No\")"
+        },
+        {
+            "_id": "dropdown3(expectemptywhendropdown1hasanyvalueselected)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(not(empty(dropdown1)), \"\", \"No\")"
+        },
+        {
+            "_id": "dropdown4(expectdropdown1textdisplayvaluetobemirroredinthisdropdown)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(not(empty(dropdown1)), dropdown1, \"\")"
+        },
+        {
+            "_id": "dropdown5:(expect:emptybecauseweareusingastringvaluethatdoesntexistintheoptions)_formula",
+            "desc": "",
+            "type": "calc",
+            "scope": "global",
+            "expression": "if(not(empty(dropdown1)), \"Does Not Exist\", \"\")"
+        }
+    ]
+}

@@ -67,3 +67,62 @@ extension View {
         self.modifier(GrayLightThemeColor())
     }
 }
+struct HorizontalBorderModifier: ViewModifier {
+    var color: Color
+    var width: CGFloat = 1
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                VStack {
+                    Rectangle() // Top border
+                        .frame(height: width)
+                        .foregroundColor(color)
+                    Spacer()
+                    Rectangle() // Bottom border
+                        .frame(height: width)
+                        .foregroundColor(color)
+                }
+            )
+    }
+}
+extension View {
+    func horizontalBorder(color: Color, width: CGFloat = 1) -> some View {
+        self.modifier(HorizontalBorderModifier(color: color, width: width))
+    }
+    func verticalBorder(color: Color, width: CGFloat = 1, includeBottom: Bool = false) -> some View {
+        self.modifier(VerticalBorderModifier(color: color, width: width, includeBottom: includeBottom))
+    }
+}
+
+struct VerticalBorderModifier: ViewModifier {
+    var color: Color
+    var width: CGFloat = 1
+    var includeBottom: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                ZStack {
+                    HStack { // Left and Right Borders
+                        Rectangle()
+                            .frame(width: width)
+                            .foregroundColor(color)
+                        Spacer()
+                        Rectangle()
+                            .frame(width: width)
+                            .foregroundColor(color)
+                    }
+                    
+                    if includeBottom {
+                        VStack { // Bottom Border
+                            Spacer()
+                            Rectangle()
+                                .frame(height: width)
+                                .foregroundColor(color)
+                        }
+                    }
+                }
+            )
+    }
+}

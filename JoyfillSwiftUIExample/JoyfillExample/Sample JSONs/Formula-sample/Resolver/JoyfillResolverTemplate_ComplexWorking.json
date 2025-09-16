@@ -1,0 +1,225 @@
+{
+  "_id": "6eba6008f3f0266ccccb8fe0",
+  "identifier": "doc_generated",
+  "name": "Generated Joyfill Resolver",
+  "createdOn": 31232313,
+  "deleted": false,
+  "formulas": [
+    {
+      "_id": "field1FormulaId",
+      "desc": "Field 1 = field2 + field3",
+      "type": "calc",
+      "scope": "private",
+      "expression": "field2 + field3"
+    },
+    {
+      "_id": "field3FormulaId",
+      "desc": "Field 3 = field4 + 3",
+      "type": "calc",
+      "scope": "private",
+      "expression": "field4 + 3"
+    },
+    {
+      "_id": "field4FormulaId",
+      "desc": "Field 4 = field5 + field6 + field7",
+      "type": "calc",
+      "scope": "private",
+      "expression": "field5 + field6 + field7"
+    },
+    {
+      "_id": "field5FormulaId",
+      "desc": "Field 5 = field6 + field7",
+      "type": "calc",
+      "scope": "private",
+      "expression": "field6 + field7"
+    }
+  ],
+  "fields": [
+    {
+      "_id": "field1",
+      "file": "5c3c5830ad0e9e5da7f7df1c",
+      "type": "number",
+      "title": "field1",
+      "identifier": "field_001",
+      "formulas": [
+        {
+          "_id": "F001",
+          "key": "value",
+          "formula": "field1FormulaId"
+        }
+      ]
+    },
+    {
+      "_id": "field2",
+      "file": "5c3c5830ad0e9e5da7f7df1c",
+      "type": "number",
+      "title": "field2",
+      "identifier": "field_002",
+      "value": 5
+    },
+    {
+      "_id": "field3",
+      "file": "5c3c5830ad0e9e5da7f7df1c",
+      "type": "number",
+      "title": "field3",
+      "identifier": "field_003",
+      "formulas": [
+        {
+          "_id": "F003",
+          "key": "value",
+          "formula": "field3FormulaId"
+        }
+      ]
+    },
+    {
+      "_id": "field4",
+      "file": "5c3c5830ad0e9e5da7f7df1c",
+      "type": "number",
+      "title": "field4",
+      "identifier": "field_004",
+      "formulas": [
+        {
+          "_id": "F004",
+          "key": "value",
+          "formula": "field4FormulaId"
+        }
+      ]
+    },
+    {
+      "_id": "field5",
+      "file": "5c3c5830ad0e9e5da7f7df1c",
+      "type": "number",
+      "title": "field5",
+      "identifier": "field_005",
+      "formulas": [
+        {
+          "_id": "F005",
+          "key": "value",
+          "formula": "field5FormulaId"
+        }
+      ]
+    },
+    {
+      "_id": "field6",
+      "file": "5c3c5830ad0e9e5da7f7df1c",
+      "type": "number",
+      "title": "field6",
+      "identifier": "field_006",
+      "value": 1
+    },
+    {
+      "_id": "field7",
+      "file": "5c3c5830ad0e9e5da7f7df1c",
+      "type": "number",
+      "title": "field7",
+      "identifier": "field_007",
+      "value": 2
+    }
+  ],
+  "files": [
+    {
+      "_id": "5c3c5830ad0e9e5da7f7df1c",
+      "name": "New File",
+      "pageOrder": [
+        "ff4696d7b67abcbc16a0e747"
+      ],
+      "pages": [
+        {
+          "_id": "ff4696d7b67abcbc16a0e747",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "9001fe181687b7559ff78aa4",
+              "type": "number",
+              "field": "field1",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "title": "field1"
+            },
+            {
+              "_id": "c401b1977e01c82aaf3455f1",
+              "type": "number",
+              "field": "field2",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "title": "field2"
+            },
+            {
+              "_id": "080aedd443fe8ffb43934947",
+              "type": "number",
+              "field": "field3",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "title": "field3"
+            },
+            {
+              "_id": "82426c0afc63671a028fea1d",
+              "type": "number",
+              "field": "field4",
+              "displayType": "original",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "title": "field4"
+            },
+            {
+              "_id": "5d8300824616b38c4a392283",
+              "type": "number",
+              "field": "field5",
+              "displayType": "original",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8,
+              "title": "field5"
+            },
+            {
+              "_id": "e0b42aa887e795acd63e730b",
+              "type": "number",
+              "field": "field6",
+              "displayType": "original",
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 8,
+              "title": "field6"
+            },
+            {
+              "_id": "c2d9f057a1c76ad1a7368bd9",
+              "type": "number",
+              "field": "field7",
+              "displayType": "original",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8,
+              "title": "field7"
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "type": "document"
+}

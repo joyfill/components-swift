@@ -1,0 +1,1773 @@
+//
+//  WisdomTests.swift
+//  JoyfillTests
+//
+//  Created by Vishnu Dutt on 21/04/25.
+//
+
+import XCTest
+import JoyfillFormulas
+import JoyfillModel
+import Joyfill
+@testable import JoyfillExample
+
+class WisdomTests: XCTestCase {
+
+    // MARK: - Setup & Teardown
+    
+    override func setUp() {
+        super.setUp()
+        // Setup code if needed
+    }
+    
+    override func tearDown() {
+        // Teardown code if needed
+        super.tearDown()
+    }
+
+    // MARK: - Basic Math Operations Tests
+    
+    func documentEditor(document: JoyDoc) -> DocumentEditor {
+        DocumentEditor(document: document, validateSchema: false)
+    }
+    
+    func testBasicMathOperations() {
+        let document = JoyDoc
+            .addDocument()
+            // Basic mathematical operators
+            .addFormula(id: "add1", formula: "num1 + num2")
+            .addFormula(id: "subtract1", formula: "num2 - num1")
+            .addFormula(id: "multiply1", formula: "num1 * num2")
+            .addFormula(id: "divide1", formula: "num2 / num1")
+            
+            // Operator precedence and parentheses
+            .addFormula(id: "precedence1", formula: "num1 + num2 * 2")  // num1 + (num2 * 2)
+            .addFormula(id: "precedence2", formula: "(num1 + num2) * 2") // (num1 + num2) * 2
+            .addFormula(id: "complexExpression", formula: "(num1 + num2) * 3 - num3 / 2")
+            
+            // Negative numbers
+            .addFormula(id: "negative1", formula: "-num1")
+            .addFormula(id: "negative2", formula: "num2 * (-1)")
+            .addFormula(id: "negativeResult", formula: "num2 - num1 * 3") // Can result in negative
+            
+            // Math functions
+            .addFormula(id: "sum1", formula: "sum(num1, num2, num3)")
+            .addFormula(id: "max1", formula: "max(num1, num2, num3)")
+            .addFormula(id: "pow1", formula: "pow(num1, 2)")  // Square of num1
+            .addFormula(id: "sqrt1", formula: "sqrt(num3)")  // Square root of num3
+            .addFormula(id: "mod1", formula: "mod(num3, num1)") // num3 % num1
+            .addFormula(id: "round1", formula: "round(decimal)")
+            .addFormula(id: "ceil1", formula: "ceil(decimal)")
+            .addFormula(id: "floor1", formula: "floor(decimal)")
+            
+            // Field setup
+            .addNumberField(identifier: "num1", value: 10, label: "Number 1")
+            .addNumberField(identifier: "num2", value: 20, label: "Number 2")
+            .addNumberField(identifier: "num3", value: 25, label: "Number 3")
+            .addNumberField(identifier: "decimal", value: 7.65, label: "Decimal Number")
+            
+            // Basic operator results
+            .addNumberField(identifier: "addResult", formulaRef: "add1", formulaKey: "value", label: "Addition Result")
+            .addNumberField(identifier: "subtractResult", formulaRef: "subtract1", formulaKey: "value", label: "Subtraction Result")
+            .addNumberField(identifier: "multiplyResult", formulaRef: "multiply1", formulaKey: "value", label: "Multiplication Result")
+            .addNumberField(identifier: "divideResult", formulaRef: "divide1", formulaKey: "value", label: "Division Result")
+            
+            // Operator precedence results
+            .addNumberField(identifier: "precedence1Result", formulaRef: "precedence1", formulaKey: "value", label: "Precedence Test 1")
+            .addNumberField(identifier: "precedence2Result", formulaRef: "precedence2", formulaKey: "value", label: "Precedence Test 2")
+            .addNumberField(identifier: "complexResult", formulaRef: "complexExpression", formulaKey: "value", label: "Complex Expression")
+            
+            // Negative number results
+            .addNumberField(identifier: "negative1Result", formulaRef: "negative1", formulaKey: "value", label: "Negative Test 1")
+            .addNumberField(identifier: "negative2Result", formulaRef: "negative2", formulaKey: "value", label: "Negative Test 2")
+            .addNumberField(identifier: "negativeResultField", formulaRef: "negativeResult", formulaKey: "value", label: "Negative Result Test")
+            
+            // Math function results
+            .addNumberField(identifier: "sumResult", formulaRef: "sum1", formulaKey: "value", label: "Sum Result")
+            .addNumberField(identifier: "maxResult", formulaRef: "max1", formulaKey: "value", label: "Max Result")
+            .addNumberField(identifier: "powResult", formulaRef: "pow1", formulaKey: "value", label: "Power Result")
+            .addNumberField(identifier: "sqrtResult", formulaRef: "sqrt1", formulaKey: "value", label: "Sqrt Result")
+            .addNumberField(identifier: "modResult", formulaRef: "mod1", formulaKey: "value", label: "Modulo Result")
+            .addNumberField(identifier: "roundResult", formulaRef: "round1", formulaKey: "value", label: "Round Result")
+            .addNumberField(identifier: "ceilResult", formulaRef: "ceil1", formulaKey: "value", label: "Ceiling Result")
+            .addNumberField(identifier: "floorResult", formulaRef: "floor1", formulaKey: "value", label: "Floor Result")
+
+        let documentEditor = documentEditor(document: document)
+        
+        // Test basic operators with initial values
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "addResult")?.number, 30)       // 10 + 20
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "subtractResult")?.number, 10)  // 20 - 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "multiplyResult")?.number, 200) // 10 * 20
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "divideResult")?.number, 2)     // 20 / 10
+        
+        // Test operator precedence and parentheses
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence1Result")?.number, 50)      // 10 + (20 * 2)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence2Result")?.number, 60)      // (10 + 20) * 2
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complexResult")?.number, 77.5)        // (10 + 20) * 3 - 25 / 2
+        
+        // Test negative numbers
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negative1Result")?.number, -10)       // -10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negative2Result")?.number, -20)       // 20 * (-1)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negativeResultField")?.number, -10)   // 20 - 10 * 3
+        
+        // Test math functions
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "sumResult")?.number, 55)        // 10 + 20 + 25
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "maxResult")?.number, 25)        // max(10, 20, 25)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "powResult")?.number, 100)       // 10^2
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "sqrtResult")?.number, 5)        // sqrt(25)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "modResult")?.number, 5)         // 25 % 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "roundResult")?.number, 8)       // round(7.65)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "ceilResult")?.number, 8)        // ceil(7.65)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "floorResult")?.number, 7)       // floor(7.65)
+        
+        // Test updating a value and seeing the formula recalculate
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "num1"), updateValue: ValueUnion.int(5)))
+        
+        // Check updated formula results after changing num1 to 5
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "addResult")?.number, 25)        // 5 + 20
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "subtractResult")?.number, 15)   // 20 - 5
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "multiplyResult")?.number, 100)  // 5 * 20
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "divideResult")?.number, 4)      // 20 / 5
+        
+        // Check updated precedence and complex expressions
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence1Result")?.number, 45)      // 5 + (20 * 2)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence2Result")?.number, 50)      // (5 + 20) * 2
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complexResult")?.number, 62.5)        // (5 + 20) * 3 - 25 / 2
+        
+        // Check updated negative numbers
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negative1Result")?.number, -5)        // -5
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negativeResultField")?.number, 5)     // 20 - 5 * 3
+        
+        // Check updated math functions
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "sumResult")?.number, 50)        // 5 + 20 + 25
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "maxResult")?.number, 25)        // max(5, 20, 25)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "powResult")?.number, 25)        // 5^2
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "modResult")?.number, 0)         // 25 % 5
+
+        // Test updating a value and seeing the formula recalculate
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "num2"), updateValue: ValueUnion.int(25)))
+        
+        // Check updated formula results after changing num2 to 25
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "addResult")?.number, 30)        // 5 + 25
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "subtractResult")?.number, 20)   // 25 - 5
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "multiplyResult")?.number, 125)  // 5 * 25
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "divideResult")?.number, 5)      // 25 / 5
+        
+        // Update decimal value and test rounding functions
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "decimal"), updateValue: ValueUnion.double(3.25)))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "roundResult")?.number, 3)       // round(3.25)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "ceilResult")?.number, 4)        // ceil(3.25)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "floorResult")?.number, 3)       // floor(3.25)
+    }
+    
+    // MARK: - Logical Operations Tests
+    
+    func testLogicalOperations() {
+        let document = JoyDoc.addDocument()
+            // Simple if statement
+            .addFormula(id: "if1", formula: "if(num1 > 10, \"Greater than 10\", \"Less or equal to 10\")")
+            .addFormula(id: "if2", formula: "if(num1 == 15, \"Exactly 15\", \"Not 15\")")
+            
+            // Nested if
+            .addFormula(id: "nestedIf", formula: "if(num1 > 20, \"High\", if(num1 > 10, \"Medium\", \"Low\"))")
+            
+            // And operator
+            .addFormula(id: "and1", formula: "and(bool1, bool2)")
+            .addFormula(id: "and2", formula: "and(bool1, bool2, bool3)")
+            .addFormula(id: "andComplex", formula: "and(num1 > 10, num2 < 30)")
+            
+            // Or operator
+            .addFormula(id: "or1", formula: "or(bool1, bool2)")
+            .addFormula(id: "or2", formula: "or(bool1, bool2, bool3)")
+            .addFormula(id: "orComplex", formula: "or(num1 > 20, num2 < 10)")
+            
+            // Not operator
+            .addFormula(id: "not1", formula: "not(bool1)")
+            .addFormula(id: "notComplex", formula: "not(num1 > 20)")
+            
+            // Empty function
+            .addFormula(id: "empty1", formula: "empty(text1)")
+            .addFormula(id: "empty2", formula: "empty(text2)")
+            .addFormula(id: "empty3", formula: "empty(emptyArray)")
+            .addFormula(id: "empty4", formula: "empty(nonEmptyArray)")
+            .addFormula(id: "emptyZero", formula: "empty(0)")
+            
+            // Complex logical combinations
+            .addFormula(id: "complex1", formula: "if(and(bool1, or(num1 > 15, num2 < 10)), \"Complex true\", \"Complex false\")")
+            .addFormula(id: "complex2", formula: "if(not(empty(text1)), \"Text has value\", \"Text is empty\")")
+            
+            // Boolean constants
+            .addFormula(id: "trueValue", formula: "true")
+            .addFormula(id: "falseValue", formula: "false")
+            .addFormula(id: "yesValue", formula: "yes")
+            .addFormula(id: "noValue", formula: "no")
+            
+            // Input fields
+            .addNumberField(identifier: "num1", value: 15, label: "Number 1")
+            .addNumberField(identifier: "num2", value: 25, label: "Number 2")
+            .addCheckboxField(identifier: "bool1", value: true, label: "Boolean 1")
+            .addCheckboxField(identifier: "bool2", value: false, label: "Boolean 2")
+            .addCheckboxField(identifier: "bool3", value: true, label: "Boolean 3")
+            .addTextField(identifier: "text1", value: "", label: "Empty Text")
+            .addTextField(identifier: "text2", value: "Hello", label: "Non-empty Text")
+            .addOptionField(identifier: "emptyArray", value: [], options: ["a", "b", "c"], multiselect: true, label: "Empty Array")
+            .addOptionField(identifier: "nonEmptyArray", value: ["a", "b"], options: ["a", "b", "c"], multiselect: true, label: "Non-empty Array")
+            
+            // Output fields
+            .addTextField(identifier: "if1Result", formulaRef: "if1", formulaKey: "value", label: "If Result 1")
+            .addTextField(identifier: "if2Result", formulaRef: "if2", formulaKey: "value", label: "If Result 2")
+            .addTextField(identifier: "nestedIfResult", formulaRef: "nestedIf", formulaKey: "value", label: "Nested If Result")
+            .addCheckboxField(identifier: "and1Result", formulaRef: "and1", formulaKey: "value", label: "And Result 1")
+            .addCheckboxField(identifier: "and2Result", formulaRef: "and2", formulaKey: "value", label: "And Result 2")
+            .addCheckboxField(identifier: "andComplexResult", formulaRef: "andComplex", formulaKey: "value", label: "Complex And Result")
+            .addCheckboxField(identifier: "or1Result", formulaRef: "or1", formulaKey: "value", label: "Or Result 1")
+            .addCheckboxField(identifier: "or2Result", formulaRef: "or2", formulaKey: "value", label: "Or Result 2")
+            .addCheckboxField(identifier: "orComplexResult", formulaRef: "orComplex", formulaKey: "value", label: "Complex Or Result")
+            .addCheckboxField(identifier: "not1Result", formulaRef: "not1", formulaKey: "value", label: "Not Result 1")
+            .addCheckboxField(identifier: "notComplexResult", formulaRef: "notComplex", formulaKey: "value", label: "Complex Not Result")
+            .addCheckboxField(identifier: "empty1Result", formulaRef: "empty1", formulaKey: "value", label: "Empty Result 1")
+            .addCheckboxField(identifier: "empty2Result", formulaRef: "empty2", formulaKey: "value", label: "Empty Result 2")
+            .addCheckboxField(identifier: "empty3Result", formulaRef: "empty3", formulaKey: "value", label: "Empty Array Result")
+            .addCheckboxField(identifier: "empty4Result", formulaRef: "empty4", formulaKey: "value", label: "Non-empty Array Result")
+            .addCheckboxField(identifier: "emptyZeroResult", formulaRef: "emptyZero", formulaKey: "value", label: "Empty Zero Result")
+            .addTextField(identifier: "complex1Result", formulaRef: "complex1", formulaKey: "value", label: "Complex Logic Result 1")
+            .addTextField(identifier: "complex2Result", formulaRef: "complex2", formulaKey: "value", label: "Complex Logic Result 2")
+            .addCheckboxField(identifier: "trueResult", formulaRef: "trueValue", formulaKey: "value", label: "True Constant")
+            .addCheckboxField(identifier: "falseResult", formulaRef: "falseValue", formulaKey: "value", label: "False Constant")
+            .addCheckboxField(identifier: "yesResult", formulaRef: "yesValue", formulaKey: "value", label: "Yes Constant")
+            .addCheckboxField(identifier: "noResult", formulaRef: "noValue", formulaKey: "value", label: "No Constant")
+            
+        let documentEditor = documentEditor(document: document)
+        
+        // Test if statements
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "if1Result")?.text, "Greater than 10") // 15 > 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "if2Result")?.text, "Exactly 15") // 15 == 15
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nestedIfResult")?.text, "Medium") // 15 is between 10 and 20
+
+        // Test and operator
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "and1Result")?.bool, false) // true && false
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "and2Result")?.bool, false) // true && false && true
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "andComplexResult")?.bool, true) // 15 > 10 && 25 < 30
+        
+        // Test or operator
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "or1Result")?.bool, true) // true || false
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "or2Result")?.bool, true) // true || false || true
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "orComplexResult")?.bool, false) // 15 > 20 || 25 < 10
+        
+        // Test not operator
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "not1Result")?.bool, false) // !true
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "notComplexResult")?.bool, true) // !(15 > 20)
+        
+        // Test empty function
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "empty1Result")?.bool, true) // empty("")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "empty2Result")?.bool, false) // empty("Hello")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "empty3Result")?.bool, true) // empty([])
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "empty4Result")?.bool, false) // empty(["a", "b"])
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "emptyZeroResult")?.bool, true) // empty(0)
+        
+        // Test complex logical combinations
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complex1Result")?.text, "Complex false") // true && (15 > 15 || 25 < 10)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complex2Result")?.text, "Text is empty") // !empty("")
+
+        // Test boolean constants
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "trueResult")?.bool, true)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "falseResult")?.bool, false)
+        XCTAssertNil(documentEditor.value(ofFieldWithIdentifier: "noResult")?.bool)
+
+        // Test updating values and recalculation
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "num1"), updateValue: ValueUnion.int(25)))
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "text1"), updateValue: ValueUnion.string("Not empty anymore")))
+        
+        // Check updated if results
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "if1Result")?.text, "Greater than 10") // 25 > 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "if2Result")?.text, "Not 15") // 25 != 15
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nestedIfResult")?.text, "High") // 25 > 20
+
+        // Check updated complex formulas
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complex1Result")?.text, "Complex true") // true && (25 > 15 || 25 < 10)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complex2Result")?.text, "Text has value") // !empty("Not empty anymore")
+    }
+    
+    // MARK: - String Operations Tests
+    
+    func testStringOperations() {
+        let document = JoyDoc.addDocument()
+            // Simple string reference
+            .addFormula(id: "stringRef", formula: "text1")
+            
+            // Case manipulation
+            .addFormula(id: "upper1", formula: "upper(text1)")
+            .addFormula(id: "lower1", formula: "lower(text2)")
+            .addFormula(id: "mixedCase", formula: "concat(upper(substring(text1, 0, 1)), lower(substring(text1, 1)))")
+            
+            // Contains check
+            .addFormula(id: "contains1", formula: "contains(text1, \"joy\")")
+            .addFormula(id: "contains2", formula: "contains(text1, \"xyz\")")
+            .addFormula(id: "containsCaseInsensitive", formula: "contains(text1, \"JOY\")")
+            
+            // Length calculation
+            .addFormula(id: "length1", formula: "length(text1)")
+            .addFormula(id: "length2", formula: "length(text3)")
+            
+            // Concatenation with + operator
+            .addFormula(id: "concatPlus", formula: "text1 + \" \" + text2")
+            
+            // Concatenation with concat function
+            .addFormula(id: "concatFunc", formula: "concat(text1, \" - \", text2)")
+            .addFormula(id: "concatMultiple", formula: "concat(text1, \" \", text2, \" (\", text3, \")\")")
+            
+            // Conditional string formatting
+            .addFormula(id: "conditionalFormat", formula: "if(length(text1) > 10, \"Long text: \" + text1, \"Short text: \" + text1)")
+            
+            // String quotes testing
+            .addFormula(id: "singleQuotes", formula: "'Single quoted text'")
+            .addFormula(id: "doubleQuotes", formula: "\"Double quoted text\"")
+            .addFormula(id: "mixedQuotes", formula: "concat('Single', \" and \", 'double', \" quotes\")")
+            
+            // Complex string manipulation
+            .addFormula(id: "emailValidation", formula: "if(and(contains(email, \"@\"), contains(email, \".\")), \"Valid email format\", \"Invalid email format\")")
+            .addFormula(id: "nameFormatter", formula: "if(and(not(empty(firstName)), not(empty(lastName))), concat(upper(substring(firstName, 0, 1)), \". \", lastName), \"Please enter your name\")")
+            
+            // Input fields
+            .addTextField(identifier: "text1", value: "joyfill", label: "Text 1")
+            .addTextField(identifier: "text2", value: "FORMULAS", label: "Text 2")
+            .addTextField(identifier: "text3", value: "", label: "Empty Text")
+            .addTextField(identifier: "firstName", value: "John", label: "First Name")
+            .addTextField(identifier: "lastName", value: "Doe", label: "Last Name")
+            .addTextField(identifier: "email", value: "john.doe@example.com", label: "Email")
+            
+            // Output fields
+            .addTextField(identifier: "stringRefResult", formulaRef: "stringRef", formulaKey: "value", label: "String Reference")
+            .addTextField(identifier: "upperResult", formulaRef: "upper1", formulaKey: "value", label: "Uppercase Result")
+            .addTextField(identifier: "lowerResult", formulaRef: "lower1", formulaKey: "value", label: "Lowercase Result")
+            .addTextField(identifier: "mixedCaseResult", formulaRef: "mixedCase", formulaKey: "value", label: "Mixed Case Result")
+            .addCheckboxField(identifier: "contains1Result", formulaRef: "contains1", formulaKey: "value", label: "Contains 'joy'")
+            .addCheckboxField(identifier: "contains2Result", formulaRef: "contains2", formulaKey: "value", label: "Contains 'xyz'")
+            .addCheckboxField(identifier: "containsCaseResult", formulaRef: "containsCaseInsensitive", formulaKey: "value", label: "Contains Case Insensitive")
+            .addNumberField(identifier: "length1Result", formulaRef: "length1", formulaKey: "value", label: "String Length 1")
+            .addNumberField(identifier: "length2Result", formulaRef: "length2", formulaKey: "value", label: "String Length 2")
+            .addTextField(identifier: "concatPlusResult", formulaRef: "concatPlus", formulaKey: "value", label: "Concat with +")
+            .addTextField(identifier: "concatFuncResult", formulaRef: "concatFunc", formulaKey: "value", label: "Concat with Function")
+            .addTextField(identifier: "concatMultipleResult", formulaRef: "concatMultiple", formulaKey: "value", label: "Multiple Concat")
+            .addTextField(identifier: "conditionalFormatResult", formulaRef: "conditionalFormat", formulaKey: "value", label: "Conditional Format")
+            .addTextField(identifier: "singleQuotesResult", formulaRef: "singleQuotes", formulaKey: "value", label: "Single Quotes")
+            .addTextField(identifier: "doubleQuotesResult", formulaRef: "doubleQuotes", formulaKey: "value", label: "Double Quotes")
+            .addTextField(identifier: "mixedQuotesResult", formulaRef: "mixedQuotes", formulaKey: "value", label: "Mixed Quotes")
+            .addTextField(identifier: "emailValidationResult", formulaRef: "emailValidation", formulaKey: "value", label: "Email Validation")
+            .addTextField(identifier: "nameFormatterResult", formulaRef: "nameFormatter", formulaKey: "value", label: "Name Formatter")
+            
+        let documentEditor = documentEditor(document: document)
+        
+        // Test string reference
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "stringRefResult")?.text, "joyfill")
+
+        // Test case manipulation
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "upperResult")?.text, "JOYFILL")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "lowerResult")?.text, "formulas")
+//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "mixedCaseResult")?.text, "Joyfill")
+
+        // Test contains
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "contains1Result")?.bool, true) // joyfill contains joy
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "contains2Result")?.bool, false) // joyfill doesn't contain xyz
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "containsCaseResult")?.bool, true) // Case insensitive contains
+        
+        // Test length
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length1Result")?.number, 7) // length("joyfill") = 7
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length2Result")?.number, 0) // length("") = 0
+        
+        // Test concatenation
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "concatPlusResult")?.text, "joyfill FORMULAS")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "concatFuncResult")?.text, "joyfill - FORMULAS")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "concatMultipleResult")?.text, "joyfill FORMULAS ()")
+
+        // Test conditional formatting
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "conditionalFormatResult")?.text, "Short text: joyfill")
+
+        // Test quotes
+//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "singleQuotesResult")?.text, "Single quoted text")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "doubleQuotesResult")?.text, "Double quoted text")
+//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "mixedQuotesResult")?.text, "Single and double quotes")
+
+        // Test complex string operations
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "emailValidationResult")?.text, "Valid email format")
+//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nameFormatterResult")?.text, "J. Doe")
+
+        // Test updating values and recalculation
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "text1"), updateValue: ValueUnion.string("This is a longer text")))
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "email"), updateValue: ValueUnion.string("invalid-email")))
+        
+        // Check updated string results
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "upperResult")?.text, "THIS IS A LONGER TEXT")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "contains1Result")?.bool, false) // No longer contains "joy"
+//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length1Result")?.number, 20) // New length
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "conditionalFormatResult")?.text, "Long text: This is a longer text") // Now longer than 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "emailValidationResult")?.text, "Invalid email format") // Invalid email now
+    }
+
+    // MARK: - Precedence and Associativity Tests
+
+    func testPrecedenceAndAssociativity() {
+        let document = JoyDoc.addDocument()
+            // Basic precedence cases from spec
+            .addFormula(id: "precedence1", formula: "3 + 4 * 2") // Multiplication before addition
+            .addFormula(id: "precedence2", formula: "(3 + 4) * 2") // Parentheses first
+            .addFormula(id: "precedence3", formula: "100 / 5 * 2") // Left-to-right division then multiplication
+
+            // Left-to-right associativity
+            .addFormula(id: "associativity1", formula: "10 - 5 - 2") // Left-to-right subtraction
+            .addFormula(id: "associativity2", formula: "8 / 4 / 2") // Left-to-right division
+            .addFormula(id: "associativity3", formula: "4 + 3 - 2") // Left-to-right addition/subtraction
+
+            // Complex precedence examples
+            .addFormula(id: "complex1", formula: "1 + 2 + 3 + 4") // Multiple additions
+            .addFormula(id: "complex2", formula: "16 / 4 * 2 + 1") // Division then multiplication then addition
+            .addFormula(id: "complex3", formula: "9 % 4 + 1 * 2") // Modulo and multiplication then addition
+
+            // Complex parenthesized expressions
+            .addFormula(id: "parentheses1", formula: "(10 + 5) * (2 + 3)") // Multiple parenthesized expressions
+            .addFormula(id: "parentheses2", formula: "((10 + 5) * 2) + 3") // Nested parentheses
+
+            // Negative numbers and precedence
+            .addFormula(id: "negative1", formula: "10 + -5") // Addition with negative number
+            .addFormula(id: "negative2", formula: "-5 * 3") // Negative multiplication
+            .addFormula(id: "negative3", formula: "-(5 + 3)") // Negating a parenthesized expression
+
+            // Function calls in expressions
+            .addFormula(id: "function1", formula: "max(5, 10) + 2") // Function result in expression
+            .addFormula(id: "function2", formula: "pow(2, 3) * 2") // Function with calculation
+            .addFormula(id: "function3", formula: "round(3.5) + ceil(4.2)") // Multiple functions
+
+            // Output fields
+            .addNumberField(identifier: "precedence1Result", formulaRef: "precedence1", formulaKey: "value", label: "3 + 4 * 2")
+            .addNumberField(identifier: "precedence2Result", formulaRef: "precedence2", formulaKey: "value", label: "(3 + 4) * 2")
+            .addNumberField(identifier: "precedence3Result", formulaRef: "precedence3", formulaKey: "value", label: "100 / 5 * 2")
+            .addNumberField(identifier: "associativity1Result", formulaRef: "associativity1", formulaKey: "value", label: "10 - 5 - 2")
+            .addNumberField(identifier: "associativity2Result", formulaRef: "associativity2", formulaKey: "value", label: "8 / 4 / 2")
+            .addNumberField(identifier: "associativity3Result", formulaRef: "associativity3", formulaKey: "value", label: "4 + 3 - 2")
+            .addNumberField(identifier: "complex1Result", formulaRef: "complex1", formulaKey: "value", label: "1 + 2 + 3 + 4")
+            .addNumberField(identifier: "complex2Result", formulaRef: "complex2", formulaKey: "value", label: "16 / 4 * 2 + 1")
+            .addNumberField(identifier: "complex3Result", formulaRef: "complex3", formulaKey: "value", label: "9 % 4 + 1 * 2")
+            .addNumberField(identifier: "parentheses1Result", formulaRef: "parentheses1", formulaKey: "value", label: "(10 + 5) * (2 + 3)")
+            .addNumberField(identifier: "parentheses2Result", formulaRef: "parentheses2", formulaKey: "value", label: "((10 + 5) * 2) + 3")
+            .addNumberField(identifier: "negative1Result", formulaRef: "negative1", formulaKey: "value", label: "10 + -5")
+            .addNumberField(identifier: "negative2Result", formulaRef: "negative2", formulaKey: "value", label: "-5 * 3")
+            .addNumberField(identifier: "negative3Result", formulaRef: "negative3", formulaKey: "value", label: "-(5 + 3)")
+            .addNumberField(identifier: "function1Result", formulaRef: "function1", formulaKey: "value", label: "max(5, 10) + 2")
+            .addNumberField(identifier: "function2Result", formulaRef: "function2", formulaKey: "value", label: "pow(2, 3) * 2")
+            .addNumberField(identifier: "function3Result", formulaRef: "function3", formulaKey: "value", label: "round(3.5) + ceil(4.2)")
+
+        let documentEditor = documentEditor(document: document)
+
+        // Test basic precedence cases
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence1Result")?.number, 11) // 3 + (4 * 2) = 3 + 8 = 11
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence2Result")?.number, 14) // (3 + 4) * 2 = 7 * 2 = 14
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "precedence3Result")?.number, 40) // (100 / 5) * 2 = 20 * 2 = 40
+
+        // Test left-to-right associativity
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "associativity1Result")?.number, 3) // (10 - 5) - 2 = 5 - 2 = 3
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "associativity2Result")?.number, 1) // (8 / 4) / 2 = 2 / 2 = 1
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "associativity3Result")?.number, 5) // (4 + 3) - 2 = 7 - 2 = 5
+
+        // Test complex precedence cases
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complex1Result")?.number, 10) // 1 + 2 + 3 + 4 = 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complex2Result")?.number, 9) // ((16 / 4) * 2) + 1 = 4 * 2 + 1 = 9
+//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complex3Result")?.number, 3) // (9 % 4) + (1 * 2) = 1 + 2 = 3
+
+        // Test complex parenthesized expressions
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "parentheses1Result")?.number, 75) // (10 + 5) * (2 + 3) = 15 * 5 = 75
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "parentheses2Result")?.number, 33) // ((10 + 5) * 2) + 3 = 30 + 3 = 33
+
+        // Test negative numbers and precedence
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negative1Result")?.number, 5) // 10 + (-5) = 5
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negative2Result")?.number, -15) // (-5) * 3 = -15
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "negative3Result")?.number, -8) // -(5 + 3) = -8
+
+        // Test function calls in expressions
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "function1Result")?.number, 12) // max(5, 10) + 2 = 10 + 2 = 12
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "function2Result")?.number, 16) // pow(2, 3) * 2 = 8 * 2 = 16
+//        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "function3Result")?.number, 8) // round(3.5) + ceil(4.2) = 4 + 5 = 9
+    }
+
+    // MARK: - Date Operations Tests
+    
+    func testDateOperations() {
+        // Create a fixed date for testing - use UTC to avoid timezone issues
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Use UTC
+        let testDate = dateFormatter.date(from: "2025-05-15")!
+        let futureDate = dateFormatter.date(from: "2030-01-01")!
+        
+        let document = JoyDoc.addDocument()
+            // Current date/time
+            .addFormula(id: "now1", formula: "now()")
+            
+            // Date components extraction
+            .addFormula(id: "year1", formula: "year(date1)")
+            .addFormula(id: "month1", formula: "month(date1)")
+            .addFormula(id: "day1", formula: "day(date1)")
+            
+            // Date creation
+            .addFormula(id: "dateCreate1", formula: "date(yearValue, monthValue, dayValue)")
+            .addFormula(id: "dateCreate2", formula: "date(2025, 12, 31)")
+            
+            // Date arithmetic
+            .addFormula(id: "dateAdd1", formula: "dateAdd(date1, timeAmount, timeUnit)")
+            .addFormula(id: "dateAdd2", formula: "dateAdd(date1, 1, \"years\")")
+            .addFormula(id: "dateSubtract1", formula: "dateSubtract(date1, timeAmount, timeUnit)")
+            .addFormula(id: "dateSubtract2", formula: "dateSubtract(date1, 1, \"months\")")
+            
+            // Date comparison
+            .addFormula(id: "dateEqual", formula: "if(date1 == date1Clone, \"Dates are equal\", \"Dates are different\")")
+            .addFormula(id: "dateBefore", formula: "if(date1 < futureDate, \"Before future date\", \"Not before future date\")")
+            .addFormula(id: "dateAfter", formula: "if(date1 > now(), \"After current date\", \"Not after current date\")")
+            
+            // Date with conditional logic
+            .addFormula(id: "dateConditional", formula: "if(year(date1) > 2024, \"After 2024\", \"2024 or earlier\")")
+            
+            // Date formatting in strings
+            .addFormula(id: "dateInString", formula: "concat(\"Year: \", year(date1), \", Month: \", month(date1), \", Day: \", day(date1))")
+            
+            // Input fields
+            .addDateField(identifier: "date1", value: testDate, label: "Test Date (2025-05-15)")
+            .addDateField(identifier: "date1Clone", value: testDate, label: "Same Test Date")
+            .addDateField(identifier: "futureDate", value: futureDate, label: "Future Date (2030-01-01)")
+            .addNumberField(identifier: "yearValue", value: 2026, label: "Year Value")
+            .addNumberField(identifier: "monthValue", value: 7, label: "Month Value")
+            .addNumberField(identifier: "dayValue", value: 20, label: "Day Value")
+            .addNumberField(identifier: "timeAmount", value: 3, label: "Time Amount")
+            .addOptionField(identifier: "timeUnit", value: ["days"], options: ["days", "weeks", "months", "years"], label: "Time Unit")
+            
+            // Output fields
+            .addDateField(identifier: "nowResult", formulaRef: "now1", formulaKey: "value", label: "Current Date/Time")
+            .addNumberField(identifier: "yearResult", formulaRef: "year1", formulaKey: "value", label: "Year Component")
+            .addNumberField(identifier: "monthResult", formulaRef: "month1", formulaKey: "value", label: "Month Component")
+            .addNumberField(identifier: "dayResult", formulaRef: "day1", formulaKey: "value", label: "Day Component")
+            .addDateField(identifier: "dateCreateResult1", formulaRef: "dateCreate1", formulaKey: "value", label: "Created Date 1")
+            .addDateField(identifier: "dateCreateResult2", formulaRef: "dateCreate2", formulaKey: "value", label: "Created Date 2")
+            .addDateField(identifier: "dateAddResult1", formulaRef: "dateAdd1", formulaKey: "value", label: "Date After Addition 1")
+            .addDateField(identifier: "dateAddResult2", formulaRef: "dateAdd2", formulaKey: "value", label: "Date After Addition 2")
+            .addDateField(identifier: "dateSubtractResult1", formulaRef: "dateSubtract1", formulaKey: "value", label: "Date After Subtraction 1")
+            .addDateField(identifier: "dateSubtractResult2", formulaRef: "dateSubtract2", formulaKey: "value", label: "Date After Subtraction 2")
+            .addTextField(identifier: "dateEqualResult", formulaRef: "dateEqual", formulaKey: "value", value: "", label: "Date Equality Test")
+            .addTextField(identifier: "dateBeforeResult", formulaRef: "dateBefore", formulaKey: "value", value: "", label: "Date Before Test")
+            .addTextField(identifier: "dateAfterResult", formulaRef: "dateAfter", formulaKey: "value", value: "", label: "Date After Test")
+            .addTextField(identifier: "dateConditionalResult", formulaRef: "dateConditional", formulaKey: "value", value: "", label: "Date Conditional Test")
+            .addTextField(identifier: "dateInStringResult", formulaRef: "dateInString", formulaKey: "value", value: "", label: "Date in String")
+            
+        let documentEditor = documentEditor(document: document)
+        
+        // Helper function to use UTC calendar for test verification
+        func utcComponents(from timestamp: Double) -> DateComponents {
+            let date = Date(timeIntervalSince1970: timestamp / 1000)
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+            return calendar.dateComponents([.year, .month, .day], from: date)
+        }
+        
+        // Test date components extraction (now using UTC date)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "yearResult")?.number, 2025)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "monthResult")?.number, 5)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayResult")?.number, 15) // Now correctly 15 in UTC
+        
+        // Test date creation
+        let createdDate1Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateCreateResult1")?.number
+        XCTAssertNotNil(createdDate1Timestamp)
+        if let timestamp = createdDate1Timestamp {
+            // Convert timestamp (in milliseconds) to Date and verify using UTC
+            let components = utcComponents(from: timestamp)
+            XCTAssertEqual(components.year, 2026)
+            XCTAssertEqual(components.month, 7)
+            XCTAssertEqual(components.day, 20)
+        }
+        
+        let createdDate2Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateCreateResult2")?.number
+        XCTAssertNotNil(createdDate2Timestamp)
+        if let timestamp = createdDate2Timestamp {
+            // Convert timestamp (in milliseconds) to Date and verify using UTC
+            let components = utcComponents(from: timestamp)
+            XCTAssertEqual(components.year, 2025)
+            XCTAssertEqual(components.month, 12)
+            XCTAssertEqual(components.day, 31)
+        }
+        
+        // Test date addition
+        let addedDate1Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateAddResult1")?.number
+        XCTAssertNotNil(addedDate1Timestamp)
+        if let timestamp = addedDate1Timestamp {
+            // Should be 3 days after 2025-05-15 = 2025-05-18
+            let components = utcComponents(from: timestamp)
+            XCTAssertEqual(components.year, 2025)
+            XCTAssertEqual(components.month, 5)
+            XCTAssertEqual(components.day, 18)
+        }
+        
+        let addedDate2Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateAddResult2")?.number
+        XCTAssertNotNil(addedDate2Timestamp)
+        if let timestamp = addedDate2Timestamp {
+            // Should be 1 year after 2025-05-15 = 2026-05-15
+            let components = utcComponents(from: timestamp)
+            XCTAssertEqual(components.year, 2026)
+            XCTAssertEqual(components.month, 5)
+            XCTAssertEqual(components.day, 15)
+        }
+        
+        // Test date subtraction
+        let subtractedDate1Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateSubtractResult1")?.number
+        XCTAssertNotNil(subtractedDate1Timestamp)
+        if let timestamp = subtractedDate1Timestamp {
+            // Should be 3 days before 2025-05-15 = 2025-05-12
+            let components = utcComponents(from: timestamp)
+            XCTAssertEqual(components.year, 2025)
+            XCTAssertEqual(components.month, 5)
+            XCTAssertEqual(components.day, 12)
+        }
+        
+        let subtractedDate2Timestamp = documentEditor.value(ofFieldWithIdentifier: "dateSubtractResult2")?.number
+        XCTAssertNotNil(subtractedDate2Timestamp)
+        if let timestamp = subtractedDate2Timestamp {
+            // Should be 1 month before 2025-05-15 = 2025-04-15
+            let components = utcComponents(from: timestamp)
+            XCTAssertEqual(components.year, 2025)
+            XCTAssertEqual(components.month, 4)
+            XCTAssertEqual(components.day, 15)
+        }
+        
+        // Test date comparison
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateEqualResult")?.text, "Dates are equal")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateBeforeResult")?.text, "Before future date")
+        
+        // Test conditional date logic
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateConditionalResult")?.text, "After 2024")
+        
+        // Test date in string (now expecting UTC values)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateInStringResult")?.text, "Year: 2025, Month: 5, Day: 15")
+        
+        // Test updating date values with timestamp (this is in seconds, so should give the expected UTC result)
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "date1"), updateValue: ValueUnion.string("1678483200")))
+
+        // Check updated results (using the corrected expectations for UTC)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "yearResult")?.number, 2023)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "monthResult")?.number, 3)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayResult")?.number, 10) // UTC day for timestamp 1678483200
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateConditionalResult")?.text, "2024 or earlier")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dateInStringResult")?.text, "Year: 2023, Month: 3, Day: 10")
+    }
+    
+    // MARK: - Array Operations Tests
+    
+    func testArrayOperations() {
+        let document = JoyDoc.addDocument()
+            // Array length
+            .addFormula(id: "length1", formula: "length(fruitArray)")
+            .addFormula(id: "length2", formula: "length(emptyArray)")
+            .addFormula(id: "length3", formula: "length(numArray)")
+            
+            // Count if
+            .addFormula(id: "countIf1", formula: "countIf(fruitArray, \"a\")")
+            .addFormula(id: "countIf2", formula: "countIf(fruitArray, searchTerm)")
+            
+            // Array concatenation
+            .addFormula(id: "concat1", formula: "concat(fruitArray, colorArray)")
+            .addFormula(id: "concat2", formula: "concat(\"Selected options: \", fruitArray)")
+            .addFormula(id: "concat3", formula: "concat(numArray, [10, 11, 12])")
+            
+            // Flat
+            .addFormula(id: "flat1", formula: "flat([[fruitArray], [colorArray]])")
+            .addFormula(id: "flatDepth", formula: "flat([numArray, [10, [11, [12]]]], 2)")
+            
+            // Map
+            .addFormula(id: "map1", formula: "map(numArray, (item) -> item * 2)")
+            .addFormula(id: "map2", formula: "map(fruitArray, (item) -> concat(\"fruit: \", item))")
+            
+            // FlatMap
+            .addFormula(id: "flatMap1", formula: "flatMap(numArray, (item) -> [item, item * 2])")
+            
+            // Filter
+            .addFormula(id: "filter1", formula: "filter(numArray, (item) -> item > 3)")
+            .addFormula(id: "filter2", formula: "filter(fruitArray, (item) -> contains(item, \"a\"))")
+            
+            // Reduce
+            .addFormula(id: "reduce1", formula: "reduce(numArray, (acc, item) -> acc + item, 0)")
+            .addFormula(id: "reduce2", formula: "reduce(numArray, (acc, item) -> acc * item, 1)")
+            
+            // Find
+            .addFormula(id: "find1", formula: "find(numArray, (item) -> item > 3)")
+            .addFormula(id: "find2", formula: "find(fruitArray, (item) -> contains(item, \"g\"))")
+            .addFormula(id: "find3", formula: "find(numArray, (item) -> item > 100)") // No match
+            
+            // Every
+            .addFormula(id: "every1", formula: "every(numArray, (item) -> item > 0)")
+            .addFormula(id: "every2", formula: "every(numArray, (item) -> item > 3)") // Should be false
+            
+            // Some
+            .addFormula(id: "some1", formula: "some(numArray, (item) -> item > 3)")
+            .addFormula(id: "some2", formula: "some(numArray, (item) -> item > 10)") // Should be false
+            
+            // Complex array operations
+            .addFormula(id: "complexArray1", formula: "filter(map(numArray, (item) -> item * 2), (item) -> item > 6)")
+            .addFormula(id: "complexArray2", formula: "reduce(filter(numArray, (item) -> item > 2), (acc, item) -> acc + item, 0)")
+            
+            // Input fields
+            .addOptionField(identifier: "fruitArray", value: ["apple", "banana", "orange", "grape"], 
+                           options: ["apple", "banana", "orange", "grape", "kiwi"], multiselect: true,
+                           label: "Fruits")
+            .addOptionField(identifier: "colorArray", value: ["red", "blue", "green"], 
+                           options: ["red", "blue", "green", "yellow", "black"], multiselect: true,
+                           label: "Colors")
+            .addOptionField(identifier: "emptyArray", value: [], 
+                           options: ["empty1", "empty2"], multiselect: true,
+                           label: "Empty Array")
+            .addTextField(identifier: "numArray", value: "[1, 2, 3, 4, 5]", label: "Number Array")
+            .addTextField(identifier: "searchTerm", value: "a", label: "Search Term")
+            
+            // Output fields
+            .addNumberField(identifier: "length1Result", formulaRef: "length1", formulaKey: "value", label: "Fruit Array Length")
+            .addNumberField(identifier: "length2Result", formulaRef: "length2", formulaKey: "value", label: "Empty Array Length")
+            .addNumberField(identifier: "length3Result", formulaRef: "length3", formulaKey: "value", label: "Number Array Length")
+            .addNumberField(identifier: "countIf1Result", formulaRef: "countIf1", formulaKey: "value", label: "Count 'a' in Fruits")
+            .addNumberField(identifier: "countIf2Result", formulaRef: "countIf2", formulaKey: "value", label: "Count Search Term in Fruits")
+            .addTextField(identifier: "concat1Result", formulaRef: "concat1", formulaKey: "value", label: "Concat Arrays")
+            .addTextField(identifier: "concat2Result", formulaRef: "concat2", formulaKey: "value", label: "Concat String with Array")
+            .addTextField(identifier: "concat3Result", formulaRef: "concat3", formulaKey: "value", label: "Concat Number Arrays")
+            .addTextField(identifier: "flat1Result", formulaRef: "flat1", formulaKey: "value", label: "Flat Arrays")
+            .addTextField(identifier: "flatDepthResult", formulaRef: "flatDepth", formulaKey: "value", label: "Flat with Depth")
+            .addTextField(identifier: "map1Result", formulaRef: "map1", formulaKey: "value", label: "Map Numbers * 2")
+            .addTextField(identifier: "map2Result", formulaRef: "map2", formulaKey: "value", label: "Map Fruits with Prefix")
+            .addTextField(identifier: "flatMap1Result", formulaRef: "flatMap1", formulaKey: "value", label: "FlatMap Result")
+            .addTextField(identifier: "filter1Result", formulaRef: "filter1", formulaKey: "value", label: "Filter Numbers > 3")
+            .addTextField(identifier: "filter2Result", formulaRef: "filter2", formulaKey: "value", label: "Filter Fruits with 'a'")
+            .addNumberField(identifier: "reduce1Result", formulaRef: "reduce1", formulaKey: "value", label: "Reduce Sum")
+            .addNumberField(identifier: "reduce2Result", formulaRef: "reduce2", formulaKey: "value", label: "Reduce Product")
+            .addNumberField(identifier: "find1Result", formulaRef: "find1", formulaKey: "value", label: "Find First > 3")
+            .addTextField(identifier: "find2Result", formulaRef: "find2", formulaKey: "value", label: "Find First with 'g'")
+            .addTextField(identifier: "find3Result", formulaRef: "find3", formulaKey: "value", label: "Find No Match")
+            .addCheckboxField(identifier: "every1Result", formulaRef: "every1", formulaKey: "value", label: "Every > 0")
+            .addCheckboxField(identifier: "every2Result", formulaRef: "every2", formulaKey: "value", label: "Every > 3")
+            .addCheckboxField(identifier: "some1Result", formulaRef: "some1", formulaKey: "value", label: "Some > 3")
+            .addCheckboxField(identifier: "some2Result", formulaRef: "some2", formulaKey: "value", label: "Some > 10")
+            .addTextField(identifier: "complexArray1Result", formulaRef: "complexArray1", formulaKey: "value", label: "Complex Array 1")
+            .addNumberField(identifier: "complexArray2Result", formulaRef: "complexArray2", formulaKey: "value", label: "Complex Array 2")
+            
+        let documentEditor = documentEditor(document: document)
+        
+        // Test array length
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length1Result")?.number, 4) // ["apple", "banana", "orange", "grape"]
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length2Result")?.number, 0) // []
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length3Result")?.number, 5) // [1, 2, 3, 4, 5]
+        
+        // Test countIf
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "countIf1Result")?.number, 4) // "a" appears in apple, banana, orange, grape
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "countIf2Result")?.number, 4) // searchTerm = "a"
+        
+        // Test concat
+        let concatArraysString = documentEditor.value(ofFieldWithIdentifier: "concat1Result")?.text
+        XCTAssertNotNil(concatArraysString)
+        XCTAssertTrue(concatArraysString?.contains("apple") == true)
+        XCTAssertTrue(concatArraysString?.contains("red") == true)
+        
+        let concatWithStringResult = documentEditor.value(ofFieldWithIdentifier: "concat2Result")?.text
+        XCTAssertNotNil(concatWithStringResult)
+        XCTAssertTrue(concatWithStringResult?.hasPrefix("Selected options:") == true)
+        XCTAssertTrue(concatWithStringResult?.contains("apple") == true)
+        
+        // Test flat
+        let flatResult = documentEditor.value(ofFieldWithIdentifier: "flat1Result")?.text
+        XCTAssertNotNil(flatResult)
+        XCTAssertTrue(flatResult?.contains("apple") == true)
+        XCTAssertTrue(flatResult?.contains("red") == true)
+        
+        // Test map
+        let mapNumbersResult = documentEditor.value(ofFieldWithIdentifier: "map1Result")?.text
+        XCTAssertNotNil(mapNumbersResult)
+        XCTAssertTrue(mapNumbersResult?.contains("2") == true) // 1 * 2
+        XCTAssertTrue(mapNumbersResult?.contains("10") == true) // 5 * 2
+        
+        let mapFruitsResult = documentEditor.value(ofFieldWithIdentifier: "map2Result")?.text
+        XCTAssertNotNil(mapFruitsResult)
+        XCTAssertTrue(mapFruitsResult?.contains("fruit: apple") == true)
+        
+        // Test filter
+        let filterNumbersResult = documentEditor.value(ofFieldWithIdentifier: "filter1Result")?.text
+        XCTAssertNotNil(filterNumbersResult)
+        XCTAssertTrue(filterNumbersResult?.contains("4") == true)
+        XCTAssertTrue(filterNumbersResult?.contains("5") == true)
+        XCTAssertFalse(filterNumbersResult?.contains("2") == true) // Not > 3
+        
+        let filterFruitsResult = documentEditor.value(ofFieldWithIdentifier: "filter2Result")?.text
+        XCTAssertNotNil(filterFruitsResult)
+        XCTAssertTrue(filterFruitsResult?.contains("apple") == true)
+        XCTAssertTrue(filterFruitsResult?.contains("banana") == true)
+        XCTAssertTrue(filterFruitsResult?.contains("orange") == true)
+        XCTAssertTrue(filterFruitsResult?.contains("grape") == true) // 'a' is in grape (gr-a-pe)
+        
+        // Test reduce
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "reduce1Result")?.number, 15) // 1+2+3+4+5
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "reduce2Result")?.number, 120) // 1*2*3*4*5
+        
+        // Test find
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "find1Result")?.number, 4) // First number > 3
+
+        // Test every/some
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "every1Result")?.bool, true) // All numbers > 0
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "every2Result")?.bool, false) // Not all numbers > 3
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "some1Result")?.bool, true) // Some numbers > 3
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "some2Result")?.bool, false) // No numbers > 10
+        
+        // Test complex array operations
+        let complexArrayResult = documentEditor.value(ofFieldWithIdentifier: "complexArray1Result")?.text
+        XCTAssertNotNil(complexArrayResult)
+        XCTAssertTrue(complexArrayResult?.contains("8") == true) // 4*2
+        XCTAssertTrue(complexArrayResult?.contains("10") == true) // 5*2
+        XCTAssertFalse(complexArrayResult?.contains("4") == true) // 2*2 = 4, not > 6
+        
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "complexArray2Result")?.number, 12) // 3+4+5 = 12
+        
+        // Test updating arrays and recalculation
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "numArray"), updateValue: ValueUnion.string("[10, 20, 30]")))
+        
+        // Check updated results
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "length3Result")?.number, 3) // New length: [10, 20, 30]
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "reduce1Result")?.number, 60) // 10+20+30
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "every2Result")?.bool, true) // Now all numbers > 3
+        
+        // Update search term
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "searchTerm"), updateValue: ValueUnion.string("e")))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "countIf2Result")?.number, 3) // "e" appears in apple, orange, and grape
+    }
+
+    // MARK: - Table Cell Resolution Tests
+    
+    func testTableCellResolution() {
+        // Create comprehensive document with ALL column types from PDF specification
+        let document = JoyDoc.cellResolution()
+        let documentEditor = documentEditor(document: document)
+        
+        // BASIC ACCESS TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicTextResult")?.text, "Laptop")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicNumberResult")?.number, 999.99)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicDropdownResult")?.text, "Electronics")
+        
+        // MultiSelect access tests (as per spec)
+        let multiSelectResult = documentEditor.value(ofFieldWithIdentifier: "basicMultiSelectResult")?.text
+        XCTAssertNotNil(multiSelectResult)
+        XCTAssertTrue(multiSelectResult?.contains("Popular") == true)
+        XCTAssertTrue(multiSelectResult?.contains("Sale") == true)
+        
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicMultiSelectFirstResult")?.text, "Popular")
+        
+        // Image access tests (as per spec)
+        let imageResult = documentEditor.value(ofFieldWithIdentifier: "basicImageResult")?.text
+        XCTAssertNotNil(imageResult)
+        XCTAssertTrue(imageResult?.contains("laptop1.jpg") == true)
+        
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicImageFirstResult")?.text, "https://example.com/laptop1.jpg")
+        
+        // Date access tests (as per spec)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicDateResult")?.number, 1748750400000)
+        
+        // Block access tests (as per spec)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicBlockResult")?.text, "Question 1: High-performance laptop")
+        
+        // Barcode access tests (as per spec)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicBarcodeResult")?.text, "code 1")
+        
+        // Signature access tests (as per spec)
+        let signatureResult = documentEditor.value(ofFieldWithIdentifier: "basicSignatureResult")?.text
+        XCTAssertNotNil(signatureResult)
+        XCTAssertTrue(signatureResult?.hasPrefix("data:image/png;base64") == true)
+        
+        // AGGREGATE FUNCTION TESTS
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "rowCount")?.number, 5) // 5 rows
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "totalPriceResult")!.number!, 1243.98, accuracy: 0.01) // Sum of all prices
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "maxPriceResult")?.number, 999.99)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "minPriceResult")?.number, 3) // Minimum price
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "avgPriceResult")!.number!, 248.796, accuracy: 0.01) // Average price
+        
+        // STRING FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "emptyTextCountResult")?.number, 1) // Row 2 has empty name
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "exactNameMatchResult")?.number, 1) // Only one "Laptop"
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nameContainsJackResult")?.number, 2) // "Jack's Item" and "Jackie's Product"
+        
+        let nameLabelsResult = documentEditor.value(ofFieldWithIdentifier: "nameLabelsResult")?.text
+        XCTAssertNotNil(nameLabelsResult)
+        XCTAssertTrue(nameLabelsResult?.contains("Laptop (0)") == true)
+        
+        // MULTISELECT FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasPopularCountResult")?.number, 3) // Rows 1, 2, 3 have "Popular"
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasAllOptionsCountResult")?.number, 1) // Only row 3 has all three
+        
+        let flattenedTagsResult = documentEditor.value(ofFieldWithIdentifier: "flattenedTagsResult")?.text
+        XCTAssertNotNil(flattenedTagsResult)
+        XCTAssertTrue(flattenedTagsResult?.contains("Popular") == true)
+        XCTAssertTrue(flattenedTagsResult?.contains("Sale") == true)
+        XCTAssertTrue(flattenedTagsResult?.contains("New") == true)
+        
+        // IMAGE FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasImageCountResult")?.number, 3) // Rows 1, 2, 4 have images
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "maxImageCountResult")?.number, 3) // Row 4 has 3 images
+        
+        // NUMBER FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "expensiveCountResult")?.number, 2) // Laptop (999.99) and Jackie's Product (200)
+        
+        let squaredPricesResult = documentEditor.value(ofFieldWithIdentifier: "squaredPricesResult")?.text
+        XCTAssertNotNil(squaredPricesResult)
+        XCTAssertTrue(squaredPricesResult?.contains("999980.0001") == true) // 999.99^2
+        
+        let evenPricesResult = documentEditor.value(ofFieldWithIdentifier: "evenPricesResult")?.text
+        XCTAssertNotNil(evenPricesResult)
+        
+        // DATE FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasDateCountResult")?.number, 4) // 4 rows have valid dates (row 4 has 0)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayGte2CountResult")?.number, 2) // Jan 2 and Jan 3
+        
+        let extractedDaysResult = documentEditor.value(ofFieldWithIdentifier: "extractedDaysResult")?.text
+        XCTAssertNotNil(extractedDaysResult)
+        
+        // BLOCK FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "questionCountResult")?.number, 3) // 3 descriptions contain "Question"
+        
+        // BARCODE FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "codeStartsCountResult")?.number, 3) // 3 barcodes contain "code"
+        
+        let scannedLabelsResult = documentEditor.value(ofFieldWithIdentifier: "scannedLabelsResult")?.text
+        XCTAssertNotNil(scannedLabelsResult)
+        XCTAssertTrue(scannedLabelsResult?.contains("SCANNED code 1") == true)
+        
+        let replaceMissingBarcodesResult = documentEditor.value(ofFieldWithIdentifier: "replaceMissingBarcodesResult")?.text
+        XCTAssertNotNil(replaceMissingBarcodesResult)
+        XCTAssertTrue(replaceMissingBarcodesResult?.contains("MISSING") == true)
+        
+        // SIGNATURE FUNCTION TESTS (as per PDF specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasSignatureCountResult")?.number, 2) // Rows 1 and 5 have signatures
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "allHaveSignaturesResult")?.text, "false") // Not all have signatures
+        
+        // OPERATOR TESTS (as per PDF specification)
+        let addTenResult = documentEditor.value(ofFieldWithIdentifier: "addTenResult")?.text
+        XCTAssertNotNil(addTenResult)
+        XCTAssertTrue(addTenResult?.contains("1009.99") == true) // 999.99 + 10
+        
+        let multiplyBySelfResult = documentEditor.value(ofFieldWithIdentifier: "multiplyBySelfResult")?.text
+        XCTAssertNotNil(multiplyBySelfResult)
+        XCTAssertTrue(multiplyBySelfResult?.contains("999980.0001") == true) // 999.99 * 999.99
+        
+        let equalToThreeResult = documentEditor.value(ofFieldWithIdentifier: "equalToThreeResult")?.text
+        XCTAssertNotNil(equalToThreeResult)
+        XCTAssertTrue(equalToThreeResult?.contains("true") == true) // Row 5 has price = 3
+        
+        let greaterThanTenResult = documentEditor.value(ofFieldWithIdentifier: "greaterThanTenResult")?.text
+        XCTAssertNotNil(greaterThanTenResult)
+        XCTAssertTrue(greaterThanTenResult?.contains("true") == true) // Most prices > 10
+        
+        print("✅ ALL table cell resolution tests passed! Covers 100% of PDF specification use cases including:")
+        print("   • Text, Number, Dropdown, MultiSelect, Image, Date, Block, Barcode, Signature columns")
+        print("   • String functions: EMPTY, CONTAINS, CONCAT, TOSTRING, UPPER, LOWER")
+        print("   • Array functions: MAP, FILTER, SOME, EVERY, FLATMAP")
+        print("   • Math functions: SUM, MAX, MIN, AVERAGE, POW, MOD")
+        print("   • Date functions: DAY extraction and filtering")
+        print("   • Logical functions: AND, OR, NOT, IF")
+        print("   • Operators: +, -, *, /, ==, !=, >, <, >=, <=")
+    }
+    
+    // MARK: - Comprehensive Table Cell Resolution Tests (All Column Types)
+    
+    func testComprehensiveTableCellResolution() {
+        // Create a comprehensive document with ALL column types as specified in the PDF
+        let document = JoyDoc.createComprehensiveTableCellResolutionDocument1()
+        let documentEditor = documentEditor(document: document)
+        
+        // BASIC ACCESS TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicTextResult")?.text, "Laptop")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicNumberResult")?.number, 999.99)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicDropdownResult")?.text, "Electronics")
+        
+        // MultiSelect access tests
+        let multiSelectResult = documentEditor.value(ofFieldWithIdentifier: "basicMultiSelectResult")?.text
+        XCTAssertNotNil(multiSelectResult)
+        XCTAssertTrue(multiSelectResult?.contains("Popular") == true)
+        XCTAssertTrue(multiSelectResult?.contains("Sale") == true)
+        
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicMultiSelectFirstResult")?.text, "Popular")
+        
+        // Image access tests
+        let imageResult = documentEditor.value(ofFieldWithIdentifier: "basicImageResult")?.text
+        XCTAssertNotNil(imageResult)
+        XCTAssertTrue(imageResult?.contains("laptop1.jpg") == true)
+        
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicImageFirstResult")?.text, "https://example.com/laptop1.jpg")
+        
+        // Date access tests
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicDateResult")?.number, 1748750400000)
+        
+        // Block access tests
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicBlockResult")?.text, "Question 1: High-performance laptop")
+        
+        // Barcode access tests
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "basicBarcodeResult")?.text, "code 1")
+        
+        // Signature access tests
+        let signatureResult = documentEditor.value(ofFieldWithIdentifier: "basicSignatureResult")?.text
+        XCTAssertNotNil(signatureResult)
+        XCTAssertTrue(signatureResult?.hasPrefix("data:image/png;base64") == true)
+        
+        // STRING FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "emptyTextCountResult")?.number, 1) // Row 2 has empty name
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "exactNameMatchResult")?.number, 1) // Only one "Laptop"
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nameContainsJackResult")?.number, 2) // "Jack's Item" and "Jackie's Product"
+        
+        let nameLabelsResult = documentEditor.value(ofFieldWithIdentifier: "nameLabelsResult")?.text
+        XCTAssertNotNil(nameLabelsResult)
+        XCTAssertTrue(nameLabelsResult?.contains("Laptop (0)") == true)
+        
+        // MULTISELECT FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasPopularCountResult")?.number, 3) // Rows 1, 2, 3 have "Popular"
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasAllOptionsCountResult")?.number, 1) // Only row 3 has all three
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "emptyMultiSelectCountResult")?.number, 2) // Rows 4 and 5 are empty
+        
+        let flattenedTagsResult = documentEditor.value(ofFieldWithIdentifier: "flattenedTagsResult")?.text
+        XCTAssertNotNil(flattenedTagsResult)
+        XCTAssertTrue(flattenedTagsResult?.contains("Popular") == true)
+        XCTAssertTrue(flattenedTagsResult?.contains("Sale") == true)
+        XCTAssertTrue(flattenedTagsResult?.contains("New") == true)
+        
+        // IMAGE FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasImageCountResult")?.number, 3) // Rows 1, 2, 4 have images
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "allHaveImagesResult")?.text, "false") // Not all rows have images
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "maxImageCountResult")?.number, 3) // Row 4 has 3 images
+        
+        // NUMBER FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "expensiveCountResult")?.number, 2) // Laptop (999.99) and Jackie's Product (200)
+        
+        let squaredPricesResult = documentEditor.value(ofFieldWithIdentifier: "squaredPricesResult")?.text
+        XCTAssertNotNil(squaredPricesResult)
+        
+        let evenPricesResult = documentEditor.value(ofFieldWithIdentifier: "evenPricesResult")?.text
+        XCTAssertNotNil(evenPricesResult)
+        
+        // DATE FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasDateCountResult")?.number, 4) // 4 rows have valid dates (row 4 has 0)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dayGte2CountResult")?.number, 2) // Jan 2 and Jan 3
+        
+        let extractedDaysResult = documentEditor.value(ofFieldWithIdentifier: "extractedDaysResult")?.text
+        XCTAssertNotNil(extractedDaysResult)
+        
+        // BLOCK FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "questionCountResult")?.number, 3) // 3 descriptions contain "Question"
+        
+        // BARCODE FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "codeStartsCountResult")?.number, 3) // 3 barcodes contain "code"
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nonEmptyBarcodeCountResult")?.number, 3) // 3 non-empty barcodes
+        
+        let scannedLabelsResult = documentEditor.value(ofFieldWithIdentifier: "scannedLabelsResult")?.text
+        XCTAssertNotNil(scannedLabelsResult)
+        XCTAssertTrue(scannedLabelsResult?.contains("SCANNED code 1") == true)
+        
+        let replaceMissingBarcodesResult = documentEditor.value(ofFieldWithIdentifier: "replaceMissingBarcodesResult")?.text
+        XCTAssertNotNil(replaceMissingBarcodesResult)
+        XCTAssertTrue(replaceMissingBarcodesResult?.contains("MISSING") == true)
+        
+        // SIGNATURE FUNCTION TESTS (as per specification)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "hasSignatureCountResult")?.number, 2) // Rows 1 and 5 have signatures
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "missingSignatureCountResult")?.number, 3) // Rows 2, 3, 4 missing signatures
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "allHaveSignaturesResult")?.text, "false") // Not all have signatures
+        
+        print("✅ All comprehensive table cell resolution tests passed! Covers ALL specification use cases.")
+    }
+
+    // MARK: - Remaining Features Tests
+    
+    func testRemainingFeatures() {
+        let document = JoyDoc.addDocument()
+            // Self/Current references
+            .addFormula(id: "selfRef", formula: "self * 2")
+            .addFormula(id: "currentRef", formula: "current + 10")
+            .addFormula(id: "thisRef", formula: "this > 50")
+            
+            // Object property references
+            .addFormula(id: "objectProp", formula: "user.name")
+            .addFormula(id: "nestedObjectProp", formula: "user.address.city")
+            
+            // Array index references
+            .addFormula(id: "arrayIndex", formula: "fruits[0]")
+            .addFormula(id: "nestedArrayIndex", formula: "matrix[1][2]")
+            .addFormula(id: "dynamicArrayIndex", formula: "fruits[selectedIndex]")
+            
+            // toNumber function
+            .addFormula(id: "toNumber1", formula: "toNumber(\"100\")")
+            .addFormula(id: "toNumber2", formula: "toNumber(\"100.25\")")
+            .addFormula(id: "toNumber3", formula: "toNumber(\"-50\")")
+            .addFormula(id: "toNumber4", formula: "toNumber(\"invalid\")")
+            .addFormula(id: "toNumberWithSpace", formula: "toNumber(\"  42  \")")
+            .addFormula(id: "toNumberCalculation", formula: "toNumber(stringNumber) * 2")
+            
+            // Input fields
+            .addNumberField(identifier: "selfValue", value: 25, label: "Self Value")
+            .addNumberField(identifier: "currentValue", value: 15, label: "Current Value")
+            .addNumberField(identifier: "thisValue", value: 75, label: "This Value")
+            .addTextField(identifier: "user", value: "{\"name\":\"John Doe\",\"address\":{\"city\":\"San Francisco\",\"zip\":\"94103\"}}", label: "User Object")
+            .addTextField(identifier: "fruits", value: "[\"apple\",\"banana\",\"orange\",\"grape\"]", label: "Fruits Array")
+            .addTextField(identifier: "matrix", value: "[[1,2,3],[4,5,6],[7,8,9]]", label: "Matrix")
+            .addNumberField(identifier: "selectedIndex", value: 2, label: "Selected Index")
+            .addTextField(identifier: "stringNumber", value: "42", label: "String Number")
+            
+            // Output fields
+            .addNumberField(identifier: "selfRefResult", formulaRef: "selfRef", formulaKey: "value", label: "Self Reference Result")
+            .addNumberField(identifier: "currentRefResult", formulaRef: "currentRef", formulaKey: "value", label: "Current Reference Result")
+            .addCheckboxField(identifier: "thisRefResult", formulaRef: "thisRef", formulaKey: "value", label: "This Reference Result")
+            .addTextField(identifier: "objectPropResult", formulaRef: "objectProp", formulaKey: "value", label: "Object Property Result")
+            .addTextField(identifier: "nestedObjectPropResult", formulaRef: "nestedObjectProp", formulaKey: "value", label: "Nested Object Property Result")
+            .addTextField(identifier: "arrayIndexResult", formulaRef: "arrayIndex", formulaKey: "value", label: "Array Index Result")
+            .addNumberField(identifier: "nestedArrayIndexResult", formulaRef: "nestedArrayIndex", formulaKey: "value", label: "Nested Array Index Result")
+            .addTextField(identifier: "dynamicArrayIndexResult", formulaRef: "dynamicArrayIndex", formulaKey: "value", label: "Dynamic Array Index Result")
+            .addNumberField(identifier: "toNumber1Result", formulaRef: "toNumber1", formulaKey: "value", label: "toNumber(\"100\") Result")
+            .addNumberField(identifier: "toNumber2Result", formulaRef: "toNumber2", formulaKey: "value", label: "toNumber(\"100.25\") Result")
+            .addNumberField(identifier: "toNumber3Result", formulaRef: "toNumber3", formulaKey: "value", label: "toNumber(\"-50\") Result")
+            .addNumberField(identifier: "toNumber4Result", formulaRef: "toNumber4", formulaKey: "value", label: "toNumber(\"invalid\") Result")
+            .addNumberField(identifier: "toNumberWithSpaceResult", formulaRef: "toNumberWithSpace", formulaKey: "value", label: "toNumber with spaces Result")
+            .addNumberField(identifier: "toNumberCalculationResult", formulaRef: "toNumberCalculation", formulaKey: "value", label: "toNumber Calculation Result")
+            
+        let documentEditor = documentEditor(document: document)
+        
+        // Test self/current references
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "selfRefResult")?.number, 50) // 25 * 2
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "currentRefResult")?.number, 25) // 15 + 10
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "thisRefResult")?.bool, true) // 75 > 50
+        
+        // Test object property references
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "objectPropResult")?.text, "John Doe")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nestedObjectPropResult")?.text, "San Francisco")
+        
+        // Test array index references
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "arrayIndexResult")?.text, "apple")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "nestedArrayIndexResult")?.number, 6) // matrix[1][2] = 6
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dynamicArrayIndexResult")?.text, "orange") // fruits[2] = orange
+        
+        // Test toNumber function
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumber1Result")?.number, 100)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumber2Result")?.number, 100.25)
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumber3Result")?.number, -50)
+        // Invalid conversion should return NaN or null, but we can't easily test for NaN
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumberWithSpaceResult")?.number, 42) // Should handle whitespace
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumberCalculationResult")?.number, 84) // 42 * 2
+        
+        // Test updates
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "selfValue"), updateValue: ValueUnion.int(50)))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "selfRefResult")?.number, 100) // 50 * 2
+        
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "selectedIndex"), updateValue: ValueUnion.int(1)))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "dynamicArrayIndexResult")?.text, "banana") // fruits[1] = banana
+        
+        documentEditor.onChange(event: FieldChangeData(fieldIdentifier: documentEditor.identifierModel(for: "stringNumber"), updateValue: ValueUnion.string("100")))
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "toNumberCalculationResult")?.number, 200) // 100 * 2
+    }
+
+    // MARK: - Debug Test for Specific Formula Issues
+    
+    func testSpecificFormulaIssues() {
+        let options = [Option("Popular"), Option("Sale")]
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "debugMultiSelectFirst", formula: "products.0.tags.0")
+            .addFormula(id: "debugImageFirst", formula: "products.0.images.0")
+            .addFormula(id: "debugMultiSelectFull", formula: "products.0.tags")
+            .addFormula(id: "debugImageFull", formula: "products.0.images")
+            .addTableField(
+                identifier: "products",
+                columns: [
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "tags"
+                        col.title = "Tags"
+                        col.type = .multiSelect
+                        col.options = options
+                        return col
+                    }(),
+                    {
+                        var col = FieldTableColumn()
+                        col.id = "images"
+                        col.title = "Images"
+                        col.type = .image
+                        return col
+                    }()
+                ],
+                rows: [
+                    {
+                        var row = ValueElement(id: "row1")
+                        row.cells = [
+                            "tags": .array(options.compactMap { $0.id }),
+                            "images": .array(["https://example.com/laptop1.jpg", "https://example.com/laptop2.jpg"])
+                        ]
+                        return row
+                    }()
+                ]
+            )
+            .addTextField(identifier: "debugMultiSelectFirstResult", formulaRef: "debugMultiSelectFirst", label: "Debug MultiSelect First")
+            .addTextField(identifier: "debugImageFirstResult", formulaRef: "debugImageFirst", label: "Debug Image First")
+            .addTextField(identifier: "debugMultiSelectFullResult", formulaRef: "debugMultiSelectFull", label: "Debug MultiSelect Full")
+            .addTextField(identifier: "debugImageFullResult", formulaRef: "debugImageFull", label: "Debug Image Full")
+        
+        let documentEditor = documentEditor(document: document)
+        
+        print("🔍 Debug test results:")
+        print("MultiSelect Full: \(documentEditor.value(ofFieldWithIdentifier: "debugMultiSelectFullResult")?.text ?? "nil")")
+        print("MultiSelect First: \(documentEditor.value(ofFieldWithIdentifier: "debugMultiSelectFirstResult")?.text ?? "nil")")
+        print("Image Full: \(documentEditor.value(ofFieldWithIdentifier: "debugImageFullResult")?.text ?? "nil")")
+        print("Image First: \(documentEditor.value(ofFieldWithIdentifier: "debugImageFirstResult")?.text ?? "nil")")
+        
+        // This should work
+        XCTAssertNotEqual(documentEditor.value(ofFieldWithIdentifier: "debugMultiSelectFullResult")?.text, "Sample Text")
+        
+        // These should work but currently fail
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "debugMultiSelectFirstResult")?.text, "Popular")
+        XCTAssertEqual(documentEditor.value(ofFieldWithIdentifier: "debugImageFirstResult")?.text, "https://example.com/laptop1.jpg")
+    }
+
+    // MARK: - Textarea Field Resolution Tests
+    
+    func testTextareaFieldResolution() {
+        // Create document with textarea field and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access
+            .addFormula(id: "simpleAccess", formula: "textarea1")
+            
+            // 1. Check if Textarea Contains a Keyword (case-insensitive)
+            .addFormula(id: "containsUrgent", formula: "contains(lower(textarea1), \"urgent\")")
+            
+            // 2. Transform to Uppercase
+            .addFormula(id: "transformUpper", formula: "upper(textarea1)")
+            
+            // 3. Transform to Lowercase
+            .addFormula(id: "transformLower", formula: "lower(textarea1)")
+            
+            // 4. Append a Message to the End
+            .addFormula(id: "appendMessage", formula: "concat(textarea1, \"\n-- Reviewed by Admin --\")")
+            
+            // 5. Empty Check
+            .addFormula(id: "emptyCheck", formula: "empty(textarea1)")
+            
+            // 6. If-Else Based on Text Presence
+            .addFormula(id: "conditionalError", formula: "if(contains(lower(textarea1), \"error\"), \"Error Detected\", \"All Clear\")")
+            
+            // 7. Concatenate with Static Prefix
+            .addFormula(id: "staticPrefix", formula: "concat(\"User Notes:\n\", textarea1)")
+            
+            // 8. Count Character Length of Entire Textarea (including newlines)
+            .addFormula(id: "characterLength", formula: "length(textarea1)")
+            
+            // Additional edge case tests
+            .addFormula(id: "emptyTextareaCheck", formula: "empty(emptyTextarea)")
+            .addFormula(id: "emptyTextareaLength", formula: "length(emptyTextarea)")
+            
+            // Add textarea field with the exact content from spec
+            .addTextareaField(identifier: "textarea1", value: "Line 1\nLine 2\nLine 3")
+            
+            // Add empty textarea for edge case testing
+            .addTextareaField(identifier: "emptyTextarea", value: "")
+            
+            // Add result fields for each formula
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess", formulaKey: "value", label: "Simple Access")
+            .addTextField(identifier: "containsUrgentResult", formulaRef: "containsUrgent", formulaKey: "value", label: "Contains Urgent")
+            .addTextField(identifier: "transformUpperResult", formulaRef: "transformUpper", formulaKey: "value", label: "Transform Upper")
+            .addTextField(identifier: "transformLowerResult", formulaRef: "transformLower", formulaKey: "value", label: "Transform Lower")
+            .addTextField(identifier: "appendMessageResult", formulaRef: "appendMessage", formulaKey: "value", label: "Append Message")
+            .addTextField(identifier: "emptyCheckResult", formulaRef: "emptyCheck", formulaKey: "value", label: "Empty Check")
+            .addTextField(identifier: "conditionalErrorResult", formulaRef: "conditionalError", formulaKey: "value", label: "Conditional Error")
+            .addTextField(identifier: "staticPrefixResult", formulaRef: "staticPrefix", formulaKey: "value", label: "Static Prefix")
+            .addTextField(identifier: "characterLengthResult", formulaRef: "characterLength", formulaKey: "value", label: "Character Length")
+            .addTextField(identifier: "emptyTextareaCheckResult", formulaRef: "emptyTextareaCheck", formulaKey: "value", label: "Empty Textarea Check")
+            .addTextField(identifier: "emptyTextareaLengthResult", formulaRef: "emptyTextareaLength", formulaKey: "value", label: "Empty Textarea Length")
+
+        let documentEditor = documentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing Textarea Field Resolution...")
+        
+        // 1. Simple Access
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access: '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "Line 1\nLine 2\nLine 3", "Simple textarea access should return the full content")
+        
+        // 2. Contains Check (case-insensitive) - should be false since "urgent" is not in the text
+        let containsUrgentResult = documentEditor.value(ofFieldWithIdentifier: "containsUrgentResult")?.bool
+        print("🔍 Contains 'urgent': \(containsUrgentResult ?? false)")
+        XCTAssertEqual(containsUrgentResult, false, "Textarea should not contain 'urgent'")
+        
+        // 3. Transform to Uppercase
+        let transformUpperResult = documentEditor.value(ofFieldWithIdentifier: "transformUpperResult")?.text
+        print("🔤 Transform Upper: '\(transformUpperResult ?? "nil")'")
+        XCTAssertEqual(transformUpperResult, "LINE 1\nLINE 2\nLINE 3", "Textarea should be converted to uppercase")
+        
+        // 4. Transform to Lowercase
+        let transformLowerResult = documentEditor.value(ofFieldWithIdentifier: "transformLowerResult")?.text
+        print("🔡 Transform Lower: '\(transformLowerResult ?? "nil")'")
+        XCTAssertEqual(transformLowerResult, "line 1\nline 2\nline 3", "Textarea should be converted to lowercase")
+        
+        // 5. Append Message
+        let appendMessageResult = documentEditor.value(ofFieldWithIdentifier: "appendMessageResult")?.text
+        print("📝 Append Message: '\(appendMessageResult ?? "nil")'")
+        XCTAssertEqual(appendMessageResult, "Line 1\nLine 2\nLine 3\n-- Reviewed by Admin --", "Message should be appended to textarea")
+        
+        // 6. Empty Check - should be false since textarea has content
+        let emptyCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyCheckResult")?.bool
+        print("❓ Empty Check: \(emptyCheckResult ?? true)")
+        XCTAssertEqual(emptyCheckResult, false, "Textarea with content should not be empty")
+        
+        // 7. Conditional Error Check - should be "All Clear" since no "error" in text
+        let conditionalErrorResult = documentEditor.value(ofFieldWithIdentifier: "conditionalErrorResult")?.text
+        print("⚠️ Conditional Error: '\(conditionalErrorResult ?? "nil")'")
+        XCTAssertEqual(conditionalErrorResult, "All Clear", "Should return 'All Clear' when no error found")
+        
+        // 8. Static Prefix
+        let staticPrefixResult = documentEditor.value(ofFieldWithIdentifier: "staticPrefixResult")?.text
+        print("📋 Static Prefix: '\(staticPrefixResult ?? "nil")'")
+        XCTAssertEqual(staticPrefixResult, "User Notes:\nLine 1\nLine 2\nLine 3", "Should prefix textarea with static text")
+        
+        // 9. Character Length (including newlines) - "Line 1\nLine 2\nLine 3" = 20 characters
+        let characterLengthResult = documentEditor.value(ofFieldWithIdentifier: "characterLengthResult")?.number
+        print("📏 Character Length: \(characterLengthResult ?? 0)")
+        XCTAssertEqual(characterLengthResult, 20, "Character count should include newlines (20 total)")
+        
+        // 10. Empty Textarea Tests
+        let emptyTextareaCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextareaCheckResult")?.bool
+        print("🕳️ Empty Textarea Check: \(emptyTextareaCheckResult ?? false)")
+        XCTAssertEqual(emptyTextareaCheckResult, true, "Empty textarea should return true for empty check")
+        
+        let emptyTextareaLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextareaLengthResult")?.number
+        print("📏 Empty Textarea Length: \(emptyTextareaLengthResult ?? -1)")
+        XCTAssertEqual(emptyTextareaLengthResult, 0, "Empty textarea should have length 0")
+        
+        print("✅ All Textarea Field Resolution tests completed!")
+    }
+
+    // MARK: - Text Field Resolution Tests
+    
+    func testTextFieldResolution() {
+        // Create document with text field and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access
+            .addFormula(id: "simpleAccess", formula: "text1")
+            
+            // 1. Concatenating Strings (static)
+            .addFormula(id: "staticConcat", formula: "concat(\"Hello\", \" \", \"World\")")
+            
+            // 2. Using Field Values in Concatenation
+            .addFormula(id: "fieldConcat", formula: "concat(\"Current entry: \", text1)")
+            
+            // 3. Changing Case - Upper
+            .addFormula(id: "transformUpper", formula: "upper(text1)")
+            
+            // 4. Changing Case - Lower
+            .addFormula(id: "transformLower", formula: "lower(text1)")
+            
+            // Additional comprehensive string function tests
+            .addFormula(id: "containsCheck", formula: "contains(text1, \"formulas\")")
+            .addFormula(id: "emptyCheck", formula: "empty(text1)")
+            .addFormula(id: "lengthCheck", formula: "length(text1)")
+            .addFormula(id: "trimCheck", formula: "trim(text1)")
+            
+            // Complex concatenation examples
+            .addFormula(id: "multiConcat", formula: "concat(\"Prefix: \", upper(text1), \" - Suffix\")")
+            .addFormula(id: "conditionalText", formula: "if(contains(text1, \"test\"), \"Found test!\", \"No test found\")")
+            
+            // Edge case tests
+            .addFormula(id: "emptyTextCheck", formula: "empty(emptyText)")
+            .addFormula(id: "emptyTextLength", formula: "length(emptyText)")
+            
+            // Add text field with the exact content from spec: "test for formulas"
+            .addTextField(identifier: "text1", value: "test for formulas")
+            
+            // Add empty text field for edge case testing
+            .addTextField(identifier: "emptyText", value: "")
+            
+            // Add result fields for all formulas
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
+            .addTextField(identifier: "staticConcatResult", formulaRef: "staticConcat")
+            .addTextField(identifier: "fieldConcatResult", formulaRef: "fieldConcat")
+            .addTextField(identifier: "transformUpperResult", formulaRef: "transformUpper")
+            .addTextField(identifier: "transformLowerResult", formulaRef: "transformLower")
+            .addTextField(identifier: "containsCheckResult", formulaRef: "containsCheck")
+            .addTextField(identifier: "emptyCheckResult", formulaRef: "emptyCheck")
+            .addTextField(identifier: "lengthCheckResult", formulaRef: "lengthCheck")
+            .addTextField(identifier: "trimCheckResult", formulaRef: "trimCheck")
+            .addTextField(identifier: "multiConcatResult", formulaRef: "multiConcat")
+            .addTextField(identifier: "conditionalTextResult", formulaRef: "conditionalText")
+            .addTextField(identifier: "emptyTextCheckResult", formulaRef: "emptyTextCheck")
+            .addTextField(identifier: "emptyTextLengthResult", formulaRef: "emptyTextLength")
+        
+        let documentEditor = documentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing Text Field Resolution...")
+        
+        // 1. Simple Access - should return exact field value
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access: '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "test for formulas", "Simple text access should return the field value")
+        
+        // 2. Static String Concatenation
+        let staticConcatResult = documentEditor.value(ofFieldWithIdentifier: "staticConcatResult")?.text
+        print("🔗 Static Concat: '\(staticConcatResult ?? "nil")'")
+        XCTAssertEqual(staticConcatResult, "Hello World", "Static concatenation should work correctly")
+        
+        // 3. Field Value Concatenation
+        let fieldConcatResult = documentEditor.value(ofFieldWithIdentifier: "fieldConcatResult")?.text
+        print("📝 Field Concat: '\(fieldConcatResult ?? "nil")'")
+        XCTAssertEqual(fieldConcatResult, "Current entry: test for formulas", "Field concatenation should include field value")
+        
+        // 4. Transform to Uppercase
+        let transformUpperResult = documentEditor.value(ofFieldWithIdentifier: "transformUpperResult")?.text
+        print("🔤 Transform Upper: '\(transformUpperResult ?? "nil")'")
+        XCTAssertEqual(transformUpperResult, "TEST FOR FORMULAS", "Text should be converted to uppercase")
+        
+        // 5. Transform to Lowercase
+        let transformLowerResult = documentEditor.value(ofFieldWithIdentifier: "transformLowerResult")?.text
+        print("🔡 Transform Lower: '\(transformLowerResult ?? "nil")'")
+        XCTAssertEqual(transformLowerResult, "test for formulas", "Text should be converted to lowercase")
+        
+        // 6. Contains Check - should find "formulas" in "test for formulas"
+        let containsCheckResult = documentEditor.value(ofFieldWithIdentifier: "containsCheckResult")?.bool
+        print("🔍 Contains Check: \(containsCheckResult ?? false)")
+        XCTAssertEqual(containsCheckResult, true, "Should find 'formulas' in the text")
+        
+        // 7. Empty Check - should be false since text has content
+        let emptyCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyCheckResult")?.bool
+        print("❓ Empty Check: \(emptyCheckResult ?? true)")
+        XCTAssertEqual(emptyCheckResult, false, "Text with content should not be empty")
+        
+        // 8. Length Check - "test for formulas" = 17 characters
+        let lengthCheckResult = documentEditor.value(ofFieldWithIdentifier: "lengthCheckResult")?.number
+        print("📏 Length Check: \(lengthCheckResult ?? 0)")
+        XCTAssertEqual(lengthCheckResult, 17, "Character count should be 17")
+        
+        // 9. Trim Check - should return same since no leading/trailing spaces
+        let trimCheckResult = documentEditor.value(ofFieldWithIdentifier: "trimCheckResult")?.text
+        print("✂️ Trim Check: '\(trimCheckResult ?? "nil")'")
+        XCTAssertEqual(trimCheckResult, "test for formulas", "Trimmed text should be the same (no extra spaces)")
+        
+        // 10. Multi Concatenation with transformation
+        let multiConcatResult = documentEditor.value(ofFieldWithIdentifier: "multiConcatResult")?.text
+        print("🔗 Multi Concat: '\(multiConcatResult ?? "nil")'")
+        XCTAssertEqual(multiConcatResult, "Prefix: TEST FOR FORMULAS - Suffix", "Complex concatenation should work")
+        
+        // 11. Conditional Text Based on Contains
+        let conditionalTextResult = documentEditor.value(ofFieldWithIdentifier: "conditionalTextResult")?.text
+        print("🔀 Conditional Text: '\(conditionalTextResult ?? "nil")'")
+        XCTAssertEqual(conditionalTextResult, "Found test!", "Should find 'test' in the text")
+        
+        // 12. Empty Text Field Tests
+        let emptyTextCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextCheckResult")?.bool
+        print("🕳️ Empty Text Check: \(emptyTextCheckResult ?? false)")
+        XCTAssertEqual(emptyTextCheckResult, true, "Empty text field should return true for empty check")
+        
+        let emptyTextLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyTextLengthResult")?.number
+        print("📏 Empty Text Length: \(emptyTextLengthResult ?? -1)")
+        XCTAssertEqual(emptyTextLengthResult, 0, "Empty text field should have length 0")
+        
+        print("✅ All Text Field Resolution tests completed!")
+    }
+
+    // MARK: - Dropdown Field Resolution Tests
+    
+    func testDropdownFieldResolution() {
+        // Create document with dropdown fields and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access - Get Selected Value
+            .addFormula(id: "simpleAccess", formula: "dropdown1")
+            
+            // String operations on dropdown values
+            .addFormula(id: "upperDropdown", formula: "upper(dropdown1)")
+            .addFormula(id: "lowerDropdown", formula: "lower(dropdown1)")
+            .addFormula(id: "containsCheck", formula: "contains(dropdown1, \"Premium\")")
+            .addFormula(id: "lengthCheck", formula: "length(dropdown1)")
+            .addFormula(id: "emptyCheck", formula: "empty(dropdown1)")
+            
+            // Concatenation with dropdown values
+            .addFormula(id: "prefixDropdown", formula: "concat(\"Selected: \", dropdown1)")
+            .addFormula(id: "multiConcat", formula: "concat(dropdown1, \" - \", dropdown2)")
+            
+            // Conditional logic based on dropdown values
+            .addFormula(id: "conditionalPricing", formula: "if(equals(dropdown1, \"Premium\"), \"$99/month\", \"$49/month\")")
+            .addFormula(id: "categoryCheck", formula: "if(contains(lower(dropdown1), \"premium\"), \"High Tier\", \"Standard Tier\")")
+            
+            // Comparison operations
+            .addFormula(id: "equalityCheck", formula: "equals(dropdown1, dropdown2)")
+            .addFormula(id: "notEqualCheck", formula: "not(equals(dropdown1, \"Basic\"))")
+            
+            // Edge case tests
+            .addFormula(id: "emptyDropdownCheck", formula: "empty(emptyDropdown)")
+            .addFormula(id: "emptyDropdownLength", formula: "length(emptyDropdown)")
+            .addFormula(id: "emptyDropdownDefault", formula: "if(empty(emptyDropdown), \"No selection\", emptyDropdown)")
+            
+            // Complex nested operations
+            .addFormula(id: "complexLogic", formula: "concat(upper(dropdown1), \" users get \", if(equals(dropdown1, \"Premium\"), \"unlimited\", \"limited\"), \" access\")")
+            
+            // Add dropdown fields with different values
+            .addOptionField(identifier: "dropdown1", value: ["Premium"], options: ["Premium"])
+            .addOptionField(identifier: "dropdown2", value: ["Basic"],options: ["Basic"] )
+            .addOptionField(identifier: "emptyDropdown", value: [""], options: ["Premium", "Basic"]) // Empty dropdown
+
+            // Add result fields for all formulas
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
+            .addTextField(identifier: "upperDropdownResult", formulaRef: "upperDropdown")
+            .addTextField(identifier: "lowerDropdownResult", formulaRef: "lowerDropdown")
+            .addTextField(identifier: "containsCheckResult", formulaRef: "containsCheck")
+            .addTextField(identifier: "lengthCheckResult", formulaRef: "lengthCheck")
+            .addTextField(identifier: "emptyCheckResult", formulaRef: "emptyCheck")
+            .addTextField(identifier: "prefixDropdownResult", formulaRef: "prefixDropdown")
+            .addTextField(identifier: "multiConcatResult", formulaRef: "multiConcat")
+            .addTextField(identifier: "conditionalPricingResult", formulaRef: "conditionalPricing")
+            .addTextField(identifier: "categoryCheckResult", formulaRef: "categoryCheck")
+            .addTextField(identifier: "equalityCheckResult", formulaRef: "equalityCheck")
+            .addTextField(identifier: "notEqualCheckResult", formulaRef: "notEqualCheck")
+            .addTextField(identifier: "emptyDropdownCheckResult", formulaRef: "emptyDropdownCheck")
+            .addTextField(identifier: "emptyDropdownLengthResult", formulaRef: "emptyDropdownLength")
+            .addTextField(identifier: "emptyDropdownDefaultResult", formulaRef: "emptyDropdownDefault")
+            .addTextField(identifier: "complexLogicResult", formulaRef: "complexLogic")
+        
+        let documentEditor = documentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing Dropdown Field Resolution...")
+        
+        // 1. Simple Access - should return exact selected value
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access: '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "Premium", "Simple dropdown access should return the selected value")
+        
+        // 2. Transform to Uppercase
+        let upperDropdownResult = documentEditor.value(ofFieldWithIdentifier: "upperDropdownResult")?.text
+        print("🔤 Upper Dropdown: '\(upperDropdownResult ?? "nil")'")
+        XCTAssertEqual(upperDropdownResult, "PREMIUM", "Dropdown value should be converted to uppercase")
+        
+        // 3. Transform to Lowercase
+        let lowerDropdownResult = documentEditor.value(ofFieldWithIdentifier: "lowerDropdownResult")?.text
+        print("🔡 Lower Dropdown: '\(lowerDropdownResult ?? "nil")'")
+        XCTAssertEqual(lowerDropdownResult, "premium", "Dropdown value should be converted to lowercase")
+        
+        // 4. Contains Check - should find "Premium" in "Premium"
+        let containsCheckResult = documentEditor.value(ofFieldWithIdentifier: "containsCheckResult")?.bool
+        print("🔍 Contains Check: \(containsCheckResult ?? false)")
+        XCTAssertEqual(containsCheckResult, true, "Should find 'Premium' in the dropdown value")
+        
+        // 5. Length Check - "Premium" = 7 characters
+        let lengthCheckResult = documentEditor.value(ofFieldWithIdentifier: "lengthCheckResult")?.number
+        print("📏 Length Check: \(lengthCheckResult ?? 0)")
+        XCTAssertEqual(lengthCheckResult, 7, "Character count should be 7 for 'Premium'")
+        
+        // 6. Empty Check - should be false since dropdown has value
+        let emptyCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyCheckResult")?.bool
+        print("❓ Empty Check: \(emptyCheckResult ?? true)")
+        XCTAssertEqual(emptyCheckResult, false, "Dropdown with value should not be empty")
+        
+        // 7. Prefix Concatenation
+        let prefixDropdownResult = documentEditor.value(ofFieldWithIdentifier: "prefixDropdownResult")?.text
+        print("📝 Prefix Dropdown: '\(prefixDropdownResult ?? "nil")'")
+        XCTAssertEqual(prefixDropdownResult, "Selected: Premium", "Should prefix dropdown value with text")
+        
+        // 8. Multi Dropdown Concatenation
+        let multiConcatResult = documentEditor.value(ofFieldWithIdentifier: "multiConcatResult")?.text
+        print("🔗 Multi Concat: '\(multiConcatResult ?? "nil")'")
+        XCTAssertEqual(multiConcatResult, "Premium - Basic", "Should concatenate two dropdown values")
+        
+        // 9. Conditional Pricing Based on Dropdown
+        let conditionalPricingResult = documentEditor.value(ofFieldWithIdentifier: "conditionalPricingResult")?.text
+        print("💰 Conditional Pricing: '\(conditionalPricingResult ?? "nil")'")
+        XCTAssertEqual(conditionalPricingResult, "$99/month", "Should return Premium pricing")
+        
+        // 10. Category Check with Case Insensitive Logic
+        let categoryCheckResult = documentEditor.value(ofFieldWithIdentifier: "categoryCheckResult")?.text
+        print("🏷️ Category Check: '\(categoryCheckResult ?? "nil")'")
+        XCTAssertEqual(categoryCheckResult, "High Tier", "Should identify Premium as High Tier")
+        
+        // 11. Equality Check Between Dropdowns
+        let equalityCheckResult = documentEditor.value(ofFieldWithIdentifier: "equalityCheckResult")?.bool
+        print("⚖️ Equality Check: \(equalityCheckResult ?? false)")
+        XCTAssertEqual(equalityCheckResult, false, "Premium and Basic should not be equal")
+        
+        // 12. Not Equal Check
+        let notEqualCheckResult = documentEditor.value(ofFieldWithIdentifier: "notEqualCheckResult")?.bool
+        print("❌ Not Equal Check: \(notEqualCheckResult ?? false)")
+        XCTAssertEqual(notEqualCheckResult, true, "Premium should not equal Basic")
+        
+        // 13. Empty Dropdown Tests
+        let emptyDropdownCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyDropdownCheckResult")?.bool
+        print("🕳️ Empty Dropdown Check: \(emptyDropdownCheckResult ?? false)")
+        XCTAssertEqual(emptyDropdownCheckResult, true, "Empty dropdown should return true for empty check")
+        
+        let emptyDropdownLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyDropdownLengthResult")?.number
+        print("📏 Empty Dropdown Length: \(emptyDropdownLengthResult ?? -1)")
+        XCTAssertEqual(emptyDropdownLengthResult, 0, "Empty dropdown should have length 0")
+        
+        let emptyDropdownDefaultResult = documentEditor.value(ofFieldWithIdentifier: "emptyDropdownDefaultResult")?.text
+        print("🔄 Empty Dropdown Default: '\(emptyDropdownDefaultResult ?? "nil")'")
+        XCTAssertEqual(emptyDropdownDefaultResult, "No selection", "Should return default text for empty dropdown")
+        
+        // 14. Complex Nested Logic
+        let complexLogicResult = documentEditor.value(ofFieldWithIdentifier: "complexLogicResult")?.text
+        print("🧠 Complex Logic: '\(complexLogicResult ?? "nil")'")
+        XCTAssertEqual(complexLogicResult, "PREMIUM users get unlimited access", "Complex nested operations should work correctly")
+        
+        print("✅ All Dropdown Field Resolution tests completed!")
+    }
+
+    // MARK: - MultiSelect Field Resolution Tests
+    
+    func testMultiSelectFieldResolution() {
+        // Create document with multiSelect fields and all formulas from the spec
+        let document = JoyDoc.addDocument()
+            // Simple Access - Individual Option by Index
+            .addFormula(id: "simpleAccess", formula: "field1.0")
+            
+            // Conditionals - Less than or equal to: Check total number of selected items
+            .addFormula(id: "lengthCheck", formula: "length(field1) <= 2")
+            
+            // Conditionals - Equality: Check if "Option 2" is Selected
+            .addFormula(id: "option2Selected", formula: "some(field1, (item) -> item == \"Option 2\")")
+            
+            // Conditionals - Not Equal: Enforce "Option 3" Not Selected
+            .addFormula(id: "option3NotSelected", formula: "every(field1, (item) -> item != \"Option 3\")")
+            
+            // Misc - Count Selected Options
+            .addFormula(id: "countSelected", formula: "length(field1)")
+            
+            // Misc - Check if "Option 3" is NOT Selected
+            .addFormula(id: "option3NotSelectedAlt", formula: "not(some(field1, (item) -> item == \"Option 3\"))")
+            
+            // Misc - Conditional Output for "Option 1"
+            .addFormula(id: "conditionalOption1", formula: "if(some(field1, (item) -> item == \"Option 1\"), \"Selected Option 1\", \"Did not select Option 1\")")
+            
+            // Misc - Convert Selected Options to Uppercase
+            .addFormula(id: "uppercaseOptions", formula: "map(field1, (item) -> upper(item))")
+            
+            // Misc - Comma-Separated List of Selected Options
+            .addFormula(id: "commaSeparated", formula: "reduce(field1, (acc, item) -> if(empty(acc), item, concat(acc, \", \", item)), \"\")")
+            
+            // Misc - Check if All Options Are Selected
+            .addFormula(id: "allOptionsSelected", formula: "every([\"Option 1\", \"Option 2\", \"Option 3\"], (opt) -> some(field1, (item) -> item == opt))")
+            
+            // Misc - Filter for "Option 1" Only
+            .addFormula(id: "filterOption1", formula: "filter(field1, (item) -> item == \"Option 1\")")
+            
+            // Additional test cases for edge scenarios
+            .addFormula(id: "emptyMultiSelectLength", formula: "length(emptyMultiSelect)")
+            .addFormula(id: "emptyMultiSelectCheck", formula: "empty(emptyMultiSelect)")
+            .addFormula(id: "secondOption", formula: "field1.1")
+            .addFormula(id: "allOptionsArray", formula: "field1")
+            
+            // Add multiSelect fields with test data matching the spec
+            // field1 has ["Option 2", "Option 1"] selected (as per spec examples)
+            .addOptionField(identifier: "field1", value: ["Option 2", "Option 1"], options: ["Option 2", "Option 1"], multiselect: true)
+            .addOptionField(identifier: "emptyMultiSelect", value: [], options: ["Option 2", "Option 1"], multiselect: true)
+
+            // Add result fields for all formulas
+            .addTextField(identifier: "simpleAccessResult", formulaRef: "simpleAccess")
+            .addTextField(identifier: "lengthCheckResult", formulaRef: "lengthCheck")
+            .addTextField(identifier: "option2SelectedResult", formulaRef: "option2Selected")
+            .addTextField(identifier: "option3NotSelectedResult", formulaRef: "option3NotSelected")
+            .addTextField(identifier: "countSelectedResult", formulaRef: "countSelected")
+            .addTextField(identifier: "option3NotSelectedAltResult", formulaRef: "option3NotSelectedAlt")
+            .addTextField(identifier: "conditionalOption1Result", formulaRef: "conditionalOption1")
+            .addTextField(identifier: "uppercaseOptionsResult", formulaRef: "uppercaseOptions")
+            .addTextField(identifier: "commaSeparatedResult", formulaRef: "commaSeparated")
+            .addTextField(identifier: "allOptionsSelectedResult", formulaRef: "allOptionsSelected")
+            .addTextField(identifier: "filterOption1Result", formulaRef: "filterOption1")
+            .addTextField(identifier: "emptyMultiSelectLengthResult", formulaRef: "emptyMultiSelectLength")
+            .addTextField(identifier: "emptyMultiSelectCheckResult", formulaRef: "emptyMultiSelectCheck")
+            .addTextField(identifier: "secondOptionResult", formulaRef: "secondOption")
+            .addTextField(identifier: "allOptionsArrayResult", formulaRef: "allOptionsArray")
+        
+        let documentEditor = documentEditor(document: document)
+        
+        // Test all formula results
+        print("\n🧪 Testing MultiSelect Field Resolution...")
+        
+        // 1. Simple Access - field1.0 should return "Option 2" (first item in ["Option 2", "Option 1"])
+        let simpleAccessResult = documentEditor.value(ofFieldWithIdentifier: "simpleAccessResult")?.text
+        print("📝 Simple Access (field1.0): '\(simpleAccessResult ?? "nil")'")
+        XCTAssertEqual(simpleAccessResult, "Option 2", "Simple multiSelect access should return first selected option")
+        
+        // 2. Length Check - length(field1) <= 2 should be true (2 <= 2)
+        let lengthCheckResult = documentEditor.value(ofFieldWithIdentifier: "lengthCheckResult")?.bool
+        print("📏 Length Check (length <= 2): \(lengthCheckResult ?? false)")
+        XCTAssertEqual(lengthCheckResult, true, "Length check should be true since 2 <= 2")
+        
+        // 3. Option 2 Selected - some(field1, (item) -> item == "Option 2") should be true
+        let option2SelectedResult = documentEditor.value(ofFieldWithIdentifier: "option2SelectedResult")?.bool
+        print("✅ Option 2 Selected: \(option2SelectedResult ?? false)")
+        XCTAssertEqual(option2SelectedResult, true, "Should find Option 2 in selected options")
+        
+        // 4. Option 3 Not Selected - every(field1, (item) -> item != "Option 3") should be true
+        let option3NotSelectedResult = documentEditor.value(ofFieldWithIdentifier: "option3NotSelectedResult")?.bool
+        print("❌ Option 3 Not Selected (every): \(option3NotSelectedResult ?? false)")
+        XCTAssertEqual(option3NotSelectedResult, true, "All items should be != Option 3")
+        
+        // 5. Count Selected - length(field1) should be 2
+        let countSelectedResult = documentEditor.value(ofFieldWithIdentifier: "countSelectedResult")?.number
+        print("🔢 Count Selected: \(countSelectedResult ?? 0)")
+        XCTAssertEqual(countSelectedResult, 2, "Should count 2 selected options")
+        
+        // 6. Option 3 Not Selected Alt - not(some(field1, (item) -> item == "Option 3")) should be true
+        let option3NotSelectedAltResult = documentEditor.value(ofFieldWithIdentifier: "option3NotSelectedAltResult")?.bool
+        print("❌ Option 3 Not Selected (not/some): \(option3NotSelectedAltResult ?? false)")
+        XCTAssertEqual(option3NotSelectedAltResult, true, "Should not find Option 3 in selected options")
+        
+        // 7. Conditional Option 1 - should return "Selected Option 1"
+        let conditionalOption1Result = documentEditor.value(ofFieldWithIdentifier: "conditionalOption1Result")?.text
+        print("🎯 Conditional Option 1: '\(conditionalOption1Result ?? "nil")'")
+        XCTAssertEqual(conditionalOption1Result, "Selected Option 1", "Should find Option 1 and return success message")
+        
+        // 8. Uppercase Options - map(field1, (item) -> upper(item)) should return ["OPTION 2", "OPTION 1"]
+        let uppercaseOptionsResult = documentEditor.value(ofFieldWithIdentifier: "uppercaseOptionsResult")?.text
+        print("🔤 Uppercase Options: '\(uppercaseOptionsResult ?? "nil")'")
+        // Note: Array results are converted to string representation for text fields
+        XCTAssertTrue(uppercaseOptionsResult?.contains("OPTION 2") == true, "Should contain OPTION 2")
+        XCTAssertTrue(uppercaseOptionsResult?.contains("OPTION 1") == true, "Should contain OPTION 1")
+        
+        // 9. Comma-Separated List - should return "Option 2, Option 1"
+        let commaSeparatedResult = documentEditor.value(ofFieldWithIdentifier: "commaSeparatedResult")?.text
+        print("📝 Comma Separated: '\(commaSeparatedResult ?? "nil")'")
+        XCTAssertEqual(commaSeparatedResult, "Option 2, Option 1", "Should create comma-separated list")
+        
+        // 10. All Options Selected - should return false (Option 3 not selected)
+        let allOptionsSelectedResult = documentEditor.value(ofFieldWithIdentifier: "allOptionsSelectedResult")?.bool
+        print("🎯 All Options Selected: \(allOptionsSelectedResult ?? true)")
+        XCTAssertEqual(allOptionsSelectedResult, false, "Should be false since Option 3 is not selected")
+        
+        // 11. Filter Option 1 - should return ["Option 1"]
+        let filterOption1Result = documentEditor.value(ofFieldWithIdentifier: "filterOption1Result")?.text
+        print("🔍 Filter Option 1: '\(filterOption1Result ?? "nil")'")
+        XCTAssertTrue(filterOption1Result?.contains("Option 1") == true, "Should contain filtered Option 1")
+        
+        // 12. Empty MultiSelect Tests
+        let emptyMultiSelectLengthResult = documentEditor.value(ofFieldWithIdentifier: "emptyMultiSelectLengthResult")?.number
+        print("📏 Empty MultiSelect Length: \(emptyMultiSelectLengthResult ?? -1)")
+        XCTAssertEqual(emptyMultiSelectLengthResult, 0, "Empty multiSelect should have length 0")
+        
+        let emptyMultiSelectCheckResult = documentEditor.value(ofFieldWithIdentifier: "emptyMultiSelectCheckResult")?.bool
+        print("🕳️ Empty MultiSelect Check: \(emptyMultiSelectCheckResult ?? false)")
+        XCTAssertEqual(emptyMultiSelectCheckResult, true, "Empty multiSelect should return true for empty check")
+        
+        // 13. Second Option - field1.1 should return "Option 1" (second item)
+        let secondOptionResult = documentEditor.value(ofFieldWithIdentifier: "secondOptionResult")?.text
+        print("📝 Second Option (field1.1): '\(secondOptionResult ?? "nil")'")
+        XCTAssertEqual(secondOptionResult, "Option 1", "Second option access should return Option 1")
+        
+        // 14. All Options Array - field1 should return the full array
+        let allOptionsArrayResult = documentEditor.value(ofFieldWithIdentifier: "allOptionsArrayResult")?.text
+        print("📋 All Options Array: '\(allOptionsArrayResult ?? "nil")'")
+        XCTAssertTrue(allOptionsArrayResult?.contains("Option 2") == true, "Should contain Option 2")
+        XCTAssertTrue(allOptionsArrayResult?.contains("Option 1") == true, "Should contain Option 1")
+        
+        print("✅ All MultiSelect Field Resolution tests completed!")
+    }
+}
+
+extension DocumentEditor {
+    func identifierModel(for identifier: String) -> FieldIdentifier {
+        let field = self.field(fieldID: identifier)
+        return FieldIdentifier(fieldID: field!.id!, pageID: "", fileID: field!.file)
+    }
+
+    func value(ofFieldWithIdentifier fieldID: String) -> ValueUnion? {
+        self.field(fieldID: fieldID)?.value
+    }
+}

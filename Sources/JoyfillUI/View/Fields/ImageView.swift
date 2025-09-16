@@ -46,7 +46,7 @@ struct ImageView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(imageDataModel.fieldHeaderModel)
+            FieldHeaderView(imageDataModel.fieldHeaderModel, isFilled: !valueElements.isEmpty)
             if let uiImage = uiImagesArray.first {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
@@ -180,7 +180,7 @@ struct ImageView: View {
     }
     
     func uploadAction() {
-        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, multi: isMultiEnabled) { urls in
+        let uploadEvent = UploadEvent(fieldEvent: imageDataModel.fieldIdentifier, target: "field.update", multi: isMultiEnabled, uploadHandler: { urls in
             var urlsToProcess: [String] = []
             if !isMultiEnabled {
                 if let firstURL = urls.first {
@@ -191,7 +191,7 @@ struct ImageView: View {
             } else {
                 urlsToProcess = urls
             }
-            
+
             for imageURL in urlsToProcess {
                 showProgressView = true
                 imageViewModel.loadSingleURL(imageURL: imageURL, completion: { image in
@@ -200,7 +200,7 @@ struct ImageView: View {
                     let valueElement = valueElements.first { valueElement in
                         valueElement.url == imageURL
                     } ?? ValueElement(id: JoyfillModel.generateObjectId(), url: imageURL)
-                    
+
                     if let image = image {
                         self.imageDictionary[valueElement] = image
                         valueElements.append(valueElement)
@@ -214,7 +214,7 @@ struct ImageView: View {
                     }
                 })
             }
-        }
+        })
         eventHandler.onUpload(event: uploadEvent)
     }
 }
@@ -239,15 +239,13 @@ struct MoreImageView: View {
                 Text("More Images")
                     .fontWeight(.bold)
                 Spacer()
-                if #available(iOS 16, *) {  }
-                else {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
-                        Image(systemName: "xmark.circle")
-                            .imageScale(.large)
-                    })
-                }
+                
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    Image(systemName: "xmark.circle")
+                        .imageScale(.large)
+                })
             }
             
             if !isUploadHidden {
@@ -485,6 +483,7 @@ struct ImageGridView: View {
                         .accessibilityIdentifier("DetailPageImageSelectionIdentifier")
                     }
                 }
+                .padding(8)
             }
         }
     }

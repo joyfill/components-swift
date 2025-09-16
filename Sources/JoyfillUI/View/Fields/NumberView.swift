@@ -1,32 +1,51 @@
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct NumberView: View {
-    @State var number: String = ""
-    @State private var debounceTask: Task<Void, Never>?
+    // Use a binding that we control rather than a State variable
     private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
     let eventHandler: FieldChangeEvents
+    // Use local state for value tracking instead of frequent model updates
+    @State private var displayText: String = ""
+    @State private var lastModelValue: Double?
+    @State private var debounceTask: Task<Void, Never>?
 
     public init(numberDataModel: NumberDataModel, eventHandler: FieldChangeEvents) {
         self.numberDataModel = numberDataModel
         self.eventHandler = eventHandler
-        if let number = numberDataModel.number {
-            let formatter = NumberFormatter()
-            formatter.minimumFractionDigits = 0
-            formatter.maximumFractionDigits = 10
-            formatter.numberStyle = .decimal
-            formatter.usesGroupingSeparator = false
-
-            let formattedNumberString = formatter.string(from: NSNumber(value: number)) ?? ""
-            _number = State(initialValue: formattedNumberString)
-        }
+        // Don't initialize state variables here - moved to onAppear
     }
     
+    private func formatNumber(_ number: Double?) -> String {
+        guard let number = number else { return "" }
+        
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 10
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
+        
+        return formatter.string(from: NSNumber(value: number)) ?? ""
+    }
+
     var body: some View {
-        VStack(alignment: .leading) {
-            FieldHeaderView(numberDataModel.fieldHeaderModel)
-            TextField("", text: $number)
+        // Create a custom binding that gives us more control
+        let textBinding = Binding<String>(
+            get: { displayText },
+            set: { newValue in
+                // Only update if really changing to avoid triggering unnecessary redraws
+                if displayText != newValue {
+                    displayText = newValue
+                }
+            }
+        )
+
+        return VStack(alignment: .leading) {
+            FieldHeaderView(numberDataModel.fieldHeaderModel, isFilled: !(displayText.isEmpty))
+            // Use the custom binding for more controlled updates
+            TextField("", text: textBinding)
                 .accessibilityIdentifier("Number")
                 .disabled(numberDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
@@ -45,25 +64,47 @@ struct NumberView: View {
                         updateFieldValue()
                     }
                 }
-                .onChange(of: number, perform: debounceTextChange)
+                .onChange(of: displayText) { newValue in
+                    if isFocused {
+                        debounceTextChange(newValue: newValue)
+                    }
+                }
+        }
+        .onAppear {
+            // Initialize on first appear
+            if displayText.isEmpty {
+                displayText = formatNumber(numberDataModel.number)
+            }
+            lastModelValue = numberDataModel.number
+        }
+        .onChange(of: numberDataModel.number) { newValue in
+            // Only update if not focused and value has actually changed
+            if !isFocused && lastModelValue != newValue {
+                // Avoid the flicker by comparing actual numeric values, not string representation
+                let newFormatted = formatNumber(newValue)
+                if displayText != newFormatted {
+                    displayText = newFormatted
+                }
+                lastModelValue = newValue
+            }
         }
     }
-    
+
     private func updateFieldValue() {
         let newValue: ValueUnion
-        if !number.isEmpty, let doubleValue = Double(number) {
+        if !displayText.isEmpty, let doubleValue = Double(displayText) {
             newValue = ValueUnion.double(doubleValue)
         } else {
-            newValue = ValueUnion.string("")
+            newValue = ValueUnion.null
         }
         let event = FieldChangeData(fieldIdentifier: numberDataModel.fieldIdentifier, updateValue: newValue)
         eventHandler.onChange(event: event)
     }
-    
+
     private func debounceTextChange(newValue: String) {
-        debounceTask?.cancel() // Cancel any ongoing debounce task
+        debounceTask?.cancel()
         debounceTask = Task {
-            try? await Task.sleep(nanoseconds: Constants.DEBOUNCE_TIME_IN_NANOSECONDS)
+            try? await Task.sleep(nanoseconds: Utility.DEBOUNCE_TIME_IN_NANOSECONDS)
             if !Task.isCancelled {
                 await MainActor.run {
                     updateFieldValue()
@@ -73,7 +114,3 @@ struct NumberView: View {
     }
 }
 
-
-class Constants {
-    static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 1_000_000_000
-}

@@ -2,7 +2,9 @@ import SwiftUI
 import JoyfillModel
 
 struct TableRowView : View {
+    @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
+    var longestBlockText: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -11,9 +13,16 @@ struct TableRowView : View {
                     Rectangle()
                         .stroke()
                         .foregroundColor(Color.tableCellBorderColor)
-                    TableViewCellBuilder(cellModel: $cellModel)
+                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                 }
-                .frame(minWidth: 170, maxWidth: 170, minHeight: 50, maxHeight: .infinity)
+                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
+                                                      format: cellModel.data.format ?? .empty,
+                                                      text: cellModel.data.type == .block ? longestBlockText : ""),
+                       maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
+                                                      format: cellModel.data.format ?? .empty,
+                                                      text: cellModel.data.type == .block ? longestBlockText : ""),
+                       minHeight: 50,
+                       maxHeight: .infinity)
             }
         }
     }
@@ -27,9 +36,11 @@ struct TableModalView : View {
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
+    var longestBlockText: String = ""
 
     init(viewModel: TableViewModel) {
         self.viewModel = viewModel
+        longestBlockText = viewModel.tableDataModel.getLongestBlockText()
     }
     
     var body: some View {
@@ -99,7 +110,7 @@ struct TableModalView : View {
                 let column1 = rowModel1.cells[currentSelectedCol].data
                 let column2 = rowModel2.cells[currentSelectedCol].data
                 switch column1.type {
-                case "text":
+                case .text:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return (column1.title ?? "") < (column2.title ?? "")
@@ -108,12 +119,30 @@ struct TableModalView : View {
                     case .none:
                         return true
                     }
-                case "dropdown":
+                case .dropdown:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return (column1.selectedOptionText ?? "") < (column2.selectedOptionText ?? "")
                     case .descending:
                         return (column1.selectedOptionText ?? "") > (column2.selectedOptionText ?? "")
+                    case .none:
+                        return true
+                    }
+                case .number:
+                    switch viewModel.tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (column1.number ?? 0) < (column2.number ?? 0)
+                    case .descending:
+                        return (column1.number ?? 0) > (column2.number ?? 0)
+                    case .none:
+                        return true
+                    }
+                case .barcode:
+                    switch viewModel.tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (column1.title ?? "") < (column2.title ?? "")
+                    case .descending:
+                        return (column1.title ?? "") > (column2.title ?? "")
                     case .none:
                         return true
                     }
@@ -149,8 +178,8 @@ struct TableModalView : View {
                 .frame(minHeight: 50)
                 .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight)
                 .border(Color.tableCellBorderColor)
-                .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
-                .cornerRadius(14, corners: [.topLeft])
+                .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
                 
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
@@ -176,16 +205,16 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(Color.tableCellBorderColor)
-                    .cornerRadius(14, corners: [.topRight])
+                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
                     ScrollView([.horizontal], showsIndicators: false) {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(Color.tableCellBorderColor)
-                    .cornerRadius(14, corners: [.topRight])
+                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
                 
@@ -198,15 +227,22 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
-            ForEach(Array(viewModel.tableDataModel.columns.enumerated()), id: \.offset) { index, columnId in
+            ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
                 Button(action: {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     HStack {
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: columnId))
+                        Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id ?? ""))
                             .multilineTextAlignment(.leading)
                             .darkLightThemeColor()
-                        if viewModel.tableDataModel.getColumnType(columnId: columnId) != "image" {
+                        
+                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+                            Image(systemName: "asterisk")
+                                .foregroundColor(.red)
+                                .imageScale(.small)
+                        }
+                        
+                        if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                         }
@@ -214,18 +250,19 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: 170)
+                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id ?? "") ?? .unknown,
+                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id ?? "") ?? .empty,
+                                                       text: longestBlockText))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
                             .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
                     )
-                    .background(
-                        colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
-                    )
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled(viewModel.tableDataModel.getColumnType(columnId: columnId) == "image" || viewModel.tableDataModel.rowOrder.count == 0)
+                .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0)
+//                .disabled(true)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -279,7 +316,7 @@ struct TableModalView : View {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                                TableRowView(rowDataModel: $rowCellModels)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                     .frame(height: 60)
                             }
                         }
@@ -293,6 +330,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
@@ -305,7 +343,7 @@ struct TableModalView : View {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                                TableRowView(rowDataModel: $rowCellModels)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
                                     .frame(height: 60)
                             }
                         }
@@ -319,6 +357,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
@@ -342,4 +381,3 @@ struct ViewOffsetKey: PreferenceKey {
         value.y += nextValue().y
     }
 }
-

@@ -1,0 +1,289 @@
+{
+  "formulas": [
+    {
+      "_id": "formula_fieldA_nested_1",
+      "desc": "fieldA = if(not(empty(sum([fieldB, 5]))), 1, 0)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(not(empty(sum([fieldB1, 5]))), 1, 0)"
+    },
+    {
+      "_id": "formula_fieldB_nested_1",
+      "desc": "fieldB = fieldA + 2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA1 + 2"
+    },
+    {
+      "_id": "formula_fieldA_nested_2",
+      "desc": "fieldA = reduce([fieldB, 1], (acc, cur) -> acc + cur, 0)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "reduce([fieldB2, 1], (acc, cur) -> acc + cur, 0)"
+    },
+    {
+      "_id": "formula_fieldB_nested_2",
+      "desc": "fieldB = fieldA * 3",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA2 * 3"
+    },
+    {
+      "_id": "formula_fieldA_working_1",
+      "desc": "Working: if(not(empty(sum([10, 5]))), 1, 0)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(not(empty(sum([10, 5]))), 1, 0)"
+    },
+    {
+      "_id": "formula_fieldB_working_1",
+      "desc": "Working: fieldB = fieldA * 2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA_working_1 * 2"
+    },
+    {
+      "_id": "formula_fieldA_working_2",
+      "desc": "Working: reduce([10, 1], (acc, cur) -> acc + cur, 0)",
+      "type": "calc",
+      "scope": "private",
+      "expression": "reduce([10, 1], (acc, cur) -> acc + cur, 0)"
+    },
+    {
+      "_id": "formula_fieldB_working_2",
+      "desc": "Working: fieldB = fieldA * 3",
+      "type": "calc",
+      "scope": "private",
+      "expression": "fieldA_working_2 * 3"
+    }
+  ],
+  "fields": [
+    {
+      "_id": "fieldA1",
+      "type": "number",
+      "title": "Nested Circular A1 (if \u2192 not \u2192 empty \u2192 sum)",
+      "identifier": "fieldA1",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_nested_1",
+          "formula": "formula_fieldA_nested_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldB1",
+      "type": "number",
+      "title": "Depends on A1",
+      "identifier": "fieldB1",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_nested_1",
+          "formula": "formula_fieldB_nested_1",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldA2",
+      "type": "number",
+      "title": "Nested Circular A2 (reduce)",
+      "identifier": "fieldA2",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_nested_2",
+          "formula": "formula_fieldA_nested_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldB2",
+      "type": "number",
+      "title": "Depends on A2",
+      "identifier": "fieldB2",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_nested_2",
+          "formula": "formula_fieldB_nested_2",
+          "key": "value"
+        }
+      ],
+      "file": "file1"
+    },
+    {
+      "_id": "fieldA_working_1",
+      "file": "file1",
+      "type": "number",
+      "title": "Working A1 (deep nested if)",
+      "identifier": "fieldA_working_1",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_working_1",
+          "formula": "formula_fieldA_working_1",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "fieldB_working_1",
+      "file": "file1",
+      "type": "number",
+      "title": "Working B1 (depends on A1)",
+      "identifier": "fieldB_working_1",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_working_1",
+          "formula": "formula_fieldB_working_1",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "fieldA_working_2",
+      "file": "file1",
+      "type": "number",
+      "title": "Working A2 (reduce)",
+      "identifier": "fieldA_working_2",
+      "formulas": [
+        {
+          "_id": "AF_fieldA_working_2",
+          "formula": "formula_fieldA_working_2",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "_id": "fieldB_working_2",
+      "file": "file1",
+      "type": "number",
+      "title": "Working B2 (depends on A2)",
+      "identifier": "fieldB_working_2",
+      "formulas": [
+        {
+          "_id": "AF_fieldB_working_2",
+          "formula": "formula_fieldB_working_2",
+          "key": "value"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "_id": "file1",
+      "name": "Encapsulated Circular File",
+      "pageOrder": [
+        "page1"
+      ],
+      "pages": [
+        {
+          "_id": "page1",
+          "name": "Encapsulated Circular Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "padding": 24,
+          "layout": "grid",
+          "presentation": "normal",
+          "fieldPositions": [
+            {
+              "_id": "fp_fieldA1",
+              "field": "fieldA1",
+              "type": "number",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB1",
+              "field": "fieldB1",
+              "type": "number",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldA2",
+              "field": "fieldA2",
+              "type": "number",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB2",
+              "field": "fieldB2",
+              "type": "number",
+              "x": 4,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldA_working_1",
+              "field": "fieldA_working_1",
+              "type": "number",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB_working_1",
+              "field": "fieldB_working_1",
+              "type": "number",
+              "x": 4,
+              "y": 16,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldA_working_2",
+              "field": "fieldA_working_2",
+              "type": "number",
+              "x": 0,
+              "y": 24,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            },
+            {
+              "_id": "fp_fieldB_working_2",
+              "field": "fieldB_working_2",
+              "type": "number",
+              "x": 4,
+              "y": 24,
+              "width": 4,
+              "height": 8,
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "type": "document",
+  "v": "1",
+  "createdOn": 31232313,
+  "deleted": false,
+  "_id": "685750eff3216b45ffe73c80",
+  "identifier": "doc_685750eff3216b45ffe73c80",
+  "name": "New Doc"
+}

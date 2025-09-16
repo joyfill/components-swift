@@ -15,7 +15,7 @@ struct FormContainerTestView: View {
 
     init(document: JoyDoc, pageID: String) {
         let changeManager = TestChangeManager()
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true)
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true, license: licenseKey)
         self.changeManager = changeManager
         self.changeManager.documentEditor = documentEditor
     }
@@ -28,10 +28,18 @@ struct FormContainerTestView: View {
 }
 
 class TestChangeManager: FormChangeEvent {
+    func onError(error: Joyfill.JoyfillError) {
+
+    }
+    
+    func onCapture(event: CaptureEvent) {
+        print(">>>>>>>>onCapture")
+    }
+    
     var documentEditor: DocumentEditor?
     let imagePicker = ImagePicker()
 
-    func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
+    func onChange(changes: [Change], document: JoyDoc) {
         if let firstChange = changes.first {
             print(">>>>>>>>onChange", firstChange.fieldId ?? "")
         } else {

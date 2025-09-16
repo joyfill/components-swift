@@ -4,6 +4,8 @@ import JoyfillModel
 struct DateTimeView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate = Date()
+    @State private var lastModelValue: ValueUnion?
+    @State private var ignoreOnChangeOnModelUpdate = false
     private var dateTimeDataModel: DateTimeDataModel
     let eventHandler: FieldChangeEvents
 
@@ -11,8 +13,8 @@ struct DateTimeView: View {
         self.dateTimeDataModel = dateTimeDataModel
         self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
-            let dateString = value.dateTime(format: dateTimeDataModel.format ?? "") ?? ""
-            if let date = stringToDate(dateString, format: dateTimeDataModel.format ?? "") {
+            let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
+            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                 _selectedDate = State(initialValue: date)
                 _isDatePickerPresented = State(initialValue: true)
             }
@@ -20,18 +22,35 @@ struct DateTimeView: View {
     }
     
     var body: some View {
-        FieldHeaderView(dateTimeDataModel.fieldHeaderModel)
+        FieldHeaderView(dateTimeDataModel.fieldHeaderModel, isFilled: dateTimeDataModel.value?.number != nil)
         Group {
             if isDatePickerPresented {
-                DatePicker("", selection: $selectedDate, displayedComponents: getDateType(format: dateTimeDataModel.format ?? ""))
-                    .accessibilityIdentifier("DateIdenitfier")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .labelsHidden()
-                    .padding(.all, 8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
+                HStack(spacing: 8) {
+                    DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: dateTimeDataModel.format ?? .empty))
+                        .accessibilityIdentifier("DateIdenitfier")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .labelsHidden()
+                        .environment(\.timeZone, TimeZone(identifier: dateTimeDataModel.timezoneId ?? TimeZone.current.identifier) ?? .current)
+
+                    Button(action: {
+                        isDatePickerPresented = false
+                        let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: ValueUnion.null)
+                        eventHandler.onChange(event: event)
+                        eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
+                    }, label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .imageScale(.large)
+                            .foregroundStyle(.secondary)
+                    })
+                    .accessibilityIdentifier("DateClearIdentifier")
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear")
+                }
+                .padding(.all, 8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
             } else {
                 HStack {
                     Text("Select a Date -")
@@ -47,37 +66,50 @@ struct DateTimeView: View {
                 .onTapGesture {
                     isDatePickerPresented = true
                     selectedDate = Date()
+                    convertDateAccToTimezone()
                 }
             }
         }
         .onChange(of: selectedDate) { newValue in
+            guard !ignoreOnChangeOnModelUpdate else {
+                ignoreOnChangeOnModelUpdate = false
+                return
+            }
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
             let newDateValue = ValueUnion.double(convertDateToInt)
             let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: newDateValue)
             eventHandler.onChange(event: event)
             eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
         }
+        .onAppear {
+            lastModelValue = dateTimeDataModel.value
+        }
+        .onChange(of: dateTimeDataModel.value) { newValue in
+            if lastModelValue != newValue {
+                if let value = newValue {
+                    let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
+                    if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
+                        selectedDate = date
+                        isDatePickerPresented = true
+                    }
+                } else {
+                    isDatePickerPresented = false
+                    ignoreOnChangeOnModelUpdate = true
+                    selectedDate = Date()
+                }
+                lastModelValue = newValue
+            }
+        }
     }
     
-    func stringToDate(_ dateString: String, format: String) -> Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = DateFormatType(rawValue: format)?.dateFormat ?? ""
-        return dateFormatter.date(from: dateString)
-    }
-    
-    func getDateType(format: String) -> DatePickerComponents {
-        switch DateFormatType(rawValue: format) {
-        case .dateOnly:
-            return [.date]
-        case .timeOnly:
-            return [.hourAndMinute]
-        case .dateTime:
-            return [.date, .hourAndMinute]
-        case .none:
-            return [.date, .hourAndMinute]
-        case .some(.empty):
-            return [.date, .hourAndMinute]
+    fileprivate func convertDateAccToTimezone() {
+        let timeZone = TimeZone(identifier: dateTimeDataModel.timezoneId ?? TimeZone.current.identifier)
+        let convertedDate = Utility.convertEpochBetweenTimezones(epochMillis: dateToTimestampMilliseconds(date: selectedDate), from: TimeZone.current, to: timeZone ?? TimeZone.current, format: dateTimeDataModel.format)
+        
+        if let dateString = ValueUnion.double(convertedDate).dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
+            if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
+                self.selectedDate = date
+            }
         }
     }
 }
-

@@ -1,5 +1,6 @@
 import SwiftUI
 import JoyfillModel
+import JoyfillFormulas
 
 public struct Form: View {
     let documentEditor: DocumentEditor
@@ -15,7 +16,66 @@ public struct Form: View {
     }
 
     public var body: some View {
-        FilesView(documentEditor: documentEditor, files: documentEditor.files)
+        if let error = documentEditor.schemaError {
+            SchemaErrorView(error: error)
+        } else {
+            FilesView(documentEditor: documentEditor, files: documentEditor.files)
+        }
+    }
+}
+
+struct SchemaErrorView: View {
+    let error: SchemaValidationError
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            
+            // Warning Icon
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 60))
+                .foregroundColor(.black)
+            
+            // Main Error Message
+            Text(getDisplayMessage())
+                .font(.title2)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.black)
+            
+            VStack(spacing: 8) {
+                // Error Code
+                Text(error.code)
+                    .font(.body)
+                    .foregroundColor(.gray)
+                
+                // SDK Version
+                Text("SDK Version: \(error.details.sdkVersion)")
+                    .font(.body)
+                    .foregroundColor(.gray)
+                
+                // Schema Version
+                Text("Schema Version: \(error.details.schemaVersion)")
+                    .font(.body)
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color.white)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func getDisplayMessage() -> String {
+        switch error.code {
+        case "ERROR_SCHEMA_VERSION":
+            return "Unsupported document version.\nThis SDK version does not support\nthe document's schema version."
+        case "ERROR_SCHEMA_VALIDATION":
+            return "Error detected during\nschema validation."
+        default:
+            return "An error occurred while\nprocessing the document."
+        }
     }
 }
 
@@ -136,6 +196,7 @@ enum FieldListModelType: Equatable {
     }
     case text(TextDataModel)
     case table(TableDataModel)
+    case collection(TableDataModel)
     case chart(ChartDataModel)
     case date(DateTimeDataModel)
     case block(DisplayTextDataModel)
@@ -192,6 +253,8 @@ struct FormView: View {
                 .disabled(listModel.fieldEditMode == .readonly)
         case .table(let model):
             TableQuickView(tableDataModel: model, eventHandler: self)
+        case .collection(let model):
+            CollectionQuickView(tableDataModel: model, eventHandler: self)
         case .image(let model):
             ImageView(listModel: listModelBinding, eventHandler: self)
         case .none:
@@ -208,6 +271,7 @@ struct FormView: View {
             }
         }
         .listStyle(PlainListStyle())
+        .id(documentEditor.currentPageID)
         .modifier(KeyboardDismissModifier())
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
@@ -267,6 +331,13 @@ struct PageDuplicateListView: View {
     @State var documentEditor: DocumentEditor
     @Binding var pageFieldModels: [String: PageModel]
 
+    private var pageIDs: [String] {
+        if !documentEditor.currentPageOrder.isEmpty {
+            return documentEditor.currentPageOrder
+        }
+        return Array(pageFieldModels.keys)
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -282,7 +353,7 @@ struct PageDuplicateListView: View {
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
             ScrollView {
-                ForEach(documentEditor.currentPageOrder ?? [], id: \.self) { pageID in
+                ForEach(pageIDs, id: \.self) { pageID in
                     if documentEditor.shouldShow(pageID: pageID) {
                         if let page = documentEditor.firstPageFor(currentPageID: pageID) {
                             VStack(alignment: .leading) {

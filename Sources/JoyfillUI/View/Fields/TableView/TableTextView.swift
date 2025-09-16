@@ -24,10 +24,14 @@ struct TableTextView: View {
             TextEditor(text: $cellModel.data.title)
                 .font(.system(size: 15))
                 .accessibilityIdentifier("TabelTextFieldIdentifier")
-                .onChange(of: cellModel.data.title) { newText in
-                    cellModel.didChange?(cellModel.data)
+                .onChange(of: cellModel.data.title) { _ in
+                    updateFieldValue()
                 }
                 .focused($isTextFieldFocused)
         }
+    }
+    
+    func updateFieldValue() {
+        cellModel.didChange?(cellModel.data)
     }
 }
