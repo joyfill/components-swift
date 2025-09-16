@@ -23,11 +23,13 @@ public struct TemplateListView: View {
     @State private var searchText: String = ""
     var isAlreadyToken: Bool
     let enableChangelogs: Bool
+    let customLicense: String?
     let imagePicker = ImagePicker()
     
-    init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool, enableChangelogs: Bool = true) {
+    init(userAccessToken: String, result: ([Document],[Document]), isAlreadyToken: Bool, enableChangelogs: Bool = true, customLicense: String? = nil) {
         self.isAlreadyToken = isAlreadyToken
         self.enableChangelogs = enableChangelogs
+        self.customLicense = customLicense
         if isAlreadyToken {
             self.apiService = APIService(accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk",
                                          baseURL: "https://api-joy.joyfill.io/v1")
@@ -86,7 +88,7 @@ public struct TemplateListView: View {
                                     }
                                     
                                     if showNewSubmission {
-                                        NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager, enableChangelogs: enableChangelogs), isActive: $showNewSubmission)
+                                        NavigationLink("", destination: FormContainerView(document: document!, pageID: "", changeManager: changeManager, enableChangelogs: enableChangelogs, customLicense: customLicense), isActive: $showNewSubmission)
                                     }
                                     
                                     Button(action: {

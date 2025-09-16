@@ -11,16 +11,16 @@ import SwiftUI
 class Utility {
 
     static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 00
-    static let singleColumnWidth: CGFloat = 170
+    static let singleColumnWidth: CGFloat = 200
     
     static func getCellWidth(type: ColumnTypes, format: DateFormatType, text: String) -> CGFloat {
         switch type {
-        case .block:
-            let measuredWidth = measureTextWidth(text: text, font: UIFont.systemFont(ofSize: 15)) + 20
-            
-            return max(singleColumnWidth, min(measuredWidth, 2 * singleColumnWidth))
-        case .date:
-            return (type == .date) && (format == .dateTime || format == .empty) ? 270 : singleColumnWidth
+//        case .block:
+//            let measuredWidth = measureTextWidth(text: text, font: UIFont.systemFont(ofSize: 15)) + 20
+//            
+//            return max(singleColumnWidth, min(measuredWidth, 2 * singleColumnWidth))
+//        case .date:
+//            return (type == .date) && (format == .dateTime || format == .empty) ? 270 : singleColumnWidth
         default:
             return singleColumnWidth
         }
@@ -75,9 +75,10 @@ class Utility {
         }
     }
 
-    static func stringToDate(_ dateString: String, format: DateFormatType) -> Date? {
+    static func stringToDate(_ dateString: String, format: DateFormatType, tzId: String? = nil) -> Date? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.dateFormat
+        dateFormatter.timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
         return dateFormatter.date(from: dateString)
     }
     
@@ -94,6 +95,34 @@ class Utility {
                 }
             }
         }
+    }
+    
+    static func convertEpochBetweenTimezones(epochMillis: Double,
+                                      from: TimeZone,
+                                      to: TimeZone,
+                                      format: DateFormatType?) -> Double {
+        let sourceDate = Date(timeIntervalSince1970: epochMillis / 1000.0)
+
+        var fromCalendar = Calendar(identifier: .gregorian)
+        fromCalendar.timeZone = from
+
+        var toCalendar = Calendar(identifier: .gregorian)
+        toCalendar.timeZone = to
+
+        if format == .dateOnly {
+            let ymd = fromCalendar.dateComponents([.year, .month, .day], from: sourceDate)
+            var atNoon = DateComponents()
+            atNoon.year = ymd.year
+            atNoon.month = ymd.month
+            atNoon.day = ymd.day
+            atNoon.hour = 12
+            let targetLocalDate = toCalendar.date(from: atNoon) ?? sourceDate
+            return dateToTimestampMilliseconds(date: targetLocalDate)
+        }
+
+        let comps = fromCalendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: sourceDate)
+        let targetDate = toCalendar.date(from: comps) ?? sourceDate
+        return dateToTimestampMilliseconds(date: targetDate)
     }
 }
 

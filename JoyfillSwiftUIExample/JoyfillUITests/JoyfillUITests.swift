@@ -22,7 +22,7 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         var scrollAttempts = 0
         while !dropdownButton.exists && scrollAttempts < 5 {
             app.swipeUp()
-            sleep(1)
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
             scrollAttempts += 1
         }
         XCTAssertTrue(dropdownButton.waitForExistence(timeout: 5), "Dropdown button not found on iPad")
@@ -49,7 +49,19 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
     func testMultiSelectionView() throws {
         app.swipeUp()
         app.swipeUp()
+        
+        // Wait for MultiSelection elements to appear
         let multiButtons = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
+        let firstButton = multiButtons.element(boundBy: 0)
+        
+        // Scroll to find the MultiSelection elements if they're not immediately visible
+        var scrollAttempts = 0
+        while !firstButton.waitForExistence(timeout: 1) && scrollAttempts < 5 {
+            app.swipeUp()
+            scrollAttempts += 1
+        }
+        
+        XCTAssertTrue(firstButton.exists, "MultiSelection buttons not found")
         XCTAssertEqual("Yes", multiButtons.element(boundBy: 0).label)
         XCTAssertEqual("No", multiButtons.element(boundBy: 1).label)
         for button in multiButtons.allElementsBoundByIndex {
@@ -62,6 +74,15 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeUp()
         let multiButtons = app.buttons.matching(identifier: "SingleSelectionIdentifier")
+        let firstButton = multiButtons.element(boundBy: 0)
+        
+        // Scroll to find the MultiSelection elements if they're not immediately visible
+        var scrollAttempts = 0
+        while !firstButton.waitForExistence(timeout: 1) && scrollAttempts < 5 {
+            app.swipeUp()
+            scrollAttempts += 1
+        }
+
         XCTAssertEqual("Yes", multiButtons.firstMatch.label)
         for button in multiButtons.allElementsBoundByIndex {
             button.tap()
@@ -75,7 +96,20 @@ final class JoyfillUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Hello sir", textField.value as! String)
         textField.tap()
         textField.typeText("Hello")
-        sleep(2)
+        
+        // Wait for onChange to be called with polling approach
+        let startTime = Date()
+        let timeout: TimeInterval = 3.0
+        var result: String?
+        
+        repeat {
+            result = onChangeResultValue().text
+            if result == "Hello sirHello" {
+                break
+            }
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+        } while Date().timeIntervalSince(startTime) < timeout
+        
         XCTAssertEqual("Hello sirHello", onChangeResultValue().text!)
     }
 }

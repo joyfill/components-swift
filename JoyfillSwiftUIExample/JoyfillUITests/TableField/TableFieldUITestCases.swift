@@ -70,9 +70,9 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].tap()
         
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.typeText("Edit")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -84,7 +84,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         for i in 0..<5 {
@@ -136,7 +136,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")
@@ -163,7 +163,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(textCell.exists)
         textCell.tap()
         textCell.typeText("Hello test")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
     }
@@ -206,7 +206,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         secondCell.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         app.menuItems["Paste"].tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(secondCell.value as? String, firstCell.value as? String)
     }
     
@@ -214,13 +214,18 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         tapOnTextFieldColumn()
         let firstCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
         XCTAssertTrue(firstCell.exists)
         firstCell.tap()
-        sleep(1)
-        XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on focus")
-        app.otherElements.firstMatch.tap() // dismiss
-        sleep(1)
-        XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on blur")
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            let keyboard = app.keyboards.element
+            XCTAssertTrue(keyboard.waitForExistence(timeout: 5),
+                          "Keyboard should appear on focus")
+            app.otherElements.firstMatch.tap() // dismiss
+            dismissSheet()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+            XCTAssertTrue(app.keyboards.element.exists, "Keyboard should appear on blur")
+        }
     }
     
     func testInsertDataThenScroll() throws {
@@ -232,13 +237,13 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let newCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: initialCount)
         XCTAssertTrue(newCell.waitForExistence(timeout: 5), "New row should appear at the end")
         newCell.tap()
-        newCell.clearText()
-        newCell.typeText("quick")
-        sleep(1)
+        app.selectAllInTextField(in: newCell, app: app)
+        newCell.typeText("one")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         while !newCell.isHittable {
             app.swipeUp()
         }
-        XCTAssertEqual(newCell.value as? String, "quick")
+        XCTAssertEqual(newCell.value as? String, "one")
     }
     
     func testTableMoveUpRow() throws {

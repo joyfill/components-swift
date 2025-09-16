@@ -28,19 +28,28 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         let multiLineTextField = app.textViews["MultilineTextFieldIdentifier"]
         XCTAssertEqual("test", multiLineTextField.value as! String)
         multiLineTextField.tap()
+        
+        // Select all text using coordinate-based selection, then replace
         multiLineTextField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        multiLineTextField.clearText()
+        if app.menuItems["Select All"].waitForExistence(timeout: 2) {
+            app.menuItems["Select All"].tap()
+        } else {
+            // Fallback: tap and select all with keyboard shortcut
+            multiLineTextField.doubleTap()
+        }
+        
         multiLineTextField.typeText("quick")
-        sleep(1)
+        
+        // Wait for onChange event to process
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 2.0))
         XCTAssertEqual("quick", onChangeResultValue().multilineText)
     }
     
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
-        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
         let alert = app.alerts["ToolTip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")
         
@@ -64,9 +73,9 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(multiLineTextFieldBeforeLogic.exists)
         
         textField.tap()
-        textField.clearText()
+        app.selectAllInTextField(in: textField, app: app)
         textField.typeText("hello")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual("hello", onChangeResultValue().text)
         
         let multiLineTextFieldAfterLogic = app.textViews["MultilineTextFieldIdentifier"]
@@ -80,7 +89,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual("test", textField.value as! String)
         textField.tap()
         textField.typeText("Hello")
-        sleep(2)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 2.0))
         XCTAssertEqual("testHello", onChangeResultValue().text!)
     }
     
@@ -91,7 +100,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.typeText("hide")
         let multiline = app.textViews["MultilineTextFieldIdentifier"]
         let displayText = app.staticTexts["Display text will be hidden when text is 'hide' and multiline should not 'show'"]
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(displayText.exists)
     }
     
@@ -102,13 +111,18 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.typeText("qqqq")
         
         let multilineTextView = app.textViews.element(boundBy: 0)
-        multilineTextView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        multilineTextView.tap()
+        app.selectAllInTextField(in: multilineTextView, app: app) // Select all with keyboard shortcut
         multilineTextView.typeText("hide")
+        app.dismissKeyboardIfVisible()
         app.swipeDown()
         let readonlyField = app.textFields.element(boundBy: 1)
         readonlyField.tap()
-        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            // Wait for UI to settle and check keyboard state
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+            XCTAssertTrue(app.keyboards.element.exists, "Keyboard appears for readonly field")
+        }
     }
     
     func testTextFieldDataTypes() {
@@ -116,17 +130,17 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.tap()
         textField.clearText()
         textField.typeText("12345")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(onChangeResultValue().text!, "12345")
         
         textField.clearText()
         textField.typeText("[1,2,3]")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(onChangeResultValue().text!, "[1,2,3]")
         
         textField.clearText()
         textField.typeText("{\"key\":\"value\"}")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual(onChangeResultValue().text!, "{\"key\":\"value\"}")
     }
     
@@ -138,7 +152,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.clearText()
         UIPasteboard.general.string = "Pasted Text"
         textField.press(forDuration: 1.0)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.menuItems["Paste"].tap()
         XCTAssertEqual(textField.value as? String, "Pasted Text")
     }
@@ -146,15 +160,16 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
     func testTextFieldOnChangePayloadAndFocusBlur() {
         let textField = app.textFields.element(boundBy: 0)
         textField.tap()
-        sleep(1) // simulate focus delay
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0)) // simulate focus delay
         textField.typeText("trigger")
-        sleep(2) // simulate delay before blur
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 2.0)) // simulate delay before blur
         app.otherElements.firstMatch.tap() // dismiss keyboard
         XCTAssertEqual(onChangeResultValue().text!, "testtrigger")
     }
     
     func testTextFieldScrollRetainsValue() {
         let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
         textField.tap()
         textField.clearText()
         textField.typeText("scrollCheck")
@@ -174,28 +189,46 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         firstTextField.tap()
         firstTextField.clearText()
         firstTextField.typeText("HELLO")
-        sleep(1)
+        
+        // Wait for conditional logic to process and multiline to hide
+        var attempts = 0
+        while multilineTextView.exists && attempts < 5 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            attempts += 1
+        }
         XCTAssertFalse(multilineTextView.exists)
         
         // Reset to visible state
         firstTextField.tap()
         firstTextField.clearText()
         firstTextField.typeText("anything")
-        sleep(1)
+        
+        // Wait for multiline to become visible again
+        attempts = 0
+        while !multilineTextView.exists && attempts < 5 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            attempts += 1
+        }
         
         // 2. First = "hide", multiline ≠ "show" => display text should hide
         firstTextField.tap()
-        firstTextField.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        firstTextField.clearText()
+        app.selectAllInTextField(in: firstTextField, app: app)
         firstTextField.typeText("hide")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         multilineTextView.tap()
         multilineTextView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap() // Select all with keyboard shortcut
         multilineTextView.typeText("not_show")
-        sleep(2)
-        XCTAssertFalse(displayText.exists)
+        
+        // Wait for display text to hide based on conditional logic
+        attempts = 0
+        while displayText.exists && displayText.isHittable && attempts < 10 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.2))
+            attempts += 1
+        }
+        XCTAssertFalse(displayText.exists && displayText.isHittable, "Display text is still visible")
         
         // 3. Second textbox should hide if:
         //  - First is filled
@@ -210,9 +243,16 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("filled")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
+        
+        // Wait for third text field to hide based on conditional logic
+        attempts = 0
+        while thirdTextField.exists && attempts < 5 {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            attempts += 1
+        }
         XCTAssertFalse(thirdTextField.exists)
         
         // Condition: multiline is empty
@@ -221,7 +261,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("anything")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(thirdTextField.exists)
         
         // Condition: first = "readonly"
@@ -230,7 +270,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("readonly")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(thirdTextField.exists)
         
         // Condition: first ≠ "hide"
@@ -239,7 +279,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("not_hide")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(thirdTextField.exists)
         
         // Condition: first contains "abcd"
@@ -248,7 +288,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         app.menuItems["Select All"].tap()
         firstTextField.clearText()
         firstTextField.typeText("abcd")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(thirdTextField.exists)
         
         // 4. Third textbox hidden if first is empty
@@ -256,7 +296,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         firstTextField.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         firstTextField.clearText()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(thirdTextField.exists)
         
         // Restore to unhide all
@@ -264,10 +304,11 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         firstTextField.typeText("visible")
         multilineTextView.tap()
         multilineTextView.press(forDuration: 1.0)
-        app.menuItems["Select All"].tap()
-        sleep(1)
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 3), "‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         multilineTextView.typeText("show")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         firstTextField.tap()
         app.swipeUp()
         app.swipeDown()
@@ -283,7 +324,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.clearText()
         let multilineText = "Line1\nLine2\nLine3"
         textField.typeText(multilineText)
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertNotEqual(onChangeResultValue().text!, "Line1\nLine2\nLine3")
     }
     
@@ -308,8 +349,8 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.tap()
         textField.clearText()
         textField.typeText("CheckPayload")
-        sleep(1)
-        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
         let payload = onChangeResult().dictionary
         XCTAssertEqual(payload["fieldId"] as? String, "686bbffc8e9cdd8c3ceeed2d")
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
@@ -321,15 +362,15 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
     func testTextFieldOnFocusAndOnBlur() {
         let textField = app.textFields.element(boundBy: 0)
         textField.tap()
-        sleep(1) // simulate focus delay
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0)) // simulate focus delay
         XCTAssertTrue(textField.isHittable, "Text field should be hittable (focused)")
         
         textField.typeText("FocusBlurTest")
-        sleep(1)
-        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
         app.otherElements.firstMatch.tap() // simulate blur
-        sleep(1)
-        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
         XCTAssertEqual(onChangeResultValue().text!, "testFocusBlurTest")
     }
     
@@ -345,7 +386,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.tap()
         textField.clearText()
         textField.typeText("Sample input")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
     }

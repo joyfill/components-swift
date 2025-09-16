@@ -62,14 +62,20 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
 
     func testReadonlySignatureFieldNotEditable() throws {
         app.swipeUp()
-        var index = 1;
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            index = 2;
+        let index = UIDevice.current.userInterfaceIdiom == .pad ? 2 : 1
+        let readonlyButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: index)
+        
+        readonlyButton.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+        
+        // TODO: Fix readonly signature field - canvas should NOT appear for readonly fields
+        // Currently this is broken - readonly signature fields still open canvas when tapped
+        XCTAssertFalse(app.otherElements["CanvasIdentifier"].exists, "Canvas currently appears for readonly signature field (this is a bug that should be fixed)")
+        
+        // Clean up by dismissing the canvas
+        if app.otherElements["CanvasIdentifier"].exists {
+            app.tap()
         }
-        let disabledButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: index)
-        XCTAssertTrue(disabledButton.exists, "Readonly signature button should exist")
-        disabledButton.tap()
-        XCTAssertFalse(app.otherElements["CanvasIdentifier"].exists, "Canvas should not appear for readonly signature field")
     }
 
     func testOnChangePayloadDetails() throws {
@@ -105,7 +111,10 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
         signatureButton.tap()
         drawSignatureLine()
-        app.buttons["SaveSignatureIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let signButton = app.buttons["SaveSignatureIdentifier"]
+        XCTAssertTrue(signButton.waitForExistence(timeout: 5))
+        signButton.tap()
         XCTAssertTrue(asteriskIcon.exists, "Asterisk should remain after saving signature")
     }
 
@@ -122,7 +131,7 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         triggerField.tap()
         triggerField.clearText()
         triggerField.typeText("hidexyz")
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         app.swipeUp()
         app.swipeDown()
         XCTAssertFalse(hiddenButton.count == 1, "Third signature field should be shown after conditions met")
@@ -131,7 +140,7 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
     func testToolTip() throws {
         let toolTipButton = app.buttons["ToolTipIdentifier"]
         toolTipButton.tap()
-        sleep(1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let alert = app.alerts["Tooltip Title"]
         XCTAssertTrue(alert.exists, "Alert should be visible")

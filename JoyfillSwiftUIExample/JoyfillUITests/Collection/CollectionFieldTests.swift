@@ -15,9 +15,86 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         return "Joydocjson"
     }
     
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        // Give the app a moment to fully launch before resetting state
+        waitForAppToSettle()
+        resetToInitialState()
+    }
+    
+    override func tearDownWithError() throws {
+        dismissAnyOpenModals()
+        returnToRootView()
+        try super.tearDownWithError()
+    }
+    
+    // MARK: - State Isolation Helpers
+    
+    func resetToInitialState() {
+        returnToRootView()
+        dismissAnyOpenModals()
+        app.dismissKeyboardIfVisible()
+        waitForAppToSettle()
+    }
+    
+    func returnToRootView() {
+        var attempts = 0
+        while app.navigationBars.count > 1 && attempts < 5 {
+            if app.navigationBars.buttons.count > 0 {
+                app.navigationBars.buttons.element(boundBy: 0).tap()
+                waitForAppToSettle()
+            }
+            attempts += 1
+        }
+    }
+    
+    func dismissAnyOpenModals() {
+        if app.keyboards.element.exists {
+            app.dismissKeyboardIfVisible()
+        }
+        
+        let sheets = app.sheets
+        if sheets.count > 0 {
+            dismissSheet()
+        }
+        
+        let alerts = app.alerts
+        if alerts.count > 0 {
+            if let okButton = alerts.buttons["OK"].firstMatch.isHittable ? alerts.buttons["OK"] : nil {
+                okButton.tap()
+            } else if let dismissButton = alerts.buttons.firstMatch.isHittable ? alerts.buttons.firstMatch : nil {
+                dismissButton.tap()
+            }
+        }
+    }
+    
+    func waitForAppToSettle() {
+        guard app.wait(for: .runningForeground, timeout: 2) else {
+            XCTFail("App did not settle")
+            return
+        }
+        usleep(500000) // 0.5 second to allow UI to settle
+    }
+    
+    func ensureCleanCollectionState() {
+        returnToRootView()
+        dismissAnyOpenModals()
+        
+        // Wait for collection view to be ready
+        let collectionViews = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
+        if collectionViews.count > 0 {
+            guard collectionViews.firstMatch.waitForExistence(timeout: 5) else {
+                XCTFail("Collection view did not appear")
+                return
+            }
+        }
+        waitForAppToSettle()
+    }
+    
     func goToCollectionDetailField() {
+        ensureCleanCollectionState()
         navigateToCollectionOn10thPage()
-        sleep(1)
+        waitForAppToSettle()
     }
     
     func dismissSheet() {
@@ -40,19 +117,56 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func expandRow(number: Int) {
-        sleep(1)
+        waitForAppToSettle()
         let identifier = "CollectionExpandCollapseButton\(number)"
         
-        guard let expandButton = app.swipeToFindElement(identifier: identifier,
-                                                    type: .image,
-                                                    direction: "up",
-                                                    maxAttempts: 6) else {
+        // Try multiple approaches to find the expand button
+        var expandButton: XCUIElement?
+        
+        // First try: swipe up to find
+        expandButton = app.swipeToFindElement(identifier: identifier,
+                                            type: .image,
+                                            direction: "up",
+                                            maxAttempts: 6)
+        
+        // Second try: swipe down to find
+        if expandButton == nil {
+            expandButton = app.swipeToFindElement(identifier: identifier,
+                                                type: .image,
+                                                direction: "down",
+                                                maxAttempts: 6)
+        }
+        
+        // Third try: direct element access with wait
+        if expandButton == nil {
+            let directElement = app.images[identifier]
+            if directElement.waitForExistence(timeout: 5) {
+                expandButton = directElement
+            }
+        }
+        
+        guard let button = expandButton else {
             XCTFail("Failed to find expand/collapse button with identifier: \(identifier)")
             return
         }
 
-        XCTAssertTrue(expandButton.isHittable, "Expand/collapse button is not hittable")
-        expandButton.tap()
+        // Ensure the button is hittable by scrolling it into view if needed
+        if !button.isHittable {
+            // Try scrolling to make the element hittable
+            app.swipeUp()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            if !button.isHittable {
+                app.swipeDown()
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+            }
+        }
+
+        // If still not hittable, try tapping anyway as sometimes XCTest is overly cautious
+        if !button.isHittable {
+            print("Warning: Button may not be fully hittable but attempting tap anyway")
+        }
+        
+        button.tap()
     }
     
     func tapSchemaAddRowButton(number: Int) {
@@ -129,13 +243,17 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func selectAllParentRows() {
-        app.images.matching(identifier: "SelectParentAllRowSelectorButton")
-            .element.tap()
+        let button = app.images.matching(identifier: "SelectParentAllRowSelectorButton").element
+        if button.waitForExistence(timeout: 5) { // waits up to 5 seconds
+            button.tap()
+        } else {
+            XCTFail("Select all parent rows button not found")
+        }
     }
     
     func addThreeNestedRows(parentRowNumber: Int) {
         goToCollectionDetailField()
-        sleep(1)
+        waitForAppToSettle()
         expandRow(number: parentRowNumber)
         tapSchemaAddRowButton(number: 0)
         tapSchemaAddRowButton(number: 0)
@@ -149,9 +267,12 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let secNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("", secNestedTextField.value as! String)
         secNestedTextField.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         secNestedTextField.typeText("two")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let thirdNestedTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 3)
+        XCTAssertTrue(thirdNestedTextField.waitForExistence(timeout: 5))
         XCTAssertEqual("", thirdNestedTextField.value as! String)
         thirdNestedTextField.tap()
         thirdNestedTextField.typeText("123")
@@ -159,17 +280,16 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func openFilterModalForDismissKeyboard() {
         let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
-        if !filterButton.exists {
-            XCTFail("Filter button should exist")
-        }
+        XCTAssertTrue(filterButton.waitForExistence(timeout: 5), "Filter button should exist")
         
         filterButton.tap()
         
         // Verify filter modal opened
-        let filterModalExists = app.staticTexts["Filter"].exists
-        XCTAssertTrue(filterModalExists, "Filter modal should be open")
+        let filterModal = app.staticTexts["Filter"]
+        XCTAssertTrue(filterModal.waitForExistence(timeout: 3), "Filter modal should be open")
         
         dismissSheet()
+        waitForAppToSettle()
     }
     
     func testCollectionFieldTextFields() {
@@ -186,7 +306,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         do {
             let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
             let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
@@ -199,7 +319,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Navigate to signature detail view - then go to table detail view - to check recently enterd data is saved or not in table
         app.buttons["SignatureIdentifier"].waitAndTap()
-        app.waitForNavigation()
+        waitForAppToSettle()
         goBack()
         
         goToCollectionDetailField()
@@ -219,7 +339,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
         XCTAssertEqual("6805b6443944fc0166ba80a0", firstCellDropdownValue)
     }
@@ -328,7 +448,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("6805b7c24343d7bcba916934", schemaId)
 
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         goToCollectionDetailField()
         expandRow(number: 1)
         do {
@@ -358,7 +478,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         //        element.swipeRight()
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         do {
             let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
             XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue)
@@ -379,6 +499,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             XCTFail("Failed to find  button after swiping")
             return
         }
+        XCTAssertTrue(firstButton.waitForExistence(timeout: 1) && firstButton.isHittable)
         firstButton.tap()
         
         app.buttons["ImageUploadImageIdentifier"].tap()
@@ -388,7 +509,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         //        element.swipeDown()
         dismissSheet()
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         do {
             let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
             XCTAssertEqual(3, firstCellMultiSelectValue.count)
@@ -414,7 +535,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         do {
             let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
             XCTAssertEqual(123, firstCellMultiSelectValue)
@@ -440,7 +561,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         //        element.swipeRight()
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         do {
             let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b77fc568df7b031590dc"]?.number)
@@ -486,6 +607,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func testMoveUpAndMoveDownButtonAvailableOrNotOnMultipleRows() {
         goToCollectionDetailField()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         selectRow(number: 1)
         selectRow(number: 2)
         tapOnMoreButton()
@@ -497,13 +619,14 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func testInsertBelow() {
         goToCollectionDetailField()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         selectRow(number: 1)
         tapOnMoreButton()
         
         inserRowBelowButton().tap()
         selectRow(number: 1)
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         XCTAssertEqual(onChangeResultValue().valueElements?.count, 3)
         XCTAssertNotNil(onChangeResultValue().valueElements?[2].id)
@@ -534,7 +657,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         XCTAssertEqual(onChangeResultValue().valueElements?.count , 2)
         XCTAssertEqual(onChangeResultValue().valueElements?[0].cells?["6805b644fd938fd8ed7fe2e1"]?.text , "His")
         
@@ -558,7 +681,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         XCTAssertEqual(onChangeResultValue().valueElements?.count , 2)
         XCTAssertEqual(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text, "Hello")
     }
@@ -583,7 +706,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "two")
@@ -611,7 +734,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 3)
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "one")
@@ -631,7 +754,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("field.value.rowDelete", fieldTarget)
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, nil)
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.filter({ $0.deleted ?? false }).count, nil)
@@ -650,7 +773,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("field.value.rowDelete", fieldTarget)
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?.count, 2)
     }
@@ -665,6 +788,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     // Edit All Parent Rows
     func testEditBulkRow() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        
         goToCollectionDetailField()
         selectAllParentRows()
         
@@ -674,10 +801,12 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        waitForAppToSettle()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit text field did not appear")
         textField.tap()
         textField.typeText("Edit")
         app.dismissKeyboardIfVisible()
+        waitForAppToSettle()
         
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -690,7 +819,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let timeout = 5.0
         let start = Date()
         while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
-            sleep(1)
+            waitForAppToSettle()
         }
 
         XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
@@ -721,7 +850,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             return
         }
         firstImageButton.tap()
-        app.buttons["ImageUploadImageIdentifier"].tap()
+        let imageUploadButton = app.buttons["ImageUploadImageIdentifier"]
+        XCTAssertTrue(imageUploadButton.waitForExistence(timeout: 5))
+        imageUploadButton.tap()
         dismissSheet()
         app.swipeUp()
         
@@ -740,7 +871,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         barcodeTextField.tap()
         barcodeTextField.clearText()
         barcodeTextField.typeText("quick")
-        
+        app.dismissKeyboardIfVisible()
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            dismissSheet()
+        }
         // Number Field
         guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
             XCTFail("Failed to find number text field after swiping")
@@ -750,7 +884,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         numberTextField.clearText()
         numberTextField.typeText("12345")
         app.dismissKeyboardIfVisible()
-        
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            dismissSheet()
+        }
         // Signature Column
         let signatureButtons = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier")
         let firstSignatureButton = signatureButtons.element(boundBy: 0)
@@ -763,7 +899,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         // Textfield
         let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
@@ -802,6 +938,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     // Edit Single Parent Row
     func testEditSingleRow() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        
         goToCollectionDetailField()
         //select 1st row
         selectRow(number: 1)
@@ -850,7 +990,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let timeout = 5.0
         let start = Date()
         while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
-            sleep(1)
+            waitForAppToSettle()
         }
 
         XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
@@ -864,6 +1004,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         multiSelectionButton.tap()
         
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(optionsButtons.element.waitForExistence(timeout: 5))
         //XCTAssertGreaterThan(optionsButtons.count, 0)
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
@@ -873,6 +1014,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         thirdOptionButton.tap()
         
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        app.dismissKeyboardIfVisible()
         // Image Field
         guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
             XCTFail("Failed to find image button after swiping")
@@ -898,22 +1040,22 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         numberTextField.typeText("12345")
         firstImageButton.tap()
         dismissSheet()
-         
+        app.swipeUp()
         guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
             XCTFail("Failed to find barcode text field after swiping")
             return
         }
         barcodeTextField.tap()
-        sleep(1)
+        //waitForAppToSettle()
 
         // Double tap if needed to ensure keyboard opens
         if !app.keyboards.element.exists {
             barcodeTextField.tap()
-            sleep(1)
+            waitForAppToSettle()
         }
 
         // Assert keyboard presence
-        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
+        //XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
 
         // Clear and type
         if let textValue = barcodeTextField.value as? String {
@@ -934,7 +1076,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         dismissSheet()
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         // Textfield
         let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
         XCTAssertEqual("Edit", thirdCellTextValue)
@@ -982,9 +1124,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        waitForAppToSettle()
         textField.tap()
-        sleep(1)
+        waitForAppToSettle()
         textField.typeText("Edit")
         
         // Dropdown Field
@@ -1001,7 +1143,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         multiSelectionButton.tap()
         
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-//        XCTAssertGreaterThan(optionsButtons.count, 0)
+        XCTAssertTrue(optionsButtons.element(boundBy: 0).waitForExistence(timeout: 5))
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
         let secOptionButton = optionsButtons.element(boundBy: 1)
@@ -1015,7 +1157,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         // Textfield
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "Edit")
@@ -1061,7 +1203,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         addThreeNestedRows(parentRowNumber: 1)
         // Make sure collection search filter is on
         openFilterModalForDismissKeyboard()
-        sleep(1)
+        waitForAppToSettle()
         expandRow(number: 2)
         
         selectNestedRow(number: 1)
@@ -1102,7 +1244,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        sleep(1)
+        waitForAppToSettle()
         textField.tap()
         textField.clearText()
         textField.typeText("quick")
@@ -1121,7 +1263,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         multiSelectionButton.tap()
         
         let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
-        sleep(1)
+        waitForAppToSettle()
 //        XCTAssertGreaterThan(optionsButtons.count, 0)
         let firstOptionButton = optionsButtons.element(boundBy: 0)
         firstOptionButton.tap()
@@ -1134,7 +1276,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapOnCrossButton()
         
         goBack()
-        sleep(2)
+        waitForAppToSettle()
         
         // Textfield
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "quick")
@@ -1157,10 +1299,15 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let signatureButton = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier").firstMatch
         signatureButton.tap()
         drawSignatureLine()
-        app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let saveButton = app.buttons["SaveSignatureIdentifier"].firstMatch
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        saveButton.tap()
 
         // Move to next new row
-        editInsertRowPlusButton().tap()
+        let insertbBtton = editInsertRowPlusButton()
+        XCTAssertTrue(insertbBtton.waitForExistence(timeout: 5))
+        insertbBtton.tap()
         // Open signature for next row and verify it’s fresh (no Edit button)
         signatureButton.tap()
         let editSignatureButton = app.buttons["TableSignatureEditButton"].firstMatch

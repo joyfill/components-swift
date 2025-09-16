@@ -818,7 +818,12 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
-        documentEditor.bulkEdit(changes: changes, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
+        var newChanges: [String: [String: ValueUnion]] = [:]
+        for rowId in rowIds {
+            newChanges[rowId] = changes
+        }
+        
+        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
@@ -866,7 +871,11 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793b5f860ae8d6a4ae6": ValueUnion.string("67612793a4c7301ba4da1d69"),
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
-        documentEditor.bulkEdit(changes: changes, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
+        var newChanges: [String: [String: ValueUnion]] = [:]
+        for rowId in rowIds {
+            newChanges[rowId] = changes
+        }
+        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
@@ -912,7 +921,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
         // Pass different row id - when row id not match for bulk edit
-        documentEditor.bulkEdit(changes: changes, selectedRows: ["rowIds"], fieldIdentifier: fieldIdentifier)
+        documentEditor.bulkEdit(changes: ["rowIds" : changes], selectedRows: ["rowIds"], fieldIdentifier: fieldIdentifier)
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
@@ -1158,7 +1167,7 @@ extension DocumentEditorChangeHandlerTests {
         }
     }
     
-    func testBulkEditNestedCollection() {
+    func testBulkEditNestedCollection() async {
         let collectionFieldID = "67ddc52d35de157f6d7ebb63"
         let parentRowId = "67ddc537b7c2fce05d0c8615"
         let nestedKey = "67ddc5c9910a394a1324bfbe"
@@ -1184,15 +1193,17 @@ extension DocumentEditorChangeHandlerTests {
         
         // Bulk edit: update a specific cell for all nested rows.
         let changes: [String: ValueUnion] = ["67ddc5adbb96a9b9f9ff1480": .string("Updated Nested")]
+        var newChanges: [String: [String: ValueUnion]] = [:]
         let nestedRowIds = initialNestedRows.map { $0.id! }
-        _ = documentEditor.bulkEditForNested(changes: changes,
-                                             selectedRows: nestedRowIds,
-                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
-                                             parentRowId: "",
-                                             nestedKey: "",
-                                             rootSchemaKey: ""
-        )
-        
+        for nestedRowId in nestedRowIds {
+            newChanges[nestedRowId] = changes
+        }
+        _ = await documentEditor.bulkEditForNested(changes: newChanges,
+                                            selectedRows: nestedRowIds,
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            parentRowId: parentRowId,
+                                            nestedKey: nestedKey,
+                                            rootSchemaKey: collectionFieldID)
         // Fetch the nested rows again.
         guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
               let updatedChildren = updatedParent.childrens?[nestedKey],

@@ -12,8 +12,9 @@ struct TableBarcodeView: View {
     @Binding var cellModel: TableCellModel
     @State var text: String = ""
     private var isUsedForBulkEdit: Bool
+    var viewModel: TableDataViewModelProtocol?
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil, viewModel: TableDataViewModelProtocol? = nil) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
         if let providedText = text {
@@ -21,6 +22,7 @@ struct TableBarcodeView: View {
         } else if !isUsedForBulkEdit {
             _text = State(initialValue: cellModel.wrappedValue.data.title)
         }
+        self.viewModel = viewModel
     }
     
     var body: some View {
@@ -55,7 +57,12 @@ struct TableBarcodeView: View {
     }
     
     func uploadAction() {
-        let captureEvent = CaptureEvent(fieldEvent: cellModel.fieldIdentifier) { value in
+        let result = viewModel?.getParenthPath(rowId: cellModel.rowID)
+        var rowIds: [String] = [cellModel.rowID]
+        if isUsedForBulkEdit {
+            rowIds = viewModel?.tableDataModel.selectedRows ?? []
+        }
+        let captureEvent = CaptureEvent(fieldEvent: cellModel.fieldIdentifier, target: "field.update", schemaId: result?.1, parentPath: result?.0, rowIds: rowIds, columnId: cellModel.data.id) { value in
             var cellModelData = cellModel.data
             cellModelData.title = value.text ?? ""
             text = value.text ?? ""
