@@ -407,7 +407,7 @@ extension DocumentEditor {
 
         for page in pagesForCurrentView {
             if let position = page.fieldPositions?.first(where: { $0.field == fieldID }) {
-                return FieldIdentifier(fieldID: fieldID, pageID: page.id, fileID: fileID)
+                return FieldIdentifier(fieldID: fieldID, pageID: page.id, fileID: fileID, fieldPositionId: position.id)
             }
         }
 
