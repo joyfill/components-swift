@@ -407,6 +407,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToCollectionView()
         goToCollectionView()
        
+        let firstScroll = app.scrollViews.element(boundBy: 0)
+        let secondScroll = app.scrollViews.element(boundBy: 1)
+        firstScroll.swipeLeft()
+        secondScroll.swipeLeft()
+        
         let firstTableTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("12.2", firstTableTextField.value as! String)
         firstTableTextField.tap()
@@ -495,6 +500,15 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToCollectionView()
         goToCollectionView()
+        
+        
+        let firstScroll = app.scrollViews.element(boundBy: 0)
+        let secondScroll = app.scrollViews.element(boundBy: 1)
+
+        firstScroll.swipeLeft()
+        firstScroll.swipeLeft()
+        secondScroll.swipeLeft()
+        secondScroll.swipeLeft()
         
         let dateFields = app.images.matching(identifier: "CalendarImageIdentifier")
         XCTAssertEqual(dateFields.count, 4, "Date fields should exist")
@@ -1023,7 +1037,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         goToTableDetailPage(index: 0)
         
-        let dateButtons = app.buttons.matching(identifier: "1 Jun 2024")
+        let dateButtons = app.buttons.matching(identifier: "June 1, 2024 12:00 AM")
         XCTAssertEqual(dateButtons.count, 4, "Date fields should exist")
         
         let dateField1 = dateButtons.element(boundBy: 0)
@@ -1034,10 +1048,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let newDateButton = app.buttons[formattedDate]
         XCTAssertTrue(newDateButton.exists, "Formatted date button should exist: \(formattedDate)")
         newDateButton.tap()
-        app.buttons["PopoverDismissRegion"].tap()
+        dismissSheet()
         goBack()
         
-        let secDateFields = app.buttons.matching(identifier: "28 Jun 2024")
+        let secDateFields = app.buttons.matching(identifier: "June 28, 2024 12:00 AM")
         XCTAssertEqual(secDateFields.count, 1, "Date fields should exist")
     }
     
@@ -1404,10 +1418,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
-        let headerTimeLabel = app.buttons.matching(identifier: "12:00 AM").element(boundBy: 0)
+        let headerTimeLabel = app.buttons.element(boundBy: 22).firstMatch
         XCTAssertTrue(headerTimeLabel.exists, "Expected to see the time header before switching to wheels")
         headerTimeLabel.tap()
-        
+        app.buttons["12:00 AM"].firstMatch.tap()
         let hourPicker = app.pickerWheels.element(boundBy: 0)
         let minutePicker = app.pickerWheels.element(boundBy: 1)
         let periodPicker = app.pickerWheels.element(boundBy: 2)
@@ -1415,14 +1429,13 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         hourPicker.adjust(toPickerWheelValue: "1")
         minutePicker.adjust(toPickerWheelValue: "02")
         periodPicker.adjust(toPickerWheelValue: "PM")
-        XCUIApplication().buttons["PopoverDismissRegion"].tap()
-        
+        //XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        dismissSheet()
+        //RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        //goBack()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        goBack()
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        let checkSelectedTimeValue = app.buttons.matching(identifier: "1:02 PM").element(boundBy: 0)
-        XCTAssertTrue(checkSelectedTimeValue.exists)
-        
+        let checkSelectedTimeValue = app.buttons.matching(identifier: "June 1, 2024 1:02 PM")
+        XCTAssertEqual(checkSelectedTimeValue.count, 2)
     }
     
     // Change existing value

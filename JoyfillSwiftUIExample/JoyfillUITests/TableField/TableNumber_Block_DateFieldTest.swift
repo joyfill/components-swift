@@ -444,7 +444,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Change selected date
     func testChangeSelectedDate() throws {
         goToTableDetailPage()
-        let firstDatePicker = app.datePickers.element(boundBy: 0)
+        let firstDatePicker = app.buttons.element(boundBy: 8)
         firstDatePicker.tap()
         
         // Navigate to April 2024 - use Previous button since we're in 2025
@@ -470,8 +470,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
             // Fallback to any date in April
             app.buttons[dateLabel2].tap()
         }
-        XCUIApplication().buttons["PopoverDismissRegion"].tap()
-        
+        //XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        dismissSheet()
         goBack()
         Thread.sleep(forTimeInterval: 0.5)
         let checkSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676919715e36fed325f2f048"]?.number)
@@ -482,13 +482,15 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     func testSetNilToExitingDate() throws {
         goToTableDetailPage()
         
-        let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
-        let tapOnButton = setDateToNilIdentifierButton.element(boundBy: 0)
-        tapOnButton.tap()
+//        let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
+//        let tapOnButton = setDateToNilIdentifierButton.element(boundBy: 0)
+//        tapOnButton.tap()
+        let element = app.images.matching(identifier: "xmark.circle").element(boundBy: 0)
+        element.tap()
         Thread.sleep(forTimeInterval: 0.5)
         app.scrollViews.otherElements.containing(.image, identifier:"CalendarImageIdentifier").children(matching: .image).matching(identifier: "CalendarImageIdentifier").element(boundBy: 0).tap()
         
-        let firstDatePicker = app.datePickers.element(boundBy: 0)
+        let firstDatePicker = app.buttons.element(boundBy: 8)
         firstDatePicker.tap()
         // Try to tap any available date in current month
         let currentDay = Calendar.current.component(.day, from: Date())
@@ -502,8 +504,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
             // Fallback: tap any hittable date button
             app.buttons.allElementsBoundByIndex.first { $0.isHittable && $0.label.contains("August") }?.tap()
         }
-        XCUIApplication().buttons["PopoverDismissRegion"].tap()
-        
+        //XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        dismissSheet()
         goBack()
         Thread.sleep(forTimeInterval: 0.5)
         
@@ -565,10 +567,10 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         goToTableDetailPage()
 //        let firstDatePicker = app.datePickers.element(boundBy: 1)
 //        firstDatePicker.tap()
-        let headerTimeLabel = app.buttons["12:00 AM"]
+        let headerTimeLabel = app.buttons.element(boundBy: 8)
         XCTAssertTrue(headerTimeLabel.exists, "Expected to see the time header before switching to wheels")
         headerTimeLabel.tap()
-        
+        app.buttons["12:00 AM"].tap()
         let hourPicker = app.pickerWheels.element(boundBy: 0)
         let minutePicker = app.pickerWheels.element(boundBy: 1)
         let periodPicker = app.pickerWheels.element(boundBy: 2)
@@ -578,7 +580,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         periodPicker.adjust(toPickerWheelValue: "PM")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
-        
+        dismissSheet()
         Thread.sleep(forTimeInterval: 0.5)
         goBack()
         Thread.sleep(forTimeInterval: 0.5)
@@ -590,17 +592,20 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Set nil to existing time & change another time
     func testSetNilToExitingTime() throws {
         goToTableDetailPage()
-        
-        let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
-        let tapOnButton = setDateToNilIdentifierButton.element(boundBy: 0)
-        tapOnButton.tap()
+        let element = app.images.matching(identifier: "xmark.circle").element(boundBy: 0)
+        element.tap()
+//        let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
+//        let tapOnButton = setDateToNilIdentifierButton.element(boundBy: 0)
+//        tapOnButton.tap()
         Thread.sleep(forTimeInterval: 0.5)
         app.scrollViews.otherElements.containing(.image, identifier:"CalendarImageIdentifier").children(matching: .image).matching(identifier: "CalendarImageIdentifier").element(boundBy: 0).tap()
         
-        let firstDatePicker = app.datePickers.element(boundBy: 0)
-        let timeCoordinate = firstDatePicker.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
-        timeCoordinate.tap()
-        
+//        let firstDatePicker = app.datePickers.element(boundBy: 0)
+//        let timeCoordinate = firstDatePicker.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
+//        timeCoordinate.tap()
+       
+        app.buttons.element(boundBy: 8).tap()
+        app.buttons.element(boundBy: 1).tap()
         let hourPicker = app.pickerWheels.element(boundBy: 0)
         let minutePicker = app.pickerWheels.element(boundBy: 1)
         let periodPicker = app.pickerWheels.element(boundBy: 2)
@@ -609,7 +614,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         minutePicker.adjust(toPickerWheelValue: "12")
         periodPicker.adjust(toPickerWheelValue: "AM")
         XCUIApplication().buttons["PopoverDismissRegion"].tap()
-        
+        dismissSheet()
         Thread.sleep(forTimeInterval: 0.5)
         goBack()
         Thread.sleep(forTimeInterval: 0.5)

@@ -964,6 +964,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
                 multiSelectFilterButton.tap()
                 
                 let option1 = app.buttons["Option 1 D1"].firstMatch
+                XCTAssertTrue(option1.waitForExistence(timeout: 5))
                 if option1.exists {
                     option1.tap()
                 }
@@ -2147,7 +2148,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        textField.typeText(" new value")
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        textField.typeText("q")
         app.dismissKeyboardIfVisible()
         
         let fieldTarget = onChangeResult().target
@@ -2171,7 +2176,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let change = onChangeResult().change
         let rowID = change?["rowId"] as? String
         XCTAssertEqual(rowID, "68599790e8593d6d76c3a09f")
-
+        
         let parentPath = change?["parentPath"] as? String
         XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
         
@@ -2180,7 +2185,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let row = change?["row"] as? [String: Any]
         let cells = row?["cells"] as? [String: Any]
         let updatedValue = cells?["685753be581f231c08d8f11c"] as? String
-        XCTAssertEqual(updatedValue, "A new value")
+        XCTAssertEqual(updatedValue, "q")
     }
     
     func testChangeLogsForEditupperRows() throws {

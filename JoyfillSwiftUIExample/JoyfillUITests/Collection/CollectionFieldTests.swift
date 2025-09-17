@@ -412,6 +412,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("", firstTableTextField.value as! String)
+        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 5))
         firstTableTextField.tap()
         firstTableTextField.typeText("one")
         //Test change-logs
@@ -555,10 +556,13 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         if let firstCollectionDateField = app.swipeToFindElement(identifier: "CalendarImageIdentifier", type: .image, direction: "left") {
             firstCollectionDateField.tap()
         }
-        
-        let datePickers = app.datePickers
-        XCTAssertTrue(datePickers.element.exists)
-        
+          
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a"   // Example: 12:58 PM
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        let dateButton = app.buttons[formatter.string(from: Date())].firstMatch
+        XCTAssertTrue(dateButton.exists)
         //        element.swipeRight()
         goBack()
         waitForAppToSettle()
@@ -1245,9 +1249,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
         textField.clearText()
-        textField.typeText("quick")
+        textField.typeText("o")
         
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
@@ -1279,7 +1284,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         waitForAppToSettle()
         
         // Textfield
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "quick")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "o")
         
         // Dropdown Field
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")
