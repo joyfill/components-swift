@@ -76,19 +76,19 @@ struct LicenseValidator {
     // Public key provided by Joyfill for license verification
     private static let publicKeyPEM = """
     -----BEGIN PUBLIC KEY-----
-            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAw69a7DUlaKia4iyPaZVo
-            fOYwVZhLYL8MET83hFsH1rg7+RHgsGk2ifXyMyHfAuYVLPUKIOXCwewPC9QKUbOc
-            9NepJqMoUeIG3b3okzO+XBUE5DZ5W8i0eug5ASYZDgLtNC1Fkpt8yYHHg0Yha4hv
-            0Y7/G2r1cvNzuhsVRjzaLpwGzBww04lKipRIb5Iarvy+XcszDNZLXOFIavxTrK/R
-            3rR8dTaDdZ3rJPyl6RNZnRwo1wxMBtOMRF5XmuszDyvaJKXvzywOXNmQNmsaCCLe
-            VSS3uQ7WFeON5vylS5FMnRI8v3A15A+rhwp8GpOgNBnUokgLLI+DiQeC/leGeoYE
-            XujH+9QUb6+7hp9RYcyqsFsNKC9/JQtEulj8OAZ9a37UiK9kxswJT9nIkml/fE8X
-            Y/jVo7cVtCa9Y/g4dyPKlu6mkibYRNaNVJVA7cITduIyBCXDIrrIlBgdpD3emyS7
-            nTNVaZeKqaylzGK64p89667t6GoghfrcQm/ntTRt1MettgTCykZ3Kz4xITsnoNKQ
-            D/zQo/u44mUpfKE6bXQ/sf2DBIK2YliYg/JCv1QI/wDISethApFXVguAdbzSpB+S
-            BH4z5XdbBtC5/rUYpYerduWonI2uc63HLpzdMj0v5OMyD4Rw5kaIhzmmvHzkkSLc
-            hG0URbFR7wh9rH3avX8Q4A8CAwEAAQ==
-            -----END PUBLIC KEY-----
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAovJjOjuezMevI8lGj8ez
+    puCFbWJENWH+jki1roZolNEy2PEZdElJr+9uMQKa+NLaT5qyE/gPThbSuSHssIXB
+    dqjEotEsQBzpYEqa/T7suEX0dmdEdzzxWk6J4fUZptfACVUYbNcPln8xCKSOu8CC
+    WuqL1FR/h7m45Etl7erYcN6HebaWlUF1z2Nitim8+PcE5sx/0Tab298/U0GZWmfv
+    S/S4FXYGkST97rFWy+VxwCHyNblpHw+rQYegOINmBkTxAmy9UPGw37QKswEX3DWZ
+    FTI5XDiiBQhSlLgsX3iqa4lapBt+UM6ryYP8nFqLrr2KrCud6SfGl1ixSQx/N55V
+    SxRa/ZAfnJcOHjKQCVb+gzEZqkGkh5kDoR7a4f/qdBEm4Dvs7xSUJPEUZO2jvgHw
+    g+FU1Cz6iTbs3uz9lsgqVYm9SeW6N3ZyY6GVF6j9uy+r0kkat8zTjPBesml0lmbH
+    BUjpxUpnwBuX0HAlmOSNeXyWYao12+azf474Pm9p89dFlh8zGdNRcL3QBK0M7Ymk
+    p75+nAPHdP0GofcSElpvarcg8sRoXAjh532N3Je/qE209s9BdSeFTaLeBW0K9knr
+    ymOdRsNSdCbiObCha0CyOZYvv1hYm2X9gau8Wpill1ZkhGef9gbI+nRbw/bdHwEx
+    T5tAsDz0zsS5rWFOoqzal+UCAwEAAQ==
+    -----END PUBLIC KEY-----
     """
 }
 
