@@ -620,35 +620,6 @@ The Joyfill SDK supports a comprehensive set of field types for various data inp
     *  `onFocus` is fired when open modal button is pressed and modal is displayed.
     *  `onChange` is fired when the field value is modified.
     *  `onBlur` is fired when the modal is closed.
-
-### Table and Collection Field Events
-
-*  **Table** and **Collection**
-    *  `onFocus` is fired when "view" button is pressed and modal is displayed.
-    *  `onBlur` is fired when modal is closed.
-    *  `onChange` is fired when table/collection data is modified (rows added, deleted, moved, or cell values changed).
-    
-    ### Cell-Level Events (Table/Collection Columns)
-    * **Text Cell**
-        * `onChange` is fired when the cell value is modified.
-    * **Number Cell**
-        * `onChange` is fired when the numeric value is modified.
-    * **Dropdown Cell**
-        *  `onChange` is fired when the selected value is modified.
-    * **Multi-Select Cell**
-        *  `onChange` is fired when selection options are modified.
-    * **Date Cell**
-        *  `onChange` is fired when the date value is modified.
-    * **Image Cell**
-        *  `onChange` is fired when the cell images are uploaded or removed.
-    * **Signature Cell**
-        *  `onChange` is fired when the signature is captured or modified.
-    * **Block Cell** (Display-only)
-        *  No interactive events as this is a read-only display cell.
-    * **Barcode Cell**
-        *  `onChange` is fired when barcode data is captured.
-    * **Progress Cell** (Display-only)
-        *  No interactive events as this is a read-only progress indicator.
         
 ## Collection Field
 
@@ -727,6 +698,35 @@ Collection fields additionally support:
 - **Conditional Schema Display**: Show/hide schemas based on parent data
 - **Nested Operations**: CRUD operations on child data structures
 - **Dynamic Column Configuration**: Different column sets per schema type
+
+### Table and Collection Field Events
+
+*  **Table** and **Collection**
+    *  `onFocus` is fired when "view" button is pressed and modal is displayed.
+    *  `onBlur` is fired when modal is closed.
+    *  `onChange` is fired when table/collection data is modified (rows added, deleted, moved, or cell values changed).
+    
+    ### Cell-Level Events (Table/Collection Columns)
+    * **Text Cell**
+        * `onChange` is fired when the cell value is modified.
+    * **Number Cell**
+        * `onChange` is fired when the numeric value is modified.
+    * **Dropdown Cell**
+        *  `onChange` is fired when the selected value is modified.
+    * **Multi-Select Cell**
+        *  `onChange` is fired when selection options are modified.
+    * **Date Cell**
+        *  `onChange` is fired when the date value is modified.
+    * **Image Cell**
+        *  `onChange` is fired when the cell images are uploaded or removed.
+    * **Signature Cell**
+        *  `onChange` is fired when the signature is captured or modified.
+    * **Block Cell** (Display-only)
+        *  No interactive events as this is a read-only display cell.
+    * **Barcode Cell**
+        *  `onChange` is fired when barcode data is captured.
+    * **Progress Cell** (Display-only)
+        *  No interactive events as this is a read-only progress indicator.
 
 **IMPORTANT NOTE:** JoyDoc SDK `onFocus`, `onChange` and `onBlur` events are not always called in the same order. Two different fields can be triggering events at the same time.  For instance, if you have Field A focused and then focus on Field B, the Field B onFocus event could be fired before the Field A onBlur event. Always check the event params object ids to match up the associated field events.
 
