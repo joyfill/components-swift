@@ -1,0 +1,149 @@
+{
+  "type": "template",
+  "fields": [
+    {
+      "title": "America/New_York",
+      "value": 1752530400000,
+      "type": "date",
+      "file": "66a14ced9dc829a95e272506",
+      "identifier": "field_686f5af63327f3a6a334bff7",
+      "tz": "America/New_York",
+      "_id": "686f5af19075d01b7489230c"
+    },
+    {
+      "tipTitle": "Tooltip Title",
+      "identifier": "field_686f4e3b58a0861ac3f1ebfa",
+      "tipDescription": "Tooltip Description",
+      "required": false,
+      "tipVisible": false,
+      "title": "Asia / Kolkata",
+      "type": "date",
+      "_id": "686f4e36557902657597794c",
+      "value": 1752564600000,
+      "file": "66a14ced9dc829a95e272506",
+      "tz": "Asia/Kolkata"
+    },
+    {
+      "value": 1758164402459,
+      "type": "date",
+      "identifier": "field_686f5ae75b39cdb0fccc5a10",
+      "title": "Europe/London",
+      "_id": "686f5ae34e3d328d3224b943",
+      "file": "66a14ced9dc829a95e272506",
+      "tz": "Europe/London"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68cbb317a0b02d85dbad2ccc",
+      "type": "date",
+      "title": "Nill Timezone",
+      "identifier": "field_68cbb324ec602b022f35145a",
+      "value": 1752564600000,
+      "tz": "nil"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68cbb34a8e340c36bd9d9154",
+      "type": "date",
+      "title": "Invalid Timezone",
+      "identifier": "field_68cbb34f304a11e7675412da",
+      "value": 1751355000000,
+      "tz": "123kjh"
+    }
+  ],
+  "files": [
+    {
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pages": [
+        {
+          "padding": 24,
+          "layout": "grid",
+          "metadata": {},
+          "width": 816,
+          "_id": "66a14ced15a9dc96374e091e",
+          "presentation": "normal",
+          "cols": 8,
+          "margin": 0,
+          "borderWidth": 0,
+          "height": 1056,
+          "fieldPositions": [
+            {
+              "_id": "686f4e3b613b3abcf155d775",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 2,
+              "y": 0,
+              "height": 8,
+              "width": 4,
+              "field": "686f4e36557902657597794c",
+              "type": "date",
+              "displayType": "original"
+            },
+            {
+              "_id": "686f5ae7c8cf1920cf4b6325",
+              "format": "hh:mma",
+              "x": 2,
+              "y": 16,
+              "height": 8,
+              "width": 4,
+              "field": "686f5ae34e3d328d3224b943",
+              "type": "date",
+              "displayType": "original"
+            },
+            {
+              "_id": "686f5af68ac5e5771e099ec4",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 2,
+              "y": 8,
+              "height": 8,
+              "width": 4,
+              "field": "686f5af19075d01b7489230c",
+              "type": "date",
+              "displayType": "original"
+            },
+            {
+              "_id": "68cbb324582be9f4080a5ea7",
+              "type": "date",
+              "field": "68cbb317a0b02d85dbad2ccc",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 2,
+              "y": 24,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68cbb34f743f37bc5b5b1d1b",
+              "type": "date",
+              "field": "68cbb34a8e340c36bd9d9154",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 2,
+              "y": 32,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "name": "Every Field Type"
+        }
+      ],
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e"
+      ],
+      "version": 1,
+      "views": [],
+      "metadata": {},
+      "name": "Every Field Type Demo"
+    }
+  ],
+  "createdOn": 1722619392797,
+  "categories": [],
+  "name": "JF-88 Repro",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "deleted": false
+}
