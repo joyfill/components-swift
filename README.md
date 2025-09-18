@@ -520,115 +520,6 @@ The Joyfill SDK includes a powerful formula engine that supports a wide range of
 // Example: "IF(status = 'active', quantity * price, 0)"
 ```
 
-## Collection Fields
-
-Collection fields provide hierarchical data structures with nested schemas and conditional logic support.
-
-### Key Features
-- **Nested Data Structure**: Support for parent-child relationships with multiple levels
-- **Dynamic Schemas**: Different row types with varying column configurations  
-- **Conditional Logic**: Show/hide schemas based on field values
-- **Advanced Operations**: Full CRUD operations on nested data
-
-### Supported Column Types
-Collection fields support the following column types:
-- `text` - Text input columns
-- `number` - Numeric input columns  
-- `dropdown` - Single selection dropdowns
-- `multiSelect` - Multiple selection fields
-- `date` - Date/time picker columns
-- `image` - Image upload columns
-- `block` - Display-only text columns
-- `signature` - Digital signature columns
-- `barcode` - Barcode scanning columns
-
-### Collection Schema Structure
-
-```swift
-// Example collection field configuration
-{
-  "type": "collection",
-  "schema": {
-    "rootSchema": {
-      "root": true,
-      "columns": [
-        {"id": "name", "type": "text", "title": "Name"},
-        {"id": "category", "type": "dropdown", "title": "Category"}
-      ],
-      "children": ["detailSchema"]
-    },
-    "detailSchema": {
-      "root": false,
-      "columns": [
-        {"id": "detail", "type": "text", "title": "Detail"},
-        {"id": "value", "type": "number", "title": "Value"}
-      ],
-      "logic": {
-        "schemaConditions": [
-          {
-            "columnID": "category", 
-            "condition": "EQUALS(category, 'premium')"
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-
-## Change API
-
-The Change API provides programmatic control over document modifications with support for various change types.
-
-### Change Types
-- `field.update` - Update field values
-- `field.value.rowCreate` - Create new table/collection rows
-- `field.value.rowUpdate` - Update existing table/collection rows  
-- `field.value.rowDelete` - Delete table/collection rows
-- `field.value.rowMove` - Move/reorder table/collection rows
-
-### Change Object Structure
-
-```swift
-public struct Change {
-    public var id: String?           // Change identifier
-    public var target: String?       // Change type (e.g., "field.update")
-    public var fieldId: String?      // Target field ID
-    public var pageId: String?       // Target page ID  
-    public var fileId: String?       // Target file ID
-    public var change: [String: Any]? // Change-specific data
-    public var createdOn: Double?    // Timestamp
-}
-```
-
-// Apply changes to document
-documentEditor.change(changes: [fieldChange, rowCreateChange])
-```
-
-## Table and Collection Column Types
-
-### Standard Table Columns
-Tables support the following column types:
-- `text` - Text input columns
-- `number` - Numeric input with validation
-- `dropdown` - Single selection from predefined options
-- `multiSelect` - Multiple selection from predefined options  
-- `date` - Date/time picker with format options
-- `image` - Image upload and display
-- `block` - Read-only display text
-- `signature` - Digital signature capture
-- `barcode` - Barcode scanning and display
-- `progress` - Progress bar visualization
-
-### Collection-Specific Features
-Collection fields additionally support:
-- **Hierarchical Schemas**: Multiple schema types per collection
-- **Conditional Schema Display**: Show/hide schemas based on parent data
-- **Nested Operations**: CRUD operations on child data structures
-- **Dynamic Column Configuration**: Different column sets per schema type
-```
-
 ## Schema Validation
 
 The SDK includes comprehensive schema validation to ensure document compatibility and data integrity.
@@ -663,13 +554,7 @@ let documentEditor = DocumentEditor(
 
 ## License-Based Features
 
-Certain advanced features require a valid license token:
-
-### Collection Fields
-- Requires valid license with `collectionField: true` claim
-- Without license, collection fields are hidden from the UI
-- License validation uses RS256 JWT signature verification
-
+Certain advanced features require a valid license token.
 ### License Usage
 
 ```swift
@@ -677,8 +562,6 @@ let documentEditor = DocumentEditor(
     document: myDocument,
     license: "your_jwt_license_token"
 )
-
-// Collection fields will be enabled if license is valid
 ```
 
 ## Field Types
@@ -766,6 +649,84 @@ The Joyfill SDK supports a comprehensive set of field types for various data inp
         *  `onChange` is fired when barcode data is captured.
     * **Progress Cell** (Display-only)
         *  No interactive events as this is a read-only progress indicator.
+        
+## Collection Field
+
+Collection fields provide hierarchical data structures with nested schemas and conditional logic support.
+
+### Key Features
+- **Nested Data Structure**: Support for parent-child relationships with multiple levels
+- **Dynamic Schemas**: Different row types with varying column configurations  
+- **Conditional Logic**: Show/hide schemas based on field values
+- **Advanced Operations**: Full CRUD operations on nested data
+
+### Supported Column Types
+Collection fields support the following column types:
+- `text` - Text input columns
+- `number` - Numeric input columns  
+- `dropdown` - Single selection dropdowns
+- `multiSelect` - Multiple selection fields
+- `date` - Date/time picker columns
+- `image` - Image upload columns
+- `block` - Display-only text columns
+- `signature` - Digital signature columns
+- `barcode` - Barcode scanning columns
+
+### Collection Schema Structure
+
+```swift
+// Example collection field configuration
+{
+  "type": "collection",
+  "schema": {
+    "rootSchema": {
+      "root": true,
+      "columns": [
+        {"id": "name", "type": "text", "title": "Name"},
+        {"id": "category", "type": "dropdown", "title": "Category"}
+      ],
+      "children": ["detailSchema"]
+    },
+    "detailSchema": {
+      "root": false,
+      "columns": [
+        {"id": "detail", "type": "text", "title": "Detail"},
+        {"id": "value", "type": "number", "title": "Value"}
+      ],
+      "logic": {
+        "schemaConditions": [
+          {
+            "columnID": "category", 
+            "condition": "EQUALS(category, 'premium')"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+## Table and Collection Column Types
+
+### Standard Table Columns
+Tables support the following column types:
+- `text` - Text input columns
+- `number` - Numeric input with validation
+- `dropdown` - Single selection from predefined options
+- `multiSelect` - Multiple selection from predefined options  
+- `date` - Date/time picker with format options
+- `image` - Image upload and display
+- `block` - Read-only display text
+- `signature` - Digital signature capture
+- `barcode` - Barcode scanning and display
+- `progress` - Progress bar visualization
+
+### Collection-Specific Features
+Collection fields additionally support:
+- **Hierarchical Schemas**: Multiple schema types per collection
+- **Conditional Schema Display**: Show/hide schemas based on parent data
+- **Nested Operations**: CRUD operations on child data structures
+- **Dynamic Column Configuration**: Different column sets per schema type
 
 **IMPORTANT NOTE:** JoyDoc SDK `onFocus`, `onChange` and `onBlur` events are not always called in the same order. Two different fields can be triggering events at the same time.  For instance, if you have Field A focused and then focus on Field B, the Field B onFocus event could be fired before the Field A onBlur event. Always check the event params object ids to match up the associated field events.
 
