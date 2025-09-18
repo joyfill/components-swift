@@ -204,79 +204,6 @@ let change = Change(
 )
 ```
 
-#### Usage Examples:
-
-documentEditor.change(changes: [change])
-```
-
-
-#### Best Practices:
-- Always set `v: 1` and `sdk: "swift"` for consistency
-- Use `Date().timeIntervalSince1970` for `createdOn` timestamps
-- Include all required identifiers (documentID, pageID, fileID, fieldID)
-- For table/collection operations, ensure proper row structure with `_id` and `cells`
-- Use `targetRowIndex` for precise row positioning
-- For nested operations, include `parentPath` and `schemaId`
-- Apply multiple related changes in a single call for better performance
-
-#### Notes:
-- Changes are applied synchronously to the document
-- The method automatically triggers UI updates and validation
-- Use this method for programmatic document manipulation and real-time synchronization
-
-### 2. `validate() -> Validation`
-* Validates the current document and returns a Validation object with field-level validation results.
-* Usage: `let validationResult = documentEditor.validate()`
-
-### 3. `shouldShow(fieldID: String?) -> Bool`
-* Determines if a field should be shown based on conditional logic.
-* Usage: `let isFieldVisible = documentEditor.shouldShow(fieldID: "someFieldID")`
-
-### 4. `shouldShow(pageID: String?) -> Bool`
-* Determines if a page should be shown based on conditional logic.
-* Usage: `let isPageVisible = documentEditor.shouldShow(pageID: "somePageID")`
-
-### 5. `shouldShow(page: Page?) -> Bool`
-* Determines if a given Page object should be shown based on conditional logic.
-* Usage: `let isPageVisible = documentEditor.shouldShow(page: somePage)`
-
-### 6. `duplicatePage(pageID: String)`
-* Duplicates an entire page with all its fields and configurations.
-* Usage: `documentEditor.duplicatePage(pageID: "pageID")`
-
-### 7. `getFieldIdentifier(for fieldID: String) -> FieldIdentifier`
-**Essential method for obtaining complete field identification information**
-
-Returns a complete `FieldIdentifier` object that contains all the necessary information to uniquely identify a field within the document structure. This method is crucial when working with the Change API or other operations that require complete field context.
-
-#### What it does:
-- Takes a field ID string and returns a complete `FieldIdentifier` object
-- Automatically resolves the field's page ID, file ID, and field position ID
-- Searches through all pages to find where the field is positioned
-- Provides fallback identification if field position is not found
-
-#### Implementation Details:
-The method performs the following steps:
-1. Gets the file ID from the field's data
-2. Iterates through all pages in the current view
-3. Searches for field positions that match the given field ID
-4. Returns a complete `FieldIdentifier` with all context information
-5. Falls back to basic identification if field position is not found
-
-#### Usage Examples:
-
-**Basic Usage (from CreateRowUISample.swift):**
-```swift
-let fieldId = "6857510fbfed1553e168161b"
-let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
-
-// Now you have complete field identification
-print("Field ID: \(fieldIdentifier.fieldID)")
-print("Page ID: \(fieldIdentifier.pageID ?? "unknown")")
-print("File ID: \(fieldIdentifier.fileID ?? "unknown")")
-print("Field Position ID: \(fieldIdentifier.fieldPositionId ?? "unknown")")
-```
-
 #### Essential Change API Examples:
 
 **1. Field Update:**
@@ -399,6 +326,59 @@ let nestedRowChange = Change(
 )
 
 documentEditor.change(changes: [nestedRowChange])
+```
+
+### 2. `validate() -> Validation`
+* Validates the current document and returns a Validation object with field-level validation results.
+* Usage: `let validationResult = documentEditor.validate()`
+
+### 3. `shouldShow(fieldID: String?) -> Bool`
+* Determines if a field should be shown based on conditional logic.
+* Usage: `let isFieldVisible = documentEditor.shouldShow(fieldID: "someFieldID")`
+
+### 4. `shouldShow(pageID: String?) -> Bool`
+* Determines if a page should be shown based on conditional logic.
+* Usage: `let isPageVisible = documentEditor.shouldShow(pageID: "somePageID")`
+
+### 5. `shouldShow(page: Page?) -> Bool`
+* Determines if a given Page object should be shown based on conditional logic.
+* Usage: `let isPageVisible = documentEditor.shouldShow(page: somePage)`
+
+### 6. `duplicatePage(pageID: String)`
+* Duplicates an entire page with all its fields and configurations.
+* Usage: `documentEditor.duplicatePage(pageID: "pageID")`
+
+### 7. `getFieldIdentifier(for fieldID: String) -> FieldIdentifier`
+**Essential method for obtaining complete field identification information**
+
+Returns a complete `FieldIdentifier` object that contains all the necessary information to uniquely identify a field within the document structure. This method is crucial when working with the Change API or other operations that require complete field context.
+
+#### What it does:
+- Takes a field ID string and returns a complete `FieldIdentifier` object
+- Automatically resolves the field's page ID, file ID, and field position ID
+- Searches through all pages to find where the field is positioned
+- Provides fallback identification if field position is not found
+
+#### Implementation Details:
+The method performs the following steps:
+1. Gets the file ID from the field's data
+2. Iterates through all pages in the current view
+3. Searches for field positions that match the given field ID
+4. Returns a complete `FieldIdentifier` with all context information
+5. Falls back to basic identification if field position is not found
+
+#### Usage Examples:
+
+**Basic Usage (from CreateRowUISample.swift):**
+```swift
+let fieldId = "6857510fbfed1553e168161b"
+let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
+
+// Now you have complete field identification
+print("Field ID: \(fieldIdentifier.fieldID)")
+print("Page ID: \(fieldIdentifier.pageID ?? "unknown")")
+print("File ID: \(fieldIdentifier.fileID ?? "unknown")")
+print("Field Position ID: \(fieldIdentifier.fieldPositionId ?? "unknown")")
 ```
 
 #### Returned FieldIdentifier Properties:
