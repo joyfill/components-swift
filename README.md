@@ -706,7 +706,7 @@ Collection fields support the following column types:
   }
 }
 ```
-
+![Alt text](https://github.com/user-attachments/assets/aefa8544-86de-49d4-9e90-d32b2b9c62f6 "Image Title")
 ## Table and Collection Column Types
 
 ### Standard Table Columns
