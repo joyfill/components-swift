@@ -51,18 +51,23 @@ import JoyfillModel
 
 struct FormContainerView: View {
     let documentEditor: DocumentEditor
-    let changeManager: ChangeManager
-
-    init(document: JoyDoc, pageID: String, changeManager: ChangeManager) {
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true, validateSchema: true, license: "your_license")
-        self.changeManager = changeManager
+    let changeHandler = ChangeHandler()
+    
+    init(document: JoyDoc) {
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeHandler, pageID: "your_Page_Id", navigation: true, isPageDuplicateEnabled: true, validateSchema: true, license: "your_license")
     }
 
     var body: some View {
-        VStack {
-            Form(documentEditor: documentEditor)
-        }
+        Form(documentEditor: documentEditor)
     }
+}
+class ChangeHandler: FormChangeEvent {
+    func onChange(changes: [Joyfill.Change], document: JoyfillModel.JoyDoc) {}
+    func onFocus(event: Joyfill.FieldIdentifier) {}
+    func onBlur(event: Joyfill.FieldIdentifier) {}
+    func onUpload(event: Joyfill.UploadEvent) {}
+    func onCapture(event: Joyfill.CaptureEvent) {}
+    func onError(error: Joyfill.JoyfillError) {}
 }
 ```
 
