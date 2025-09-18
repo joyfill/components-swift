@@ -394,36 +394,17 @@ public struct FieldIdentifier {
 }
 ```
 
-#### When to Use:
-- **Before creating Change objects** - Ensures you have all required IDs
-- **Table/Collection operations** - Required for row manipulation functions
-- **Field context resolution** - When you need complete field positioning info
-- **API integrations** - When working with external systems that need full context
-- **Debugging** - To understand field relationships and positioning
-
-#### Best Practices:
-- Always use this method when you only have a field ID but need complete context
-- Cache the result if you'll be using the same field identifier multiple times
-- Check for nil values in returned properties if working with incomplete documents
-- Use the returned identifier for all Change API operations to ensure proper field targeting
-
-#### Notes:
-- This method is essential for the Change API workflow
-- It bridges the gap between simple field IDs and complete field context
-- The method handles edge cases where field positions might not be found
-- It's the recommended way to obtain field identifiers for programmatic operations
-
 ### FieldIdentifier - Uniquely identifies the field
 
 ```swift
-// Example of creating a FieldIdentifier manually (not recommended)
+// Example of creating a FieldIdentifier manually
 let fieldIdentifier = FieldIdentifier(fieldID: "field123", pageID: "page45", fileID: "file678")
 
 // Recommended: Use getFieldIdentifier instead
 let fieldIdentifier = documentEditor.getFieldIdentifier(for: "field123")
 ```
 
-## Formula Engine (JoyfillFormulas)
+## Formula (JoyfillFormulas)
 
 The Joyfill SDK includes a powerful formula engine that supports a wide range of functions for dynamic calculations and data manipulation.
 
