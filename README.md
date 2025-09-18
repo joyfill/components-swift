@@ -498,26 +498,56 @@ The Joyfill SDK includes a powerful formula engine that supports a wide range of
 - `EMPTY(value)` - Check if value is empty
 - `EQUALS(value1, value2)` - Compare values for equality
 
-### Formula Usage Example
+#### Formula Operators
+- `+` (add) - Addition for numbers, concatenation for strings
+- `-` (subtract) - Subtraction for numbers
+- `*` (multiply) - Multiplication for numbers
+- `/` (divide) - Division for numbers
+- `()` (grouping) - Mathematical grouping
+- `==` (equal) - Equality comparison
+- `!=` (unequal) - Inequality comparison
+- `>` (greater than) - Greater than comparison
+- `>=` (greater than or equal) - Greater than or equal comparison
+- `<` (less than) - Less than comparison
+- `<=` (less than or equal) - Less than or equal comparison
 
-```swift
-// Formulas are defined in field configurations and automatically evaluated
-// Example field with formula:
-{
-  "id": "totalField",
-  "type": "number", 
-  "formulas": [
+### Formula Usage Examples
+
+#### Number Field with Basic Formula
+```json
+  "fields": [
     {
-      "id": "calc1",
-      "key": "value",
-      "formula": "SUM(MAP(tableField, LAMBDA(row, row.quantity * row.price)))"
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number1",
+      "type": "number",
+      "title": "Number1",
+      "identifier": "field_68521ca1ceefb7c6c622024b",
+      "value": 10
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number2",
+      "type": "number",
+      "title": "Add 100 to number1",
+      "identifier": "field_number2",
+      "formulas": [
+        {
+          "_id": "AF_add100",
+          "formula": "add100",
+          "key": "value"
+        }
+      ]
     }
   ]
-}
-
-// Formulas can reference other fields by their identifier
-// Example: "SUM(field1, field2, field3)"
-// Example: "IF(status = 'active', quantity * price, 0)"
+  "formulas": [
+    {
+      "_id": "add100",
+      "desc": "Add 100 to number1",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 + 100"
+    }
+  ]
 ```
 
 ## Schema Validation
