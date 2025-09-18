@@ -217,10 +217,7 @@ let newRowChange = Change(dictionary: [
     "change": [
         "row": [
             "_id": UUID().uuidString,
-            "cells": [
-                "column1": ["value": "Cell 1"],
-                "column2": ["value": "Cell 2"]
-            ]
+            "cells": [:]
         ],
         "targetRowIndex": 0
     ],
@@ -233,20 +230,21 @@ documentEditor.change(changes: [newRowChange])
 **3. Update Table Row:**
 ```swift
 let updateRowChange = Change(dictionary: [
-    "_id": UUID().uuidString,
+    "_id": "document_Id",
     "v": 1,
     "sdk": "swift",
     "target": "field.value.rowUpdate", 
+    "identifier" : "field_identifier",
     "fieldId": "tableField1",
+    "fieldPositionId" : "field_PositionId",
+    "fieldIdentifier" : "field_Identifier",
     "pageId": "page1",
     "fileId": "file1",
     "change": [
         "rowId": "existingRowId",
         "row": [
             "_id": "existingRowId",
-            "cells": [
-                "column1": ["value": "Updated cell value"]
-            ]
+            "cells": [:]
         ]
     ],
     "createdOn": Date().timeIntervalSince1970
@@ -268,7 +266,7 @@ let nestedRowChange = Change(dictionary: [
     "change": [
         "row": [
             "_id": UUID().uuidString,
-            "cells": ["nestedColumn": ["value": "Nested value"]]
+            "cells": [:]
         ],
         "parentPath": "parentRowId.schemaKey",
         "schemaId": "childSchemaId", 
@@ -348,12 +346,14 @@ print("File ID: \(fieldIdentifier.fileID ?? "unknown")")
 print("Field Position ID: \(fieldIdentifier.fieldPositionId ?? "unknown")")
 ```
 
-**Using with Change API:**
+#### Essential Change API Examples:
+
+**1. Field Update:**
 ```swift
 let fieldId = "textField123"
 let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
+let field = documentEditor.field(fieldID: fieldId)
 
-// Create a field update change using the complete identifier
 let change = Change(
     v: 1,
     sdk: "swift",
@@ -363,22 +363,87 @@ let change = Change(
     fileId: fieldIdentifier.fileID ?? "",
     pageId: fieldIdentifier.pageID ?? "",
     fieldId: fieldIdentifier.fieldID,
-    fieldIdentifier: fieldIdentifier.fieldIdentifier,
+    fieldIdentifier: field?.identifier,
     fieldPositionId: fieldIdentifier.fieldPositionId ?? "",
-    change: ["value": "new value"],
+    change: ["value": "Updated field value"],
     createdOn: Date().timeIntervalSince1970
 )
 
 documentEditor.change(changes: [change])
 ```
 
-**Creating Collection Row Changes:**
+**2. Create Table Row:**
 ```swift
-let collectionFieldId = "collection123"
-let fieldIdentifier = documentEditor.getFieldIdentifier(for: collectionFieldId)
-let field = documentEditor.field(fieldID: collectionFieldId)
+let fieldId = "tableField1"
+let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
+let field = documentEditor.field(fieldID: fieldId)
 
-// Use the identifier for creating nested row changes
+let newRowChange = Change(
+    v: 1,
+    sdk: "swift",
+    target: "field.value.rowCreate",
+    _id: documentEditor.documentID ?? "",
+    identifier: documentEditor.documentIdentifier,
+    fileId: fieldIdentifier.fileID ?? "",
+    pageId: fieldIdentifier.pageID ?? "",
+    fieldId: fieldIdentifier.fieldID,
+    fieldIdentifier: field?.identifier,
+    fieldPositionId: fieldIdentifier.fieldPositionId ?? "",
+    change: [
+        "row": [
+            "_id": UUID().uuidString,
+            "cells": [:]
+        ],
+        "targetRowIndex": 0
+    ],
+    createdOn: Date().timeIntervalSince1970
+)
+
+documentEditor.change(changes: [newRowChange])
+```
+
+**3. Update Table Row:**
+```swift
+let fieldId = "tableField1"
+let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
+let field = documentEditor.field(fieldID: fieldId)
+
+let updateRowChange = Change(
+    v: 1,
+    sdk: "swift",
+    target: "field.value.rowUpdate",
+    _id: documentEditor.documentID ?? "",
+    identifier: documentEditor.documentIdentifier,
+    fileId: fieldIdentifier.fileID ?? "",
+    pageId: fieldIdentifier.pageID ?? "",
+    fieldId: fieldIdentifier.fieldID,
+    fieldIdentifier: field?.identifier,
+    fieldPositionId: fieldIdentifier.fieldPositionId ?? "",
+    change: [
+        "rowId": "existingRowId",
+        "row": [
+            "_id": "existingRowId",
+            "cells": [:]
+        ]
+    ],
+    createdOn: Date().timeIntervalSince1970
+)
+
+documentEditor.change(changes: [updateRowChange])
+```
+
+**4. Create Nested Collection Row:**
+```swift
+let fieldId = "collectionField1"
+let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
+let schemas = field?.schema ?? [:]
+let rootSchemaKey = schemas.first(where: { $0.value.root == true })?.key ?? ""
+let field = documentEditor.field(fieldID: fieldId)
+let existingRows = field?.valueToValueElements ?? []
+let targetSchemaID = schemas[rootSchemaKey]?.children?.first ?? "" // Add your target schema ID here
+let parentRowId = existingRows.first?.id ?? ""
+let parentPath = documentEditor.computeParentPath(targetParentId: parentRowId, nestedKey: targetSchemaID, in: [rootSchemaKey : existingRows]) ?? ""
+
 let nestedRowChange = Change(
     v: 1,
     sdk: "swift",
@@ -387,30 +452,22 @@ let nestedRowChange = Change(
     identifier: documentEditor.documentIdentifier,
     fileId: fieldIdentifier.fileID ?? "",
     pageId: fieldIdentifier.pageID ?? "",
-    fieldId: collectionFieldId,
-    fieldIdentifier: field?.identifier ?? "",
+    fieldId: fieldIdentifier.fieldID,
+    fieldIdentifier: field?.identifier,
     fieldPositionId: fieldIdentifier.fieldPositionId ?? "",
     change: [
-        "row": newRowData,
+        "row": [
+            "_id": UUID().uuidString,
+            "cells": [:]
+        ],
         "parentPath": parentPath,
-        "schemaId": schemaId,
-        "targetRowIndex": targetIndex
+        "schemaId": targetSchemaID,
+        "targetRowIndex": 0
     ],
     createdOn: Date().timeIntervalSince1970
 )
-```
 
-**Table Operations:**
-```swift
-let tableFieldId = "table456"
-let fieldIdentifier = documentEditor.getFieldIdentifier(for: tableFieldId)
-
-// Use for table row operations
-let result = documentEditor.insertRowWithFilter(
-    id: "newRow123",
-    cellValues: ["column1": .string("value1")],
-    fieldIdentifier: fieldIdentifier
-)
+documentEditor.change(changes: [nestedRowChange])
 ```
 
 #### Returned FieldIdentifier Properties:
