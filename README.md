@@ -551,7 +551,7 @@ The Joyfill SDK includes a powerful formula engine that supports a wide range of
 ```
 ## Quick Demo
 
-![Joyfill Form Demo](https://github.com/user-attachments/assets/5aa1e05b-24fa-4cae-b817-5706ef7e3c18)
+![Joyfill Form Demo](https://github.com/user-attachments/assets/dc1358b1-b5cd-40fd-bbc2-eeadab3b2416)
 
 ## Schema Validation
 
