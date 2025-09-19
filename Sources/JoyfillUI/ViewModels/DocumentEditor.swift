@@ -194,8 +194,9 @@ public class DocumentEditor: ObservableObject {
         case .table, .collection:
             DispatchQueue.main.async(execute: {
                 self.delegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+                self.refreshField(fieldId: fieldID)
+                self.refreshDependent(for: fieldID)
             })
-            
         default:
             break
         }
@@ -211,6 +212,8 @@ public class DocumentEditor: ObservableObject {
         switch field.fieldType {
         case  .table, .collection:
             delegateMap[fieldID]?.value?.insertRow(for: change)
+            refreshField(fieldId: fieldID)
+            refreshDependent(for: fieldID)
         default:
             break
         }
@@ -226,6 +229,8 @@ public class DocumentEditor: ObservableObject {
         switch field.fieldType {
         case .table, .collection:
             delegateMap[fieldID]?.value?.deleteRow(for: change)
+            refreshField(fieldId: fieldID)
+            refreshDependent(for: fieldID)
         default:
             break
         }
@@ -240,6 +245,8 @@ public class DocumentEditor: ObservableObject {
         switch field.fieldType {
         case .table, .collection:
             delegateMap[fieldID]?.value?.moveRow(for: change)
+            refreshField(fieldId: fieldID)
+            refreshDependent(for: fieldID)
         default:
             break
         }
