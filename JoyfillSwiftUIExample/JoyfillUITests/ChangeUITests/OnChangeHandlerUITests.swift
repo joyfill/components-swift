@@ -1954,6 +1954,31 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let CheckTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual(CheckTextField.value as! String, "hello")
     }
+    
+    func testAddRowAndSwitchPages() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToTableDetailPage()
+        app.buttons["TableAddRowIdentifier"].firstMatch.tap()
+         
+        let barcodeFieldIdentifier = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 6)
+        XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
+        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
+       
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        goBack()
+        goToTableDetailPage(index: 1)
+        XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
+    }
 }
 
 extension XCUIElementQuery {
