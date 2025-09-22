@@ -1,149 +1,350 @@
 {
-  "type": "template",
-  "fields": [
+  "files" : [
     {
-      "title": "America/New_York",
-      "value": 1752530400000,
-      "type": "date",
-      "file": "66a14ced9dc829a95e272506",
-      "identifier": "field_686f5af63327f3a6a334bff7",
-      "tz": "America/New_York",
-      "_id": "686f5af19075d01b7489230c"
-    },
-    {
-      "tipTitle": "Tooltip Title",
-      "identifier": "field_686f4e3b58a0861ac3f1ebfa",
-      "tipDescription": "Tooltip Description",
-      "required": false,
-      "tipVisible": false,
-      "title": "Asia / Kolkata",
-      "type": "date",
-      "_id": "686f4e36557902657597794c",
-      "value": 1752564600000,
-      "file": "66a14ced9dc829a95e272506",
-      "tz": "Asia/Kolkata"
-    },
-    {
-      "value": 1758164402459,
-      "type": "date",
-      "identifier": "field_686f5ae75b39cdb0fccc5a10",
-      "title": "Europe/London",
-      "_id": "686f5ae34e3d328d3224b943",
-      "file": "66a14ced9dc829a95e272506",
-      "tz": "Europe/London"
-    },
-    {
-      "file": "66a14ced9dc829a95e272506",
-      "_id": "68cbb317a0b02d85dbad2ccc",
-      "type": "date",
-      "title": "Nill Timezone",
-      "identifier": "field_68cbb324ec602b022f35145a",
-      "value": 1752564600000,
-      "tz": "nil"
-    },
-    {
-      "file": "66a14ced9dc829a95e272506",
-      "_id": "68cbb34a8e340c36bd9d9154",
-      "type": "date",
-      "title": "Invalid Timezone",
-      "identifier": "field_68cbb34f304a11e7675412da",
-      "value": 1751355000000,
-      "tz": "123kjh"
-    }
-  ],
-  "files": [
-    {
-      "styles": {
-        "margin": 4
+      "styles" : {
+        "margin" : 4
       },
-      "_id": "66a14ced9dc829a95e272506",
-      "pages": [
+      "_id" : "66a14ced9dc829a95e272506",
+      "pages" : [
         {
-          "padding": 24,
-          "layout": "grid",
-          "metadata": {},
-          "width": 816,
-          "_id": "66a14ced15a9dc96374e091e",
-          "presentation": "normal",
-          "cols": 8,
-          "margin": 0,
-          "borderWidth": 0,
-          "height": 1056,
-          "fieldPositions": [
+          "padding" : 24,
+          "layout" : "grid",
+          "metadata" : {
+
+          },
+          "width" : 816,
+          "_id" : "66a14ced15a9dc96374e091e",
+          "presentation" : "normal",
+          "cols" : 8,
+          "margin" : 0,
+          "borderWidth" : 0,
+          "height" : 1056,
+          "fieldPositions" : [
             {
-              "_id": "686f4e3b613b3abcf155d775",
-              "format": "MM/DD/YYYY hh:mma",
-              "x": 2,
-              "y": 0,
-              "height": 8,
-              "width": 4,
-              "field": "686f4e36557902657597794c",
-              "type": "date",
-              "displayType": "original"
+              "_id" : "686f4e3b613b3abcf155d775",
+              "format" : "MM\/DD\/YYYY hh:mma",
+              "x" : 2,
+              "y" : 0,
+              "height" : 8,
+              "width" : 4,
+              "field" : "686f4e36557902657597794c",
+              "type" : "date",
+              "displayType" : "original"
             },
             {
-              "_id": "686f5ae7c8cf1920cf4b6325",
-              "format": "hh:mma",
-              "x": 2,
-              "y": 16,
-              "height": 8,
-              "width": 4,
-              "field": "686f5ae34e3d328d3224b943",
-              "type": "date",
-              "displayType": "original"
+              "_id" : "686f5ae7c8cf1920cf4b6325",
+              "format" : "hh:mma",
+              "x" : 2,
+              "y" : 16,
+              "height" : 8,
+              "width" : 4,
+              "field" : "686f5ae34e3d328d3224b943",
+              "type" : "date",
+              "displayType" : "original"
             },
             {
-              "_id": "686f5af68ac5e5771e099ec4",
-              "format": "MM/DD/YYYY hh:mma",
-              "x": 2,
-              "y": 8,
-              "height": 8,
-              "width": 4,
-              "field": "686f5af19075d01b7489230c",
-              "type": "date",
-              "displayType": "original"
+              "_id" : "686f5af68ac5e5771e099ec4",
+              "format" : "MM\/DD\/YYYY hh:mma",
+              "x" : 2,
+              "y" : 8,
+              "height" : 8,
+              "width" : 4,
+              "field" : "686f5af19075d01b7489230c",
+              "type" : "date",
+              "displayType" : "original"
             },
             {
-              "_id": "68cbb324582be9f4080a5ea7",
-              "type": "date",
-              "field": "68cbb317a0b02d85dbad2ccc",
-              "displayType": "original",
-              "format": "MM/DD/YYYY hh:mma",
-              "x": 2,
-              "y": 24,
-              "width": 4,
-              "height": 8
+              "_id" : "68cbb324582be9f4080a5ea7",
+              "format" : "MM\/DD\/YYYY hh:mma",
+              "x" : 2,
+              "y" : 24,
+              "height" : 8,
+              "width" : 4,
+              "field" : "68cbb317a0b02d85dbad2ccc",
+              "type" : "date",
+              "displayType" : "original"
             },
             {
-              "_id": "68cbb34f743f37bc5b5b1d1b",
-              "type": "date",
-              "field": "68cbb34a8e340c36bd9d9154",
-              "displayType": "original",
-              "format": "MM/DD/YYYY hh:mma",
-              "x": 2,
-              "y": 32,
-              "width": 4,
-              "height": 8
+              "_id" : "68cbb34f743f37bc5b5b1d1b",
+              "format" : "MM\/DD\/YYYY hh:mma",
+              "x" : 2,
+              "y" : 32,
+              "height" : 8,
+              "width" : 4,
+              "field" : "68cbb34a8e340c36bd9d9154",
+              "type" : "date",
+              "displayType" : "original"
+            },
+            {
+              "_id" : "68ccd6f66f6520470a9f0fe6",
+              "x" : 0,
+              "height" : 15,
+              "y" : 40,
+              "width" : 8,
+              "field" : "68ccd6ecec7202b4e4c02c9a",
+              "type" : "table",
+              "displayType" : "original",
+              "tableColumns" : {
+                "68ccd71d7a2e455448869138" : {
+                  "format" : "MM\/DD\/YYYY hh:mma"
+                },
+                "68ccd726d9509a2322601a7a" : {
+                  "format" : "MM\/DD\/YYYY hh:mma"
+                }
+              }
+            },
+            {
+              "_id" : "68ccd7cd0dddaa2e1c3ed438",
+              "x" : 0,
+              "height" : 15,
+              "y" : 55,
+              "width" : 8,
+              "field" : "68ccd7a0b7ba38007ae95bbb",
+              "type" : "collection",
+              "displayType" : "original"
             }
           ],
-          "hidden": false,
-          "rowHeight": 8,
-          "name": "Every Field Type"
+          "hidden" : false,
+          "rowHeight" : 8,
+          "name" : "Every Field Type"
         }
       ],
-      "pageOrder": [
+      "pageOrder" : [
         "66a14ced15a9dc96374e091e"
       ],
-      "version": 1,
-      "views": [],
-      "metadata": {},
-      "name": "Every Field Type Demo"
+      "version" : 1,
+      "views" : [
+
+      ],
+      "metadata" : {
+
+      },
+      "name" : "Every Field Type Demo"
     }
   ],
-  "createdOn": 1722619392797,
-  "categories": [],
-  "name": "JF-88 Repro",
-  "identifier": "template_6849dbb509ede5510725c910",
-  "_id": "66a14cedd6e1ebcdf176a8da",
-  "deleted": false
+  "fields" : [
+    {
+      "value" : 1758164402459,
+      "identifier" : "field_686f5ae75b39cdb0fccc5a10",
+      "file" : "66a14ced9dc829a95e272506",
+      "title" : "Europe\/London",
+      "type" : "date",
+      "_id" : "686f5ae34e3d328d3224b943",
+      "tz" : "Europe\/London"
+    },
+    {
+      "value" : [
+        {
+          "children" : {
+
+          },
+          "tz" : "Asia\/Kolkata",
+          "_id" : "68ccd80c35f56b6a02e7e8ee",
+          "cells" : {
+            "68ccd7e30abaca33d5c886a4" : 1758339000000,
+            "68ccd7ecd63b2e357a04366f" : 1758339000000,
+            "68cce1681d3fe91b706bc5fc" : "Asia\/Kolkata"
+          }
+        },
+        {
+          "cells" : {
+            "68ccd7ecd63b2e357a04366f" : 1758425400000,
+            "68ccd7e30abaca33d5c886a4" : 1758425400000,
+            "68cce1681d3fe91b706bc5fc" : "Nil"
+          },
+          "children" : {
+
+          },
+          "tz" : "Asia\/Kolkata",
+          "_id" : "68cce16d45997a2930fa88c5"
+        },
+        {
+          "tz" : "Asia\/Kolkata",
+          "children" : {
+
+          },
+          "_id" : "68cce170a5690a4cb8768473",
+          "cells" : {
+            "68ccd7ecd63b2e357a04366f" : 1758425400000,
+            "68ccd7e30abaca33d5c886a4" : 1758425400000,
+            "68cce1681d3fe91b706bc5fc" : "invalid123"
+          }
+        }
+      ],
+      "_id" : "68ccd7a0b7ba38007ae95bbb",
+      "type" : "collection",
+      "identifier" : "field_68ccd7cd7c399ae0f5ecb56a",
+      "file" : "66a14ced9dc829a95e272506",
+      "title" : "Collection",
+      "schema" : {
+        "68ccd7fa8b46a7e4571c58ff" : {
+          "tableColumns" : [
+            {
+              "deleted" : false,
+              "_id" : "68ccd803668dbcbe14fb34b7",
+              "title" : "Date Column",
+              "type" : "date",
+              "width" : 0,
+              "format" : "MM\/DD\/YYYY hh:mma"
+            }
+          ],
+          "title" : "New Table",
+          "children" : [
+
+          ],
+          "hidden" : false
+        },
+        "collectionSchemaId" : {
+          "title" : "Main Collection",
+          "root" : true,
+          "children" : [
+            "68ccd7fa8b46a7e4571c58ff"
+          ],
+          "tableColumns" : [
+            {
+              "deleted" : false,
+              "_id" : "68ccd7e30abaca33d5c886a4",
+              "title" : "Date Column",
+              "type" : "date",
+              "width" : 0,
+              "format" : "MM\/DD\/YYYY hh:mma"
+            },
+            {
+              "deleted" : false,
+              "_id" : "68ccd7ecd63b2e357a04366f",
+              "title" : "Date Column",
+              "type" : "date",
+              "width" : 0,
+              "format" : "MM\/DD\/YYYY hh:mma"
+            },
+            {
+              "deleted" : false,
+              "_id" : "68cce1681d3fe91b706bc5fc",
+              "title" : "Text Column",
+              "type" : "text",
+              "width" : 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "identifier" : "field_68ccd6f6b1f17df7c2e8d1c3",
+      "file" : "66a14ced9dc829a95e272506",
+      "type" : "table",
+      "value" : [
+        {
+          "tz" : "Asia\/Kolkata",
+          "deleted" : 0,
+          "_id" : "68ca225a997bfaa34b59d08b",
+          "cells" : {
+            "68cce077e6c867837286f877" : "Asia\/Kolkata",
+            "68ccd726d9509a2322601a7a" : 1757475000000,
+            "68ccd71d7a2e455448869138" : 1757475000000
+          }
+        },
+        {
+          "_id" : "68ca225af2f4ea19c23003ce",
+          "cells" : {
+            "68ccd726d9509a2322601a7a" : 1757561400000,
+            "68cce077e6c867837286f877" : "Nil",
+            "68ccd71d7a2e455448869138" : 1757561400000
+          },
+          "deleted" : 0,
+          "tz" : "Asia\/Kolkata"
+        },
+        {
+          "cells" : {
+            "68cce077e6c867837286f877" : "invalid123",
+            "68ccd71d7a2e455448869138" : 1757561400000,
+            "68ccd726d9509a2322601a7a" : 1757561400000
+          },
+          "tz" : "Asia\/Kolkata",
+          "deleted" : 0,
+          "_id" : "68ccdf9722e3ccc025cd8544"
+        }
+      ],
+      "rowOrder" : [
+        "68ca225a997bfaa34b59d08b",
+        "68ca225af2f4ea19c23003ce",
+        "68ccdf9722e3ccc025cd8544"
+      ],
+      "tableColumns" : [
+        {
+          "_id" : "68ccd71d7a2e455448869138",
+          "title" : "Date Column",
+          "type" : "date",
+          "width" : 0
+        },
+        {
+          "_id" : "68ccd726d9509a2322601a7a",
+          "title" : "Date Column",
+          "type" : "date",
+          "width" : 0
+        },
+        {
+          "_id" : "68cce077e6c867837286f877",
+          "title" : "Text Column",
+          "type" : "text",
+          "width" : 0
+        }
+      ],
+      "tableColumnOrder" : [
+        "68ccd726d9509a2322601a7a",
+        "68ccd71d7a2e455448869138",
+        "68cce077e6c867837286f877"
+      ],
+      "_id" : "68ccd6ecec7202b4e4c02c9a",
+      "title" : "Asia, Nil, Invalid"
+    },
+    {
+      "type" : "date",
+      "value" : 1752564600000,
+      "file" : "66a14ced9dc829a95e272506",
+      "_id" : "68cbb317a0b02d85dbad2ccc",
+      "tz" : "nil",
+      "identifier" : "field_68cbb324ec602b022f35145a",
+      "title" : "Nill Timezone"
+    },
+    {
+      "required" : false,
+      "tipTitle" : "Tooltip Title",
+      "tipVisible" : false,
+      "tipDescription" : "Tooltip Description",
+      "identifier" : "field_686f4e3b58a0861ac3f1ebfa",
+      "value" : 1752564600000,
+      "tz" : "Asia\/Kolkata",
+      "type" : "date",
+      "title" : "Asia \/ Kolkata",
+      "_id" : "686f4e36557902657597794c",
+      "file" : "66a14ced9dc829a95e272506"
+    },
+    {
+      "title" : "Invalid Timezone",
+      "_id" : "68cbb34a8e340c36bd9d9154",
+      "file" : "66a14ced9dc829a95e272506",
+      "identifier" : "field_68cbb34f304a11e7675412da",
+      "value" : 1751355000000,
+      "tz" : "123kjh",
+      "type" : "date"
+    },
+    {
+      "_id" : "686f5af19075d01b7489230c",
+      "file" : "66a14ced9dc829a95e272506",
+      "tz" : "America\/New_York",
+      "value" : 1752530400000,
+      "title" : "America\/New_York",
+      "identifier" : "field_686f5af63327f3a6a334bff7",
+      "type" : "date"
+    }
+  ],
+  "_id" : "66a14cedd6e1ebcdf176a8da",
+  "type" : "template",
+  "identifier" : "template_6849dbb509ede5510725c910",
+  "deleted" : false,
+  "createdOn" : 1722619392797,
+  "name" : "JF-88 Repro",
+  "categories" : [
+
+  ]
 }
