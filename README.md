@@ -348,6 +348,9 @@ let fieldIdentifier = documentEditor.getFieldIdentifier(for: "field123")
 
 The Joyfill SDK includes a powerful formula engine that supports a wide range of functions for dynamic calculations and data manipulation.
 
+Formulas recompute in real time. Any change to a referenced value, table cell, or external input immediately re-evaluates dependent formulas and triggers UI updates—no manual refresh required. Results propagate across fields, tables, and charts; validation and conditional visibility re-run automatically.
+[Learn more about Joyfill Formulas](https://docs.joyfill.io/docs/formulas)
+
 ### Formula Usage Examples
 
 #### Number Field with Basic Formula
