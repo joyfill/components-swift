@@ -17,8 +17,7 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
     
     let imagePicker = ImagePicker()
     init() {
-        //
-        var document = sampleJSONDocument(fileName: "FieldTemplate_TableCollection_Poplated")
+        var document = sampleJSONDocument(fileName: "OnChangeHandler")
         document.id = UUID().uuidString
         print("documentEditor1", document.id)
         documentEditor = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)

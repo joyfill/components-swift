@@ -713,6 +713,7 @@ struct OptionSelectionView: View {
         case schemaValidationExampleView
         case oChangeHandlerTest
         case manipulateDataOnChangeView
+        case createRowUISample
 
         var title: String {
             switch self {
@@ -738,6 +739,8 @@ struct OptionSelectionView: View {
                 return "Deficiency Table Demo"
             case .oChangeHandlerTest:
                 return "Change Handler Test"
+            case .createRowUISample:
+                return "Create Row UI Sample"
             }
         }
         
@@ -765,6 +768,8 @@ struct OptionSelectionView: View {
                 return "Test real-time data manipulation and form updates"
             case .oChangeHandlerTest:
                 return "Test change event handling and validation workflows"
+            case .createRowUISample:
+                return "Create a row UI sample"
             }
         }
         
@@ -792,6 +797,8 @@ struct OptionSelectionView: View {
                 return "slider.horizontal.3"
             case .oChangeHandlerTest:
                 return "arrow.triangle.2.circlepath"
+            case .createRowUISample:
+                return "slider.horizontal.3"
             }
         }
         
@@ -819,6 +826,8 @@ struct OptionSelectionView: View {
                 return .teal
             case .tenKRowsCollection:
                 return .green
+            case .createRowUISample:
+                return .red
             }
         }
     }
@@ -943,6 +952,8 @@ struct OptionSelectionView: View {
             DeficiencyTableDemoView()
         case .oChangeHandlerTest:
             OnChangeHandlerTest()
+        case .createRowUISample:
+            CreateRowUISample()
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
