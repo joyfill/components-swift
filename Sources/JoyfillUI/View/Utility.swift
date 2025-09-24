@@ -13,7 +13,7 @@ class Utility {
     static let DEBOUNCE_TIME_IN_NANOSECONDS: UInt64 = 00
     static let singleColumnWidth: CGFloat = 200
     
-    static func getCellWidth(type: ColumnTypes, format: DateFormatType, text: String) -> CGFloat {
+    static func getCellWidth(type: ColumnTypes, format: DateFormatType) -> CGFloat {
         switch type {
 //        case .block:
 //            let measuredWidth = measureTextWidth(text: text, font: UIFont.systemFont(ofSize: 15)) + 20
@@ -26,13 +26,12 @@ class Utility {
         }
     }
     
-    static func getWidthForExpanderRow(columns: [FieldTableColumn], showSelector: Bool, text: String) -> CGFloat {
+    static func getWidthForExpanderRow(columns: [FieldTableColumn], showSelector: Bool) -> CGFloat {
         let totalWidth = columns.reduce(0) { accumulator, column in
             // Get width based on column type and format
             let columnWidth = Utility.getCellWidth(
                 type: column.type ?? .unknown,
-                format: DateFormatType(rawValue: column.format ?? "") ?? .empty,
-                text: text
+                format: DateFormatType(rawValue: column.format ?? "") ?? .empty
             )
             return accumulator + columnWidth
         }

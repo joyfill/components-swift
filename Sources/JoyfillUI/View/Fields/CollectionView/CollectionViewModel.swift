@@ -16,16 +16,14 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var showRowSelector: Bool = false
     @Published var nestedTableCount: Int = 0
     @Published var collectionWidth: CGFloat = 0.0
-    @Published var blockLongestTextMap: [String: String] = [:]
     @Published var rowToValueElementMap: [String: ValueElement] = [:]
-    @Published var cellWidthMap: [String: CGFloat] = [:] // columnID as key and width as value
     @Published var columnsMap: [String: FieldTableColumn] = [:]
     @Published var isLoading: Bool = false
     @Published var isBulkLoading: Bool = false
     @Published var isSearching: Bool = false
     private var requiredColumnIds: [String] = []
     var rootSchemaKey: String = ""
-
+    let dispatchQueue = DispatchQueue(label: "Collection", qos: .userInitiated)
     @Published var uuid = UUID()
     
     init(tableDataModel: TableDataModel) {
@@ -36,23 +34,19 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             }
         }
         self.isLoading = true
-        self.initializeAsync()
+        self.initializeAsync(tableDataModel: tableDataModel)
     }
     
-    func initializeAsync() {
-        DispatchQueue.global().async {
-            let columnsMap = self.getTableColumns()
-            let rowToValueElementMap = self.getBuildRowToValueElementMap()
-            let blockLongestTextMap = self.buildBlockLongestTextMap()
-            let cellWidthMap = self.cellWidthMapping()
-            let cellModels = self.getCellModels()
-            let collectionWidth = self.getCollectionWidth()
+    func initializeAsync(tableDataModel: TableDataModel) {
+        dispatchQueue.async {
+            let columnsMap = self.getTableColumns(tableDataModel: tableDataModel)
+            let rowToValueElementMap = self.getBuildRowToValueElementMap(tableDataModel: tableDataModel)
+            let cellModels = self.getCellModels(tableDataModel: tableDataModel)
+            let collectionWidth = self.getCollectionWidth(tableDataModel: tableDataModel)
 
             DispatchQueue.main.async {
                 self.columnsMap = columnsMap
-                self.blockLongestTextMap = blockLongestTextMap
                 self.rowToValueElementMap = rowToValueElementMap
-                self.cellWidthMap = cellWidthMap
                 self.tableDataModel.filteredcellModels = cellModels
                 self.collectionWidth = collectionWidth
                 
@@ -71,7 +65,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    func getTableColumns() -> [String : FieldTableColumn] {
+    func getTableColumns(tableDataModel: TableDataModel) -> [String : FieldTableColumn] {
         var map: [String: FieldTableColumn] = [:]
         for (key, _) in tableDataModel.schema {
             let tableColumns = tableDataModel.filterTableColumns(key: key)
@@ -83,67 +77,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         return map
     }
-        
-    func getLongestBlockTextRecursive(columnID: String, valueElements: [ValueElement]) -> String {
-        var longestText = ""
-        for valueElement in rowToValueElementMap.values {
-            if let cell = valueElement.cells?.first(where: { $0.key == columnID })?.value,
-               let text = cell.text {
-                if text.count > longestText.count {
-                    longestText = text
-                }
-            }
-        }
-        
-        return longestText
-    }
-    
-    func buildBlockLongestTextMap() -> [String: String] {
-        var blockLongestTextMap: [String: String] = [:]
-        for (key, schema) in tableDataModel.schema {
-            let tableColumns = tableDataModel.filterTableColumns(key: key)
-            
-            for column in tableColumns {
-                guard let colID = column.id else { continue }
-                var longestTextForWidth = ""
-                if column.type == .block {
-                    if let rootValueElements = tableDataModel.valueToValueElements {
-                        longestTextForWidth = getLongestBlockTextRecursive(columnID: colID, valueElements: rootValueElements)
-                    }
-                    if column.value?.text?.count ?? 0 > longestTextForWidth.count {
-                        longestTextForWidth = column.value?.text ?? ""
-                    }
-                    blockLongestTextMap[colID] = longestTextForWidth
-                }
-            }
-        }
-        return blockLongestTextMap
-    }
     
     func getOrderedSchemaKeys() -> [String] {
         return tableDataModel.schemaChainMap[rootSchemaKey] ?? []
-    }
-    
-    func cellWidthMapping() -> [String: CGFloat] {
-        var widthMap = [String: CGFloat]()
-        
-        for (key, schema) in tableDataModel.schema {
-            let tableColumns = tableDataModel.filterTableColumns(key: key)
-
-            for column in tableColumns {
-                guard let colID = column.id else { continue }
-                let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: blockLongestTextMap[colID] ?? "")
-                widthMap[colID] = width
-            }
-        }
-        return widthMap
-    }
-    
-    func updateCellWidthMap(tableColumns: [FieldTableColumn], columnID: String) {
-        if let column = tableColumns.first(where: { $0.id == columnID }) {
-            let width = Utility.getCellWidth(type: column.type ?? .unknown, format: DateFormatType(rawValue: column.format ?? "") ?? .empty , text: blockLongestTextMap[columnID] ?? "")
-            cellWidthMap[columnID] = width
-        }
     }
     
     func selectUpperRow() {
@@ -361,10 +297,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func buildRowToValueElementMap() {
         rowToValueElementMap.removeAll()
-        rowToValueElementMap = getBuildRowToValueElementMap()
+        rowToValueElementMap = getBuildRowToValueElementMap(tableDataModel: tableDataModel)
     }
     
-    func getBuildRowToValueElementMap() -> [String: ValueElement] {
+    func getBuildRowToValueElementMap(tableDataModel: TableDataModel) -> [String: ValueElement] {
         var rowToValueElementMap: [String: ValueElement] = [:]
         let valueElements = tableDataModel.valueToValueElements ?? []
         for element in valueElements {
@@ -434,32 +370,23 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
-        var longestBlockText = ""
-        for column in tableColumns {
-            if column.type == .block {
-                longestBlockText = blockLongestTextMap[column.id ?? ""] ?? ""
-            }
-        }
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, text: longestBlockText) + Utility.getTotalTableScrollWidth(level: level)
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector) + Utility.getTotalTableScrollWidth(level: level)
     }
     
-    func getCollectionWidth() -> CGFloat {
+    func getCollectionWidth(tableDataModel: TableDataModel) -> CGFloat {
         return tableDataModel.filteredcellModels
             .map { $0.rowWidth }
             .max() ?? 0
     }
     
     func updateCollectionWidth() {
-        collectionWidth = getCollectionWidth()
+        collectionWidth = getCollectionWidth(tableDataModel: tableDataModel)
     }
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, childrens: [String : Children] = [:], rowType: RowType, schemaKey: String) {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
-                if rowDataModel.type == .block {
-                    updateCellWidthMap(tableColumns: columns, columnID: rowDataModel.id)
-                }
                 
                 let cellModel = TableCellModel(rowID: rowID,
                                                timezoneId: valueElement.tz,
@@ -518,10 +445,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func setupCellModels() {
-        tableDataModel.filteredcellModels = getCellModels()
+        tableDataModel.filteredcellModels = getCellModels(tableDataModel: tableDataModel)
     }
     
-    func getCellModels() -> [RowDataModel] {
+    func getCellModels(tableDataModel: TableDataModel) -> [RowDataModel] {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
         let rowToChildrenMap = setupRowsChildrens()
@@ -700,7 +627,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                            level: level,
                                                                            parentID: parentID,
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
                                                    isExpanded: true, // Mark as expanded since we're showing content
                                                    rowWidth: rowWidth(filteredTableColumns, level))
                     cellModels.append(expanderRow)
@@ -890,7 +817,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                             rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                     level: level,
                                                                                     parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, text: "")),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
                                                             childrens: childrens,
                                                             rowWidth: rowWidth(filteredTableColumns, level)
                             )

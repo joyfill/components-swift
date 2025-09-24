@@ -16,11 +16,9 @@ struct TableRowView : View {
                     TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                 }
                 .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty,
-                                                      text: cellModel.data.type == .block ? longestBlockText : ""),
+                                                      format: cellModel.data.format ?? .empty),
                        maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty,
-                                                      text: cellModel.data.type == .block ? longestBlockText : ""),
+                                                      format: cellModel.data.format ?? .empty),
                        minHeight: 50,
                        maxHeight: .infinity)
             }
@@ -251,8 +249,7 @@ struct TableModalView : View {
                     .padding(.all, 4)
                     .font(.system(size: 15))
                     .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id ?? "") ?? .unknown,
-                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id ?? "") ?? .empty,
-                                                       text: longestBlockText))
+                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id ?? "") ?? .empty))
                     .frame(minHeight: textHeight)
                     .overlay(
                         Rectangle()
