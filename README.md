@@ -5,7 +5,7 @@ We recommend visiting our official Swift setup guide https://docs.joyfill.io/doc
 
 We offer three libraries for Swift entirely built in Swift and SwiftUI:
 
-  **Joyfill**: The main library for integrating Joyfill into your Swift app. This library includes all the necessary UI components for displaying and interacting with Joyfill documents, including advanced features like formulas, collection fields, and comprehensive table operations.
+  **Joyfill**: The main library for integrating Joyfill into your Swift app. This library includes all the necessary UI components for displaying and interacting with Joyfill documents, including advanced features like formulas, and comprehensive table operations.
 
   **JoyFillModel**: A library for integrating Joyfill models into your Swift app with full support for advanced field types and data structures.
 
@@ -13,12 +13,7 @@ We offer three libraries for Swift entirely built in Swift and SwiftUI:
 
   **JoyfillFormulas**: A powerful formula engine supporting mathematical operations, string functions, date calculations, array operations, and conditional logic.
 
-## Project Requirements
-Note userAccessTokens & identifiers will need to be stored on your end (usually on a user and set of existing form field-based data) in order to interact with our API and UI Components effectively
-
 See our [API Documentation](https://docs.joyfill.io/docs) for more information on how to interact with our API.
-
-- Minimum deployment target to iOS 15
 
 ## Install Dependency
 
@@ -54,7 +49,7 @@ struct FormContainerView: View {
     let changeHandler = ChangeHandler()
     
     init(document: JoyDoc) {
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeHandler, pageID: "your_Page_Id", navigation: true, isPageDuplicateEnabled: true, validateSchema: true, license: "your_license")
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeHandler, pageID: "your_Page_Id", navigation: true, isPageDuplicateEnabled: true, validateSchema: true)
     }
 
     var body: some View {
@@ -78,7 +73,7 @@ UIKit example at [/JoyfillUIKitExample](https://github.com/joyfill/components-sw
 Flutter example at [/joyfillflutterexample](https://github.com/joyfill/components-swift/tree/main/joyfillflutterexample)
 
 ### `DocumentEditor`
-The DocumentEditor is a key component of the Joyfill SDK, offering comprehensive features such as document editing, conditional logic, validation, page navigation, field event handling, formula evaluation, collection fields, advanced table operations, and schema validation. It provides easy to use functions to access and modify documents seamlessly. Additionally, any document updates made using the helper functions in the DocumentEditor automatically trigger change events.
+The DocumentEditor is a key component of the Joyfill SDK, offering comprehensive features such as document editing, conditional logic, validation, page navigation, field event handling, formula evaluation, advanced table operations, and schema validation. It provides easy to use functions to access and modify documents seamlessly. Additionally, any document updates made using the helper functions in the DocumentEditor automatically trigger change events.
 
 Below is an overview of its key components and usage:
 
@@ -93,8 +88,7 @@ let documentEditor = DocumentEditor(
     pageID: "your_page_ID",      // Optional: Page ID to start with
     navigation: true,            // Whether to show the page navigation view
     isPageDuplicateEnabled: true, // Enable page duplication functionality
-    validateSchema: true,       // Enable schema validation
-    license: "your_license"     // License token for enabling collection field
+    validateSchema: true       // Enable schema validation
 )
 
 ```
@@ -121,9 +115,6 @@ let documentEditor = DocumentEditor(
 * `validateSchema: Bool`
   * Enables automatic schema validation for the document. Default is `true`.
   * When enabled, validates document structure against the current SDK schema version.
-* `license: String?`
-  * Optional license token for enabling advanced features.
-  * Required for collection field functionality and other premium features.
   
 ## `Properties`
 * `currentPageID: String`
@@ -190,14 +181,14 @@ if let error = documentEditor.schemaError {
 ### 1. `change(changes: [Change])`
 **Primary method for programmatically modifying documents**
 
-Applies multiple changes to the document automically. This is the most powerful and flexible way to modify document data, supporting field updates, table/collection row operations, and complex document modifications.
+Applies multiple changes to the document automically. This is the most powerful and flexible way to modify document data, supporting field updates, table row operations, and complex document modifications.
 
 #### Supported Change Types:
 - `field.update` - Update field values
-- `field.value.rowCreate` - Create new table/collection rows
-- `field.value.rowUpdate` - Update existing table/collection rows  
-- `field.value.rowDelete` - Delete table/collection rows
-- `field.value.rowMove` - Move/reorder table/collection rows
+- `field.value.rowCreate` - Create new table rows
+- `field.value.rowUpdate` - Update existing table rows  
+- `field.value.rowDelete` - Delete table rows
+- `field.value.rowMove` - Move/reorder table rows
 
 #### Change Object Creation:
 
@@ -323,44 +314,6 @@ let updateRowChange = Change(
 documentEditor.change(changes: [updateRowChange])
 ```
 
-**4. Create Nested Collection Row:**
-```swift
-let fieldId = "collectionField1"
-let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
-let schemas = field?.schema ?? [:]
-let rootSchemaKey = schemas.first(where: { $0.value.root == true })?.key ?? ""
-let field = documentEditor.field(fieldID: fieldId)
-let existingRows = field?.valueToValueElements ?? []
-let targetSchemaID = schemas[rootSchemaKey]?.children?.first ?? "" // Add your target schema ID here
-let parentRowId = existingRows.first?.id ?? ""
-let parentPath = documentEditor.computeParentPath(targetParentId: parentRowId, nestedKey: targetSchemaID, in: [rootSchemaKey : existingRows]) ?? ""
-
-let nestedRowChange = Change(
-    v: 1,
-    sdk: "swift",
-    target: "field.value.rowCreate",
-    _id: documentEditor.documentID ?? "",
-    identifier: documentEditor.documentIdentifier,
-    fileId: fieldIdentifier.fileID ?? "",
-    pageId: fieldIdentifier.pageID ?? "",
-    fieldId: fieldIdentifier.fieldID,
-    fieldIdentifier: field?.identifier,
-    fieldPositionId: fieldIdentifier.fieldPositionId ?? "",
-    change: [
-        "row": [
-            "_id": UUID().uuidString,
-            "cells": [:]
-        ],
-        "parentPath": parentPath,
-        "schemaId": targetSchemaID,
-        "targetRowIndex": 0
-    ],
-    createdOn: Date().timeIntervalSince1970
-)
-
-documentEditor.change(changes: [nestedRowChange])
-```
-
 ### 2. `validate() -> Validation`
 * Validates the current document and returns a Validation object with field-level validation results.
 * Usage: `let validationResult = documentEditor.validate()`
@@ -402,7 +355,7 @@ The method performs the following steps:
 
 #### Usage Examples:
 
-**Basic Usage (from CreateRowUISample.swift):**
+**Basic Usage:**
 ```swift
 let fieldId = "6857510fbfed1553e168161b"
 let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
@@ -440,76 +393,6 @@ let fieldIdentifier = documentEditor.getFieldIdentifier(for: "field123")
 ## Formula (JoyfillFormulas)
 
 The Joyfill SDK includes a powerful formula engine that supports a wide range of functions for dynamic calculations and data manipulation.
-
-### Supported Function Categories
-
-#### Mathematical Functions
-- `SUM(array)` - Sum of array elements
-- `COUNT(array)` - Count of array elements  
-- `AVG(array)` - Average of array elements
-- `MAX(array)` - Maximum value in array
-- `MIN(array)` - Minimum value in array
-- `ROUND(number, digits)` - Round to specified decimal places
-- `CEIL(number)` - Round up to nearest integer
-- `FLOOR(number)` - Round down to nearest integer
-- `POW(base, exponent)` - Power calculation
-- `SQRT(number)` - Square root
-- `MOD(dividend, divisor)` - Modulo operation
-
-#### String Functions
-- `CONCAT(strings...)` - Concatenate strings
-- `LENGTH(string)` - Length of string
-- `UPPER(string)` - Convert to uppercase
-- `LOWER(string)` - Convert to lowercase
-- `TRIM(string)` - Remove whitespace
-- `CONTAINS(string, substring)` - Check if string contains substring
-- `JOIN(array, separator)` - Join array elements with separator
-- `TOSTRING(value)` - Convert value to string
-- `TONUMBER(string)` - Convert string to number
-
-#### Date Functions  
-- `NOW()` - Current date and time
-- `DATE(year, month, day)` - Create date
-- `YEAR(date)` - Extract year from date
-- `MONTH(date)` - Extract month from date
-- `DAY(date)` - Extract day from date
-- `DATEADD(date, value, unit)` - Add time to date
-- `DATESUBTRACT(date, value, unit)` - Subtract time from date
-- `TIMESTAMP(date)` - Convert date to timestamp
-
-#### Array Functions
-- `MAP(array, function)` - Transform array elements
-- `FILTER(array, condition)` - Filter array elements
-- `REDUCE(array, function, initial)` - Reduce array to single value
-- `FIND(array, condition)` - Find first matching element
-- `SOME(array, condition)` - Check if any element matches
-- `EVERY(array, condition)` - Check if all elements match
-- `COUNTIF(array, condition)` - Count elements matching condition
-- `UNIQUE(array)` - Get unique elements
-- `FLAT(array)` - Flatten nested arrays
-- `FLATMAP(array, function)` - Map and flatten
-- `SORT(array, compareFunction)` - Sort array elements
-
-#### Logical Functions
-- `IF(condition, trueValue, falseValue)` - Conditional logic
-- `AND(conditions...)` - Logical AND
-- `OR(conditions...)` - Logical OR  
-- `NOT(condition)` - Logical NOT
-- `EMPTY(value)` - Check if value is empty
-- `EQUALS(value1, value2)` - Compare values for equality
-
-#### Formula Operators
-- `+` (add) - Addition for numbers, concatenation for strings
-- `-` (subtract) - Subtraction for numbers
-- `*` (multiply) - Multiplication for numbers
-- `/` (divide) - Division for numbers
-- `()` (grouping) - Mathematical grouping
-- `==` (equal) - Equality comparison
-- `!=` (unequal) - Inequality comparison
-- `>` (greater than) - Greater than comparison
-- `>=` (greater than or equal) - Greater than or equal comparison
-- `<` (less than) - Less than comparison
-- `<=` (less than or equal) - Less than or equal comparison
 
 ### Formula Usage Examples
 
@@ -585,18 +468,6 @@ let documentEditor = DocumentEditor(
 )
 ```
 
-## License-Based Features
-
-Certain advanced features require a valid license token.
-### License Usage
-
-```swift
-let documentEditor = DocumentEditor(
-    document: myDocument,
-    license: "your_jwt_license_token"
-)
-```
-
 ## Field Types
 
 The Joyfill SDK supports a comprehensive set of field types for various data input and display needs:
@@ -617,7 +488,6 @@ The Joyfill SDK supports a comprehensive set of field types for various data inp
 
 ### Advanced Fields
 - **Table Field** (`table`) - Structured data with rows and columns
-- **Collection Field** (`collection`) - Hierarchical data with nested schemas (requires license)
 - **Chart Field** (`chart`) - Data visualization and charting
 - **Rich Text Field** (`richText`) - Formatted text with HTML support
 
@@ -654,62 +524,8 @@ The Joyfill SDK supports a comprehensive set of field types for various data inp
     *  `onChange` is fired when the field value is modified.
     *  `onBlur` is fired when the modal is closed.
         
-## Collection Field
 
-Collection fields provide hierarchical data structures with nested schemas and conditional logic support.
-
-### Key Features
-- **Nested Data Structure**: Support for parent-child relationships with multiple levels
-- **Dynamic Schemas**: Different row types with varying column configurations  
-- **Conditional Logic**: Show/hide schemas based on field values
-- **Advanced Operations**: Full CRUD operations on nested data
-
-### Supported Column Types
-Collection fields support the following column types:
-- `text` - Text input columns
-- `number` - Numeric input columns  
-- `dropdown` - Single selection dropdowns
-- `multiSelect` - Multiple selection fields
-- `date` - Date/time picker columns
-- `image` - Image upload columns
-- `block` - Display-only text columns
-- `signature` - Digital signature columns
-- `barcode` - Barcode scanning columns
-
-### Collection Schema Structure
-
-```swift
-// Example collection field configuration
-{
-  "type": "collection",
-  "schema": {
-    "rootSchema": {
-      "root": true,
-      "columns": [
-        {"id": "name", "type": "text", "title": "Name"},
-        {"id": "category", "type": "dropdown", "title": "Category"}
-      ],
-      "children": ["detailSchema"]
-    },
-    "detailSchema": {
-      "root": false,
-      "columns": [
-        {"id": "detail", "type": "text", "title": "Detail"},
-        {"id": "value", "type": "number", "title": "Value"}
-      ],
-      "logic": {
-        "schemaConditions": [
-          {
-            "columnID": "category", 
-            "condition": "EQUALS(category, 'premium')"
-          }
-        ]
-      }
-    }
-  }
-}
-```
-## Table and Collection Column Types
+## Table Column Types
 
 ### Standard Table Columns
 Tables support the following column types:
@@ -722,23 +538,15 @@ Tables support the following column types:
 - `block` - Read-only display text
 - `signature` - Digital signature capture
 - `barcode` - Barcode scanning and display
-- `progress` - Progress bar visualization
 
-### Collection-Specific Features
-Collection fields additionally support:
-- **Hierarchical Schemas**: Multiple schema types per collection
-- **Conditional Schema Display**: Show/hide schemas based on parent data
-- **Nested Operations**: CRUD operations on child data structures
-- **Dynamic Column Configuration**: Different column sets per schema type
+### Table Field Events
 
-### Table and Collection Field Events
-
-*  **Table** and **Collection**
+*  **Table**
     *  `onFocus` is fired when "view" button is pressed and modal is displayed.
     *  `onBlur` is fired when modal is closed.
-    *  `onChange` is fired when table/collection data is modified (rows added, deleted, moved, or cell values changed).
+    *  `onChange` is fired when table data is modified (rows added, deleted, moved, or cell values changed).
     
-    ### Cell-Level Events (Table/Collection Columns)
+    ### Cell-Level Events (Table Columns)
     * **Text Cell**
         * `onChange` is fired when the cell value is modified.
     * **Number Cell**
@@ -757,8 +565,6 @@ Collection fields additionally support:
         *  No interactive events as this is a read-only display cell.
     * **Barcode Cell**
         *  `onChange` is fired when barcode data is captured.
-    * **Progress Cell** (Display-only)
-        *  No interactive events as this is a read-only progress indicator.
 
 **IMPORTANT NOTE:** JoyDoc SDK `onFocus`, `onChange` and `onBlur` events are not always called in the same order. Two different fields can be triggering events at the same time.  For instance, if you have Field A focused and then focus on Field B, the Field B onFocus event could be fired before the Field A onBlur event. Always check the event params object ids to match up the associated field events.
 
