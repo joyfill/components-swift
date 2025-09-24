@@ -375,6 +375,9 @@
 		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
 		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
 		E2E27C882E7AF4E60041FF1F /* CreateRowUISample.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */; };
+		E2E3E7632E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
+		E2E3E7642E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
+		E2E3E7652E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
 		E2F568672E2A4556005216A6 /* DateTimeFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568652E2A4556005216A6 /* DateTimeFieldUITestCases.swift */; };
 		E2F568682E2A4556005216A6 /* DateTimeFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568642E2A4556005216A6 /* DateTimeFieldTests.swift */; };
 		E2F568692E2A4556005216A6 /* DateTimeFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F568632E2A4556005216A6 /* DateTimeFieldTestData.json */; };
@@ -623,6 +626,7 @@
 		E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTitleNotDisplayed.json; sourceTree = "<group>"; };
 		E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationTests.swift; sourceTree = "<group>"; };
 		E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRowUISample.swift; sourceTree = "<group>"; };
+		E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = OnChangeHandler.json; sourceTree = "<group>"; };
 		E2F568632E2A4556005216A6 /* DateTimeFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = DateTimeFieldTestData.json; sourceTree = "<group>"; };
 		E2F568642E2A4556005216A6 /* DateTimeFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldTests.swift; sourceTree = "<group>"; };
 		E2F568652E2A4556005216A6 /* DateTimeFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeFieldUITestCases.swift; sourceTree = "<group>"; };
@@ -876,6 +880,7 @@
 				36A5EF272E29725B0059C2A6 /* CollectionFilter.json */,
 				36A5EF282E29725B0059C2A6 /* ErrorHandling.json */,
 				E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */,
+				E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */,
 				36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */,
 				E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */,
 				E2C8BD282E462A8800B93B9E /* AllFieldTitleDispalayed.json */,
@@ -1476,6 +1481,7 @@
 				36A5EF3A2E29725B0059C2A6 /* Joydocjson.json in Resources */,
 				369D456A2E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
 				E2F568B02E2A476A005216A6 /* MultilineTestData.json in Resources */,
+				E2E3E7642E8450A3002A10C2 /* OnChangeHandler.json in Resources */,
 				E28D10A32E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */,
 				E2F568BF2E2A47A1005216A6 /* SingleChoiceFieldTestData.json in Resources */,
 				369D456B2E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
@@ -1595,6 +1601,7 @@
 				36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */,
 				36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
 				36A5EF402E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				E2E3E7632E8450A3002A10C2 /* OnChangeHandler.json in Resources */,
 				E274CA872E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
 				36A5EF412E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
 				36A5EF422E29725B0059C2A6 /* 3000-fields.json in Resources */,
@@ -1732,6 +1739,7 @@
 				E274CB382E2E84F700B35C09 /* dropdownFieldValidation.json in Resources */,
 				369D45712E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
 				369D45722E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
+				E2E3E7652E8450A3002A10C2 /* OnChangeHandler.json in Resources */,
 				E2F568C72E2A4A8F005216A6 /* ImageFieldTestData.json in Resources */,
 				369D45732E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
 				369D45742E0E52CA00677280 /* JoyfillResolver_IndirectCircularError.json in Resources */,
