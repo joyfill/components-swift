@@ -193,23 +193,6 @@ Applies multiple changes to the document automically. This is the most powerful 
 #### Change Object Creation:
 
 ```swift
-// Method 1: Using dictionary constructor
-let change = Change(dictionary: [
-    "_id": "change_id",
-    "v": 1,
-    "sdk": "swift", 
-    "target": "field.update",
-    "fieldId": "field123",
-    "identifier" : "doc_identifier",
-    "fieldIdentifier" : "field_identifier",
-    "fieldPositionId" : "field_PositionId",
-    "pageId": "page456",
-    "fileId": "file789",
-    "change": ["value": newValue],
-    "createdOn": Date().timeIntervalSince1970
-])
-
-// Method 2: Using structured constructor  
 let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
 
 let change = Change(
@@ -283,36 +266,7 @@ let newRowChange = Change(
 
 documentEditor.change(changes: [newRowChange])
 ```
-
-**3. Update Table Row:**
-```swift
-let fieldId = "tableField1"
-let fieldIdentifier = documentEditor.getFieldIdentifier(for: fieldId)
-let field = documentEditor.field(fieldID: fieldId)
-
-let updateRowChange = Change(
-    v: 1,
-    sdk: "swift",
-    target: "field.value.rowUpdate",
-    _id: documentEditor.documentID ?? "",
-    identifier: documentEditor.documentIdentifier,
-    fileId: fieldIdentifier.fileID ?? "",
-    pageId: fieldIdentifier.pageID ?? "",
-    fieldId: fieldIdentifier.fieldID,
-    fieldIdentifier: field?.identifier,
-    fieldPositionId: fieldIdentifier.fieldPositionId ?? "",
-    change: [
-        "rowId": "existingRowId",
-        "row": [
-            "_id": "existingRowId",
-            "cells": [:]
-        ]
-    ],
-    createdOn: Date().timeIntervalSince1970
-)
-
-documentEditor.change(changes: [updateRowChange])
-```
+Similarly, you can perform any table operation—create, update, delete, and move rows, as well as update any cell value—using the appropriate change targets: `field.value.rowCreate`, `field.value.rowUpdate`, `field.value.rowDelete`, `field.value.rowMove`, and `field.update`.
 
 ### 2. `validate() -> Validation`
 * Validates the current document and returns a Validation object with field-level validation results.
