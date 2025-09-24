@@ -26,6 +26,17 @@ import JoyfillModel
      }
     
     var body: some View {
+        if cellModel.viewMode == .quickView {
+            HStack(spacing: 2) {
+                Image(systemName: "photo")
+                    .grayLightThemeColor()
+                Text(cellModel.data.valueElements.count == 0 ? "" : "+\(cellModel.data.valueElements.count)")
+                    .darkLightThemeColor()
+            }
+            .font(.system(size: 15))
+            .frame(maxWidth: .infinity, alignment: .center)
+            .contentShape(Rectangle())
+        } else {
         if #available(iOS 16, *) {
             Button(action: {
                 showMoreImages = Int.random(in: 0...100)
@@ -55,8 +66,7 @@ import JoyfillModel
                 cellModel.data = data
                 cellModel.didChange?(cellModel.data)
             }
-        }
-        else {
+        } else {
             Button(action: {
                 showMoreImages = Int.random(in: 0...100)
             }, label: {
@@ -85,6 +95,7 @@ import JoyfillModel
                 cellModel.data = data
                 cellModel.didChange?(cellModel.data)
             }
+        }
         }
     }
      
