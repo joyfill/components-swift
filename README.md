@@ -69,7 +69,8 @@ class ChangeHandler: FormChangeEvent {
 
 Download the sample JSON to get started without any API calls:
 - first-form.json: [/first-form.json](https://github.com/joyfill/components-swift/blob/update-readme-file/JoyfillSwiftUIExample/JoyfillExample/Simple%20Form%20Example/first-form.json)
-
+Here is an simple example how you can use it:
+- Simple Form Example: [/SimpleFormExampleView](https://github.com/joyfill/components-swift/blob/update-readme-file/JoyfillSwiftUIExample/JoyfillExample/Simple%20Form%20Example/SimpleFormExampleView.swift)
 ### See our example project for more details.
 
 SwiftUI example at [/JoyfillSwiftUIExample](https://github.com/joyfill/components-swift/tree/main/JoyfillSwiftUIExample)
