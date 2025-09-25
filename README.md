@@ -68,7 +68,7 @@ class ChangeHandler: FormChangeEvent {
 ### Load First Form
 
 Download the sample JSON to get started without any API calls:
-- first-form.json: [first-form.json](JoyfillSwiftUIExample/JoyfillExample/Simple Form Example/first-form.json)
+- first-form.json: [/first-form.json](https://github.com/joyfill/components-swift/blob/update-readme-file/JoyfillSwiftUIExample/JoyfillExample/Simple%20Form%20Example/first-form.json)
 
 ### See our example project for more details.
 
