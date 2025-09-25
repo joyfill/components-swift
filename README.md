@@ -61,6 +61,9 @@ struct FormContainerView: View {
 
 ## Key APIs
 
+- JoyDoc
+  - Standardized JSON structure used by Joyfill components, APIs, and exports. Guide: [JoyDoc usage](https://docs.joyfill.io/docs/joydoc-usage)
+
 - DocumentEditor
   - Core editor for a `JoyDoc`; pass to `Form` to render.
   - Field validation: `validate()` checks field-level rules (e.g., required, formats).
@@ -68,7 +71,7 @@ struct FormContainerView: View {
   - Guide: [document-editor.md](./document-editor.md)
 
 - Schema validation
-  - Checks document schema and version compatibility (separate from `DocumentEditor.validate()`).
+  - Checks document schema and version compatibility.
   - Guide: [validate.md](./validate.md)
 
 - Change events
