@@ -212,8 +212,8 @@ enum FieldListModelType: Equatable {
 
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
-    @State var currentFocusedFielsID: String = ""
-    @State var lastFocusedFielsID: String? = nil
+    @State var currentFocusedFieldsID: String = ""
+    @State var lastFocusedFieldsID: String? = nil
     let documentEditor: DocumentEditor
 
     @ViewBuilder
@@ -228,7 +228,7 @@ struct FormView: View {
             DisplayTextView(displayTextDataModel: model)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .multiSelect(let model):
-            MultiSelectionView(multiSelectionDataModel: model, eventHandler: self, currentFocusedFieldsDataId: currentFocusedFielsID)
+            MultiSelectionView(multiSelectionDataModel: model, eventHandler: self, currentFocusedFieldsDataId: currentFocusedFieldsID)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .dropdown(let model):
             DropdownView(dropdownDataModel: model, eventHandler: self)
@@ -273,14 +273,14 @@ struct FormView: View {
         .listStyle(PlainListStyle())
         .id(documentEditor.currentPageID)
         .modifier(KeyboardDismissModifier())
-        .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
+        .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
-            guard lastFocusedFielsID != newValue else { return }
-            if let lastFocusedFielsID = lastFocusedFielsID {
-                let fieldEvent = FieldIdentifier(fieldID: lastFocusedFielsID)
+            guard lastFocusedFieldsID != newValue else { return }
+            if let lastFocusedFieldsID = lastFocusedFieldsID {
+                let fieldEvent = FieldIdentifier(fieldID: lastFocusedFieldsID)
                 documentEditor.onBlur(event: fieldEvent)
             }
-            self.lastFocusedFielsID = currentFocusedFielsID
+            self.lastFocusedFieldsID = currentFocusedFieldsID
         }
     }
 }
@@ -305,8 +305,8 @@ extension FormView: FieldChangeEvents {
     }
 
     func onFocus(event: FieldIdentifier) {
-        currentFocusedFielsID = event.fieldID
-        if lastFocusedFielsID == currentFocusedFielsID {
+        currentFocusedFieldsID = event.fieldID
+        if lastFocusedFieldsID == currentFocusedFieldsID {
             return
         } else {
             documentEditor.onFocus(event: event)
@@ -318,7 +318,7 @@ extension FormView: FieldChangeEvents {
     }
 
     private func updateFocusedField(event: FieldChangeData) {
-        currentFocusedFielsID = event.fieldIdentifier.fieldID
+        currentFocusedFieldsID = event.fieldIdentifier.fieldID
     }
 }
 
