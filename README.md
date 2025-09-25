@@ -61,46 +61,12 @@ struct FormContainerView: View {
 
 ## Key APIs (at a glance)
 
-- DocumentEditor: Core editing context for a JoyDoc. Pass it to `Form` to render. See: `./document-editor.md`
-- change(changes: [Change]): Programmatic updates (fields, table rows). See: `./change.md`
-- validate(): Run validation and get field-level results. See: `./validate.md`
-- Change events: Observe onChange/onFocus/onBlur/uploads/capture/errors. See: `./change-events.md`
+ - DocumentEditor: Core editing context for a JoyDoc. Pass it to `Form` to render. See: [document-editor.md](./document-editor.md)
+ - change(changes: [Change]): Programmatic updates (fields, table rows). See: [change.md](./change.md)
+ - validate(): Run validation and get field-level results. See: [validate.md](./validate.md)
+ - Change events: Observe onChange/onFocus/onBlur/uploads/capture/errors. See: [change-events.md](./change-events.md)
 
 For parameters, properties, events, tables, charts, and formulas, see the docs below.
-
- 
-
-## Schema Validation
-
-The SDK includes comprehensive schema validation to ensure document compatibility and data integrity.
-
-### Features
-- **Automatic Validation**: Documents are validated on initialization
-- **Version Compatibility**: Checks SDK and schema version compatibility  
-- **Error Reporting**: Detailed error messages for validation failures
-- **Graceful Handling**: SDK displays error UI for invalid documents
-
-### Schema Validation Error Handling
-
-```swift
-// Check for validation errors
-if let error = documentEditor.schemaError {
-    switch error.code {
-    case "ERROR_SCHEMA_VERSION":
-        print("Unsupported document version")
-    case "ERROR_SCHEMA_VALIDATION": 
-        print("Schema validation failed: \(error.message)")
-    default:
-        print("Unknown validation error")
-    }
-}
-
-// Disable validation (not recommended for production)
-let documentEditor = DocumentEditor(
-    document: myDocument,
-    validateSchema: false  // Skip validation
-)
-```
 
 ## Learn More
 
