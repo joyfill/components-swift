@@ -1,0 +1,117 @@
+{
+  "_id": "68d101ee8f5793b7cd6031fc",
+  "type": "template",
+  "stage": "published",
+  "source": "template_68d101cff84d57b1b3466679",
+  "metadata": {},
+  "identifier": "doc_68d101ee8f5793b7cd6031fc",
+  "name": "New Template",
+  "createdOn": 1758527982824,
+  "files": [
+    {
+      "_id": "68d101cf56b1d0b1393bb36a",
+      "metadata": {},
+      "name": "New File",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "Survey Form",
+          "fieldPositions": [
+            {
+              "_id": "68d51d73504a5b34db7a007c",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "field": "text1"
+            },
+            {
+              "_id": "68d51d84950be17d40ec03e9",
+              "type": "number",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 4,
+              "height": 8,
+              "field": "number1"
+            },
+            {
+              "_id": "68d51d9d4d714d1db380f839",
+              "type": "multiSelect",
+              "displayType": "original",
+              "targetValue": "68d51d6397f9206384889d27",
+              "x": 0,
+              "y": 16,
+              "width": 4,
+              "height": 15,
+              "field": "multiSelect1"
+            }
+          ],
+          "metadata": {},
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "68d101cf609190215b11e750"
+        }
+      ],
+      "pageOrder": [
+        "68d101cf609190215b11e750"
+      ],
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "text1",
+      "type": "text",
+      "title": "Full Name",
+      "identifier": "field_text1"
+    },
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "number1",
+      "type": "number",
+      "title": "Age",
+      "identifier": "field_number1"
+    },
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "multiSelect1",
+      "type": "multiSelect",
+      "title": "Do you like football?",
+      "multi": false,
+      "options": [
+        {
+          "_id": "68d51d6397f9206384889d27",
+          "value": "Yes",
+          "deleted": false
+        },
+        {
+          "_id": "68d51d637abb7877ff0c474a",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "68d51d6378e3d61ee67d6033",
+          "value": "N/A",
+          "deleted": true
+        }
+      ],
+      "identifier": "field_multiSelect1"
+    }
+  ],
+  "deleted": false
+}
