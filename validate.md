@@ -1,8 +1,8 @@
-## Validation
+## Schema validation
 
-Overview of document validation for ensuring compatibility and data integrity.
+Overview of schema and version checks (separate from `DocumentEditor.validate()` which checks field-level rules like required, formats, etc.).
 
-### Ways to validate
+### Ways to validate (schema)
 
 1) Automatic (recommended)
 ```swift
@@ -31,7 +31,7 @@ if let error = manager.validateSchema(document: myDocument) {
 ```
 
 ### Features
-- Automatic validation on initialization (when enabled)
+- Automatic schema validation on initialization (when enabled)
 - Version compatibility checks (document vs SDK)
 - Detailed error reporting
 - Graceful handling: optional error UI for invalid docs

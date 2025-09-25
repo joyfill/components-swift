@@ -59,12 +59,21 @@ struct FormContainerView: View {
 - UIKit example app: [/JoyfillUIKitExample](https://github.com/joyfill/components-swift/tree/main/JoyfillUIKitExample)
 - Flutter demo: [/joyfillflutterexample](https://github.com/joyfill/components-swift/tree/main/joyfillflutterexample)
 
-## Key APIs (at a glance)
+## Key APIs
 
- - DocumentEditor: Core editing context for a JoyDoc. Pass it to `Form` to render. See: [document-editor.md](./document-editor.md)
- - change(changes: [Change]): Programmatic updates (fields, table rows). See: [change.md](./change.md)
- - validate(): Run validation and get field-level results. See: [validate.md](./validate.md)
- - Change events: Observe onChange/onFocus/onBlur/uploads/capture/errors. See: [change-events.md](./change-events.md)
+- DocumentEditor
+  - Core editor for a `JoyDoc`; pass to `Form` to render.
+  - Field validation: `validate()` checks field-level rules (e.g., required, formats).
+  - Includes Change API (`change(changes:)`) for programmatic updates. See Change API section in [document-editor.md](./document-editor.md)
+  - Guide: [document-editor.md](./document-editor.md)
+
+- Schema validation
+  - Checks document schema and version compatibility (separate from `DocumentEditor.validate()`).
+  - Guide: [validate.md](./validate.md)
+
+- Change events
+  - Observe `onChange`, `onFocus`, `onBlur`, uploads, capture, and errors.
+  - Guide: [change-events.md](./change-events.md)
 
 For parameters, properties, events, tables, charts, and formulas, see the docs below.
 
