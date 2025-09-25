@@ -276,12 +276,10 @@ struct FormView: View {
         .onChange(of: $currentFocusedFielsID.wrappedValue) { newValue in
             guard newValue != nil else { return }
             guard lastFocusedFielsID != newValue else { return }
-            guard let lastFocusedFielsID = lastFocusedFielsID else {
-                Log("LastFocusedFielsID is nil", type: .info)
-                return
+            if let lastFocusedFielsID = lastFocusedFielsID {
+                let fieldEvent = FieldIdentifier(fieldID: lastFocusedFielsID)
+                documentEditor.onBlur(event: fieldEvent)
             }
-            let fieldEvent = FieldIdentifier(fieldID: lastFocusedFielsID)
-            documentEditor.onBlur(event: fieldEvent)
             self.lastFocusedFielsID = currentFocusedFielsID
         }
     }
