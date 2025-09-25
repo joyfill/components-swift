@@ -8,6 +8,25 @@ import JoyfillModel
 import JSONSchema
 import Foundation
 
+/// Validation Overview
+///
+/// There are two ways to validate a JoyDoc:
+/// 1) Automatic (recommended): When creating `DocumentEditor`, pass `validateSchema: true`.
+///    This runs schema and version validation during initialization and exposes any
+///    errors via `documentEditor.schemaError`.
+///    Example:
+///    `let editor = DocumentEditor(document: myDocument, validateSchema: true)`
+///
+/// 2) Manual (on-demand): Use `JoyfillSchemaManager.validateSchema(document:)` to validate
+///    a `JoyDoc` before or after mutation. Returns `SchemaValidationError?` (nil means valid).
+///    Example:
+///    ```swift
+///    let manager = JoyfillSchemaManager()
+///    if let error = manager.validateSchema(document: myDocument) {
+///        // handle error (e.g., show message, log, block submit)
+///    }
+///    ```
+///
 public class JoyfillSchemaManager {
     
     public init() {}

@@ -10,8 +10,8 @@ This repo provides Joyfill SDKs for Apple platforms (Swift, SwiftUI):
 
 - Joyfill: UI components to display and interact with Joyfill documents (forms, tables, formulas).
 - JoyFillModel: Data models with advanced field types and structures.
-- JoyfillAPIService: Networking for the Joyfill API.
 - JoyfillFormulas: Formula engine for calculations, strings, dates, arrays, and logic.
+- JoyfillAPIService: Networking for the Joyfill API.
 
 More APIs and concepts: https://docs.joyfill.io/docs
 
@@ -42,15 +42,7 @@ struct FormContainerView: View {
     let editor: DocumentEditor
 
     init(document: JoyDoc) {
-        editor = DocumentEditor(
-            document: document,
-            mode: .fill,
-            events: nil,
-            pageID: nil,
-            navigation: true,
-            isPageDuplicateEnabled: false,
-            validateSchema: true
-        )
+        editor = DocumentEditor(document: document)
     }
 
     var body: some View {
@@ -69,11 +61,46 @@ struct FormContainerView: View {
 
 ## Key APIs (at a glance)
 
-- DocumentEditor: Core editing context for a JoyDoc. Pass it to `Form` to render.
-- change(changes: [Change]): Programmatic updates (fields, table rows). See docs for full usage.
-- validate(): Run validation and get field-level results.
+- DocumentEditor: Core editing context for a JoyDoc. Pass it to `Form` to render. See: `./document-editor.md`
+- change(changes: [Change]): Programmatic updates (fields, table rows). See: `./change.md`
+- validate(): Run validation and get field-level results. See: `./validate.md`
+- Change events: Observe onChange/onFocus/onBlur/uploads/capture/errors. See: `./change-events.md`
 
 For parameters, properties, events, tables, charts, and formulas, see the docs below.
+
+ 
+
+## Schema Validation
+
+The SDK includes comprehensive schema validation to ensure document compatibility and data integrity.
+
+### Features
+- **Automatic Validation**: Documents are validated on initialization
+- **Version Compatibility**: Checks SDK and schema version compatibility  
+- **Error Reporting**: Detailed error messages for validation failures
+- **Graceful Handling**: SDK displays error UI for invalid documents
+
+### Schema Validation Error Handling
+
+```swift
+// Check for validation errors
+if let error = documentEditor.schemaError {
+    switch error.code {
+    case "ERROR_SCHEMA_VERSION":
+        print("Unsupported document version")
+    case "ERROR_SCHEMA_VALIDATION": 
+        print("Schema validation failed: \(error.message)")
+    default:
+        print("Unknown validation error")
+    }
+}
+
+// Disable validation (not recommended for production)
+let documentEditor = DocumentEditor(
+    document: myDocument,
+    validateSchema: false  // Skip validation
+)
+```
 
 ## Learn More
 
