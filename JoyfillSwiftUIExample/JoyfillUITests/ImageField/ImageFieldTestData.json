@@ -46,6 +46,37 @@
       "title": "This image is read only and testing for multiline header text.",
       "identifier": "field_6870ec160cff292d8700d295",
       "disabled": true
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7bd93a537faeb0d7e39f9",
+      "type": "image",
+      "title": "Image",
+      "identifier": "field_686e29c75d5345859568b24c",
+      "required": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description",
+      "tipVisible": true,
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "68d7bd936b39fd0d7813db11",
+            "field": "68d7bd9b1420993751adcab5",
+            "condition": "=",
+            "value": "hide"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7bd9b1420993751adcab5",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68d7bd9e073ca555f19cd431"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -62,7 +93,8 @@
       },
       "_id": "66a14ced9dc829a95e272506",
       "pageOrder": [
-        "66a14ced15a9dc96374e091e"
+        "66a14ced15a9dc96374e091e",
+        "68d7bd936b39fd0d7813db11"
       ],
       "pages": [
         {
@@ -128,6 +160,43 @@
           "rowHeight": 8,
           "borderWidth": 0,
           "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        },
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686e29c7dcb0658c92bb7d42",
+              "type": "image",
+              "field": "68d7bd93a537faeb0d7e39f9",
+              "displayType": "original",
+              "x": 2,
+              "y": 8,
+              "width": 2,
+              "height": 23
+            },
+            {
+              "_id": "68d7bd9ea71e4301e22b095a",
+              "type": "text",
+              "field": "68d7bd9b1420993751adcab5",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "68d7bd936b39fd0d7813db11",
           "width": 816,
           "name": "Every Field Type",
           "margin": 0

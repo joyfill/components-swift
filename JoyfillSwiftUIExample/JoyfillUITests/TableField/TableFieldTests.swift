@@ -1922,7 +1922,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let firstOption = dropdownOptions.element(boundBy: 0)
         firstOption.tap()
         
-        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let button = app.buttons["ApplyAllButtonIdentifier"].firstMatch
+        XCTAssertTrue(button.waitForExistence(timeout: 5))
+        button.tap()
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         

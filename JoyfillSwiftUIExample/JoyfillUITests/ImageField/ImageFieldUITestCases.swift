@@ -163,7 +163,29 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686e29c7dcb0658c92bb7d42")
     }
     
-    
+    func testHideImageFieldByTextField() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        originalPageButton.tap()
+        
+        let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)
+        XCTAssertTrue(imageButton.exists)
+        
+        let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.clearText()
+        textField.typeText("hide")
+        XCTAssertFalse(imageButton.exists)
+        
+        textField.tap()
+        textField.clearText()
+        textField.typeText("show")
+        XCTAssertTrue(imageButton.exists)
+    }
     
     // MARK: - Helper Methods
 

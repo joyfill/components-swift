@@ -263,4 +263,28 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let checkMovedRowTextField = app.textViews.firstMatch
         XCTAssertEqual("AB", checkMovedRowTextField.value as! String)
     }
+    
+    func testHideTableByTextField() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        originalPageButton.tap()
+        
+        let tableDetailButton = app.buttons["TableDetailViewIdentifier"].firstMatch
+        XCTAssertTrue(tableDetailButton.exists)
+        
+        let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.clearText()
+        textField.typeText("hide")
+        XCTAssertFalse(tableDetailButton.exists)
+        
+        textField.tap()
+        textField.clearText()
+        textField.typeText("show")
+        XCTAssertTrue(tableDetailButton.exists)
+    }
 }
