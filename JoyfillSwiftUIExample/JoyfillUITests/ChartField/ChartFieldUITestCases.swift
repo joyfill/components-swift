@@ -169,4 +169,27 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["fieldPositionId"] as? String, "6874cde1456a8c72d3dc2529")
     }
  
+    func testHideChartByTextField() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        originalPageButton.tap()
+        
+        let chartViewButton = app.buttons.matching(identifier: "ChartViewIdentifier").element(boundBy: 0)
+        XCTAssertTrue(chartViewButton.exists)
+        
+        let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.clearText()
+        textField.typeText("hide")
+        XCTAssertFalse(chartViewButton.exists)
+        
+        textField.tap()
+        textField.clearText()
+        textField.typeText("show")
+        XCTAssertTrue(chartViewButton.exists)
+    }
 }

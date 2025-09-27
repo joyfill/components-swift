@@ -109,6 +109,34 @@
       "title": "Heading Text",
       "value": "Hindi: नमस्ते दुनिया | Chinese: 你好，世界 | Arabic: مرحبا بالعالم 🌍",
       "identifier": "field_6871e0c17537420b1acc7043"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7bd47d00ec9b7b7cc5c24",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Red Color Heading",
+      "identifier": "field_686f2bf604dd0f408977353c",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "68d7bd47d2d54b03c176117c",
+            "field": "68d7bd64bc0d2a4e53c47666",
+            "condition": "=",
+            "value": "hide"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7bd64bc0d2a4e53c47666",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68d7bd676fca2aab770284cb"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -125,7 +153,8 @@
       },
       "_id": "66a14ced9dc829a95e272506",
       "pageOrder": [
-        "66a14ced15a9dc96374e091e"
+        "66a14ced15a9dc96374e091e",
+        "68d7bd47d2d54b03c176117c"
       ],
       "pages": [
         {
@@ -267,6 +296,46 @@
           "rowHeight": 8,
           "borderWidth": 0,
           "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Display Text",
+          "margin": 0
+        },
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "686f2bf62716df9ca84b146a",
+              "type": "block",
+              "field": "68d7bd47d00ec9b7b7cc5c24",
+              "displayType": "original",
+              "fontSize": 28,
+              "fontWeight": "bold",
+              "x": 2,
+              "y": 8,
+              "width": 4,
+              "height": 6,
+              "fontColor": "#d01818"
+            },
+            {
+              "_id": "68d7bd67a56ebd3e6e84a280",
+              "type": "text",
+              "field": "68d7bd64bc0d2a4e53c47666",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "68d7bd47d2d54b03c176117c",
           "width": 816,
           "name": "Display Text",
           "margin": 0

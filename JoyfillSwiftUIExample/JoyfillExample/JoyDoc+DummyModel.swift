@@ -2314,10 +2314,10 @@ extension JoyDoc {
         return updatedDocument
     }
     
-    func setNumberField(hidden: Bool = false, value: ValueUnion? = .double(98789)) -> JoyDoc {
+    func setNumberField(hidden: Bool = false, value: ValueUnion? = .double(98789), id: String = "6629fb3df03de10b26270ab3") -> JoyDoc {
         var field = JoyDocField()
         field.type = "number"
-        field.id = "6629fb3df03de10b26270ab3"
+        field.id = id
         field.identifier = "field_6629fb3fabb87e37c9578b8b"
         field.title = "Number"
         field.description = ""
@@ -2353,10 +2353,10 @@ extension JoyDoc {
     }
     
     //Set Dropdown Field
-    func setDropdownField(hidden: Bool, value: ValueUnion) -> JoyDoc {
+    func setDropdownField(hidden: Bool, value: ValueUnion, id: String = "6781040987a55e48b4507a38") -> JoyDoc {
         var field = JoyDocField()
         field.type = "dropdown"
-        field.id = "6781040987a55e48b4507a38"
+        field.id = id
         field.identifier = "field_678104b10279a22deca9beb6"
         field.title = "Dropdown"
         field.description = ""
@@ -2387,10 +2387,10 @@ extension JoyDoc {
     }
     
     //Set MultiSelect Field
-    func setMultiSelectField(hidden: Bool, value: ValueUnion, multi: Bool) -> JoyDoc {
+    func setMultiSelectField(hidden: Bool, value: ValueUnion, multi: Bool, id: String = "678104b387d3004e70120ac6") -> JoyDoc {
         var field = JoyDocField()
         field.type = "multiSelect"
-        field.id = "678104b387d3004e70120ac6"
+        field.id = id
         field.identifier = "field_6781058d099fc0a3107973fb"
         field.title = "Multiple Choice"
         field.description = ""
@@ -2422,10 +2422,10 @@ extension JoyDoc {
     }
     
     //Set multiline field
-    func setMultilineTextField(hidden: Bool, value: ValueUnion, required: Bool = false) -> JoyDoc {
+    func setMultilineTextField(hidden: Bool, value: ValueUnion, required: Bool = false, id: String = "6629fb2b9a487ce1c1f35f6c") -> JoyDoc {
         var field = JoyDocField()
         field.type = "textarea"
-        field.id = "6629fb2b9a487ce1c1f35f6c"
+        field.id = id
         field.identifier = "field_6629fb2feff29e90331e4e8e"
         field.title = "Multiline Text"
         field.hidden = hidden
