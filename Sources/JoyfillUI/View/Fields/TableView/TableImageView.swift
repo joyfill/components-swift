@@ -128,7 +128,6 @@ import JoyfillModel
                  self.valueElements.append(valueElement)
                  cellModel.data.valueElements.append(valueElement)
              }
-             cellModel.didChange?(cellModel.data)
          }
          cellModel.documentEditor?.onUpload(event: uploadEvent)
      }
