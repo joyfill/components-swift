@@ -35,8 +35,8 @@ struct DateTimeView: View {
                     Button(action: {
                         isDatePickerPresented = false
                         let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: ValueUnion.null)
-                        eventHandler.onChange(event: event)
                         eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
+                        eventHandler.onChange(event: event)
                     }, label: {
                         Image(systemName: "xmark.circle.fill")
                             .imageScale(.large)
@@ -78,8 +78,8 @@ struct DateTimeView: View {
             let convertDateToInt = dateToTimestampMilliseconds(date: selectedDate)
             let newDateValue = ValueUnion.double(convertDateToInt)
             let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: newDateValue)
-            eventHandler.onChange(event: event)
             eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
+            eventHandler.onChange(event: event)
         }
         .onAppear {
             lastModelValue = dateTimeDataModel.value
