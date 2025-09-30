@@ -2114,6 +2114,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let fieldId = onChangeResult().fieldId
         XCTAssertEqual("6857510fbfed1553e168161b", fieldId)
         
+        let fieldPositionId = onChangeResult().fieldPositionId
+        XCTAssertEqual("68575112158ff5dbaa9f78e1", fieldPositionId)
+        
+        let _id = onChangeResult().id
+        XCTAssertEqual("685750eff3216b45ffe73c80", _id)
+        
         let docIdentifier = onChangeResult().identifier
         XCTAssertEqual("doc_685750eff3216b45ffe73c80", docIdentifier)
         

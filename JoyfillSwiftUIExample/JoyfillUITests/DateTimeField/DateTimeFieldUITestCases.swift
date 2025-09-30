@@ -299,12 +299,13 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         
         guard
             let change = payload["change"] as? [String: Any],
-            let actualValue = change["value"] as? Double
+            let actualValue = change["value"] as? Double,
+            let tz = change["tz"] as? String
         else {
             XCTFail("Invalid onChange payload structure")
             return
         }
-        
+        XCTAssertEqual(tz, "Asia/Kolkata")
         XCTAssertEqual(actualValue, expectedValue, "onChange payload value should match expected value")
     }
 }

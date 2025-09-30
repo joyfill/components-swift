@@ -529,6 +529,9 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         Thread.sleep(forTimeInterval: 0.5)
         let checkSelectedDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[3].cells?["676919715e36fed325f2f048"]?.number)
         XCTAssertNotNil(checkSelectedDateValue)
+        
+        let checkSelectedDateTZ = try XCTUnwrap(onChangeResultValue().valueElements?[3].tz as? String)
+        XCTAssertNotNil(checkSelectedDateTZ)
     }
     
     // Bulk edit all rows

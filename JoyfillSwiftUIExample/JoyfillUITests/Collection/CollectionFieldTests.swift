@@ -931,6 +931,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b77fc568df7b031590dc"]?.number)
         XCTAssertNotNil(firstCellDateValue)
         
+        // Date Column
+        let firstCelltz = try XCTUnwrap(onChangeResultValue().valueElements?[0].tz as? String)
+        XCTAssertEqual(firstCelltz, "Asia/Kolkata")
+        
         // Barcode Field
         let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7a813ea45f5b681dec1"]?.text)
         XCTAssertEqual("quick", firstCellBarcodeTextValue)
