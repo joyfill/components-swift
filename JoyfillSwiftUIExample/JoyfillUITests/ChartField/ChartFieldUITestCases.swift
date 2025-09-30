@@ -167,6 +167,11 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_6874cde17db802ff4f0eeb67")
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "6874cde1456a8c72d3dc2529")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
     }
  
     func testHideChartByTextField() {

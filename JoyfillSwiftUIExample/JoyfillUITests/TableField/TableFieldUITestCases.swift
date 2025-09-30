@@ -86,6 +86,22 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
+        let payload = onChangeResult().dictionary
+        XCTAssertEqual(payload["target"] as? String, "field.value.rowUpdate")
+        guard let change = payload["change"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'change' dictionary")
+        }
+        // row
+        guard let row = change["row"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'row' dictionary")
+        }
+        
+        // cells
+        guard let cells = row["cells"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'cells' dictionary")
+        }
+        XCTAssertEqual(cells["687478ee0b423b73bb24cafa"] as? String, "Edit")
+        XCTAssertEqual(cells["6875f786e39a025afbe7d481"] as? String, "6875f7865f5cc15caa852f92")
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         for i in 0..<5 {
             let textField = textFields.element(boundBy: i)
@@ -109,6 +125,32 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         let last = textFields.count - 1
         XCTAssertTrue(textFields.element(boundBy: last).exists)
+        let payload = onChangeResult().dictionary
+        XCTAssertEqual(payload["fieldId"] as? String, "6875c7c5e988bf485f897df6")
+        XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
+        XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_6875c7ccc7953a86420924d9")
+        XCTAssertEqual(payload["fieldPositionId"] as? String, "6875c7ccc68951e6aff6ebea")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.value.rowCreate")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
+        XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
+        guard let change = payload["change"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'change' dictionary")
+        }
+        XCTAssertEqual(change["targetRowIndex"] as? Int, 6)
+        
+        // row
+        guard let row = change["row"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'row' dictionary")
+        } 
+        
+        // cells
+        guard let cells = row["cells"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'cells' dictionary")
+        }
+        XCTAssertEqual(cells["687478ee0b423b73bb24cafa"] as? String, "a")
     }
     
     
@@ -262,6 +304,8 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         // check move row data - remains same or not - in this case it remain same
         let checkMovedRowTextField = app.textViews.firstMatch
         XCTAssertEqual("AB", checkMovedRowTextField.value as! String)
+        
+        
     }
     
     func testHideTableByTextField() {

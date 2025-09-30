@@ -161,6 +161,11 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_686e29c75d5345859568b24c")
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686e29c7dcb0658c92bb7d42")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
     }
     
     func testHideImageFieldByTextField() {

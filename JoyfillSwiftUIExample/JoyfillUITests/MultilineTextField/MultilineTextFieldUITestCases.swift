@@ -146,11 +146,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         let firstField = app.textViews.element(boundBy: 0)
         let secondField = app.textViews.element(boundBy: 1)
         let displayText = app.staticTexts["This displayed text will be hidden if the multiline text is \"The quick brown fox jumps over the lazy dog\"."]
-        
-        // Debug: Check if display text exists and what other static texts are available
-        print("DEBUG: Display text exists: \(displayText.exists)")
-        print("DEBUG: All static texts: \(app.staticTexts.allElementsBoundByIndex.map { $0.label })")
-        
+         
         // Step 1: Check if display text exists, if not skip this part
         if !displayText.exists {
             print("DEBUG: Display text not found initially, skipping display text test")
@@ -336,6 +332,11 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_686f34f806b47c8397b9b3fe")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686f34f8ed9ba0b32295b17f")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
     }
 
     func testMultilineRequiredAndNonRequiredFieldAsteriskPresence() {

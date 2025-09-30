@@ -2082,7 +2082,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let deletedRowId = change?["rowId"] as? String
         XCTAssertEqual("68599790e8593d6d76c3a09f", deletedRowId)
-
+        
         let parentPath = change?["parentPath"] as? String
         XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
         

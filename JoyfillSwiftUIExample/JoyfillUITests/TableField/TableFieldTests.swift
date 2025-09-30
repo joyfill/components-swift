@@ -1937,4 +1937,35 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let checkDataOnAddRowWithFiltersDropdown = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 0)
         XCTAssertEqual("Yes", checkDataOnAddRowWithFiltersDropdown.label)
     }
+    
+    func testTableDeleteSingleRowAndCheckOnChange() throws {
+        navigateToTableViewOnSecondPage()
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+        let payload = onChangeResult().dictionary
+        XCTAssertEqual(payload["target"] as? String, "field.value.rowDelete")
+        guard let change = payload["change"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'change' dictionary")
+        }
+        XCTAssertEqual(change["rowId"] as? String, "66e3eca93796d7435b63ce9d")
+    }
+    
+    func testTableMoveSingleRowAndCheckOnChange() throws {
+        navigateToTableViewOnSecondPage()
+         
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveDownRowIdentifier"].tap()
+        
+        let payload = onChangeResult().dictionary
+        XCTAssertEqual(payload["target"] as? String, "field.value.rowMove")
+        guard let change = payload["change"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'change' dictionary")
+        }
+         
+        XCTAssertEqual(change["rowId"] as? String, "66e3eca988d3a4715c67d3c5")
+        XCTAssertEqual(change["targetRowIndex"] as? Int, 1)
+    }
 }
