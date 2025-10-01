@@ -11,7 +11,7 @@ import Joyfill
 struct PublicApiExamples: View {
     @Binding var documentEditor: DocumentEditor?
     @State var pageID: String = ""
-    @State var validateSchema: Bool = true
+    @State var validateSchema: Bool = false
     @State var showPageNavigationView: Bool = false
     @State var mode: Mode = .fill
     @State var license: String = licenseKey
@@ -21,7 +21,6 @@ struct PublicApiExamples: View {
         self._documentEditor = documentEditor
         let editor = documentEditor.wrappedValue
         _pageID = State(initialValue: editor?.currentPageID ?? "")
-        _validateSchema = State(initialValue: true)
         _showPageNavigationView = State(initialValue: editor?.showPageNavigationView ?? true)
         _mode = State(initialValue: editor?.mode ?? .fill)
     }
