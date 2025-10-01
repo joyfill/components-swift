@@ -285,7 +285,7 @@ struct FormDestinationView: View {
                         showPublicApis = true
                     }) {
                         HStack {
-                            Image(systemName: "list.clipboard")
+                            Image(systemName: "gearshape.fill")
                         }
                     }
                     .buttonStyle(.bordered)
