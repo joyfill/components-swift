@@ -27,6 +27,7 @@ struct PublicApiExamples: View {
         _pageID = State(initialValue: editor?.currentPageID ?? "")
         _showPageNavigationView = State(initialValue: editor?.showPageNavigationView ?? true)
         _mode = State(initialValue: editor?.mode ?? .fill)
+        _selectedPageOption = State(initialValue: editor?.currentPageID ?? "")
     }
 
     var body: some View {
@@ -75,7 +76,7 @@ struct PublicApiExamples: View {
                                 Menu {
                                     // Pre-defined pages from document
                                     if let pages = documentEditor?.pagesForCurrentView {
-                                        ForEach(pages, id: \.id) { page in
+                                        ForEach(Array(pages.enumerated()), id: \.offset) { _, page in
                                             Button {
                                                 selectedPageOption = page.id ?? ""
                                                 showCustomPageInput = false
@@ -461,7 +462,7 @@ struct FieldVisibilitySheet: View {
                         // Pages & Fields
                         if let pages = documentEditor?.pagesForCurrentView, !pages.isEmpty {
                             VStack(spacing: 16) {
-                                ForEach(pages, id: \.id) { page in
+                                ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
                                     VStack(alignment: .leading, spacing: 12) {
                                         HStack {
                                             Image(systemName: "doc.text")
