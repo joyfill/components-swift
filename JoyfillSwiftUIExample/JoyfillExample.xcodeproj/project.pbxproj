@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -167,6 +167,7 @@
 		36CFA0532CE2068300B7DE34 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA0522CE2068300B7DE34 /* JoyfillModel */; };
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
 		36F4DB782E6F394500C9AD4A /* LicenseValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */; };
+		E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
 		E26A54662DFADD72006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54652DFADD72006E05E9 /* JoyfillModel */; };
@@ -537,6 +538,7 @@
 		36CE14662DB6680000799B25 /* LiveViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveViewTest.swift; sourceTree = "<group>"; };
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseValidatorTests.swift; sourceTree = "<group>"; };
+		E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJsonTextFieldView.swift; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
 		E27061C92E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
@@ -682,6 +684,27 @@
 		FA529C792BA1D28B000200F5 /* TemplateListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplateListView.swift; sourceTree = "<group>"; };
 		FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentSubmissionsListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E21C39202E8BED4E00040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				PublicApiExamples.swift,
+			);
+			target = 134FC0762BDA82E9008B7030 /* JoyfillTests */;
+		};
+		E21C39212E8BED5000040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				PublicApiExamples.swift,
+			);
+			target = 1307CF182BE36ECD00B19FBA /* JoyfillUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E22516822E8B9C610089E2D2 /* Public Apis Example */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E21C39202E8BED4E00040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, E21C39212E8BED5000040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "Public Apis Example"; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1307CF162BE36ECD00B19FBA /* Frameworks */ = {
@@ -1291,6 +1314,8 @@
 				1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */,
 				36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */,
 				048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */,
+				E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */,
+				E22516822E8B9C610089E2D2 /* Public Apis Example */,
 				E2E3E7772E856105002A10C2 /* Simple Form Example */,
 				E2FBBAC32E682139001FBF5B /* ValidationResultsView.swift */,
 				13B544452BE37D2A008AF9BC /* UITestFormContainerView.swift */,
@@ -1325,6 +1350,9 @@
 			dependencies = (
 				1307CF202BE36ECE00B19FBA /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				E22516822E8B9C610089E2D2 /* Public Apis Example */,
+			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
 				E26A54652DFADD72006E05E9 /* JoyfillModel */,
@@ -1347,6 +1375,9 @@
 			dependencies = (
 				134FC07C2BDA82E9008B7030 /* PBXTargetDependency */,
 			);
+			fileSystemSynchronizedGroups = (
+				E22516822E8B9C610089E2D2 /* Public Apis Example */,
+			);
 			name = JoyfillTests;
 			packageProductDependencies = (
 				36143FF42E2F57D5006B9048 /* JoyfillModel */,
@@ -1368,6 +1399,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E22516822E8B9C610089E2D2 /* Public Apis Example */,
 			);
 			name = JoyfillExample;
 			packageProductDependencies = (
@@ -1902,6 +1936,7 @@
 				E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */,
 				E2A684372DCA40AF00385FE1 /* FormContainerTestView.swift in Sources */,
 				FA529C7F2BA1D28B000200F5 /* DocumentSubmissionsListView.swift in Sources */,
+				E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */,
 				FA28C9692BB4356000A2D65C /* SaveButtonView.swift in Sources */,
 				FA529C4E2BA1D251000200F5 /* JoyfillExampleApp.swift in Sources */,
 			);
