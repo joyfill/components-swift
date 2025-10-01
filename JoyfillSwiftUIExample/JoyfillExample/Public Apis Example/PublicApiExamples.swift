@@ -16,6 +16,8 @@ struct PublicApiExamples: View {
     @State var mode: Mode = .fill
     @State var license: String = licenseKey
     @Environment(\.dismiss) var dismiss
+    @State private var selectedPageOption: String = "custom"
+    @State private var showCustomPageInput: Bool = false
     
     init(documentEditor: Binding<DocumentEditor?>, licenseKey: String = "") {
         self._documentEditor = documentEditor
@@ -60,37 +62,105 @@ struct PublicApiExamples: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(.vertical, 20)
-                        
-                        // Page ID Card
+
                         SettingCard(
                             icon: "doc.text.fill",
                             iconColor: .blue,
                             title: "Current Page"
                         ) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                
-                                TextField("Enter page ID", text: $pageID)
-                                    .textFieldStyle(.plain)
-                                    .font(.system(.body, design: .rounded))
-                                
-                                if !pageID.isEmpty {
-                                    Button(action: {
-                                        pageID = ""
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.secondary)
-                                            .imageScale(.medium)
+                            VStack(spacing: 12) {
+                                // Dropdown Menu
+                                Menu {
+                                    // Pre-defined pages from document
+                                    if let pages = documentEditor?.pagesForCurrentView {
+                                        ForEach(pages, id: \.id) { page in
+                                            Button {
+                                                selectedPageOption = page.id ?? ""
+                                                showCustomPageInput = false
+                                                pageID = page.id ?? ""
+                                            } label: {
+                                                HStack {
+                                                    Text(page.id ?? "")
+                                                    if selectedPageOption == page.id {
+                                                        Image(systemName: "checkmark")
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
-                                    .buttonStyle(.plain)
+                                    
+                                    Divider()
+                                    
+                                    // Custom "Other" option
+                                    Button {
+                                        selectedPageOption = "custom"
+                                        showCustomPageInput = true
+                                    } label: {
+                                        HStack {
+                                            Text("Other (Custom ID)")
+                                            if selectedPageOption == "custom" {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        
+                                        Text(showCustomPageInput ? "Custom Page ID" : (selectedPageOption == "custom" ? "Select a page" : selectedPageOption))
+                                            .font(.system(.body, design: .rounded))
+                                            .foregroundColor(selectedPageOption == "custom" && !showCustomPageInput ? .secondary : .primary)
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.up.chevron.down")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(12)
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
+                                }
+                                
+                                // Custom TextField (appears when "Other" is selected)
+                                if showCustomPageInput {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "pencil")
+                                            .font(.caption)
+                                            .foregroundColor(.blue)
+                                        
+                                        TextField("Enter custom page ID", text: $pageID)
+                                            .textFieldStyle(.plain)
+                                            .font(.system(.body, design: .rounded))
+                                        
+                                        if !pageID.isEmpty {
+                                            Button(action: {
+                                                pageID = ""
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.secondary)
+                                                    .imageScale(.medium)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                    .padding(12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.blue.opacity(0.05))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .strokeBorder(Color.blue.opacity(0.3), lineWidth: 1)
+                                    )
+                                    .transition(.scale.combined(with: .opacity))
                                 }
                             }
-                            .padding(12)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showCustomPageInput)
                         }
+
                         
                         // Validate Schema Card
                         SettingCard(
