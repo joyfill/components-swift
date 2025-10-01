@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Joyfill
+import JoyfillModel
 
 struct PublicApiExamples: View {
     @Binding var documentEditor: DocumentEditor?
@@ -18,6 +19,7 @@ struct PublicApiExamples: View {
     @Environment(\.dismiss) var dismiss
     @State private var selectedPageOption: String = "custom"
     @State private var showCustomPageInput: Bool = false
+    @State private var showMoreSheet: Bool = false
     
     init(documentEditor: Binding<DocumentEditor?>, licenseKey: String = "") {
         self._documentEditor = documentEditor
@@ -251,6 +253,36 @@ struct PublicApiExamples: View {
                                 .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
                         )
                         .padding(.horizontal, 20)
+                        
+                        SettingCard(
+                            icon: "eye",
+                            iconColor: .purple,
+                            title: "Conditional Logic for fields"
+                        ) {
+                            Button {
+                                showMoreSheet = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "ellipsis.circle")
+                                        .imageScale(.medium)
+                                    Text("Show Field Visibility")
+                                        .fontWeight(.semibold)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.footnote)
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 14)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(.systemGray6))
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Show field visibility sheet")
+                        }
+                        
                     }
                     .padding(.bottom, 30)
                 }
@@ -329,6 +361,9 @@ struct PublicApiExamples: View {
                 )
             }
         }
+        .sheet(isPresented: $showMoreSheet) {
+            FieldVisibilitySheet(documentEditor: $documentEditor)
+        }
     }
 }
 
@@ -392,5 +427,155 @@ struct SettingCard<Content: View>: View {
                 .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
         )
         .padding(.horizontal, 20)
+    }
+}
+
+// MARK: - Field Visibility Sheet
+struct FieldVisibilitySheet: View {
+    @Binding var documentEditor: DocumentEditor?
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                LinearGradient(
+                    colors: [Color(.systemBackground), Color(.systemGray6)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Title
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Field Visibility")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                            Text("See which fields are currently shown or hidden based on conditional logic.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
+
+                        // Pages & Fields
+                        if let pages = documentEditor?.pagesForCurrentView, !pages.isEmpty {
+                            VStack(spacing: 16) {
+                                ForEach(pages, id: \.id) { page in
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        HStack {
+                                            Image(systemName: "doc.text")
+                                            Text(page.id ?? "Untitled Page")
+                                                .font(.headline)
+                                            Spacer()
+                                        }
+                                        .foregroundColor(.primary)
+
+                                        // Fields list
+                                        if let fieldPos = page.fieldPositions, !fieldPos.isEmpty {
+                                            VStack(spacing: 8) {
+                                                ForEach(fieldPos, id: \.id) { fieldP in
+                                                    FieldVisibilityRowContainer(
+                                                        documentEditor: documentEditor,
+                                                        fieldPosition: fieldP
+                                                    )
+                                                }
+                                            }
+                                        } else {
+                                            Text("No fields on this page.")
+                                                .font(.footnote)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .padding(16)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(Color(.systemBackground))
+                                            .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                                    )
+                                    .padding(.horizontal, 20)
+                                }
+                            }
+                            .padding(.bottom, 20)
+                        } else {
+                            Text("No pages available.")
+                                .font(.callout)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 20)
+                        }
+                    }
+                    .padding(.bottom, 24)
+                }
+            }
+            .navigationTitle("More")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+// MARK: - Field Row
+struct FieldVisibilityRow: View {
+    let title: String
+    let isShown: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue.opacity(0.18), Color.blue.opacity(0.08)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 36, height: 36)
+
+                Image(systemName: isShown ? "eye.fill" : "eye.slash.fill")
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: isShown ? [Color.green, Color.green.opacity(0.7)] : [Color.red, Color.red.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(.body, design: .rounded))
+                    .foregroundColor(.primary)
+
+                Text(isShown ? "Shown" : "Hidden")
+                    .font(.caption)
+                    .foregroundColor(isShown ? .green : .red)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .opacity(0.3)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemGray6))
+        )
+    }
+}
+
+// MARK: - Helper container to simplify type-checking in ForEach
+struct FieldVisibilityRowContainer: View {
+    let documentEditor: DocumentEditor?
+    let fieldPosition: FieldPosition
+
+    var body: some View {
+        let fieldID = fieldPosition.field ?? ""
+        let field = documentEditor?.field(fieldID: fieldID)
+        let title = field?.title ?? field?.id ?? "Untitled"
+        let isShown = documentEditor?.shouldShow(fieldID: field?.id ?? "") ?? false
+        return FieldVisibilityRow(title: title, isShown: isShown)
     }
 }
