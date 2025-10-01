@@ -685,25 +685,8 @@
 		FA529C7B2BA1D28B000200F5 /* DocumentSubmissionsListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentSubmissionsListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E21C39202E8BED4E00040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				PublicApiExamples.swift,
-			);
-			target = 134FC0762BDA82E9008B7030 /* JoyfillTests */;
-		};
-		E21C39212E8BED5000040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				PublicApiExamples.swift,
-			);
-			target = 1307CF182BE36ECD00B19FBA /* JoyfillUITests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E22516822E8B9C610089E2D2 /* Public Apis Example */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (E21C39202E8BED4E00040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, E21C39212E8BED5000040366 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "Public Apis Example"; sourceTree = "<group>"; };
+		E22516822E8B9C610089E2D2 /* Public Apis Example */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Public Apis Example"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1350,9 +1333,6 @@
 			dependencies = (
 				1307CF202BE36ECE00B19FBA /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				E22516822E8B9C610089E2D2 /* Public Apis Example */,
-			);
 			name = JoyfillUITests;
 			packageProductDependencies = (
 				E26A54652DFADD72006E05E9 /* JoyfillModel */,
@@ -1374,9 +1354,6 @@
 			);
 			dependencies = (
 				134FC07C2BDA82E9008B7030 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				E22516822E8B9C610089E2D2 /* Public Apis Example */,
 			);
 			name = JoyfillTests;
 			packageProductDependencies = (
