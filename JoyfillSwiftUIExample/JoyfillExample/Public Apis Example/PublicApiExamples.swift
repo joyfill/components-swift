@@ -16,6 +16,7 @@ struct PublicApiExamples: View {
     @State var showPageNavigationView: Bool = false
     @State var mode: Mode = .fill
     @State var license: String = licenseKey
+    @State var isPageDuplicate: Bool = false
     @Environment(\.dismiss) var dismiss
     @State private var selectedPageOption: String = "custom"
     @State private var showCustomPageInput: Bool = false
@@ -187,6 +188,16 @@ struct PublicApiExamples: View {
                                 .tint(.orange)
                         }
                         
+                        SettingCard(
+                            icon: "document.on.document",
+                            iconColor: .orange,
+                            title: "Page Duplication"
+                        ) {
+                            Toggle("", isOn: $isPageDuplicate)
+                                .labelsHidden()
+                                .tint(.orange)
+                        }
+                        
                         // Mode Selection Card
                         SettingCard(
                             icon: "pencil.and.list.clipboard",
@@ -329,6 +340,20 @@ struct PublicApiExamples: View {
                     pageID: editor.currentPageID,
                     navigation: newValue,
                     isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
+                    validateSchema: validateSchema,
+                    license: license
+                )
+            }
+        }
+        .onChange(of: isPageDuplicate) { newValue in
+            if let editor = documentEditor {
+                documentEditor = DocumentEditor(
+                    document: editor.document,
+                    mode: editor.mode,
+                    events: editor.events,
+                    pageID: editor.currentPageID,
+                    navigation: editor.showPageNavigationView,
+                    isPageDuplicateEnabled: newValue,
                     validateSchema: validateSchema,
                     license: license
                 )
