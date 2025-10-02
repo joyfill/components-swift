@@ -92,7 +92,7 @@ public class DocumentEditor: ObservableObject {
         // Schema validation passed - proceed with normal initialization
         self.document = document
         self.mode = mode
-        self.isPageDuplicateEnabled = isPageDuplicateEnabled
+        self.isPageDuplicateEnabled = mode == .readonly ? false : isPageDuplicateEnabled
         self.showPageNavigationView = navigation
         self.currentPageID = ""
         self.events = events
