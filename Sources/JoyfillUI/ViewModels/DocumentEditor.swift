@@ -70,29 +70,30 @@ public class DocumentEditor: ObservableObject {
                 validateSchema: Bool = true,
                 license: String? = nil) {
         // Perform schema validation first
-        let schemaManager = JoyfillSchemaManager()
-        
-        // Check for schema validation errors
-        if let schemaError = schemaManager.validateSchema(document: document), validateSchema {
-            // Schema validation failed - store error and return early
-            self.schemaError = schemaError
-            // Set empty document
-            self.document = JoyDoc()
-            self.mode = mode
-            self.isPageDuplicateEnabled = isPageDuplicateEnabled
-            self.showPageNavigationView = navigation
-            self.currentPageID = ""
-            self.events = events
-            
-            // Trigger onError callback if events handler is available
-            events?.onError(error: .schemaValidationError(error: schemaError))
-            return
+        if validateSchema {
+            // Check for schema validation errors
+            let schemaManager = JoyfillSchemaManager()
+            if let schemaError = schemaManager.validateSchema(document: document) {
+                // Schema validation failed - store error and return early
+                self.schemaError = schemaError
+                // Set empty document
+                self.document = JoyDoc()
+                self.mode = mode
+                self.isPageDuplicateEnabled = isPageDuplicateEnabled
+                self.showPageNavigationView = navigation
+                self.currentPageID = ""
+                self.events = events
+                
+                // Trigger onError callback if events handler is available
+                events?.onError(error: .schemaValidationError(error: schemaError))
+                return
+            }
         }
         
         // Schema validation passed - proceed with normal initialization
         self.document = document
         self.mode = mode
-        self.isPageDuplicateEnabled = isPageDuplicateEnabled
+        self.isPageDuplicateEnabled = mode == .readonly ? false : isPageDuplicateEnabled
         self.showPageNavigationView = navigation
         self.currentPageID = ""
         self.events = events

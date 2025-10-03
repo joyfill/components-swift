@@ -224,318 +224,37 @@ struct UserAccessTokenTextFieldView: View {
     }
 }
 
-struct UserJsonTextFieldView: View {
-    @State private var jsonString: String = ""
-    @State private var errorMessage: String? = nil
-    @State var showCameraScannerView: Bool = false
-    @State private var currentCaptureHandler: ((ValueUnion) -> Void)?
-    @State var scanResults: String = ""
-    @State private var isFetching: Bool = false
-    @State private var showChangelogView = false
-    @State private var shouldNavigate: Bool = false
-    @State private var preparedEditor: DocumentEditor? = nil
-    @State private var useCustomLicense: Bool = false
-    @State private var customLicenseKey: String = ""
-    let imagePicker = ImagePicker()
-    let enableChangelogs: Bool
-    
-    // Use @StateObject with a custom wrapper
-    @StateObject private var changeManagerWrapper: ChangeManagerWrapper = ChangeManagerWrapper()
-    
-    init(enableChangelogs: Bool = false) {
-        self.enableChangelogs = enableChangelogs
-    }
-    
-    private func showScan(captureHandler: @escaping (ValueUnion) -> Void) {
-        currentCaptureHandler = captureHandler
-        showCameraScannerView = true
-        presentCameraScannerView()
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Header Section
-            VStack(alignment: .leading, spacing: 8) {
-                Text("JSON Input")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                
-                Text("Enter your JSON data below")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                if let errorMessage = errorMessage {
-                    HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.red)
-                        Text(errorMessage)
-                            .font(.subheadline)
-                            .foregroundColor(.red)
-                    }
-                    .padding(.vertical, 8)
-                }
-            }
-            .padding(.horizontal, 20)
-            
-            // TextEditor Section
-            VStack(spacing: 0) {
-                ZStack(alignment: .trailing) {
-                    TextEditor(text: $jsonString)
-                        .font(.system(.body, design: .monospaced))
-                        .frame(height: 180)
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.gray.opacity(0.05))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
-                        )
-                        .onChange(of: jsonString) { _ in
-                            validateJSON()
-                        }
-                    
-                    if !jsonString.isEmpty {
-                        Button(action: {
-                            jsonString = ""
-                            errorMessage = nil
-                            validateJSON()
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.blue)
-                                .background(Circle().fill(.white))
-                                .imageScale(.large)
-                                .padding(16)
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, 20)
-            
-            // Custom License Section
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Toggle("Use Custom License Key", isOn: $useCustomLicense)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                }
-                .padding(.horizontal, 20)
-                
-                if useCustomLicense {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Custom License Key")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(.primary)
-                            .padding(.horizontal, 20)
-                        
-                        ZStack(alignment: .trailing) {
-                            TextEditor(text: $customLicenseKey)
-                                .font(.system(.body, design: .monospaced))
-                                .frame(height: 120)
-                                .padding(16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .fill(Color.gray.opacity(0.05))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.gray.opacity(0.15), lineWidth: 1)
-                                        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
-                                )
-                            
-                            if !customLicenseKey.isEmpty {
-                                Button(action: {
-                                    customLicenseKey = ""
-                                }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.blue)
-                                        .background(Circle().fill(.white))
-                                        .imageScale(.large)
-                                        .padding(16)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        
-                        if !customLicenseKey.isEmpty {
-                            Text("License key length: \(customLicenseKey.count)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal, 20)
-                        }
-                    }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-            }
-            .animation(.easeInOut(duration: 0.3), value: useCustomLicense)
-            
-            // Button Section
-            VStack(spacing: 16) {
-                Button(action: {
-                    guard errorMessage == nil, !jsonString.isEmpty, !isFetching else { return }
-                    isFetching = true
-                    preparedEditor = nil
-
-                    let json = jsonString
-                    let cm = changeManagerWrapper.changeManager
-                    Task.detached {
-                        let jsonData = json.data(using: .utf8) ?? Data()
-                        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
-                        let license = await useCustomLicense ? customLicenseKey : licenseKey
-                        let editor = DocumentEditor(
-                            document: JoyDoc(dictionary: dictionary),
-                            mode: .fill,
-                            events: cm,
-                            pageID: "",
-                            navigation: true,
-                            validateSchema: false,
-                            license: license
-                        )
-                        await MainActor.run {
-                            self.preparedEditor = editor
-                            self.isFetching = false
-                            self.shouldNavigate = true
-                        }
-                    }
-                }) {
-                    HStack {
-                        Spacer()
-                        if isFetching {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        } else {
-                            Text("View Form")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                        }
-                        Spacer()
-                    }
-                    .frame(height: 54)
-                    .foregroundStyle(.white)
-                    .background(
-                        jsonString.isEmpty || errorMessage != nil
-                        ? Color.gray.opacity(0.3)
-                        : Color.blue
-                    )
-                    .cornerRadius(16)
-                    .shadow(color: (jsonString.isEmpty || errorMessage != nil) ? .clear : .black.opacity(0.1),
-                            radius: 2, x: 0, y: 1)
-                }
-                .disabled(jsonString.isEmpty || errorMessage != nil || isFetching)
-                
-                NavigationLink(
-                    destination: Group {
-                        if let editor = preparedEditor {
-                            FormDestinationView(
-                                editor: editor,
-                                changeManager: changeManagerWrapper.changeManager,
-                                showChangelogView: $showChangelogView,
-                                enableChangelogs: enableChangelogs
-                            )
-                        } else {
-                            // Fallback (should rarely happen): keep old path
-                            FormDestinationView(
-                                jsonString: jsonString,
-                                changeManager: changeManagerWrapper.changeManager,
-                                showChangelogView: $showChangelogView,
-                                enableChangelogs: enableChangelogs
-                            )
-                        }
-                    },
-                    isActive: $shouldNavigate
-                ) {
-                    EmptyView()
-                }
-                
-                if !jsonString.isEmpty {
-                    Text("JSON length: \(jsonString.count)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-            }
-            .padding(.horizontal, 20)
-        }
-        .padding(.vertical, 24)
-        .onAppear {
-            // Set up the scan handler after the view appears
-            changeManagerWrapper.setScanHandler(showScan)
-        }
-    }
-    
-    func presentCameraScannerView() {
-        guard let topVC = UIViewController.topViewController() else {
-            print("No top view controller found.")
-            return
-        }
-        let hostingController: UIHostingController<AnyView>
-        if #available(iOS 16.0, *) {
-            let swiftUIView = CameraScanner(
-                startScanning: $showCameraScannerView,
-                scanResult: $scanResults,
-                onSave: { result in
-                    if let currentCaptureHandler = currentCaptureHandler {
-                        currentCaptureHandler(.string(result))
-                    }
-                }
-            )
-            hostingController = UIHostingController(rootView: AnyView(swiftUIView))
-        } else {
-            // Fallback on earlier versions
-            let fallbackView = Text("Camera scanner is not available on this version.")
-                .padding()
-                .multilineTextAlignment(.center)
-            hostingController = UIHostingController(rootView: AnyView(fallbackView))
-        }
-        
-        topVC.present(hostingController, animated: true, completion: nil)
-    }
-    
-    func validateJSON() {
-        guard !jsonString.isEmpty else {
-            errorMessage = "Please enter a JSON object"
-            return
-        }
-        guard let jsonData = jsonString.data(using: .utf8) else {
-            errorMessage = "Invalid JSON encoding"
-            return
-        }
-        do {
-            _ = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]
-            errorMessage = nil
-        } catch {
-            errorMessage = "Invalid JSON format"
-        }
-    }
-}
-
 // Separate view for the form destination that properly manages DocumentEditor state
 struct FormDestinationView: View {
     let jsonString: String
     @ObservedObject var changeManager: ChangeManager
     @Binding var showChangelogView: Bool
+    @Binding var showPublicApis: Bool
     @State private var showValidationResults: Bool = false
     @State private var lastValidation: Validation? = nil
     @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
+    @State var validateSchema: Bool = false
+    @State var isPageDuplicated: Bool = false
+    @State var document = JoyDoc()
+    @State var license: String = licenseKey
 
-    init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool) {
+    init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool, showPublicApis: Binding<Bool>) {
         self.jsonString = jsonString
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
         self.enableChangelogs = enableChangelogs
+        self._showPublicApis = showPublicApis
     }
 
-    init(editor: DocumentEditor, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool) {
+    init(editor: DocumentEditor, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool, showPublicApis: Binding<Bool>) {
         self.jsonString = ""
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
         self.enableChangelogs = enableChangelogs
         self._documentEditor = State(initialValue: editor)
+        self._showPublicApis = showPublicApis
+        self._document = State(initialValue: editor.document)
     }
 
     // Build the DocumentEditor off the main thread and assign it on the main thread
@@ -544,20 +263,21 @@ struct FormDestinationView: View {
         Task.detached { [jsonString, changeManager] in
             let jsonData = jsonString.data(using: .utf8) ?? Data()
             let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
-
-            let editor = DocumentEditor(
+            let editor = await DocumentEditor(
                 document: JoyDoc(dictionary: dictionary),
                 mode: .fill,
                 events: changeManager,
                 pageID: "",
                 navigation: true,
-                validateSchema: false,
+                isPageDuplicateEnabled: isPageDuplicated,
+                validateSchema: validateSchema,
                 license: licenseKey
             )
 
             // Publish to UI on the main actor
             await MainActor.run {
                 self.documentEditor = editor
+                self.document = JoyDoc(dictionary: dictionary)
             }
         }
     }
@@ -567,7 +287,17 @@ struct FormDestinationView: View {
             if enableChangelogs {
                 HStack {
                     Spacer()
-                    // TODO: Add a button for validation results, similar to the changelogs button, which should be displayed when the save button is pressed.
+                    Button(action: {
+                        showPublicApis = true
+                    }) {
+                        HStack {
+                            Image(systemName: "gearshape.fill")
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                    .padding(.trailing, 16)
+                    .padding(.top, 8)
+                    
                     Button(action: {
                         showChangelogView = true
                     }) {
@@ -612,6 +342,9 @@ struct FormDestinationView: View {
         }
         .sheet(isPresented: $showChangelogView) {
             ChangelogView(changeManager: changeManager)
+        }
+        .sheet(isPresented: $showPublicApis) {
+            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, document: documentEditor?.document ?? JoyDoc())
         }
         .sheet(isPresented: $showValidationResults) {
             if let validation = lastValidation {

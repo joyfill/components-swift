@@ -79,7 +79,9 @@ struct ImageView: View {
                             
                             Button(action: {
                                 showMoreImages = true
-                                eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
+                                if imageDataModel.mode == .fill {
+                                    eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
+                                }
                             }, label: {
                                 HStack(alignment: .center, spacing: 0) {
                                     Text("More > ")

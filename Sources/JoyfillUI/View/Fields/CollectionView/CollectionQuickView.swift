@@ -79,7 +79,9 @@ struct CollectionQuickView : View {
             
             Button(action: {
                 isTableModalViewPresented = true
-                eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+                if tableDataModel.mode == .fill {
+                    eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+                }
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Collection View")
