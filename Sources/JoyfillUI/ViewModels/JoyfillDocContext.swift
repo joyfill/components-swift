@@ -3,7 +3,7 @@ import JoyfillModel
 import JoyfillFormulas
 
 /// Protocol that provides access to JoyDoc data without direct dependency
- protocol JoyDocProvider {
+protocol JoyDocProvider: AnyObject {
     func field(fieldID: String?) -> JoyDocField?
     func allFormulsFields() -> [JoyDocField]
     func formula(with id: String) -> Formula?
@@ -14,7 +14,7 @@ import JoyfillFormulas
 /// Application-level implementation of EvaluationContext that resolves references against a JoyDoc
 /// This implementation handles the requirements outlined in the Reference Resolution PRD.
 class JoyfillDocContext: EvaluationContext {
-    private let docProvider: JoyDocProvider
+    private weak var docProvider: JoyDocProvider?
     private var temporaryVariables: [String: FormulaValue] = [:]
     
     // Add shared UTC date formatter
@@ -94,7 +94,7 @@ class JoyfillDocContext: EvaluationContext {
     ///   - value: New value for the field
     public func updateFieldValue(identifier: String, value: ValueUnion) {
         // Update the field value through the provider
-        docProvider.updateValue(for: identifier, value: value)
+        docProvider?.updateValue(for: identifier, value: value)
         
         // Clear related caches
         clearCacheForField(identifier)
@@ -153,7 +153,7 @@ class JoyfillDocContext: EvaluationContext {
         }
         
         // Look up the actual formula by ID
-        guard let formula = docProvider.formula(with: formulaId) else {
+        guard let formula = docProvider?.formula(with: formulaId) else {
             return nil
         }
         
@@ -167,7 +167,7 @@ class JoyfillDocContext: EvaluationContext {
             // Map self-reference keywords to specific field patterns
             let fieldName = identifier + "Value"
             
-            guard let field = docProvider.field(fieldID: fieldName) else {
+            guard let field = docProvider?.field(fieldID: fieldName) else {
                 return .failure(.invalidReference("Field with identifier '\(fieldName)' not found for '\(identifier)' reference"))
             }
             
@@ -176,7 +176,7 @@ class JoyfillDocContext: EvaluationContext {
         }
         
         // Search the fields for a matching identifier
-        guard let field = docProvider.field(fieldID: identifier) else {
+        guard let field = docProvider?.field(fieldID: identifier) else {
             return .failure(.invalidReference("Field with identifier '\(identifier)' not found"))
         }
         
@@ -256,7 +256,7 @@ class JoyfillDocContext: EvaluationContext {
             }
         }
 
-        guard let field = docProvider.field(fieldID: fieldIdentifier) else {
+        guard let field = docProvider?.field(fieldID: fieldIdentifier) else {
             return .failure(.invalidReference("Field with identifier '\(fieldIdentifier)' not found"))
         }
 
@@ -1124,6 +1124,9 @@ class JoyfillDocContext: EvaluationContext {
     /// Builds a dependency graph for formula fields
     private func buildDependencyGraph() {
         // Get all formula fields
+        guard let docProvider else {
+            return
+        }
         let formulaFields = docProvider.allFormulsFields()
         
         for field in formulaFields {
@@ -1498,7 +1501,7 @@ class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each dependent field
         for fieldId in sortedDependentFields {
-            if let field = docProvider.field(fieldID: fieldId), let formulaInfo = getFormulaForField(field) {
+            if let field = docProvider?.field(fieldID: fieldId), let formulaInfo = getFormulaForField(field) {
                 // Parse and evaluate the formula
                 let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
@@ -1519,7 +1522,7 @@ class JoyfillDocContext: EvaluationContext {
 
                         
                         // Get field to determine appropriate default value
-                        if let field = docProvider.field(fieldID: fieldId) {
+                        if let field = docProvider?.field(fieldID: fieldId) {
                             let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                             updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
                             // Clear the cached value
@@ -1532,7 +1535,7 @@ class JoyfillDocContext: EvaluationContext {
                     Log("Error evaluating formula for field \(fieldId): \(error)", type: .warning)
                     
                     // Get field to determine appropriate default value
-                    if let field = docProvider.field(fieldID: fieldId) {
+                    if let field = docProvider?.field(fieldID: fieldId) {
                         let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                         updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
                         // Clear the cached value
@@ -1574,7 +1577,7 @@ class JoyfillDocContext: EvaluationContext {
         
         // Evaluate each dependent field
         for fieldId in sortedDependentFields {
-            if let field = docProvider.field(fieldID: fieldId), let formulaInfo = getFormulaForField(field) {
+            if let field = docProvider?.field(fieldID: fieldId), let formulaInfo = getFormulaForField(field) {
                 // Parse and evaluate the formula
                 let parseResult = parser.parse(formula: formulaInfo.formulaString)
                 
@@ -1595,7 +1598,7 @@ class JoyfillDocContext: EvaluationContext {
 
 
                         // Get field to determine appropriate default value
-                        if let field = docProvider.field(fieldID: fieldId) {
+                        if let field = docProvider?.field(fieldID: fieldId) {
                             let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                             updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
                             // Clear the cached value
@@ -1608,7 +1611,7 @@ class JoyfillDocContext: EvaluationContext {
                     Log("Error evaluating formula for field \(fieldId): \(error)", type: .warning)
                     
                     // Get field to determine appropriate default value
-                    if let field = docProvider.field(fieldID: fieldId) {
+                    if let field = docProvider?.field(fieldID: fieldId) {
                         let defaultValue = getDefaultFormulaValue(for: field.fieldType)
                         updateFieldWithFormulaResult(identifier: fieldId, value: defaultValue, key: formulaInfo.key)
                         // Clear the cached value
@@ -1677,6 +1680,9 @@ class JoyfillDocContext: EvaluationContext {
         Log("🚀 evaluateAllFormulas started", type: .debug)
         
         // Get all formula fields
+        guard let docProvider else {
+            return
+        }
         let formulaFields = docProvider.allFormulsFields()
         Log("🚀 Found \(formulaFields.count) formula fields", type: .debug)
         
@@ -1863,6 +1869,9 @@ class JoyfillDocContext: EvaluationContext {
         Log("🔧 updateFieldWithFormulaResult called for \(identifier) with value: \(value) and key: \(key)", type: .debug)
         
         // Get the field to determine its type for proper conversion
+        guard let docProvider else {
+            return
+        }
         guard let field = docProvider.field(fieldID: identifier) else {
             Log("⚠️ Field \(identifier) not found for formula result update", type: .warning)
             return
@@ -2562,4 +2571,3 @@ extension JoyDocField {
         }
     }
 }
-
