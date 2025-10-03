@@ -234,6 +234,10 @@ struct FormDestinationView: View {
     @State private var lastValidation: Validation? = nil
     @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
+    @State var validateSchema: Bool = false
+    @State var isPageDuplicated: Bool = false
+    @State var document = JoyDoc()
+    @State var license: String = licenseKey
 
     init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool, showPublicApis: Binding<Bool>) {
         self.jsonString = jsonString
@@ -250,6 +254,7 @@ struct FormDestinationView: View {
         self.enableChangelogs = enableChangelogs
         self._documentEditor = State(initialValue: editor)
         self._showPublicApis = showPublicApis
+        self._document = State(initialValue: editor.document)
     }
 
     // Build the DocumentEditor off the main thread and assign it on the main thread
@@ -258,20 +263,21 @@ struct FormDestinationView: View {
         Task.detached { [jsonString, changeManager] in
             let jsonData = jsonString.data(using: .utf8) ?? Data()
             let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
-
-            let editor = DocumentEditor(
+            let editor = await DocumentEditor(
                 document: JoyDoc(dictionary: dictionary),
                 mode: .fill,
                 events: changeManager,
                 pageID: "",
                 navigation: true,
-                validateSchema: false,
+                isPageDuplicateEnabled: isPageDuplicated,
+                validateSchema: validateSchema,
                 license: licenseKey
             )
 
             // Publish to UI on the main actor
             await MainActor.run {
                 self.documentEditor = editor
+                self.document = JoyDoc(dictionary: dictionary)
             }
         }
     }
@@ -338,7 +344,7 @@ struct FormDestinationView: View {
             ChangelogView(changeManager: changeManager)
         }
         .sheet(isPresented: $showPublicApis) {
-            PublicApiExamples(documentEditor: $documentEditor)
+            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, document: documentEditor?.document ?? JoyDoc())
         }
         .sheet(isPresented: $showValidationResults) {
             if let validation = lastValidation {
