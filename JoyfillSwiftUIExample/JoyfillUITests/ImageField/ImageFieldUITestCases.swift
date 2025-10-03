@@ -150,20 +150,69 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         // Tap to focus (simulate focus)
         imageButton.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0)) // Allow any focus logic to process
-
+        
         // Simulate blur by tapping outside (background)
         app.otherElements.firstMatch.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-
+        
         // Fetch the payload and verify image field state was registered correctly
         let payload = onChangeResult().dictionary
         XCTAssertEqual(payload["fieldId"] as? String, "686e205f779bc2a989ef0401")
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_686e29c75d5345859568b24c")
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686e29c7dcb0658c92bb7d42")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
+        
+        if let change = payload["change"] as? [String: Any],
+           let values = change["value"] as? [[String: Any]],
+           let first = values.first {
+            XCTAssertNotNil(first["_id"], "Image item should have an _id")
+            let urlString = first["url"] as? String
+            //validate URL is well-formed
+            XCTAssertNotNil(URL(string: urlString ?? ""), "URL should be valid")
+            
+        } else if let changeJSON = payload["change"] as? String,
+                  let changeData = changeJSON.data(using: .utf8),
+                  let changeObj = try? JSONSerialization.jsonObject(with: changeData) as? [String: Any],
+                  let values = changeObj["value"] as? [[String: Any]],
+                  let first = values.first {
+            
+            XCTAssertNotNil(first["_id"], "Image item should have an _id")
+            let urlString = first["url"] as? String
+            XCTAssertNotNil(URL(string: urlString ?? ""), "URL should be valid")
+            
+        } else {
+            XCTFail("'change.value' missing or in unexpected format")
+        }
     }
     
-    
+    func testHideImageFieldByTextField() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        originalPageButton.tap()
+        
+        let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)
+        XCTAssertTrue(imageButton.exists)
+        
+        let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.clearText()
+        textField.typeText("hide")
+        XCTAssertFalse(imageButton.exists)
+        
+        textField.tap()
+        textField.clearText()
+        textField.typeText("show")
+        XCTAssertTrue(imageButton.exists)
+    }
     
     // MARK: - Helper Methods
 

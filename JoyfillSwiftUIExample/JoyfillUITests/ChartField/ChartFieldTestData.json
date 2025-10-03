@@ -144,6 +144,71 @@
           ]
         }
       ]
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7bc756b13cb9b9af05771",
+      "type": "chart",
+      "title": "This is first chart\nand testing multiline\nalong with tooltip.",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6874cde17db802ff4f0eeb67",
+      "value": [
+        {
+          "_id": "6874cdf2e2ed2b69ce12fcc4",
+          "deleted": false,
+          "title": "This is title",
+          "description": "this is detail",
+          "points": [
+            {
+              "_id": "6874cdf2d8c62383cc4cd969",
+              "label": "Label 1",
+              "y": 12,
+              "x": 5
+            },
+            {
+              "_id": "6874cdf21bc423c61fbeb27f",
+              "label": "Label 2",
+              "y": 24,
+              "x": 24
+            },
+            {
+              "_id": "6874cdf2040e5bb71c76bc56",
+              "label": "Label 3",
+              "y": 65,
+              "x": 10
+            }
+          ]
+        }
+      ],
+      "required": true,
+      "tipVisible": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description",
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "68d7bc7595efe2391632cfe7",
+            "field": "68d7bc7f60c2f6bdb942ae5e",
+            "condition": "=",
+            "value": "hide"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7bc7f60c2f6bdb942ae5e",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68d7bc84c194f03afc559875"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -160,7 +225,8 @@
       },
       "_id": "66a14ced9dc829a95e272506",
       "pageOrder": [
-        "66a14ced15a9dc96374e091e"
+        "66a14ced15a9dc96374e091e",
+        "68d7bc7595efe2391632cfe7"
       ],
       "pages": [
         {
@@ -220,6 +286,44 @@
           "rowHeight": 8,
           "borderWidth": 0,
           "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        },
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "6874cde1456a8c72d3dc2529",
+              "type": "chart",
+              "field": "68d7bc756b13cb9b9af05771",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 1,
+              "y": 8,
+              "width": 4,
+              "height": 27
+            },
+            {
+              "_id": "68d7bc848866b926658b7be1",
+              "type": "text",
+              "field": "68d7bc7f60c2f6bdb942ae5e",
+              "displayType": "original",
+              "x": 1,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "68d7bc7595efe2391632cfe7",
           "width": 816,
           "name": "Every Field Type",
           "margin": 0

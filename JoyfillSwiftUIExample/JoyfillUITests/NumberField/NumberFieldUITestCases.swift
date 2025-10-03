@@ -248,6 +248,11 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_686dea98c790de3716db73d2")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686dea9891602bff8d529bc9")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
     }
      
     func testThirdNumberFieldInitialEmpty() throws {

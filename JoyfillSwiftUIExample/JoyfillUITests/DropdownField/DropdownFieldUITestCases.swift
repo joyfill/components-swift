@@ -229,6 +229,11 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e", "pageId should match expected value")
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_686e0d9cf0fb90914e468030", "fieldIdentifier should match expected")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686e0d9c0eb92f572f47e3a5", "fieldPositionId should match expected")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
         if let selectedId = extractChangeValueAsString() {
             XCTAssertEqual(selectedId, "686de9ba0e870181427371e6", "Expected dropdown ID mismatch")
         } else {
