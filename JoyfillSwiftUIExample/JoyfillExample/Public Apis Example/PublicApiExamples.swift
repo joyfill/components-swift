@@ -12,23 +12,28 @@ import JoyfillModel
 struct PublicApiExamples: View {
     @Binding var documentEditor: DocumentEditor?
     @State var pageID: String = ""
-    @State var validateSchema: Bool = false
+    @Binding var validateSchema: Bool
     @State var showPageNavigationView: Bool = false
     @State var mode: Mode = .fill
-    @State var license: String = licenseKey
-    @State var isPageDuplicate: Bool = false
+    @Binding var license: String
+    @Binding var isPageDuplicate: Bool
     @Environment(\.dismiss) var dismiss
     @State private var selectedPageOption: String = "custom"
     @State private var showCustomPageInput: Bool = false
     @State private var showMoreSheet: Bool = false
+    @State var document: JoyDoc
     
-    init(documentEditor: Binding<DocumentEditor?>, licenseKey: String = "") {
+    init(documentEditor: Binding<DocumentEditor?>, licenseKey: Binding<String>, validateSchema: Binding<Bool>, isPageDuplicate: Binding<Bool>, document: JoyDoc) {
         self._documentEditor = documentEditor
         let editor = documentEditor.wrappedValue
         _pageID = State(initialValue: editor?.currentPageID ?? "")
         _showPageNavigationView = State(initialValue: editor?.showPageNavigationView ?? true)
         _mode = State(initialValue: editor?.mode ?? .fill)
         _selectedPageOption = State(initialValue: editor?.currentPageID ?? "")
+        self._validateSchema = validateSchema
+        self._isPageDuplicate = isPageDuplicate
+        self.document = document
+        self._license = licenseKey
     }
 
     var body: some View {
@@ -317,10 +322,9 @@ struct PublicApiExamples: View {
             documentEditor?.currentPageID = newValue
         }
         .onChange(of: validateSchema) { newValue in
-            validateSchema = newValue
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
-                    document: editor.document,
+                    document: document,
                     mode: editor.mode,
                     events: editor.events,
                     pageID: editor.currentPageID,
