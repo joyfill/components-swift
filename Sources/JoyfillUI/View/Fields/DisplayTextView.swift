@@ -35,7 +35,7 @@ struct DisplayTextView: View {
         }
         
         // Font color
-        if let colorString = displayTextDataModel.fontColor {
+        if let colorString = displayTextDataModel.fontColor, !colorString.isEmpty {
             self.fontColor = Color(hex: colorString)
         } else {
             self.fontColor = .primary
@@ -77,14 +77,14 @@ struct DisplayTextView: View {
         }
         
         // Background color
-        if let bgColorString = displayTextDataModel.backgroundColor {
+        if let bgColorString = displayTextDataModel.backgroundColor, !bgColorString.isEmpty {
             self.backgroundColor = Color(hex: bgColorString)
         } else {
             self.backgroundColor = .clear
         }
         
         // Border color
-        if let borderColorString = displayTextDataModel.borderColor {
+        if let borderColorString = displayTextDataModel.borderColor, !borderColorString.isEmpty {
             self.borderColor = Color(hex: borderColorString)
         } else {
             self.borderColor = .clear
