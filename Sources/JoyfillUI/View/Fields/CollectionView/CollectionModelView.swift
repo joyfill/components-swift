@@ -119,7 +119,7 @@ struct CollectionModalView : View {
                 .border(Color.tableCellBorderColor)
         }
         .frame(minHeight: 60)
-        .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : 80, height: 60)
+        .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : (viewModel.nestedTableCount > 0 ? 80 : 40), height: 60)
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
     }

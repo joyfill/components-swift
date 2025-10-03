@@ -26,10 +26,16 @@ struct TableBarcodeView: View {
     }
     
     var body: some View {
-        if cellModel.viewMode == .quickView {
-            Text(cellModel.data.title)
-                .font(.system(size: 15))
-                .lineLimit(1)
+        if cellModel.viewMode == .quickView || cellModel.editMode == .readonly {
+            HStack(spacing: 0) {
+                Text(cellModel.data.title)
+                    .font(.system(size: 15))
+                    .lineLimit(1)
+                    .padding(.leading, 4)
+                Spacer()
+                Image(systemName: "barcode.viewfinder")
+                    .padding(.trailing, 12)
+            }
         } else {
             HStack(spacing: 0) {
                 TextEditor(text: $text)
