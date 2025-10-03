@@ -1651,7 +1651,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func sendEventsIfNeeded() {
-        tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+        if tableDataModel.mode == .fill {
+            tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+        }
     }
     
     func getFilteredColumns(for schemaKey: String) -> [FieldTableColumn] {
